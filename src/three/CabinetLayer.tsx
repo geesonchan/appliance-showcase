@@ -31,7 +31,10 @@ function CabinetBoxMesh({ box }: { box: CabinetBox }) {
   return (
     <group position={box.position}>
       <mesh geometry={geometry} castShadow={renderMode !== "install"} receiveShadow>
+        {/* Keyed on the mode: three.js needs a fresh material when the
+            `transparent` flag flips, not just a property write. */}
         <meshStandardMaterial
+          key={renderMode}
           color={props.color}
           metalness={props.metalness}
           roughness={props.roughness}

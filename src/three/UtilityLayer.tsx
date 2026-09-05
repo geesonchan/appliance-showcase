@@ -63,7 +63,7 @@ function Fitting({
   );
 }
 
-/** Where a slot meets its wall, and which way "along the wall" points. */
+/** Where a slot meets its wall, and which wall that is. */
 function wallAnchor(slot: Slot) {
   const onLeftWall = Math.abs(slot.rotationY) > 0.01;
   return {
@@ -74,8 +74,50 @@ function wallAnchor(slot: Slot) {
   };
 }
 
-/** Where each service enters the room: back wall, far right. */
+/** Where every service enters the room: back wall, far right. */
 const ENTRY = { x: ROOM.halfX - ft(4), z: -ROOM.halfZ + ft(2) };
+/** Inside corner where the back wall meets the left wall. */
+const CORNER = { x: -ROOM.halfX + ft(2), z: -ROOM.halfZ + ft(2) };
+
+/**
+ * A trunk route from the service entry to a slot, at a fixed height.
+ * Runs stay on the walls: back wall first, then around the corner onto the
+ * left wall, never diagonally across the floor.
+ */
+function trunkPoints(
+  anchor: ReturnType<typeof wallAnchor>,
+  y: number,
+): [number, number, number][] {
+  const points: [number, number, number][] = [[ENTRY.x, y, ENTRY.z]];
+  if (anchor.onLeftWall) points.push([CORNER.x, y, CORNER.z]);
+  points.push([anchor.x, y, anchor.z]);
+  return points;
+}
+
+/** Draws a polyline of pipe, with an elbow sphere at each interior corner. */
+function Trunk({
+  points,
+  radius,
+  color,
+}: {
+  points: [number, number, number][];
+  radius: number;
+  color: string;
+}) {
+  return (
+    <group>
+      {points.slice(0, -1).map((from, i) => (
+        <Pipe key={i} from={from} to={points[i + 1]} radius={radius} color={color} />
+      ))}
+      {points.slice(1, -1).map((corner, i) => (
+        <mesh key={"elbow-" + i} position={corner}>
+          <sphereGeometry args={[radius, 10, 8]} />
+          <meshStandardMaterial color={color} metalness={0.2} roughness={0.55} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
 
 function GasRuns() {
   const runs: JSX.Element[] = [];
@@ -87,13 +129,8 @@ function GasRuns() {
     const riserTop = ft(26);
     runs.push(
       <group key={slot.id}>
-        {/* trunk along the wall from the service entry to the appliance */}
-        <Pipe
-          from={[ENTRY.x, trunkY, ENTRY.z]}
-          to={[a.x, trunkY, a.z]}
-          radius={r}
-          color={UTILITY_COLORS.gas}
-        />
+        {/* trunk along the walls from the service entry to the appliance */}
+        <Trunk points={trunkPoints(a, trunkY)} radius={r} color={UTILITY_COLORS.gas} />
         {/* riser up to the connection height behind the range */}
         <Pipe
           from={[a.x, trunkY, a.z]}
@@ -134,12 +171,7 @@ function PowerRuns() {
         const outletY = slot.position[1] + ft(slot.cutout.h) * 0.45;
         return (
           <group key={slot.id}>
-            <Pipe
-              from={[ENTRY.x, trunkY, ENTRY.z]}
-              to={[a.x, trunkY, a.z]}
-              radius={r}
-              color={color}
-            />
+            <Trunk points={trunkPoints(a, trunkY)} radius={r} color={color} />
             <Pipe
               from={[a.x, trunkY, a.z]}
               to={[a.x, outletY, a.z]}
@@ -174,9 +206,8 @@ function WaterRuns() {
           <group key={slot.id}>
             {w.supply && (
               <>
-                <Pipe
-                  from={[ENTRY.x, supplyY, ENTRY.z]}
-                  to={[a.x, supplyY, a.z]}
+                <Trunk
+                  points={trunkPoints(a, supplyY)}
                   radius={r}
                   color={UTILITY_COLORS.water}
                 />
@@ -188,9 +219,8 @@ function WaterRuns() {
               </>
             )}
             {w.drain && (
-              <Pipe
-                from={[a.x, drainY, a.z]}
-                to={[ENTRY.x, drainY, ENTRY.z]}
+              <Trunk
+                points={trunkPoints(a, drainY)}
                 radius={r * 1.6}
                 color={UTILITY_COLORS.water}
               />

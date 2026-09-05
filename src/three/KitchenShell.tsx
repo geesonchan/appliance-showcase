@@ -37,6 +37,7 @@ export function KitchenShell() {
       >
         <planeGeometry args={[ROOM.halfX * 2 + WALL_GAP * 2, ROOM.wallHeight]} />
         <meshStandardMaterial
+          key={wallOpacity < 1 ? "ghost" : "solid"}
           color={wall}
           roughness={0.95}
           metalness={0}
@@ -54,6 +55,7 @@ export function KitchenShell() {
       >
         <planeGeometry args={[ROOM.halfZ * 2 + WALL_GAP * 2, ROOM.wallHeight]} />
         <meshStandardMaterial
+          key={wallOpacity < 1 ? "ghost" : "solid"}
           color={wall}
           roughness={0.95}
           metalness={0}

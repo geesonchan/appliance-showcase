@@ -7,12 +7,13 @@ import type { Slot, SlotId } from "../types";
 export const ft = (inches: number) => inches / 12;
 
 /**
- * Room shell, in feet. A 14' x 12' kitchen with an L-shaped run against the
- * -X and -Z walls; the room opens toward the camera at +X / +Z.
+ * Room shell, in feet. A 14' x 10' kitchen with an L-shaped run against the
+ * -X and -Z walls; the room opens toward the camera at +X / +Z. The depth is
+ * kept tight so the default view is not mostly empty floor.
  */
 export const ROOM = {
   halfX: 7,
-  halfZ: 6,
+  halfZ: 5,
   wallHeight: 9,
   counterHeight: ft(36),
   counterDepth: ft(24),
@@ -62,8 +63,8 @@ export const BACK_RUN = {
 /** Segment boundaries along the left run, in feet. */
 export const LEFT_RUN = {
   /** Outside of the refrigerator enclosure: a 36" opening plus two panels. */
-  fridgeEnclosure: [-6, -2.5] as const,
-  base: [-2.45, 2] as const,
+  fridgeEnclosure: [-5, -1.5] as const,
+  base: [-1.45, 2] as const,
 };
 
 const mid = ([a, b]: readonly [number, number]) => (a + b) / 2;

@@ -62,7 +62,7 @@ export function ApplianceModel({ slot, category, finish }: ApplianceModelProps) 
       <group position={[0, 0, dz]}>
         <Body category={category} w={w} h={h} d={d} body={body} trim={trim} glass={glass} />
         {selected && (
-          <lineSegments geometry={outline} position={[0, h / 2, 0]}>
+          <lineSegments geometry={outline} position={[0, h / 2, 0]} scale={1.03}>
             <lineBasicMaterial color={SCENE_COLORS.selection} />
           </lineSegments>
         )}
@@ -71,9 +71,14 @@ export function ApplianceModel({ slot, category, finish }: ApplianceModelProps) 
   );
 }
 
+/**
+ * Keyed on the transparency flag: three.js needs a fresh material when
+ * `transparent` flips, not just a property write.
+ */
 function Mat({ s }: { s: SurfaceProps }) {
   return (
     <meshStandardMaterial
+      key={s.transparent ? "ghost" : "solid"}
       color={s.color}
       metalness={s.metalness}
       roughness={s.roughness}

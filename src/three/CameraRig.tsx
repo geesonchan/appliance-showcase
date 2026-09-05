@@ -8,10 +8,20 @@ import { useAppStore } from "../store/useAppStore";
 /** Isometric default: ~35 degrees elevation, ~45 degrees azimuth, per §10. */
 const ELEVATION = THREE.MathUtils.degToRad(35);
 const AZIMUTH = THREE.MathUtils.degToRad(45);
-const DEFAULT_TARGET = new THREE.Vector3(0.4, 3.4, -2.4);
+/** Centre of the room's bounding box, which is what the default view frames. */
+const DEFAULT_TARGET = new THREE.Vector3(0, 4.5, 0);
 const DEFAULT_DISTANCE = 22;
-/** Pixels per foot at the reference 900px-wide framing. */
-const BASE_ZOOM = 46;
+/**
+ * How much of the world the default view keeps in frame, in feet. The room
+ * projects to roughly 17ft across and 17.1ft tall at this camera angle; the
+ * extra allowance is margin for the floating mode switch and toolbar.
+ */
+const FIT_FEET = { w: 18.5, h: 18.8 };
+/**
+ * Portrait viewports are width-starved. Framing a little tighter there crops
+ * only the empty floor corners and roughly doubles the usable scene area.
+ */
+const FIT_FEET_PORTRAIT_W = 15.5;
 const FLY_MS = 800;
 
 const isoOffset = (distance: number) =>
@@ -52,9 +62,9 @@ export function CameraRig() {
   const resetToken = useAppStore((s) => s.resetToken);
   const zoomRequest = useAppStore((s) => s.zoomRequest);
 
-  // Keep the room framed at any canvas size rather than cropping on narrow
-  // viewports.
-  const fitZoom = (Math.min(size.width, size.height * 1.3) / 900) * BASE_ZOOM;
+  // Keep the whole room framed at any canvas size rather than cropping.
+  const fitWidth = size.width < size.height ? FIT_FEET_PORTRAIT_W : FIT_FEET.w;
+  const fitZoom = Math.min(size.width / fitWidth, size.height / FIT_FEET.h);
 
   const startTween = (
     target: THREE.Vector3,
@@ -127,7 +137,7 @@ export function CameraRig() {
     // Pull the focus point out of the wall so the appliance sits centre-frame.
     target.x += Math.sin(slot.rotationY) * 1.6;
     target.z += Math.cos(slot.rotationY) * 1.6;
-    startTween(target, 11, fitZoom * 2.1);
+    startTween(target, 11, fitZoom * 1.7);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSlot]);
 

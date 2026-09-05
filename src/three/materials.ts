@@ -10,7 +10,7 @@ export const SCENE_COLORS = {
   cabinetUpper: "#EDEAE1",
   counter: "#E4E1D6",
   toe: "#1F2A22",
-  whiteModel: "#EDEBE3",
+  whiteModel: "#E2DFD4",
   wireframe: "#6B7268",
   selection: "#2E5C45",
 };
