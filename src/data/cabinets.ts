@@ -1,3 +1,4 @@
+import type { SlotId } from "../types";
 import {
   BACK_RUN,
   FRIDGE_OPENING,
@@ -14,6 +15,18 @@ export type CabinetKind = "base" | "tall" | "upper" | "counter" | "toe" | "surro
 export interface CabinetBox {
   id: string;
   kind: CabinetKind;
+  /**
+   * Boxes sharing an outline group are pieces of one visual volume (the oven
+   * tower split around its opening, the refrigerator surround). The mobile
+   * install view draws the union of each group instead of every piece.
+   */
+  outline?: string;
+  /**
+   * The slot this box surrounds, when it is part of that appliance's own
+   * enclosure. Such a box must never count as an occluder for that
+   * appliance's pin, or the pin hides behind its own side panel.
+   */
+  slot?: SlotId;
   /** Centre of the box, in feet. */
   position: [number, number, number];
   /** Full extents, in feet. */
@@ -31,9 +44,14 @@ const span = ([a, b]: readonly [number, number]) => b - a;
 const mid = ([a, b]: readonly [number, number]) => (a + b) / 2;
 
 /** A base cabinet along the back wall, given its x extents. */
-function backBase(id: string, x: readonly [number, number]): CabinetBox {
+function backBase(
+  id: string,
+  x: readonly [number, number],
+  slot?: SlotId,
+): CabinetBox {
   return {
     id,
+    slot,
     kind: "base",
     position: [mid(x), ROOM.counterHeight / 2, backZ],
     size: [span(x), ROOM.counterHeight, ROOM.counterDepth],
@@ -60,7 +78,7 @@ export const CABINETS: CabinetBox[] = [
   // --- back wall run ---
   backBase("back-corner-filler", BACK_RUN.cornerFiller),
   backBase("back-sink-base", BACK_RUN.sinkBase),
-  backBase("back-microwave-base", BACK_RUN.microwaveBase),
+  backBase("back-microwave-base", BACK_RUN.microwaveBase, "slot-microwave"),
   backCounter("counter-corner", BACK_RUN.cornerFiller),
   // The countertop runs continuously over the dishwasher but not over the
   // range, and breaks again for the oven tower.
@@ -70,12 +88,16 @@ export const CABINETS: CabinetBox[] = [
   // --- oven tower, split around the wall-oven opening ---
   {
     id: "oven-tower-lower",
+    outline: "oven-tower",
+    slot: "slot-wall-oven",
     kind: "tall",
     position: [mid(BACK_RUN.ovenTower), TALL_TOWER.openingBottom / 2, backZ],
     size: [span(BACK_RUN.ovenTower), TALL_TOWER.openingBottom, ROOM.counterDepth],
   },
   {
     id: "oven-tower-upper",
+    outline: "oven-tower",
+    slot: "slot-wall-oven",
     kind: "tall",
     position: [
       mid(BACK_RUN.ovenTower),
@@ -90,6 +112,8 @@ export const CABINETS: CabinetBox[] = [
   },
   {
     id: "oven-tower-side-left",
+    outline: "oven-tower",
+    slot: "slot-wall-oven",
     kind: "tall",
     position: [
       mid([BACK_RUN.ovenTower[0], TALL_TOWER.opening[0]]),
@@ -104,6 +128,8 @@ export const CABINETS: CabinetBox[] = [
   },
   {
     id: "oven-tower-side-right",
+    outline: "oven-tower",
+    slot: "slot-wall-oven",
     kind: "tall",
     position: [
       mid([TALL_TOWER.opening[1], BACK_RUN.ovenTower[1]]),
@@ -138,18 +164,24 @@ export const CABINETS: CabinetBox[] = [
   // --- refrigerator enclosure: two finished side panels and a bridging upper ---
   {
     id: "fridge-panel-back",
+    outline: "fridge-enclosure",
+    slot: "slot-fridge",
     kind: "surround",
     position: [leftX, ROOM.upperTop / 2, LEFT_RUN.fridgeEnclosure[0] + PANEL / 2],
     size: [ROOM.counterDepth, ROOM.upperTop, PANEL],
   },
   {
     id: "fridge-panel-front",
+    outline: "fridge-enclosure",
+    slot: "slot-fridge",
     kind: "surround",
     position: [leftX, ROOM.upperTop / 2, LEFT_RUN.fridgeEnclosure[1] - PANEL / 2],
     size: [ROOM.counterDepth, ROOM.upperTop, PANEL],
   },
   {
     id: "fridge-bridge",
+    outline: "fridge-enclosure",
+    slot: "slot-fridge",
     kind: "upper",
     position: [leftX, ft(72) + (ROOM.upperTop - ft(72)) / 2, mid(FRIDGE_OPENING)],
     size: [ROOM.counterDepth, ROOM.upperTop - ft(72), span(FRIDGE_OPENING)],
@@ -205,3 +237,45 @@ export const CABINETS: CabinetBox[] = [
     ],
   },
 ];
+
+/** Trim pieces that only add line noise at phone scale. */
+const OUTLINE_SKIP: CabinetKind[] = ["counter", "toe"];
+
+function unionBox(id: string, boxes: CabinetBox[]): CabinetBox {
+  const axes = [0, 1, 2].map((axis) => {
+    const min = Math.min(...boxes.map((b) => b.position[axis] - b.size[axis] / 2));
+    const max = Math.max(...boxes.map((b) => b.position[axis] + b.size[axis] / 2));
+    return { centre: (min + max) / 2, extent: max - min };
+  });
+  return {
+    id,
+    kind: boxes[0].kind,
+    slot: boxes[0].slot,
+    position: [axes[0].centre, axes[1].centre, axes[2].centre],
+    size: [axes[0].extent, axes[1].extent, axes[2].extent],
+  };
+}
+
+/**
+ * The cabinetry reduced to its outer volumes: trim omitted, and each outline
+ * group collapsed to a single box. This is what the install view draws on a
+ * phone, where the full carcass wireframe turns into noise.
+ */
+export const CABINET_OUTLINES: CabinetBox[] = (() => {
+  const result: CabinetBox[] = [];
+  const groups = new Map<string, CabinetBox[]>();
+
+  for (const box of CABINETS) {
+    if (OUTLINE_SKIP.includes(box.kind)) continue;
+    if (box.outline) {
+      const bucket = groups.get(box.outline);
+      if (bucket) bucket.push(box);
+      else groups.set(box.outline, [box]);
+    } else {
+      result.push(box);
+    }
+  }
+
+  for (const [id, boxes] of groups) result.push(unionBox(id, boxes));
+  return result;
+})();
