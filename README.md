@@ -27,9 +27,17 @@ With a server running, capture the set from §10 of the brief:
 npm run screenshots -- 2
 ```
 
-That writes `screenshots/round-2/{overview,white-model,install,zoomed,night,mobile}.png`.
-Point it at the production build with `BASE_URL=http://localhost:4173`. The
-directory is git-ignored; the images are for side-by-side review, not history.
+That writes `screenshots/round-2/` with a `mobile-` and a `desktop-` set, each
+covering overview / white model / install / flown-in / night, plus
+`mobile-sheet.png` for the half-height panel. `SET=mobile` or `SET=desktop`
+captures only one; `BASE_URL=http://localhost:4173` points it at the production
+build. The directory is git-ignored; the images are for side-by-side review,
+not history.
+
+### Diagnostics
+
+Load any URL with `?debug=1` for a small overlay showing the live frame rate
+and how long the last render-mode switch took to reach the screen.
 
 ## How it is put together
 
@@ -65,7 +73,10 @@ write when that flag changes.
 `three/PinProjector` projects each anchor to screen space every frame and writes
 `transform` and `opacity` straight onto the elements, so following the camera
 costs no React renders. Occlusion is a raycast against the room shell and
-cabinetry, run every fourth frame.
+cabinetry, run every fourth frame. Two things that look like details are not:
+the ray runs along the camera's forward axis because the camera is orthographic,
+and only visible meshes count as occluders, because three.js raycasts invisible
+objects and line thresholds are measured in world units.
 
 ## Swapping the procedural models for glTF
 
