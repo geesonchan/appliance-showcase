@@ -86,6 +86,17 @@ export function CameraRig() {
     };
   };
 
+  /**
+   * The camera pose, kept outside the controls instance. If the controls are
+   * ever re-created (a renderer swap, a fast-refresh in dev), the view has to
+   * come back exactly where it was rather than snapping to the default.
+   */
+  const pose = useRef({
+    target: DEFAULT_TARGET.clone(),
+    position: DEFAULT_TARGET.clone().add(isoOffset(DEFAULT_DISTANCE)),
+    zoom: 0,
+  });
+
   useEffect(() => {
     const controls = new OrbitControls(camera, gl.domElement);
     controls.enablePan = false;
@@ -97,12 +108,20 @@ export function CameraRig() {
     controls.addEventListener("start", () => {
       tween.current = null;
     });
-    controls.target.copy(DEFAULT_TARGET);
-    camera.position.copy(DEFAULT_TARGET.clone().add(isoOffset(DEFAULT_DISTANCE)));
+
+    controls.target.copy(pose.current.target);
+    camera.position.copy(pose.current.position);
+    if (pose.current.zoom > 0) camera.zoom = pose.current.zoom;
     camera.updateProjectionMatrix();
     controls.update();
     controlsRef.current = controls;
+
     return () => {
+      pose.current = {
+        target: controls.target.clone(),
+        position: camera.position.clone(),
+        zoom: camera.zoom,
+      };
       controls.dispose();
       controlsRef.current = null;
     };

@@ -35,12 +35,14 @@ function StaticShadowMap() {
 export function Scene() {
   const selectSlot = useAppStore((s) => s.selectSlot);
   const lighting = useAppStore((s) => s.lighting);
-  const renderMode = useAppStore((s) => s.renderMode);
 
   return (
     <Canvas
       orthographic
-      shadows={renderMode === "realistic"}
+      // Constant: toggling this prop can re-create the renderer, which would
+      // take the camera pose with it. Which lights cast shadows is decided in
+      // `Lights`, and `StaticShadowMap` controls when the map is refreshed.
+      shadows
       dpr={[1, 1.75]}
       gl={{ antialias: true, powerPreference: "high-performance" }}
       camera={{ position: [12, 15, 12], zoom: 46, near: -100, far: 200 }}
