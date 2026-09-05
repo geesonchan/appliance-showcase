@@ -15,12 +15,30 @@ export const SCENE_COLORS = {
   selection: "#2E5C45",
 };
 
+/**
+ * Utility colours are pulled apart in hue *and* saturation so the four
+ * disciplines stay separable on a phone screen: saturated amber, saturated
+ * red, deep indigo, and a teal that reads as water without competing with the
+ * indigo. The duct stays neutral because it is the only large-diameter run.
+ */
 export const UTILITY_COLORS = {
-  gas: "#E0A800",
-  power120: "#3B7DD8",
-  power240: "#C0392B",
-  water: "#7FC4E8",
-  duct: "#9A9E97",
+  gas: "#F2A100",
+  power120: "#1A56DB",
+  power240: "#D93025",
+  water: "#21A8B0",
+  duct: "#8E938C",
+} as const;
+
+/**
+ * Pipe radii in inches. Line weight carries the same ordering as real trades:
+ * the gas line is the heaviest small run, then water, then the 240V feeder,
+ * with 120V branch circuits thinnest.
+ */
+export const UTILITY_RADIUS_IN = {
+  gas: 0.9,
+  water: 0.7,
+  power240: 0.55,
+  power120: 0.4,
 } as const;
 
 const FINISH_COLORS: Record<Finish, string> = {

@@ -3,9 +3,32 @@ import * as THREE from "three";
 import { ROOM, SLOTS, ft } from "../data/slots";
 import { useAppStore } from "../store/useAppStore";
 import type { Slot, UtilityType } from "../types";
-import { UTILITY_COLORS } from "./materials";
+import { UTILITY_COLORS, UTILITY_RADIUS_IN } from "./materials";
 
 const UP = new THREE.Vector3(0, 1, 0);
+
+/**
+ * Heights each service runs at, measured off the finished floor. These are the
+ * bands a trade would actually rough in at, which is what makes the install
+ * view readable: the runs stack instead of overlapping.
+ */
+const HEIGHT = {
+  /** 240V feeders drop to the toe kick and run under the cabinet boxes. */
+  power240Trunk: ft(2.5),
+  gas: ft(6),
+  water: ft(12),
+  /** Backsplash receptacle height. */
+  power120: ft(42),
+};
+
+/**
+ * How far each run stands off its wall. Supply and drain share a height, so
+ * they are separated horizontally instead of being stacked.
+ */
+const STANDOFF = {
+  default: ft(2),
+  waterDrain: ft(5.5),
+};
 
 /** A straight run of pipe between two points. */
 function Pipe({
@@ -63,38 +86,50 @@ function Fitting({
   );
 }
 
-/** Where a slot meets its wall, and which wall that is. */
-function wallAnchor(slot: Slot) {
+/** Where a slot meets its wall, at a given standoff from the wall plane. */
+function wallAnchor(slot: Slot, standoff: number) {
   const onLeftWall = Math.abs(slot.rotationY) > 0.01;
   return {
     onLeftWall,
-    // Just clear of the wall plane so pipes read against it.
-    x: onLeftWall ? -ROOM.halfX + ft(2) : slot.position[0],
-    z: onLeftWall ? slot.position[2] : -ROOM.halfZ + ft(2),
+    x: onLeftWall ? -ROOM.halfX + standoff : slot.position[0],
+    z: onLeftWall ? slot.position[2] : -ROOM.halfZ + standoff,
   };
 }
 
-/** Where every service enters the room: back wall, far right. */
-const ENTRY = { x: ROOM.halfX - ft(4), z: -ROOM.halfZ + ft(2) };
+/** Every service enters at the back wall, far right. */
+const entry = (standoff: number) => ({
+  x: ROOM.halfX - ft(4),
+  z: -ROOM.halfZ + standoff,
+});
+
 /** Inside corner where the back wall meets the left wall. */
-const CORNER = { x: -ROOM.halfX + ft(2), z: -ROOM.halfZ + ft(2) };
+const corner = (standoff: number) => ({
+  x: -ROOM.halfX + standoff,
+  z: -ROOM.halfZ + standoff,
+});
 
 /**
- * A trunk route from the service entry to a slot, at a fixed height.
- * Runs stay on the walls: back wall first, then around the corner onto the
- * left wall, never diagonally across the floor.
+ * A trunk route from the service entry to a slot, at a fixed height. Runs stay
+ * on the walls: back wall first, then around the corner onto the left wall,
+ * never diagonally across the floor.
  */
 function trunkPoints(
-  anchor: ReturnType<typeof wallAnchor>,
+  slot: Slot,
   y: number,
+  standoff = STANDOFF.default,
 ): [number, number, number][] {
-  const points: [number, number, number][] = [[ENTRY.x, y, ENTRY.z]];
-  if (anchor.onLeftWall) points.push([CORNER.x, y, CORNER.z]);
+  const anchor = wallAnchor(slot, standoff);
+  const start = entry(standoff);
+  const points: [number, number, number][] = [[start.x, y, start.z]];
+  if (anchor.onLeftWall) {
+    const bend = corner(standoff);
+    points.push([bend.x, y, bend.z]);
+  }
   points.push([anchor.x, y, anchor.z]);
   return points;
 }
 
-/** Draws a polyline of pipe, with an elbow sphere at each interior corner. */
+/** Draws a polyline of pipe, with an elbow at each interior corner. */
 function Trunk({
   points,
   radius,
@@ -109,8 +144,8 @@ function Trunk({
       {points.slice(0, -1).map((from, i) => (
         <Pipe key={i} from={from} to={points[i + 1]} radius={radius} color={color} />
       ))}
-      {points.slice(1, -1).map((corner, i) => (
-        <mesh key={"elbow-" + i} position={corner}>
+      {points.slice(1, -1).map((elbow, i) => (
+        <mesh key={"elbow-" + i} position={elbow}>
           <sphereGeometry args={[radius, 10, 8]} />
           <meshStandardMaterial color={color} metalness={0.2} roughness={0.55} />
         </mesh>
@@ -119,72 +154,83 @@ function Trunk({
   );
 }
 
+/** The height an appliance actually lands its connection at. */
+const connectionHeight = (slot: Slot) => slot.position[1] + ft(slot.cutout.h) * 0.45;
+
 function GasRuns() {
-  const runs: JSX.Element[] = [];
-  const r = ft(0.75);
-  for (const slot of SLOTS) {
-    if (!slot.utilities.gas) continue;
-    const a = wallAnchor(slot);
-    const trunkY = ft(10);
-    const riserTop = ft(26);
-    runs.push(
-      <group key={slot.id}>
-        {/* trunk along the walls from the service entry to the appliance */}
-        <Trunk points={trunkPoints(a, trunkY)} radius={r} color={UTILITY_COLORS.gas} />
-        {/* riser up to the connection height behind the range */}
-        <Pipe
-          from={[a.x, trunkY, a.z]}
-          to={[a.x, riserTop, a.z]}
-          radius={r}
-          color={UTILITY_COLORS.gas}
-        />
-        {/* shutoff valve */}
-        {slot.utilities.gas.shutoff && (
-          <Fitting
-            position={[a.x, riserTop, a.z]}
-            size={[ft(4), ft(3), ft(3)]}
-            color={UTILITY_COLORS.gas}
-          />
-        )}
-      </group>,
-    );
-  }
-  return <group name="utility-gas">{runs}</group>;
+  const r = ft(UTILITY_RADIUS_IN.gas);
+  return (
+    <group name="utility-gas">
+      {SLOTS.map((slot) => {
+        if (!slot.utilities.gas) return null;
+        const a = wallAnchor(slot, STANDOFF.default);
+        const riserTop = ft(26);
+        return (
+          <group key={slot.id}>
+            <Trunk
+              points={trunkPoints(slot, HEIGHT.gas)}
+              radius={r}
+              color={UTILITY_COLORS.gas}
+            />
+            {/* riser from the trunk up to the appliance connection */}
+            <Pipe
+              from={[a.x, HEIGHT.gas, a.z]}
+              to={[a.x, riserTop, a.z]}
+              radius={r}
+              color={UTILITY_COLORS.gas}
+            />
+            {slot.utilities.gas.shutoff && (
+              <Fitting
+                position={[a.x, riserTop, a.z]}
+                size={[ft(4), ft(3), ft(3)]}
+                color={UTILITY_COLORS.gas}
+              />
+            )}
+          </group>
+        );
+      })}
+    </group>
+  );
 }
 
+/**
+ * 120V branch circuits run at receptacle height along the backsplash. 240V
+ * feeders are heavier, drop to the toe kick, run under the cabinets, then rise
+ * to the appliance.
+ */
 function PowerRuns() {
-  const r = ft(0.4);
-  const trunkY = ft(46);
+  const panelAt = entry(STANDOFF.default);
   return (
     <group name="utility-power">
       {/* service panel the branch circuits home-run back to */}
       <Fitting
-        position={[ENTRY.x, ft(54), ENTRY.z]}
+        position={[panelAt.x, ft(54), panelAt.z]}
         size={[ft(14), ft(20), ft(4)]}
         color={UTILITY_COLORS.power240}
       />
       {SLOTS.map((slot) => {
-        const a = wallAnchor(slot);
-        const { voltage } = slot.utilities.power;
-        const color = voltage === 240 ? UTILITY_COLORS.power240 : UTILITY_COLORS.power120;
-        // Outlets sit at the height the appliance actually connects.
-        const outletY = slot.position[1] + ft(slot.cutout.h) * 0.45;
+        const a = wallAnchor(slot, STANDOFF.default);
+        const is240 = slot.utilities.power.voltage === 240;
+        const color = is240 ? UTILITY_COLORS.power240 : UTILITY_COLORS.power120;
+        const radius = ft(is240 ? UTILITY_RADIUS_IN.power240 : UTILITY_RADIUS_IN.power120);
+        const trunkY = is240 ? HEIGHT.power240Trunk : HEIGHT.power120;
+        const outletY = is240 ? connectionHeight(slot) : HEIGHT.power120;
+        const box: [number, number, number] = a.onLeftWall
+          ? [ft(2), ft(4.5), ft(3)]
+          : [ft(3), ft(4.5), ft(2)];
+
         return (
           <group key={slot.id}>
-            <Trunk points={trunkPoints(a, trunkY)} radius={r} color={color} />
-            <Pipe
-              from={[a.x, trunkY, a.z]}
-              to={[a.x, outletY, a.z]}
-              radius={r}
-              color={color}
-            />
-            <Fitting
-              position={[a.x, outletY, a.z]}
-              size={
-                a.onLeftWall ? [ft(2), ft(4.5), ft(3)] : [ft(3), ft(4.5), ft(2)]
-              }
-              color={color}
-            />
+            <Trunk points={trunkPoints(slot, trunkY)} radius={radius} color={color} />
+            {is240 && (
+              <Pipe
+                from={[a.x, trunkY, a.z]}
+                to={[a.x, outletY, a.z]}
+                radius={radius}
+                color={color}
+              />
+            )}
+            <Fitting position={[a.x, outletY, a.z]} size={box} color={color} />
           </group>
         );
       })}
@@ -193,35 +239,35 @@ function PowerRuns() {
 }
 
 function WaterRuns() {
-  const r = ft(0.5);
-  const supplyY = ft(16);
-  const drainY = ft(8);
+  const r = ft(UTILITY_RADIUS_IN.water);
   return (
     <group name="utility-water">
       {SLOTS.map((slot) => {
         const w = slot.utilities.water;
         if (!w) return null;
-        const a = wallAnchor(slot);
+        const supply = wallAnchor(slot, STANDOFF.default);
         return (
           <group key={slot.id}>
             {w.supply && (
               <>
                 <Trunk
-                  points={trunkPoints(a, supplyY)}
+                  points={trunkPoints(slot, HEIGHT.water)}
                   radius={r}
                   color={UTILITY_COLORS.water}
                 />
                 <Fitting
-                  position={[a.x, supplyY, a.z]}
+                  position={[supply.x, HEIGHT.water, supply.z]}
                   size={[ft(3), ft(3), ft(3)]}
                   color={UTILITY_COLORS.water}
                 />
               </>
             )}
+            {/* The drain shares the water band, so it is offset off the wall
+                rather than stacked at a different height. */}
             {w.drain && (
               <Trunk
-                points={trunkPoints(a, drainY)}
-                radius={r * 1.6}
+                points={trunkPoints(slot, HEIGHT.water, STANDOFF.waterDrain)}
+                radius={r * 1.5}
                 color={UTILITY_COLORS.water}
               />
             )}
@@ -240,7 +286,7 @@ function DuctRuns() {
         if (!duct || duct.route === "recirc") return null;
         const radius = ft(duct.diameterIn) / 2;
         const top = slot.position[1] + ft(slot.cutout.h) * 0.55;
-        const a = wallAnchor(slot);
+        const a = wallAnchor(slot, STANDOFF.default);
         if (duct.route === "back-wall") {
           return (
             <Pipe
