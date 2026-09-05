@@ -1,0 +1,168 @@
+import { useEffect, useRef } from "react";
+import * as THREE from "three";
+import { useFrame, useThree } from "@react-three/fiber";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { SLOT_BY_ID, ft } from "../data/slots";
+import { useAppStore } from "../store/useAppStore";
+
+/** Isometric default: ~35 degrees elevation, ~45 degrees azimuth, per §10. */
+const ELEVATION = THREE.MathUtils.degToRad(35);
+const AZIMUTH = THREE.MathUtils.degToRad(45);
+const DEFAULT_TARGET = new THREE.Vector3(0.4, 3.4, -2.4);
+const DEFAULT_DISTANCE = 22;
+/** Pixels per foot at the reference 900px-wide framing. */
+const BASE_ZOOM = 46;
+const FLY_MS = 800;
+
+const isoOffset = (distance: number) =>
+  new THREE.Vector3(
+    Math.cos(ELEVATION) * Math.sin(AZIMUTH),
+    Math.sin(ELEVATION),
+    Math.cos(ELEVATION) * Math.cos(AZIMUTH),
+  ).multiplyScalar(distance);
+
+const easeInOutCubic = (t: number) =>
+  t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+interface Tween {
+  fromTarget: THREE.Vector3;
+  toTarget: THREE.Vector3;
+  fromPos: THREE.Vector3;
+  toPos: THREE.Vector3;
+  fromZoom: number;
+  toZoom: number;
+  start: number;
+  duration: number;
+}
+
+/**
+ * Orbit, zoom, and the camera fly-in.
+ *
+ * Controls come straight from three's own examples rather than a wrapper, so
+ * the only runtime dependency here is three itself.
+ */
+export function CameraRig() {
+  const controlsRef = useRef<OrbitControls | null>(null);
+  const tween = useRef<Tween | null>(null);
+  const camera = useThree((s) => s.camera) as THREE.OrthographicCamera;
+  const gl = useThree((s) => s.gl);
+  const size = useThree((s) => s.size);
+
+  const selectedSlot = useAppStore((s) => s.selectedSlot);
+  const resetToken = useAppStore((s) => s.resetToken);
+  const zoomRequest = useAppStore((s) => s.zoomRequest);
+
+  // Keep the room framed at any canvas size rather than cropping on narrow
+  // viewports.
+  const fitZoom = (Math.min(size.width, size.height * 1.3) / 900) * BASE_ZOOM;
+
+  const startTween = (
+    target: THREE.Vector3,
+    distance: number,
+    zoom: number,
+    duration = FLY_MS,
+  ) => {
+    const controls = controlsRef.current;
+    if (!controls) return;
+    tween.current = {
+      fromTarget: controls.target.clone(),
+      toTarget: target.clone(),
+      fromPos: camera.position.clone(),
+      toPos: target.clone().add(isoOffset(distance)),
+      fromZoom: camera.zoom,
+      toZoom: zoom,
+      start: performance.now(),
+      duration,
+    };
+  };
+
+  useEffect(() => {
+    const controls = new OrbitControls(camera, gl.domElement);
+    controls.enablePan = false;
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.minPolarAngle = 0.15;
+    controls.maxPolarAngle = Math.PI / 2 - 0.06;
+    // A user gesture always wins over a running fly-in.
+    controls.addEventListener("start", () => {
+      tween.current = null;
+    });
+    controls.target.copy(DEFAULT_TARGET);
+    camera.position.copy(DEFAULT_TARGET.clone().add(isoOffset(DEFAULT_DISTANCE)));
+    camera.updateProjectionMatrix();
+    controls.update();
+    controlsRef.current = controls;
+    return () => {
+      controls.dispose();
+      controlsRef.current = null;
+    };
+  }, [camera, gl]);
+
+  // Zoom limits and framing follow the canvas size.
+  const prevFit = useRef<number | null>(null);
+  useEffect(() => {
+    const controls = controlsRef.current;
+    if (!controls) return;
+    controls.minZoom = fitZoom * 0.45;
+    controls.maxZoom = fitZoom * 6;
+    if (prevFit.current === null) {
+      camera.zoom = fitZoom;
+    } else if (!tween.current) {
+      // Preserve however far the user has zoomed in across a resize.
+      camera.zoom *= fitZoom / prevFit.current;
+    }
+    prevFit.current = fitZoom;
+    camera.updateProjectionMatrix();
+  }, [fitZoom, camera]);
+
+  // Fly to the selected appliance.
+  useEffect(() => {
+    if (!selectedSlot) return;
+    const slot = SLOT_BY_ID[selectedSlot];
+    const target = new THREE.Vector3(
+      slot.position[0],
+      slot.position[1] + ft(slot.cutout.h) / 2,
+      slot.position[2],
+    );
+    // Pull the focus point out of the wall so the appliance sits centre-frame.
+    target.x += Math.sin(slot.rotationY) * 1.6;
+    target.z += Math.cos(slot.rotationY) * 1.6;
+    startTween(target, 11, fitZoom * 2.1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSlot]);
+
+  useEffect(() => {
+    if (resetToken === 0) return;
+    startTween(DEFAULT_TARGET, DEFAULT_DISTANCE, fitZoom, 600);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resetToken]);
+
+  // The +/- buttons step the orthographic zoom without moving the camera.
+  useEffect(() => {
+    const controls = controlsRef.current;
+    if (zoomRequest.token === 0 || !controls) return;
+    const factor = zoomRequest.direction === 1 ? 1.3 : 1 / 1.3;
+    const next = THREE.MathUtils.clamp(camera.zoom * factor, fitZoom * 0.45, fitZoom * 6);
+    const distance = camera.position.distanceTo(controls.target);
+    startTween(controls.target.clone(), distance, next, 260);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [zoomRequest.token]);
+
+  useFrame(() => {
+    const controls = controlsRef.current;
+    if (!controls) return;
+    const active = tween.current;
+    if (active) {
+      const raw = (performance.now() - active.start) / active.duration;
+      const t = easeInOutCubic(Math.min(1, raw));
+      controls.target.lerpVectors(active.fromTarget, active.toTarget, t);
+      camera.position.lerpVectors(active.fromPos, active.toPos, t);
+      camera.zoom = THREE.MathUtils.lerp(active.fromZoom, active.toZoom, t);
+      camera.updateProjectionMatrix();
+      if (raw >= 1) tween.current = null;
+    }
+    controls.update();
+  });
+
+  return null;
+}
