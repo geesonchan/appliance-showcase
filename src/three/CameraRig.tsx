@@ -1,8 +1,9 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { SLOT_BY_ID, ft } from "../data/slots";
+import { useIsMobile } from "../hooks/useIsMobile";
 import { useAppStore } from "../store/useAppStore";
 
 /** Isometric default: ~35 degrees elevation, ~45 degrees azimuth, per §10. */
@@ -22,6 +23,17 @@ const FIT_FEET = { w: 18.5, h: 18.8 };
  * only the empty floor corners and roughly doubles the usable scene area.
  */
 const FIT_FEET_PORTRAIT_W = 15.5;
+
+/**
+ * Framing offset applied while the mobile sheet is open, as a fraction of the
+ * viewport height. Negative moves the camera down its own up axis, which lifts
+ * the room into the half of the screen the sheet does not cover.
+ *
+ * This is one of exactly two behaviours allowed to move the camera on their
+ * own; see docs/decisions.md.
+ */
+const SHEET_FRAMING_OFFSET = -0.12;
+const SHEET_OFFSET_MS = 300;
 const FLY_MS = 800;
 
 const isoOffset = (distance: number) =>
@@ -61,6 +73,16 @@ export function CameraRig() {
   const selectedSlot = useAppStore((s) => s.selectedSlot);
   const resetToken = useAppStore((s) => s.resetToken);
   const zoomRequest = useAppStore((s) => s.zoomRequest);
+  const isMobile = useIsMobile();
+  const sheetOpen = useAppStore((s) => s.mobilePanel !== "none") && isMobile;
+
+  /** Framing offset currently baked into the camera pose, in world units. */
+  const appliedOffset = useRef(new THREE.Vector3());
+  /** Eased progress of the sheet offset, 0 to 1. */
+  const offsetProgress = useRef(0);
+  const offsetTween = useRef<{ from: number; to: number; start: number } | null>(null);
+  const camUp = useMemo(() => new THREE.Vector3(), []);
+  const desiredOffset = useMemo(() => new THREE.Vector3(), []);
 
   // Keep the whole room framed at any canvas size rather than cropping.
   const fitWidth = size.width < size.height ? FIT_FEET_PORTRAIT_W : FIT_FEET.w;
@@ -76,9 +98,11 @@ export function CameraRig() {
     if (!controls) return;
     tween.current = {
       fromTarget: controls.target.clone(),
-      toTarget: target.clone(),
+      // Absolute destinations are computed in unshifted space, so the framing
+      // offset currently in effect has to be carried across.
+      toTarget: target.clone().add(appliedOffset.current),
       fromPos: camera.position.clone(),
-      toPos: target.clone().add(isoOffset(distance)),
+      toPos: target.clone().add(isoOffset(distance)).add(appliedOffset.current),
       fromZoom: camera.zoom,
       toZoom: zoom,
       start: performance.now(),
@@ -117,11 +141,14 @@ export function CameraRig() {
     controlsRef.current = controls;
 
     return () => {
+      // Store the pose without the framing offset; the frame loop re-applies
+      // it, and keeping it here would double it on the next mount.
       pose.current = {
-        target: controls.target.clone(),
-        position: camera.position.clone(),
+        target: controls.target.clone().sub(appliedOffset.current),
+        position: camera.position.clone().sub(appliedOffset.current),
         zoom: camera.zoom,
       };
+      appliedOffset.current.set(0, 0, 0);
       controls.dispose();
       controlsRef.current = null;
     };
@@ -177,6 +204,17 @@ export function CameraRig() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [zoomRequest.token]);
 
+  // Ease the framing offset in and out whenever the sheet opens or closes.
+  useEffect(() => {
+    const to = sheetOpen ? 1 : 0;
+    if (offsetProgress.current === to && !offsetTween.current) return;
+    offsetTween.current = {
+      from: offsetProgress.current,
+      to,
+      start: performance.now(),
+    };
+  }, [sheetOpen]);
+
   useFrame(() => {
     const controls = controlsRef.current;
     if (!controls) return;
@@ -190,6 +228,31 @@ export function CameraRig() {
       camera.updateProjectionMatrix();
       if (raw >= 1) tween.current = null;
     }
+
+    if (offsetTween.current) {
+      const { from, to, start } = offsetTween.current;
+      const raw = (performance.now() - start) / SHEET_OFFSET_MS;
+      offsetProgress.current = THREE.MathUtils.lerp(from, to, easeInOutCubic(Math.min(1, raw)));
+      if (raw >= 1) offsetTween.current = null;
+    }
+
+    // Re-derive the offset every frame: it is defined in screen space, so it
+    // has to follow the camera orientation and the current zoom. Shifting the
+    // target and the position by the same vector is a pure pan, which leaves
+    // the orbit relationship — and so the controls' own state — untouched.
+    camUp.set(0, 1, 0).applyQuaternion(camera.quaternion);
+    const worldHeight = size.height / camera.zoom;
+    desiredOffset
+      .copy(camUp)
+      .multiplyScalar(SHEET_FRAMING_OFFSET * offsetProgress.current * worldHeight);
+
+    if (!desiredOffset.equals(appliedOffset.current)) {
+      const delta = desiredOffset.clone().sub(appliedOffset.current);
+      controls.target.add(delta);
+      camera.position.add(delta);
+      appliedOffset.current.copy(desiredOffset);
+    }
+
     controls.update();
   });
 
