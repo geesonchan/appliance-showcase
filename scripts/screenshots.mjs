@@ -56,6 +56,9 @@ async function main() {
   await settle(page, 1500);
   await page.screenshot({ path: `${outDir}/zoomed.png` });
 
+  // Back to the default framing so day and night are comparable.
+  await page.getByRole("button", { name: "Reset view" }).click();
+  await settle(page, 1100);
   await clickText(page, "Night");
   await settle(page, 900);
   await page.screenshot({ path: `${outDir}/night.png` });

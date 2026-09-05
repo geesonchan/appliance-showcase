@@ -42,11 +42,11 @@ function CabinetBoxMesh({ box }: { box: CabinetBox }) {
           opacity={renderMode === "install" ? 0.06 : 1}
         />
       </mesh>
-      {renderMode === "install" && (
-        <lineSegments geometry={edges}>
-          <lineBasicMaterial color={SCENE_COLORS.wireframe} />
-        </lineSegments>
-      )}
+      {/* Kept mounted and toggled by `visible`, so entering install mode costs
+          no geometry or object construction. */}
+      <lineSegments geometry={edges} visible={renderMode === "install"}>
+        <lineBasicMaterial color={SCENE_COLORS.wireframe} />
+      </lineSegments>
     </group>
   );
 }
