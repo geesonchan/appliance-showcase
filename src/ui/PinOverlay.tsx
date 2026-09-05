@@ -31,7 +31,7 @@ export function PinOverlay() {
             onClick={() => selectSlot(slotId)}
             style={{ position: "absolute", left: 0, top: 0, opacity: 0, willChange: "transform" }}
             className={[
-              "flex items-center gap-2 whitespace-nowrap rounded-full border py-1 pl-1 pr-3",
+              "flex items-center gap-2 whitespace-nowrap rounded-full border p-1 sm:py-1 sm:pl-1 sm:pr-3",
               "text-[11px] font-medium shadow-sm transition-[opacity,border-color] duration-300 ease-out",
               selected
                 ? "border-accent bg-accent text-[#F7F5EF]"
@@ -46,9 +46,13 @@ export function PinOverlay() {
             >
               {String(index + 1).padStart(2, "0")}
             </span>
-            <span>{t(slot.labelKey)}</span>
+            <span className="hidden sm:inline">{t(slot.labelKey)}</span>
             {appliance && (
-              <span className={selected ? "text-[#C3D6C9]" : "text-ink-muted"}>
+              <span
+                className={
+                  "hidden sm:inline " + (selected ? "text-[#C3D6C9]" : "text-ink-muted")
+                }
+              >
                 {appliance.brand}
               </span>
             )}
