@@ -23,6 +23,10 @@ interface AppState {
   /** Mobile drawer state; ignored at desktop widths. */
   mobilePanel: "none" | "list" | "config";
   toast: ToastMessage | null;
+  /** Set when a render-mode switch starts, for the ?debug=1 overlay. */
+  modeSwitchStartedAt: number | null;
+  /** How long the last render-mode switch took to reach the screen, in ms. */
+  modeSwitchMs: number | null;
 
   setLang: (lang: Lang) => void;
   setRenderMode: (mode: RenderMode) => void;
@@ -37,6 +41,7 @@ interface AppState {
   setMobilePanel: (panel: "none" | "list" | "config") => void;
   showToast: (key: string) => void;
   dismissToast: () => void;
+  reportModeSwitch: (ms: number) => void;
 }
 
 let toastId = 0;
@@ -54,11 +59,13 @@ export const useAppStore = create<AppState>((set, get) => ({
   helpOpen: false,
   mobilePanel: "none",
   toast: null,
+  modeSwitchStartedAt: null,
+  modeSwitchMs: null,
 
   setLang: (lang) => set({ lang }),
   setRenderMode: (renderMode) => {
     if (get().renderMode === renderMode) return;
-    set({ renderMode });
+    set({ renderMode, modeSwitchStartedAt: performance.now() });
     get().showToast(`mode.toast.${renderMode}`);
   },
   setLighting: (lighting) => set({ lighting }),
@@ -68,7 +75,9 @@ export const useAppStore = create<AppState>((set, get) => ({
     set((s) => ({
       visibleUtilities: { ...s.visibleUtilities, [type]: !s.visibleUtilities[type] },
     })),
-  selectSlot: (selectedSlot) => set({ selectedSlot, mobilePanel: "none" }),
+  // The mobile sheet is half height, so selecting an appliance leaves it open;
+  // the fly-in happens in the half of the screen the sheet does not cover.
+  selectSlot: (selectedSlot) => set({ selectedSlot }),
   resetView: () => set((s) => ({ resetToken: s.resetToken + 1, selectedSlot: null })),
   requestZoom: (direction) =>
     set((s) => ({ zoomRequest: { token: s.zoomRequest.token + 1, direction } })),
@@ -76,4 +85,5 @@ export const useAppStore = create<AppState>((set, get) => ({
   setMobilePanel: (mobilePanel) => set({ mobilePanel }),
   showToast: (key) => set({ toast: { id: ++toastId, key } }),
   dismissToast: () => set({ toast: null }),
+  reportModeSwitch: (ms) => set({ modeSwitchMs: Math.round(ms), modeSwitchStartedAt: null }),
 }));

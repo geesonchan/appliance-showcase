@@ -88,5 +88,8 @@
   "scheme.01.concept": "Warm oak, deep green cabinetry, and a professional gas range at the centre of a working family kitchen.",
   "mobile.appliances": "Appliances",
   "mobile.config": "Configure",
-  "mobile.close": "Close"
+  "mobile.close": "Close",
+  "mobile.resize": "Resize panel",
+  "debug.fps": "fps",
+  "debug.modeSwitch": "mode switch"
 }

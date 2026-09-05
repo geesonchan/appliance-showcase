@@ -42,9 +42,17 @@ export function BottomBar() {
   const resetView = useAppStore((s) => s.resetView);
   const requestZoom = useAppStore((s) => s.requestZoom);
   const showToast = useAppStore((s) => s.showToast);
+  // The mobile sheet covers the bottom of the screen; hide the toolbar under it
+  // rather than leaving controls the user cannot reach.
+  const sheetOpen = useAppStore((s) => s.mobilePanel !== "none");
 
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex flex-col items-center gap-3 p-4 pb-4 md:pb-4">
+    <div
+      className={[
+        "pointer-events-none absolute inset-x-0 bottom-0 z-10 flex-col items-center gap-3 p-4",
+        sheetOpen ? "hidden md:flex" : "flex",
+      ].join(" ")}
+    >
       <p className="hidden text-[11px] text-ink-muted sm:block">{t("scene.hint")}</p>
       <div className="pointer-events-auto flex w-full max-w-[720px] items-center justify-between gap-3 rounded-full border border-line bg-surface/95 px-3 py-2 backdrop-blur-sm">
         <div className="hidden md:block">
