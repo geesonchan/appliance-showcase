@@ -5,7 +5,15 @@ interface Rig {
   hemi: number;
   ambient: number;
   directional: number;
-  shadows: boolean;
+  /**
+   * Shadow strength, 0 to 1, rather than a `castShadow` flag.
+   *
+   * Turning `castShadow` off changes the light count three.js compiles into
+   * every material, so every shader in the scene would be rebuilt on a render
+   * mode switch. Fading the shadow instead keeps the program cache keys stable
+   * and makes the switch a property write.
+   */
+  shadows: number;
 }
 
 /**
@@ -17,16 +25,16 @@ interface Rig {
  */
 const RIGS: Record<RenderMode, Record<Lighting, Rig>> = {
   realistic: {
-    day: { hemi: 1.1, ambient: 0.3, directional: 1.5, shadows: true },
-    night: { hemi: 0.5, ambient: 0.22, directional: 0.5, shadows: true },
+    day: { hemi: 1.1, ambient: 0.3, directional: 1.5, shadows: 1 },
+    night: { hemi: 0.5, ambient: 0.22, directional: 0.5, shadows: 0.85 },
   },
   white: {
-    day: { hemi: 0.55, ambient: 0.25, directional: 1.5, shadows: false },
-    night: { hemi: 0.35, ambient: 0.2, directional: 0.9, shadows: false },
+    day: { hemi: 0.55, ambient: 0.25, directional: 1.5, shadows: 0 },
+    night: { hemi: 0.35, ambient: 0.2, directional: 0.9, shadows: 0 },
   },
   install: {
-    day: { hemi: 0.8, ambient: 0.7, directional: 0.5, shadows: false },
-    night: { hemi: 0.5, ambient: 0.55, directional: 0.35, shadows: false },
+    day: { hemi: 0.8, ambient: 0.7, directional: 0.5, shadows: 0 },
+    night: { hemi: 0.5, ambient: 0.55, directional: 0.35, shadows: 0 },
   },
 };
 
@@ -47,7 +55,8 @@ export function Lights() {
         position={[10, 13, 8]}
         intensity={rig.directional}
         color={day ? "#FFF6E2" : "#9FB6D0"}
-        castShadow={rig.shadows}
+        castShadow
+        shadow-intensity={rig.shadows}
         shadow-mapSize={[2048, 2048]}
         shadow-camera-left={-14}
         shadow-camera-right={14}

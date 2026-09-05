@@ -65,7 +65,7 @@ function DebugPanel() {
   const modeSwitchMs = useModeSwitchTiming();
 
   return (
-    <div className="pointer-events-none absolute left-3 top-3 z-50 rounded border border-line bg-[rgba(31,42,34,0.88)] px-2.5 py-1.5 font-mono text-[10px] leading-[1.5] text-[#F7F5EF]">
+    <div className="pointer-events-none absolute bottom-24 left-3 z-50 md:bottom-3 rounded border border-line bg-[rgba(31,42,34,0.88)] px-2.5 py-1.5 font-mono text-[10px] leading-[1.5] text-[#F7F5EF]">
       <div>
         <span className="tabular-nums">{String(fps).padStart(2, "0")}</span> fps
       </div>

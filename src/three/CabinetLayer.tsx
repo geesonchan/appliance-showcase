@@ -41,7 +41,7 @@ function CabinetSolid({ box }: { box: CabinetBox }) {
     <mesh
       geometry={geometry}
       visible={!hidden}
-      castShadow={!install}
+      castShadow
       receiveShadow
       userData={{ slot: box.slot }}
     >

@@ -7,22 +7,23 @@ import { CameraRig } from "./CameraRig";
 import { KitchenShell } from "./KitchenShell";
 import { Lights } from "./Lights";
 import { PinProjector } from "./PinProjector";
+import { ShaderWarmup } from "./ShaderWarmup";
 import { UtilityLayer } from "./UtilityLayer";
 
 /**
  * Nothing in this scene moves; only the camera does. Re-rendering the shadow
  * map every frame is therefore pure waste, so it is refreshed once per
- * lighting or render-mode change instead.
+ * lighting change instead. Render mode does not affect it: every object casts
+ * the whole time, and the modes that want no shadows fade them to zero.
  */
 function StaticShadowMap() {
   const gl = useThree((s) => s.gl);
-  const renderMode = useAppStore((s) => s.renderMode);
   const lighting = useAppStore((s) => s.lighting);
 
   useEffect(() => {
     gl.shadowMap.autoUpdate = false;
     gl.shadowMap.needsUpdate = true;
-  }, [gl, renderMode, lighting]);
+  }, [gl, lighting]);
 
   return null;
 }
@@ -52,6 +53,7 @@ export function Scene() {
       <fog attach="fog" args={[lighting === "day" ? "#EFEDE6" : "#D9D8D1", 40, 80]} />
       <Suspense fallback={null}>
         <StaticShadowMap />
+        <ShaderWarmup />
         <Lights />
         <KitchenShell />
         <CabinetLayer />
