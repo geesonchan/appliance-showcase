@@ -1,1 +1,1 @@
-{"root":["./src/app.tsx","./src/main.tsx"],"version":"5.9.3"}
+{"root":["./src/app.tsx","./src/main.tsx","./src/types.ts","./src/data/appliances.ts","./src/data/slots.ts","./src/i18n/index.ts","./src/i18n/uset.ts","./src/store/useappstore.ts"],"version":"5.9.3"}

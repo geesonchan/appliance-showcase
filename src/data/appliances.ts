@@ -1,0 +1,178 @@
+import type { Appliance, Scheme, SlotId } from "../types";
+
+/**
+ * Placeholder catalogue for M1. Real SKUs arrive in M2 via `data/appliances.json`;
+ * these entries exist only so the UI renders against the final shape.
+ */
+export const APPLIANCES: Appliance[] = [
+  {
+    id: "wall-oven-01",
+    category: "wall-oven",
+    brand: "Thermador",
+    model: "PO301W",
+    series: "Professional",
+    priceUSD: 4299,
+    fuel: "electric",
+    widthIn: 29.75,
+    heightIn: 28.75,
+    depthIn: 23.5,
+    cutoutWidthIn: 28.5,
+    cutoutHeightIn: 28.25,
+    cutoutDepthIn: 23.5,
+    finish: ["stainless"],
+    leadTimeWeeks: 8,
+    highlights: {
+      en: ["True convection", "Telescopic rack", "Soft-close door"],
+      zh: [],
+    },
+    slot: "slot-wall-oven",
+    installType: "single",
+    requires: { voltage: 240, amps: 30 },
+  },
+  {
+    id: "fridge-01",
+    category: "refrigerator",
+    brand: "Sub-Zero",
+    model: "CL3650UFD",
+    series: "Classic",
+    priceUSD: 12995,
+    finish: ["panel-ready", "stainless"],
+    widthIn: 35.75,
+    heightIn: 70,
+    depthIn: 24,
+    cutoutWidthIn: 36,
+    cutoutHeightIn: 72,
+    cutoutDepthIn: 25,
+    leadTimeWeeks: 14,
+    highlights: {
+      en: ["Dual refrigeration", "Panel-ready doors", "Internal water dispenser"],
+      zh: [],
+    },
+    slot: "slot-fridge",
+    installType: "built-in",
+    requires: { voltage: 120, amps: 15, water: true },
+  },
+  {
+    id: "range-01",
+    category: "range",
+    brand: "BlueStar",
+    model: "RNB304BV2",
+    series: "Heritage",
+    priceUSD: 6890,
+    fuel: "gas",
+    widthIn: 30,
+    heightIn: 36,
+    depthIn: 25,
+    cutoutWidthIn: 30,
+    cutoutHeightIn: 36,
+    cutoutDepthIn: 24,
+    finish: ["stainless", "matte-black"],
+    leadTimeWeeks: 10,
+    highlights: {
+      en: ["22,000 BTU open burners", "Cast iron grates", "Infrared broiler"],
+      zh: [],
+    },
+    slot: "slot-range",
+    installType: "slide-in",
+    requires: { gasBTU: 66000, voltage: 120, amps: 15 },
+  },
+  {
+    id: "hood-01",
+    category: "hood",
+    brand: "Zephyr",
+    model: "ZSA-E36CS",
+    series: "Savona",
+    priceUSD: 1749,
+    widthIn: 36,
+    heightIn: 30,
+    depthIn: 20,
+    finish: ["stainless"],
+    leadTimeWeeks: 4,
+    highlights: {
+      en: ["600 CFM blower", "LED task lighting", "Dishwasher-safe baffles"],
+      zh: [],
+    },
+    slot: "slot-hood",
+    installType: "wall-mount",
+    requires: { voltage: 120, amps: 15, cfm: 600, makeupAirRequired: true },
+  },
+  {
+    id: "dishwasher-01",
+    category: "dishwasher",
+    brand: "Miele",
+    model: "G5892SCVI",
+    series: "Lumen",
+    priceUSD: 2199,
+    widthIn: 23.5,
+    heightIn: 33.5,
+    depthIn: 22.4,
+    cutoutWidthIn: 24,
+    cutoutHeightIn: 34,
+    cutoutDepthIn: 24,
+    finish: ["panel-ready"],
+    leadTimeWeeks: 6,
+    highlights: {
+      en: ["AutoDos detergent", "3D cutlery tray", "38 dB quiet"],
+      zh: [],
+    },
+    slot: "slot-dishwasher",
+    installType: "panel-ready",
+    requires: { voltage: 120, amps: 15, water: true },
+  },
+  {
+    id: "microwave-01",
+    category: "microwave",
+    brand: "Sharp",
+    model: "SMD2489ES",
+    series: "Drawer",
+    priceUSD: 1349,
+    widthIn: 23.9,
+    heightIn: 15.1,
+    depthIn: 22.4,
+    cutoutWidthIn: 24,
+    cutoutHeightIn: 16,
+    cutoutDepthIn: 22,
+    finish: ["stainless"],
+    leadTimeWeeks: 3,
+    highlights: {
+      en: ["Drawer opening", "Sensor cook", "Under-counter install"],
+      zh: [],
+    },
+    slot: "slot-microwave",
+    installType: "drawer",
+    requires: { voltage: 120, amps: 20 },
+  },
+];
+
+export const APPLIANCE_BY_ID = Object.fromEntries(
+  APPLIANCES.map((a) => [a.id, a]),
+) as Record<string, Appliance>;
+
+export const APPLIANCE_BY_SLOT = Object.fromEntries(
+  APPLIANCES.map((a) => [a.slot, a]),
+) as Record<SlotId, Appliance>;
+
+export const SCHEME: Scheme = {
+  id: "scheme-01",
+  nameKey: "scheme.01.name",
+  conceptKey: "scheme.01.concept",
+  palette: ["#EFEDE6", "#2E5C45", "#C9A77B", "#1F2A22"],
+  defaultSelection: {
+    "slot-wall-oven": "wall-oven-01",
+    "slot-fridge": "fridge-01",
+    "slot-range": "range-01",
+    "slot-hood": "hood-01",
+    "slot-dishwasher": "dishwasher-01",
+    "slot-microwave": "microwave-01",
+  },
+};
+
+/** Ordering used by the left column and the appliance count. */
+export const SLOT_ORDER: SlotId[] = [
+  "slot-fridge",
+  "slot-range",
+  "slot-hood",
+  "slot-wall-oven",
+  "slot-dishwasher",
+  "slot-microwave",
+];
