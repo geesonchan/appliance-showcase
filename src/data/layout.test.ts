@@ -27,41 +27,43 @@ describe("the rules hold for Scheme 01", () => {
 
 // --- D11: where things go -------------------------------------------------
 
-describe("D11 rule 1 · a tall cabinet ends a run, and never sits at the corner", () => {
-  it("puts the refrigerator tower after the counter, with only a return past it", () => {
+describe("D11 rule 1 - a tall cabinet goes at the end of a run, never at a corner", () => {
+  it("puts the refrigerator tower last on its run", () => {
     const segments = left().segments;
-    const tower = segments.findIndex((s) => s.kind === "tall");
-    expect(segments[tower].slot).toBe("slot-fridge");
-    expect(segments.slice(tower + 1).every((s) => s.kind === "counter")).toBe(true);
+    expect(segments[segments.length - 1].kind).toBe("tall");
+    expect(segments[segments.length - 1].slot).toBe("slot-fridge");
+    expect(segments.filter((s) => s.kind === "tall")).toHaveLength(1);
   });
 
-  it("finishes the tower with a return of 24 to 48 inches", () => {
-    const segments = left().segments;
-    const tower = segments.findIndex((s) => s.kind === "tall");
-    const returnIn = inches(
-      segments.slice(tower + 1).reduce((sum, s) => sum + (s.to - s.from), 0),
-    );
-    expect(returnIn).toBeGreaterThanOrEqual(CABINET_STANDARDS.tallReturnIn.min);
-    expect(returnIn).toBeLessThanOrEqual(CABINET_STANDARDS.tallReturnIn.max);
-  });
-
-  it("catches a tower with an appliance past it", () => {
+  it("catches anything placed past the tower", () => {
     const runs = clone();
     const leftRun = runs.find((r) => r.id === "left")!;
-    leftRun.segments[3] = { ...leftRun.segments[3], kind: "appliance", slot: "slot-dishwasher" };
+    const tower = leftRun.segments[leftRun.segments.length - 1];
+    leftRun.segments.push({
+      id: "left-extra",
+      kind: "counter",
+      from: tower.to,
+      to: tower.to + 2,
+      modules: [{ code: "B24", kind: "base", widthIn: 24 }],
+    });
     expect(codes(runs)).toContain("d11-1");
   });
 
   it("catches a tower moved hard against the corner", () => {
     const runs = clone();
     const leftRun = runs.find((r) => r.id === "left")!;
-    const [corner, landing, tall, ret] = leftRun.segments;
-    const width = tall.to - tall.from;
+    const corner = leftRun.segments[0];
+    const tower = leftRun.segments[leftRun.segments.length - 1];
+    const rest = leftRun.segments.slice(1, -1);
+    let cursor = corner.to + (tower.to - tower.from);
     leftRun.segments = [
       corner,
-      { ...tall, from: corner.to, to: corner.to + width },
-      { ...landing, from: corner.to + width, to: tall.to },
-      ret,
+      { ...tower, from: corner.to, to: cursor },
+      ...rest.map((segment) => {
+        const moved = { ...segment, from: cursor, to: cursor + (segment.to - segment.from) };
+        cursor = moved.to;
+        return moved;
+      }),
     ];
     expect(codes(runs)).toContain("d11-1");
   });
@@ -184,6 +186,7 @@ describe("D11 rule 5 · the dishwasher is beside the sink", () => {
       kind: "counter",
       from: dw.to,
       to: end.from,
+      modules: [],
     });
     expect(codes(runs)).toContain("d11-5");
   });
@@ -199,31 +202,25 @@ describe("D11 rule 6 · the refrigerator has 15 inches of landing", () => {
 
   // The return past the tower is counter too, so both sides have to go: a
   // refrigerator with 24" beside it is fine whichever side that 24" is on.
-  it("catches the landing being trimmed away on both sides", () => {
+  // Contiguous counter all counts, so the whole stretch beside the tower has
+  // to go — trimming one cabinet of three leaves the other two as landing.
+  it("catches the landing being trimmed away", () => {
     const runs = clone();
     const leftRun = runs.find((r) => r.id === "left")!;
-    const [corner, landing, tall, ret] = leftRun.segments;
-    leftRun.segments = [
-      corner,
-      { ...landing, to: corner.to + 0.5 },
-      { ...tall, from: corner.to + 0.5, to: tall.to - 1.5 },
-      { ...ret, from: tall.to - 1.5, to: tall.to - 1 },
-    ];
+    const landing = leftRun.segments[leftRun.segments.length - 2];
+    const tower = leftRun.segments[leftRun.segments.length - 1];
+    // Break the run of counter, then trim what is left beside the tower.
+    leftRun.segments[leftRun.segments.length - 3].kind = "appliance";
+    landing.to = landing.from + 0.5;
+    tower.from = landing.to;
     expect(codes(runs)).toContain("d11-6");
   });
 
-  it("accepts the landing being on the far side of the tower", () => {
-    const runs = clone();
-    const leftRun = runs.find((r) => r.id === "left")!;
-    const [corner, landing, tall, ret] = leftRun.segments;
-    // 12" this side, the standard 24" return on the other.
-    leftRun.segments = [
-      corner,
-      { ...landing, to: corner.to + 1 },
-      { ...tall, from: corner.to + 1, to: tall.to - 0.5 },
-      { ...ret, from: tall.to - 0.5 },
-    ];
-    expect(codes(runs)).not.toContain("d11-6");
+  it("takes the landing from the cabinet the door opens onto", () => {
+    const segments = left().segments;
+    const beside = segments[segments.length - 2];
+    expect(beside.kind).toBe("counter");
+    expect(widthIn(beside)).toBeGreaterThanOrEqual(LAYOUT_LIMITS.fridgeLandingIn);
   });
 });
 
@@ -255,7 +252,7 @@ describe("D13 · base cabinets", () => {
   });
 
   it("builds the carcass to 34.5 inches, not to the finished height", () => {
-    const box = CABINETS.find((b) => b.id === "back-sink")!;
+    const box = CABINETS.find((b) => b.id === "back-sink-SB30")!;
     expect(inches(box.size[1])).toBeCloseTo(34.5, 6);
     expect(inches(box.size[2])).toBeCloseTo(24, 6);
   });
@@ -295,11 +292,11 @@ describe("D13 · wall cabinets", () => {
   });
 
   it("picks the run up again where the canopy stops, at 84 inches", () => {
-    const overHood = CABINETS.find((b) => b.id === "upper-back-hood")!;
+    const overHood = CABINETS.find((b) => b.id === "upper-back-hood-W4212")!;
     const bottom = overHood.position[1] - overHood.size[1] / 2;
     expect(inches(bottom)).toBeCloseTo(84, 6);
     // ...and finishes level with the cabinets either side of it.
-    const flanking = CABINETS.find((b) => b.id === "upper-back-left")!;
+    const flanking = CABINETS.find((b) => b.id === "upper-back-left-W1242")!;
     expect(overHood.position[1] + overHood.size[1] / 2).toBeCloseTo(
       flanking.position[1] + flanking.size[1] / 2,
       6,
@@ -332,12 +329,18 @@ describe("D13 · tall cabinets and the L", () => {
     expect(codes(runs)).toContain("d13-leg");
   });
 
-  it("catches a tower left without a return", () => {
+  it("catches a run whose cabinets do not add up to it", () => {
     const runs = clone();
-    const leftRun = runs.find((r) => r.id === "left")!;
-    // A 6" return: present, but not a cabinet.
-    leftRun.segments[3] = { ...leftRun.segments[3], to: leftRun.segments[3].from + 0.5 };
-    expect(codes(runs)).toContain("d13-tall-return");
+    const backRun = runs.find((r) => r.id === "back")!;
+    // Widen a segment without widening the box that is supposed to fill it.
+    backRun.segments[0].to += 0.25;
+    for (const segment of backRun.segments.slice(1)) {
+      segment.from += 0.25;
+      segment.to += 0.25;
+    }
+    const problems = checkLayout(runs).filter((v) => v.code === "d13-modules");
+    expect(problems).toHaveLength(1);
+    expect(problems[0].message).toContain("short");
   });
 });
 
@@ -370,8 +373,14 @@ describe("D13 · the canopy", () => {
 });
 
 describe("the run as Leo specified it", () => {
-  it("reads corner, landing, refrigerator, return down the left wall", () => {
-    expect(left().segments.map((s) => s.kind)).toEqual(["corner", "counter", "tall", "counter"]);
+  it("reads corner, cabinets, landing, refrigerator down the left wall", () => {
+    expect(left().segments.map((s) => s.kind)).toEqual([
+      "corner",
+      "counter",
+      "counter",
+      "counter",
+      "tall",
+    ]);
   });
 
   it("reads counter, range, counter, sink, dishwasher, counter along the back", () => {
@@ -436,5 +445,94 @@ describe("the countertop is cut for the sink rather than laid over it", () => {
       expect(inches(piece.position[1] - piece.size[1] / 2)).toBeCloseTo(34.5, 6);
       expect(inches(piece.position[1] + piece.size[1] / 2)).toBeCloseTo(36, 6);
     }
+  });
+});
+
+describe("D13 · the run is built out of cabinets you can order", () => {
+  const modules = RUNS.flatMap((run) => [
+    ...run.segments.flatMap((s) => s.modules),
+    ...run.uppers.flatMap((b) => b.modules),
+  ]);
+
+  it("gives every cabinet a trade code", () => {
+    expect(modules.length).toBeGreaterThan(10);
+    for (const module of modules) {
+      expect(module.code, JSON.stringify(module)).toMatch(/^[A-Z]{1,4}\d{2,4}(-\d+)?$/);
+      expect(module.widthIn, module.code).toBeGreaterThan(0);
+    }
+  });
+
+  it("adds each segment's cabinets up to the segment exactly", () => {
+    for (const run of RUNS) {
+      for (const segment of run.segments) {
+        const built = segment.modules.reduce((sum, m) => sum + m.widthIn, 0);
+        expect(built, `${segment.id} (${segment.modules.map((m) => m.code).join(" + ")})`).toBe(
+          widthIn(segment),
+        );
+      }
+    }
+  });
+
+  it("adds each bank of wall cabinets up to the bank exactly", () => {
+    for (const run of RUNS) {
+      for (const bank of run.uppers) {
+        const built = bank.modules.reduce((sum, m) => sum + m.widthIn, 0);
+        expect(built, `${bank.id} (${bank.modules.map((m) => m.code).join(" + ")})`).toBe(
+          inches(bank.to - bank.from),
+        );
+      }
+    }
+  });
+
+  // Every width in the doc's size lists, and nothing off them.
+  it("uses only stock widths", () => {
+    const stock = [6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48];
+    for (const module of modules) {
+      if (module.kind === "opening" || module.kind === "filler") continue;
+      expect(stock, `${module.code} is ${module.widthIn}"`).toContain(module.widthIn);
+    }
+  });
+
+  it("uses only stock wall heights", () => {
+    const heights = [12, 15, 18, 21, 24, 30, 36, 42];
+    for (const run of RUNS) {
+      for (const bank of run.uppers) {
+        for (const module of bank.modules) {
+          expect(heights, module.code).toContain(module.heightIn);
+        }
+      }
+    }
+  });
+
+  it("sizes the sink base and the corner off their own lists", () => {
+    const sink = modules.find((m) => m.kind === "sink-base")!;
+    expect([30, 33, 36, 42]).toContain(sink.widthIn);
+    const corner = RUNS.flatMap((r) => r.segments)
+      .flatMap((s) => s.modules)
+      .find((m) => m.kind === "corner")!;
+    expect([33, 36]).toContain(corner.widthIn);
+  });
+
+  it("draws one box per cabinet, carrying its code", () => {
+    const coded = CABINETS.filter((box) => box.module);
+    expect(coded.length).toBeGreaterThan(10);
+    for (const box of coded) {
+      if (box.module!.kind === "tall") continue; // an enclosure is three pieces
+      expect(inches(box.size[0]) === box.module!.widthIn || inches(box.size[2]) === box.module!.widthIn,
+        `${box.id} is ${inches(box.size[0])} x ${inches(box.size[2])}, code says ${box.module!.widthIn}`,
+      ).toBe(true);
+    }
+  });
+
+  it("catches a cabinet in a width nobody stocks", () => {
+    const runs = clone();
+    const backRun = runs.find((r) => r.id === "back")!;
+    backRun.segments[0].modules = [{ code: "B14", kind: "base", widthIn: 14 }];
+    backRun.segments[0].to = backRun.segments[0].from + 14 / 12;
+    for (const segment of backRun.segments.slice(1)) {
+      segment.from -= 1 / 12;
+      segment.to -= 1 / 12;
+    }
+    expect(codes(runs)).toContain("d13-modules");
   });
 });

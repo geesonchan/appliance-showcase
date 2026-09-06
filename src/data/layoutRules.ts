@@ -2,6 +2,7 @@ import { FIXTURE_BY_ID } from "./fixtures";
 import {
   CABINET_STANDARDS,
   ISLAND,
+  type CabinetModule,
   ROOM,
   RUNS,
   type CabinetRun,
@@ -35,6 +36,39 @@ export const LAYOUT_LIMITS = {
   /** The aisle a working kitchen needs, for the island. */
   aisleIn: 42,
 };
+
+/**
+ * The stock width lists, from docs/reference/cabinet-modules.md.
+ *
+ * Fillers are the exception that makes the rest work: widths come in 3" steps,
+ * so a wall almost never divides evenly and the remainder is absorbed by a 3"
+ * or 6" strip scribed to the wall.
+ */
+const STOCK_WIDTHS = [6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48];
+const FILLER_WIDTHS = [3, 6];
+const SINK_BASE_WIDTHS = [30, 33, 36, 42];
+const CORNER_WIDTHS = [24, 33, 36, 39, 42, 45, 48];
+/** Wall heights: the three standard ones plus the bridge sizes. */
+const UPPER_HEIGHTS = [12, 15, 18, 21, 24, 30, 36, 42];
+
+function isOrderable(module: CabinetModule): boolean {
+  switch (module.kind) {
+    case "filler":
+      return FILLER_WIDTHS.includes(module.widthIn);
+    case "sink-base":
+      return SINK_BASE_WIDTHS.includes(module.widthIn);
+    case "corner":
+      return CORNER_WIDTHS.includes(module.widthIn);
+    case "opening":
+      // A rough opening is dimensioned to the appliance, not off a size list.
+      return module.widthIn > 0;
+    case "tall":
+      // An enclosure is built: an opening plus a finished panel each side.
+      return STOCK_WIDTHS.includes(module.widthIn) || module.widthIn % 3 === 0;
+    default:
+      return STOCK_WIDTHS.includes(module.widthIn);
+  }
+}
 
 export interface LayoutViolation {
   /** Which rule, as `d11-<n>` or `d13-<what>`. */
@@ -102,20 +136,55 @@ export function checkLayout(runs: CabinetRun[] = RUNS): LayoutViolation[] {
 
       if (segment.kind !== "tall") continue;
 
-      // D11 rule 1. A tower ends the working stretch of a run: nothing that
-      // needs counter beside it may follow, and it is never against the corner.
-      const after = run.segments.slice(i + 1);
-      if (after.some((s) => s.kind !== "counter")) {
-        fail("d11-1", `${segment.id} has more than a finishing return after it`);
+      // D11 rule 1: a tall cabinet goes at the end of a run, never at a corner.
+      // A tower in the middle cuts the countertop in two; one at a corner
+      // blocks the corner cabinet's door.
+      if (i !== run.segments.length - 1) {
+        fail("d11-1", `${segment.id} is a tall cabinet with ${run.segments.length - 1 - i} more segment(s) after it`);
       }
       if (run.segments[i - 1]?.kind === "corner" || run.segments[i + 1]?.kind === "corner") {
         fail("d11-1", `${segment.id} is a tall cabinet hard against the corner`);
       }
-      // D13: a tower is finished off with a short return, not left as a cliff.
-      const returnIn = inches(after.reduce((sum, s) => sum + spanOf(s), 0));
-      const { min, max } = CABINET_STANDARDS.tallReturnIn;
-      if (returnIn > 1e-6 && (returnIn < min || returnIn > max)) {
-        fail("d13-tall-return", `${segment.id} has a ${returnIn}" return, wants ${min}-${max}"`);
+    }
+
+    // D13: every segment is built out of orderable boxes whose widths add up
+    // to it exactly. A remainder is not something to round away — it is the
+    // gap a supplier would ship a filler for, or refuse to quote.
+    for (const segment of run.segments) {
+      const built = segment.modules.reduce((sum, m) => sum + m.widthIn, 0);
+      const wanted = widthIn(segment);
+      const off = Number((wanted - built).toFixed(4));
+      if (segment.modules.length === 0) {
+        fail("d13-modules", `${segment.id} is ${wanted}" of nothing in particular`);
+      } else if (Math.abs(off) > 1e-4) {
+        fail(
+          "d13-modules",
+          `${segment.id} wants ${wanted}" and its cabinets make ${built}"` +
+            ` — ${Math.abs(off)}" ${off > 0 ? "short" : "over"}`,
+        );
+      }
+      for (const module of segment.modules) {
+        if (!isOrderable(module)) {
+          fail("d13-modules", `${module.code} is a ${module.widthIn}" box nobody stocks`);
+        }
+      }
+    }
+
+    for (const bank of run.uppers) {
+      const built = bank.modules.reduce((sum, m) => sum + m.widthIn, 0);
+      const wanted = inches(bank.to - bank.from);
+      const off = Number((wanted - built).toFixed(4));
+      if (Math.abs(off) > 1e-4) {
+        fail(
+          "d13-modules",
+          `${bank.id} wants ${wanted}" and its cabinets make ${built}"` +
+            ` — ${Math.abs(off)}" ${off > 0 ? "short" : "over"}`,
+        );
+      }
+      for (const module of bank.modules) {
+        if (module.heightIn && !UPPER_HEIGHTS.includes(module.heightIn)) {
+          fail("d13-modules", `${module.code} is ${module.heightIn}" tall, not a stock height`);
+        }
       }
     }
 

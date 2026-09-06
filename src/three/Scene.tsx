@@ -7,6 +7,7 @@ import { CameraRig } from "./CameraRig";
 import { FixtureLayer } from "./FixtureLayer";
 import { KitchenShell } from "./KitchenShell";
 import { Lights } from "./Lights";
+import { ModuleLabelProjector } from "./ModuleLabelProjector";
 import { OcclusionFade } from "./OcclusionFade";
 import { PinProjector } from "./PinProjector";
 import { SceneDebug } from "./SceneDebug";
@@ -69,6 +70,7 @@ export function Scene() {
         <OcclusionFade />
         <PinProjector />
         <SceneDebug />
+        <ModuleLabelProjector />
       </Suspense>
       <CameraRig />
     </Canvas>

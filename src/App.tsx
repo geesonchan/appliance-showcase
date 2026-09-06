@@ -3,6 +3,7 @@ import { DebugOverlay } from "./ui/DebugOverlay";
 import { HelpDialog } from "./ui/HelpDialog";
 import { LeftPanel } from "./ui/LeftPanel";
 import { MobileSheet } from "./ui/MobileSheet";
+import { ModuleLabels } from "./ui/ModuleLabels";
 import { PinOverlay } from "./ui/PinOverlay";
 import { QuotePage } from "./ui/QuotePage";
 import { RightPanel } from "./ui/RightPanel";
@@ -68,6 +69,7 @@ export default function App() {
         <main className="relative min-h-0">
           <Scene />
           <PinOverlay />
+          <ModuleLabels />
           <ModeSwitch />
           <SelectionCallout />
           <BottomBar />

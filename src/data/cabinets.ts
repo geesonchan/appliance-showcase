@@ -2,15 +2,14 @@ import type { SlotId } from "../types";
 import { SLOT_BY_ID } from "./slots";
 import { bowlExtent, FIXTURE_BY_ID } from "./fixtures";
 import {
-  CABINET_STANDARDS,
-  HOOD_OPENING,
   ISLAND,
   PANEL,
   ROOM,
   RUNS,
-  RUN_BY_ID,
+  type CabinetModule,
   type CabinetRun,
   type RunSegment,
+  type UpperBank,
   ft,
 } from "./room";
 
@@ -31,6 +30,8 @@ export interface CabinetBox {
    * appliance's pin, or the pin hides behind its own side panel.
    */
   slot?: SlotId;
+  /** The cabinet this box is, when it is one. Shown under ?debug=1. */
+  module?: CabinetModule;
   /** Centre of the box, in feet. */
   position: [number, number, number];
   /** Full extents, in feet. */
@@ -40,44 +41,12 @@ export interface CabinetBox {
 const counterT = ROOM.counterThickness;
 /** The base box under the top: 34.5" plus a 1.5" counter makes 36". */
 const BASE_BOX = [0, ROOM.counterHeight - counterT] as const;
-const UPPER_BAND = [ROOM.upperBottom, ROOM.upperTop] as const;
-/**
- * Over the hood the run picks up again where the canopy stops, which the
- * clearance sheet puts at 84": 36" counter, 30" to the canopy, 18" of canopy.
- */
-const OVER_HOOD_BAND = [
-  ROOM.counterHeight +
-    ft(CABINET_STANDARDS.hood.aboveCooktopMinIn + CABINET_STANDARDS.hood.bodyHeightIn),
-  ROOM.upperTop,
-] as const;
 
 /** The refrigerator opening's height, in feet, as the slot actually declares it. */
 const FRIDGE_OPENING_H = ft(SLOT_BY_ID["slot-fridge"].cutout.h);
 
 const span = ([a, b]: readonly [number, number]) => b - a;
 const mid = ([a, b]: readonly [number, number]) => (a + b) / 2;
-
-const backRun = RUN_BY_ID.back;
-const leftRun = RUN_BY_ID.left;
-const runExtent = (run: CabinetRun) =>
-  [run.segments[0].from, run.segments[run.segments.length - 1].to] as const;
-
-/** The wall cabinets on the left run stop where the tower starts. */
-const LEFT_UPPER = [
-  leftRun.segments[0].from,
-  (leftRun.segments.find((s) => s.kind === "tall") ?? leftRun.segments[leftRun.segments.length - 1]).from,
-] as const;
-
-/** A wall cabinet on a run, at the standard 12" depth. */
-function upper(
-  id: string,
-  run: CabinetRun,
-  along: readonly [number, number],
-  band: readonly [number, number],
-): CabinetBox {
-  const inset = (ROOM.counterDepth - ROOM.upperDepth) / 2;
-  return onRun(run, id, "upper", along, band, ROOM.upperDepth, -inset);
-}
 
 /**
  * Place a box on a run.
@@ -107,9 +76,6 @@ function onRun(
     run.axis === "x" ? [mid(along), mid(y), across] : [across, mid(y), mid(along)];
   return { id, kind, position, size, ...extra };
 }
-
-/** Every stretch of a run that carries base cabinetry rather than an opening. */
-const CARCASS_KINDS: RunSegment["kind"][] = ["counter", "corner", "fixture"];
 
 /** Extents along a run and across it, in run-local feet. */
 interface CounterPiece {
@@ -188,35 +154,81 @@ function counterPieces(run: CabinetRun): CounterPiece[] {
   return pieces;
 }
 
-function runBoxes(run: CabinetRun): CabinetBox[] {
+/** Walk a segment's modules, handing each its own stretch of the run. */
+function eachModule(
+  from: number,
+  modules: CabinetModule[],
+  visit: (module: CabinetModule, along: readonly [number, number]) => void,
+) {
+  let cursor = from;
+  for (const module of modules) {
+    const next = cursor + ft(module.widthIn);
+    visit(module, [cursor, next] as const);
+    cursor = next;
+  }
+}
+
+/**
+ * The base run, one box per cabinet.
+ *
+ * Drawn module by module rather than segment by segment, because that is what
+ * is standing there: a wall of separate boxes, each one orderable, with a
+ * reveal between the doors. It also means the debug view can name every one of
+ * them, and a run that does not add up shows as a gap rather than being
+ * silently stretched to fit.
+ */
+function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
   const boxes: CabinetBox[] = [];
   const base = BASE_BOX;
 
-  for (const segment of run.segments) {
-    const along = [segment.from, segment.to] as const;
+  eachModule(segment.from, segment.modules, (module, along) => {
+    if (module.kind === "opening") return;
 
-    if (CARCASS_KINDS.includes(segment.kind)) {
-      boxes.push(onRun(run, segment.id, "base", along, base, ROOM.counterDepth));
-      continue;
-    }
-
-    if (segment.kind === "tall") {
+    if (module.kind === "tall") {
       // A finished panel each side, the appliance opening between them, and a
       // bridging cabinet over the top. The bridge starts where the opening
       // stops, so raising the opening shortens the cabinet above it rather
       // than leaving the appliance poking through.
-      const opening = [segment.from + PANEL, segment.to - PANEL] as const;
+      const opening = [along[0] + PANEL, along[1] - PANEL] as const;
       const outline = segment.id;
-      const tall = [0, ROOM.tallTop] as const;
+      const tall = [0, ft(module.heightIn ?? 96)] as const;
       boxes.push(
-        onRun(run, `${segment.id}-panel-a`, "surround", [segment.from, opening[0]], tall, ROOM.counterDepth, 0, { outline, slot: segment.slot }),
-        onRun(run, `${segment.id}-panel-b`, "surround", [opening[1], segment.to], tall, ROOM.counterDepth, 0, { outline, slot: segment.slot }),
-        onRun(run, `${segment.id}-bridge`, "upper", opening, [FRIDGE_OPENING_H, ROOM.tallTop], ROOM.counterDepth, 0, { outline, slot: segment.slot }),
+        onRun(run, `${segment.id}-panel-a`, "surround", [along[0], opening[0]], tall, ROOM.counterDepth, 0, { outline, slot: module.slot, module }),
+        onRun(run, `${segment.id}-panel-b`, "surround", [opening[1], along[1]], tall, ROOM.counterDepth, 0, { outline, slot: module.slot, module }),
+        onRun(run, `${segment.id}-bridge`, "upper", opening, [FRIDGE_OPENING_H, tall[1]], ROOM.counterDepth, 0, { outline, slot: module.slot, module }),
       );
-      continue;
+      return;
     }
-    // `appliance` segments are deliberate gaps in the carcass.
-  }
+
+    boxes.push(
+      onRun(run, `${segment.id}-${module.code}`, "base", along, base, ROOM.counterDepth, 0, {
+        module,
+      }),
+    );
+  });
+
+  return boxes;
+}
+
+/** A bank of wall cabinets, likewise one box per module. */
+function upperBoxes(run: CabinetRun, bank: UpperBank): CabinetBox[] {
+  const boxes: CabinetBox[] = [];
+  const inset = (ROOM.counterDepth - ROOM.upperDepth) / 2;
+  eachModule(bank.from, bank.modules, (module, along) => {
+    boxes.push(
+      onRun(run, `${bank.id}-${module.code}`, "upper", along, bank.band, ROOM.upperDepth, -inset, {
+        module,
+        slot: module.slot,
+      }),
+    );
+  });
+  return boxes;
+}
+
+function runBoxes(run: CabinetRun): CabinetBox[] {
+  const boxes: CabinetBox[] = run.segments.flatMap((segment) => segmentBoxes(run, segment));
+
+  for (const bank of run.uppers) boxes.push(...upperBoxes(run, bank));
 
   for (const [i, piece] of counterPieces(run).entries()) {
     boxes.push(
@@ -255,15 +267,6 @@ function runBoxes(run: CabinetRun): CabinetBox[] {
  */
 export const CABINETS: CabinetBox[] = [
   ...RUNS.flatMap(runBoxes),
-
-  // --- uppers ---
-  // 42" boxes hung 18" over the counter. The canopy interrupts them, and the
-  // run picks up again at 84" where the canopy stops, so the tops line up.
-  upper("upper-back-left", backRun, [runExtent(backRun)[0], HOOD_OPENING[0]], UPPER_BAND),
-  upper("upper-back-hood", backRun, HOOD_OPENING, OVER_HOOD_BAND),
-  upper("upper-back-right", backRun, [HOOD_OPENING[1], runExtent(backRun)[1]], UPPER_BAND),
-  // Over the corner and the refrigerator's landing, stopping at the tower.
-  upper("upper-left", leftRun, LEFT_UPPER, UPPER_BAND),
 
   // --- island ---
   // The two openings come in from opposite faces, so the carcass is the island
@@ -381,3 +384,20 @@ export const CABINET_OUTLINES: CabinetBox[] = (() => {
   for (const [id, boxes] of groups) result.push(unionBox(id, boxes));
   return result;
 })();
+
+/**
+ * One label per cabinet, not per box.
+ *
+ * A tall enclosure is drawn as three pieces — two panels and the bridge over
+ * the opening — that all carry the same module, and three copies of "T4296"
+ * stacked on each other reads as a rendering fault.
+ */
+export function labelledBoxes() {
+  const seen = new Set<CabinetModule>();
+  return CABINETS.filter((box) => {
+    if (!box.module || box.module.kind === "opening") return false;
+    if (seen.has(box.module)) return false;
+    seen.add(box.module);
+    return true;
+  });
+}

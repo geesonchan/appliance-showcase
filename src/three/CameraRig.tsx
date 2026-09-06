@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { SLOT_BY_ID, ft } from "../data/slots";
+import { ROOM, SLOT_BY_ID, ft } from "../data/slots";
 import { useIsMobile } from "../hooks/useIsMobile";
 import { useAppStore } from "../store/useAppStore";
 
@@ -12,18 +12,6 @@ const AZIMUTH = THREE.MathUtils.degToRad(45);
 /** Centre of the room's bounding box, which is what the default view frames. */
 const DEFAULT_TARGET = new THREE.Vector3(0, 4.5, 0);
 const DEFAULT_DISTANCE = 22;
-/**
- * How much of the world the default view keeps in frame, in feet. The 14' x 12'
- * room projects to roughly 18.4ft across and 17.9ft tall at this camera angle;
- * the extra allowance is margin for the floating mode switch and toolbar.
- */
-const FIT_FEET = { w: 19.6, h: 19.4 };
-/**
- * Portrait viewports are width-starved. Framing a little tighter there crops
- * only the empty floor corners and roughly doubles the usable scene area.
- */
-const FIT_FEET_PORTRAIT_W = 16.5;
-
 /**
  * Framing offset applied while the mobile sheet is open, as a fraction of the
  * viewport height. Negative moves the camera down its own up axis, which lifts
@@ -49,6 +37,28 @@ const isoOffset = (distance: number, azimuth = AZIMUTH, pitch = ELEVATION) =>
     Math.sin(pitch),
     Math.cos(pitch) * Math.cos(azimuth),
   ).multiplyScalar(distance);
+
+/**
+ * How much of the world the default view has to keep in frame, in feet.
+ *
+ * Derived from the room rather than measured off a screenshot. The old
+ * constants were fitted to a version of this room whose front-left corner
+ * happened to be empty floor, and the moment the refrigerator tower moved to
+ * the end of the left run they cropped it. An orthographic view of a box has a
+ * closed-form extent along any axis, so there is no reason to guess.
+ */
+function fitExtents() {
+  const half = new THREE.Vector3(ROOM.halfX, ROOM.wallHeight / 2, ROOM.halfZ);
+  const forward = isoOffset(1).negate();
+  const right = new THREE.Vector3(0, 1, 0).cross(forward).normalize();
+  const up = forward.clone().cross(right).normalize();
+  const extent = (axis: THREE.Vector3) =>
+    2 * (half.x * Math.abs(axis.x) + half.y * Math.abs(axis.y) + half.z * Math.abs(axis.z));
+  // A little air, for the floating mode switch and the toolbar.
+  return { w: extent(right) * 1.06, h: extent(up) * 1.06 };
+}
+
+const FIT_FEET = fitExtents();
 
 const easeInOutCubic = (t: number) =>
   t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -92,8 +102,7 @@ export function CameraRig() {
   const desiredOffset = useMemo(() => new THREE.Vector3(), []);
 
   // Keep the whole room framed at any canvas size rather than cropping.
-  const fitWidth = size.width < size.height ? FIT_FEET_PORTRAIT_W : FIT_FEET.w;
-  const fitZoom = Math.min(size.width / fitWidth, size.height / FIT_FEET.h);
+  const fitZoom = Math.min(size.width / FIT_FEET.w, size.height / FIT_FEET.h);
 
   const startTween = (
     target: THREE.Vector3,

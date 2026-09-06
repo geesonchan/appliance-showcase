@@ -49,8 +49,6 @@ export const CABINET_STANDARDS = {
   corner: { lazySusanIn: 36, blindIn: 42 },
   /** An L needs a short leg of at least 8ft and a long leg of 10-12ft. */
   legIn: { shortMin: 96, longMin: 120, longMax: 144 },
-  /** A tall cabinet is finished off with a short return, not left as a cliff. */
-  tallReturnIn: { min: 24, max: 48 },
   /**
    * Ventilation, from the Thermador clearance sheet
    * (docs/reference/thermador-hood-clearance.png).
@@ -77,6 +75,37 @@ export const PANEL = ft(3);
  */
 export type SegmentKind = "corner" | "counter" | "appliance" | "tall" | "fixture";
 
+/**
+ * One cabinet, as it would be ordered.
+ *
+ * A run is built out of these and nothing else, the way a kitchen actually is:
+ * boxes off a size list, fillers absorbing the remainder, and the widths adding
+ * up to the wall exactly. `docs/reference/cabinet-modules.md` has the size lists
+ * and where they come from.
+ */
+export type ModuleKind =
+  | "base"
+  | "drawer-base"
+  | "sink-base"
+  | "wall"
+  | "bridge"
+  | "tall"
+  | "corner"
+  | "filler"
+  | "opening";
+
+export interface CabinetModule {
+  /** The trade code: B24, SB30, DB18, LS36, W3042, T4296, BF3, RO36. */
+  code: string;
+  kind: ModuleKind;
+  widthIn: number;
+  /** Present where the height is part of the code — wall and tall boxes. */
+  heightIn?: number;
+  /** The appliance or fixture this module houses. */
+  slot?: SlotId;
+  fixture?: FixtureId;
+}
+
 export interface RunSegment {
   id: string;
   kind: SegmentKind;
@@ -85,6 +114,21 @@ export interface RunSegment {
   to: number;
   slot?: SlotId;
   fixture?: FixtureId;
+  /**
+   * The cabinets this segment is built from, in order. Their widths have to
+   * add up to the segment exactly; `checkLayout` says by how much they miss.
+   */
+  modules: CabinetModule[];
+}
+
+/** A stretch of wall cabinets, which have their own widths and heights. */
+export interface UpperBank {
+  id: string;
+  from: number;
+  to: number;
+  /** Bottom and top above the floor, in feet. */
+  band: readonly [number, number];
+  modules: CabinetModule[];
 }
 
 export interface CabinetRun {
@@ -98,47 +142,176 @@ export interface CabinetRun {
    * means the last entry, which is what rule 1 is about.
    */
   segments: RunSegment[];
+  uppers: UpperBank[];
 }
 
+/** Shorthand for the module lists below. Widths are inches throughout. */
+const M = (
+  code: string,
+  kind: ModuleKind,
+  widthIn: number,
+  extra: Partial<CabinetModule> = {},
+): CabinetModule => ({ code, kind, widthIn, ...extra });
+
 /**
- * Scheme 01, laid out to the rules in docs/decisions.md D11.
+ * Scheme 01, cabinet by cabinet.
  *
- * Read each run from its corner outward. The left run ends in the refrigerator
- * tower, with its 15" landing between the tower and the corner cabinet. The
- * back run puts 18" of counter either side of the range, then the sink with the
- * dishwasher immediately beside it, then counter to the open end.
+ * Read each run from its inside corner outward, so "the end of the run" is the
+ * last entry — which is where the refrigerator tower goes (D11 rule 1). The
+ * corner square belongs to the left run, so the back run starts one lazy susan
+ * clear of the wall it meets.
  *
- * The corner square belongs to the left run, so the back run starts one
- * cabinet depth clear of the wall it meets.
+ * Every width here is off the size lists in docs/reference/cabinet-modules.md,
+ * and the modules in each segment add up to the segment exactly. That is the
+ * point of writing them out: a wall that cannot be composed from real boxes is
+ * a wall nobody can order.
  */
 export const RUNS: CabinetRun[] = [
   {
     id: "left",
     axis: "z",
     centre: -ROOM.halfX + ROOM.counterDepth / 2,
-    // 36 + 18 + 42 + 24 = 120", the short leg of the L.
+    // 36 + 24 + 18 + 18 + 42 = 138", the short leg of the L.
     segments: [
-      { id: "left-corner", kind: "corner", from: -6, to: -3 },
-      // Rule 6: the refrigerator's landing, on its door side.
-      { id: "left-fridge-landing", kind: "counter", from: -3, to: -1.5 },
-      { id: "left-fridge", kind: "tall", from: -1.5, to: 2, slot: "slot-fridge" },
-      // D13: a tower is finished off with a short return, not left as a cliff.
-      { id: "left-return", kind: "counter", from: 2, to: 4 },
+      {
+        id: "left-corner",
+        kind: "corner",
+        from: -6,
+        to: -3,
+        modules: [M("LS36", "corner", 36)],
+      },
+      {
+        id: "left-base",
+        kind: "counter",
+        from: -3,
+        to: -1,
+        modules: [M("B24", "base", 24)],
+      },
+      {
+        id: "left-drawers",
+        kind: "counter",
+        from: -1,
+        to: 0.5,
+        modules: [M("DB18", "drawer-base", 18)],
+      },
+      // D11 rule 6: the refrigerator's landing, on the corner side of the tower.
+      {
+        id: "left-fridge-landing",
+        kind: "counter",
+        from: 0.5,
+        to: 2,
+        modules: [M("B18", "base", 18)],
+      },
+      // D11 rule 1: the tower is the last thing on the run.
+      {
+        id: "left-fridge",
+        kind: "tall",
+        from: 2,
+        to: 5.5,
+        slot: "slot-fridge",
+        modules: [M("T4296", "tall", 42, { heightIn: 96, slot: "slot-fridge" })],
+      },
+    ],
+    uppers: [
+      {
+        id: "upper-left",
+        from: -6,
+        to: 2,
+        band: [ROOM.upperBottom, ROOM.upperTop],
+        modules: [
+          M("WER2442", "corner", 24, { heightIn: 42 }),
+          M("W3042", "wall", 30, { heightIn: 42 }),
+          M("W3042", "wall", 30, { heightIn: 42 }),
+          M("W1242", "wall", 12, { heightIn: 42 }),
+        ],
+      },
     ],
   },
   {
     id: "back",
     axis: "x",
     centre: -ROOM.halfZ + ROOM.counterDepth / 2,
-    // 18 + 36 + 12 + 30 + 24 + 12 = 132", the long leg.
+    // 15 + 36 + 15 + 30 + 24 + 12 = 132", the long leg.
     segments: [
-      { id: "back-range-landing-left", kind: "counter", from: -4, to: -2.5 },
-      { id: "back-range", kind: "appliance", from: -2.5, to: 0.5, slot: "slot-range" },
-      { id: "back-range-landing-right", kind: "counter", from: 0.5, to: 1.5 },
-      { id: "back-sink", kind: "fixture", from: 1.5, to: 4, fixture: "fixture-sink" },
-      // Rule 5: hard against the sink base, on the side away from the range.
-      { id: "back-dishwasher", kind: "appliance", from: 4, to: 6, slot: "slot-dishwasher" },
-      { id: "back-end", kind: "counter", from: 6, to: 7 },
+      {
+        id: "back-range-landing-left",
+        kind: "counter",
+        from: -4,
+        to: -2.75,
+        modules: [M("B15", "base", 15)],
+      },
+      {
+        id: "back-range",
+        kind: "appliance",
+        from: -2.75,
+        to: 0.25,
+        slot: "slot-range",
+        modules: [M("RO36", "opening", 36, { slot: "slot-range" })],
+      },
+      {
+        id: "back-range-landing-right",
+        kind: "counter",
+        from: 0.25,
+        to: 1.5,
+        modules: [M("B15", "base", 15)],
+      },
+      {
+        id: "back-sink",
+        kind: "fixture",
+        from: 1.5,
+        to: 4,
+        fixture: "fixture-sink",
+        modules: [M("SB30", "sink-base", 30, { fixture: "fixture-sink" })],
+      },
+      // D11 rule 5: hard against the sink base, on the side away from the range.
+      {
+        id: "back-dishwasher",
+        kind: "appliance",
+        from: 4,
+        to: 6,
+        slot: "slot-dishwasher",
+        modules: [M("RO24", "opening", 24, { slot: "slot-dishwasher" })],
+      },
+      {
+        id: "back-end",
+        kind: "counter",
+        from: 6,
+        to: 7,
+        modules: [M("B12", "base", 12)],
+      },
+    ],
+    uppers: [
+      {
+        id: "upper-back-left",
+        from: -4,
+        to: -3,
+        band: [ROOM.upperBottom, ROOM.upperTop],
+        modules: [M("W1242", "wall", 12, { heightIn: 42 })],
+      },
+      {
+        // The bridge over the canopy: 84" to 96", so its top lines up with the
+        // 42" cabinets either side.
+        id: "upper-back-hood",
+        from: -3,
+        to: 0.5,
+        band: [
+          ROOM.counterHeight +
+            ft(CABINET_STANDARDS.hood.aboveCooktopMinIn + CABINET_STANDARDS.hood.bodyHeightIn),
+          ROOM.upperTop,
+        ],
+        modules: [M("W4212", "bridge", 42, { heightIn: 12, slot: "slot-hood" })],
+      },
+      {
+        id: "upper-back-right",
+        from: 0.5,
+        to: 7,
+        band: [ROOM.upperBottom, ROOM.upperTop],
+        modules: [
+          M("W3042", "wall", 30, { heightIn: 42 }),
+          M("W3042", "wall", 30, { heightIn: 42 }),
+          M("W1842", "wall", 18, { heightIn: 42 }),
+        ],
+      },
     ],
   },
 ];
