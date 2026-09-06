@@ -80,6 +80,13 @@ export const SLOT_ORDER: SlotId[] = [
  * for that slot and says so; a selection filed under the wrong slot is a real
  * mistake in the scheme and still throws.
  */
+/**
+ * Slots whose scheme selection was not in the catalogue, and the id it asked
+ * for. Surfaced under ?debug=1 so a silent fallback is still visible to anyone
+ * looking for it.
+ */
+export const SCHEME_FALLBACKS: Partial<Record<SlotId, string>> = {};
+
 function resolveScheme(scheme: (typeof parsedSchemes.schemes)[number]): Scheme {
   const defaultSelection: Record<string, string> = {};
 
@@ -106,6 +113,7 @@ function resolveScheme(scheme: (typeof parsedSchemes.schemes)[number]): Scheme {
     console.warn(
       `data/schemes.json: ${scheme.id} selects "${applianceId}" for ${slotId}, which is no longer in the catalogue. Falling back to ${fallback.id}.`,
     );
+    SCHEME_FALLBACKS[slotId as SlotId] = applianceId;
     defaultSelection[slotId] = fallback.id;
   }
 

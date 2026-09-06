@@ -560,6 +560,129 @@
       }
     },
     {
+      "id": "thermador-vti2fz",
+      "slot": "slot-hood",
+      "category": "blower",
+      "brand": "Thermador",
+      "model": "VTI2FZ",
+      "series": null,
+      "msrpUSD": 1049,
+      "sourceUrl": "https://media3.bsh-group.com/Documents/26300662_Thermador_Ventilation_Blowers-Specifications.pdf",
+      "verifiedAt": "2026-09-05",
+      "installType": [
+        "inline"
+      ],
+      "fuel": null,
+      "blower": null,
+      "widthIn": null,
+      "heightIn": null,
+      "depthIn": null,
+      "cutoutWidthIn": 12,
+      "cutoutHeightIn": 19.125,
+      "cutoutDepthIn": 13,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": null,
+      "highlights": {
+        "en": [
+          "Inline"
+        ],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
+        "gasBTU": null,
+        "water": false,
+        "cfm": 1000,
+        "makeupAirRequired": true
+      }
+    },
+    {
+      "id": "thermador-vtn2fz",
+      "slot": "slot-hood",
+      "category": "blower",
+      "brand": "Thermador",
+      "model": "VTN2FZ",
+      "series": null,
+      "msrpUSD": 1049,
+      "sourceUrl": "https://media3.bsh-group.com/Documents/26300662_Thermador_Ventilation_Blowers-Specifications.pdf",
+      "verifiedAt": "2026-09-05",
+      "installType": [
+        "internal"
+      ],
+      "fuel": null,
+      "blower": null,
+      "widthIn": null,
+      "heightIn": null,
+      "depthIn": null,
+      "cutoutWidthIn": null,
+      "cutoutHeightIn": null,
+      "cutoutDepthIn": null,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": null,
+      "highlights": {
+        "en": [
+          "Internal"
+        ],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
+        "gasBTU": null,
+        "water": false,
+        "cfm": 1000,
+        "makeupAirRequired": true
+      }
+    },
+    {
+      "id": "thermador-vtr2fz",
+      "slot": "slot-hood",
+      "category": "blower",
+      "brand": "Thermador",
+      "model": "VTR2FZ",
+      "series": null,
+      "msrpUSD": 1049,
+      "sourceUrl": "https://media3.bsh-group.com/Documents/26300662_Thermador_Ventilation_Blowers-Specifications.pdf",
+      "verifiedAt": "2026-09-05",
+      "installType": [
+        "external"
+      ],
+      "fuel": null,
+      "blower": null,
+      "widthIn": null,
+      "heightIn": null,
+      "depthIn": null,
+      "cutoutWidthIn": 20,
+      "cutoutHeightIn": 21,
+      "cutoutDepthIn": 13.625,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": null,
+      "highlights": {
+        "en": [
+          "External"
+        ],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
+        "gasBTU": null,
+        "water": false,
+        "cfm": 1000,
+        "makeupAirRequired": true
+      }
+    },
+    {
       "id": "zephyr-ak7136as-bf",
       "slot": "slot-hood",
       "category": "hood",

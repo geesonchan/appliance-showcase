@@ -3,20 +3,12 @@ import { slotAvailability } from "../data/availability";
 import { fitCheck, formatInches } from "../data/fit";
 import { formatPrice } from "../data/packageSummary";
 import { SLOT_BY_ID } from "../data/slots";
-import { DEBUG } from "../debug";
+import { DebugBadge } from "./DebugBadge";
+import { SCHEME_FALLBACKS } from "../data/catalogue";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
 import { useSelectedAppliance, useSelectedBlower, useSelection } from "../store/useSelection";
 import type { Appliance, SlotId } from "../types";
-
-function UnverifiedBadge() {
-  const t = useT();
-  return (
-    <span className="rounded-sm border border-line px-1 py-px font-mono text-[9px] uppercase tracking-wide text-ink-muted">
-      {t("debug.unverified")}
-    </span>
-  );
-}
 
 /**
  * The alternatives for one slot.
@@ -47,8 +39,14 @@ export function SwapPanel({ slotId }: { slotId: SlotId }) {
           <span aria-hidden="true">←</span>
           {t("swap.back")}
         </button>
-        <h2 className="mt-3 font-display text-[24px] leading-tight text-ink">
+        <h2 className="mt-3 flex items-center gap-2 font-display text-[24px] leading-tight text-ink">
           {t(slot.labelKey)}
+          {SCHEME_FALLBACKS[slotId] && (
+            <DebugBadge
+              labelKey="debug.fallback"
+              title={`scheme asked for ${SCHEME_FALLBACKS[slotId]}, which is not in the catalogue`}
+            />
+          )}
         </h2>
         <p className="mt-1 text-[11px] tabular-nums text-ink-muted">
           {t("swap.opening", {
@@ -155,7 +153,7 @@ function BlowerSection() {
                         {t("swap.selected")}
                       </span>
                     )}
-                    {DEBUG && option.verifiedAt === null && <UnverifiedBadge />}
+                    {option.verifiedAt === null && <DebugBadge labelKey="debug.unverified" />}
                   </span>
                   <span className="mt-0.5 block truncate text-[11px] text-ink-muted">
                     {option.model} · {option.installType.join(", ")}
@@ -218,7 +216,7 @@ function CandidateRow({
                 {t("swap.selected")}
               </span>
             )}
-            {DEBUG && appliance.verifiedAt === null && <UnverifiedBadge />}
+            {appliance.verifiedAt === null && <DebugBadge labelKey="debug.unverified" />}
           </span>
           <span className="mt-0.5 block truncate text-[11px] text-ink-muted">
             {appliance.model}

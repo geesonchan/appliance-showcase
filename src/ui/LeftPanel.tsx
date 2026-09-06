@@ -1,9 +1,10 @@
-import { SCHEME, SLOT_ORDER } from "../data/catalogue";
+import { SCHEME, SCHEME_FALLBACKS, SLOT_ORDER } from "../data/catalogue";
 import { formatPrice, formatThousands, usePackageSummary } from "../data/packageSummary";
 import { SLOT_BY_ID } from "../data/slots";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
 import { useSelection } from "../store/useSelection";
+import { DebugBadge } from "./DebugBadge";
 import { SwapPanel } from "./SwapPanel";
 
 /**
@@ -84,8 +85,14 @@ export function LeftPanel() {
                   {String(index + 1).padStart(2, "0")}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[13px] text-ink">
+                  <span className="flex items-center gap-1.5 truncate text-[13px] text-ink">
                     {t(slot.labelKey)}
+                    {SCHEME_FALLBACKS[slotId] && (
+                      <DebugBadge
+                        labelKey="debug.fallback"
+                        title={`scheme asked for ${SCHEME_FALLBACKS[slotId]}`}
+                      />
+                    )}
                   </span>
                   {appliance && (
                     <span className="block truncate text-[11px] text-ink-muted">
