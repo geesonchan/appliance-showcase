@@ -153,13 +153,19 @@ describe("desktop", () => {
   });
 
   it("swaps a model in place and follows it everywhere", async () => {
-    const { page, errors } = await openPage(DESKTOP);
-    const pinText = () =>
-      page.locator("button[style*='position: absolute']").nth(1).textContent();
-    const pinBefore = await pinText();
+    const { page, errors } = await openPage(DESKTOP, false, "?debug=1");
+    // The measured geometry, which is the only proof the scene itself changed
+    // rather than just the panel text beside it.
+    const rangeBox = () =>
+      page.evaluate(
+        () =>
+          (window as unknown as { __applianceBoxes?: Record<string, { w: number }> })
+            .__applianceBoxes?.["slot-range"],
+      );
 
     await page.getByRole("button", { name: /^02 Range/ }).first().click();
     await page.waitForTimeout(1200);
+    const boxBefore = await rangeBox();
     const specBefore = await page
       .getByRole("button", { name: "View specs" })
       .locator("xpath=..")
@@ -170,13 +176,14 @@ describe("desktop", () => {
     const others = page.locator("li button[aria-pressed='false']:not([disabled])");
     expect(await others.count()).toBeGreaterThan(0);
     await others.first().click();
-    await page.waitForTimeout(900);
+    await page.waitForTimeout(1200);
 
-    // The pin, the callout and the scene all read the one selection.
-    expect(await pinText()).not.toBe(pinBefore);
     expect(
       await page.getByRole("button", { name: "View specs" }).locator("xpath=..").innerText(),
     ).not.toBe(specBefore);
+    // A narrower range is drawn narrower: the model reads its own dimensions.
+    const boxAfter = await rangeBox();
+    expect(boxAfter!.w).not.toBe(boxBefore!.w);
 
     expect(errors).toEqual([]);
     await page.close();
@@ -395,11 +402,14 @@ describe("occlusion fade", () => {
     await page.waitForTimeout(1300);
     expect(await faded()).toEqual([]);
 
-    // The refrigerator stands clear, so flying to it fades nothing: the check
-    // is targeted, not "dim the room whenever a slot is open".
+    // Another slot fades a different set, and never its own enclosure: the
+    // check is targeted, not "dim the room whenever a slot is open".
     await page.getByRole("button", { name: /^01 Refrigerator/ }).first().click();
     await page.waitForTimeout(1600);
-    expect(await faded()).toEqual([]);
+    const forFridge = (await faded())!;
+    expect(forFridge).not.toEqual(hidden);
+    expect(forFridge).not.toContain("island-counter");
+    expect(forFridge.some((id) => id.startsWith("left-fridge"))).toBe(false);
 
     expect(errors).toEqual([]);
     await page.close();

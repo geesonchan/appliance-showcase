@@ -9,6 +9,7 @@ import { KitchenShell } from "./KitchenShell";
 import { Lights } from "./Lights";
 import { OcclusionFade } from "./OcclusionFade";
 import { PinProjector } from "./PinProjector";
+import { SceneDebug } from "./SceneDebug";
 import { ShaderWarmup } from "./ShaderWarmup";
 import { UtilityLayer } from "./UtilityLayer";
 
@@ -67,6 +68,7 @@ export function Scene() {
         <UtilityLayer type="duct" />
         <OcclusionFade />
         <PinProjector />
+        <SceneDebug />
       </Suspense>
       <CameraRig />
     </Canvas>
