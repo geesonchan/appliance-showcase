@@ -5,6 +5,7 @@ import { SLOT_BY_ID, ft } from "../data/slots";
 import { anchorFor } from "./pinAnchor";
 import { DEBUG } from "../debug";
 import { useAppStore } from "../store/useAppStore";
+import { useSelection } from "../store/useSelection";
 
 /** What a faded object drops to. */
 const FADED_OPACITY = 0.2;
@@ -49,6 +50,7 @@ export function OcclusionFade() {
   const camera = useThree((s) => s.camera);
   const scene = useThree((s) => s.scene);
   const selectedSlot = useAppStore((s) => s.selectedSlot);
+  const selection = useSelection();
 
   const raycaster = useMemo(() => new THREE.Raycaster(), []);
   const forward = useMemo(() => new THREE.Vector3(), []);
@@ -107,7 +109,7 @@ export function OcclusionFade() {
     const halfH = ft(slot.cutout.h) / 2;
     anchor.set(slot.position[0], slot.position[1] + halfH, slot.position[2]);
 
-    pinAt.copy(anchorFor(selectedSlot));
+    pinAt.copy(anchorFor(selectedSlot, selection[selectedSlot]));
 
     const hits = new Set<THREE.Material>();
     const names = new Set<string>();

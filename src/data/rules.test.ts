@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { FIXTURES } from "./testFixtures";
 import { SLOT_BY_ID } from "./slots";
-import { RULES, ductDiameterFor, evaluateSlot, packageContext } from "./rules";
+import {
+  RULES,
+  canopyClearance,
+  ductDiameterFor,
+  evaluateSlot,
+  packageContext,
+} from "./rules";
+import { outletSize } from "./hood";
 import { slotAvailability } from "./availability";
 import type { Appliance, SlotId } from "../types";
 
@@ -217,3 +224,42 @@ describe("message numbers", () => {
     expect(paramsOf("slot-fridge", deep, "deeper-than-opening")?.depth).toBe(4);
   });
 });
+
+describe("the canopy has to clear the cooking surface", () => {
+  const hood = FIXTURES.hoodNeedsBlower;
+
+  it("passes when the range is the height the room was built for", () => {
+    const short = { ...FIXTURES.gasRange36, heightIn: 36 } as Appliance;
+    expect(firePackage2(hood, short)).not.toContain("canopy-clearance");
+  });
+
+  // The canopy hangs where the wall was drilled; a taller range eats the gap.
+  it("fires when a taller range closes the gap below 30 inches", () => {
+    const tall = { ...FIXTURES.gasRange36, heightIn: 36.75 } as Appliance;
+    expect(canopyClearance(tall)).toBeLessThan(30);
+    expect(firePackage2(hood, tall)).toContain("canopy-clearance");
+  });
+
+  it("says nothing when there is no range to measure from", () => {
+    expect(canopyClearance(undefined)).toBeNull();
+    expect(firePackage2(hood, undefined)).not.toContain("canopy-clearance");
+  });
+
+  it("quotes the cabinet cutout at the size of the hood's own outlet", () => {
+    const findings = evaluateSlot(slot("slot-hood"), hood, packageContext(hood, null));
+    const cutout = findings.find((f) => f.ruleId === "hood-cabinet-cutout");
+    expect(cutout).toBeDefined();
+    expect(cutout!.params.size).toBe(outletSize());
+    expect(String(cutout!.params.size)).toContain("8.8125");
+  });
+});
+
+/** Package-scope rules for a hood and the range under it. */
+function firePackage2(hood: Appliance, range: Appliance | undefined) {
+  return evaluateSlot(
+    slot("slot-hood"),
+    hood,
+    packageContext(hood, null, range),
+    "package",
+  ).map((finding) => finding.ruleId);
+}

@@ -22,7 +22,7 @@ export function useChecklist(): Checklist {
   const blower = useSelectedBlower();
 
   return useMemo(() => {
-    const context = packageContext(selection["slot-hood"], blower);
+    const context = packageContext(selection["slot-hood"], blower, selection["slot-range"]);
     const findings = [
       ...SLOT_ORDER.flatMap((slotId) =>
         evaluateSlot(SLOT_BY_ID[slotId], selection[slotId], context),

@@ -159,5 +159,11 @@
   "quote.backToRoom": "Back to the room",
   "quote.hideRaw": "Hide",
   "hero.stat.room": "Room, feet",
-  "blower.uncheckedList": "No compatibility list for this hood yet; every blower in stock is shown."
+  "blower.uncheckedList": "No compatibility list for this hood yet; every blower in stock is shown.",
+  "panel.dimensions": "Dimensions",
+  "dimension.clearanceRange": "gas min {min}, max {max}",
+  "dimension.standard": "standard {value}",
+  "rule.canopyClearance": "Canopy sits {clearance}\" over the cooking surface; gas wants {min}\"",
+  "rule.hoodCabinetCutout": "Cabinet above the hood needs a {size} cutout in its floor for the duct",
+  "duct.callout": "Cabinet floor needs a {size} cutout; the duct passes through the cabinet"
 }

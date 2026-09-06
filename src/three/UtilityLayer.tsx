@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import { CABINET_STANDARDS, ROOM, SLOTS, ft } from "../data/slots";
 import { FIXTURES } from "../data/fixtures";
+import { hoodCabinetFloor, hoodOutlet, outletSize } from "../data/hood";
 import { deriveUtilities } from "../data/utilities";
 import { useAppStore } from "../store/useAppStore";
 import { useSelection, useSelectedBlower } from "../store/useSelection";
@@ -340,9 +341,13 @@ function WaterRuns({ effective }: { effective: Record<string, Utilities> }) {
 function DuctRuns({
   effective,
   blower,
+  selection,
+  showToast,
 }: {
   effective: Record<string, Utilities>;
   blower: Appliance | null;
+  selection: Record<string, Appliance>;
+  showToast: (key: string, vars?: Record<string, string | number>) => void;
 }) {
   return (
     <group name="utility-duct">
@@ -351,11 +356,12 @@ function DuctRuns({
         if (!duct || duct.route === "recirc") return null;
 
         const radius = ft(duct.diameterIn) / 2;
-        const anchor = wallAnchor(slot, STANDOFF.default);
-        // The collar sits above the canopy, where the spec sheet puts it.
-        const collarY = slot.position[1] + ft(slot.cutout.h + DUCT.outletAboveBodyIn);
-        const x = slot.position[0];
-        const z = duct.route === "back-wall" ? slot.position[2] : anchor.z + ft(8);
+        // Off the opening in the canopy's top, which is well behind the front
+        // edge — and is why the cabinet above needs a hole in its floor.
+        const outlet = hoodOutlet(slot, selection[slot.id]);
+        const collarY = outlet.position[1] + ft(DUCT.outletAboveBodyIn);
+        const x = outlet.position[0];
+        const z = outlet.position[2];
 
         // Where the blower ends up: in the canopy, part-way along the run, or
         // out at the termination.
@@ -370,15 +376,32 @@ function DuctRuns({
         const wall = -ROOM.halfZ;
         const runsUp = duct.route !== "back-wall";
         const end: [number, number, number] = runsUp ? [x, roof, z] : [x, collarY, wall];
+        const cutout = { w: outlet.widthFt, d: outlet.depthFt };
+        const cabinetFloor = hoodCabinetFloor();
         const inlineAt: [number, number, number] = runsUp
           ? [x, collarY + (roof - collarY) * 0.62, z]
           : [x, collarY, slot.position[2] + (wall - slot.position[2]) * 0.62];
 
         return (
-          <group key={slot.id}>
+          <group
+            key={slot.id}
+            onClick={(event) => {
+              event.stopPropagation();
+              showToast("duct.callout", { size: outletSize() });
+            }}
+            onPointerOver={() => (document.body.style.cursor = "pointer")}
+            onPointerOut={() => (document.body.style.cursor = "auto")}
+          >
+            {/* The hole this duct needs in the floor of the cabinet above. */}
+            {runsUp && cabinetFloor !== null && (
+              <mesh position={[x, cabinetFloor, z]} rotation={[-Math.PI / 2, 0, 0]}>
+                <planeGeometry args={[cutout.w, cutout.d]} />
+                <meshBasicMaterial color={UTILITY_COLORS.duct} side={THREE.DoubleSide} />
+              </mesh>
+            )}
             {/* The transition off the canopy, with its back-draft damper. */}
             <Pipe
-              from={[x, slot.position[1] + ft(slot.cutout.h), z]}
+              from={[x, outlet.position[1], z]}
               to={[x, collarY, z]}
               radius={radius}
               color={UTILITY_COLORS.duct}
@@ -433,6 +456,7 @@ function DuctRuns({
 export function UtilityLayer({ type }: { type: UtilityType }) {
   const renderMode = useAppStore((s) => s.renderMode);
   const enabled = useAppStore((s) => s.visibleUtilities[type]);
+  const showToast = useAppStore((s) => s.showToast);
   const selection = useSelection();
   const blower = useSelectedBlower();
   const visible = renderMode === "install" && enabled;
@@ -471,7 +495,14 @@ export function UtilityLayer({ type }: { type: UtilityType }) {
       {type === "gas" && <GasRuns effective={effective} />}
       {type === "power" && <PowerRuns effective={effective} />}
       {type === "water" && <WaterRuns effective={withFixtures} />}
-      {type === "duct" && <DuctRuns effective={effective} blower={blower} />}
+      {type === "duct" && (
+        <DuctRuns
+          effective={effective}
+          blower={blower}
+          selection={selection}
+          showToast={showToast}
+        />
+      )}
     </group>
   );
 }

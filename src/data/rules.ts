@@ -2,6 +2,8 @@ import rulesFile from "../../data/rules.json";
 import { z } from "zod";
 import type { Appliance, Slot, SlotId } from "../types";
 import { fitCheck, type FitResult } from "./fit";
+import { outletSize } from "./hood";
+import { SLOT_BY_ID } from "./slots";
 import { parseDataFile, metaSchema } from "./schema";
 import { effectiveCfm } from "./ventilation";
 
@@ -87,6 +89,14 @@ interface Context {
     blower: Appliance | null;
     effectiveCfm: number | null;
     ductDiameterIn: number | null;
+    /**
+     * How much air there is between the cooking surface and the canopy, given
+     * the two models actually specified. The hood is screwed to the wall at a
+     * fixed height; a taller range eats into the clearance.
+     */
+    canopyClearanceIn: number | null;
+    /** The opening the duct comes off the canopy through, as a size to quote. */
+    hoodOutletSize: string;
   };
 }
 
@@ -190,7 +200,29 @@ const formatNumber = (key: string, value: number) => {
 export function packageContext(
   hood: Appliance | undefined,
   blower: Appliance | null,
+  range?: Appliance,
 ): Context["package"] {
   const cfm = effectiveCfm(hood, blower);
-  return { blower, effectiveCfm: cfm, ductDiameterIn: ductDiameterFor(cfm) };
+  return {
+    blower,
+    effectiveCfm: cfm,
+    ductDiameterIn: ductDiameterFor(cfm),
+    canopyClearanceIn: canopyClearance(range),
+    hoodOutletSize: outletSize(),
+  };
+}
+
+/**
+ * The gap between the cooking surface and the underside of the canopy.
+ *
+ * The canopy hangs where the room was built for it. Specifying a range whose
+ * top sits above the counter closes that gap, and below 30" a gas range is
+ * outside what the manufacturer allows — which is a thing worth being told
+ * before the hood is on the wall.
+ */
+export function canopyClearance(range: Appliance | undefined): number | null {
+  if (!range) return null;
+  const hood = SLOT_BY_ID["slot-hood"];
+  const cooktopIn = range.heightIn ?? range.cutoutHeightIn ?? SLOT_BY_ID["slot-range"].cutout.h;
+  return Number((hood.position[1] * 12 - cooktopIn).toFixed(3));
 }

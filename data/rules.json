@@ -223,6 +223,54 @@
         "depth": "fit.depthOverIn"
       },
       "scope": "slot"
+    },
+    {
+      "id": "canopy-clearance",
+      "scope": "package",
+      "severity": "blocker",
+      "messageKey": "rule.canopyClearance",
+      "when": [
+        {
+          "fact": "appliance.category",
+          "op": "eq",
+          "value": "hood"
+        },
+        {
+          "fact": "package.canopyClearanceIn",
+          "op": "notNull",
+          "value": null
+        },
+        {
+          "fact": "package.canopyClearanceIn",
+          "op": "lt",
+          "value": 30
+        }
+      ],
+      "params": {
+        "clearance": "package.canopyClearanceIn",
+        "min": 30
+      }
+    },
+    {
+      "id": "hood-cabinet-cutout",
+      "scope": "slot",
+      "severity": "info",
+      "messageKey": "rule.hoodCabinetCutout",
+      "when": [
+        {
+          "fact": "appliance.category",
+          "op": "eq",
+          "value": "hood"
+        },
+        {
+          "fact": "slot.utilities.duct.route",
+          "op": "eq",
+          "value": "up-through-cabinet"
+        }
+      ],
+      "params": {
+        "size": "package.hoodOutletSize"
+      }
     }
   ],
   "thresholds": {

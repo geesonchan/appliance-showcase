@@ -160,5 +160,11 @@
   "quote.backToRoom": "返回房间",
   "quote.hideRaw": "收起",
   "hero.stat.room": "房间（英尺）",
-  "blower.uncheckedList": "此油烟机尚无兼容清单，这里列出的是全部在库风机。"
+  "blower.uncheckedList": "此油烟机尚无兼容清单，这里列出的是全部在库风机。",
+  "panel.dimensions": "尺寸标注",
+  "dimension.clearanceRange": "燃气最小 {min}，最大 {max}",
+  "dimension.standard": "标准 {value}",
+  "rule.canopyClearance": "罩底距炉面 {clearance}\"，燃气要求 {min}\"",
+  "rule.hoodCabinetCutout": "油烟机上方吊柜底板需开 {size} 切口供风管穿过",
+  "duct.callout": "吊柜底板需开 {size} 切口，风管穿柜"
 }

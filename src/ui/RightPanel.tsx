@@ -37,6 +37,8 @@ export function RightPanel() {
   const renderMode = useAppStore((s) => s.renderMode);
   const visibleUtilities = useAppStore((s) => s.visibleUtilities);
   const toggleUtility = useAppStore((s) => s.toggleUtility);
+  const showDimensions = useAppStore((s) => s.showDimensions);
+  const toggleDimensions = useAppStore((s) => s.toggleDimensions);
 
   return (
     <div className="flex h-full flex-col overflow-y-auto">
@@ -77,6 +79,13 @@ export function RightPanel() {
               onChange={() => toggleUtility(type)}
             />
           ))}
+          {/* Not a service, but it belongs with them: another thing the
+              install view draws over the room. */}
+          <Toggle
+            label={t("panel.dimensions")}
+            checked={showDimensions}
+            onChange={toggleDimensions}
+          />
         </div>
       </PanelSection>
 

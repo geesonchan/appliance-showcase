@@ -15,6 +15,8 @@ interface AppState {
   showLabels: boolean;
   /** Which utility layers are visible while in install mode. */
   visibleUtilities: Record<UtilityType, boolean>;
+  /** The dimension lines, which are an install-mode layer of their own. */
+  showDimensions: boolean;
   selectedSlot: SlotId | null;
   /** Which appliance fills each slot right now, by id. */
   selection: Record<SlotId, string>;
@@ -56,6 +58,7 @@ interface AppState {
   toggleCabinets: () => void;
   toggleLabels: () => void;
   toggleUtility: (type: UtilityType) => void;
+  toggleDimensions: () => void;
   selectSlot: (slot: SlotId | null) => void;
   selectAppliance: (slot: SlotId, applianceId: string) => void;
   selectBlower: (blowerId: string | null) => void;
@@ -82,6 +85,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   showCabinets: true,
   showLabels: true,
   visibleUtilities: { gas: true, power: true, water: true, duct: true },
+  showDimensions: true,
   selectedSlot: null,
   // Starts from the scheme's default and is the single source of truth from
   // then on; the scene, the summary and the utility layers all read it.
@@ -112,6 +116,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     set((s) => ({
       visibleUtilities: { ...s.visibleUtilities, [type]: !s.visibleUtilities[type] },
     })),
+  toggleDimensions: () => set((s) => ({ showDimensions: !s.showDimensions })),
   // The mobile sheet is half height, so selecting an appliance leaves it open;
   // the fly-in happens in the half of the screen the sheet does not cover.
   selectSlot: (selectedSlot) => set({ selectedSlot }),

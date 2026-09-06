@@ -4,6 +4,7 @@ import { useAppStore } from "../store/useAppStore";
 import { ApplianceLayer } from "./ApplianceLayer";
 import { CabinetLayer } from "./CabinetLayer";
 import { CameraRig } from "./CameraRig";
+import { DimensionProjector } from "./DimensionProjector";
 import { FixtureLayer } from "./FixtureLayer";
 import { KitchenShell } from "./KitchenShell";
 import { Lights } from "./Lights";
@@ -69,6 +70,7 @@ export function Scene() {
         <UtilityLayer type="duct" />
         <OcclusionFade />
         <PinProjector />
+        <DimensionProjector />
         <SceneDebug />
         <ModuleLabelProjector />
       </Suspense>
