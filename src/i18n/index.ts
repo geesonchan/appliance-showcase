@@ -7,10 +7,18 @@ type Dict = Record<string, string>;
 
 const dictionaries: Record<Lang, Dict> = {
   en: en as Dict,
-  // M1 ships English copy only; zh is intentionally empty and falls back to en
-  // so the language switch is wired up and ready for the M2 translation pass.
   zh: zh as Dict,
 };
+
+/**
+ * Whether a language's copy has been through a human.
+ *
+ * `zh` is a machine-translation placeholder, and says so in its own file. The
+ * UI shows that plainly rather than letting unreviewed copy pass for finished
+ * work — someone reading it should know what they are reading.
+ */
+export const isMachineTranslated = (lang: Lang) =>
+  (dictionaries[lang] as Record<string, unknown>)._translationStatus === "machine";
 
 /**
  * Look up a copy string. Missing keys fall back to English, then to the key

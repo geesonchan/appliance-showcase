@@ -46,7 +46,6 @@
   "bottom.zoomOut": "Zoom out",
   "bottom.reset": "Reset view",
   "bottom.quote": "Request quote",
-  "bottom.quote.soon": "Quote sheet arrives in a later milestone",
   "bottom.compass": "N",
   "energy.gas": "Gas",
   "energy.electric": "Electric",
@@ -129,5 +128,17 @@
   "checklist.info": "Note",
   "checklist.count": "{blockers} blocking, {warnings} to check",
   "swap.unavailable": "Slot unavailable",
-  "swap.unavailableOtr": "{takenBy} is an over-the-range microwave and occupies this wall. Choose a different microwave to free the hood slot."
+  "swap.unavailableOtr": "{takenBy} is an over-the-range microwave and occupies this wall. Choose a different microwave to free the hood slot.",
+  "debug.fallback": "fallback",
+  "quote.title": "Quote sheet",
+  "quote.summary": "Readable summary",
+  "quote.json": "JSON",
+  "quote.copySummary": "Copy summary",
+  "quote.copyJson": "Copy JSON",
+  "quote.email": "Email",
+  "quote.copied": "Copied to clipboard",
+  "quote.close": "Close",
+  "quote.blockers": "{blockers} blocking item(s) still outstanding",
+  "quote.subject": "Quote sheet: {scheme}",
+  "translation.machine": "Machine translated, not reviewed"
 }

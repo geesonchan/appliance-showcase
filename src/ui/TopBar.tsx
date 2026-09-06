@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { SCHEME } from "../data/catalogue";
+import { isMachineTranslated } from "../i18n";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
 import { Segmented } from "./primitives";
@@ -42,6 +43,15 @@ export function TopBar() {
       </div>
 
       <div className="flex shrink-0 items-center gap-2 md:gap-3">
+        {/* Unreviewed copy says so, rather than passing for finished work. */}
+        {isMachineTranslated(lang) && (
+          <span
+            title={t("translation.machine")}
+            className="rounded-sm border border-line px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wide text-ink-muted"
+          >
+            MT
+          </span>
+        )}
         <Segmented
           size="sm"
           value={lang}
