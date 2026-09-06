@@ -18,19 +18,51 @@ export const ROOM = {
   halfX: 7,
   halfZ: 6,
   wallHeight: 9,
+  /** Finished counter height: a 34.5" base box under a 1.5" top. */
   counterHeight: ft(36),
+  counterThickness: ft(1.5),
   counterDepth: ft(24),
   counterOverhang: ft(1),
-  counterThickness: ft(1.5),
+  /** Wall cabinets: 12" deep, 42" tall, hung 18" above the counter. */
+  upperDepth: ft(12),
   upperBottom: ft(54),
-  upperTop: ft(84),
-  /**
-   * Tall cabinets run past the uppers to 96", which is what an 84" appliance
-   * opening plus a bridging cabinet above it actually needs.
-   */
+  upperTop: ft(96),
+  /** Tall cabinets are 24" deep and run to the same 96" as the uppers. */
   tallTop: ft(96),
-  upperDepth: ft(13),
   toeKick: ft(4),
+};
+
+/**
+ * The dimensions a North American kitchen is actually built to.
+ *
+ * Written as inches because that is how the trade states them, and kept apart
+ * from ROOM because these are the constraints — the numbers a layout is checked
+ * against — while ROOM is this particular room. See docs/decisions.md D13.
+ */
+export const CABINET_STANDARDS = {
+  base: { depthIn: 24, boxHeightIn: 34.5, counterHeightIn: 36 },
+  /** Cabinet widths come in 3" increments between 12" and 36". */
+  widthIn: { min: 12, max: 36, step: 3 },
+  upper: { depthIn: 12, heightsIn: [30, 36, 42], bottomAboveCounterIn: 18 },
+  tall: { depthIn: 24, heightsIn: [84, 90, 96] },
+  /** A lazy susan is a 36" square; a blind corner is 42" along one run. */
+  corner: { lazySusanIn: 36, blindIn: 42 },
+  /** An L needs a short leg of at least 8ft and a long leg of 10-12ft. */
+  legIn: { shortMin: 96, longMin: 120, longMax: 144 },
+  /** A tall cabinet is finished off with a short return, not left as a cliff. */
+  tallReturnIn: { min: 24, max: 48 },
+  /**
+   * Ventilation, from the Thermador clearance sheet
+   * (docs/reference/thermador-hood-clearance.png).
+   */
+  hood: {
+    bodyHeightIn: 18,
+    /** Canopy bottom above the cooking surface. Gas sets the 30" minimum. */
+    aboveCooktopMinIn: 30,
+    aboveCooktopMaxIn: 40,
+    /** The duct collar sits this far above the canopy top. */
+    outletAboveBodyIn: 8.375,
+  },
 };
 
 /** Thickness of a finished panel or a tower side, in feet. */
@@ -84,26 +116,29 @@ export const RUNS: CabinetRun[] = [
     id: "left",
     axis: "z",
     centre: -ROOM.halfX + ROOM.counterDepth / 2,
+    // 36 + 18 + 42 + 24 = 120", the short leg of the L.
     segments: [
-      { id: "left-corner", kind: "corner", from: -6, to: -4 },
+      { id: "left-corner", kind: "corner", from: -6, to: -3 },
       // Rule 6: the refrigerator's landing, on its door side.
-      { id: "left-fridge-landing", kind: "counter", from: -4, to: -2.75 },
-      // Rule 1: the tower is the last segment, not the corner.
-      { id: "left-fridge", kind: "tall", from: -2.75, to: 0.75, slot: "slot-fridge" },
+      { id: "left-fridge-landing", kind: "counter", from: -3, to: -1.5 },
+      { id: "left-fridge", kind: "tall", from: -1.5, to: 2, slot: "slot-fridge" },
+      // D13: a tower is finished off with a short return, not left as a cliff.
+      { id: "left-return", kind: "counter", from: 2, to: 4 },
     ],
   },
   {
     id: "back",
     axis: "x",
     centre: -ROOM.halfZ + ROOM.counterDepth / 2,
+    // 18 + 36 + 12 + 30 + 24 + 12 = 132", the long leg.
     segments: [
-      { id: "back-range-landing-left", kind: "counter", from: -5, to: -3.5 },
-      { id: "back-range", kind: "appliance", from: -3.5, to: -0.5, slot: "slot-range" },
-      { id: "back-range-landing-right", kind: "counter", from: -0.5, to: 1 },
-      { id: "back-sink", kind: "fixture", from: 1, to: 3.5, fixture: "fixture-sink" },
+      { id: "back-range-landing-left", kind: "counter", from: -4, to: -2.5 },
+      { id: "back-range", kind: "appliance", from: -2.5, to: 0.5, slot: "slot-range" },
+      { id: "back-range-landing-right", kind: "counter", from: 0.5, to: 1.5 },
+      { id: "back-sink", kind: "fixture", from: 1.5, to: 4, fixture: "fixture-sink" },
       // Rule 5: hard against the sink base, on the side away from the range.
-      { id: "back-dishwasher", kind: "appliance", from: 3.5, to: 5.5, slot: "slot-dishwasher" },
-      { id: "back-end", kind: "counter", from: 5.5, to: 7 },
+      { id: "back-dishwasher", kind: "appliance", from: 4, to: 6, slot: "slot-dishwasher" },
+      { id: "back-end", kind: "counter", from: 6, to: 7 },
     ],
   },
 ];
@@ -211,9 +246,11 @@ export const SLOT_PLACEMENT: Record<SlotId, SlotPlacement> = {
     mount: "wall",
   },
   "slot-hood": {
+    // The canopy's underside, 30" above the cooking surface: the gas minimum,
+    // which is what a 36" counter plus a 30" clearance puts at 66".
     position: [
       mid(segment("back", "back-range")),
-      ROOM.counterHeight + ft(30),
+      ROOM.counterHeight + ft(CABINET_STANDARDS.hood.aboveCooktopMinIn),
       RUN.backZ,
     ],
     rotationY: 0,

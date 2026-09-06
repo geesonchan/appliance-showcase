@@ -1,38 +1,51 @@
 import { FIXTURE_BY_ID } from "./fixtures";
-import { ISLAND, ROOM, RUNS, type CabinetRun, type RunSegment } from "./room";
+import {
+  CABINET_STANDARDS,
+  ISLAND,
+  ROOM,
+  RUNS,
+  type CabinetRun,
+  type RunSegment,
+} from "./room";
 import { SLOT_BY_ID } from "./slots";
 import type { SlotId } from "../types";
 
 /**
- * Leo's cabinet layout rules, as something the code can be held to.
+ * The cabinet rules, as something the code can be held to.
  *
- * These are trade rules, not preferences: a kitchen that breaks them is wrong
- * on site, not merely unusual. They live here rather than only in
- * docs/decisions.md D11 so that the current room can be checked against them,
- * and so that M3-3's template generator has one definition to satisfy rather
- * than a paragraph to interpret.
+ * Two sets, checked together. D11 is where things go relative to each other —
+ * a tower at the end of a run, the dishwasher beside the sink. D13 is what size
+ * they are — 24" deep base boxes, 3" width increments, a canopy 30" over the
+ * cooktop. Both are trade rules rather than preferences: a kitchen that breaks
+ * them is wrong on site.
+ *
+ * They live here rather than only in docs/decisions.md so the current room can
+ * be checked against them, and so M3-3's generator has one definition to
+ * satisfy rather than two paragraphs to interpret.
  *
  * Every clearance is in inches, which is how the trade states them.
  */
 export const LAYOUT_LIMITS = {
-  /** Rule 4: counter each side of the range. */
+  /** D11 rule 4: counter each side of the range. */
   rangeLandingIn: 12,
-  /** Rule 5: how far the dishwasher may sit from the sink. */
+  /** D11 rule 5: how far the dishwasher may sit from the sink. */
   dishwasherToSinkIn: 36,
-  /** Rule 6: counter on the refrigerator's door side. */
+  /** D11 rule 6: counter on the refrigerator's door side. */
   fridgeLandingIn: 15,
   /** The aisle a working kitchen needs, for the island. */
   aisleIn: 42,
 };
 
 export interface LayoutViolation {
-  rule: number;
+  /** Which rule, as `d11-<n>` or `d13-<what>`. */
+  code: string;
   /** What is wrong, in the terms a cabinetmaker would use. */
   message: string;
 }
 
 const inches = (feet: number) => feet * 12;
 const spanOf = (s: RunSegment) => s.to - s.from;
+const widthIn = (s: RunSegment) => inches(spanOf(s));
 
 /** The segment carrying a slot, and the run it is on. */
 function locate(runs: CabinetRun[], slotId: SlotId): { run: CabinetRun; index: number } | null {
@@ -66,16 +79,15 @@ function landing(run: CabinetRun, index: number, direction: -1 | 1): number {
  */
 export function checkLayout(runs: CabinetRun[] = RUNS): LayoutViolation[] {
   const problems: LayoutViolation[] = [];
-  const fail = (rule: number, message: string) => problems.push({ rule, message });
+  const fail = (code: string, message: string) => problems.push({ code, message });
 
   for (const run of runs) {
-    // Rule 3: the cabinetry is continuous — no gaps, no overlaps — from the
-    // corner to the end of the run.
+    // D11 rule 3: the cabinetry is continuous — no gaps, no overlaps.
     for (let i = 1; i < run.segments.length; i += 1) {
       const gap = run.segments[i].from - run.segments[i - 1].to;
       if (Math.abs(gap) > 1e-6) {
         fail(
-          3,
+          "d11-3",
           `${run.id} run: ${inches(Math.abs(gap)).toFixed(1)}" ${gap > 0 ? "gap" : "overlap"} ` +
             `between ${run.segments[i - 1].id} and ${run.segments[i].id}`,
         );
@@ -83,93 +95,206 @@ export function checkLayout(runs: CabinetRun[] = RUNS): LayoutViolation[] {
     }
 
     for (const [i, segment] of run.segments.entries()) {
-      // Rule 1: a tall cabinet goes at the end of a run.
-      if (segment.kind === "tall" && i !== 0 && i !== run.segments.length - 1) {
-        fail(1, `${segment.id} is a tall cabinet in the middle of the ${run.id} run`);
-      }
-      // Rule 2: the corner is a corner cabinet and carries nothing with a door.
+      // D11 rule 2: the corner carries nothing with a door.
       if (segment.kind === "corner" && (segment.slot || segment.fixture)) {
-        fail(2, `${segment.id} puts ${segment.slot ?? segment.fixture} in the corner`);
+        fail("d11-2", `${segment.id} puts ${segment.slot ?? segment.fixture} in the corner`);
       }
-      if (segment.kind === "tall" && run.segments[i === 0 ? 1 : i - 1]?.kind === "corner") {
-        fail(1, `${segment.id} is a tall cabinet hard against the corner`);
+
+      if (segment.kind !== "tall") continue;
+
+      // D11 rule 1. A tower ends the working stretch of a run: nothing that
+      // needs counter beside it may follow, and it is never against the corner.
+      const after = run.segments.slice(i + 1);
+      if (after.some((s) => s.kind !== "counter")) {
+        fail("d11-1", `${segment.id} has more than a finishing return after it`);
       }
+      if (run.segments[i - 1]?.kind === "corner" || run.segments[i + 1]?.kind === "corner") {
+        fail("d11-1", `${segment.id} is a tall cabinet hard against the corner`);
+      }
+      // D13: a tower is finished off with a short return, not left as a cliff.
+      const returnIn = inches(after.reduce((sum, s) => sum + spanOf(s), 0));
+      const { min, max } = CABINET_STANDARDS.tallReturnIn;
+      if (returnIn > 1e-6 && (returnIn < min || returnIn > max)) {
+        fail("d13-tall-return", `${segment.id} has a ${returnIn}" return, wants ${min}-${max}"`);
+      }
+    }
+
+    // D13: widths come in 3" increments between 12" and 36". A tall cabinet is
+    // its opening plus a finished panel each side, and a corner has its own
+    // sizes, so both are measured against their own standard.
+    const { min, max, step } = CABINET_STANDARDS.widthIn;
+    for (const segment of run.segments) {
+      const w = widthIn(segment);
+      if (segment.kind === "corner") {
+        const { lazySusanIn, blindIn } = CABINET_STANDARDS.corner;
+        if (w !== lazySusanIn && w !== blindIn) {
+          fail("d13-corner", `${segment.id} is ${w}", wants ${lazySusanIn}" or ${blindIn}"`);
+        }
+        continue;
+      }
+      if (segment.kind === "tall") continue;
+      if (w < min || w > max) {
+        fail("d13-width", `${segment.id} is ${w}", outside the ${min}-${max}" range`);
+      } else if (Math.abs(w / step - Math.round(w / step)) > 1e-6) {
+        fail("d13-width", `${segment.id} is ${w}", not a ${step}" increment`);
+      }
+    }
+
+    // D13: the L's legs, each measured from the inside corner outward. The
+    // corner square belongs to one run, so counting it into both would make
+    // the pair add up to more wall than the room has.
+    const legIn = inches(
+      run.segments[run.segments.length - 1].to - run.segments[0].from,
+    );
+    const { shortMin, longMax } = CABINET_STANDARDS.legIn;
+    if (legIn < shortMin) {
+      fail("d13-leg", `the ${run.id} leg is ${legIn}", wants at least ${shortMin}"`);
+    }
+    if (legIn > longMax) {
+      fail("d13-leg", `the ${run.id} leg is ${legIn}", longer than ${longMax}"`);
     }
   }
 
-  // Rule 4: the range sits on a straight run with landing on both sides, and
-  // the hood over it is at least as wide.
+  // D11 rule 4: the range sits on a straight run with landing on both sides,
+  // and the hood over it is at least as wide.
   const range = locate(runs, "slot-range");
   if (!range) {
-    fail(4, "no range on any run");
+    fail("d11-4", "no range on any run");
   } else {
-    const left = landing(range.run, range.index, -1);
-    const right = landing(range.run, range.index, 1);
-    for (const [side, value] of [["left", left], ["right", right]] as const) {
+    for (const [side, value] of [
+      ["left", landing(range.run, range.index, -1)],
+      ["right", landing(range.run, range.index, 1)],
+    ] as const) {
       if (value < LAYOUT_LIMITS.rangeLandingIn - 1e-6) {
-        fail(4, `range has ${value.toFixed(1)}" of counter to its ${side}, needs ${LAYOUT_LIMITS.rangeLandingIn}"`);
+        fail(
+          "d11-4",
+          `range has ${value.toFixed(1)}" of counter to its ${side}, needs ${LAYOUT_LIMITS.rangeLandingIn}"`,
+        );
       }
     }
     const rangeW = SLOT_BY_ID["slot-range"].cutout.w;
     const hoodW = SLOT_BY_ID["slot-hood"].cutout.w;
-    if (hoodW < rangeW) {
-      fail(4, `hood is ${hoodW}" over a ${rangeW}" range`);
-    }
-    const hoodX = SLOT_BY_ID["slot-hood"].position[0];
-    const rangeX = SLOT_BY_ID["slot-range"].position[0];
-    if (Math.abs(hoodX - rangeX) > 1e-6) {
-      fail(4, "hood is not centred over the range");
+    if (hoodW < rangeW) fail("d13-hood-width", `hood is ${hoodW}" over a ${rangeW}" range`);
+    if (
+      Math.abs(SLOT_BY_ID["slot-hood"].position[0] - SLOT_BY_ID["slot-range"].position[0]) > 1e-6
+    ) {
+      fail("d11-4", "hood is not centred over the range");
     }
   }
 
-  // Rule 5: the dishwasher is beside the sink.
+  // D11 rule 5: the dishwasher is beside the sink.
   const dishwasher = locate(runs, "slot-dishwasher");
   const sink = runs.flatMap((run) => run.segments).find((s) => s.fixture === "fixture-sink");
   if (!dishwasher || !sink) {
-    fail(5, "the dishwasher and the sink must both be on a run");
+    fail("d11-5", "the dishwasher and the sink must both be on a run");
   } else {
     const dw = dishwasher.run.segments[dishwasher.index];
     const between = Math.max(sink.from - dw.to, dw.from - sink.to, 0);
     const centres = Math.abs((dw.from + dw.to) / 2 - (sink.from + sink.to) / 2);
     if (inches(between) > 1e-6) {
-      fail(5, `dishwasher is ${inches(between).toFixed(1)}" clear of the sink base, it should be hard against it`);
+      fail(
+        "d11-5",
+        `dishwasher is ${inches(between).toFixed(1)}" clear of the sink base, it should be hard against it`,
+      );
     }
     if (inches(centres) > LAYOUT_LIMITS.dishwasherToSinkIn) {
-      fail(5, `dishwasher is ${inches(centres).toFixed(1)}" from the sink, limit is ${LAYOUT_LIMITS.dishwasherToSinkIn}"`);
+      fail(
+        "d11-5",
+        `dishwasher is ${inches(centres).toFixed(1)}" from the sink, limit is ${LAYOUT_LIMITS.dishwasherToSinkIn}"`,
+      );
     }
   }
 
-  // Rule 6: the refrigerator has counter to land things on.
+  // D11 rule 6: the refrigerator has counter to land things on.
   const fridge = locate(runs, "slot-fridge");
   if (!fridge) {
-    fail(6, "no refrigerator on any run");
+    fail("d11-6", "no refrigerator on any run");
   } else {
     const best = Math.max(
       landing(fridge.run, fridge.index, -1),
       landing(fridge.run, fridge.index, 1),
     );
     if (best < LAYOUT_LIMITS.fridgeLandingIn - 1e-6) {
-      fail(6, `refrigerator has ${best.toFixed(1)}" of landing, needs ${LAYOUT_LIMITS.fridgeLandingIn}"`);
+      fail(
+        "d11-6",
+        `refrigerator has ${best.toFixed(1)}" of landing, needs ${LAYOUT_LIMITS.fridgeLandingIn}"`,
+      );
     }
   }
 
-  // Rule 7: the island's two openings face opposite ways.
+  // D11 rule 7: the island's two openings face opposite ways.
   const microwave = SLOT_BY_ID["slot-microwave"];
   const wine = SLOT_BY_ID["slot-wine"];
   if (Math.abs(Math.cos(microwave.rotationY) - Math.cos(wine.rotationY)) < 1e-6) {
-    fail(7, "the microwave and the wine cabinet face the same way");
+    fail("d11-7", "the microwave and the wine cabinet face the same way");
   }
   if (microwave.position[2] > wine.position[2]) {
-    fail(7, "the microwave drawer should face the working side and the wine cabinet the seating side");
+    fail(
+      "d11-7",
+      "the microwave drawer should face the working side and the wine cabinet the seating side",
+    );
   }
-
-  // The aisle the island stands in, which is what set the room's depth.
   const runFront = runs.find((r) => r.id === "back")!.centre + ROOM.counterDepth / 2;
   const aisle = inches(ISLAND.z[0] - runFront);
   if (aisle < LAYOUT_LIMITS.aisleIn - 1e-6) {
-    fail(7, `${aisle.toFixed(1)}" aisle between the island and the back run, needs ${LAYOUT_LIMITS.aisleIn}"`);
+    fail(
+      "d11-7",
+      `${aisle.toFixed(1)}" aisle between the island and the back run, needs ${LAYOUT_LIMITS.aisleIn}"`,
+    );
   }
 
+  problems.push(...checkHeights());
+  return problems;
+}
+
+/**
+ * The vertical dimensions, which are the same wherever the cabinets go.
+ *
+ * Separate from the run check because a run says nothing about how tall
+ * anything is, and M3-3's generator will not change any of it.
+ */
+export function checkHeights(): LayoutViolation[] {
+  const problems: LayoutViolation[] = [];
+  const fail = (code: string, message: string) => problems.push({ code, message });
+  const { base, upper, tall, hood } = CABINET_STANDARDS;
+
+  if (inches(ROOM.counterHeight) !== base.counterHeightIn) {
+    fail("d13-base", `counter is at ${inches(ROOM.counterHeight)}", wants ${base.counterHeightIn}"`);
+  }
+  if (inches(ROOM.counterHeight - ROOM.counterThickness) !== base.boxHeightIn) {
+    fail("d13-base", `base box is ${inches(ROOM.counterHeight - ROOM.counterThickness)}" tall`);
+  }
+  if (inches(ROOM.counterDepth) !== base.depthIn) {
+    fail("d13-base", `base run is ${inches(ROOM.counterDepth)}" deep`);
+  }
+
+  if (inches(ROOM.upperBottom) !== base.counterHeightIn + upper.bottomAboveCounterIn) {
+    fail("d13-upper", `uppers start at ${inches(ROOM.upperBottom)}", wants 54"`);
+  }
+  if (inches(ROOM.upperDepth) !== upper.depthIn) {
+    fail("d13-upper", `uppers are ${inches(ROOM.upperDepth)}" deep, wants ${upper.depthIn}"`);
+  }
+  const upperH = inches(ROOM.upperTop - ROOM.upperBottom);
+  if (!upper.heightsIn.includes(upperH)) {
+    fail("d13-upper", `uppers are ${upperH}" tall, wants one of ${upper.heightsIn.join("/")}`);
+  }
+  if (!tall.heightsIn.includes(inches(ROOM.tallTop))) {
+    fail("d13-tall", `tall cabinets are ${inches(ROOM.tallTop)}" tall`);
+  }
+
+  // The canopy: 30" over a 36" cooktop puts its underside at 66" and its top at
+  // 84", which is where the run of wall cabinets picks up again.
+  const hoodSlot = SLOT_BY_ID["slot-hood"];
+  const bottomAbove = inches(hoodSlot.position[1] - ROOM.counterHeight);
+  if (bottomAbove < hood.aboveCooktopMinIn || bottomAbove > hood.aboveCooktopMaxIn) {
+    fail(
+      "d13-hood",
+      `canopy sits ${bottomAbove}" over the cooktop, wants ${hood.aboveCooktopMinIn}-${hood.aboveCooktopMaxIn}"`,
+    );
+  }
+  if (hoodSlot.cutout.h !== hood.bodyHeightIn) {
+    fail("d13-hood", `canopy opening is ${hoodSlot.cutout.h}" tall, wants ${hood.bodyHeightIn}"`);
+  }
   return problems;
 }
 
@@ -182,10 +307,8 @@ export function occupants() {
         run: run.id,
         segment: s.id,
         kind: s.kind,
-        widthIn: inches(spanOf(s)),
-        label: s.slot
-          ? SLOT_BY_ID[s.slot].labelKey
-          : FIXTURE_BY_ID[s.fixture!].labelKey,
+        widthIn: widthIn(s),
+        label: s.slot ? SLOT_BY_ID[s.slot].labelKey : FIXTURE_BY_ID[s.fixture!].labelKey,
       })),
   );
 }

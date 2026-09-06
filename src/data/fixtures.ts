@@ -22,3 +22,21 @@ export const FIXTURES: Fixture[] = parsed.fixtures.map((record) => ({
 export const FIXTURE_BY_ID: Record<FixtureId, Fixture> = Object.fromEntries(
   FIXTURES.map((fixture) => [fixture.id, fixture]),
 ) as Record<FixtureId, Fixture>;
+
+/**
+ * Where a fixture's basin sits, in run-local feet: how far it reaches along the
+ * run either side of centre, and how far across it from the run's centre line.
+ *
+ * The counter and the basin both read this, so the hole in the top and the bowl
+ * that drops into it cannot drift apart.
+ */
+export function bowlExtent(fixture: Fixture) {
+  if (!fixture.bowlIn) return null;
+  return {
+    alongHalf: fixture.bowlIn.w / 24,
+    /** Set 1" toward the room, as an undermount bowl is. */
+    acrossCentre: 1 / 12,
+    acrossHalf: fixture.bowlIn.d / 24,
+    depth: fixture.bowlIn.h / 12,
+  };
+}

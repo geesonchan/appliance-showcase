@@ -1,4 +1,4 @@
-import { FIXTURES } from "../data/fixtures";
+import { bowlExtent, FIXTURES } from "../data/fixtures";
 import { ROOM, ft } from "../data/slots";
 import { useAppStore } from "../store/useAppStore";
 import { finishSurface } from "./materials";
@@ -37,13 +37,18 @@ function Sink({ fixture }: { fixture: Fixture }) {
   const bowl = fixture.bowlIn;
   if (!bowl) return null;
 
+  const extent = bowlExtent(fixture);
+  if (!extent) return null;
+
   const [x, , z] = fixture.position;
-  const counterTop = ROOM.counterHeight + ROOM.counterThickness;
+  // The finished top: a 34.5" box under a 1.5" counter. The counter is cut
+  // around this basin rather than laid over it, so the two never share a plane
+  // and cannot z-fight; see `counterPieces` in data/cabinets.ts.
+  const counterTop = ROOM.counterHeight;
   const w = ft(bowl.w);
   const d = ft(bowl.d);
   const h = ft(bowl.h);
-  // Set back from the counter's front edge, as an undermount bowl is.
-  const bowlZ = z + ft(1);
+  const bowlZ = z + extent.acrossCentre;
 
   // A sink and its faucet are stainless whatever the cabinetry is doing, and
   // the finish helper already knows how each render mode treats it.

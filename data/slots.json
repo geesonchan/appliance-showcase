@@ -88,8 +88,8 @@
       "labelKey": "slot.hood",
       "cutout": {
         "w": 36,
-        "h": 30,
-        "d": 20
+        "h": 18,
+        "d": 24
       },
       "compatibleCategories": [
         "hood",
@@ -99,8 +99,8 @@
         "type": "upper",
         "openingIn": {
           "w": 36,
-          "h": 30,
-          "d": 20
+          "h": 18,
+          "d": 24
         },
         "panelReady": false,
         "finishedSides": 2
