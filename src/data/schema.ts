@@ -166,6 +166,13 @@ export const slotRecordSchema = z.object({
     azimuth: z.number().min(-360).max(360),
     pitch: z.number().min(5).max(80),
   }),
+  /**
+   * Where this slot's label sits relative to its dot, in screen pixels. Preset
+   * per slot for the angle `bestView` arrives at, then adjusted by the
+   * collision pass; a label that lands on the appliance it is naming explains
+   * nothing.
+   */
+  labelOffset: z.object({ dx: z.number(), dy: z.number() }),
   compatibleCategories: z.array(categorySchema).min(1),
   cabinetConfig: cabinetConfigSchema,
   utilities: utilitiesSchema,

@@ -42,6 +42,10 @@
       "bestView": {
         "azimuth": 45,
         "pitch": 26
+      },
+      "labelOffset": {
+        "dx": -74,
+        "dy": 0
       }
     },
     {
@@ -81,6 +85,10 @@
       "bestView": {
         "azimuth": 40,
         "pitch": 28
+      },
+      "labelOffset": {
+        "dx": -72,
+        "dy": -92
       }
     },
     {
@@ -121,6 +129,10 @@
       "bestView": {
         "azimuth": 45,
         "pitch": 20
+      },
+      "labelOffset": {
+        "dx": 92,
+        "dy": -22
       }
     },
     {
@@ -160,6 +172,10 @@
       "bestView": {
         "azimuth": 55,
         "pitch": 26
+      },
+      "labelOffset": {
+        "dx": -8,
+        "dy": 64
       }
     },
     {
@@ -196,6 +212,10 @@
       "bestView": {
         "azimuth": 190,
         "pitch": 32
+      },
+      "labelOffset": {
+        "dx": -98,
+        "dy": 28
       }
     },
     {
@@ -232,6 +252,10 @@
       "bestView": {
         "azimuth": 20,
         "pitch": 18
+      },
+      "labelOffset": {
+        "dx": 86,
+        "dy": 44
       }
     }
   ]

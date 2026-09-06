@@ -42,3 +42,23 @@ export function spreadPins(boxes: PinBox[], gap: number): void {
     }
   }
 }
+
+/**
+ * Keep a label inside the canvas.
+ *
+ * A label pushed off the edge is worse than one overlapping something: it is
+ * simply not there, and the dot it belongs to is left pointing at nothing.
+ */
+export function clampPins(boxes: PinBox[], width: number, height: number, margin = 4): void {
+  for (const box of boxes) {
+    if (box.hidden) continue;
+    const halfW = box.w / 2 + margin;
+    const halfH = box.h / 2 + margin;
+    if (width > box.w + margin * 2) {
+      box.x = Math.min(Math.max(box.x, halfW), width - halfW);
+    }
+    if (height > box.h + margin * 2) {
+      box.y = Math.min(Math.max(box.y, halfH), height - halfH);
+    }
+  }
+}

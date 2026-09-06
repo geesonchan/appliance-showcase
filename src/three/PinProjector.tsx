@@ -5,7 +5,7 @@ import { SLOT_ORDER } from "../data/catalogue";
 import { ROOM, SLOT_BY_ID, ft } from "../data/slots";
 import type { SlotId } from "../types";
 import { pinElements } from "./pinRegistry";
-import { spreadPins } from "./pinLayout";
+import { clampPins, spreadPins } from "./pinLayout";
 
 /** How far back along the view axis the occlusion ray starts, in feet. */
 const RAY_BACKOFF = 60;
@@ -13,6 +13,8 @@ const RAY_BACKOFF = 60;
 const RAY_EPSILON = 0.3;
 /** Clear space kept between two pin labels, in screen pixels. */
 const PIN_GAP = 6;
+/** Half the dot, for centring it on its anchor. */
+const DOT_HALF = 4;
 
 /**
  * Where a pin sits in the world.
@@ -115,7 +117,7 @@ export function PinProjector() {
   // Reused every frame; the projector runs inside the render loop and must not
   // allocate.
   const layout = useMemo(
-    () => SLOT_ORDER.map(() => ({ x: 0, y: 0, w: 0, h: 0, hidden: true })),
+    () => SLOT_ORDER.map(() => ({ x: 0, y: 0, dotX: 0, dotY: 0, w: 0, h: 0, hidden: true })),
     [],
   );
 
@@ -142,8 +144,9 @@ export function PinProjector() {
     for (let i = 0; i < anchors.length; i += 1) {
       const { slotId, anchor } = anchors[i];
       const box = layout[i];
-      const el = pinElements.get(slotId);
-      if (!el) {
+      const parts = pinElements.get(slotId);
+      const el = parts?.label;
+      if (!parts || !el) {
         box.hidden = true;
         continue;
       }
@@ -165,8 +168,13 @@ export function PinProjector() {
       const offscreen =
         projected.x < -1.15 || projected.x > 1.15 || projected.y < -1.15 || projected.y > 1.15;
 
-      box.x = (projected.x * 0.5 + 0.5) * size.width;
-      box.y = (-projected.y * 0.5 + 0.5) * size.height;
+      // The dot goes exactly on the appliance; the label is offset from it by
+      // whatever the slot declares, and only the label is allowed to move.
+      box.dotX = (projected.x * 0.5 + 0.5) * size.width;
+      box.dotY = (-projected.y * 0.5 + 0.5) * size.height;
+      const offset = SLOT_BY_ID[slotId].labelOffset;
+      box.x = box.dotX + offset.dx;
+      box.y = box.dotY + offset.dy;
       box.hidden = offscreen || occluded.current.has(slotId);
       if (measure || box.w === 0) {
         box.w = el.offsetWidth;
@@ -175,14 +183,36 @@ export function PinProjector() {
     }
 
     spreadPins(layout, PIN_GAP);
+    clampPins(layout, size.width, size.height);
 
     for (let i = 0; i < anchors.length; i += 1) {
-      const el = pinElements.get(anchors[i].slotId);
-      if (!el) continue;
+      const parts = pinElements.get(anchors[i].slotId);
+      if (!parts) continue;
       const box = layout[i];
-      el.style.transform = `translate3d(${Math.round(box.x)}px, ${Math.round(box.y)}px, 0) translate(-50%, -50%)`;
-      el.style.opacity = box.hidden ? "0" : "1";
-      el.style.pointerEvents = box.hidden ? "none" : "auto";
+      const shown = box.hidden ? "0" : "1";
+
+      if (parts.label) {
+        parts.label.style.transform = `translate3d(${Math.round(box.x)}px, ${Math.round(box.y)}px, 0) translate(-50%, -50%)`;
+        parts.label.style.opacity = shown;
+        parts.label.style.pointerEvents = box.hidden ? "none" : "auto";
+      }
+      if (parts.dot) {
+        parts.dot.style.transform = `translate3d(${Math.round(box.dotX) - DOT_HALF}px, ${Math.round(box.dotY) - DOT_HALF}px, 0)`;
+        parts.dot.style.opacity = shown;
+      }
+      if (parts.leader) {
+        // Stop the line at the label's edge rather than its centre, so it
+        // does not run underneath the text.
+        const dx = box.x - box.dotX;
+        const dy = box.y - box.dotY;
+        const length = Math.hypot(dx, dy) || 1;
+        const inset = Math.min(box.w / 2 + 2, length - 1);
+        parts.leader.setAttribute("x1", String(Math.round(box.dotX)));
+        parts.leader.setAttribute("y1", String(Math.round(box.dotY)));
+        parts.leader.setAttribute("x2", String(Math.round(box.x - (dx / length) * inset)));
+        parts.leader.setAttribute("y2", String(Math.round(box.y - (dy / length) * inset)));
+        parts.leader.setAttribute("opacity", box.hidden ? "0" : "0.55");
+      }
     }
   });
 
