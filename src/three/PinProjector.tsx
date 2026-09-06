@@ -2,8 +2,9 @@ import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 import { SLOT_ORDER } from "../data/catalogue";
-import { ROOM, SLOT_BY_ID, ft } from "../data/slots";
+import { SLOT_BY_ID } from "../data/slots";
 import type { SlotId } from "../types";
+import { anchorFor } from "./pinAnchor";
 import { pinElements } from "./pinRegistry";
 import { clampPins, spreadPins } from "./pinLayout";
 
@@ -16,47 +17,25 @@ const PIN_GAP = 6;
 /** Half the dot, for centring it on its anchor. */
 const DOT_HALF = 4;
 
-/**
- * Where a pin sits in the world.
- *
- * Wall appliances get a pin just in front of their face, at mid height. Island
- * appliances get one floating above the island counter instead: their doors
- * face opposite ways, so a pin in front of either one is hidden behind the
- * island from half the angles you can orbit to. Above the counter, nothing can
- * cover it, and the two island pins separate naturally because they sit at
- * different points along the run.
- */
-function anchorFor(slotId: SlotId): THREE.Vector3 {
-  const slot = SLOT_BY_ID[slotId];
-
-  if (slot.mount === "island") {
-    return new THREE.Vector3(
-      slot.position[0],
-      ROOM.counterHeight + 0.7,
-      slot.position[2],
-    );
-  }
-
-  const out = new THREE.Vector3(
-    Math.sin(slot.rotationY),
-    0,
-    Math.cos(slot.rotationY),
-  ).multiplyScalar(ft(slot.cutout.d) / 2 + 0.9);
-  return new THREE.Vector3(
-    slot.position[0],
-    slot.position[1] + ft(slot.cutout.h) / 2,
-    slot.position[2],
-  ).add(out);
-}
+/** Below this, you can see through a thing, so it is not in the way. */
+const OPAQUE_ENOUGH = 0.5;
 
 /**
  * Only solid, visible meshes block a pin.
  *
  * three.js stopped skipping invisible objects during raycasts in r152, so the
  * hidden install wireframe would otherwise count as an occluder in every mode.
+ *
+ * Transparency counts too, and it has to: the occlusion fade exists precisely
+ * to let the camera see past a cabinet, and a pin hidden behind the thing that
+ * was just faded for it is the one pin guaranteed to be wanted.
  */
 function isOccluding(object: THREE.Object3D): boolean {
-  if (!(object as THREE.Mesh).isMesh) return false;
+  const mesh = object as THREE.Mesh;
+  if (!mesh.isMesh) return false;
+  const material = mesh.material as THREE.Material | THREE.Material[];
+  const single = Array.isArray(material) ? material[0] : material;
+  if (single?.transparent && single.opacity < OPAQUE_ENOUGH) return false;
   let node: THREE.Object3D | null = object;
   while (node) {
     if (!node.visible) return false;

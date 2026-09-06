@@ -7,8 +7,9 @@
  * Pass a round number as the first argument; it defaults to 1.
  * Set BASE_URL to point at a preview build instead of the dev server.
  * Set SET=mobile or SET=desktop to capture only one of the two; SET=round4 for
- * the island set; SET=round5 for the reworked layout, the two island fly-ins,
- * the spec card and the quote page.
+ * the island set; SET=round5 for the reworked layout; SET=round6 for the room
+ * built to the trade's dimensions, the appliances at their own size, the new
+ * pins and the ducting.
  */
 import { mkdir } from "node:fs/promises";
 import { chromium } from "playwright";
@@ -157,9 +158,65 @@ async function captureRound5(page) {
   await page.screenshot({ path: `${outDir}/mobile-quote.png` });
 }
 
+/**
+ * Round 6: the sizes. Everything here is about a number being right — the
+ * canopy's height, the drawer's, the cabinet grid — so the set is the states
+ * where those numbers are visible.
+ */
+async function captureRound6(page) {
+  await page.screenshot({ path: `${outDir}/mobile-overview.png` });
+
+  await click(page, "White model");
+  await settle(page, 900);
+  await page.screenshot({ path: `${outDir}/mobile-white-model.png` });
+
+  await click(page, "Install");
+  await settle(page, 1100);
+  await page.screenshot({ path: `${outDir}/mobile-install.png` });
+  await click(page, "Materials");
+  await settle(page, 900);
+
+  await flyTo(page, /Microwave/);
+  await page.screenshot({ path: `${outDir}/mobile-microwave.png` });
+  await click(page, "Reset view");
+  await settle(page, 1100);
+
+  await flyTo(page, /Ventilation hood/);
+  await page.screenshot({ path: `${outDir}/mobile-hood.png` });
+
+  // The blower list, which is now the manufacturer's rather than the brand's.
+  await click(page, "Appliances");
+  await page.waitForTimeout(700);
+  // The blower section is the last thing in the hood's panel.
+  await page.evaluate(() => {
+    for (const el of document.querySelectorAll("div")) {
+      if (el.scrollHeight > el.clientHeight + 20) el.scrollTop = el.scrollHeight;
+    }
+  });
+  await page.waitForTimeout(400);
+  await page.screenshot({ path: `${outDir}/mobile-blowers.png` });
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round6") {
+    const ctx = await browser.newContext({
+      viewport: MOBILE,
+      deviceScaleFactor: 2,
+      isMobile: true,
+      hasTouch: true,
+    });
+    const page = await ctx.newPage();
+    await page.goto(baseUrl, { waitUntil: "networkidle" });
+    await settle(page, 2200);
+    await captureRound6(page);
+    await ctx.close();
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round5") {
     const ctx = await browser.newContext({

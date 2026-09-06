@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 import { SLOT_BY_ID, ft } from "../data/slots";
+import { anchorFor } from "./pinAnchor";
 import { DEBUG } from "../debug";
 import { useAppStore } from "../store/useAppStore";
 
@@ -13,6 +14,8 @@ const BACKOFF = 60;
 const EPSILON = 0.35;
 /** Frames between recalculations. The camera moves; cabinets do not. */
 const CADENCE = 4;
+/** Sample offsets across the appliance's own face, as a fraction of it. */
+const GRID = [-0.6, 0, 0.6];
 /** Groups whose meshes may be faded. The appliances themselves never are. */
 const LAYERS = ["kitchen-shell", "cabinet-layer", "fixture-layer"];
 
@@ -53,6 +56,7 @@ export function OcclusionFade() {
   const up = useMemo(() => new THREE.Vector3(), []);
   const origin = useMemo(() => new THREE.Vector3(), []);
   const anchor = useMemo(() => new THREE.Vector3(), []);
+  const pinAt = useMemo(() => new THREE.Vector3(), []);
   const faded = useRef(new Map<string, Saved>());
   const frame = useRef(0);
   /** Under ?debug=1, what is currently being faded and why. */
@@ -103,29 +107,36 @@ export function OcclusionFade() {
     const halfH = ft(slot.cutout.h) / 2;
     anchor.set(slot.position[0], slot.position[1] + halfH, slot.position[2]);
 
+    pinAt.copy(anchorFor(selectedSlot));
+
     const hits = new Set<THREE.Material>();
     const names = new Set<string>();
-    for (const u of [-0.6, 0, 0.6]) {
-      for (const v of [-0.6, 0, 0.6]) {
-        origin
-          .copy(anchor)
-          .addScaledVector(right, u * halfW)
-          .addScaledVector(up, v * halfH)
-          .addScaledVector(forward, -BACKOFF);
-        raycaster.set(origin, forward);
-        raycaster.far = BACKOFF - EPSILON;
-        for (const { object } of raycaster.intersectObjects(layers, true)) {
-          const mesh = object as THREE.Mesh;
-          if (!mesh.isMesh) continue;
-          // An appliance's own enclosure is not in its way.
-          if (owningSlot(mesh) === selectedSlot) continue;
-          const material = mesh.material;
-          if (Array.isArray(material)) continue;
-          hits.add(material);
-          names.add(boxName(mesh));
-        }
+
+    const cast = (from: THREE.Vector3, u: number, v: number) => {
+      origin
+        .copy(from)
+        .addScaledVector(right, u * halfW)
+        .addScaledVector(up, v * halfH)
+        .addScaledVector(forward, -BACKOFF);
+      raycaster.set(origin, forward);
+      raycaster.far = BACKOFF - EPSILON;
+      for (const { object } of raycaster.intersectObjects(layers, true)) {
+        const mesh = object as THREE.Mesh;
+        if (!mesh.isMesh) continue;
+        // An appliance's own enclosure is not in its way.
+        if (owningSlot(mesh) === selectedSlot) continue;
+        const material = mesh.material;
+        if (Array.isArray(material)) continue;
+        hits.add(material);
+        names.add(boxName(mesh));
       }
-    }
+    };
+
+    for (const u of GRID) for (const v of GRID) cast(anchor, u, v);
+    // ...and the point the pin is anchored at. A dot hidden behind a cabinet
+    // points at nothing, and it is the pin for the very appliance the camera
+    // was just sent to.
+    cast(pinAt, 0, 0);
 
     for (const [uuid, saved] of faded.current) {
       if (hits.has(saved.material)) continue;
