@@ -98,6 +98,22 @@ const numberOrNull = (value: string) => {
   return parsed === null || Number.isNaN(parsed) ? null : parsed;
 };
 
+/** A text cell: blank becomes null, never an empty string. */
+const textOrNull = (value: string | undefined) => {
+  const trimmed = (value ?? "").trim();
+  return trimmed === "" ? null : trimmed;
+};
+
+/**
+ * A money cell. Blank is null, and so is zero: a zero price in the inventory
+ * means nobody has set one, not that the model is free.
+ */
+const priceOrNull = (value: string | undefined) => {
+  const parsed = numberOrNull((value ?? "").replace(/[$,]/g, ""));
+  if (parsed === null || parsed <= 0) return null;
+  return Math.round(parsed);
+};
+
 /**
  * Convert parsed CSV rows into catalogue entries.
  *
@@ -186,10 +202,10 @@ export function convert(
       brand,
       model,
       series: null,
-      msrpUSD: Math.round(Number(row.msrpUSD?.replace(/[$,]/g, "") ?? 0)),
-      sourceUrl: (row.sourceUrl ?? "").trim(),
-      verifiedAt: (row.verifiedAt ?? "").trim() || null,
-      installType: toInstallType(row.Feature ?? "", type, row.Width ?? ""),
+      msrpUSD: priceOrNull(row.msrpUSD),
+      sourceUrl: textOrNull(row.sourceUrl),
+      verifiedAt: textOrNull(row.verifiedAt),
+      installType: toInstallType(row.Feature ?? "", type, row.Width ?? "", row.Depth ?? ""),
       fuel: toFuel(type),
       widthIn,
       heightIn: numberOrNull(row.Height),
@@ -213,7 +229,8 @@ export function convert(
       },
     });
 
-    if (!row.sourceUrl?.trim()) warn("no sourceUrl", id);
+    if (textOrNull(row.sourceUrl) === null) warn("no sourceUrl", id);
+    if (priceOrNull(row.msrpUSD) === null) warn("no msrpUSD", id);
     if (numberOrNull(row.cutoutWidthIn) === null) warn("no cutoutWidthIn", id);
     summary.exported++;
   });

@@ -34,7 +34,10 @@ export const APPLIANCES_BY_SLOT: Record<SlotId, Appliance[]> = (() => {
   const grouped = {} as Record<SlotId, Appliance[]>;
   for (const slotId of Object.keys(SLOT_BY_ID) as SlotId[]) grouped[slotId] = [];
   for (const appliance of APPLIANCES) grouped[appliance.slot].push(appliance);
-  for (const list of Object.values(grouped)) list.sort((a, b) => a.msrpUSD - b.msrpUSD);
+  // Cheapest first, with unpriced models last rather than treated as free.
+  for (const list of Object.values(grouped)) {
+    list.sort((a, b) => (a.msrpUSD ?? Infinity) - (b.msrpUSD ?? Infinity));
+  }
   return grouped;
 })();
 

@@ -74,6 +74,13 @@ Room geometry — wall positions, cabinet run segments, counter heights — stay
 `src/data/room.ts`. It is scene construction, not product data, and Leo does not
 maintain it in the Sheet.
 
+**Unpriced is a real state, not a zero.** `msrpUSD` is nullable, and a zero in
+the sheet reads as null too: an allocated or made-to-order line has no list
+price, and counting it as zero would quietly understate the package total —
+the one number a customer remembers. The UI shows "price on request" for those
+models, totals cover only the priced ones, and both panels say "N of M priced"
+whenever the total is not the whole package.
+
 Every catalogue row carries `sourceUrl` and `verifiedAt`. `verifiedAt: null`
 means nobody has confirmed that row against the manufacturer's own page yet;
 seed data ships that way deliberately, so unverified pricing is visible in the

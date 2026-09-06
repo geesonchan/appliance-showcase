@@ -99,5 +99,7 @@
   "swap.deepNote": "{delta} deeper than the opening",
   "swap.count": "{count} options",
   "swap.noneOther": "No alternatives in the catalogue yet",
-  "debug.unverified": "unverified"
+  "debug.unverified": "unverified",
+  "price.onRequest": "Price on request",
+  "panel.package.priced": "{priced} of {total} priced"
 }

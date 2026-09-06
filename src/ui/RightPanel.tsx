@@ -82,6 +82,14 @@ export function RightPanel() {
       <PanelSection title={t("panel.package")}>
         <SummaryRow label={t("panel.package.series")} value={t(SCHEME.nameKey)} />
         <SummaryRow label={t("panel.package.total")} value={formatUSD(summary.totalUSD)} />
+        {!summary.fullyPriced && (
+          <p className="-mt-0.5 pb-1 text-right text-[10px] text-ink-muted/80">
+            {t("panel.package.priced", {
+              priced: summary.pricedCount,
+              total: summary.count,
+            })}
+          </p>
+        )}
         <SummaryRow
           label={t("panel.package.energy")}
           value={summary.energyKeys.map((key) => t(key)).join(" + ")}

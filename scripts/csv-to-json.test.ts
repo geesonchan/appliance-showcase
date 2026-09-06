@@ -210,12 +210,13 @@ describe("the converted file", () => {
   });
 
   it("counts rows with no sourceUrl instead of failing them", () => {
+    const before = run().summary.warnings["no sourceUrl"]?.length ?? 0;
     const rows = fixture();
     rows[0].sourceUrl = "";
     const { summary } = convert(rows, SLOTS);
-    expect(summary.warnings["no sourceUrl"]).toHaveLength(1);
+    expect(summary.warnings["no sourceUrl"]).toHaveLength(before + 1);
+    expect(summary.warnings["no sourceUrl"]).toContain("bosch-b36cl80sns");
     // Counted by default, listed only when asked.
-    expect(formatSummary(summary)).toMatch(/1 {2}no sourceUrl/);
     expect(formatSummary(summary)).not.toMatch(/bosch-b36cl80sns/);
     expect(formatSummary(summary, true)).toMatch(/bosch-b36cl80sns/);
   });

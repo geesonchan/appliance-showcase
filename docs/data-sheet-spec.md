@@ -35,9 +35,9 @@ docs/decisions.md D4.
 | `fuel` | Appliance Type | Prefix: `Gas` → gas, `G ` → gas (as in `G Rangetop`), `Induction` → induction, `Dual-Fuel` → dual, `Electric` / `E Range` / `ERange` → electric, anything else → `null`. |
 | `installType` | Feature + Appliance Type + Width | An array, gathered from all three. The Appliance Type names the form directly for the families that come in several (`Single Oven`, `Microwave Drawer`, `Refrigerator Column`). See below. |
 | `finish` | Color + Feature | `SS` → stainless, `Panel Ready` → panel-ready, `White` → white, `Black` → **matte-black** (the only black the scene renders). `Panel Ready` in Feature counts too. Empty → `["stainless"]`. |
-| `highlights.en` | Feature | Whatever is left after install form and finish have taken their words: `French Door`, `Bottom Freezer`, `4 Door`… Split on `,` `;` `/`. |
+| `highlights.en` | Feature | Whatever is left after install form and finish have taken their words: `French Door`, `Bottom Freezer`, `Bar Handle`, `4 Door`… Split on `,` `;` `/`. |
 | `widthIn` | Width | Number with the `CD` / `RD` suffix stripped. A row with no usable width is skipped into a single `no width` bucket and named under `--verbose`; it never fails the import. |
-| `depthIn` | Depth | Blank → `null`. |
+| `depthIn` | Depth | Blank → `null`. A bare `CD` here is an install form, not a measurement: it sets `counter-depth` and leaves `depthIn` null. |
 | `heightIn` | Height | Blank → `null`. |
 | `slot` | *derived* | From `category`, via each slot's `compatibleCategories` in `data/slots.json`, so the two cannot drift. A category no slot accepts is skipped and counted. |
 
@@ -54,9 +54,9 @@ docs/decisions.md D4.
 | `requires.cfm` | cfm | Blank → `null`. |
 | `requires.water` | water | `true` / `yes` / `y` / `1`, case-insensitive. |
 | `requires.makeupAirRequired` | makeupAirRequired | An explicit yes, **or** derived: `cfm >= 400` (California Title 24). |
-| `msrpUSD` | msrpUSD | `$` and `,` stripped, rounded to whole dollars. |
+| `msrpUSD` | msrpUSD | `$` and `,` stripped, rounded to whole dollars. Blank **or zero** → `null`: a zero in the inventory means nobody has set a price, not that the model is free. Counted as `no msrpUSD`. |
 | `leadTimeWeeks` | leadTimeWeeks | Blank → `null`. |
-| `sourceUrl` | sourceUrl | Must be a URL. Blank fails validation; the import warns first. |
+| `sourceUrl` | sourceUrl | A URL, or `null` when blank. Counted as `no sourceUrl`; it does not fail the import. |
 | `verifiedAt` | verifiedAt | ISO date, or blank → `null`, meaning nobody has checked this row against its `sourceUrl`. |
 
 ## Not from the sheet
@@ -66,6 +66,25 @@ docs/decisions.md D4.
 | `series` | `null` on import. Hand-added afterwards if a row needs it. |
 | `imageUrl` | `null`. Reserved for M3. |
 | `highlights.zh` | `[]`. The translation pass fills it. |
+
+## Numbers
+
+Every numeric cell goes through one parser, so decimals and fractions are the
+same measurement however they were typed:
+
+| Written as | Read as |
+| --- | --- |
+| `33.875` | 33.875 |
+| `33-7/8` | 33.875 |
+| `33 7/8` | 33.875 |
+| `33-7/8"` | 33.875 |
+| `7/8` | 0.875 |
+| `36 CD` (Width) | 36, plus `counter-depth` |
+| `CD` (Depth) | `null`, plus `counter-depth` |
+| blank | `null` |
+
+A cell with no number in it is null, never zero — a missing dimension has to
+stay visibly missing, because zero would sail through a fit check.
 
 ---
 

@@ -1,6 +1,6 @@
 import { APPLIANCES_BY_SLOT } from "../data/catalogue";
 import { fitCheck, formatInches } from "../data/fit";
-import { formatUSD } from "../data/packageSummary";
+import { formatPrice } from "../data/packageSummary";
 import { SLOT_BY_ID } from "../data/slots";
 import { DEBUG } from "../debug";
 import { useT } from "../i18n/useT";
@@ -137,7 +137,7 @@ function CandidateRow({
         </span>
 
         <span className="shrink-0 text-[11px] tabular-nums text-ink-muted">
-          {formatUSD(appliance.msrpUSD)}
+          {formatPrice(appliance.msrpUSD, t("price.onRequest"))}
         </span>
       </button>
     </li>

@@ -1,5 +1,5 @@
 import { SCHEME, SLOT_ORDER } from "../data/catalogue";
-import { formatThousands, formatUSD, usePackageSummary } from "../data/packageSummary";
+import { formatPrice, formatThousands, usePackageSummary } from "../data/packageSummary";
 import { SLOT_BY_ID } from "../data/slots";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
@@ -47,6 +47,14 @@ export function LeftPanel() {
           <div className="tracking-label mt-2 text-[9px] text-ink-muted">
             {t("hero.stat.priceRange")}
           </div>
+          {!summary.fullyPriced && (
+            <div className="mt-1 text-[9px] text-ink-muted/70">
+              {t("panel.package.priced", {
+                priced: summary.pricedCount,
+                total: summary.count,
+              })}
+            </div>
+          )}
         </div>
       </div>
 
@@ -87,7 +95,7 @@ export function LeftPanel() {
                 </span>
                 {appliance && (
                   <span className="shrink-0 text-[11px] tabular-nums text-ink-muted">
-                    {formatUSD(appliance.msrpUSD)}
+                    {formatPrice(appliance.msrpUSD, t("price.onRequest"))}
                   </span>
                 )}
                 <span

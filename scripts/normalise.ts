@@ -290,7 +290,12 @@ const INSTALL_WORDS: { pattern: RegExp; value: string }[] = [
   { pattern: /\brangetop\b/i, value: "rangetop" },
 ];
 
-export function toInstallType(feature: string, type: string, width: string): string[] {
+export function toInstallType(
+  feature: string,
+  type: string,
+  width: string,
+  depth = "",
+): string[] {
   const found: string[] = [];
   // Both columns carry install form. The Appliance Type names it directly for
   // the families that come in several ("Single Oven", "Microwave Drawer",
@@ -300,7 +305,10 @@ export function toInstallType(feature: string, type: string, width: string): str
     if (pattern.test(words) && !found.includes(value)) found.push(value);
   }
   if (/\bbuilt[- ]in\b/i.test(type) && !found.includes("built-in")) found.push("built-in");
-  if (/\bCD\b/i.test(width) && !found.includes("counter-depth")) found.push("counter-depth");
+  // Counter-depth is written either as a Width suffix ("36 CD") or as the whole
+  // Depth cell ("CD"), depending on who entered the row.
+  const counterDepth = /\bCD\b/i.test(width) || /\bCD\b/i.test(depth);
+  if (counterDepth && !found.includes("counter-depth")) found.push("counter-depth");
 
   return found.length > 0 ? found : ["freestanding"];
 }
@@ -341,16 +349,39 @@ export function toHighlights(feature: string): string[] {
 
 /** Width carries a CD (counter-depth) or RD (rear-depth) suffix in the sheet. */
 export function toWidthIn(width: string): number | null {
-  const match = /(\d+(?:\.\d+)?)/.exec(width.replace(/\b(CD|RD)\b/gi, ""));
-  return match ? Number(match[1]) : null;
+  return toDimension(width.replace(/\b(CD|RD)\b/gi, ""));
 }
 
-/** A dimension cell, which is routinely blank. */
+/** `33-7/8`, `33 7/8`, or a bare `7/8`. */
+const FRACTIONAL = /^(?:(\d+(?:\.\d+)?)\s*[-\s]\s*)?(\d+)\s*\/\s*(\d+)$/;
+const DECIMAL = /^(\d+(?:\.\d+)?)$/;
+
+/**
+ * A dimension cell, in inches.
+ *
+ * Spec sheets mix decimals and fractions, and the sheet carries both as typed:
+ * `33.875`, `33-7/8` and `33 7/8` are the same measurement. Anything with no
+ * number in it at all — blank, or a bare `CD` in the Depth column — is null
+ * rather than zero, so a missing dimension stays visibly missing.
+ */
 export function toDimension(value: string): number | null {
-  const trimmed = value?.trim() ?? "";
+  // Drop inch marks and any trailing suffix words before parsing.
+  const trimmed = (value ?? "").replace(/["″]/g, "").trim();
   if (!trimmed) return null;
-  const match = /(-?\d+(?:\.\d+)?)/.exec(trimmed);
-  return match ? Number(match[1]) : null;
+
+  const fraction = FRACTIONAL.exec(trimmed);
+  if (fraction) {
+    const [, whole, numerator, denominator] = fraction;
+    if (Number(denominator) === 0) return null;
+    return (whole ? Number(whole) : 0) + Number(numerator) / Number(denominator);
+  }
+
+  const decimal = DECIMAL.exec(trimmed);
+  if (decimal) return Number(decimal[1]);
+
+  // Fall back to the first number in a cell that carries extra words.
+  const loose = /(\d+(?:\.\d+)?)/.exec(trimmed);
+  return loose ? Number(loose[1]) : null;
 }
 
 export function toBoolean(value: string): boolean {

@@ -58,9 +58,14 @@ export const applianceSchema = z.object({
   model: z.string().min(1),
   series: z.string().nullable(),
 
-  msrpUSD: z.number().int().positive(),
-  /** Where the model and its list price can be checked. */
-  sourceUrl: z.url(),
+  /**
+   * List price, or null when the sheet has no price for the model. Unpriced is
+   * a real state in the inventory — an allocated or made-to-order line — and
+   * the UI says "price on request" rather than inventing a number.
+   */
+  msrpUSD: z.number().int().positive().nullable(),
+  /** Where the model and its list price can be checked, when there is a page. */
+  sourceUrl: z.url().nullable(),
   /**
    * ISO date the row was last checked against `sourceUrl`, or null if nobody
    * has. Seed data ships as null on purpose: unverified pricing should be
