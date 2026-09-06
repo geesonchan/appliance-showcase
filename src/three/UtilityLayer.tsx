@@ -1,15 +1,16 @@
 import { useMemo } from "react";
 import * as THREE from "three";
-import { ROOM, SLOTS, ft } from "../data/slots";
+import { CABINET_STANDARDS, ROOM, SLOTS, ft } from "../data/slots";
 import { FIXTURES } from "../data/fixtures";
 import { deriveUtilities } from "../data/utilities";
 import { useAppStore } from "../store/useAppStore";
 import { useSelection, useSelectedBlower } from "../store/useSelection";
 import { effectiveCfm } from "../data/ventilation";
-import type { ServicePoint, UtilityType, Utilities } from "../types";
+import type { Appliance, ServicePoint, UtilityType, Utilities } from "../types";
 import { UTILITY_COLORS, UTILITY_RADIUS_IN } from "./materials";
 
 const UP = new THREE.Vector3(0, 1, 0);
+const DUCT = CABINET_STANDARDS.hood;
 
 /**
  * Heights each service runs at, measured off the finished floor. These are the
@@ -320,37 +321,103 @@ function WaterRuns({ effective }: { effective: Record<string, Utilities> }) {
   );
 }
 
-function DuctRuns({ effective }: { effective: Record<string, Utilities> }) {
+/**
+ * The exhaust: the duct, the damper, and the blower wherever it lives.
+ *
+ * Five things a hood installation can be, per Thermador's ducting sheet
+ * (docs/reference/thermador-ducting.png), and they are not variations on a
+ * drawing — they are five different jobs for whoever runs the duct:
+ *
+ *   1. up through the roof, or horizontally through an outside wall
+ *   2. integral  — the blower sits in the canopy
+ *   3. remote    — the blower is at the far end, on the roof or the wall
+ *   4. inline    — the blower is in the duct run, in the ceiling or the attic
+ *   5. a back-draft damper at the transition, whichever of these it is
+ *
+ * The blower's own install type decides which, so specifying an inline blower
+ * moves the box up into the ceiling in front of the customer.
+ */
+function DuctRuns({
+  effective,
+  blower,
+}: {
+  effective: Record<string, Utilities>;
+  blower: Appliance | null;
+}) {
   return (
     <group name="utility-duct">
       {SLOTS.map((slot) => {
         const duct = effective[slot.id].duct;
         if (!duct || duct.route === "recirc") return null;
+
         const radius = ft(duct.diameterIn) / 2;
-        const top = slot.position[1] + ft(slot.cutout.h) * 0.55;
-        const a = wallAnchor(slot, STANDOFF.default);
-        if (duct.route === "back-wall") {
-          return (
+        const anchor = wallAnchor(slot, STANDOFF.default);
+        // The collar sits above the canopy, where the spec sheet puts it.
+        const collarY = slot.position[1] + ft(slot.cutout.h + DUCT.outletAboveBodyIn);
+        const x = slot.position[0];
+        const z = duct.route === "back-wall" ? slot.position[2] : anchor.z + ft(8);
+
+        // Where the blower ends up: in the canopy, part-way along the run, or
+        // out at the termination.
+        const type = blower?.installType ?? [];
+        const place = type.includes("inline")
+          ? "inline"
+          : type.includes("external") || type.includes("remote")
+            ? "remote"
+            : "integral";
+
+        const roof = ROOM.wallHeight;
+        const wall = -ROOM.halfZ;
+        const runsUp = duct.route !== "back-wall";
+        const end: [number, number, number] = runsUp ? [x, roof, z] : [x, collarY, wall];
+        const inlineAt: [number, number, number] = runsUp
+          ? [x, collarY + (roof - collarY) * 0.62, z]
+          : [x, collarY, slot.position[2] + (wall - slot.position[2]) * 0.62];
+
+        return (
+          <group key={slot.id}>
+            {/* The transition off the canopy, with its back-draft damper. */}
             <Pipe
-              key={slot.id}
-              from={[slot.position[0], top, slot.position[2]]}
-              to={[slot.position[0], top, -ROOM.halfZ]}
+              from={[x, slot.position[1] + ft(slot.cutout.h), z]}
+              to={[x, collarY, z]}
               radius={radius}
               color={UTILITY_COLORS.duct}
               hollow
             />
-          );
-        }
-        // up-through-cabinet: rises from the hood collar out through the ceiling
-        return (
-          <Pipe
-            key={slot.id}
-            from={[slot.position[0], top, a.z + ft(8)]}
-            to={[slot.position[0], ROOM.wallHeight, a.z + ft(8)]}
-            radius={radius}
-            color={UTILITY_COLORS.duct}
-            hollow
-          />
+            <Fitting
+              position={[x, collarY, z]}
+              size={[radius * 2.4, ft(1.5), radius * 2.4]}
+              color={UTILITY_COLORS.duct}
+            />
+            <Pipe
+              from={[x, collarY, z]}
+              to={end}
+              radius={radius}
+              color={UTILITY_COLORS.duct}
+              hollow
+            />
+            {place === "inline" && (
+              <Fitting
+                position={inlineAt}
+                size={[radius * 3.4, ft(14), radius * 3.4]}
+                color={UTILITY_COLORS.duct}
+              />
+            )}
+            {place === "remote" && (
+              <Fitting
+                position={end}
+                size={[ft(20), ft(14), ft(20)]}
+                color={UTILITY_COLORS.duct}
+              />
+            )}
+            {place === "integral" && blower && (
+              <Fitting
+                position={[x, slot.position[1] + ft(slot.cutout.h) / 2, z]}
+                size={[ft(12), ft(8), ft(10)]}
+                color={UTILITY_COLORS.duct}
+              />
+            )}
+          </group>
         );
       })}
     </group>
@@ -404,7 +471,7 @@ export function UtilityLayer({ type }: { type: UtilityType }) {
       {type === "gas" && <GasRuns effective={effective} />}
       {type === "power" && <PowerRuns effective={effective} />}
       {type === "water" && <WaterRuns effective={withFixtures} />}
-      {type === "duct" && <DuctRuns effective={effective} />}
+      {type === "duct" && <DuctRuns effective={effective} blower={blower} />}
     </group>
   );
 }

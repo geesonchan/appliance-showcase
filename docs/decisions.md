@@ -405,3 +405,59 @@ call to action that treats the room as a checkout. And, from §2.2 of the brief:
 no free-form cabinet placement. Appliances slide within their own cabinet
 segment to a legal position and no further — the moment a customer can drag a
 cabinet anywhere, this is a design tool and every rule in D11 becomes advisory.
+
+---
+
+## D13 · The dimensions a kitchen is actually built to
+
+**Decided:** 2026-09-06 (M3, round 6), Leo, with the Thermador clearance and
+ducting sheets (see `docs/reference/`).
+
+D11 says where things go relative to each other. This says what size they are.
+Both are checked by `checkLayout`, and the M3-3 generator has to satisfy both.
+
+**Cabinets.**
+
+- Base: 24" deep, a 34.5" box under a 1.5" top, 36" finished.
+- Widths: 12" to 36" in 3" increments.
+- Wall: 12" deep, 30 / 36 / 42" tall, hung 18" over the counter — so 54" to the
+  underside.
+- Tall: 24" deep, 84 / 90 / 96".
+- Corner: a 36" lazy susan, or a 42" blind corner.
+- An L wants a short leg of at least 8ft and a long leg of 10–12ft, each
+  measured from the inside corner outward. A tall cabinet is finished off with a
+  24–48" return rather than left as a cliff at the end of a wall.
+
+**Ventilation**, from the clearance sheet.
+
+- Canopy 18" high, its underside 30" (the gas minimum) to 40" above the cooking
+  surface, default 30".
+- 36" counter + 30" + 18" = 84", which is where the run of wall cabinets picks
+  up again, so their tops line up with the canopy's.
+- Duct collar 8-3/8" above the canopy top, with the electrical zone behind it.
+- Canopy at least as wide as the range, and centred on it.
+
+**Ducting**, from the ducting sheet — five installations, not five drawings of
+one:
+
+1. Up through the roof, or horizontally out through an exterior wall.
+2. **Integral**: the blower sits in the canopy.
+3. **Remote**: the blower is at the termination, on the roof or the wall.
+4. **Inline**: the blower is in the duct run, in the ceiling or the attic.
+5. A back-draft damper at the transition, whichever of these it is.
+
+The install view draws whichever one the specified blower implies, so choosing
+an inline blower moves the box up into the ceiling in front of the customer.
+
+**Blower compatibility is data, not a heuristic.** A hood carries
+`compatibleBlowers[]` from the manufacturer's chart and the picker offers only
+those. Pairing by brand was a guess that happens to work until a Zephyr blower
+turns up beside a Thermador hood — and it is wrong within a brand too, since
+VTN1DZ fits the 30" Thermador hood and not the 36". A hood nobody has checked
+offers everything in stock and says the list is unverified, rather than
+narrowing to nothing.
+
+**What this forbids:** a cabinet width off the 3" grid; a canopy hung by eye; a
+wall cabinet that stops short of the canopy's top; offering a blower because it
+shares a badge; putting any of these numbers in the geometry instead of in
+`CABINET_STANDARDS`, where the checker can read them.
