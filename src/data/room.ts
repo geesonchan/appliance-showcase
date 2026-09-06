@@ -195,19 +195,7 @@ export interface SlotPlacement {
    * view draws.
    */
   mount: "wall" | "island";
-  /**
-   * Azimuth the fly-in views this slot from, in radians, when the default
-   * isometric angle would show its back. Only the island needs it.
-   */
-  viewAzimuth?: number;
 }
-
-/**
- * The microwave opens toward the back run, away from the default view, so its
- * fly-in orbits round behind the room. The wine cabinet opens toward the
- * camera and needs no such help.
- */
-const ISLAND_VIEW_AZIMUTH = Math.PI * 1.25;
 
 const islandMid = ([a, b]: readonly [number, number]) => (a + b) / 2;
 
@@ -240,7 +228,6 @@ export const SLOT_PLACEMENT: Record<SlotId, SlotPlacement> = {
     position: [islandMid(ISLAND.microwave), 0, ISLAND.workingZ + ROOM.counterDepth / 2],
     rotationY: Math.PI,
     mount: "island",
-    viewAzimuth: ISLAND_VIEW_AZIMUTH,
   },
   "slot-wine": {
     position: [islandMid(ISLAND.wine), 0, ISLAND.seatingZ - ROOM.counterDepth / 2],

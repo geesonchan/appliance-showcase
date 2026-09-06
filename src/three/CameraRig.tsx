@@ -36,11 +36,18 @@ const SHEET_FRAMING_OFFSET = -0.12;
 const SHEET_OFFSET_MS = 300;
 const FLY_MS = 800;
 
-const isoOffset = (distance: number, azimuth = AZIMUTH) =>
+/**
+ * A camera offset at a given azimuth and pitch.
+ *
+ * Both default to the isometric view. Every slot declares its own in
+ * `data/slots.json`, so a fly-in arrives at the angle the appliance is actually
+ * read from rather than the angle the room happens to look good at.
+ */
+const isoOffset = (distance: number, azimuth = AZIMUTH, pitch = ELEVATION) =>
   new THREE.Vector3(
-    Math.cos(ELEVATION) * Math.sin(azimuth),
-    Math.sin(ELEVATION),
-    Math.cos(ELEVATION) * Math.cos(azimuth),
+    Math.cos(pitch) * Math.sin(azimuth),
+    Math.sin(pitch),
+    Math.cos(pitch) * Math.cos(azimuth),
   ).multiplyScalar(distance);
 
 const easeInOutCubic = (t: number) =>
@@ -94,6 +101,7 @@ export function CameraRig() {
     zoom: number,
     duration = FLY_MS,
     azimuth = AZIMUTH,
+    pitch = ELEVATION,
   ) => {
     const controls = controlsRef.current;
     if (!controls) return;
@@ -103,7 +111,7 @@ export function CameraRig() {
       // offset currently in effect has to be carried across.
       toTarget: target.clone().add(appliedOffset.current),
       fromPos: camera.position.clone(),
-      toPos: target.clone().add(isoOffset(distance, azimuth)).add(appliedOffset.current),
+      toPos: target.clone().add(isoOffset(distance, azimuth, pitch)).add(appliedOffset.current),
       fromZoom: camera.zoom,
       toZoom: zoom,
       start: performance.now(),
@@ -184,9 +192,15 @@ export function CameraRig() {
     // Pull the focus point out in front of the appliance so it sits centre-frame.
     target.x += Math.sin(slot.rotationY) * 1.6;
     target.z += Math.cos(slot.rotationY) * 1.6;
-    // The island openings face away from the default view, so orbit round to
-    // them rather than flying in on their backs. See docs/decisions.md D1.
-    startTween(target, 11, fitZoom * 1.7, FLY_MS, slot.viewAzimuth ?? AZIMUTH);
+    // Straight to the angle the slot declares. See docs/decisions.md D1.
+    startTween(
+      target,
+      11,
+      fitZoom * 1.7,
+      FLY_MS,
+      THREE.MathUtils.degToRad(slot.bestView.azimuth),
+      THREE.MathUtils.degToRad(slot.bestView.pitch),
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSlot]);
 

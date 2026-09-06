@@ -7,6 +7,7 @@ import { CameraRig } from "./CameraRig";
 import { FixtureLayer } from "./FixtureLayer";
 import { KitchenShell } from "./KitchenShell";
 import { Lights } from "./Lights";
+import { OcclusionFade } from "./OcclusionFade";
 import { PinProjector } from "./PinProjector";
 import { ShaderWarmup } from "./ShaderWarmup";
 import { UtilityLayer } from "./UtilityLayer";
@@ -64,6 +65,7 @@ export function Scene() {
         <UtilityLayer type="power" />
         <UtilityLayer type="water" />
         <UtilityLayer type="duct" />
+        <OcclusionFade />
         <PinProjector />
       </Suspense>
       <CameraRig />

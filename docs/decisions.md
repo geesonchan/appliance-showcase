@@ -6,12 +6,13 @@ exist to stop a behaviour creeping back in.
 
 ---
 
-## D1 · The camera moves for two reasons, and no others
+## D1 · The camera moves for three reasons, and no others
 
-**Decided:** 2026-09-05 (round 2), extended round 3.
+**Decided:** 2026-09-05 (round 2), extended round 3 and M3-2.
 
 The camera pose is user state. Nothing may move it as a side effect of an
-unrelated change. Exactly two behaviours are allowed to move it on their own:
+unrelated change. Exactly three behaviours are allowed to move it, or to change
+what it shows, on their own:
 
 1. **Direct navigation.** Selecting an appliance flies the camera in; the reset
    button returns it to the default isometric view; the zoom buttons step the
@@ -22,6 +23,20 @@ unrelated change. Exactly two behaviours are allowed to move it on their own:
    move by the same vector — so the orbit relationship, and therefore the
    controls' own state, is untouched. The offset is derived in screen space
    every frame, so it survives orbiting and zooming.
+3. **Fading what stands in the way.** Every slot declares a `bestView` — azimuth
+   and pitch, in `data/slots.json` — and the fly-in arrives there directly.
+   Where cabinetry, the island counter or a wall then sits on the sight line, it
+   drops to 20% opacity for as long as that slot is selected and is restored
+   exactly as it was on the way out. Only what is actually on the line: the
+   check is a small grid of rays over the appliance's own footprint, cast along
+   the camera's forward axis, because the camera is orthographic and one ray
+   down the middle slips between two cabinets and leaves both of them solid.
+
+   **This replaces the earlier licence to drop the pitch for island slots.** The
+   microwave drawer faces the perimeter, so with an orthographic camera and a
+   near plane behind the room there is no angle that sees it with nothing in
+   front. Moving the camera to dodge an obstruction only trades it for a worse
+   angle; the obstruction is what has to move.
 
 **Forbidden:** switching render mode, toggling day/night, toggling a layer, or
 changing language must leave the camera pose bit-identical.
@@ -36,7 +51,9 @@ or the camera will do the same thing again.
 **How to check:** the smoke test asserts that the on-screen positions of all six
 pin labels are byte-identical across the three render-mode switches. Pin
 positions are projected through the camera, so they are a direct proxy for the
-pose.
+pose. Under `?debug=1` the fade publishes what it is currently hiding as
+`window.__faded`, and the smoke test asserts that flying to the microwave fades
+the island counter and that resetting the view restores everything.
 
 ---
 

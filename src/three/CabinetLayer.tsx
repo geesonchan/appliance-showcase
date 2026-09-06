@@ -43,7 +43,7 @@ function CabinetSolid({ box }: { box: CabinetBox }) {
       visible={!hidden}
       castShadow
       receiveShadow
-      userData={{ slot: box.slot }}
+      userData={{ slot: box.slot, boxId: box.id }}
     >
       {/* Keyed on the mode: three.js needs a fresh material when the
           `transparent` flag flips, not just a property write. */}

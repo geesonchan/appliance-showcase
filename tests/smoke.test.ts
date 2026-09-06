@@ -16,7 +16,7 @@ afterAll(async () => {
 });
 
 /** A page with console errors collected, and the scene given time to draw. */
-async function openPage(viewport: typeof DESKTOP, isMobile = false) {
+async function openPage(viewport: typeof DESKTOP, isMobile = false, query = "") {
   const context = await browser.newContext({
     viewport,
     isMobile,
@@ -50,7 +50,7 @@ async function openPage(viewport: typeof DESKTOP, isMobile = false) {
     if (window.WebGLRenderingContext) patch(WebGLRenderingContext.prototype);
   });
 
-  await page.goto(PREVIEW_URL, { waitUntil: "networkidle" });
+  await page.goto(PREVIEW_URL + query, { waitUntil: "networkidle" });
   await page.waitForSelector("canvas");
   await page.waitForTimeout(2200);
   return { page, errors };
@@ -363,6 +363,43 @@ describe("quote sheet", () => {
       expect(finding.ruleId).toMatch(/^[a-z-]+$/);
       expect(finding.message).not.toContain("{");
     }
+
+    expect(errors).toEqual([]);
+    await page.close();
+  });
+});
+
+describe("occlusion fade", () => {
+  /**
+   * D1 behaviour 3. The check runs against `window.__faded`, which the fade
+   * publishes under ?debug=1: what is on screen is the wrong thing to assert
+   * on, because "the counter looks paler" is not something a test can read.
+   */
+  it("fades only what stands between the camera and the appliance", async () => {
+    const { page, errors } = await openPage(DESKTOP, false, "?debug=1");
+    const faded = () => page.evaluate(() => (window as unknown as { __faded?: string[] }).__faded);
+
+    expect(await faded()).toEqual([]);
+
+    // The microwave drawer faces the perimeter: the island's own counter
+    // overhangs it, whatever angle you arrive at.
+    await page.getByRole("button", { name: /^05 Microwave/ }).first().click();
+    await page.waitForTimeout(1600);
+    const hidden = (await faded())!;
+    expect(hidden).toContain("island-counter");
+    // The appliance's own enclosure is never in its own way.
+    expect(hidden.some((id) => id.startsWith("island-behind-microwave"))).toBe(false);
+
+    // Everything comes back when the room does.
+    await page.getByRole("button", { name: "Reset view" }).click();
+    await page.waitForTimeout(1300);
+    expect(await faded()).toEqual([]);
+
+    // The refrigerator stands clear, so flying to it fades nothing: the check
+    // is targeted, not "dim the room whenever a slot is open".
+    await page.getByRole("button", { name: /^01 Refrigerator/ }).first().click();
+    await page.waitForTimeout(1600);
+    expect(await faded()).toEqual([]);
 
     expect(errors).toEqual([]);
     await page.close();

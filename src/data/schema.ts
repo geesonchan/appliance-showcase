@@ -156,6 +156,16 @@ export const slotRecordSchema = z.object({
   id: slotIdSchema,
   labelKey: z.string().min(1),
   cutout: z.object({ w: inches, h: inches, d: inches }),
+  /**
+   * Where the fly-in views this slot from: azimuth measured like the default
+   * isometric view, pitch above the floor plane, both in degrees. Every slot
+   * declares one, because "the default angle happens to work" is a fact about
+   * this room's geometry and stops being true the moment a template moves it.
+   */
+  bestView: z.object({
+    azimuth: z.number().min(-360).max(360),
+    pitch: z.number().min(5).max(80),
+  }),
   compatibleCategories: z.array(categorySchema).min(1),
   cabinetConfig: cabinetConfigSchema,
   utilities: utilitiesSchema,

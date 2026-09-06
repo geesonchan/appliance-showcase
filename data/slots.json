@@ -38,6 +38,10 @@
           "drain": false
         },
         "duct": null
+      },
+      "bestView": {
+        "azimuth": 45,
+        "pitch": 26
       }
     },
     {
@@ -73,6 +77,10 @@
         },
         "water": null,
         "duct": null
+      },
+      "bestView": {
+        "azimuth": 40,
+        "pitch": 28
       }
     },
     {
@@ -109,6 +117,10 @@
           "diameterIn": 8,
           "route": "up-through-cabinet"
         }
+      },
+      "bestView": {
+        "azimuth": 45,
+        "pitch": 20
       }
     },
     {
@@ -144,6 +156,10 @@
           "drain": true
         },
         "duct": null
+      },
+      "bestView": {
+        "azimuth": 55,
+        "pitch": 26
       }
     },
     {
@@ -176,6 +192,10 @@
         },
         "water": null,
         "duct": null
+      },
+      "bestView": {
+        "azimuth": 190,
+        "pitch": 32
       }
     },
     {
@@ -208,6 +228,10 @@
         },
         "water": null,
         "duct": null
+      },
+      "bestView": {
+        "azimuth": 20,
+        "pitch": 18
       }
     }
   ]
