@@ -1,5 +1,5 @@
 import { SCHEME } from "../data/catalogue";
-import { formatUSD, usePackageSummary } from "../data/packageSummary";
+import { usePackageSummary } from "../data/packageSummary";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
 import { UTILITY_COLORS } from "../three/materials";
@@ -81,16 +81,8 @@ export function RightPanel() {
       </PanelSection>
 
       <PanelSection title={t("panel.package")}>
+        {/* No total here: money lives on the quote page. See D12. */}
         <SummaryRow label={t("panel.package.series")} value={t(SCHEME.nameKey)} />
-        <SummaryRow label={t("panel.package.total")} value={formatUSD(summary.totalUSD)} />
-        {!summary.fullyPriced && (
-          <p className="-mt-0.5 pb-1 text-right text-[10px] text-ink-muted/80">
-            {t("panel.package.priced", {
-              priced: summary.pricedCount,
-              total: summary.count,
-            })}
-          </p>
-        )}
         <SummaryRow
           label={t("panel.package.energy")}
           value={summary.energyKeys.map((key) => t(key)).join(" + ")}

@@ -1,9 +1,5 @@
 import { useSelection, useSelectedBlower } from "../store/useSelection";
 
-/** Rounded to whole thousands, e.g. 29481 -> "$29K". */
-export const formatThousands = (usd: number) =>
-  "$" + Math.round(usd / 1000).toLocaleString("en-US") + "K";
-
 /** A price, or the copy for a model the sheet has no price for. */
 export const formatPrice = (usd: number | null, onRequest: string) =>
   usd === null ? onRequest : formatUSD(usd);
@@ -42,10 +38,6 @@ export function usePackageSummary() {
     /** True when the total covers every model in the package. */
     fullyPriced: priced.length === items.length,
     totalUSD,
-    // The brief asks for a package *range*; whole-thousand bounds around the
-    // real total, so the number stays honest without inventing a margin.
-    rangeLow: Math.floor(totalUSD / 1000) * 1000,
-    rangeHigh: Math.ceil(totalUSD / 1000) * 1000,
     /** i18n keys for each distinct fuel, joined with "+" by the panel. */
     energyKeys: fuels.length > 0 ? fuels.map((fuel) => `energy.${fuel}`) : ["energy.electric"],
     // Unknown, not zero: the current import publishes no lead times at all,

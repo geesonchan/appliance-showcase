@@ -1,6 +1,7 @@
 import { SCHEME, SCHEME_FALLBACKS, SLOT_ORDER } from "../data/catalogue";
-import { formatPrice, formatThousands, usePackageSummary } from "../data/packageSummary";
-import { SLOT_BY_ID } from "../data/slots";
+import { usePackageSummary } from "../data/packageSummary";
+import { formatInches } from "../data/fit";
+import { ROOM, SLOT_BY_ID } from "../data/slots";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
 import { useSelection } from "../store/useSelection";
@@ -39,23 +40,16 @@ export function LeftPanel() {
             {t("hero.stat.appliances")}
           </div>
         </div>
+        {/* The room's size, not its price: what this screen is for. */}
         <div className="bg-surface px-5 py-4">
           <div className="font-display text-[32px] leading-none text-accent">
-            {formatThousands(summary.rangeLow)}
-            <span className="text-ink-muted">–</span>
-            {formatThousands(summary.rangeHigh)}
+            {ROOM.halfX * 2}
+            <span className="text-ink-muted">×</span>
+            {ROOM.halfZ * 2}
           </div>
           <div className="tracking-label mt-2 text-[9px] text-ink-muted">
-            {t("hero.stat.priceRange")}
+            {t("hero.stat.room")}
           </div>
-          {!summary.fullyPriced && (
-            <div className="mt-1 text-[9px] text-ink-muted/70">
-              {t("panel.package.priced", {
-                priced: summary.pricedCount,
-                total: summary.count,
-              })}
-            </div>
-          )}
         </div>
       </div>
 
@@ -100,11 +94,10 @@ export function LeftPanel() {
                     </span>
                   )}
                 </span>
-                {appliance && (
-                  <span className="shrink-0 text-[11px] tabular-nums text-ink-muted">
-                    {formatPrice(appliance.msrpUSD, t("price.onRequest"))}
-                  </span>
-                )}
+                {/* The opening, not the price. See docs/decisions.md D12. */}
+                <span className="shrink-0 text-[10px] tabular-nums text-ink-muted/80">
+                  {formatInches(slot.cutout.w)}
+                </span>
                 <span
                   className={
                     "shrink-0 text-[12px] transition-transform " +

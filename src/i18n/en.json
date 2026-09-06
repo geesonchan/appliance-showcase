@@ -10,7 +10,6 @@
   "hero.title": "A kitchen, specified",
   "hero.body": "Every appliance in this room is a real cutout, a real cabinet run, and a real utility rough-in. Rotate the room, open a slot, and see what it takes to install it.",
   "hero.stat.appliances": "Appliances",
-  "hero.stat.priceRange": "Package range",
   "list.title": "Appliances",
   "list.hint": "Select to fly in",
   "scene.enter": "View specs",
@@ -153,5 +152,11 @@
   "spec.verified": "Verified {date}",
   "spec.unverified": "Not verified against the manufacturer",
   "spec.source": "Spec sheet",
-  "fixture.sink": "Sink"
+  "fixture.sink": "Sink",
+  "topbar.quote": "Quote",
+  "panel.collapseList": "Hide list",
+  "panel.collapseConfig": "Hide panel",
+  "quote.backToRoom": "Back to the room",
+  "quote.hideRaw": "Hide",
+  "hero.stat.room": "Room, feet"
 }

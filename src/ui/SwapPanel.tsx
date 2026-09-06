@@ -56,7 +56,9 @@ export function SwapPanel({ slotId }: { slotId: SlotId }) {
           onClick={() => openSpec(slotId)}
           className="mt-3 flex items-center gap-1 text-[11px] font-medium text-accent transition-opacity hover:opacity-80"
         >
-          {t("scene.enter")}
+          {/* Not "View specs": the callout in the scene already says that, and
+              two identically-labelled buttons on one screen is a coin toss. */}
+          {t("spec.title")}
           <span aria-hidden="true">→</span>
         </button>
       </div>

@@ -35,6 +35,13 @@ interface AppState {
    * flies the camera, opening the card does not move it.
    */
   specSlot: SlotId | null;
+  /**
+   * Which side columns are open at desktop widths. The scene is the product,
+   * so it keeps the screen: the configuration rail starts closed and the
+   * appliance list can be folded away too. See docs/decisions.md D12.
+   */
+  leftOpen: boolean;
+  rightOpen: boolean;
   /** Mobile drawer state; ignored at desktop widths. */
   mobilePanel: "none" | "list" | "config";
   toast: ToastMessage | null;
@@ -56,6 +63,8 @@ interface AppState {
   requestZoom: (direction: 1 | -1) => void;
   setHelpOpen: (open: boolean) => void;
   setQuoteOpen: (open: boolean) => void;
+  toggleLeft: () => void;
+  toggleRight: () => void;
   openSpec: (slot: SlotId) => void;
   closeSpec: () => void;
   setMobilePanel: (panel: "none" | "list" | "config") => void;
@@ -83,6 +92,8 @@ export const useAppStore = create<AppState>((set, get) => ({
   helpOpen: false,
   quoteOpen: false,
   specSlot: null,
+  leftOpen: true,
+  rightOpen: false,
   mobilePanel: "none",
   toast: null,
   modeSwitchStartedAt: null,
@@ -112,6 +123,8 @@ export const useAppStore = create<AppState>((set, get) => ({
     set((s) => ({ zoomRequest: { token: s.zoomRequest.token + 1, direction } })),
   setHelpOpen: (helpOpen) => set({ helpOpen }),
   setQuoteOpen: (quoteOpen) => set({ quoteOpen }),
+  toggleLeft: () => set((s) => ({ leftOpen: !s.leftOpen })),
+  toggleRight: () => set((s) => ({ rightOpen: !s.rightOpen })),
   openSpec: (specSlot) => set({ specSlot }),
   closeSpec: () => set({ specSlot: null }),
   setMobilePanel: (mobilePanel) => set({ mobilePanel }),

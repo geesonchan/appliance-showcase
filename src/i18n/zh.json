@@ -11,7 +11,6 @@
   "hero.title": "一间已配置好的厨房",
   "hero.body": "这个房间里的每一台家电都对应真实的开口尺寸、真实的橱柜排布和真实的管线预留。旋转房间，打开一个槽位，看清安装它需要什么。",
   "hero.stat.appliances": "家电件数",
-  "hero.stat.priceRange": "套餐区间",
   "list.title": "家电",
   "list.hint": "点击飞入",
   "scene.enter": "查看规格",
@@ -154,5 +153,11 @@
   "spec.verified": "已核实 {date}",
   "spec.unverified": "尚未与厂家资料核对",
   "spec.source": "规格书",
-  "fixture.sink": "水槽"
+  "fixture.sink": "水槽",
+  "topbar.quote": "清单",
+  "panel.collapseList": "收起列表",
+  "panel.collapseConfig": "收起面板",
+  "quote.backToRoom": "返回房间",
+  "quote.hideRaw": "收起",
+  "hero.stat.room": "房间（英尺）"
 }

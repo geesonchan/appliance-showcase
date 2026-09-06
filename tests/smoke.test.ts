@@ -154,27 +154,16 @@ describe("desktop", () => {
 
   it("swaps a model in place and follows it everywhere", async () => {
     const { page, errors } = await openPage(DESKTOP);
-    const summaryRow = (label: string) =>
-      page
-        .locator("div")
-        .filter({ hasText: new RegExp(`^${label}`) })
-        .last()
-        .evaluate((el) => el.textContent!.replace(/\s+/g, " ").trim());
-
-    const before = await summaryRow("Package total");
-    const pinBefore = await page
-      .locator("button[style*='position: absolute']")
-      .nth(1)
-      .getAttribute("aria-label")
-      .catch(() => null);
-    const pinTextBefore = await page
-      .locator("button[style*='position: absolute']")
-      .nth(1)
-      .textContent();
-    void pinBefore;
+    const pinText = () =>
+      page.locator("button[style*='position: absolute']").nth(1).textContent();
+    const pinBefore = await pinText();
 
     await page.getByRole("button", { name: /^02 Range/ }).first().click();
     await page.waitForTimeout(1200);
+    const specBefore = await page
+      .getByRole("button", { name: "View specs" })
+      .locator("xpath=..")
+      .innerText();
 
     // Whatever the catalogue holds today, pick a candidate that is not the one
     // already specified. Keying this to a SKU would break on the next import.
@@ -183,14 +172,11 @@ describe("desktop", () => {
     await others.first().click();
     await page.waitForTimeout(900);
 
-    expect(await summaryRow("Package total")).not.toBe(before);
-    // The pin follows the swap. Compared rather than matched against a brand,
-    // so this holds whatever the catalogue contains after the next import.
-    const pinTextAfter = await page
-      .locator("button[style*='position: absolute']")
-      .nth(1)
-      .textContent();
-    expect(pinTextAfter).not.toBe(pinTextBefore);
+    // The pin, the callout and the scene all read the one selection.
+    expect(await pinText()).not.toBe(pinBefore);
+    expect(
+      await page.getByRole("button", { name: "View specs" }).locator("xpath=..").innerText(),
+    ).not.toBe(specBefore);
 
     expect(errors).toEqual([]);
     await page.close();
@@ -352,19 +338,24 @@ describe("quote sheet", () => {
     const lines = callout.split("\n").map((line) => line.trim()).filter(Boolean);
     const model = (lines[1] ?? "").split(" ").pop() ?? "";
 
-    await page.getByRole("button", { name: "Request quote" }).click();
+    // The quote lives behind one entry in the top bar now, not in the room.
+    expect(await page.getByRole("button", { name: "Request quote" }).count()).toBe(0);
+    await page.getByRole("button", { name: "Quote", exact: true }).click();
     await page.waitForTimeout(500);
 
-    const dialog = page.getByRole("dialog");
-    const summary = await dialog.locator("pre").innerText();
+    const quote = page.locator("body");
+    await quote.getByRole("button", { name: "Copy summary" }).waitFor();
+    await quote.getByRole("button", { name: "Readable summary" }).click();
+    await page.waitForTimeout(300);
+    const summary = await quote.locator("pre").innerText();
     // The model in the left column has to be the model on the quote.
     expect(model.length).toBeGreaterThan(3);
     expect(summary).toContain(model);
     expect(summary).not.toMatch(/[{}]|^[a-z]+\.[a-zA-Z]+$/m);
 
-    await dialog.getByRole("button", { name: "JSON" }).click();
+    await quote.getByRole("button", { name: "JSON", exact: true }).click();
     await page.waitForTimeout(300);
-    const json = JSON.parse(await dialog.locator("pre").innerText());
+    const json = JSON.parse(await quote.locator("pre").innerText());
     expect(json.lines).toHaveLength(6);
     expect(json.lines.map((line: { model: string }) => line.model)).toContain(model);
     // Every finding traces back to the rule that produced it.

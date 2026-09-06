@@ -41,7 +41,6 @@ export function BottomBar() {
   const t = useT();
   const resetView = useAppStore((s) => s.resetView);
   const requestZoom = useAppStore((s) => s.requestZoom);
-  const setQuoteOpen = useAppStore((s) => s.setQuoteOpen);
   const showToast = useAppStore((s) => s.showToast);
   // The mobile sheet covers the bottom of the screen; hide the toolbar under it
   // rather than leaving controls the user cannot reach.
@@ -55,7 +54,9 @@ export function BottomBar() {
       ].join(" ")}
     >
       <p className="hidden text-[11px] text-ink-muted sm:block">{t("scene.hint")}</p>
-      <div className="pointer-events-auto flex w-full max-w-[720px] items-center justify-between gap-3 rounded-full border border-line bg-surface/95 px-3 py-2 backdrop-blur-sm">
+      {/* Nothing here sells anything any more; it is the view controls and the
+          plan toggle, so the bar shrinks to fit them. */}
+      <div className="pointer-events-auto flex items-center justify-center gap-4 rounded-full border border-line bg-surface/95 px-3 py-2 backdrop-blur-sm">
         <div className="hidden md:block">
           <Segmented
             size="sm"
@@ -96,14 +97,6 @@ export function BottomBar() {
             <Compass />
           </div>
         </div>
-
-        <button
-          type="button"
-          onClick={() => setQuoteOpen(true)}
-          className="shrink-0 rounded-full bg-accent px-4 py-2 text-[12px] font-medium text-[#F7F5EF] transition-opacity hover:opacity-90"
-        >
-          {t("bottom.quote")}
-        </button>
       </div>
     </div>
   );

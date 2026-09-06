@@ -27,6 +27,7 @@ export function TopBar() {
   const lang = useAppStore((s) => s.lang);
   const setLang = useAppStore((s) => s.setLang);
   const setHelpOpen = useAppStore((s) => s.setHelpOpen);
+  const setQuoteOpen = useAppStore((s) => s.setQuoteOpen);
   const { isFullscreen, toggle } = useFullscreen();
 
   return (
@@ -52,6 +53,14 @@ export function TopBar() {
             MT
           </span>
         )}
+        {/* The one way to the package and its prices. See docs/decisions.md D12. */}
+        <button
+          type="button"
+          onClick={() => setQuoteOpen(true)}
+          className="whitespace-nowrap rounded-full border border-line px-3 py-1.5 text-[11px] font-medium text-ink transition-colors hover:border-accent hover:text-accent"
+        >
+          {t("topbar.quote")}
+        </button>
         <Segmented
           size="sm"
           value={lang}
