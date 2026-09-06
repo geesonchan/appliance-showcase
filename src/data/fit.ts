@@ -29,7 +29,11 @@ const required = (cutout: number | null, body: number | null) => cutout ?? body;
  * enclosure can usually be furred out, where a wall cannot be widened.
  */
 export function fitCheck(slot: Slot, appliance: Appliance): FitResult {
-  const widthOverIn = required(appliance.cutoutWidthIn, appliance.widthIn)! - slot.cutout.w;
+  // Only a blower has no width, and a blower is never a candidate for a slot,
+  // so this cannot report on one. Treated as no overrun rather than thrown,
+  // because a fit check has nothing to say about a part that goes in no opening.
+  const width = required(appliance.cutoutWidthIn, appliance.widthIn);
+  const widthOverIn = width === null ? 0 : width - slot.cutout.w;
   const height = required(appliance.cutoutHeightIn, appliance.heightIn);
   const depth = required(appliance.cutoutDepthIn, appliance.depthIn);
 

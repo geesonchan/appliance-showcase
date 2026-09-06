@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { APPLIANCE_BY_ID, SCHEME, selectionFor } from "./catalogue";
+import { FIXTURES } from "./testFixtures";
 import { SLOT_BY_ID } from "./slots";
 import { RULES, ductDiameterFor, evaluateSlot, packageContext } from "./rules";
 import { slotAvailability } from "./availability";
 import type { Appliance, SlotId } from "../types";
 
 const slot = (id: SlotId) => SLOT_BY_ID[id];
-const model = (id: string) => APPLIANCE_BY_ID[id];
+
 
 /** Fire the slot-scope rules for one appliance, with no blower in play. */
 const fire = (slotId: SlotId, appliance: Appliance, blower: Appliance | null = null) =>
@@ -30,70 +30,67 @@ describe("the rules file", () => {
   });
 });
 
-// Each of these is a real model from the catalogue, one that fires the rule and
-// one that does not, so a threshold change shows up as a failing test.
+/**
+ * One appliance that fires each rule and one that does not, so moving a
+ * threshold in data/rules.json fails a test that names the case that crossed it.
+ *
+ * These come from `testFixtures`, not from the live catalogue: stock is
+ * re-imported whenever it changes, and a rule test keyed to a SKU would fail
+ * the day that SKU sold out.
+ */
 describe("§3.5.4 rules", () => {
   it("power-upgrade: induction in a 120V slot, but not a gas range", () => {
-    expect(fire("slot-range", model("cafe-chs900p2ms1"))).toContain("power-upgrade");
-    expect(fire("slot-range", model("thermador-prg366wh"))).not.toContain("power-upgrade");
+    expect(fire("slot-range", FIXTURES.inductionRange30)).toContain("power-upgrade");
+    expect(fire("slot-range", FIXTURES.gasRange36)).not.toContain("power-upgrade");
   });
 
-  it("dual-fuel: the Pro Grand, but not the Pro Harmony", () => {
-    expect(fire("slot-range", model("thermador-prd486wdhu"))).toContain("dual-fuel");
-    expect(fire("slot-range", model("thermador-prg366wh"))).not.toContain("dual-fuel");
+  it("dual-fuel: a dual-fuel range, but not a gas one", () => {
+    expect(fire("slot-range", FIXTURES.dualFuelRange48)).toContain("dual-fuel");
+    expect(fire("slot-range", FIXTURES.gasRange36)).not.toContain("dual-fuel");
   });
 
   it("gas-pipe-size: 119,500 BTU wants 3/4\", 61,000 does not", () => {
-    const big = model("thermador-prg366wh");
-    expect(big.requires.gasBTU).toBe(119500);
-    expect(fire("slot-range", big)).toContain("gas-pipe-size");
-
-    const small = { ...big, requires: { ...big.requires, gasBTU: 61000 } };
-    expect(fire("slot-range", small)).not.toContain("gas-pipe-size");
+    expect(fire("slot-range", FIXTURES.gasRange36)).toContain("gas-pipe-size");
+    expect(fire("slot-range", FIXTURES.gasRangeSmallBtu)).not.toContain("gas-pipe-size");
   });
 
   it("gas-line-missing: a gas appliance in a slot with no gas", () => {
-    const gasRange = model("thermador-prg366wh");
+    const gasRange = FIXTURES.gasRange36;
     // The wine slot has no gas rough-in at all.
     expect(fire("slot-wine", gasRange)).toContain("gas-line-missing");
     expect(fire("slot-range", gasRange)).not.toContain("gas-line-missing");
   });
 
   it("blower-missing: a hood that ships without one, until one is chosen", () => {
-    const needsBlower = model("thermador-ph36hws");
+    const needsBlower = FIXTURES.hoodNeedsBlower;
     expect(fire("slot-hood", needsBlower, null)).toContain("blower-missing");
-    expect(fire("slot-hood", needsBlower, model("thermador-vtn2fz"))).not.toContain(
+    expect(fire("slot-hood", needsBlower, FIXTURES.blower600)).not.toContain(
       "blower-missing",
     );
     // A hood with its own blower never asks.
-    expect(fire("slot-hood", model("zephyr-zsa-e36cs"), null)).not.toContain("blower-missing");
+    expect(fire("slot-hood", FIXTURES.hoodIntegrated300, null)).not.toContain("blower-missing");
   });
 
   it("makeup-air: 600 CFM triggers it, 300 does not", () => {
-    const separate = model("thermador-ph36hws");
-    expect(firePackage(separate, model("thermador-vtn2fz"))).toContain("makeup-air");
-    expect(firePackage(model("vent-a-hood-prh9-136ss"), null)).not.toContain("makeup-air");
+    expect(firePackage(FIXTURES.hoodNeedsBlower, FIXTURES.blower600)).toContain("makeup-air");
+    expect(firePackage(FIXTURES.hoodIntegrated300, null)).not.toContain("makeup-air");
   });
 
   it("integrated-lead-time: an integrated fridge, but not a built-in one", () => {
-    const integrated = {
-      ...model("thermador-t36bt120ns"),
-      installType: ["integrated"],
-    } as Appliance;
-    expect(fire("slot-fridge", integrated)).toContain("integrated-lead-time");
-    expect(fire("slot-fridge", model("thermador-t36bt120ns"))).not.toContain(
+    expect(fire("slot-fridge", FIXTURES.fridgeIntegrated)).toContain("integrated-lead-time");
+    expect(fire("slot-fridge", FIXTURES.fridgeBuiltIn)).not.toContain(
       "integrated-lead-time",
     );
   });
 
   it("filler-needed: a 30\" range in a 36\" opening, but not a 36\" one", () => {
-    expect(fire("slot-range", model("cafe-chs900p2ms1"))).toContain("filler-needed");
-    expect(fire("slot-range", model("thermador-prg366wh"))).not.toContain("filler-needed");
+    expect(fire("slot-range", FIXTURES.inductionRange30)).toContain("filler-needed");
+    expect(fire("slot-range", FIXTURES.gasRange36)).not.toContain("filler-needed");
   });
 
-  it("deeper-than-opening: the counter-depth Bosch, but not the built-ins", () => {
-    expect(fire("slot-fridge", model("bosch-b36cl80sns"))).toContain("deeper-than-opening");
-    expect(fire("slot-fridge", model("thermador-t36bt120ns"))).not.toContain(
+  it("deeper-than-opening: a counter-depth fridge, but not a built-in", () => {
+    expect(fire("slot-fridge", FIXTURES.fridgeCounterDepth)).toContain("deeper-than-opening");
+    expect(fire("slot-fridge", FIXTURES.fridgeBuiltIn)).not.toContain(
       "deeper-than-opening",
     );
   });
@@ -101,7 +98,7 @@ describe("§3.5.4 rules", () => {
   it("reports the numbers the message needs", () => {
     const findings = evaluateSlot(
       slot("slot-range"),
-      model("cafe-chs900p2ms1"),
+      FIXTURES.inductionRange30,
       packageContext(undefined, null),
     );
     const power = findings.find((f) => f.ruleId === "power-upgrade");
@@ -128,36 +125,59 @@ describe("duct sizing comes from the thresholds table", () => {
   });
 });
 
-describe("the default package", () => {
-  it("has no blockers", () => {
-    const selection = selectionFor(SCHEME);
-    const blower = SCHEME.defaultBlower ? model(SCHEME.defaultBlower) : null;
+/**
+ * A fully specified package produces no blockers. Built from fixtures rather
+ * than from the shipped scheme: whether today's stock happens to contain a
+ * blower is a question about the inventory, and the checklist already answers
+ * it in the app.
+ */
+describe("a complete package", () => {
+  const complete = {
+    "slot-fridge": FIXTURES.fridgeBuiltIn,
+    "slot-range": FIXTURES.gasRange36,
+    "slot-hood": FIXTURES.hoodIntegrated600,
+    "slot-dishwasher": FIXTURES.dishwasher,
+    "slot-microwave": FIXTURES.microwaveDrawer,
+    "slot-wine": FIXTURES.wine,
+  } as Record<SlotId, Appliance>;
+
+  const findingsFor = (selection: Record<SlotId, Appliance>, blower: Appliance | null) => {
     const context = packageContext(selection["slot-hood"], blower);
-    const findings = [
-      ...Object.entries(selection).flatMap(([slotId, appliance]) =>
-        evaluateSlot(slot(slotId as SlotId), appliance, context),
+    return [
+      ...Object.entries(selection).flatMap(([slotId, item]) =>
+        evaluateSlot(slot(slotId as SlotId), item, context),
       ),
       ...evaluateSlot(slot("slot-hood"), selection["slot-hood"], context, "package"),
     ];
-    expect(findings.filter((f) => f.severity === "blocker")).toEqual([]);
+  };
+
+  it("has no blockers", () => {
+    expect(findingsFor(complete, null).filter((f) => f.severity === "blocker")).toEqual([]);
+  });
+
+  it("blocks as soon as a hood needs a blower and has none", () => {
+    const withSeparateHood = { ...complete, "slot-hood": FIXTURES.hoodNeedsBlower };
+    expect(
+      findingsFor(withSeparateHood, null).map((f) => f.ruleId),
+    ).toContain("blower-missing");
+    expect(
+      findingsFor(withSeparateHood, FIXTURES.blower600).map((f) => f.ruleId),
+    ).not.toContain("blower-missing");
   });
 });
 
 describe("slot availability", () => {
-  const otr = {
-    ...model("thermador-md24bs"),
-    installType: ["otr"],
-  } as Appliance;
+  const otr = FIXTURES.microwaveOtr;
 
   it("closes the hood slot when an over-the-range microwave takes the wall", () => {
     const availability = slotAvailability({ "slot-microwave": otr });
     expect(availability["slot-hood"]?.available).toBe(false);
-    expect(availability["slot-hood"]?.takenBy).toContain("MD24BS");
+    expect(availability["slot-hood"]?.takenBy).toContain(otr.model);
   });
 
   it("leaves it open for a drawer microwave", () => {
     const availability = slotAvailability({
-      "slot-microwave": model("thermador-md24bs"),
+      "slot-microwave": FIXTURES.microwaveDrawer,
     });
     expect(availability["slot-hood"]).toBeUndefined();
   });

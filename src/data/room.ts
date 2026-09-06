@@ -87,20 +87,22 @@ export const FRIDGE_OPENING = [
  * The island: 72" x 36" of counter at standard height, standing clear of both
  * perimeter runs.
  *
- * Its two 24" base openings face the perimeter, which is where the cook stands.
- * That is the correct orientation for a working kitchen and the one Leo asked
- * for; the consequence is that the default isometric view sees the island's
- * seating side, so the fly-in orbits round to the working side. See
- * docs/decisions.md D5.
+ * The two openings face opposite ways, and that is deliberate. The microwave
+ * drawer opens toward the perimeter, where the cook stands. The wine cabinet
+ * opens toward the seating side, where the person pouring stands — and, not by
+ * accident, toward the camera, so the overview shows a glass door rather than a
+ * blank cabinet end. See docs/decisions.md D5.
  */
 export const ISLAND = {
   x: [-0.5, 5.5] as const,
   /** 42" of aisle to the back run behind it, and the same to the open side. */
   z: [-0.5, 2.5] as const,
-  /** The face carrying the two appliance openings, toward the back run. */
-  frontZ: -0.5,
+  /** The working face, toward the back run. */
+  workingZ: -0.5,
+  /** The seating face, toward the open room. */
+  seatingZ: 2.5,
   height: ROOM.counterHeight,
-  /** Openings along the island's front face, in feet. */
+  /** Openings along the island, in feet. */
   microwave: [0, 2] as const,
   wine: [2.5, 4.5] as const,
 };
@@ -131,7 +133,11 @@ export interface SlotPlacement {
   viewAzimuth?: number;
 }
 
-/** The island openings face -Z, so the fly-in views them from behind the room. */
+/**
+ * The microwave opens toward the back run, away from the default view, so its
+ * fly-in orbits round behind the room. The wine cabinet opens toward the
+ * camera and needs no such help.
+ */
 const ISLAND_VIEW_AZIMUTH = Math.PI * 1.25;
 
 export const SLOT_PLACEMENT: Record<SlotId, SlotPlacement> = {
@@ -156,15 +162,14 @@ export const SLOT_PLACEMENT: Record<SlotId, SlotPlacement> = {
     mount: "wall",
   },
   "slot-microwave": {
-    position: [mid(ISLAND.microwave), 0, ISLAND.frontZ],
+    position: [mid(ISLAND.microwave), 0, ISLAND.workingZ + ROOM.counterDepth / 2],
     rotationY: Math.PI,
     mount: "island",
     viewAzimuth: ISLAND_VIEW_AZIMUTH,
   },
   "slot-wine": {
-    position: [mid(ISLAND.wine), 0, ISLAND.frontZ],
-    rotationY: Math.PI,
+    position: [mid(ISLAND.wine), 0, ISLAND.seatingZ - ROOM.counterDepth / 2],
+    rotationY: 0,
     mount: "island",
-    viewAzimuth: ISLAND_VIEW_AZIMUTH,
   },
 };

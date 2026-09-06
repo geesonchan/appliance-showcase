@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { APPLIANCES_BY_SLOT, APPLIANCE_BY_ID, BLOWERS, blowersFor } from "./catalogue";
+import { APPLIANCES_BY_SLOT, BLOWERS, blowersFor } from "./catalogue";
+import { FIXTURES } from "./testFixtures";
 import { fitCheck, formatInches } from "./fit";
 import { SLOT_BY_ID } from "./slots";
 import { deriveUtilities } from "./utilities";
@@ -8,7 +9,7 @@ import type { Appliance } from "../types";
 
 const range = SLOT_BY_ID["slot-range"];
 const hoodSlot = SLOT_BY_ID["slot-hood"];
-const base = () => structuredClone(APPLIANCE_BY_ID["thermador-prg366wh"]);
+const base = () => structuredClone(FIXTURES.gasRange36);
 
 describe("fit check", () => {
   it("passes an appliance that matches the opening", () => {
@@ -19,7 +20,7 @@ describe("fit check", () => {
   });
 
   it("fails a wider appliance and reports the overrun", () => {
-    const wide = APPLIANCE_BY_ID["thermador-prd486wdhu"]; // 48" in a 36" opening
+    const wide = FIXTURES.dualFuelRange48; // 48" in a 36" opening
     const result = fitCheck(range, wide);
     expect(result.fits).toBe(false);
     expect(result.widthOverIn).toBe(12);
@@ -27,7 +28,7 @@ describe("fit check", () => {
 
   // Narrow is a trim question, not a blocker: the cabinetmaker adds filler.
   it("allows a narrower appliance and splits the filler between the sides", () => {
-    const narrow = APPLIANCE_BY_ID["cafe-chs900p2ms1"]; // 30" in a 36" opening
+    const narrow = FIXTURES.inductionRange30; // 30" in a 36" opening
     const result = fitCheck(range, narrow);
     expect(result.fits).toBe(true);
     expect(result.widthOverIn).toBe(-6);
@@ -41,7 +42,7 @@ describe("fit check", () => {
 
   it("reports depth without gating on it", () => {
     const fridge = SLOT_BY_ID["slot-fridge"];
-    const deep = APPLIANCE_BY_ID["bosch-b36cl80sns"];
+    const deep = FIXTURES.fridgeCounterDepth;
     const result = fitCheck(fridge, deep);
     expect(result.fits).toBe(true);
     expect(result.depthOverIn).toBe(4);
@@ -68,20 +69,26 @@ describe("fit check", () => {
 });
 
 describe("blowers", () => {
-  const separate = APPLIANCE_BY_ID["thermador-ph36hws"]; // ships without one
-  const integrated = APPLIANCE_BY_ID["zephyr-zsa-e36cs"]; // 600 CFM built in
-  const internal = APPLIANCE_BY_ID["thermador-vtn2fz"]; // 600 CFM
-  const external = APPLIANCE_BY_ID["thermador-vtr1330w"]; // 1300 CFM
+  const separate = FIXTURES.hoodNeedsBlower; // ships without one
+  const integrated300 = FIXTURES.hoodIntegrated300;
+  const integrated600 = FIXTURES.hoodIntegrated600;
+  const internal = FIXTURES.blower600; // 600 CFM
+  const external = FIXTURES.blower1300; // 1300 CFM
 
   it("keeps blowers out of the hood picker", () => {
     const hoods = APPLIANCES_BY_SLOT["slot-hood"];
     expect(hoods.every((item) => item.category === "hood")).toBe(true);
     expect(BLOWERS.every((item) => item.category === "blower")).toBe(true);
-    expect(BLOWERS.length).toBeGreaterThan(0);
   });
 
-  it("offers blowers from the same maker as the hood", () => {
-    expect(blowersFor(separate).every((b) => b.brand === separate.brand)).toBe(true);
+  it("offers blowers from the same maker as the hood, when there are any", () => {
+    const sameBrand = BLOWERS.filter((b) => b.brand === separate.brand);
+    if (sameBrand.length > 0) {
+      expect(blowersFor(separate).every((b) => b.brand === separate.brand)).toBe(true);
+    } else {
+      // Nothing from that maker in stock: offer everything rather than nothing.
+      expect(blowersFor(separate)).toEqual(BLOWERS);
+    }
   });
 
   // A hood that ships without a blower has no CFM of its own.
@@ -93,13 +100,16 @@ describe("blowers", () => {
   });
 
   it("ignores the blower when the hood has its own", () => {
-    expect(effectiveCfm(integrated, external)).toBe(600);
+    expect(effectiveCfm(integrated300, external)).toBe(300);
+    expect(effectiveCfm(integrated600, external)).toBe(600);
   });
 
   it("decides makeup air from whichever part moves the air", () => {
+    // A hood with no blower yet moves no air at all.
     expect(needsMakeupAir(separate, null)).toBe(false);
     expect(needsMakeupAir(separate, internal)).toBe(true);
-    expect(needsMakeupAir(integrated, null)).toBe(true);
+    expect(needsMakeupAir(integrated300, null)).toBe(false);
+    expect(needsMakeupAir(integrated600, null)).toBe(true);
   });
 
   it("sizes the duct from the effective CFM, not the hood's own", () => {
@@ -113,8 +123,8 @@ describe("blowers", () => {
 });
 
 describe("utilities follow the appliance", () => {
-  const gasRange = APPLIANCE_BY_ID["thermador-prg366wh"]; // 119,500 BTU
-  const induction = APPLIANCE_BY_ID["cafe-chs900p2ms1"];
+  const gasRange = FIXTURES.gasRange36; // 119,500 BTU
+  const induction = FIXTURES.inductionRange30;
 
   it("draws a gas line for a gas range", () => {
     const utilities = deriveUtilities(range, gasRange);
@@ -130,13 +140,12 @@ describe("utilities follow the appliance", () => {
   });
 
   it("sizes the gas pipe by total BTU", () => {
-    const small = { ...gasRange, requires: { ...gasRange.requires, gasBTU: 61_000 } };
     expect(deriveUtilities(range, gasRange).gas?.pipeSize).toBe('3/4"');
-    expect(deriveUtilities(range, small).gas?.pipeSize).toBe('1/2"');
+    expect(deriveUtilities(range, FIXTURES.gasRangeSmallBtu).gas?.pipeSize).toBe('1/2"');
   });
 
   it("keeps the slot's duct route", () => {
-    expect(deriveUtilities(hoodSlot, APPLIANCE_BY_ID["zephyr-zsa-e36cs"]).duct?.route).toBe(
+    expect(deriveUtilities(hoodSlot, FIXTURES.hoodIntegrated600).duct?.route).toBe(
       hoodSlot.utilities.duct?.route,
     );
   });

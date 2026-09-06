@@ -233,16 +233,18 @@ function PowerRuns({ effective }: { effective: Record<string, Utilities> }) {
 
         if (isIsland(slot)) {
           const [x, , z] = slot.position;
+          // Behind the appliance, whichever way its door faces.
+          const back = z - Math.cos(slot.rotationY) * ft(6);
           return (
             <group key={slot.id}>
               <Pipe
-                from={[x, 0, z + ft(6)]}
-                to={[x, outletY, z + ft(6)]}
+                from={[x, 0, back]}
+                to={[x, outletY, back]}
                 radius={radius}
                 color={color}
               />
               <Fitting
-                position={[x, outletY, z + ft(6)]}
+                position={[x, outletY, back]}
                 size={[ft(3), ft(4.5), ft(2)]}
                 color={color}
               />

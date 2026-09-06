@@ -89,8 +89,12 @@ export const applianceSchema = z.object({
    */
   blower: z.enum(["integrated", "required"]).nullable(),
 
-  /** The fit check gates on width, so it is the one dimension always required. */
-  widthIn: inches,
+  /**
+   * Width, or null for a blower. Everything else needs one, because the fit
+   * check gates on it — but a blower is an accessory bolted to a hood, not
+   * something that goes in an opening, so the sheet has no width for it.
+   */
+  widthIn: inches.nullable(),
   heightIn: inches.nullable(),
   depthIn: inches.nullable(),
   cutoutWidthIn: inches.nullable(),
@@ -110,6 +114,9 @@ export const applianceSchema = z.object({
     cfm: z.number().positive().nullable(),
     makeupAirRequired: z.boolean(),
   }),
+}).refine((appliance) => appliance.category === "blower" || appliance.widthIn !== null, {
+  message: "widthIn is required for everything except a blower",
+  path: ["widthIn"],
 });
 
 export const cabinetConfigSchema = z.object({

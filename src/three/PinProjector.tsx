@@ -2,7 +2,7 @@ import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 import { SLOT_ORDER } from "../data/catalogue";
-import { SLOT_BY_ID, ft } from "../data/slots";
+import { ROOM, SLOT_BY_ID, ft } from "../data/slots";
 import type { SlotId } from "../types";
 import { pinElements } from "./pinRegistry";
 
@@ -11,9 +11,27 @@ const RAY_BACKOFF = 60;
 /** Ignore hits this close to the anchor; they are the anchor's own surround. */
 const RAY_EPSILON = 0.3;
 
-/** Anchor a pin just in front of the appliance face, at mid height. */
+/**
+ * Where a pin sits in the world.
+ *
+ * Wall appliances get a pin just in front of their face, at mid height. Island
+ * appliances get one floating above the island counter instead: their doors
+ * face opposite ways, so a pin in front of either one is hidden behind the
+ * island from half the angles you can orbit to. Above the counter, nothing can
+ * cover it, and the two island pins separate naturally because they sit at
+ * different points along the run.
+ */
 function anchorFor(slotId: SlotId): THREE.Vector3 {
   const slot = SLOT_BY_ID[slotId];
+
+  if (slot.mount === "island") {
+    return new THREE.Vector3(
+      slot.position[0],
+      ROOM.counterHeight + 0.7,
+      slot.position[2],
+    );
+  }
+
   const out = new THREE.Vector3(
     Math.sin(slot.rotationY),
     0,

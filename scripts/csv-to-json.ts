@@ -179,7 +179,11 @@ export function convert(
     }
 
     const widthIn = toWidthIn(row.Width ?? "");
-    if (widthIn === null) {
+    // A blower is an accessory bolted to a hood, not something that goes in an
+    // opening, so it has no width in the sheet and does not need one. Every
+    // other category is checked against a cutout, so a missing width means the
+    // row cannot be placed.
+    if (widthIn === null && category !== "blower") {
       // One bucket, not one line per model: at 4,700 rows the per-model form
       // drowns everything else. The models are still named under --verbose.
       skip("no width");

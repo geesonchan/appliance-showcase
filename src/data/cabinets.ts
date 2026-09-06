@@ -143,28 +143,21 @@ export const CABINETS: CabinetBox[] = [
   },
 
   // --- island ---
-  // Carcass in three pieces, leaving the two appliance openings empty. The
-  // whole box is one volume for the mobile outline.
+  // The two openings come in from opposite faces, so the carcass is the island
+  // minus each of them: solid across the full depth where there is no opening,
+  // and solid behind each opening on its own side.
   {
     id: "island-left",
     outline: "island",
     kind: "base",
-    position: [
-      mid([ISLAND.x[0], ISLAND.microwave[0]]),
-      ROOM.counterHeight / 2,
-      mid(ISLAND.z),
-    ],
+    position: [mid([ISLAND.x[0], ISLAND.microwave[0]]), ROOM.counterHeight / 2, mid(ISLAND.z)],
     size: [span([ISLAND.x[0], ISLAND.microwave[0]]), ROOM.counterHeight, span(ISLAND.z)],
   },
   {
     id: "island-middle",
     outline: "island",
     kind: "base",
-    position: [
-      mid([ISLAND.microwave[1], ISLAND.wine[0]]),
-      ROOM.counterHeight / 2,
-      mid(ISLAND.z),
-    ],
+    position: [mid([ISLAND.microwave[1], ISLAND.wine[0]]), ROOM.counterHeight / 2, mid(ISLAND.z)],
     size: [span([ISLAND.microwave[1], ISLAND.wine[0]]), ROOM.counterHeight, span(ISLAND.z)],
   },
   {
@@ -175,19 +168,35 @@ export const CABINETS: CabinetBox[] = [
     size: [span([ISLAND.wine[1], ISLAND.x[1]]), ROOM.counterHeight, span(ISLAND.z)],
   },
   {
-    id: "island-back",
+    // Behind the microwave, on the seating side.
+    id: "island-behind-microwave",
     outline: "island",
     kind: "base",
-    // The far half of the island, behind the appliance openings.
     position: [
-      mid(ISLAND.x),
+      mid(ISLAND.microwave),
       ROOM.counterHeight / 2,
-      mid([ISLAND.z[0] + ROOM.counterDepth, ISLAND.z[1]]),
+      mid([ISLAND.workingZ + ROOM.counterDepth, ISLAND.z[1]]),
     ],
     size: [
-      span(ISLAND.x),
+      span(ISLAND.microwave),
       ROOM.counterHeight,
-      span([ISLAND.z[0] + ROOM.counterDepth, ISLAND.z[1]]),
+      span([ISLAND.workingZ + ROOM.counterDepth, ISLAND.z[1]]),
+    ],
+  },
+  {
+    // Behind the wine cabinet, on the working side.
+    id: "island-behind-wine",
+    outline: "island",
+    kind: "base",
+    position: [
+      mid(ISLAND.wine),
+      ROOM.counterHeight / 2,
+      mid([ISLAND.z[0], ISLAND.seatingZ - ROOM.counterDepth]),
+    ],
+    size: [
+      span(ISLAND.wine),
+      ROOM.counterHeight,
+      span([ISLAND.z[0], ISLAND.seatingZ - ROOM.counterDepth]),
     ],
   },
   {

@@ -173,17 +173,19 @@ them decide the scene layout:
    cannot be widened. Only width gates.
 5. **Most high-end hoods ship without a blower.** See D6.
 
-**The island faces the perimeter, and that costs something.** Its two openings
-are on the face toward the L-run, because that is where the cook stands. The
-consequence is that the default isometric view — which sees the +X and +Z faces
-— looks at the island's seating side. Rather than turn the island round, the
-fly-in orbits to the working side for those two slots, which is one of the two
-camera behaviours D1 allows.
+**The island's two openings face opposite ways, on purpose.** The microwave
+drawer opens toward the perimeter, where the cook stands. The wine cabinet
+opens toward the seating side, where the person pouring stands — and, not by
+accident, toward the camera, so the overview shows a glass door rather than a
+blank cabinet end. The microwave's fly-in therefore orbits round to the working
+side, which is one of the two camera behaviours D1 allows; the wine cabinet
+needs no such help.
 
-**The room is 14' x 12' because the island says so**, not because the number
-looked right: a 24" run plus a 36" island plus the 42" aisles either side is
-what a working kitchen needs, and the 10' depth this started at put the island
-within arm's reach of the range.
+**The room is 14' x 12'.** Confirmed on review.
+
+That depth is set by the island rather than by taste: a 24" run plus a 36"
+island plus the 42" aisles either side is what a working kitchen needs, and the
+10' this started at put the island within arm's reach of the range.
 
 ---
 
@@ -240,3 +242,44 @@ picker.
 **The install checklist is the quote sheet's input.** Each finding carries its
 rule id and the slot it is about, so a line on the quote can be traced back to
 why it is there.
+
+---
+
+## D8 · A scheme is a preference; the catalogue is the truth
+
+**Decided:** 2026-09-06 (M2), after the first real import.
+
+`data/appliances.json` is regenerated from the inventory sheet whenever stock
+changes, so the ids in it change. A `defaultSelection` naming a model that has
+left the catalogue must not stop the app: it falls back to the cheapest
+candidate for that slot and warns on the console naming what it could not find.
+`defaultBlower` simply becomes null, since a blower is optional by nature.
+
+A selection filed under the **wrong** slot still throws — that is a mistake in
+the scheme, not a change in stock.
+
+**Tests follow the same rule.** The rule and fit tests are built from
+`src/data/testFixtures.ts`, not from the live catalogue: a test keyed to a SKU
+fails the day that SKU sells out, which says nothing about the rule under test.
+Only `catalogue.test.ts` asserts over live data, and only invariants that should
+genuinely track it — unique ids, categories matching their slot, the scheme
+resolving.
+
+The first import proved the point twice over: the wine cabinet came through
+filed under Zephyr rather than Thermador, and the blowers were not in the
+catalogue at all yet.
+
+---
+
+## D9 · A blower has no width, and does not need one
+
+**Decided:** 2026-09-06 (M2), from the first import.
+
+Three blowers were dropped as `no width`. That was the importer being right
+about the wrong thing: a blower is an accessory bolted to a hood, not something
+that goes in an opening, so the sheet has no width for it and the fit check has
+nothing to say about it.
+
+`widthIn` is nullable, and the schema refuses a null on anything except a
+blower — an appliance that goes in a cutout without a width is still an error.
+The importer skips `no width` for every category but that one.

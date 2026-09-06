@@ -22,6 +22,12 @@ const fixture = () =>
 
 const run = () => convert(fixture(), SLOTS);
 
+const meta = () => ({
+  generatedBy: "test",
+  updatedAt: "2026-09-06",
+  provenance: "test",
+});
+
 describe("fuel from the type prefix", () => {
   it.each([
     ["Gas Range", "gas"],
@@ -175,6 +181,43 @@ describe("the accessory catch-all in a real file", () => {
     const { appliances, summary } = run();
     expect(summary.skipped["accessory-like"]).toBe(2);
     expect(appliances.some((item) => item.model === "ACC-LOUVRE")).toBe(false);
+  });
+});
+
+describe("blowers have no width, and do not need one", () => {
+  const blower = () => run().appliances.find((item) => item.model === "VTN2FZ");
+
+  it("exports a blower whose Width cell is empty", () => {
+    expect(blower()).toBeDefined();
+    expect(blower()?.widthIn).toBeNull();
+    expect(blower()?.category).toBe("blower");
+  });
+
+  it("does not count it against the no-width bucket", () => {
+    const { summary } = run();
+    expect(summary.noWidthModels).not.toContain("Thermador VTN2FZ");
+  });
+
+  // The exemption is for blowers only: anything that goes in an opening still
+  // needs a width, or the fit check has nothing to work with.
+  it("still skips a real appliance with no width", () => {
+    const { summary, appliances } = run();
+    expect(summary.noWidthModels).toContain("Bosch SHX78CM5N");
+    expect(appliances.some((item) => item.model === "SHX78CM5N")).toBe(false);
+  });
+
+  it("rejects a non-blower with a null width at the schema", () => {
+    const rows = fixture();
+    const dishwasher = rows.find((r) => r.Model === "G5892SCVI")!;
+    const asBlower = { ...blower()!, category: "dishwasher" as const };
+    expect(dishwasher).toBeDefined();
+    expect(() =>
+      parseDataFile(
+        appliancesFileSchema,
+        { _meta: meta(), appliances: [asBlower] },
+        "test",
+      ),
+    ).toThrow(/widthIn/);
   });
 });
 

@@ -71,23 +71,51 @@ export const SLOT_ORDER: SlotId[] = [
   "slot-wine",
 ];
 
+/**
+ * Reconcile a scheme with the catalogue actually loaded.
+ *
+ * A scheme is a preference, not a constraint: the catalogue is re-imported from
+ * the inventory sheet whenever stock changes, and a model that has left it must
+ * not stop the app. A missing selection falls back to the cheapest candidate
+ * for that slot and says so; a selection filed under the wrong slot is a real
+ * mistake in the scheme and still throws.
+ */
 function resolveScheme(scheme: (typeof parsedSchemes.schemes)[number]): Scheme {
-  // Cross-file integrity: zod can check the shape of an id but not that the
-  // appliance it names exists, or that it belongs to the slot it is filed under.
+  const defaultSelection: Record<string, string> = {};
+
   for (const [slotId, applianceId] of Object.entries(scheme.defaultSelection)) {
     const appliance = APPLIANCE_BY_ID[applianceId];
-    if (!appliance) {
-      throw new Error(
-        `data/schemes.json: ${scheme.id} selects unknown appliance "${applianceId}" for ${slotId}`,
-      );
-    }
-    if (appliance.slot !== slotId) {
+
+    if (appliance && appliance.slot !== slotId) {
       throw new Error(
         `data/schemes.json: ${scheme.id} puts ${applianceId} in ${slotId}, but it belongs to ${appliance.slot}`,
       );
     }
+
+    if (appliance) {
+      defaultSelection[slotId] = applianceId;
+      continue;
+    }
+
+    const fallback = APPLIANCES_BY_SLOT[slotId as SlotId]?.[0];
+    if (!fallback) {
+      throw new Error(
+        `data/schemes.json: ${scheme.id} selects unknown appliance "${applianceId}" for ${slotId}, and the catalogue has nothing else for that slot`,
+      );
+    }
+    console.warn(
+      `data/schemes.json: ${scheme.id} selects "${applianceId}" for ${slotId}, which is no longer in the catalogue. Falling back to ${fallback.id}.`,
+    );
+    defaultSelection[slotId] = fallback.id;
   }
-  return scheme as Scheme;
+
+  // The blower is optional by nature, so a missing one is simply not specified.
+  const defaultBlower =
+    scheme.defaultBlower && APPLIANCE_BY_ID[scheme.defaultBlower]
+      ? scheme.defaultBlower
+      : null;
+
+  return { ...scheme, defaultSelection, defaultBlower } as Scheme;
 }
 
 export const SCHEMES: Scheme[] = parsedSchemes.schemes.map(resolveScheme);
