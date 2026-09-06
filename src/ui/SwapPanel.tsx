@@ -1,11 +1,12 @@
 import { APPLIANCES_BY_SLOT, blowersFor } from "../data/catalogue";
+import { slotAvailability } from "../data/availability";
 import { fitCheck, formatInches } from "../data/fit";
 import { formatPrice } from "../data/packageSummary";
 import { SLOT_BY_ID } from "../data/slots";
 import { DEBUG } from "../debug";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
-import { useSelectedAppliance, useSelectedBlower } from "../store/useSelection";
+import { useSelectedAppliance, useSelectedBlower, useSelection } from "../store/useSelection";
 import type { Appliance, SlotId } from "../types";
 
 function UnverifiedBadge() {
@@ -31,6 +32,9 @@ export function SwapPanel({ slotId }: { slotId: SlotId }) {
   const selectedId = useAppStore((s) => s.selection[slotId]);
   const selectAppliance = useAppStore((s) => s.selectAppliance);
   const selectSlot = useAppStore((s) => s.selectSlot);
+  const selection = useSelection();
+  const availability = slotAvailability(selection)[slotId];
+  const unavailable = availability?.available === false;
 
   return (
     <div className="flex h-full flex-col overflow-y-auto">
@@ -55,6 +59,15 @@ export function SwapPanel({ slotId }: { slotId: SlotId }) {
         </p>
       </div>
 
+      {unavailable && (
+        <div className="border-b border-line bg-[rgba(217,48,37,0.06)] px-5 py-3">
+          <p className="text-[11px] font-medium text-ink">{t("swap.unavailable")}</p>
+          <p className="mt-1 text-[11px] leading-snug text-ink-muted">
+            {t(availability.reasonKey!, { takenBy: availability.takenBy! })}
+          </p>
+        </div>
+      )}
+
       <div className="flex items-baseline justify-between px-5 pb-2 pt-4">
         <h3 className="tracking-label text-[10px] text-ink-muted">{t("swap.title")}</h3>
         <span className="text-[10px] text-ink-muted/70">
@@ -62,13 +75,14 @@ export function SwapPanel({ slotId }: { slotId: SlotId }) {
         </span>
       </div>
 
-      <ul className="pb-6">
+      <ul className={"pb-6 " + (unavailable ? "pointer-events-none opacity-40" : "")}>
         {candidates.map((appliance) => (
           <CandidateRow
             key={appliance.id}
             appliance={appliance}
             slotId={slotId}
             selected={appliance.id === selectedId}
+            disabled={unavailable}
             onSelect={() => selectAppliance(slotId, appliance.id)}
           />
         ))}
@@ -166,27 +180,30 @@ function CandidateRow({
   appliance,
   slotId,
   selected,
+  disabled = false,
   onSelect,
 }: {
   appliance: Appliance;
   slotId: SlotId;
   selected: boolean;
+  disabled?: boolean;
   onSelect: () => void;
 }) {
   const t = useT();
   const fit = fitCheck(SLOT_BY_ID[slotId], appliance);
   const tooDeep = fit.depthOverIn !== null && fit.depthOverIn > 0;
+  const blocked = disabled || !fit.fits;
 
   return (
     <li>
       <button
         type="button"
-        disabled={!fit.fits}
+        disabled={blocked}
         onClick={onSelect}
         aria-pressed={selected}
         className={[
           "flex w-full items-start gap-3 border-l-2 px-5 py-3 text-left transition-colors",
-          !fit.fits
+          blocked
             ? "cursor-not-allowed border-l-transparent opacity-45"
             : selected
               ? "border-l-accent bg-[rgba(46,92,69,0.07)]"

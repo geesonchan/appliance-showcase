@@ -1,0 +1,246 @@
+{
+  "_meta": {
+    "generatedBy": "hand written from brief §3.5.4",
+    "updatedAt": "2026-09-05",
+    "provenance": "Install rules and sizing thresholds. Maintained here rather than in code so Leo can change a threshold without a release. Every rule has a positive and a negative sample in src/data/rules.test.ts, keyed to real models in data/appliances.json."
+  },
+  "rules": [
+    {
+      "id": "power-upgrade",
+      "severity": "blocker",
+      "messageKey": "rule.powerUpgrade",
+      "when": [
+        {
+          "fact": "appliance.requires.voltage",
+          "op": "gt",
+          "value": "slot.utilities.power.voltage"
+        }
+      ],
+      "params": {
+        "voltage": "appliance.requires.voltage",
+        "amps": "appliance.requires.amps"
+      },
+      "scope": "slot"
+    },
+    {
+      "id": "amp-upgrade",
+      "severity": "warning",
+      "messageKey": "rule.ampUpgrade",
+      "when": [
+        {
+          "fact": "appliance.requires.voltage",
+          "op": "eq",
+          "value": "slot.utilities.power.voltage"
+        },
+        {
+          "fact": "appliance.requires.amps",
+          "op": "gt",
+          "value": "slot.utilities.power.amps"
+        }
+      ],
+      "params": {
+        "amps": "appliance.requires.amps"
+      },
+      "scope": "slot"
+    },
+    {
+      "id": "dual-fuel",
+      "severity": "warning",
+      "messageKey": "rule.dualFuel",
+      "when": [
+        {
+          "fact": "appliance.fuel",
+          "op": "eq",
+          "value": "dual"
+        }
+      ],
+      "params": {},
+      "scope": "slot"
+    },
+    {
+      "id": "gas-line-missing",
+      "severity": "blocker",
+      "messageKey": "rule.gasLineMissing",
+      "when": [
+        {
+          "fact": "appliance.requires.gasBTU",
+          "op": "gt",
+          "value": 0
+        },
+        {
+          "fact": "slot.utilities.gas",
+          "op": "isNull"
+        }
+      ],
+      "params": {
+        "btu": "appliance.requires.gasBTU"
+      },
+      "scope": "slot"
+    },
+    {
+      "id": "gas-pipe-size",
+      "severity": "info",
+      "messageKey": "rule.gasPipeSize",
+      "when": [
+        {
+          "fact": "appliance.requires.gasBTU",
+          "op": "gt",
+          "value": 65000
+        }
+      ],
+      "params": {
+        "btu": "appliance.requires.gasBTU",
+        "pipe": "3/4\""
+      },
+      "scope": "slot"
+    },
+    {
+      "id": "blower-missing",
+      "severity": "blocker",
+      "messageKey": "rule.blowerMissing",
+      "when": [
+        {
+          "fact": "appliance.blower",
+          "op": "eq",
+          "value": "required"
+        },
+        {
+          "fact": "package.blower",
+          "op": "isNull"
+        }
+      ],
+      "params": {},
+      "scope": "slot"
+    },
+    {
+      "id": "makeup-air",
+      "severity": "warning",
+      "messageKey": "rule.makeupAir",
+      "when": [
+        {
+          "fact": "package.effectiveCfm",
+          "op": "gte",
+          "value": 400
+        }
+      ],
+      "params": {
+        "cfm": "package.effectiveCfm"
+      },
+      "scope": "package"
+    },
+    {
+      "id": "duct-size",
+      "severity": "info",
+      "messageKey": "rule.ductSize",
+      "when": [
+        {
+          "fact": "package.effectiveCfm",
+          "op": "gt",
+          "value": 0
+        }
+      ],
+      "params": {
+        "cfm": "package.effectiveCfm",
+        "duct": "package.ductDiameterIn"
+      },
+      "scope": "package"
+    },
+    {
+      "id": "integrated-lead-time",
+      "severity": "info",
+      "messageKey": "rule.integratedPanels",
+      "when": [
+        {
+          "fact": "appliance.installType",
+          "op": "includes",
+          "value": "integrated"
+        }
+      ],
+      "params": {},
+      "scope": "slot"
+    },
+    {
+      "id": "otr-conflicts-with-hood",
+      "severity": "blocker",
+      "messageKey": "rule.otrConflict",
+      "when": [
+        {
+          "fact": "appliance.installType",
+          "op": "includes",
+          "value": "otr"
+        }
+      ],
+      "params": {},
+      "scope": "slot"
+    },
+    {
+      "id": "panel-ready-cabinetry",
+      "severity": "info",
+      "messageKey": "rule.panelReady",
+      "when": [
+        {
+          "fact": "appliance.finish",
+          "op": "includes",
+          "value": "panel-ready"
+        },
+        {
+          "fact": "slot.cabinetConfig.panelReady",
+          "op": "eq",
+          "value": false
+        }
+      ],
+      "params": {},
+      "scope": "slot"
+    },
+    {
+      "id": "filler-needed",
+      "severity": "info",
+      "messageKey": "rule.fillerNeeded",
+      "when": [
+        {
+          "fact": "fit.fillerEachSideIn",
+          "op": "gt",
+          "value": 0.05
+        }
+      ],
+      "params": {
+        "filler": "fit.fillerEachSideIn"
+      },
+      "scope": "slot"
+    },
+    {
+      "id": "deeper-than-opening",
+      "severity": "info",
+      "messageKey": "rule.deeperThanOpening",
+      "when": [
+        {
+          "fact": "fit.depthOverIn",
+          "op": "gt",
+          "value": 0
+        }
+      ],
+      "params": {
+        "depth": "fit.depthOverIn"
+      },
+      "scope": "slot"
+    }
+  ],
+  "thresholds": {
+    "gasPipeUpsizeBTU": 65000,
+    "makeupAirCfm": 400,
+    "duct": [
+      {
+        "maxCfm": 400,
+        "diameterIn": 6
+      },
+      {
+        "maxCfm": 600,
+        "diameterIn": 8
+      },
+      {
+        "maxCfm": null,
+        "diameterIn": 10
+      }
+    ]
+  }
+}

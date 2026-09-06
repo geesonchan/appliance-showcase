@@ -4,6 +4,7 @@ import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
 import { UTILITY_COLORS } from "../three/materials";
 import type { UtilityType } from "../types";
+import { InstallChecklist } from "./InstallChecklist";
 import { PlanThumbnail } from "./PlanThumbnail";
 import { PanelSection, Segmented, Toggle } from "./primitives";
 
@@ -115,6 +116,8 @@ export function RightPanel() {
           ))}
         </div>
       </PanelSection>
+
+      <InstallChecklist />
 
       <PanelSection title={t("panel.plan")}>
         <PlanThumbnail />

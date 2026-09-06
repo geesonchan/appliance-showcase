@@ -70,9 +70,9 @@ flags; it never mounts or unmounts geometry.
 It is validated with zod at import time and the app refuses to start on a
 schema violation rather than rendering something subtly wrong.
 
-Room geometry — wall positions, cabinet run segments, counter heights — stays in
-`src/data/room.ts`. It is scene construction, not product data, and Leo does not
-maintain it in the Sheet.
+Room geometry — wall positions, cabinet run segments, counter heights, where the
+island stands — stays in `src/data/room.ts`. It is scene construction, not
+product data, and Leo does not maintain it in the Sheet.
 
 **Unpriced is a real state, not a zero.** `msrpUSD` is nullable, and a zero in
 the sheet reads as null too: an allocated or made-to-order line has no list
@@ -150,3 +150,93 @@ that sit one word apart: `Speed Combo Oven` is a wall oven and `Countertop
 Combo Oven` is not; `Microwave Drawer`, `Refrigerator Drawer` and `Warming
 Drawer` are three different categories; `All Freezer` is refrigeration and
 `Freezer` is not.
+
+---
+
+## D5 · The kitchen is a rangetop, an island, and no wall oven
+
+**Decided:** 2026-09-05 (M2), from Leo's read of the catalogue.
+
+Five judgements about how this kitchen is actually specified, which between
+them decide the scene layout:
+
+1. **A 36" rangetop and a single wall oven duplicate each other.** The classic
+   package pairs the 36" rangetop with a 24" undercounter wine cabinet instead.
+   So Scheme 01 has no oven tower, and `wall-oven` reports as `no slot:
+   wall-oven` on import. Scheme 02 brings the tower back.
+2. **The microwave drawer and the wine cabinet go under the island counter.**
+   Both are 24" base openings on the island's front face.
+3. **A model narrower than the opening is not blocked.** It needs filler, and
+   the panel says how much on each side — the difference halved, to a tenth of
+   an inch. Narrow is a trim question the cabinetmaker answers.
+4. **Depth is reported, never blocking.** An enclosure can be furred out; a wall
+   cannot be widened. Only width gates.
+5. **Most high-end hoods ship without a blower.** See D6.
+
+**The island faces the perimeter, and that costs something.** Its two openings
+are on the face toward the L-run, because that is where the cook stands. The
+consequence is that the default isometric view — which sees the +X and +Z faces
+— looks at the island's seating side. Rather than turn the island round, the
+fly-in orbits to the working side for those two slots, which is one of the two
+camera behaviours D1 allows.
+
+**The room is 14' x 12' because the island says so**, not because the number
+looked right: a 24" run plus a 36" island plus the 42" aisles either side is
+what a working kitchen needs, and the 10' depth this started at put the island
+within arm's reach of the range.
+
+---
+
+## D6 · A blower is a line on the quote, not a slot in the room
+
+**Decided:** 2026-09-05 (M2).
+
+Most high-end hoods ship without a blower, and it is the blower — not the hood —
+that has a CFM. So:
+
+- Hoods carry a `blower` field: `integrated` or `required`.
+- `required` hoods have `cfm: null`. The package's **effective CFM** comes from
+  the blower, and that is what sizes the duct and decides makeup air.
+- The blower is chosen in its own picker under the hood, offering blowers from
+  the same maker, and it takes its own line on the package total — a separate
+  purchase with its own lead time, which burying it in the hood's price would
+  hide.
+- Blowers are classified as their own category and filed under `slot-hood`,
+  because that is what they attach to, but they are kept out of the hood picker.
+  They are not slot occupants.
+- `internal` / `inline` / `external` is read from the Feature column. Drawing
+  the blower in its actual position is M3.
+
+**A hood that needs a blower and has none is a blocker**, not a warning: it is
+not an installable specification.
+
+---
+
+## D7 · Rules are data; availability is code
+
+**Decided:** 2026-09-05 (M2).
+
+`data/rules.json` holds the §3.5.4 checks *and* the sizing thresholds that used
+to be constants in the scene — the gas pipe upsize BTU, the makeup air CFM, the
+duct diameter bands. A threshold is a business judgement, and changing one
+should not need a release.
+
+A rule is `{ id, scope, severity, messageKey, when[], params }`. `when` reads
+dotted paths out of an evaluation context of `appliance`, `slot`, `fit` and
+`package`; `scope` says whether it is answered once per appliance or once for
+the whole package, because a rule that reads only `package.*` facts would
+otherwise report the same finding six times.
+
+Every rule has a positive and a negative sample in `src/data/rules.test.ts`,
+each keyed to a real model, so moving a threshold shows up as a failing test
+naming the model that moved across it.
+
+**Slot availability is deliberately not in rules.json.** An over-the-range
+microwave occupying the hood's wall is different in kind from the checklist
+rules: those describe extra work, this one removes a choice. It lives in
+`src/data/availability.ts` and drives an explicit unavailable state in the
+picker.
+
+**The install checklist is the quote sheet's input.** Each finding carries its
+rule id and the slot it is about, so a line on the quote can be traced back to
+why it is there.
