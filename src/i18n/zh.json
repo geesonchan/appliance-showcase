@@ -159,5 +159,6 @@
   "panel.collapseConfig": "收起面板",
   "quote.backToRoom": "返回房间",
   "quote.hideRaw": "收起",
-  "hero.stat.room": "房间（英尺）"
+  "hero.stat.room": "房间（英尺）",
+  "blower.uncheckedList": "此油烟机尚无兼容清单，这里列出的是全部在库风机。"
 }

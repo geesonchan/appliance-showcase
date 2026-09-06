@@ -55,11 +55,25 @@ export const BLOWERS: Appliance[] = APPLIANCES.filter(
   (appliance) => appliance.category === "blower",
 ).sort((a, b) => (a.msrpUSD ?? Infinity) - (b.msrpUSD ?? Infinity));
 
-/** Blowers from the same maker as a hood, which is how they are actually paired. */
+/**
+ * The blowers a hood will take.
+ *
+ * From the manufacturer's own compatibility chart, carried on the hood. Pairing
+ * by brand was a guess that happens to be right until a Zephyr blower turns up
+ * beside a Thermador hood — and it is wrong within a brand too, since VTN1DZ
+ * fits the 30" Thermador hood and not the 36".
+ *
+ * An unchecked hood offers everything in stock rather than nothing, and says so.
+ * See docs/decisions.md D13.
+ */
 export function blowersFor(hood: Appliance): Appliance[] {
-  const sameBrand = BLOWERS.filter((blower) => blower.brand === hood.brand);
-  return sameBrand.length > 0 ? sameBrand : BLOWERS;
+  if (hood.compatibleBlowers.length === 0) return BLOWERS;
+  const wanted = new Set(hood.compatibleBlowers.map((model) => model.toUpperCase()));
+  return BLOWERS.filter((blower) => wanted.has(blower.model.toUpperCase()));
 }
+
+/** True when nobody has checked what this hood takes. */
+export const blowerListUnverified = (hood: Appliance) => hood.compatibleBlowers.length === 0;
 
 /** Ordering used by the left column, the pin numbering and the plan key. */
 export const SLOT_ORDER: SlotId[] = [

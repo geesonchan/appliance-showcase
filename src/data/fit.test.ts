@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { APPLIANCES_BY_SLOT, BLOWERS, blowersFor } from "./catalogue";
+import {
+  APPLIANCES_BY_SLOT,
+  BLOWERS,
+  blowerListUnverified,
+  blowersFor,
+} from "./catalogue";
+import { COMPATIBLE_BLOWERS } from "../../scripts/normalise";
 import { FIXTURES } from "./testFixtures";
 import { fitCheck, formatInches } from "./fit";
 import { SLOT_BY_ID } from "./slots";
@@ -81,16 +87,6 @@ describe("blowers", () => {
     expect(BLOWERS.every((item) => item.category === "blower")).toBe(true);
   });
 
-  it("offers blowers from the same maker as the hood, when there are any", () => {
-    const sameBrand = BLOWERS.filter((b) => b.brand === separate.brand);
-    if (sameBrand.length > 0) {
-      expect(blowersFor(separate).every((b) => b.brand === separate.brand)).toBe(true);
-    } else {
-      // Nothing from that maker in stock: offer everything rather than nothing.
-      expect(blowersFor(separate)).toEqual(BLOWERS);
-    }
-  });
-
   // A hood that ships without a blower has no CFM of its own.
   it("takes the CFM from the blower when the hood needs one", () => {
     expect(separate.requires.cfm).toBeNull();
@@ -152,5 +148,44 @@ describe("utilities follow the appliance", () => {
 
   it("falls back to the slot's rough-in when nothing is selected", () => {
     expect(deriveUtilities(range, undefined)).toEqual(range.utilities);
+  });
+});
+
+describe("blower compatibility comes from the chart, not the badge", () => {
+  const hood = (model: string, compatible: string[]): Appliance => ({
+    ...FIXTURES.hoodNeedsBlower,
+    model,
+    compatibleBlowers: compatible,
+  });
+
+  it("offers only the models the hood is listed for", () => {
+    const inStock = BLOWERS.map((b) => b.model);
+    expect(inStock.length).toBeGreaterThan(1);
+    const only = blowersFor(hood("PH36HWS", [inStock[0]]));
+    expect(only.map((b) => b.model)).toEqual([inStock[0]]);
+  });
+
+  // VTN1DZ is the 30" hood's blower; brand pairing would have offered it.
+  it("does not offer a blower from the same maker that is not on the list", () => {
+    const thirtyInch = COMPATIBLE_BLOWERS.PH30HWS;
+    const thirtySixInch = COMPATIBLE_BLOWERS.PH36HWS;
+    expect(thirtyInch).toContain("VTN1DZ");
+    expect(thirtySixInch).not.toContain("VTN1DZ");
+    // Both charts are Thermador's own, so brand alone cannot tell them apart.
+    expect(thirtyInch.some((model) => thirtySixInch.includes(model))).toBe(true);
+  });
+
+  it("offers everything in stock when nobody has checked, rather than nothing", () => {
+    expect(blowersFor(hood("UNKNOWN", []))).toEqual(BLOWERS);
+    expect(blowerListUnverified(hood("UNKNOWN", []))).toBe(true);
+    expect(blowerListUnverified(hood("PH36HWS", ["VTN2FZ"]))).toBe(false);
+  });
+
+  it("keeps the catalogue's own hood pointed at blowers that exist", () => {
+    for (const item of APPLIANCES_BY_SLOT["slot-hood"]) {
+      if (item.compatibleBlowers.length === 0) continue;
+      // Not every listed model is stocked, but at least one must be.
+      expect(blowersFor(item).length, `${item.model} has no stocked blower`).toBeGreaterThan(0);
+    }
   });
 });

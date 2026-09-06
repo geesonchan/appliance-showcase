@@ -1,4 +1,4 @@
-import { APPLIANCES_BY_SLOT, blowersFor } from "../data/catalogue";
+import { APPLIANCES_BY_SLOT, blowerListUnverified, blowersFor } from "../data/catalogue";
 import { slotAvailability } from "../data/availability";
 import { fitCheck, formatInches, requiredOpening } from "../data/fit";
 import { formatPrice } from "../data/packageSummary";
@@ -198,8 +198,16 @@ function BlowerSection() {
     <div className="border-t border-line">
       <div className="flex items-baseline justify-between px-5 pb-2 pt-4">
         <h3 className="tracking-label text-[10px] text-ink-muted">{t("blower.title")}</h3>
-        <span className="text-[10px] text-ink-muted/70">{t("blower.required")}</span>
+        <span className="flex items-center gap-1.5 text-[10px] text-ink-muted/70">
+          {t("blower.required")}
+          {blowerListUnverified(hood) && <DebugBadge labelKey="debug.unverified" />}
+        </span>
       </div>
+      {blowerListUnverified(hood) && (
+        <p className="px-5 pb-2 text-[10px] leading-snug text-ink-muted/80">
+          {t("blower.uncheckedList")}
+        </p>
+      )}
       <ul className="pb-6">
         {options.map((option) => {
           const selected = option.id === blower?.id;

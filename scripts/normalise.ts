@@ -413,6 +413,31 @@ export function toBlower(
 }
 
 /**
+ * Which blowers a hood will take, by model.
+ *
+ * Manufacturer compatibility, not inventory, so it belongs in code rather than
+ * in the sheet — same reasoning as every other cleaning rule (docs/decisions.md
+ * D4). It is emitted onto the hood so the app never has to look anything up by
+ * brand: pairing by maker is a guess that happens to work until a Zephyr blower
+ * turns up next to a Thermador hood.
+ *
+ * Source: Thermador's ventilation accessory chart. Only models that have been
+ * checked appear here; a hood that is not listed offers every blower in stock
+ * and says the list is unverified rather than silently narrowing it.
+ */
+export const COMPATIBLE_BLOWERS: Record<string, string[]> = {
+  PH36HWS: ["VTR1FZ", "VTR2FZ", "VTI1FZ", "VTI2FZ", "VTN2FZ", "VTN2DA"],
+  // VTN1DZ is the 30" hood's blower and does not fit the 36".
+  PH30HWS: ["VTR1FZ", "VTR2FZ", "VTI1FZ", "VTI2FZ", "VTN1DZ", "VTN2DA"],
+};
+
+/** The blowers a hood model accepts, or an empty list when nobody has checked. */
+export function toCompatibleBlowers(category: Category, model: string): string[] {
+  if (category !== "hood") return [];
+  return COMPATIBLE_BLOWERS[model.trim().toUpperCase()] ?? [];
+}
+
+/**
  * Brands arrive in whatever case the vendor invoice used.
  *
  * Known brands win outright, because title casing would turn GE into "Ge" and

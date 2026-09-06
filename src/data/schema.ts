@@ -88,6 +88,12 @@ export const applianceSchema = z.object({
    * that blower rather than from the hood. Null on everything else.
    */
   blower: z.enum(["integrated", "required"]).nullable(),
+  /**
+   * Blower models this hood accepts, from the manufacturer's chart. Empty means
+   * nobody has checked, not that nothing fits — the picker says so rather than
+   * offering an empty list. See docs/decisions.md D13.
+   */
+  compatibleBlowers: z.array(z.string()).default([]),
 
   /**
    * Width, or null for a blower. Everything else needs one, because the fit

@@ -22,6 +22,7 @@ export function appliance(overrides: Partial<Appliance> & { id: string }): Appli
     installType: ["slide-in"],
     fuel: null,
     blower: null,
+    compatibleBlowers: [],
     widthIn: 36,
     heightIn: 36,
     depthIn: 24,
