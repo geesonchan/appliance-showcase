@@ -9,7 +9,8 @@
  * Set SET=mobile or SET=desktop to capture only one of the two; SET=round4 for
  * the island set; SET=round5 for the reworked layout; SET=round6 for the room
  * built to the trade's dimensions, the appliances at their own size, the new
- * pins and the ducting.
+ * pins and the ducting; SET=round7 for the module-built runs, the wedge canopy,
+ * the dimension layer and the cabinet cutout.
  */
 import { mkdir } from "node:fs/promises";
 import { chromium } from "playwright";
@@ -197,9 +198,63 @@ async function captureRound6(page) {
   await page.screenshot({ path: `${outDir}/mobile-blowers.png` });
 }
 
+/**
+ * Round 7: the room as a set of orderable boxes, the canopy cut to its drawing,
+ * and the figures that say what everything is.
+ */
+async function captureRound7(page) {
+  await page.screenshot({ path: `${outDir}/mobile-overview.png` });
+
+  await click(page, "Install");
+  await settle(page, 1200);
+  await page.screenshot({ path: `${outDir}/mobile-dimensions.png` });
+  await click(page, "Materials");
+  await settle(page, 900);
+
+  await flyTo(page, /Ventilation hood/);
+  await page.screenshot({ path: `${outDir}/mobile-canopy.png` });
+  await click(page, "Install");
+  await settle(page, 1200);
+  await page.screenshot({ path: `${outDir}/mobile-duct-cutout.png` });
+  await click(page, "Materials");
+  await settle(page, 900);
+  await click(page, "Reset view");
+  await settle(page, 1100);
+
+  // The checklist, which now carries the clearance and the cabinet cutout.
+  await click(page, "Configure");
+  await page.waitForTimeout(700);
+  for (let i = 0; i < 4; i += 1) {
+    await page.evaluate(() => {
+      for (const el of document.querySelectorAll("div")) {
+        if (el.scrollHeight > el.clientHeight + 20) el.scrollTop = el.scrollHeight;
+      }
+    });
+    await page.waitForTimeout(250);
+  }
+  await page.screenshot({ path: `${outDir}/mobile-checklist.png` });
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round7") {
+    const ctx = await browser.newContext({
+      viewport: MOBILE,
+      deviceScaleFactor: 2,
+      isMobile: true,
+      hasTouch: true,
+    });
+    const page = await ctx.newPage();
+    await page.goto(baseUrl, { waitUntil: "networkidle" });
+    await settle(page, 2200);
+    await captureRound7(page);
+    await ctx.close();
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round6") {
     const ctx = await browser.newContext({
