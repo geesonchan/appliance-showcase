@@ -24,3 +24,9 @@ export function useSelectedAppliance(slotId: SlotId): Appliance {
   const applianceId = useAppStore((s) => s.selection[slotId]);
   return APPLIANCE_BY_ID[applianceId];
 }
+
+/** The blower specified with the hood, if the hood needs one and one is chosen. */
+export function useSelectedBlower(): Appliance | null {
+  const blowerId = useAppStore((s) => s.blowerId);
+  return blowerId ? (APPLIANCE_BY_ID[blowerId] ?? null) : null;
+}

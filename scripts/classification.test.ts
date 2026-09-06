@@ -65,7 +65,10 @@ describe("category mapping", () => {
     // the rest
     ["Dishwasher", "dishwasher"],
     ["Hood", "hood"],
-    ["Wine Cooler", "other"],
+    ["Wine Cooler", "wine"],
+    ["Wine Reserve", "wine"],
+    ["Wine Column", "wine"],
+    ["Blower", "blower"],
     ["Beverage Center", "other"],
     ["Freezer", "other"],
     ["Warming Drawer", "other"],
@@ -110,6 +113,14 @@ describe("near misses", () => {
     expect(categoryOf("Warming Drawer")).toBe("other");
   });
 
+  // Wine has its own island slot; a blower is a hood accessory, not a part.
+  it("gives wine and blowers their own categories", () => {
+    expect(categoryOf("Wine Column")).toBe("wine");
+    expect(categoryOf("Blower")).toBe("blower");
+    // The accessory for a wine column is still an accessory.
+    expect(skipReason("Accessory for Wine Column")).toBe("Accessory for Wine Column");
+  });
+
   it("distinguishes All Freezer from a plain Freezer", () => {
     expect(categoryOf("All Freezer")).toBe("refrigerator");
     expect(categoryOf("Freezer")).toBe("other");
@@ -148,10 +159,19 @@ describe("install form from the Appliance Type", () => {
     ["G Rangetop", "rangetop"],
     ["Induction Rangetop", "rangetop"],
     ["Refrigerator Column", "column"],
+    ["Wine Column", "column"],
     ["Undercounter Refrigerator", "undercounter"],
     ["Refrigerator Drawer", "drawer"],
   ])("reads %s as %s", (type, expected) => {
     expect(formOf(type)).toContain(expected);
+  });
+
+  it.each([
+    ["Internal", "internal"],
+    ["Inline", "inline"],
+    ["External", "external"],
+  ])("reads a %s blower mounting", (feature, expected) => {
+    expect(toInstallType(feature, "Blower", "")).toContain(expected);
   });
 
   it("still reads the Feature column, and still falls back", () => {

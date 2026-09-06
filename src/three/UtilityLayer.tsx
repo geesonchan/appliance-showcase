@@ -3,7 +3,8 @@ import * as THREE from "three";
 import { ROOM, SLOTS, ft } from "../data/slots";
 import { deriveUtilities } from "../data/utilities";
 import { useAppStore } from "../store/useAppStore";
-import { useSelection } from "../store/useSelection";
+import { useSelection, useSelectedBlower } from "../store/useSelection";
+import { effectiveCfm } from "../data/ventilation";
 import type { Slot, UtilityType, Utilities } from "../types";
 import { UTILITY_COLORS, UTILITY_RADIUS_IN } from "./materials";
 
@@ -90,13 +91,21 @@ function Fitting({
 
 /** Where a slot meets its wall, at a given standoff from the wall plane. */
 function wallAnchor(slot: Slot, standoff: number) {
-  const onLeftWall = Math.abs(slot.rotationY) > 0.01;
+  const onLeftWall = Math.abs(slot.rotationY - Math.PI / 2) < 0.01;
   return {
     onLeftWall,
     x: onLeftWall ? -ROOM.halfX + standoff : slot.position[0],
     z: onLeftWall ? slot.position[2] : -ROOM.halfZ + standoff,
   };
 }
+
+/**
+ * Island slots have no wall to run along. Their services come up through the
+ * floor inside the cabinet, which is what the install view draws: a riser from
+ * the slab, no trunk. The route under the slab is not modelled, because
+ * nothing in this scene knows where it goes.
+ */
+const isIsland = (slot: Slot) => slot.mount === "island";
 
 /** Every service enters at the back wall, far right. */
 const entry = (standoff: number) => ({
@@ -222,6 +231,25 @@ function PowerRuns({ effective }: { effective: Record<string, Utilities> }) {
           ? [ft(2), ft(4.5), ft(3)]
           : [ft(3), ft(4.5), ft(2)];
 
+        if (isIsland(slot)) {
+          const [x, , z] = slot.position;
+          return (
+            <group key={slot.id}>
+              <Pipe
+                from={[x, 0, z + ft(6)]}
+                to={[x, outletY, z + ft(6)]}
+                radius={radius}
+                color={color}
+              />
+              <Fitting
+                position={[x, outletY, z + ft(6)]}
+                size={[ft(3), ft(4.5), ft(2)]}
+                color={color}
+              />
+            </group>
+          );
+        }
+
         return (
           <group key={slot.id}>
             <Trunk points={trunkPoints(slot, trunkY)} radius={radius} color={color} />
@@ -328,6 +356,7 @@ export function UtilityLayer({ type }: { type: UtilityType }) {
   const renderMode = useAppStore((s) => s.renderMode);
   const enabled = useAppStore((s) => s.visibleUtilities[type]);
   const selection = useSelection();
+  const blower = useSelectedBlower();
   const visible = renderMode === "install" && enabled;
 
   // What each slot needs given what is actually in it, so swapping a gas range
@@ -335,9 +364,18 @@ export function UtilityLayer({ type }: { type: UtilityType }) {
   const effective = useMemo(
     () =>
       Object.fromEntries(
-        SLOTS.map((slot) => [slot.id, deriveUtilities(slot, selection[slot.id])]),
+        SLOTS.map((slot) => [
+          slot.id,
+          deriveUtilities(
+            slot,
+            selection[slot.id],
+            slot.id === "slot-hood"
+              ? effectiveCfm(selection["slot-hood"], blower)
+              : null,
+          ),
+        ]),
       ) as Record<string, Utilities>,
-    [selection],
+    [selection, blower],
   );
 
   return (

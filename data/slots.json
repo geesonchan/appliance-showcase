@@ -44,7 +44,7 @@
       "id": "slot-range",
       "labelKey": "slot.range",
       "cutout": {
-        "w": 30,
+        "w": 36,
         "h": 36,
         "d": 24
       },
@@ -54,7 +54,7 @@
       "cabinetConfig": {
         "type": "base",
         "openingIn": {
-          "w": 30,
+          "w": 36,
           "h": 36,
           "d": 24
         },
@@ -84,7 +84,8 @@
         "d": 20
       },
       "compatibleCategories": [
-        "hood"
+        "hood",
+        "blower"
       ],
       "cabinetConfig": {
         "type": "upper",
@@ -108,38 +109,6 @@
           "diameterIn": 8,
           "route": "up-through-cabinet"
         }
-      }
-    },
-    {
-      "id": "slot-wall-oven",
-      "labelKey": "slot.wallOven",
-      "cutout": {
-        "w": 30,
-        "h": 29,
-        "d": 24
-      },
-      "compatibleCategories": [
-        "wall-oven"
-      ],
-      "cabinetConfig": {
-        "type": "tall",
-        "openingIn": {
-          "w": 30,
-          "h": 29,
-          "d": 24
-        },
-        "panelReady": false,
-        "finishedSides": 1
-      },
-      "utilities": {
-        "gas": null,
-        "power": {
-          "voltage": 240,
-          "amps": 30,
-          "dedicated": true
-        },
-        "water": null,
-        "duct": null
       }
     },
     {
@@ -182,8 +151,8 @@
       "labelKey": "slot.microwave",
       "cutout": {
         "w": 24,
-        "h": 16,
-        "d": 22
+        "h": 34,
+        "d": 24
       },
       "compatibleCategories": [
         "microwave"
@@ -192,8 +161,8 @@
         "type": "base",
         "openingIn": {
           "w": 24,
-          "h": 16,
-          "d": 22
+          "h": 34,
+          "d": 24
         },
         "panelReady": false,
         "finishedSides": 0
@@ -203,6 +172,38 @@
         "power": {
           "voltage": 120,
           "amps": 20,
+          "dedicated": true
+        },
+        "water": null,
+        "duct": null
+      }
+    },
+    {
+      "id": "slot-wine",
+      "labelKey": "slot.wine",
+      "cutout": {
+        "w": 24,
+        "h": 34,
+        "d": 24
+      },
+      "compatibleCategories": [
+        "wine"
+      ],
+      "cabinetConfig": {
+        "type": "base",
+        "openingIn": {
+          "w": 24,
+          "h": 34,
+          "d": 24
+        },
+        "panelReady": false,
+        "finishedSides": 0
+      },
+      "utilities": {
+        "gas": null,
+        "power": {
+          "voltage": 120,
+          "amps": 15,
           "dedicated": true
         },
         "water": null,

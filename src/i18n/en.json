@@ -56,7 +56,6 @@
   "slot.range": "Range",
   "slot.hood": "Ventilation hood",
   "slot.dishwasher": "Dishwasher",
-  "slot.wallOven": "Wall oven",
   "slot.microwave": "Microwave",
   "spec.cutout": "Cutout",
   "spec.opening": "Rough opening",
@@ -101,5 +100,13 @@
   "swap.noneOther": "No alternatives in the catalogue yet",
   "debug.unverified": "unverified",
   "price.onRequest": "Price on request",
-  "panel.package.priced": "{priced} of {total} priced"
+  "panel.package.priced": "{priced} of {total} priced",
+  "slot.wine": "Wine cabinet",
+  "blower.title": "Blower",
+  "blower.required": "This hood ships without one",
+  "blower.integrated": "Blower built in",
+  "blower.none": "No blower specified",
+  "blower.cfm": "{cfm} CFM",
+  "swap.tooNarrow": "{delta} filler each side",
+  "panel.package.blower": "Blower"
 }

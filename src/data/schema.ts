@@ -19,6 +19,7 @@ export const categorySchema = z.enum([
   "hood",
   "microwave",
   "wine",
+  "blower",
   "other",
 ]);
 
@@ -28,9 +29,9 @@ export const slotIdSchema = z.enum([
   "slot-fridge",
   "slot-range",
   "slot-hood",
-  "slot-wall-oven",
   "slot-dishwasher",
   "slot-microwave",
+  "slot-wine",
 ]);
 
 export const finishSchema = z.enum([
@@ -80,6 +81,13 @@ export const applianceSchema = z.object({
    */
   installType: z.array(z.string().min(1)).min(1),
   fuel: fuelSchema.nullable(),
+
+  /**
+   * Hoods only. Most high-end hoods ship without a blower; `required` means one
+   * has to be specified separately, and the package's effective CFM comes from
+   * that blower rather than from the hood. Null on everything else.
+   */
+  blower: z.enum(["integrated", "required"]).nullable(),
 
   /** The fit check gates on width, so it is the one dimension always required. */
   widthIn: inches,
@@ -152,6 +160,8 @@ export const schemeSchema = z.object({
   conceptKey: z.string().min(1),
   palette: z.array(z.string().regex(/^#[0-9A-Fa-f]{6}$/)).min(1),
   defaultSelection: z.record(slotIdSchema, z.string().min(1)),
+  /** The blower specified with the hood, when the hood needs one. */
+  defaultBlower: z.string().min(1).nullable().default(null),
 });
 
 /** Every data file carries provenance so its trust level travels with it. */

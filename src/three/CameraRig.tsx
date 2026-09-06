@@ -13,16 +13,16 @@ const AZIMUTH = THREE.MathUtils.degToRad(45);
 const DEFAULT_TARGET = new THREE.Vector3(0, 4.5, 0);
 const DEFAULT_DISTANCE = 22;
 /**
- * How much of the world the default view keeps in frame, in feet. The room
- * projects to roughly 17ft across and 17.1ft tall at this camera angle; the
- * extra allowance is margin for the floating mode switch and toolbar.
+ * How much of the world the default view keeps in frame, in feet. The 14' x 12'
+ * room projects to roughly 18.4ft across and 17.9ft tall at this camera angle;
+ * the extra allowance is margin for the floating mode switch and toolbar.
  */
-const FIT_FEET = { w: 18.5, h: 18.8 };
+const FIT_FEET = { w: 19.6, h: 19.4 };
 /**
  * Portrait viewports are width-starved. Framing a little tighter there crops
  * only the empty floor corners and roughly doubles the usable scene area.
  */
-const FIT_FEET_PORTRAIT_W = 15.5;
+const FIT_FEET_PORTRAIT_W = 16.5;
 
 /**
  * Framing offset applied while the mobile sheet is open, as a fraction of the
@@ -36,11 +36,11 @@ const SHEET_FRAMING_OFFSET = -0.12;
 const SHEET_OFFSET_MS = 300;
 const FLY_MS = 800;
 
-const isoOffset = (distance: number) =>
+const isoOffset = (distance: number, azimuth = AZIMUTH) =>
   new THREE.Vector3(
-    Math.cos(ELEVATION) * Math.sin(AZIMUTH),
+    Math.cos(ELEVATION) * Math.sin(azimuth),
     Math.sin(ELEVATION),
-    Math.cos(ELEVATION) * Math.cos(AZIMUTH),
+    Math.cos(ELEVATION) * Math.cos(azimuth),
   ).multiplyScalar(distance);
 
 const easeInOutCubic = (t: number) =>
@@ -93,6 +93,7 @@ export function CameraRig() {
     distance: number,
     zoom: number,
     duration = FLY_MS,
+    azimuth = AZIMUTH,
   ) => {
     const controls = controlsRef.current;
     if (!controls) return;
@@ -102,7 +103,7 @@ export function CameraRig() {
       // offset currently in effect has to be carried across.
       toTarget: target.clone().add(appliedOffset.current),
       fromPos: camera.position.clone(),
-      toPos: target.clone().add(isoOffset(distance)).add(appliedOffset.current),
+      toPos: target.clone().add(isoOffset(distance, azimuth)).add(appliedOffset.current),
       fromZoom: camera.zoom,
       toZoom: zoom,
       start: performance.now(),
@@ -180,10 +181,12 @@ export function CameraRig() {
       slot.position[1] + ft(slot.cutout.h) / 2,
       slot.position[2],
     );
-    // Pull the focus point out of the wall so the appliance sits centre-frame.
+    // Pull the focus point out in front of the appliance so it sits centre-frame.
     target.x += Math.sin(slot.rotationY) * 1.6;
     target.z += Math.cos(slot.rotationY) * 1.6;
-    startTween(target, 11, fitZoom * 1.7);
+    // The island openings face away from the default view, so orbit round to
+    // them rather than flying in on their backs. See docs/decisions.md D1.
+    startTween(target, 11, fitZoom * 1.7, FLY_MS, slot.viewAzimuth ?? AZIMUTH);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSlot]);
 

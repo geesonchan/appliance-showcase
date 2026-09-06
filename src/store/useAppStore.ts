@@ -18,6 +18,12 @@ interface AppState {
   selectedSlot: SlotId | null;
   /** Which appliance fills each slot right now, by id. */
   selection: Record<SlotId, string>;
+  /**
+   * The blower specified with the hood, or null. A blower is an accessory
+   * hanging off slot-hood rather than a slot of its own, so it lives beside the
+   * selection instead of in it. See docs/decisions.md D6.
+   */
+  blowerId: string | null;
   /** Bumped to ask the camera rig to return to the default isometric view. */
   resetToken: number;
   /** Bumped by the +/- buttons; positive steps in, negative steps out. */
@@ -39,6 +45,7 @@ interface AppState {
   toggleUtility: (type: UtilityType) => void;
   selectSlot: (slot: SlotId | null) => void;
   selectAppliance: (slot: SlotId, applianceId: string) => void;
+  selectBlower: (blowerId: string | null) => void;
   resetView: () => void;
   requestZoom: (direction: 1 | -1) => void;
   setHelpOpen: (open: boolean) => void;
@@ -61,6 +68,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   // Starts from the scheme's default and is the single source of truth from
   // then on; the scene, the summary and the utility layers all read it.
   selection: { ...SCHEME.defaultSelection } as Record<SlotId, string>,
+  blowerId: SCHEME.defaultBlower,
   resetToken: 0,
   zoomRequest: { token: 0, direction: 1 },
   helpOpen: false,
@@ -87,6 +95,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   selectSlot: (selectedSlot) => set({ selectedSlot }),
   selectAppliance: (slot, applianceId) =>
     set((s) => ({ selection: { ...s.selection, [slot]: applianceId } })),
+  selectBlower: (blowerId) => set({ blowerId }),
   resetView: () => set((s) => ({ resetToken: s.resetToken + 1, selectedSlot: null })),
   requestZoom: (direction) =>
     set((s) => ({ zoomRequest: { token: s.zoomRequest.token + 1, direction } })),

@@ -1,12 +1,12 @@
 import type { SlotId } from "../types";
 import {
   BACK_RUN,
+  ISLAND,
   FRIDGE_OPENING,
   LEFT_RUN,
   PANEL,
   ROOM,
   RUN,
-  TALL_TOWER,
   ft,
 } from "./slots";
 
@@ -78,70 +78,11 @@ export const CABINETS: CabinetBox[] = [
   // --- back wall run ---
   backBase("back-corner-filler", BACK_RUN.cornerFiller),
   backBase("back-sink-base", BACK_RUN.sinkBase),
-  backBase("back-microwave-base", BACK_RUN.microwaveBase, "slot-microwave"),
+  backBase("back-right-base", BACK_RUN.base),
   backCounter("counter-corner", BACK_RUN.cornerFiller),
-  // The countertop runs continuously over the dishwasher but not over the
-  // range, and breaks again for the oven tower.
-  backCounter("counter-main", [BACK_RUN.sinkBase[0], BACK_RUN.ovenTower[0]]),
-  backCounter("counter-right", BACK_RUN.microwaveBase),
-
-  // --- oven tower, split around the wall-oven opening ---
-  {
-    id: "oven-tower-lower",
-    outline: "oven-tower",
-    slot: "slot-wall-oven",
-    kind: "tall",
-    position: [mid(BACK_RUN.ovenTower), TALL_TOWER.openingBottom / 2, backZ],
-    size: [span(BACK_RUN.ovenTower), TALL_TOWER.openingBottom, ROOM.counterDepth],
-  },
-  {
-    id: "oven-tower-upper",
-    outline: "oven-tower",
-    slot: "slot-wall-oven",
-    kind: "tall",
-    position: [
-      mid(BACK_RUN.ovenTower),
-      TALL_TOWER.openingTop + (TALL_TOWER.height - TALL_TOWER.openingTop) / 2,
-      backZ,
-    ],
-    size: [
-      span(BACK_RUN.ovenTower),
-      TALL_TOWER.height - TALL_TOWER.openingTop,
-      ROOM.counterDepth,
-    ],
-  },
-  {
-    id: "oven-tower-side-left",
-    outline: "oven-tower",
-    slot: "slot-wall-oven",
-    kind: "tall",
-    position: [
-      mid([BACK_RUN.ovenTower[0], TALL_TOWER.opening[0]]),
-      mid([TALL_TOWER.openingBottom, TALL_TOWER.openingTop]),
-      backZ,
-    ],
-    size: [
-      span([BACK_RUN.ovenTower[0], TALL_TOWER.opening[0]]),
-      TALL_TOWER.openingHeight,
-      ROOM.counterDepth,
-    ],
-  },
-  {
-    id: "oven-tower-side-right",
-    outline: "oven-tower",
-    slot: "slot-wall-oven",
-    kind: "tall",
-    position: [
-      mid([TALL_TOWER.opening[1], BACK_RUN.ovenTower[1]]),
-      mid([TALL_TOWER.openingBottom, TALL_TOWER.openingTop]),
-      backZ,
-    ],
-    size: [
-      span([TALL_TOWER.opening[1], BACK_RUN.ovenTower[1]]),
-      TALL_TOWER.openingHeight,
-      ROOM.counterDepth,
-    ],
-  },
+  // One continuous run from the sink base to the end of the wall: it passes
+  // over the dishwasher, and only the range breaks it.
+  backCounter("counter-main", [BACK_RUN.sinkBase[0], BACK_RUN.base[1]]),
 
   // --- left wall run ---
   {
@@ -191,18 +132,8 @@ export const CABINETS: CabinetBox[] = [
   {
     id: "upper-back",
     kind: "upper",
-    position: [mid([BACK_RUN.hoodOpening[1], BACK_RUN.ovenTower[0]]), upperY, upperZ],
-    size: [
-      span([BACK_RUN.hoodOpening[1], BACK_RUN.ovenTower[0]]),
-      upperH,
-      ROOM.upperDepth,
-    ],
-  },
-  {
-    id: "upper-back-right",
-    kind: "upper",
-    position: [mid(BACK_RUN.microwaveBase), upperY, upperZ],
-    size: [span(BACK_RUN.microwaveBase), upperH, ROOM.upperDepth],
+    position: [mid([BACK_RUN.hoodOpening[1], BACK_RUN.base[1]]), upperY, upperZ],
+    size: [span([BACK_RUN.hoodOpening[1], BACK_RUN.base[1]]), upperH, ROOM.upperDepth],
   },
   {
     id: "upper-left",
@@ -211,17 +142,82 @@ export const CABINETS: CabinetBox[] = [
     size: [ROOM.upperDepth, upperH, span(LEFT_RUN.base)],
   },
 
+  // --- island ---
+  // Carcass in three pieces, leaving the two appliance openings empty. The
+  // whole box is one volume for the mobile outline.
+  {
+    id: "island-left",
+    outline: "island",
+    kind: "base",
+    position: [
+      mid([ISLAND.x[0], ISLAND.microwave[0]]),
+      ROOM.counterHeight / 2,
+      mid(ISLAND.z),
+    ],
+    size: [span([ISLAND.x[0], ISLAND.microwave[0]]), ROOM.counterHeight, span(ISLAND.z)],
+  },
+  {
+    id: "island-middle",
+    outline: "island",
+    kind: "base",
+    position: [
+      mid([ISLAND.microwave[1], ISLAND.wine[0]]),
+      ROOM.counterHeight / 2,
+      mid(ISLAND.z),
+    ],
+    size: [span([ISLAND.microwave[1], ISLAND.wine[0]]), ROOM.counterHeight, span(ISLAND.z)],
+  },
+  {
+    id: "island-right",
+    outline: "island",
+    kind: "base",
+    position: [mid([ISLAND.wine[1], ISLAND.x[1]]), ROOM.counterHeight / 2, mid(ISLAND.z)],
+    size: [span([ISLAND.wine[1], ISLAND.x[1]]), ROOM.counterHeight, span(ISLAND.z)],
+  },
+  {
+    id: "island-back",
+    outline: "island",
+    kind: "base",
+    // The far half of the island, behind the appliance openings.
+    position: [
+      mid(ISLAND.x),
+      ROOM.counterHeight / 2,
+      mid([ISLAND.z[0] + ROOM.counterDepth, ISLAND.z[1]]),
+    ],
+    size: [
+      span(ISLAND.x),
+      ROOM.counterHeight,
+      span([ISLAND.z[0] + ROOM.counterDepth, ISLAND.z[1]]),
+    ],
+  },
+  {
+    id: "island-counter",
+    kind: "counter",
+    position: [mid(ISLAND.x), ROOM.counterHeight + counterT / 2, mid(ISLAND.z)],
+    size: [
+      span(ISLAND.x) + ROOM.counterOverhang * 2,
+      counterT,
+      span(ISLAND.z) + ROOM.counterOverhang * 2,
+    ],
+  },
+  {
+    id: "island-toe",
+    kind: "toe",
+    position: [mid(ISLAND.x), ROOM.toeKick / 2, mid(ISLAND.z)],
+    size: [span(ISLAND.x) - ft(3), ROOM.toeKick, span(ISLAND.z) - ft(3)],
+  },
+
   // --- toe kicks ---
   {
     id: "toe-back",
     kind: "toe",
     position: [
-      mid([BACK_RUN.cornerFiller[0], BACK_RUN.microwaveBase[1]]),
+      mid([BACK_RUN.cornerFiller[0], BACK_RUN.base[1]]),
       ROOM.toeKick / 2,
       backZ - ft(1.5),
     ],
     size: [
-      span([BACK_RUN.cornerFiller[0], BACK_RUN.microwaveBase[1]]),
+      span([BACK_RUN.cornerFiller[0], BACK_RUN.base[1]]),
       ROOM.toeKick,
       ROOM.counterDepth - ft(3),
     ],

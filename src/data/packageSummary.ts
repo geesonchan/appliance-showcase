@@ -1,4 +1,4 @@
-import { useSelection } from "../store/useSelection";
+import { useSelection, useSelectedBlower } from "../store/useSelection";
 
 /** Rounded to whole thousands, e.g. 29481 -> "$29K". */
 export const formatThousands = (usd: number) =>
@@ -17,7 +17,14 @@ export const formatUSD = (usd: number) =>
  */
 export function usePackageSummary() {
   const selection = useSelection();
-  const items = Object.values(selection).filter(Boolean);
+  const blower = useSelectedBlower();
+  const hood = selection["slot-hood"];
+  // The blower is its own line: it is a separate purchase with its own lead
+  // time, and burying it in the hood's price hides that. See decisions.md D6.
+  const items = [
+    ...Object.values(selection).filter(Boolean),
+    ...(hood?.blower === "required" && blower ? [blower] : []),
+  ];
   // Totals cover only what has a price. An unpriced model is a real state in
   // the inventory, and counting it as zero would quietly understate the
   // package, which is the one number a customer remembers.
@@ -29,6 +36,7 @@ export function usePackageSummary() {
 
   return {
     items,
+    blower: hood?.blower === "required" ? blower : null,
     count: items.length,
     pricedCount: priced.length,
     /** True when the total covers every model in the package. */

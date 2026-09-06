@@ -1,10 +1,11 @@
-import { APPLIANCES_BY_SLOT } from "../data/catalogue";
+import { APPLIANCES_BY_SLOT, blowersFor } from "../data/catalogue";
 import { fitCheck, formatInches } from "../data/fit";
 import { formatPrice } from "../data/packageSummary";
 import { SLOT_BY_ID } from "../data/slots";
 import { DEBUG } from "../debug";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
+import { useSelectedAppliance, useSelectedBlower } from "../store/useSelection";
 import type { Appliance, SlotId } from "../types";
 
 function UnverifiedBadge() {
@@ -75,6 +76,88 @@ export function SwapPanel({ slotId }: { slotId: SlotId }) {
           <li className="px-5 py-3 text-[11px] text-ink-muted">{t("swap.noneOther")}</li>
         )}
       </ul>
+
+      {slotId === "slot-hood" && <BlowerSection />}
+    </div>
+  );
+}
+
+/**
+ * The blower that goes with the hood.
+ *
+ * Only appears when the specified hood needs one. A blower is not a slot: it
+ * hangs off the hood, carries its own line on the package, and supplies the CFM
+ * the hood itself does not have.
+ */
+function BlowerSection() {
+  const t = useT();
+  const hood = useSelectedAppliance("slot-hood");
+  const blower = useSelectedBlower();
+  const selectBlower = useAppStore((s) => s.selectBlower);
+
+  if (hood?.blower !== "required") {
+    return (
+      <div className="border-t border-line px-5 py-4">
+        <h3 className="tracking-label text-[10px] text-ink-muted">{t("blower.title")}</h3>
+        <p className="mt-1.5 text-[11px] text-ink-muted">
+          {t("blower.integrated")}
+          {hood?.requires.cfm !== null && hood?.requires.cfm !== undefined
+            ? ` · ${t("blower.cfm", { cfm: hood.requires.cfm })}`
+            : ""}
+        </p>
+      </div>
+    );
+  }
+
+  const options = blowersFor(hood);
+
+  return (
+    <div className="border-t border-line">
+      <div className="flex items-baseline justify-between px-5 pb-2 pt-4">
+        <h3 className="tracking-label text-[10px] text-ink-muted">{t("blower.title")}</h3>
+        <span className="text-[10px] text-ink-muted/70">{t("blower.required")}</span>
+      </div>
+      <ul className="pb-6">
+        {options.map((option) => {
+          const selected = option.id === blower?.id;
+          return (
+            <li key={option.id}>
+              <button
+                type="button"
+                onClick={() => selectBlower(option.id)}
+                aria-pressed={selected}
+                className={[
+                  "flex w-full items-start gap-3 border-l-2 px-5 py-3 text-left transition-colors",
+                  selected
+                    ? "border-l-accent bg-[rgba(46,92,69,0.07)]"
+                    : "border-l-transparent hover:bg-[rgba(46,92,69,0.04)]",
+                ].join(" ")}
+              >
+                <span className="min-w-0 flex-1">
+                  <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <span className="text-[13px] text-ink">{option.brand}</span>
+                    {selected && (
+                      <span className="rounded-full bg-accent px-1.5 py-px text-[9px] font-medium text-[#F7F5EF]">
+                        {t("swap.selected")}
+                      </span>
+                    )}
+                    {DEBUG && option.verifiedAt === null && <UnverifiedBadge />}
+                  </span>
+                  <span className="mt-0.5 block truncate text-[11px] text-ink-muted">
+                    {option.model} · {option.installType.join(", ")}
+                    {option.requires.cfm !== null
+                      ? ` · ${t("blower.cfm", { cfm: option.requires.cfm })}`
+                      : ""}
+                  </span>
+                </span>
+                <span className="shrink-0 text-[11px] tabular-nums text-ink-muted">
+                  {formatPrice(option.msrpUSD, t("price.onRequest"))}
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }
@@ -127,6 +210,11 @@ function CandidateRow({
           {!fit.fits && (
             <span className="mt-1 block text-[11px] font-medium text-ink">
               {t("swap.tooWide", { delta: formatInches(fit.widthOverIn) })}
+            </span>
+          )}
+          {fit.fits && fit.fillerEachSideIn !== null && fit.fillerEachSideIn > 0.05 && (
+            <span className="mt-1 block text-[11px] text-ink-muted">
+              {t("swap.tooNarrow", { delta: formatInches(fit.fillerEachSideIn) })}
             </span>
           )}
           {fit.fits && tooDeep && (

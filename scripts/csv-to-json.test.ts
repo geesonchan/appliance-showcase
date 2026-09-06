@@ -71,9 +71,11 @@ describe("skipping rows the scene has no place for", () => {
     expect(summary.skipped.Dryer).toBe(1);
     expect(summary.skipped.Backguard).toBe(1);
     expect(summary.skipped.Filter).toBe(1);
-    // Cooktops and the "other" family are real appliances with no slot here.
+    // Cooktops, wall ovens and the "other" family are real appliances with no
+    // slot in this kitchen.
     expect(summary.skipped["no slot: cooktop"]).toBe(1);
-    expect(summary.skipped["no slot: other"]).toBe(4);
+    expect(summary.skipped["no slot: other"]).toBe(3);
+    expect(summary.skipped["no slot: wall-oven"]).toBeGreaterThan(0);
   });
 
   it("accounts for every row it read", () => {
@@ -138,14 +140,13 @@ describe("the new families, end to end", () => {
   };
 
   it.each([
-    ["H7880BP", "slot-wall-oven", "combo"],
-    ["MEDMCW31JS", "slot-wall-oven", "combo"],
-    ["HBL8753UC", "slot-wall-oven", "double"],
     ["SMD2470AH", "slot-microwave", "drawer"],
     ["CWL112P2RS1", "slot-microwave", "built-in"],
     ["PCG366WL", "slot-range", "rangetop"],
     ["ICBSRT366", "slot-range", "rangetop"],
     ["ICBIC-30R", "slot-fridge", "column"],
+    ["PRW24C01CG", "slot-wine", "undercounter"],
+    ["VTN2FZ", "slot-hood", "internal"],
     ["T24UR915LS", "slot-fridge", "undercounter"],
     ["RB24S25MKIW1", "slot-fridge", "drawer"],
   ])("%s lands in %s as %s", (model, slot, form) => {
@@ -161,8 +162,10 @@ describe("the new families, end to end", () => {
 
   it("keeps appliances with no slot out, and counts them by category", () => {
     const { summary } = run();
-    // Coffee machine, ice-maker, warming drawer and the wine cooler.
-    expect(summary.skipped["no slot: other"]).toBe(4);
+    // Coffee machine, ice-maker and warming drawer. The wine cooler has a slot
+    // of its own now, and the wall ovens are counted separately.
+    expect(summary.skipped["no slot: other"]).toBe(3);
+    expect(summary.skipped["no slot: wall-oven"]).toBeGreaterThan(0);
     expect(byModel("CVA7440")).toBeUndefined();
   });
 });

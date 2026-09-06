@@ -94,6 +94,12 @@ export function RightPanel() {
           label={t("panel.package.energy")}
           value={summary.energyKeys.map((key) => t(key)).join(" + ")}
         />
+        {summary.blower && (
+          <SummaryRow
+            label={t("panel.package.blower")}
+            value={`${summary.blower.brand} ${summary.blower.model}`}
+          />
+        )}
         <SummaryRow
           label={t("panel.package.lead")}
           value={t("panel.package.leadValue", { weeks: summary.leadTimeWeeks })}

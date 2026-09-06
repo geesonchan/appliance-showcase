@@ -2,22 +2,28 @@
   "_meta": {
     "generatedBy": "seed data, hand written",
     "updatedAt": "2026-09-05",
-    "provenance": "One demo scheme. defaultSelection picks one appliance per slot out of data/appliances.json; every id here must exist there, which the loader enforces."
+    "provenance": "Placeholder standing in for the showcase_export import. Model numbers are real products; dimensions, msrpUSD and sourceUrl are unverified seed values, and every row carries verifiedAt: null. ids follow the importer's brand-model convention so a real import keeps data/schemes.json working."
   },
   "schemes": [
     {
       "id": "scheme-01",
       "nameKey": "scheme.01.name",
       "conceptKey": "scheme.01.concept",
-      "palette": ["#EFEDE6", "#2E5C45", "#C9A77B", "#1F2A22"],
+      "palette": [
+        "#EFEDE6",
+        "#2E5C45",
+        "#C9A77B",
+        "#1F2A22"
+      ],
       "defaultSelection": {
-        "slot-fridge": "fridge-subzero-cl3650ufd",
-        "slot-range": "range-bluestar-rnb304bv2",
-        "slot-hood": "hood-zephyr-zsa-e36cs",
-        "slot-wall-oven": "oven-thermador-pod301w",
-        "slot-dishwasher": "dw-miele-g5892scvi",
-        "slot-microwave": "mw-sharp-smd2489es"
-      }
+        "slot-fridge": "thermador-t36bt120ns",
+        "slot-range": "thermador-prg366wh",
+        "slot-hood": "thermador-ph36hws",
+        "slot-dishwasher": "bosch-shv78cm3n",
+        "slot-microwave": "thermador-md24bs",
+        "slot-wine": "thermador-prw24c01cg"
+      },
+      "defaultBlower": "thermador-vtn2fz"
     }
   ]
 }

@@ -30,6 +30,8 @@ export interface RawRow {
   cfm: string;
   water: string;
   makeupAirRequired: string;
+  /** Hoods only: "integrated" or "required". */
+  blower: string;
   msrpUSD: string;
   leadTimeWeeks: string;
   sourceUrl: string;
@@ -70,7 +72,6 @@ export const SKIPPED_TYPES = [
   "Transition",
   "Recirculating Kit",
   "Baffle Filter",
-  "Blower",
   "Decorative Plate",
   "Handle for DW",
   "Handle for Refrigerator",
@@ -164,11 +165,15 @@ const CATEGORY_RULES: { match: (type: string) => boolean; category: Category }[]
 
   { match: (t) => /^dishwasher$/i.test(t), category: "dishwasher" },
   { match: (t) => /hood$/i.test(t), category: "hood" },
+  // Most high-end hoods ship without one. See docs/decisions.md D6.
+  { match: (t) => /^blower$/i.test(t), category: "blower" },
 
   // Real appliances with no slot in this kitchen. They are classified rather
   // than skipped, so the summary says "no slot" rather than pretending they are
   // not appliances.
-  { match: (t) => /^(wine|beverage|freezer)/i.test(t), category: "other" },
+  // Wine gets its own category: the island has a slot that takes only wine.
+  { match: (t) => /^wine/i.test(t), category: "wine" },
+  { match: (t) => /^(beverage|freezer)/i.test(t), category: "other" },
   { match: (t) => /^warming\s+drawer$/i.test(t), category: "other" },
   { match: (t) => /^(built-in|countertop)\s+coffee\s+machine$/i.test(t), category: "other" },
   { match: (t) => /^countertop\s+combo\s+oven$/i.test(t), category: "other" },
@@ -288,6 +293,10 @@ const INSTALL_WORDS: { pattern: RegExp; value: string }[] = [
   { pattern: /\bcountertop\b/i, value: "countertop" },
   { pattern: /\bundercounter\b/i, value: "undercounter" },
   { pattern: /\brangetop\b/i, value: "rangetop" },
+  // Blower mounting: inside the hood, in the duct run, or on the outside wall.
+  { pattern: /\binternal\b/i, value: "internal" },
+  { pattern: /\binline\b/i, value: "inline" },
+  { pattern: /\bexternal\b/i, value: "external" },
 ];
 
 export function toInstallType(
@@ -386,6 +395,21 @@ export function toDimension(value: string): number | null {
 
 export function toBoolean(value: string): boolean {
   return /^(true|yes|y|1)$/i.test(value?.trim() ?? "");
+}
+
+/**
+ * Whether a hood carries its own blower.
+ *
+ * Only meaningful on a hood. The sheet says "integrated" or "required";
+ * anything else on a hood reads as integrated, because a hood with no note is
+ * one that works out of the box. See docs/decisions.md D6.
+ */
+export function toBlower(
+  category: Category,
+  value: string,
+): "integrated" | "required" | null {
+  if (category !== "hood") return null;
+  return /required|separate/i.test(value ?? "") ? "required" : "integrated";
 }
 
 /**

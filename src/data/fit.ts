@@ -5,6 +5,12 @@ export interface FitResult {
   fits: boolean;
   /** Inches the appliance exceeds the opening by; negative means clearance. */
   widthOverIn: number;
+  /**
+   * Filler needed on each side when the appliance is narrower than the opening,
+   * or null when it is not. Narrow is a trim question, not a blocker: the
+   * cabinetmaker adds a filler strip. See docs/decisions.md D5.
+   */
+  fillerEachSideIn: number | null;
   /** Reported but not gating; null when the appliance has no figure for it. */
   heightOverIn: number | null;
   depthOverIn: number | null;
@@ -30,6 +36,7 @@ export function fitCheck(slot: Slot, appliance: Appliance): FitResult {
   return {
     fits: widthOverIn <= 0,
     widthOverIn,
+    fillerEachSideIn: widthOverIn < 0 ? -widthOverIn / 2 : null,
     heightOverIn: height === null ? null : height - slot.cutout.h,
     depthOverIn: depth === null ? null : depth - slot.cutout.d,
   };

@@ -165,10 +165,15 @@ describe("desktop", () => {
     await page.getByRole("button", { name: /Range/ }).first().click();
     await page.waitForTimeout(1200);
 
-    // The 36" pro range cannot go in a 30" opening, and says by how much.
-    const wide = page.getByRole("button", { name: /PRD366WHU/ });
+    // A 48" range cannot go in a 36" opening, and says by how much.
+    const wide = page.getByRole("button", { name: /PRD486WDHU/ });
     expect(await wide.isDisabled()).toBe(true);
-    expect(await wide.textContent()).toMatch(/6" too wide/);
+    expect(await wide.textContent()).toMatch(/12" too wide/);
+
+    // A 30" range can, with filler either side. Narrow is a trim question.
+    const narrow = page.getByRole("button", { name: /CHS900P2MS1/ });
+    expect(await narrow.isDisabled()).toBe(false);
+    expect(await narrow.textContent()).toMatch(/3" filler each side/);
 
     // Swapping to induction updates the package and the pin.
     await page.getByRole("button", { name: /CHS900P2MS1/ }).click();

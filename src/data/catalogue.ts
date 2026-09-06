@@ -29,11 +29,20 @@ export const APPLIANCE_BY_ID: Record<string, Appliance> = Object.fromEntries(
   APPLIANCES.map((appliance) => [appliance.id, appliance]),
 );
 
-/** Every candidate for a slot, cheapest first. Step 2 lists these for swapping. */
+/**
+ * Every candidate for a slot, cheapest first.
+ *
+ * Blowers are filed under `slot-hood` because that is what they attach to, but
+ * they are not candidates for the slot itself, so they are kept out here and
+ * listed separately. See docs/decisions.md D6.
+ */
 export const APPLIANCES_BY_SLOT: Record<SlotId, Appliance[]> = (() => {
   const grouped = {} as Record<SlotId, Appliance[]>;
   for (const slotId of Object.keys(SLOT_BY_ID) as SlotId[]) grouped[slotId] = [];
-  for (const appliance of APPLIANCES) grouped[appliance.slot].push(appliance);
+  for (const appliance of APPLIANCES) {
+    if (appliance.category === "blower") continue;
+    grouped[appliance.slot].push(appliance);
+  }
   // Cheapest first, with unpriced models last rather than treated as free.
   for (const list of Object.values(grouped)) {
     list.sort((a, b) => (a.msrpUSD ?? Infinity) - (b.msrpUSD ?? Infinity));
@@ -41,14 +50,25 @@ export const APPLIANCES_BY_SLOT: Record<SlotId, Appliance[]> = (() => {
   return grouped;
 })();
 
+/** The blowers on offer, cheapest first. */
+export const BLOWERS: Appliance[] = APPLIANCES.filter(
+  (appliance) => appliance.category === "blower",
+).sort((a, b) => (a.msrpUSD ?? Infinity) - (b.msrpUSD ?? Infinity));
+
+/** Blowers from the same maker as a hood, which is how they are actually paired. */
+export function blowersFor(hood: Appliance): Appliance[] {
+  const sameBrand = BLOWERS.filter((blower) => blower.brand === hood.brand);
+  return sameBrand.length > 0 ? sameBrand : BLOWERS;
+}
+
 /** Ordering used by the left column, the pin numbering and the plan key. */
 export const SLOT_ORDER: SlotId[] = [
   "slot-fridge",
   "slot-range",
   "slot-hood",
-  "slot-wall-oven",
   "slot-dishwasher",
   "slot-microwave",
+  "slot-wine",
 ];
 
 function resolveScheme(scheme: (typeof parsedSchemes.schemes)[number]): Scheme {

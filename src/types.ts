@@ -44,6 +44,10 @@ export type Slot = SlotRecord & {
   position: [number, number, number];
   /** Rotation about Y in radians. 0 faces +Z, out from the back wall. */
   rotationY: number;
+  /** Where the services come from: along the walls, or up through the floor. */
+  mount: "wall" | "island";
+  /** Azimuth the fly-in views this slot from, when the default angle shows its back. */
+  viewAzimuth?: number;
 };
 
 // --- view state, not data ---

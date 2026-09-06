@@ -235,6 +235,31 @@ function Body({ category, w, h, d, body, trim, glass }: BodyProps) {
         </group>
       );
 
+    case "wine":
+      return (
+        <group>
+          <mesh position={[0, h / 2, 0]} castShadow>
+            <boxGeometry args={[w, h, d]} />
+            <Mat s={body} />
+          </mesh>
+          {/* glass door with shelf lines behind it */}
+          <mesh position={[0, h * 0.55, front]}>
+            <boxGeometry args={[w * 0.86, h * 0.72, 0.01]} />
+            <Mat s={glass} />
+          </mesh>
+          {[0.32, 0.48, 0.64, 0.8].map((y) => (
+            <mesh key={y} position={[0, h * y, front - ft(1)]}>
+              <boxGeometry args={[w * 0.8, ft(0.5), 0.01]} />
+              <Mat s={trim} />
+            </mesh>
+          ))}
+          <mesh position={[w * 0.38, h * 0.55, front + ft(0.8)]}>
+            <boxGeometry args={[bar, h * 0.5, bar]} />
+            <Mat s={trim} />
+          </mesh>
+        </group>
+      );
+
     case "microwave":
       return (
         <group>

@@ -12,9 +12,15 @@ import type { Appliance, Slot, Utilities } from "../types";
  * moves them into `data/rules.json` alongside the §3.5.4 checks so Leo can
  * maintain them.
  */
-export function deriveUtilities(slot: Slot, appliance: Appliance | undefined): Utilities {
+export function deriveUtilities(
+  slot: Slot,
+  appliance: Appliance | undefined,
+  /** For a hood, the blower actually moving the air. */
+  effectiveCfmIn: number | null = null,
+): Utilities {
   if (!appliance) return slot.utilities;
   const { requires } = appliance;
+  const cfm = effectiveCfmIn ?? requires.cfm;
 
   return {
     gas:
@@ -35,11 +41,11 @@ export function deriveUtilities(slot: Slot, appliance: Appliance | undefined): U
       ? { supply: true, drain: slot.utilities.water?.drain ?? false }
       : null,
     duct:
-      slot.utilities.duct === null || requires.cfm === null
+      slot.utilities.duct === null || cfm === null
         ? slot.utilities.duct
         : {
             // 6" to 400 CFM, 8" to 600, 10" above that.
-            diameterIn: requires.cfm > 600 ? 10 : requires.cfm >= 400 ? 8 : 6,
+            diameterIn: cfm > 600 ? 10 : cfm >= 400 ? 8 : 6,
             route: slot.utilities.duct.route,
           },
   };

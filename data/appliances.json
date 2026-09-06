@@ -2,11 +2,54 @@
   "_meta": {
     "generatedBy": "seed data, hand written",
     "updatedAt": "2026-09-05",
-    "provenance": "Model numbers are real products. Dimensions, msrpUSD and sourceUrl are unverified seed values entered from general knowledge, not scraped or confirmed against the manufacturer. Every row carries verifiedAt: null until someone checks it. Replace this file with the Google Sheet export when that exists."
+    "provenance": "Placeholder standing in for the showcase_export import. Model numbers are real products; dimensions, msrpUSD and sourceUrl are unverified seed values, and every row carries verifiedAt: null. ids follow the importer's brand-model convention so a real import keeps data/schemes.json working."
   },
   "appliances": [
     {
-      "id": "fridge-subzero-cl3650ufd",
+      "id": "thermador-t36bt120ns",
+      "slot": "slot-fridge",
+      "category": "refrigerator",
+      "brand": "Thermador",
+      "model": "T36BT120NS",
+      "series": "Freedom",
+      "msrpUSD": 11499,
+      "sourceUrl": "https://www.thermador.com/us/products/refrigeration",
+      "verifiedAt": null,
+      "installType": [
+        "built-in"
+      ],
+      "fuel": null,
+      "blower": null,
+      "widthIn": 35.75,
+      "heightIn": 70.25,
+      "depthIn": 24,
+      "cutoutWidthIn": 36,
+      "cutoutHeightIn": 72,
+      "cutoutDepthIn": 25,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": 12,
+      "highlights": {
+        "en": [
+          "Freedom bottom freezer",
+          "Diamond ice",
+          "SoftClose drawers"
+        ],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
+        "gasBTU": null,
+        "water": true,
+        "cfm": null,
+        "makeupAirRequired": false
+      }
+    },
+    {
+      "id": "sub-zero-cl3650ufd",
       "slot": "slot-fridge",
       "category": "refrigerator",
       "brand": "Sub-Zero",
@@ -19,6 +62,7 @@
         "built-in"
       ],
       "fuel": null,
+      "blower": null,
       "widthIn": 35.75,
       "heightIn": 70,
       "depthIn": 24,
@@ -49,49 +93,7 @@
       }
     },
     {
-      "id": "fridge-thermador-t36ib905sp",
-      "slot": "slot-fridge",
-      "category": "refrigerator",
-      "brand": "Thermador",
-      "model": "T36IB905SP",
-      "series": "Freedom",
-      "msrpUSD": 11499,
-      "sourceUrl": "https://www.thermador.com/us/products/refrigeration",
-      "verifiedAt": null,
-      "installType": [
-        "integrated"
-      ],
-      "fuel": null,
-      "widthIn": 35.75,
-      "heightIn": 70.25,
-      "depthIn": 24,
-      "cutoutWidthIn": 36,
-      "cutoutHeightIn": 72,
-      "cutoutDepthIn": 25,
-      "finish": [
-        "panel-ready"
-      ],
-      "leadTimeWeeks": 12,
-      "highlights": {
-        "en": [
-          "Fully integrated",
-          "Custom panel and handle",
-          "Interior water dispenser"
-        ],
-        "zh": []
-      },
-      "imageUrl": null,
-      "requires": {
-        "voltage": 120,
-        "amps": 15,
-        "gasBTU": null,
-        "water": true,
-        "cfm": null,
-        "makeupAirRequired": false
-      }
-    },
-    {
-      "id": "fridge-bosch-b36cl80sns",
+      "id": "bosch-b36cl80sns",
       "slot": "slot-fridge",
       "category": "refrigerator",
       "brand": "Bosch",
@@ -104,6 +106,7 @@
         "counter-depth"
       ],
       "fuel": null,
+      "blower": null,
       "widthIn": 35.625,
       "heightIn": 69.875,
       "depthIn": 28.5,
@@ -133,23 +136,69 @@
       }
     },
     {
-      "id": "range-bluestar-rnb304bv2",
+      "id": "thermador-prg366wh",
+      "slot": "slot-range",
+      "category": "range",
+      "brand": "Thermador",
+      "model": "PRG366WH",
+      "series": "Pro Harmony",
+      "msrpUSD": 9499,
+      "sourceUrl": "https://www.thermador.com/us/products/cooking",
+      "verifiedAt": null,
+      "installType": [
+        "slide-in",
+        "pro-style"
+      ],
+      "fuel": "gas",
+      "blower": null,
+      "widthIn": 35.875,
+      "heightIn": 36.5,
+      "depthIn": 27,
+      "cutoutWidthIn": 36,
+      "cutoutHeightIn": 36,
+      "cutoutDepthIn": 24,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": 12,
+      "highlights": {
+        "en": [
+          "Six Star burners",
+          "119,500 BTU total",
+          "Patented QuickClean base"
+        ],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
+        "gasBTU": 119500,
+        "water": false,
+        "cfm": null,
+        "makeupAirRequired": false
+      }
+    },
+    {
+      "id": "bluestar-rnb366bv2",
       "slot": "slot-range",
       "category": "range",
       "brand": "BlueStar",
-      "model": "RNB304BV2",
+      "model": "RNB366BV2",
       "series": "Heritage",
-      "msrpUSD": 6890,
+      "msrpUSD": 8290,
       "sourceUrl": "https://www.bluestarcooking.com/products/ranges/",
       "verifiedAt": null,
       "installType": [
-        "slide-in"
+        "slide-in",
+        "pro-style"
       ],
       "fuel": "gas",
-      "widthIn": 30,
+      "blower": null,
+      "widthIn": 36,
       "heightIn": 36,
       "depthIn": 25,
-      "cutoutWidthIn": 30,
+      "cutoutWidthIn": 36,
       "cutoutHeightIn": 36,
       "cutoutDepthIn": 24,
       "finish": [
@@ -169,57 +218,14 @@
       "requires": {
         "voltage": 120,
         "amps": 15,
-        "gasBTU": 61000,
+        "gasBTU": 92000,
         "water": false,
         "cfm": null,
         "makeupAirRequired": false
       }
     },
     {
-      "id": "range-cafe-cgs700p2ms1",
-      "slot": "slot-range",
-      "category": "range",
-      "brand": "Cafe",
-      "model": "CGS700P2MS1",
-      "series": "Cafe",
-      "msrpUSD": 3899,
-      "sourceUrl": "https://www.cafeappliances.com/cooking/ranges/",
-      "verifiedAt": null,
-      "installType": [
-        "slide-in"
-      ],
-      "fuel": "gas",
-      "widthIn": 29.875,
-      "heightIn": 37,
-      "depthIn": 28.75,
-      "cutoutWidthIn": 30,
-      "cutoutHeightIn": 36,
-      "cutoutDepthIn": 24,
-      "finish": [
-        "stainless",
-        "matte-black"
-      ],
-      "leadTimeWeeks": 6,
-      "highlights": {
-        "en": [
-          "Six sealed burners",
-          "True European convection",
-          "Customisable hardware"
-        ],
-        "zh": []
-      },
-      "imageUrl": null,
-      "requires": {
-        "voltage": 120,
-        "amps": 15,
-        "gasBTU": 55000,
-        "water": false,
-        "cfm": null,
-        "makeupAirRequired": false
-      }
-    },
-    {
-      "id": "range-cafe-chs900p2ms1",
+      "id": "cafe-chs900p2ms1",
       "slot": "slot-range",
       "category": "range",
       "brand": "Cafe",
@@ -232,6 +238,7 @@
         "slide-in"
       ],
       "fuel": "induction",
+      "blower": null,
       "widthIn": 29.875,
       "heightIn": 37,
       "depthIn": 28.75,
@@ -261,13 +268,13 @@
       }
     },
     {
-      "id": "range-thermador-prd366whu",
+      "id": "thermador-prd486wdhu",
       "slot": "slot-range",
       "category": "range",
       "brand": "Thermador",
-      "model": "PRD366WHU",
-      "series": "Pro Harmony",
-      "msrpUSD": 10999,
+      "model": "PRD486WDHU",
+      "series": "Pro Grand",
+      "msrpUSD": 17999,
       "sourceUrl": "https://www.thermador.com/us/products/cooking",
       "verifiedAt": null,
       "installType": [
@@ -275,21 +282,22 @@
         "pro-style"
       ],
       "fuel": "dual",
-      "widthIn": 36,
+      "blower": null,
+      "widthIn": 47.875,
       "heightIn": 36.5,
       "depthIn": 27,
-      "cutoutWidthIn": 36,
+      "cutoutWidthIn": 48,
       "cutoutHeightIn": 36,
       "cutoutDepthIn": 24,
       "finish": [
         "stainless"
       ],
-      "leadTimeWeeks": 12,
+      "leadTimeWeeks": 16,
       "highlights": {
         "en": [
-          "Six star burners",
-          "Dual fuel",
-          "Warming drawer"
+          "Six burners plus griddle",
+          "Two ovens",
+          "Bar Handle"
         ],
         "zh": []
       },
@@ -297,14 +305,57 @@
       "requires": {
         "voltage": 240,
         "amps": 30,
-        "gasBTU": 72000,
+        "gasBTU": 130000,
         "water": false,
         "cfm": null,
         "makeupAirRequired": false
       }
     },
     {
-      "id": "hood-zephyr-zsa-e36cs",
+      "id": "thermador-ph36hws",
+      "slot": "slot-hood",
+      "category": "hood",
+      "brand": "Thermador",
+      "model": "PH36HWS",
+      "series": "Professional",
+      "msrpUSD": 2199,
+      "sourceUrl": "https://www.thermador.com/us/products/cooking",
+      "verifiedAt": null,
+      "installType": [
+        "wall-mount"
+      ],
+      "fuel": null,
+      "blower": "required",
+      "widthIn": 36,
+      "heightIn": 18,
+      "depthIn": 24,
+      "cutoutWidthIn": 36,
+      "cutoutHeightIn": 30,
+      "cutoutDepthIn": 20,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": 8,
+      "highlights": {
+        "en": [
+          "Chimney wall hood",
+          "Blower sold separately",
+          "Halogen lighting"
+        ],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
+        "gasBTU": null,
+        "water": false,
+        "cfm": null,
+        "makeupAirRequired": false
+      }
+    },
+    {
+      "id": "zephyr-zsa-e36cs",
       "slot": "slot-hood",
       "category": "hood",
       "brand": "Zephyr",
@@ -317,6 +368,7 @@
         "wall-mount"
       ],
       "fuel": null,
+      "blower": "integrated",
       "widthIn": 36,
       "heightIn": 30,
       "depthIn": 20,
@@ -329,7 +381,7 @@
       "leadTimeWeeks": 4,
       "highlights": {
         "en": [
-          "600 CFM blower",
+          "600 CFM integrated blower",
           "LED task lighting",
           "Dishwasher-safe baffles"
         ],
@@ -346,49 +398,7 @@
       }
     },
     {
-      "id": "hood-broan-epd6136ss",
-      "slot": "slot-hood",
-      "category": "hood",
-      "brand": "Broan",
-      "model": "EPD6136SS",
-      "series": "Elite",
-      "msrpUSD": 1449,
-      "sourceUrl": "https://www.broan-nutone.com/en-us/range-hoods",
-      "verifiedAt": null,
-      "installType": [
-        "wall-mount"
-      ],
-      "fuel": null,
-      "widthIn": 36,
-      "heightIn": 27,
-      "depthIn": 19.75,
-      "cutoutWidthIn": 36,
-      "cutoutHeightIn": 30,
-      "cutoutDepthIn": 20,
-      "finish": [
-        "stainless"
-      ],
-      "leadTimeWeeks": 3,
-      "highlights": {
-        "en": [
-          "630 CFM internal blower",
-          "Heat Sentry thermostat",
-          "Four-speed control"
-        ],
-        "zh": []
-      },
-      "imageUrl": null,
-      "requires": {
-        "voltage": 120,
-        "amps": 15,
-        "gasBTU": null,
-        "water": false,
-        "cfm": 630,
-        "makeupAirRequired": true
-      }
-    },
-    {
-      "id": "hood-ventahood-prh9-136ss",
+      "id": "vent-a-hood-prh9-136ss",
       "slot": "slot-hood",
       "category": "hood",
       "brand": "Vent-A-Hood",
@@ -401,6 +411,7 @@
         "wall-mount"
       ],
       "fuel": null,
+      "blower": "integrated",
       "widthIn": 36,
       "heightIn": 27,
       "depthIn": 19.5,
@@ -430,161 +441,33 @@
       }
     },
     {
-      "id": "oven-thermador-pod301w",
-      "slot": "slot-wall-oven",
-      "category": "wall-oven",
+      "id": "thermador-vtn2fz",
+      "slot": "slot-hood",
+      "category": "blower",
       "brand": "Thermador",
-      "model": "POD301W",
-      "series": "Professional",
-      "msrpUSD": 4299,
-      "sourceUrl": "https://www.thermador.com/us/products/ovens",
+      "model": "VTN2FZ",
+      "series": null,
+      "msrpUSD": 899,
+      "sourceUrl": "https://www.thermador.com/us/products/cooking",
       "verifiedAt": null,
       "installType": [
-        "single"
-      ],
-      "fuel": "electric",
-      "widthIn": 29.75,
-      "heightIn": 28.75,
-      "depthIn": 23.5,
-      "cutoutWidthIn": 28.5,
-      "cutoutHeightIn": 28.25,
-      "cutoutDepthIn": 23.5,
-      "finish": [
-        "stainless"
-      ],
-      "leadTimeWeeks": 8,
-      "highlights": {
-        "en": [
-          "True convection",
-          "Telescopic rack",
-          "SoftClose door"
-        ],
-        "zh": []
-      },
-      "imageUrl": null,
-      "requires": {
-        "voltage": 240,
-        "amps": 30,
-        "gasBTU": null,
-        "water": false,
-        "cfm": null,
-        "makeupAirRequired": false
-      }
-    },
-    {
-      "id": "oven-bosch-hbl8453uc",
-      "slot": "slot-wall-oven",
-      "category": "wall-oven",
-      "brand": "Bosch",
-      "model": "HBL8453UC",
-      "series": "800 Series",
-      "msrpUSD": 3299,
-      "sourceUrl": "https://www.bosch-home.com/us/products/ovens",
-      "verifiedAt": null,
-      "installType": [
-        "single"
-      ],
-      "fuel": "electric",
-      "widthIn": 29.75,
-      "heightIn": 28.75,
-      "depthIn": 26.75,
-      "cutoutWidthIn": 28.5,
-      "cutoutHeightIn": 28.25,
-      "cutoutDepthIn": 24,
-      "finish": [
-        "stainless"
-      ],
-      "leadTimeWeeks": 5,
-      "highlights": {
-        "en": [
-          "European convection",
-          "Touch control display",
-          "Self-clean"
-        ],
-        "zh": []
-      },
-      "imageUrl": null,
-      "requires": {
-        "voltage": 240,
-        "amps": 30,
-        "gasBTU": null,
-        "water": false,
-        "cfm": null,
-        "makeupAirRequired": false
-      }
-    },
-    {
-      "id": "oven-cafe-cts70dp2ns1",
-      "slot": "slot-wall-oven",
-      "category": "wall-oven",
-      "brand": "Cafe",
-      "model": "CTS70DP2NS1",
-      "series": "Cafe",
-      "msrpUSD": 3499,
-      "sourceUrl": "https://www.cafeappliances.com/cooking/wall-ovens/",
-      "verifiedAt": null,
-      "installType": [
-        "single"
-      ],
-      "fuel": "electric",
-      "widthIn": 29.75,
-      "heightIn": 28.75,
-      "depthIn": 26.75,
-      "cutoutWidthIn": 28.5,
-      "cutoutHeightIn": 28.25,
-      "cutoutDepthIn": 24,
-      "finish": [
-        "stainless",
-        "matte-black"
-      ],
-      "leadTimeWeeks": 6,
-      "highlights": {
-        "en": [
-          "True European convection",
-          "Customisable hardware",
-          "Wi-Fi connected"
-        ],
-        "zh": []
-      },
-      "imageUrl": null,
-      "requires": {
-        "voltage": 240,
-        "amps": 30,
-        "gasBTU": null,
-        "water": false,
-        "cfm": null,
-        "makeupAirRequired": false
-      }
-    },
-    {
-      "id": "dw-miele-g5892scvi",
-      "slot": "slot-dishwasher",
-      "category": "dishwasher",
-      "brand": "Miele",
-      "model": "G5892SCVI",
-      "series": "Lumen",
-      "msrpUSD": 2199,
-      "sourceUrl": "https://www.mieleusa.com/c/dishwashers-1289.htm",
-      "verifiedAt": null,
-      "installType": [
-        "panel-ready"
+        "internal"
       ],
       "fuel": null,
-      "widthIn": 23.5,
-      "heightIn": 33.5,
-      "depthIn": 22.4,
-      "cutoutWidthIn": 24,
-      "cutoutHeightIn": 34,
-      "cutoutDepthIn": 24,
+      "blower": null,
+      "widthIn": 12,
+      "heightIn": 10,
+      "depthIn": 12,
+      "cutoutWidthIn": 12,
+      "cutoutHeightIn": 10,
+      "cutoutDepthIn": 12,
       "finish": [
-        "panel-ready"
+        "stainless"
       ],
       "leadTimeWeeks": 6,
       "highlights": {
         "en": [
-          "AutoDos with PowerDisk",
-          "3D cutlery tray",
-          "38 dB"
+          "600 CFM internal blower"
         ],
         "zh": []
       },
@@ -593,13 +476,98 @@
         "voltage": 120,
         "amps": 15,
         "gasBTU": null,
-        "water": true,
-        "cfm": null,
-        "makeupAirRequired": false
+        "water": false,
+        "cfm": 600,
+        "makeupAirRequired": true
       }
     },
     {
-      "id": "dw-bosch-shv78cm3n",
+      "id": "thermador-vtn1030c",
+      "slot": "slot-hood",
+      "category": "blower",
+      "brand": "Thermador",
+      "model": "VTN1030C",
+      "series": null,
+      "msrpUSD": 1249,
+      "sourceUrl": "https://www.thermador.com/us/products/cooking",
+      "verifiedAt": null,
+      "installType": [
+        "inline"
+      ],
+      "fuel": null,
+      "blower": null,
+      "widthIn": 14,
+      "heightIn": 12,
+      "depthIn": 20,
+      "cutoutWidthIn": 14,
+      "cutoutHeightIn": 12,
+      "cutoutDepthIn": 20,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": 8,
+      "highlights": {
+        "en": [
+          "1000 CFM inline blower",
+          "Mounts in the duct run"
+        ],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
+        "gasBTU": null,
+        "water": false,
+        "cfm": 1000,
+        "makeupAirRequired": true
+      }
+    },
+    {
+      "id": "thermador-vtr1330w",
+      "slot": "slot-hood",
+      "category": "blower",
+      "brand": "Thermador",
+      "model": "VTR1330W",
+      "series": null,
+      "msrpUSD": 1599,
+      "sourceUrl": "https://www.thermador.com/us/products/cooking",
+      "verifiedAt": null,
+      "installType": [
+        "external"
+      ],
+      "fuel": null,
+      "blower": null,
+      "widthIn": 18,
+      "heightIn": 14,
+      "depthIn": 18,
+      "cutoutWidthIn": 18,
+      "cutoutHeightIn": 14,
+      "cutoutDepthIn": 18,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": 10,
+      "highlights": {
+        "en": [
+          "1300 CFM exterior blower",
+          "Quietest option",
+          "Roof or wall mount"
+        ],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
+        "gasBTU": null,
+        "water": false,
+        "cfm": 1300,
+        "makeupAirRequired": true
+      }
+    },
+    {
+      "id": "bosch-shv78cm3n",
       "slot": "slot-dishwasher",
       "category": "dishwasher",
       "brand": "Bosch",
@@ -612,6 +580,7 @@
         "panel-ready"
       ],
       "fuel": null,
+      "blower": null,
       "widthIn": 23.5625,
       "heightIn": 33.875,
       "depthIn": 22.5625,
@@ -641,34 +610,35 @@
       }
     },
     {
-      "id": "dw-kitchenaid-kdtm704kps",
+      "id": "miele-g5892scvi",
       "slot": "slot-dishwasher",
       "category": "dishwasher",
-      "brand": "KitchenAid",
-      "model": "KDTM704KPS",
-      "series": null,
-      "msrpUSD": 1349,
-      "sourceUrl": "https://www.kitchenaid.com/dishwashers.html",
+      "brand": "Miele",
+      "model": "G5892SCVI",
+      "series": "Lumen",
+      "msrpUSD": 2199,
+      "sourceUrl": "https://www.mieleusa.com/c/dishwashers-1289.htm",
       "verifiedAt": null,
       "installType": [
-        "standard"
+        "panel-ready"
       ],
       "fuel": null,
-      "widthIn": 23.875,
-      "heightIn": 34.5,
-      "depthIn": 24.5,
+      "blower": null,
+      "widthIn": 23.5,
+      "heightIn": 33.5,
+      "depthIn": 22.4,
       "cutoutWidthIn": 24,
       "cutoutHeightIn": 34,
       "cutoutDepthIn": 24,
       "finish": [
-        "stainless"
+        "panel-ready"
       ],
-      "leadTimeWeeks": 3,
+      "leadTimeWeeks": 6,
       "highlights": {
         "en": [
-          "FreeFlex third rack",
-          "44 dB",
-          "ProWash cycle"
+          "AutoDos with PowerDisk",
+          "3D cutlery tray",
+          "38 dB"
         ],
         "zh": []
       },
@@ -683,7 +653,93 @@
       }
     },
     {
-      "id": "mw-sharp-smd2489es",
+      "id": "thermador-dwhd660wfp",
+      "slot": "slot-dishwasher",
+      "category": "dishwasher",
+      "brand": "Thermador",
+      "model": "DWHD660WFP",
+      "series": "Emerald",
+      "msrpUSD": 1999,
+      "sourceUrl": "https://www.thermador.com/us/products/dishwashers",
+      "verifiedAt": null,
+      "installType": [
+        "panel-ready"
+      ],
+      "fuel": null,
+      "blower": null,
+      "widthIn": 23.5625,
+      "heightIn": 33.875,
+      "depthIn": 22.5625,
+      "cutoutWidthIn": 24,
+      "cutoutHeightIn": 34,
+      "cutoutDepthIn": 24,
+      "finish": [
+        "panel-ready"
+      ],
+      "leadTimeWeeks": 8,
+      "highlights": {
+        "en": [
+          "Star-Dry",
+          "Third rack",
+          "42 dB"
+        ],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
+        "gasBTU": null,
+        "water": true,
+        "cfm": null,
+        "makeupAirRequired": false
+      }
+    },
+    {
+      "id": "thermador-md24bs",
+      "slot": "slot-microwave",
+      "category": "microwave",
+      "brand": "Thermador",
+      "model": "MD24BS",
+      "series": "Masterpiece",
+      "msrpUSD": 1899,
+      "sourceUrl": "https://www.thermador.com/us/products/cooking",
+      "verifiedAt": null,
+      "installType": [
+        "drawer"
+      ],
+      "fuel": null,
+      "blower": null,
+      "widthIn": 23.875,
+      "heightIn": 15.125,
+      "depthIn": 22.4,
+      "cutoutWidthIn": 24,
+      "cutoutHeightIn": 16,
+      "cutoutDepthIn": 22,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": 8,
+      "highlights": {
+        "en": [
+          "Drawer opening",
+          "Sensor cook",
+          "Under-counter install"
+        ],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 20,
+        "gasBTU": null,
+        "water": false,
+        "cfm": null,
+        "makeupAirRequired": false
+      }
+    },
+    {
+      "id": "sharp-smd2489es",
       "slot": "slot-microwave",
       "category": "microwave",
       "brand": "Sharp",
@@ -696,6 +752,7 @@
         "drawer"
       ],
       "fuel": null,
+      "blower": null,
       "widthIn": 23.875,
       "heightIn": 15.125,
       "depthIn": 22.4,
@@ -725,7 +782,7 @@
       }
     },
     {
-      "id": "mw-bosch-hmd8451uc",
+      "id": "bosch-hmd8451uc",
       "slot": "slot-microwave",
       "category": "microwave",
       "brand": "Bosch",
@@ -738,6 +795,7 @@
         "drawer"
       ],
       "fuel": null,
+      "blower": null,
       "widthIn": 23.875,
       "heightIn": 15.375,
       "depthIn": 22.5,
@@ -767,41 +825,128 @@
       }
     },
     {
-      "id": "mw-sharp-smd2470as",
-      "slot": "slot-microwave",
-      "category": "microwave",
-      "brand": "Sharp",
-      "model": "SMD2470AS",
-      "series": "Drawer",
-      "msrpUSD": 1099,
-      "sourceUrl": "https://www.sharpusa.com/home/kitchen/microwaves/",
+      "id": "thermador-prw24c01cg",
+      "slot": "slot-wine",
+      "category": "wine",
+      "brand": "Thermador",
+      "model": "PRW24C01CG",
+      "series": "Professional",
+      "msrpUSD": 4399,
+      "sourceUrl": "https://www.thermador.com/us/products/refrigeration",
       "verifiedAt": null,
       "installType": [
-        "drawer"
+        "undercounter"
       ],
       "fuel": null,
+      "blower": null,
       "widthIn": 23.875,
-      "heightIn": 15.125,
-      "depthIn": 22.4,
+      "heightIn": 33.875,
+      "depthIn": 23.5,
       "cutoutWidthIn": 24,
-      "cutoutHeightIn": 16,
-      "cutoutDepthIn": 22,
+      "cutoutHeightIn": 34,
+      "cutoutDepthIn": 24,
       "finish": [
         "stainless"
       ],
-      "leadTimeWeeks": 2,
+      "leadTimeWeeks": 10,
       "highlights": {
         "en": [
-          "Easy Wave open",
-          "11 power levels",
-          "Under-counter install"
+          "Two temperature zones",
+          "41 bottles",
+          "Theatre lighting"
         ],
         "zh": []
       },
       "imageUrl": null,
       "requires": {
         "voltage": 120,
-        "amps": 20,
+        "amps": 15,
+        "gasBTU": null,
+        "water": false,
+        "cfm": null,
+        "makeupAirRequired": false
+      }
+    },
+    {
+      "id": "sub-zero-deu2450w",
+      "slot": "slot-wine",
+      "category": "wine",
+      "brand": "Sub-Zero",
+      "model": "DEU2450W",
+      "series": "Designer",
+      "msrpUSD": 5495,
+      "sourceUrl": "https://www.subzero-wolf.com/sub-zero/wine-storage",
+      "verifiedAt": null,
+      "installType": [
+        "undercounter"
+      ],
+      "fuel": null,
+      "blower": null,
+      "widthIn": 23.875,
+      "heightIn": 34,
+      "depthIn": 24,
+      "cutoutWidthIn": 24,
+      "cutoutHeightIn": 34,
+      "cutoutDepthIn": 24,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": 14,
+      "highlights": {
+        "en": [
+          "Two zones",
+          "46 bottles",
+          "UV-resistant glass"
+        ],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
+        "gasBTU": null,
+        "water": false,
+        "cfm": null,
+        "makeupAirRequired": false
+      }
+    },
+    {
+      "id": "u-line-uhwc524-sg01a",
+      "slot": "slot-wine",
+      "category": "wine",
+      "brand": "U-Line",
+      "model": "UHWC524-SG01A",
+      "series": "3000 Series",
+      "msrpUSD": 2799,
+      "sourceUrl": "https://u-line.com/wine-preservation",
+      "verifiedAt": null,
+      "installType": [
+        "undercounter"
+      ],
+      "fuel": null,
+      "blower": null,
+      "widthIn": 23.875,
+      "heightIn": 34,
+      "depthIn": 24,
+      "cutoutWidthIn": 24,
+      "cutoutHeightIn": 34,
+      "cutoutDepthIn": 24,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": 5,
+      "highlights": {
+        "en": [
+          "Single zone",
+          "24 bottles",
+          "Reversible door"
+        ],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
         "gasBTU": null,
         "water": false,
         "cfm": null,
