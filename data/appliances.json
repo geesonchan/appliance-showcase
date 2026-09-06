@@ -15,7 +15,9 @@
       "msrpUSD": 12995,
       "sourceUrl": "https://www.subzero-wolf.com/sub-zero/refrigeration",
       "verifiedAt": null,
-      "installType": "built-in",
+      "installType": [
+        "built-in"
+      ],
       "fuel": null,
       "widthIn": 35.75,
       "heightIn": 70,
@@ -23,10 +25,17 @@
       "cutoutWidthIn": 36,
       "cutoutHeightIn": 72,
       "cutoutDepthIn": 25,
-      "finish": ["panel-ready", "stainless"],
+      "finish": [
+        "panel-ready",
+        "stainless"
+      ],
       "leadTimeWeeks": 14,
       "highlights": {
-        "en": ["Dual refrigeration", "Panel-ready doors", "Air purification"],
+        "en": [
+          "Dual refrigeration",
+          "Panel-ready doors",
+          "Air purification"
+        ],
         "zh": []
       },
       "imageUrl": null,
@@ -49,7 +58,9 @@
       "msrpUSD": 11499,
       "sourceUrl": "https://www.thermador.com/us/products/refrigeration",
       "verifiedAt": null,
-      "installType": "integrated",
+      "installType": [
+        "integrated"
+      ],
       "fuel": null,
       "widthIn": 35.75,
       "heightIn": 70.25,
@@ -57,10 +68,16 @@
       "cutoutWidthIn": 36,
       "cutoutHeightIn": 72,
       "cutoutDepthIn": 25,
-      "finish": ["panel-ready"],
+      "finish": [
+        "panel-ready"
+      ],
       "leadTimeWeeks": 12,
       "highlights": {
-        "en": ["Fully integrated", "Custom panel and handle", "Interior water dispenser"],
+        "en": [
+          "Fully integrated",
+          "Custom panel and handle",
+          "Interior water dispenser"
+        ],
         "zh": []
       },
       "imageUrl": null,
@@ -83,7 +100,9 @@
       "msrpUSD": 3699,
       "sourceUrl": "https://www.bosch-home.com/us/products/refrigerators",
       "verifiedAt": null,
-      "installType": "counter-depth",
+      "installType": [
+        "counter-depth"
+      ],
       "fuel": null,
       "widthIn": 35.625,
       "heightIn": 69.875,
@@ -91,10 +110,16 @@
       "cutoutWidthIn": 36,
       "cutoutHeightIn": 72,
       "cutoutDepthIn": 29,
-      "finish": ["stainless"],
+      "finish": [
+        "stainless"
+      ],
       "leadTimeWeeks": 4,
       "highlights": {
-        "en": ["Counter-depth French door", "Internal ice and water", "Home Connect"],
+        "en": [
+          "Counter-depth French door",
+          "Internal ice and water",
+          "Home Connect"
+        ],
         "zh": []
       },
       "imageUrl": null,
@@ -117,7 +142,9 @@
       "msrpUSD": 6890,
       "sourceUrl": "https://www.bluestarcooking.com/products/ranges/",
       "verifiedAt": null,
-      "installType": "slide-in",
+      "installType": [
+        "slide-in"
+      ],
       "fuel": "gas",
       "widthIn": 30,
       "heightIn": 36,
@@ -125,10 +152,17 @@
       "cutoutWidthIn": 30,
       "cutoutHeightIn": 36,
       "cutoutDepthIn": 24,
-      "finish": ["stainless", "matte-black"],
+      "finish": [
+        "stainless",
+        "matte-black"
+      ],
       "leadTimeWeeks": 10,
       "highlights": {
-        "en": ["Open burners to 22,000 BTU", "Cast iron grates", "Infrared broiler"],
+        "en": [
+          "Open burners to 22,000 BTU",
+          "Cast iron grates",
+          "Infrared broiler"
+        ],
         "zh": []
       },
       "imageUrl": null,
@@ -151,7 +185,9 @@
       "msrpUSD": 3899,
       "sourceUrl": "https://www.cafeappliances.com/cooking/ranges/",
       "verifiedAt": null,
-      "installType": "slide-in",
+      "installType": [
+        "slide-in"
+      ],
       "fuel": "gas",
       "widthIn": 29.875,
       "heightIn": 37,
@@ -159,10 +195,17 @@
       "cutoutWidthIn": 30,
       "cutoutHeightIn": 36,
       "cutoutDepthIn": 24,
-      "finish": ["stainless", "matte-black"],
+      "finish": [
+        "stainless",
+        "matte-black"
+      ],
       "leadTimeWeeks": 6,
       "highlights": {
-        "en": ["Six sealed burners", "True European convection", "Customisable hardware"],
+        "en": [
+          "Six sealed burners",
+          "True European convection",
+          "Customisable hardware"
+        ],
         "zh": []
       },
       "imageUrl": null,
@@ -185,7 +228,9 @@
       "msrpUSD": 3699,
       "sourceUrl": "https://www.cafeappliances.com/cooking/ranges/",
       "verifiedAt": null,
-      "installType": "slide-in",
+      "installType": [
+        "slide-in"
+      ],
       "fuel": "induction",
       "widthIn": 29.875,
       "heightIn": 37,
@@ -193,10 +238,16 @@
       "cutoutWidthIn": 30,
       "cutoutHeightIn": 36,
       "cutoutDepthIn": 24,
-      "finish": ["stainless"],
+      "finish": [
+        "stainless"
+      ],
       "leadTimeWeeks": 8,
       "highlights": {
-        "en": ["3,700W induction element", "Fits flush with the counter", "Air fry mode"],
+        "en": [
+          "3,700W induction element",
+          "Fits flush with the counter",
+          "Air fry mode"
+        ],
         "zh": []
       },
       "imageUrl": null,
@@ -204,6 +255,49 @@
         "voltage": 240,
         "amps": 40,
         "gasBTU": null,
+        "water": false,
+        "cfm": null,
+        "makeupAirRequired": false
+      }
+    },
+    {
+      "id": "range-thermador-prd366whu",
+      "slot": "slot-range",
+      "category": "range",
+      "brand": "Thermador",
+      "model": "PRD366WHU",
+      "series": "Pro Harmony",
+      "msrpUSD": 10999,
+      "sourceUrl": "https://www.thermador.com/us/products/cooking",
+      "verifiedAt": null,
+      "installType": [
+        "slide-in",
+        "pro-style"
+      ],
+      "fuel": "dual",
+      "widthIn": 36,
+      "heightIn": 36.5,
+      "depthIn": 27,
+      "cutoutWidthIn": 36,
+      "cutoutHeightIn": 36,
+      "cutoutDepthIn": 24,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": 12,
+      "highlights": {
+        "en": [
+          "Six star burners",
+          "Dual fuel",
+          "Warming drawer"
+        ],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 240,
+        "amps": 30,
+        "gasBTU": 72000,
         "water": false,
         "cfm": null,
         "makeupAirRequired": false
@@ -219,7 +313,9 @@
       "msrpUSD": 1749,
       "sourceUrl": "https://zephyronline.com/collections/wall-hoods",
       "verifiedAt": null,
-      "installType": "wall-mount",
+      "installType": [
+        "wall-mount"
+      ],
       "fuel": null,
       "widthIn": 36,
       "heightIn": 30,
@@ -227,10 +323,16 @@
       "cutoutWidthIn": 36,
       "cutoutHeightIn": 30,
       "cutoutDepthIn": 20,
-      "finish": ["stainless"],
+      "finish": [
+        "stainless"
+      ],
       "leadTimeWeeks": 4,
       "highlights": {
-        "en": ["600 CFM blower", "LED task lighting", "Dishwasher-safe baffles"],
+        "en": [
+          "600 CFM blower",
+          "LED task lighting",
+          "Dishwasher-safe baffles"
+        ],
         "zh": []
       },
       "imageUrl": null,
@@ -253,7 +355,9 @@
       "msrpUSD": 1449,
       "sourceUrl": "https://www.broan-nutone.com/en-us/range-hoods",
       "verifiedAt": null,
-      "installType": "wall-mount",
+      "installType": [
+        "wall-mount"
+      ],
       "fuel": null,
       "widthIn": 36,
       "heightIn": 27,
@@ -261,10 +365,16 @@
       "cutoutWidthIn": 36,
       "cutoutHeightIn": 30,
       "cutoutDepthIn": 20,
-      "finish": ["stainless"],
+      "finish": [
+        "stainless"
+      ],
       "leadTimeWeeks": 3,
       "highlights": {
-        "en": ["630 CFM internal blower", "Heat Sentry thermostat", "Four-speed control"],
+        "en": [
+          "630 CFM internal blower",
+          "Heat Sentry thermostat",
+          "Four-speed control"
+        ],
         "zh": []
       },
       "imageUrl": null,
@@ -287,7 +397,9 @@
       "msrpUSD": 2195,
       "sourceUrl": "https://www.ventahood.com/products/",
       "verifiedAt": null,
-      "installType": "wall-mount",
+      "installType": [
+        "wall-mount"
+      ],
       "fuel": null,
       "widthIn": 36,
       "heightIn": 27,
@@ -295,10 +407,16 @@
       "cutoutWidthIn": 36,
       "cutoutHeightIn": 30,
       "cutoutDepthIn": 20,
-      "finish": ["stainless"],
+      "finish": [
+        "stainless"
+      ],
       "leadTimeWeeks": 6,
       "highlights": {
-        "en": ["Magic Lung blower, 300 CFM", "No makeup air trigger", "Halogen lighting"],
+        "en": [
+          "Magic Lung blower, 300 CFM",
+          "No makeup air trigger",
+          "Halogen lighting"
+        ],
         "zh": []
       },
       "imageUrl": null,
@@ -321,7 +439,9 @@
       "msrpUSD": 4299,
       "sourceUrl": "https://www.thermador.com/us/products/ovens",
       "verifiedAt": null,
-      "installType": "single",
+      "installType": [
+        "single"
+      ],
       "fuel": "electric",
       "widthIn": 29.75,
       "heightIn": 28.75,
@@ -329,10 +449,16 @@
       "cutoutWidthIn": 28.5,
       "cutoutHeightIn": 28.25,
       "cutoutDepthIn": 23.5,
-      "finish": ["stainless"],
+      "finish": [
+        "stainless"
+      ],
       "leadTimeWeeks": 8,
       "highlights": {
-        "en": ["True convection", "Telescopic rack", "SoftClose door"],
+        "en": [
+          "True convection",
+          "Telescopic rack",
+          "SoftClose door"
+        ],
         "zh": []
       },
       "imageUrl": null,
@@ -355,7 +481,9 @@
       "msrpUSD": 3299,
       "sourceUrl": "https://www.bosch-home.com/us/products/ovens",
       "verifiedAt": null,
-      "installType": "single",
+      "installType": [
+        "single"
+      ],
       "fuel": "electric",
       "widthIn": 29.75,
       "heightIn": 28.75,
@@ -363,10 +491,16 @@
       "cutoutWidthIn": 28.5,
       "cutoutHeightIn": 28.25,
       "cutoutDepthIn": 24,
-      "finish": ["stainless"],
+      "finish": [
+        "stainless"
+      ],
       "leadTimeWeeks": 5,
       "highlights": {
-        "en": ["European convection", "Touch control display", "Self-clean"],
+        "en": [
+          "European convection",
+          "Touch control display",
+          "Self-clean"
+        ],
         "zh": []
       },
       "imageUrl": null,
@@ -389,7 +523,9 @@
       "msrpUSD": 3499,
       "sourceUrl": "https://www.cafeappliances.com/cooking/wall-ovens/",
       "verifiedAt": null,
-      "installType": "single",
+      "installType": [
+        "single"
+      ],
       "fuel": "electric",
       "widthIn": 29.75,
       "heightIn": 28.75,
@@ -397,10 +533,17 @@
       "cutoutWidthIn": 28.5,
       "cutoutHeightIn": 28.25,
       "cutoutDepthIn": 24,
-      "finish": ["stainless", "matte-black"],
+      "finish": [
+        "stainless",
+        "matte-black"
+      ],
       "leadTimeWeeks": 6,
       "highlights": {
-        "en": ["True European convection", "Customisable hardware", "Wi-Fi connected"],
+        "en": [
+          "True European convection",
+          "Customisable hardware",
+          "Wi-Fi connected"
+        ],
         "zh": []
       },
       "imageUrl": null,
@@ -423,7 +566,9 @@
       "msrpUSD": 2199,
       "sourceUrl": "https://www.mieleusa.com/c/dishwashers-1289.htm",
       "verifiedAt": null,
-      "installType": "panel-ready",
+      "installType": [
+        "panel-ready"
+      ],
       "fuel": null,
       "widthIn": 23.5,
       "heightIn": 33.5,
@@ -431,10 +576,16 @@
       "cutoutWidthIn": 24,
       "cutoutHeightIn": 34,
       "cutoutDepthIn": 24,
-      "finish": ["panel-ready"],
+      "finish": [
+        "panel-ready"
+      ],
       "leadTimeWeeks": 6,
       "highlights": {
-        "en": ["AutoDos with PowerDisk", "3D cutlery tray", "38 dB"],
+        "en": [
+          "AutoDos with PowerDisk",
+          "3D cutlery tray",
+          "38 dB"
+        ],
         "zh": []
       },
       "imageUrl": null,
@@ -457,7 +608,9 @@
       "msrpUSD": 1549,
       "sourceUrl": "https://www.bosch-home.com/us/products/dishwashers",
       "verifiedAt": null,
-      "installType": "panel-ready",
+      "installType": [
+        "panel-ready"
+      ],
       "fuel": null,
       "widthIn": 23.5625,
       "heightIn": 33.875,
@@ -465,10 +618,16 @@
       "cutoutWidthIn": 24,
       "cutoutHeightIn": 34,
       "cutoutDepthIn": 24,
-      "finish": ["panel-ready"],
+      "finish": [
+        "panel-ready"
+      ],
       "leadTimeWeeks": 4,
       "highlights": {
-        "en": ["CrystalDry", "Flexible third rack", "42 dB"],
+        "en": [
+          "CrystalDry",
+          "Flexible third rack",
+          "42 dB"
+        ],
         "zh": []
       },
       "imageUrl": null,
@@ -491,7 +650,9 @@
       "msrpUSD": 1349,
       "sourceUrl": "https://www.kitchenaid.com/dishwashers.html",
       "verifiedAt": null,
-      "installType": "standard",
+      "installType": [
+        "standard"
+      ],
       "fuel": null,
       "widthIn": 23.875,
       "heightIn": 34.5,
@@ -499,10 +660,16 @@
       "cutoutWidthIn": 24,
       "cutoutHeightIn": 34,
       "cutoutDepthIn": 24,
-      "finish": ["stainless"],
+      "finish": [
+        "stainless"
+      ],
       "leadTimeWeeks": 3,
       "highlights": {
-        "en": ["FreeFlex third rack", "44 dB", "ProWash cycle"],
+        "en": [
+          "FreeFlex third rack",
+          "44 dB",
+          "ProWash cycle"
+        ],
         "zh": []
       },
       "imageUrl": null,
@@ -525,7 +692,9 @@
       "msrpUSD": 1349,
       "sourceUrl": "https://www.sharpusa.com/home/kitchen/microwaves/",
       "verifiedAt": null,
-      "installType": "drawer",
+      "installType": [
+        "drawer"
+      ],
       "fuel": null,
       "widthIn": 23.875,
       "heightIn": 15.125,
@@ -533,10 +702,16 @@
       "cutoutWidthIn": 24,
       "cutoutHeightIn": 16,
       "cutoutDepthIn": 22,
-      "finish": ["stainless"],
+      "finish": [
+        "stainless"
+      ],
       "leadTimeWeeks": 3,
       "highlights": {
-        "en": ["Easy Wave open", "Sensor cook", "Under-counter install"],
+        "en": [
+          "Easy Wave open",
+          "Sensor cook",
+          "Under-counter install"
+        ],
         "zh": []
       },
       "imageUrl": null,
@@ -559,7 +734,9 @@
       "msrpUSD": 1499,
       "sourceUrl": "https://www.bosch-home.com/us/products/microwaves",
       "verifiedAt": null,
-      "installType": "drawer",
+      "installType": [
+        "drawer"
+      ],
       "fuel": null,
       "widthIn": 23.875,
       "heightIn": 15.375,
@@ -567,10 +744,16 @@
       "cutoutWidthIn": 24,
       "cutoutHeightIn": 16,
       "cutoutDepthIn": 22,
-      "finish": ["stainless"],
+      "finish": [
+        "stainless"
+      ],
       "leadTimeWeeks": 5,
       "highlights": {
-        "en": ["Automatic drawer open", "Sensor cooking", "950 watts"],
+        "en": [
+          "Automatic drawer open",
+          "Sensor cooking",
+          "950 watts"
+        ],
         "zh": []
       },
       "imageUrl": null,
@@ -593,7 +776,9 @@
       "msrpUSD": 1099,
       "sourceUrl": "https://www.sharpusa.com/home/kitchen/microwaves/",
       "verifiedAt": null,
-      "installType": "drawer",
+      "installType": [
+        "drawer"
+      ],
       "fuel": null,
       "widthIn": 23.875,
       "heightIn": 15.125,
@@ -601,10 +786,16 @@
       "cutoutWidthIn": 24,
       "cutoutHeightIn": 16,
       "cutoutDepthIn": 22,
-      "finish": ["stainless"],
+      "finish": [
+        "stainless"
+      ],
       "leadTimeWeeks": 2,
       "highlights": {
-        "en": ["Easy Wave open", "11 power levels", "Under-counter install"],
+        "en": [
+          "Easy Wave open",
+          "11 power levels",
+          "Under-counter install"
+        ],
         "zh": []
       },
       "imageUrl": null,

@@ -9,7 +9,7 @@ import type {
   slotIdSchema,
   slotRecordSchema,
   utilitiesSchema,
-} from "./data/schema";
+} from "./data/schema.ts";
 
 /**
  * Domain types.

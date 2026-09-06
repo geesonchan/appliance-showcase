@@ -1,0 +1,248 @@
+/**
+ * Turn a `showcase_export` CSV into `data/appliances.json`.
+ *
+ *   npm run import:csv -- path/to/showcase_export.csv
+ *
+ * Download the tab as CSV from the inventory sheet and point this at it. The
+ * result is validated with the same zod schema the app loads, so a bad row
+ * fails here rather than at runtime. See docs/data-sheet-spec.md.
+ */
+
+import { readFileSync, writeFileSync } from "node:fs";
+import type { Appliance, Category, SlotId } from "../src/types.ts";
+import { appliancesFileSchema, parseDataFile } from "../src/data/schema.ts";
+import {
+  UnknownApplianceTypeError,
+  type RawRow,
+  slotForCategory,
+  toBoolean,
+  toBrand,
+  toCategory,
+  toDimension,
+  toFinish,
+  toFuel,
+  toHighlights,
+  toId,
+  toInstallType,
+  toWidthIn,
+} from "./normalise.ts";
+
+export interface ConversionSummary {
+  rowsRead: number;
+  exported: number;
+  /** Rows dropped, keyed by the reason, e.g. "Washer" or "no slot: cooktop". */
+  skipped: Record<string, number>;
+  /** Rows that parsed but are missing something the app needs. */
+  warnings: string[];
+}
+
+/** Minimal RFC 4180 reader: Sheets quotes any cell containing a comma. */
+export function parseCsv(text: string): Record<string, string>[] {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let cell = "";
+  let quoted = false;
+
+  const source = text.replace(/^﻿/, "").replace(/\r\n?/g, "\n");
+
+  for (let i = 0; i < source.length; i++) {
+    const char = source[i];
+    if (quoted) {
+      if (char === '"') {
+        if (source[i + 1] === '"') {
+          cell += '"';
+          i++;
+        } else quoted = false;
+      } else cell += char;
+      continue;
+    }
+    if (char === '"') quoted = true;
+    else if (char === ",") {
+      row.push(cell);
+      cell = "";
+    } else if (char === "\n") {
+      row.push(cell);
+      rows.push(row);
+      row = [];
+      cell = "";
+    } else cell += char;
+  }
+  if (cell.length > 0 || row.length > 0) {
+    row.push(cell);
+    rows.push(row);
+  }
+
+  const [header, ...body] = rows.filter((r) => r.some((c) => c.trim() !== ""));
+  if (!header) return [];
+  return body.map((cells) =>
+    Object.fromEntries(header.map((name, i) => [name.trim(), (cells[i] ?? "").trim()])),
+  );
+}
+
+const numberOrNull = (value: string) => {
+  const parsed = toDimension(value ?? "");
+  return parsed === null || Number.isNaN(parsed) ? null : parsed;
+};
+
+/**
+ * Convert parsed CSV rows into catalogue entries.
+ *
+ * Pure, so the tests can exercise the rules without touching the filesystem.
+ * Throws on an Appliance Type it does not recognise: a silent skip would
+ * shrink the catalogue invisibly.
+ */
+export function convert(
+  rows: Record<string, string>[],
+  slots: { id: SlotId; compatibleCategories: Category[] }[],
+): { appliances: Appliance[]; summary: ConversionSummary } {
+  const appliances: Appliance[] = [];
+  const summary: ConversionSummary = {
+    rowsRead: rows.length,
+    exported: 0,
+    skipped: {},
+    warnings: [],
+  };
+
+  const skip = (reason: string) => {
+    summary.skipped[reason] = (summary.skipped[reason] ?? 0) + 1;
+  };
+
+  rows.forEach((raw, index) => {
+    const row = raw as unknown as RawRow;
+    const rowNumber = index + 2; // 1-based, plus the header
+    const type = row["Appliance Type"] ?? "";
+
+    const category = toCategory(type, rowNumber);
+    if (category === null) {
+      skip(type.trim() || "(blank type)");
+      return;
+    }
+
+    const slot = slotForCategory(category, slots);
+    if (slot === null) {
+      skip(`no slot: ${category}`);
+      return;
+    }
+
+    const widthIn = toWidthIn(row.Width ?? "");
+    if (widthIn === null) {
+      skip(`no width: ${row.Brand} ${row.Model}`);
+      return;
+    }
+
+    const brand = toBrand(row.Brand ?? "");
+    const model = (row.Model ?? "").trim();
+    const id = toId(brand, model);
+
+    const voltage = Number(row.voltage) === 240 ? 240 : 120;
+    const cfm = numberOrNull(row.cfm);
+
+    appliances.push({
+      id,
+      slot,
+      category,
+      brand,
+      model,
+      series: null,
+      msrpUSD: Math.round(Number(row.msrpUSD?.replace(/[$,]/g, "") ?? 0)),
+      sourceUrl: (row.sourceUrl ?? "").trim(),
+      verifiedAt: (row.verifiedAt ?? "").trim() || null,
+      installType: toInstallType(row.Feature ?? "", type, row.Width ?? ""),
+      fuel: toFuel(type),
+      widthIn,
+      heightIn: numberOrNull(row.Height),
+      depthIn: numberOrNull(row.Depth),
+      cutoutWidthIn: numberOrNull(row.cutoutWidthIn),
+      cutoutHeightIn: numberOrNull(row.cutoutHeightIn),
+      cutoutDepthIn: numberOrNull(row.cutoutDepthIn),
+      finish: toFinish(row.Color ?? "", row.Feature ?? ""),
+      leadTimeWeeks: numberOrNull(row.leadTimeWeeks),
+      highlights: { en: toHighlights(row.Feature ?? ""), zh: [] },
+      imageUrl: null,
+      requires: {
+        voltage,
+        amps: numberOrNull(row.amps),
+        gasBTU: numberOrNull(row.gasBTU),
+        water: toBoolean(row.water),
+        cfm,
+        // Title 24: a hood at or above 400 CFM needs makeup air. Honour an
+        // explicit yes in the sheet, otherwise derive it.
+        makeupAirRequired: toBoolean(row.makeupAirRequired) || (cfm !== null && cfm >= 400),
+      },
+    });
+
+    if (!row.sourceUrl?.trim()) {
+      summary.warnings.push(`${id}: no sourceUrl`);
+    }
+    if (numberOrNull(row.cutoutWidthIn) === null) {
+      summary.warnings.push(`${id}: no cutoutWidthIn, fit check will use widthIn`);
+    }
+    summary.exported++;
+  });
+
+  return { appliances, summary };
+}
+
+export function formatSummary(summary: ConversionSummary): string {
+  const lines = [
+    `read ${summary.rowsRead} rows, exported ${summary.exported}`,
+  ];
+  const skipped = Object.entries(summary.skipped).sort((a, b) => b[1] - a[1]);
+  if (skipped.length > 0) {
+    lines.push("skipped:");
+    for (const [reason, count] of skipped) lines.push(`  ${count.toString().padStart(3)}  ${reason}`);
+  }
+  if (summary.warnings.length > 0) {
+    lines.push(`warnings (${summary.warnings.length}):`);
+    for (const warning of summary.warnings.slice(0, 20)) lines.push(`  ${warning}`);
+    if (summary.warnings.length > 20) {
+      lines.push(`  ...and ${summary.warnings.length - 20} more`);
+    }
+  }
+  return lines.join("\n");
+}
+
+function main() {
+  const input = process.argv[2];
+  if (!input) {
+    console.error("usage: npm run import:csv -- path/to/showcase_export.csv");
+    process.exit(1);
+  }
+
+  const slotsFile = JSON.parse(readFileSync("data/slots.json", "utf8"));
+  const rows = parseCsv(readFileSync(input, "utf8"));
+
+  let result;
+  try {
+    result = convert(rows, slotsFile.slots);
+  } catch (error) {
+    if (error instanceof UnknownApplianceTypeError) {
+      console.error(`\n${error.message}\n`);
+      process.exit(1);
+    }
+    throw error;
+  }
+
+  const file = {
+    _meta: {
+      generatedBy: `scripts/csv-to-json.ts from ${input}`,
+      updatedAt: new Date().toISOString().slice(0, 10),
+      provenance:
+        "Derived from the showcase_export tab of the 2026 AA Inventory Manager. " +
+        "Brand, Model, Appliance Type, Feature, Width, Depth, Height and Color come " +
+        "from Stock current; everything else is hand entered. Normalisation lives in " +
+        "scripts/normalise.ts, not in the sheet. verifiedAt is null until a row has " +
+        "been checked against its sourceUrl.",
+    },
+    appliances: result.appliances,
+  };
+
+  parseDataFile(appliancesFileSchema, file, "data/appliances.json");
+  writeFileSync("data/appliances.json", `${JSON.stringify(file, null, 2)}\n`, "utf8");
+
+  console.log(formatSummary(result.summary));
+  console.log(`\nwrote data/appliances.json`);
+}
+
+// Only run the CLI when invoked directly, so the tests can import the module.
+if (process.argv[1]?.endsWith("csv-to-json.ts")) main();

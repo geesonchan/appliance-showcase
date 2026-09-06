@@ -68,12 +68,18 @@ export const applianceSchema = z.object({
    */
   verifiedAt: z.iso.date().nullable(),
 
-  installType: z.string().min(1),
+  /**
+   * Install form, as an array: the Sheet's Feature column can name several at
+   * once ("Slide-In" plus "counter-depth"), and §3.5.1 treats each of those as
+   * part of the same answer. Defaults to ["freestanding"] when nothing matches.
+   */
+  installType: z.array(z.string().min(1)).min(1),
   fuel: fuelSchema.nullable(),
 
+  /** The fit check gates on width, so it is the one dimension always required. */
   widthIn: inches,
-  heightIn: inches,
-  depthIn: inches,
+  heightIn: inches.nullable(),
+  depthIn: inches.nullable(),
   cutoutWidthIn: inches.nullable(),
   cutoutHeightIn: inches.nullable(),
   cutoutDepthIn: inches.nullable(),

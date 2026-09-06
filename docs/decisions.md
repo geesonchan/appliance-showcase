@@ -78,3 +78,33 @@ Every catalogue row carries `sourceUrl` and `verifiedAt`. `verifiedAt: null`
 means nobody has confirmed that row against the manufacturer's own page yet;
 seed data ships that way deliberately, so unverified pricing is visible in the
 data rather than assumed.
+
+---
+
+## D4 · The inventory sheet is a read-only source, and cleaning happens in code
+
+**Decided:** 2026-09-05 (M2).
+
+`data/appliances.json` is generated from the `showcase_export` tab of *2026 AA
+Inventory Manager* — a derived tab whose eight raw columns are pulled by `QUERY`
+from `Stock current`, for the models listed in `showcase_picks`. Export is a
+manual CSV download through `npm run import:csv`. No Apps Script, no API.
+
+**The raw columns are never edited, and no cleaning is done in the sheet.**
+Every normalisation rule — the Appliance Type lookup, the fuel prefixes, the
+`CD` width suffix, brand casing — lives in `scripts/normalise.ts` and is covered
+by tests. The full mapping is docs/data-sheet-spec.md.
+
+**Why:** the sheet is the system of record for a shop's stock, not for this app.
+It has other consumers and other people editing it. A cleaning formula added
+there would be invisible to this repository, unversioned, and untested; the same
+rule in code is reviewable, diffable, and fails a test when it stops matching.
+
+**Forbidden:** reading a column this app cleaned itself back into the sheet, and
+adding a rule that only exists as a spreadsheet formula.
+
+**One rule has teeth:** an unrecognised `Appliance Type` throws and stops the
+import. Skipping it silently would shrink the catalogue invisibly — the failure
+mode is a model quietly missing from the picker, which nobody notices until a
+customer asks for it. Types that genuinely do not belong (`Washer`, `Handle`,
+`Outdoor*`) are on an explicit skip list and are counted in the export summary.

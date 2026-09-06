@@ -10,7 +10,8 @@
     "typecheck": "tsc -b --noEmit",
     "screenshots": "node scripts/screenshots.mjs",
     "test": "npm run build && vitest run",
-    "test:unit": "vitest run --config vitest.unit.config.ts"
+    "test:unit": "vitest run --config vitest.unit.config.ts",
+    "import:csv": "node scripts/csv-to-json.ts"
   },
   "dependencies": {
     "@react-three/fiber": "^8.17.10",
