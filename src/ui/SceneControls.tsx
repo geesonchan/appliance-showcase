@@ -41,6 +41,7 @@ export function BottomBar() {
   const t = useT();
   const resetView = useAppStore((s) => s.resetView);
   const requestZoom = useAppStore((s) => s.requestZoom);
+  const setQuoteOpen = useAppStore((s) => s.setQuoteOpen);
   const showToast = useAppStore((s) => s.showToast);
   // The mobile sheet covers the bottom of the screen; hide the toolbar under it
   // rather than leaving controls the user cannot reach.
@@ -98,7 +99,7 @@ export function BottomBar() {
 
         <button
           type="button"
-          onClick={() => showToast("bottom.quote.soon")}
+          onClick={() => setQuoteOpen(true)}
           className="shrink-0 rounded-full bg-accent px-4 py-2 text-[12px] font-medium text-[#F7F5EF] transition-opacity hover:opacity-90"
         >
           {t("bottom.quote")}
@@ -115,7 +116,7 @@ export function BottomBar() {
 export function SelectionCallout() {
   const t = useT();
   const selectedSlot = useAppStore((s) => s.selectedSlot);
-  const showToast = useAppStore((s) => s.showToast);
+  const setMobilePanel = useAppStore((s) => s.setMobilePanel);
   const appliance = useSelectedAppliance(selectedSlot ?? "slot-range");
   if (!selectedSlot) return null;
 
@@ -131,7 +132,9 @@ export function SelectionCallout() {
       )}
       <button
         type="button"
-        onClick={() => showToast("bottom.quote.soon")}
+        // The specs are the swap panel: already on screen at desktop widths,
+        // one sheet away on a phone.
+        onClick={() => setMobilePanel("list")}
         className="mt-3 flex w-full items-center justify-between text-[12px] font-medium text-accent transition-opacity hover:opacity-80"
       >
         {t("scene.enter")}

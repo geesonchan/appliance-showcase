@@ -29,6 +29,7 @@ interface AppState {
   /** Bumped by the +/- buttons; positive steps in, negative steps out. */
   zoomRequest: { token: number; direction: 1 | -1 };
   helpOpen: boolean;
+  quoteOpen: boolean;
   /** Mobile drawer state; ignored at desktop widths. */
   mobilePanel: "none" | "list" | "config";
   toast: ToastMessage | null;
@@ -49,6 +50,7 @@ interface AppState {
   resetView: () => void;
   requestZoom: (direction: 1 | -1) => void;
   setHelpOpen: (open: boolean) => void;
+  setQuoteOpen: (open: boolean) => void;
   setMobilePanel: (panel: "none" | "list" | "config") => void;
   showToast: (key: string) => void;
   dismissToast: () => void;
@@ -72,6 +74,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   resetToken: 0,
   zoomRequest: { token: 0, direction: 1 },
   helpOpen: false,
+  quoteOpen: false,
   mobilePanel: "none",
   toast: null,
   modeSwitchStartedAt: null,
@@ -100,6 +103,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   requestZoom: (direction) =>
     set((s) => ({ zoomRequest: { token: s.zoomRequest.token + 1, direction } })),
   setHelpOpen: (helpOpen) => set({ helpOpen }),
+  setQuoteOpen: (quoteOpen) => set({ quoteOpen }),
   setMobilePanel: (mobilePanel) => set({ mobilePanel }),
   showToast: (key) => set({ toast: { id: ++toastId, key } }),
   dismissToast: () => set({ toast: null }),
