@@ -4,6 +4,8 @@ import type {
   cabinetConfigSchema,
   categorySchema,
   finishSchema,
+  fixtureIdSchema,
+  fixtureRecordSchema,
   fuelSchema,
   schemeSchema,
   slotIdSchema,
@@ -23,6 +25,7 @@ import type {
 export type Category = z.infer<typeof categorySchema>;
 export type Fuel = z.infer<typeof fuelSchema>;
 export type SlotId = z.infer<typeof slotIdSchema>;
+export type FixtureId = z.infer<typeof fixtureIdSchema>;
 export type Finish = z.infer<typeof finishSchema>;
 export type CabinetConfig = z.infer<typeof cabinetConfigSchema>;
 export type Utilities = z.infer<typeof utilitiesSchema>;
@@ -34,6 +37,9 @@ export type Scheme = z.infer<typeof schemeSchema>;
 
 /** The product half of a slot, as maintained in `data/slots.json`. */
 export type SlotRecord = z.infer<typeof slotRecordSchema>;
+
+/** The half of a fixture that is data; placement comes from `room.ts`. */
+export type FixtureRecord = z.infer<typeof fixtureRecordSchema>;
 
 /**
  * A slot as the scene uses it: the record from JSON plus its placement, which
@@ -48,6 +54,29 @@ export type Slot = SlotRecord & {
   mount: "wall" | "island";
   /** Azimuth the fly-in views this slot from, when the default angle shows its back. */
   viewAzimuth?: number;
+};
+
+/**
+ * A fixture as the scene uses it. Structurally it is a slot without the product
+ * half, which is what lets the utility layer draw its services with the same
+ * code that draws an appliance's.
+ */
+export type Fixture = FixtureRecord & {
+  position: [number, number, number];
+  rotationY: number;
+  mount: "wall" | "island";
+};
+
+/**
+ * Anything in the room that services are run to. Slots and fixtures both
+ * qualify, and the install view does not need to tell them apart.
+ */
+export type ServicePoint = {
+  id: string;
+  position: [number, number, number];
+  rotationY: number;
+  mount: "wall" | "island";
+  cutout: { w: number; h: number; d: number };
 };
 
 // --- view state, not data ---

@@ -153,5 +153,6 @@
   "spec.highlights": "亮点",
   "spec.verified": "已核实 {date}",
   "spec.unverified": "尚未与厂家资料核对",
-  "spec.source": "规格书"
+  "spec.source": "规格书",
+  "fixture.sink": "水槽"
 }

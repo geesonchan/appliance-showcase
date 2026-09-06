@@ -1,4 +1,4 @@
-import type { SlotId } from "../types";
+import type { FixtureId, SlotId } from "../types";
 
 /**
  * Scene units are feet. Appliance and cabinet dimensions in the brief are
@@ -33,61 +33,125 @@ export const ROOM = {
   toeKick: ft(4),
 };
 
-/**
- * The perimeter cabinet runs.
- *
- * Back run (against -Z) carries the range, the sink base, the dishwasher and a
- * stretch of base cabinets. Left run (against -X) carries the refrigerator
- * enclosure and more base cabinets. The corner belongs to the left run.
- *
- * The microwave and the wine cabinet are not here: they live under the island.
- * See docs/decisions.md D5.
- */
-export const RUN = {
-  backZ: -ROOM.halfZ + ROOM.counterDepth / 2,
-  leftX: -ROOM.halfX + ROOM.counterDepth / 2,
-  backFrom: -3.75,
-  backTo: ROOM.halfX,
-  leftFrom: -ROOM.halfZ,
-  leftTo: 2,
-};
-
 /** Thickness of a finished panel or a tower side, in feet. */
 export const PANEL = ft(3);
 
 /**
- * Segment boundaries along the back run, in feet. Each entry is the outside
- * extent of the cabinetry; openings that carry an appliance are sized to that
- * appliance's cutout plus its side panels.
+ * What a stretch of a cabinet run is for.
+ *
+ * `corner` is the L itself — a lazy susan or a blind corner, never an appliance.
+ * `tall` is a full-height enclosure. `appliance` and `fixture` are openings the
+ * carcass leaves for something to sit in. `counter` is plain base cabinetry.
  */
-export const BACK_RUN = {
-  cornerFiller: [-3.75, -3.5] as const,
-  /** 36", to match the range and the hood above it. */
-  range: [-3.5, -0.5] as const,
-  sinkBase: [-0.5, 1.5] as const,
-  dishwasher: [1.5, 3.5] as const,
-  /** The stretch the oven tower used to occupy. */
-  base: [3.5, 7] as const,
-  /** Wall left clear above the range for the hood. */
-  hoodOpening: [-3.75, -0.25] as const,
+export type SegmentKind = "corner" | "counter" | "appliance" | "tall" | "fixture";
+
+export interface RunSegment {
+  id: string;
+  kind: SegmentKind;
+  /** Extent along the run's axis, in feet. */
+  from: number;
+  to: number;
+  slot?: SlotId;
+  fixture?: FixtureId;
+}
+
+export interface CabinetRun {
+  id: "back" | "left";
+  /** The axis this run travels along. */
+  axis: "x" | "z";
+  /** The run's centre line on the other horizontal axis, in feet. */
+  centre: number;
+  /**
+   * Segments in order, starting at the corner. "End of the run" therefore
+   * means the last entry, which is what rule 1 is about.
+   */
+  segments: RunSegment[];
+}
+
+/**
+ * Scheme 01, laid out to the rules in docs/decisions.md D11.
+ *
+ * Read each run from its corner outward. The left run ends in the refrigerator
+ * tower, with its 15" landing between the tower and the corner cabinet. The
+ * back run puts 18" of counter either side of the range, then the sink with the
+ * dishwasher immediately beside it, then counter to the open end.
+ *
+ * The corner square belongs to the left run, so the back run starts one
+ * cabinet depth clear of the wall it meets.
+ */
+export const RUNS: CabinetRun[] = [
+  {
+    id: "left",
+    axis: "z",
+    centre: -ROOM.halfX + ROOM.counterDepth / 2,
+    segments: [
+      { id: "left-corner", kind: "corner", from: -6, to: -4 },
+      // Rule 6: the refrigerator's landing, on its door side.
+      { id: "left-fridge-landing", kind: "counter", from: -4, to: -2.75 },
+      // Rule 1: the tower is the last segment, not the corner.
+      { id: "left-fridge", kind: "tall", from: -2.75, to: 0.75, slot: "slot-fridge" },
+    ],
+  },
+  {
+    id: "back",
+    axis: "x",
+    centre: -ROOM.halfZ + ROOM.counterDepth / 2,
+    segments: [
+      { id: "back-range-landing-left", kind: "counter", from: -5, to: -3.5 },
+      { id: "back-range", kind: "appliance", from: -3.5, to: -0.5, slot: "slot-range" },
+      { id: "back-range-landing-right", kind: "counter", from: -0.5, to: 1 },
+      { id: "back-sink", kind: "fixture", from: 1, to: 3.5, fixture: "fixture-sink" },
+      // Rule 5: hard against the sink base, on the side away from the range.
+      { id: "back-dishwasher", kind: "appliance", from: 3.5, to: 5.5, slot: "slot-dishwasher" },
+      { id: "back-end", kind: "counter", from: 5.5, to: 7 },
+    ],
+  },
+];
+
+export const RUN_BY_ID: Record<CabinetRun["id"], CabinetRun> = Object.fromEntries(
+  RUNS.map((run) => [run.id, run]),
+) as Record<CabinetRun["id"], CabinetRun>;
+
+/** Centre lines of the two runs, kept as named values for the scene code. */
+export const RUN = {
+  backZ: RUN_BY_ID.back.centre,
+  leftX: RUN_BY_ID.left.centre,
 };
 
-/** Segment boundaries along the left run, in feet. */
-export const LEFT_RUN = {
-  /** Outside of the refrigerator enclosure: a 36" opening plus two panels. */
-  fridgeEnclosure: [-6, -2.5] as const,
-  base: [-2.45, 1] as const,
+const segment = (runId: CabinetRun["id"], segmentId: string): RunSegment => {
+  const found = RUN_BY_ID[runId].segments.find((s) => s.id === segmentId);
+  if (!found) throw new Error(`room.ts: no segment ${segmentId} on the ${runId} run`);
+  return found;
 };
 
-const mid = ([a, b]: readonly [number, number]) => (a + b) / 2;
+/** The segment carrying a slot, wherever it is. */
+export function segmentForSlot(slotId: SlotId): RunSegment | undefined {
+  for (const run of RUNS) {
+    const found = run.segments.find((s) => s.slot === slotId);
+    if (found) return found;
+  }
+  return undefined;
+}
 
-/** The refrigerator opening, inset from the enclosure by one panel each side. */
+export const extent = (s: RunSegment) => [s.from, s.to] as const;
+const mid = (s: RunSegment) => (s.from + s.to) / 2;
+export const spanOf = (s: RunSegment) => s.to - s.from;
+
+/**
+ * The refrigerator opening, inset from its enclosure by one finished panel
+ * each side.
+ */
 export const FRIDGE_OPENING = [
-  LEFT_RUN.fridgeEnclosure[0] + PANEL,
-  LEFT_RUN.fridgeEnclosure[1] - PANEL,
+  segment("left", "left-fridge").from + PANEL,
+  segment("left", "left-fridge").to - PANEL,
 ] as const;
 
-/** The oven tower, split around its opening by the cabinet layer. */
+/** Wall left clear above the range for the hood, 3" proud of it each side. */
+export const HOOD_OPENING = [
+  segment("back", "back-range").from - ft(3),
+  segment("back", "back-range").to + ft(3),
+] as const;
+
 /**
  * The island: 72" x 36" of counter at standard height, standing clear of both
  * perimeter runs.
@@ -115,10 +179,10 @@ export const ISLAND = {
 /**
  * Where each slot sits in the room.
  *
- * Placement is scene construction, not product data: it is derived from the
- * cabinet run segments above and is not something maintained in the Sheet.
- * `data/slots.json` carries the rest of each slot — label, cutout, cabinet
- * configuration, utilities — and the two are merged in `slots.ts`.
+ * Placement is scene construction, not product data: it is derived from the run
+ * segments above and is not something maintained in the Sheet. `data/slots.json`
+ * carries the rest of each slot — label, cutout, cabinet configuration,
+ * utilities — and the two are merged in `slots.ts`.
  */
 export interface SlotPlacement {
   /** Floor-level centre of the appliance footprint, in feet. */
@@ -145,36 +209,51 @@ export interface SlotPlacement {
  */
 const ISLAND_VIEW_AZIMUTH = Math.PI * 1.25;
 
+const islandMid = ([a, b]: readonly [number, number]) => (a + b) / 2;
+
 export const SLOT_PLACEMENT: Record<SlotId, SlotPlacement> = {
   "slot-fridge": {
-    position: [RUN.leftX, 0, mid(FRIDGE_OPENING)],
+    position: [RUN.leftX, 0, islandMid(FRIDGE_OPENING)],
     rotationY: Math.PI / 2,
     mount: "wall",
   },
   "slot-range": {
-    position: [mid(BACK_RUN.range), 0, RUN.backZ],
+    position: [mid(segment("back", "back-range")), 0, RUN.backZ],
     rotationY: 0,
     mount: "wall",
   },
   "slot-hood": {
-    position: [mid(BACK_RUN.range), ROOM.counterHeight + ft(30), RUN.backZ],
+    position: [
+      mid(segment("back", "back-range")),
+      ROOM.counterHeight + ft(30),
+      RUN.backZ,
+    ],
     rotationY: 0,
     mount: "wall",
   },
   "slot-dishwasher": {
-    position: [mid(BACK_RUN.dishwasher), 0, RUN.backZ],
+    position: [mid(segment("back", "back-dishwasher")), 0, RUN.backZ],
     rotationY: 0,
     mount: "wall",
   },
   "slot-microwave": {
-    position: [mid(ISLAND.microwave), 0, ISLAND.workingZ + ROOM.counterDepth / 2],
+    position: [islandMid(ISLAND.microwave), 0, ISLAND.workingZ + ROOM.counterDepth / 2],
     rotationY: Math.PI,
     mount: "island",
     viewAzimuth: ISLAND_VIEW_AZIMUTH,
   },
   "slot-wine": {
-    position: [mid(ISLAND.wine), 0, ISLAND.seatingZ - ROOM.counterDepth / 2],
+    position: [islandMid(ISLAND.wine), 0, ISLAND.seatingZ - ROOM.counterDepth / 2],
     rotationY: 0,
     mount: "island",
+  },
+};
+
+/** Fixtures sit on the runs the same way slots do, and are placed the same way. */
+export const FIXTURE_PLACEMENT: Record<FixtureId, SlotPlacement> = {
+  "fixture-sink": {
+    position: [mid(segment("back", "back-sink")), 0, RUN.backZ],
+    rotationY: 0,
+    mount: "wall",
   },
 };

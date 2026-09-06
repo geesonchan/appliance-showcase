@@ -1,15 +1,16 @@
-import { SLOT_BY_ID } from "./slots";
 import type { SlotId } from "../types";
+import { SLOT_BY_ID } from "./slots";
 import {
-  BACK_RUN,
+  HOOD_OPENING,
   ISLAND,
-  FRIDGE_OPENING,
-  LEFT_RUN,
   PANEL,
   ROOM,
-  RUN,
+  RUNS,
+  RUN_BY_ID,
+  type CabinetRun,
+  type RunSegment,
   ft,
-} from "./slots";
+} from "./room";
 
 export type CabinetKind = "base" | "tall" | "upper" | "counter" | "toe" | "surround";
 
@@ -17,9 +18,9 @@ export interface CabinetBox {
   id: string;
   kind: CabinetKind;
   /**
-   * Boxes sharing an outline group are pieces of one visual volume (the oven
-   * tower split around its opening, the refrigerator surround). The mobile
-   * install view draws the union of each group instead of every piece.
+   * Boxes sharing an outline group are pieces of one visual volume (the
+   * refrigerator surround). The mobile install view draws the union of each
+   * group instead of every piece.
    */
   outline?: string;
   /**
@@ -34,7 +35,6 @@ export interface CabinetBox {
   size: [number, number, number];
 }
 
-const { backZ, leftX } = RUN;
 const upperZ = -ROOM.halfZ + ROOM.upperDepth / 2;
 const upperX = -ROOM.halfX + ROOM.upperDepth / 2;
 const upperH = ROOM.upperTop - ROOM.upperBottom;
@@ -47,106 +47,162 @@ const FRIDGE_OPENING_H = ft(SLOT_BY_ID["slot-fridge"].cutout.h);
 const span = ([a, b]: readonly [number, number]) => b - a;
 const mid = ([a, b]: readonly [number, number]) => (a + b) / 2;
 
-/** A base cabinet along the back wall, given its x extents. */
-function backBase(
+const backRun = RUN_BY_ID.back;
+const leftRun = RUN_BY_ID.left;
+const runExtent = (run: CabinetRun) =>
+  [run.segments[0].from, run.segments[run.segments.length - 1].to] as const;
+
+/** The wall cabinets on the left run stop where the tower starts. */
+const LEFT_UPPER = [
+  leftRun.segments[0].from,
+  (leftRun.segments.find((s) => s.kind === "tall") ?? leftRun.segments[leftRun.segments.length - 1]).from,
+] as const;
+
+/**
+ * Place a box on a run.
+ *
+ * A run travels along one axis and is centred on the other, so everything on it
+ * is described in run-local terms — where it starts and stops along the run,
+ * how far it stands off the wall — and this turns that into world coordinates.
+ * The generator in M3-3 produces runs; this is what draws whatever it produces.
+ */
+function onRun(
+  run: CabinetRun,
   id: string,
-  x: readonly [number, number],
-  slot?: SlotId,
+  kind: CabinetKind,
+  along: readonly [number, number],
+  y: readonly [number, number],
+  depth: number,
+  /** Shift toward the room, for a countertop's overhang. */
+  offset = 0,
+  extra: Partial<CabinetBox> = {},
 ): CabinetBox {
-  return {
-    id,
-    slot,
-    kind: "base",
-    position: [mid(x), ROOM.counterHeight / 2, backZ],
-    size: [span(x), ROOM.counterHeight, ROOM.counterDepth],
-  };
+  const across = run.centre + offset;
+  const size: [number, number, number] =
+    run.axis === "x"
+      ? [span(along), span(y), depth]
+      : [depth, span(y), span(along)];
+  const position: [number, number, number] =
+    run.axis === "x" ? [mid(along), mid(y), across] : [across, mid(y), mid(along)];
+  return { id, kind, position, size, ...extra };
 }
 
-function backCounter(id: string, x: readonly [number, number]): CabinetBox {
-  return {
-    id,
-    kind: "counter",
-    position: [mid(x), ROOM.counterHeight + counterT / 2, backZ + ROOM.counterOverhang / 2],
-    size: [span(x), counterT, ROOM.counterDepth + ROOM.counterOverhang],
-  };
+/** Every stretch of a run that carries base cabinetry rather than an opening. */
+const CARCASS_KINDS: RunSegment["kind"][] = ["counter", "corner", "fixture"];
+
+/**
+ * The countertop runs from the corner until a tall cabinet stops it.
+ *
+ * Rule 3 in docs/decisions.md D11: unbroken. The range is the one thing that
+ * interrupts it, because a slide-in range is the counter's own thickness and
+ * sits in it rather than under it.
+ */
+function counterSpans(run: CabinetRun): (readonly [number, number])[] {
+  const spans: (readonly [number, number])[] = [];
+  let start: number | null = null;
+  for (const segment of run.segments) {
+    const stops = segment.kind === "tall";
+    const breaks = segment.slot === "slot-range";
+    if (stops || breaks) {
+      if (start !== null) spans.push([start, segment.from] as const);
+      start = stops ? null : segment.to;
+      if (stops) break;
+    } else if (start === null) {
+      start = segment.from;
+    }
+  }
+  const last = run.segments[run.segments.length - 1];
+  if (start !== null && last.kind !== "tall") spans.push([start, last.to] as const);
+  return spans.filter(([a, b]) => b - a > 1e-6);
+}
+
+function runBoxes(run: CabinetRun): CabinetBox[] {
+  const boxes: CabinetBox[] = [];
+  const base = [0, ROOM.counterHeight] as const;
+
+  for (const segment of run.segments) {
+    const along = [segment.from, segment.to] as const;
+
+    if (CARCASS_KINDS.includes(segment.kind)) {
+      boxes.push(onRun(run, segment.id, "base", along, base, ROOM.counterDepth));
+      continue;
+    }
+
+    if (segment.kind === "tall") {
+      // A finished panel each side, the appliance opening between them, and a
+      // bridging cabinet over the top. The bridge starts where the opening
+      // stops, so raising the opening shortens the cabinet above it rather
+      // than leaving the appliance poking through.
+      const opening = [segment.from + PANEL, segment.to - PANEL] as const;
+      const outline = segment.id;
+      const tall = [0, ROOM.tallTop] as const;
+      boxes.push(
+        onRun(run, `${segment.id}-panel-a`, "surround", [segment.from, opening[0]], tall, ROOM.counterDepth, 0, { outline, slot: segment.slot }),
+        onRun(run, `${segment.id}-panel-b`, "surround", [opening[1], segment.to], tall, ROOM.counterDepth, 0, { outline, slot: segment.slot }),
+        onRun(run, `${segment.id}-bridge`, "upper", opening, [FRIDGE_OPENING_H, ROOM.tallTop], ROOM.counterDepth, 0, { outline, slot: segment.slot }),
+      );
+      continue;
+    }
+    // `appliance` segments are deliberate gaps in the carcass.
+  }
+
+  for (const [i, along] of counterSpans(run).entries()) {
+    boxes.push(
+      onRun(
+        run,
+        `${run.id}-counter-${i}`,
+        "counter",
+        along,
+        [ROOM.counterHeight, ROOM.counterHeight + counterT],
+        ROOM.counterDepth + ROOM.counterOverhang,
+        ROOM.counterOverhang / 2,
+      ),
+    );
+  }
+
+  const first = run.segments[0];
+  const last = run.segments[run.segments.length - 1];
+  boxes.push(
+    onRun(
+      run,
+      `${run.id}-toe`,
+      "toe",
+      [first.from, last.to],
+      [0, ROOM.toeKick],
+      ROOM.counterDepth - ft(3),
+      -ft(1.5),
+    ),
+  );
+
+  return boxes;
 }
 
 /**
- * The L-shaped cabinet run, derived once so the finished view, the white model
- * and the install wireframe all read from the same boxes.
- *
- * Openings are deliberate gaps: the range, the dishwasher and the wall oven
- * each get an empty volume for the appliance to sit in.
+ * The L-shaped cabinet run plus the island, derived once so the finished view,
+ * the white model and the install wireframe all read from the same boxes.
  */
 export const CABINETS: CabinetBox[] = [
-  // --- back wall run ---
-  backBase("back-corner-filler", BACK_RUN.cornerFiller),
-  backBase("back-sink-base", BACK_RUN.sinkBase),
-  backBase("back-right-base", BACK_RUN.base),
-  backCounter("counter-corner", BACK_RUN.cornerFiller),
-  // One continuous run from the sink base to the end of the wall: it passes
-  // over the dishwasher, and only the range breaks it.
-  backCounter("counter-main", [BACK_RUN.sinkBase[0], BACK_RUN.base[1]]),
+  ...RUNS.flatMap(runBoxes),
 
-  // --- left wall run ---
+  // --- uppers: the wall above the range is left clear for the hood ---
   {
-    id: "left-base",
-    kind: "base",
-    position: [leftX, ROOM.counterHeight / 2, mid(LEFT_RUN.base)],
-    size: [ROOM.counterDepth, ROOM.counterHeight, span(LEFT_RUN.base)],
-  },
-  {
-    id: "counter-left",
-    kind: "counter",
-    position: [
-      leftX + ROOM.counterOverhang / 2,
-      ROOM.counterHeight + counterT / 2,
-      mid(LEFT_RUN.base),
-    ],
-    size: [ROOM.counterDepth + ROOM.counterOverhang, counterT, span(LEFT_RUN.base)],
-  },
-
-  // --- refrigerator enclosure: two finished side panels and a bridging upper ---
-  {
-    id: "fridge-panel-back",
-    outline: "fridge-enclosure",
-    slot: "slot-fridge",
-    kind: "surround",
-    position: [leftX, ROOM.tallTop / 2, LEFT_RUN.fridgeEnclosure[0] + PANEL / 2],
-    size: [ROOM.counterDepth, ROOM.tallTop, PANEL],
-  },
-  {
-    id: "fridge-panel-front",
-    outline: "fridge-enclosure",
-    slot: "slot-fridge",
-    kind: "surround",
-    position: [leftX, ROOM.tallTop / 2, LEFT_RUN.fridgeEnclosure[1] - PANEL / 2],
-    size: [ROOM.counterDepth, ROOM.tallTop, PANEL],
-  },
-  {
-    id: "fridge-bridge",
-    outline: "fridge-enclosure",
-    slot: "slot-fridge",
+    id: "upper-back-left",
     kind: "upper",
-    // The bridge starts where the appliance opening stops, so raising the
-    // opening from 72" to 84" shortens the cabinet above it rather than
-    // leaving the refrigerator poking through it.
-    position: [leftX, FRIDGE_OPENING_H + (ROOM.tallTop - FRIDGE_OPENING_H) / 2, mid(FRIDGE_OPENING)],
-    size: [ROOM.counterDepth, ROOM.tallTop - FRIDGE_OPENING_H, span(FRIDGE_OPENING)],
+    position: [mid([runExtent(backRun)[0], HOOD_OPENING[0]]), upperY, upperZ],
+    size: [span([runExtent(backRun)[0], HOOD_OPENING[0]]), upperH, ROOM.upperDepth],
   },
-
-  // --- uppers (the hood occupies the wall above the range) ---
   {
-    id: "upper-back",
+    id: "upper-back-right",
     kind: "upper",
-    position: [mid([BACK_RUN.hoodOpening[1], BACK_RUN.base[1]]), upperY, upperZ],
-    size: [span([BACK_RUN.hoodOpening[1], BACK_RUN.base[1]]), upperH, ROOM.upperDepth],
+    position: [mid([HOOD_OPENING[1], runExtent(backRun)[1]]), upperY, upperZ],
+    size: [span([HOOD_OPENING[1], runExtent(backRun)[1]]), upperH, ROOM.upperDepth],
   },
   {
+    // Over the corner and the refrigerator's landing, stopping at the tower.
     id: "upper-left",
     kind: "upper",
-    position: [upperX, upperY, mid(LEFT_RUN.base)],
-    size: [ROOM.upperDepth, upperH, span(LEFT_RUN.base)],
+    position: [upperX, upperY, mid(LEFT_UPPER)],
+    size: [ROOM.upperDepth, upperH, span(LEFT_UPPER)],
   },
 
   // --- island ---
@@ -221,32 +277,6 @@ export const CABINETS: CabinetBox[] = [
     kind: "toe",
     position: [mid(ISLAND.x), ROOM.toeKick / 2, mid(ISLAND.z)],
     size: [span(ISLAND.x) - ft(3), ROOM.toeKick, span(ISLAND.z) - ft(3)],
-  },
-
-  // --- toe kicks ---
-  {
-    id: "toe-back",
-    kind: "toe",
-    position: [
-      mid([BACK_RUN.cornerFiller[0], BACK_RUN.base[1]]),
-      ROOM.toeKick / 2,
-      backZ - ft(1.5),
-    ],
-    size: [
-      span([BACK_RUN.cornerFiller[0], BACK_RUN.base[1]]),
-      ROOM.toeKick,
-      ROOM.counterDepth - ft(3),
-    ],
-  },
-  {
-    id: "toe-left",
-    kind: "toe",
-    position: [leftX - ft(1.5), ROOM.toeKick / 2, mid([LEFT_RUN.fridgeEnclosure[0], LEFT_RUN.base[1]])],
-    size: [
-      ROOM.counterDepth - ft(3),
-      ROOM.toeKick,
-      span([LEFT_RUN.fridgeEnclosure[0], LEFT_RUN.base[1]]),
-    ],
   },
 ];
 

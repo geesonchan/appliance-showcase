@@ -161,6 +161,26 @@ export const slotRecordSchema = z.object({
   utilities: utilitiesSchema,
 });
 
+/**
+ * A fixture is a fitting the kitchen has rather than a product it was sold:
+ * the sink, and later the pot filler or the water line for the ice maker. It
+ * carries services and takes up a cabinet segment, but it has no brand, no
+ * price and no alternatives, so it is deliberately not an Appliance.
+ * See docs/decisions.md D11.
+ */
+export const fixtureIdSchema = z.enum(["fixture-sink"]);
+
+export const fixtureRecordSchema = z.object({
+  id: fixtureIdSchema,
+  type: z.enum(["sink"]),
+  labelKey: z.string().min(1),
+  /** The cabinet opening it occupies. */
+  cutout: z.object({ w: inches, h: inches, d: inches }),
+  /** The basin itself, for the scene to draw. Null for types that have none. */
+  bowlIn: z.object({ w: inches, h: inches, d: inches }).nullable().default(null),
+  utilities: utilitiesSchema,
+});
+
 export const schemeSchema = z.object({
   id: z.string().min(1),
   nameKey: z.string().min(1),
@@ -193,9 +213,15 @@ export const schemesFileSchema = z.object({
   schemes: z.array(schemeSchema).min(1),
 });
 
+export const fixturesFileSchema = z.object({
+  _meta: metaSchema,
+  fixtures: z.array(fixtureRecordSchema).min(1),
+});
+
 export type ApplianceRecord = z.infer<typeof applianceSchema>;
 export type SlotRecord = z.infer<typeof slotRecordSchema>;
 export type SchemeRecord = z.infer<typeof schemeSchema>;
+export type FixtureRecord = z.infer<typeof fixtureRecordSchema>;
 
 /**
  * Parse a data file, failing loudly.

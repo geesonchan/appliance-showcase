@@ -1,0 +1,22 @@
+{
+  "_meta": {
+    "generatedBy": "seed data, hand written",
+    "updatedAt": "2026-09-06",
+    "provenance": "Fixtures are not products. Dimensions are standard North American cabinet sizes, not a specific manufacturer's, and there is deliberately no model, price or source: a fixture is the plumbing a kitchen has, and which model of sink goes in is not what this room is explaining."
+  },
+  "fixtures": [
+    {
+      "id": "fixture-sink",
+      "type": "sink",
+      "labelKey": "fixture.sink",
+      "cutout": { "w": 30, "h": 34, "d": 24 },
+      "bowlIn": { "w": 27, "h": 10, "d": 18 },
+      "utilities": {
+        "gas": null,
+        "power": { "voltage": 120, "amps": 15, "dedicated": false },
+        "water": { "supply": true, "drain": true },
+        "duct": null
+      }
+    }
+  ]
+}

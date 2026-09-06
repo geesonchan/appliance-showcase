@@ -312,3 +312,56 @@ the right-hand panel follows the same rule.
 the UI state are marked rather than every string, so the interface stays
 readable; a coverage test fails if the two locales drift apart or a placeholder
 set stops matching.
+
+---
+
+## D11 · The cabinet layout rules
+
+**Decided:** 2026-09-06 (M3), Leo's trade rules.
+
+These are not preferences. A kitchen that breaks them is wrong on site, so the
+room, every layout template and the M3-3 generator are all held to them, and
+each one has a test with a case that breaks it.
+
+1. **A tall cabinet goes at the end of a run, never at a corner.** A tower in the
+   middle of a run cuts the countertop in two; a tower at a corner blocks the
+   corner cabinet's door.
+2. **The corner is a corner cabinet** — lazy susan or blind corner — and carries
+   nothing with a door of its own. Two doors meeting at an inside corner foul
+   each other.
+3. **The countertop runs unbroken from the corner to the tall cabinet.** In the
+   run model that means the segments tile the run: no gaps, no overlaps. The
+   range is the one thing that sits *in* the counter rather than under it.
+4. **The range is centred on a straight run with at least 12" of counter each
+   side**, and the hood over it is at least as wide and centred on it. Twelve
+   inches is where you put a hot pan down.
+5. **The dishwasher is immediately beside the sink**, and within 36" of it —
+   further and you are carrying dripping plates across the floor.
+6. **The refrigerator has at least 15" of counter on its door side**, to land
+   what you just took out.
+7. **The island's two openings face opposite ways**: the microwave drawer to the
+   working side, the wine cabinet to the seating side (already D5), with a 42"
+   aisle to the perimeter run.
+
+**Scheme 01 as laid out.** Left wall, from the far end back to the corner:
+refrigerator tower, 15" landing, corner cabinet. Back wall, from the corner
+out: 18" counter, range with its hood, 18" counter, sink, dishwasher, counter to
+the open end.
+
+**The run model.** `room.ts` describes each run as ordered segments from the
+corner outward — `corner`, `counter`, `appliance`, `tall`, `fixture` — and
+`cabinets.ts` draws whatever it is given. That is the shape M3-3's generator
+produces, so the generator and the hand-written Scheme 01 are checked by the
+same code (`checkLayout`), which returns what is wrong rather than throwing:
+a template that cannot be built has to say why.
+
+**A sink is a fixture, not an appliance.** It takes a cabinet segment and needs
+supply and drain roughed in, so the layout rules and the install view both have
+to know about it — but it has no brand, no price and no alternatives. Putting it
+in the appliance catalogue would give it all three and put it on a quote.
+
+**What this forbids:** placing an appliance by eye; a layout template that
+"mostly" follows the rules; hard-coded cabinet boxes that no rule can be run
+against; adding the sink, the pot filler or the ice-maker line to
+`appliances.json`.
+

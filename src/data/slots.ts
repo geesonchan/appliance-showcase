@@ -3,7 +3,7 @@ import type { Slot, SlotId } from "../types";
 import { SLOT_PLACEMENT } from "./room";
 import { parseDataFile, slotsFileSchema } from "./schema";
 
-export { ft, ROOM, RUN, BACK_RUN, LEFT_RUN, PANEL, FRIDGE_OPENING, ISLAND } from "./room";
+export { ft, ROOM, RUN, RUNS, RUN_BY_ID, PANEL, FRIDGE_OPENING, HOOD_OPENING, ISLAND } from "./room";
 
 /**
  * The six slots.

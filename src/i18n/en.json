@@ -152,5 +152,6 @@
   "spec.highlights": "Highlights",
   "spec.verified": "Verified {date}",
   "spec.unverified": "Not verified against the manufacturer",
-  "spec.source": "Spec sheet"
+  "spec.source": "Spec sheet",
+  "fixture.sink": "Sink"
 }

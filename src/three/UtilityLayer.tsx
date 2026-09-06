@@ -1,11 +1,12 @@
 import { useMemo } from "react";
 import * as THREE from "three";
 import { ROOM, SLOTS, ft } from "../data/slots";
+import { FIXTURES } from "../data/fixtures";
 import { deriveUtilities } from "../data/utilities";
 import { useAppStore } from "../store/useAppStore";
 import { useSelection, useSelectedBlower } from "../store/useSelection";
 import { effectiveCfm } from "../data/ventilation";
-import type { Slot, UtilityType, Utilities } from "../types";
+import type { ServicePoint, UtilityType, Utilities } from "../types";
 import { UTILITY_COLORS, UTILITY_RADIUS_IN } from "./materials";
 
 const UP = new THREE.Vector3(0, 1, 0);
@@ -90,7 +91,7 @@ function Fitting({
 }
 
 /** Where a slot meets its wall, at a given standoff from the wall plane. */
-function wallAnchor(slot: Slot, standoff: number) {
+function wallAnchor(slot: ServicePoint, standoff: number) {
   const onLeftWall = Math.abs(slot.rotationY - Math.PI / 2) < 0.01;
   return {
     onLeftWall,
@@ -105,7 +106,7 @@ function wallAnchor(slot: Slot, standoff: number) {
  * the slab, no trunk. The route under the slab is not modelled, because
  * nothing in this scene knows where it goes.
  */
-const isIsland = (slot: Slot) => slot.mount === "island";
+const isIsland = (slot: ServicePoint) => slot.mount === "island";
 
 /** Every service enters at the back wall, far right. */
 const entry = (standoff: number) => ({
@@ -125,7 +126,7 @@ const corner = (standoff: number) => ({
  * never diagonally across the floor.
  */
 function trunkPoints(
-  slot: Slot,
+  slot: ServicePoint,
   y: number,
   standoff = STANDOFF.default,
 ): [number, number, number][] {
@@ -166,7 +167,7 @@ function Trunk({
 }
 
 /** The height an appliance actually lands its connection at. */
-const connectionHeight = (slot: Slot) => slot.position[1] + ft(slot.cutout.h) * 0.45;
+const connectionHeight = (slot: ServicePoint) => slot.position[1] + ft(slot.cutout.h) * 0.45;
 
 function GasRuns({ effective }: { effective: Record<string, Utilities> }) {
   const r = ft(UTILITY_RADIUS_IN.gas);
@@ -271,12 +272,20 @@ function PowerRuns({ effective }: { effective: Record<string, Utilities> }) {
   );
 }
 
+/**
+ * Supply and drain, for everything in the room that needs them.
+ *
+ * The sink is a fixture rather than a slot, and it is the reason the drain is
+ * there at all — a water layer drawn from the appliances alone would show the
+ * dishwasher tapping into nothing.
+ */
 function WaterRuns({ effective }: { effective: Record<string, Utilities> }) {
   const r = ft(UTILITY_RADIUS_IN.water);
+  const points: ServicePoint[] = [...SLOTS, ...FIXTURES];
   return (
     <group name="utility-water">
-      {SLOTS.map((slot) => {
-        const w = effective[slot.id].water;
+      {points.map((slot) => {
+        const w = effective[slot.id]?.water;
         if (!w) return null;
         const supply = wallAnchor(slot, STANDOFF.default);
         return (
@@ -380,11 +389,21 @@ export function UtilityLayer({ type }: { type: UtilityType }) {
     [selection, blower],
   );
 
+  // A fixture's services are its own: there is no model to swap in that could
+  // change them.
+  const withFixtures = useMemo(
+    () => ({
+      ...effective,
+      ...Object.fromEntries(FIXTURES.map((f) => [f.id, f.utilities])),
+    }),
+    [effective],
+  );
+
   return (
     <group name={"utility-layer-" + type} visible={visible}>
       {type === "gas" && <GasRuns effective={effective} />}
       {type === "power" && <PowerRuns effective={effective} />}
-      {type === "water" && <WaterRuns effective={effective} />}
+      {type === "water" && <WaterRuns effective={withFixtures} />}
       {type === "duct" && <DuctRuns effective={effective} />}
     </group>
   );

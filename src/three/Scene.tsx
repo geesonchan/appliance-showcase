@@ -4,6 +4,7 @@ import { useAppStore } from "../store/useAppStore";
 import { ApplianceLayer } from "./ApplianceLayer";
 import { CabinetLayer } from "./CabinetLayer";
 import { CameraRig } from "./CameraRig";
+import { FixtureLayer } from "./FixtureLayer";
 import { KitchenShell } from "./KitchenShell";
 import { Lights } from "./Lights";
 import { PinProjector } from "./PinProjector";
@@ -57,6 +58,7 @@ export function Scene() {
         <Lights />
         <KitchenShell />
         <CabinetLayer />
+        <FixtureLayer />
         <ApplianceLayer />
         <UtilityLayer type="gas" />
         <UtilityLayer type="power" />
