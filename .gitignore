@@ -4,3 +4,4 @@ dist
 *.local
 screenshots/
 tsconfig.tsbuildinfo
+test-results/
