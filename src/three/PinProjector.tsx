@@ -2,11 +2,14 @@ import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 import { SLOT_ORDER } from "../data/catalogue";
+import { applianceBox, flushOffset } from "../data/applianceBox";
+import { DEBUG } from "../debug";
 import { SLOT_BY_ID } from "../data/slots";
+import { useSelection } from "../store/useSelection";
 import type { SlotId } from "../types";
-import { anchorFor } from "./pinAnchor";
+import { pinAnchors } from "./pinAnchor";
 import { pinElements } from "./pinRegistry";
-import { clampPins, spreadPins } from "./pinLayout";
+import { clampPins, layoutPins, type KeepOut } from "./pinLayout";
 
 /** How far back along the view axis the occlusion ray starts, in feet. */
 const RAY_BACKOFF = 60;
@@ -82,9 +85,41 @@ export function PinProjector() {
   const scene = useThree((s) => s.scene);
   const size = useThree((s) => s.size);
 
+  const selection = useSelection();
   const anchors = useMemo(
-    () => SLOT_ORDER.map((slotId) => ({ slotId, anchor: anchorFor(slotId) })),
-    [],
+    () =>
+      SLOT_ORDER.map((slotId) => ({
+        slotId,
+        candidates: pinAnchors(slotId, selection[slotId]),
+      })),
+    [selection],
+  );
+
+  /**
+   * The appliances' own footprints on screen, which no label may cover. Rebuilt
+   * with the anchors, since both come from the same boxes.
+   */
+  const keepOutCorners = useMemo(
+    () =>
+      SLOT_ORDER.map((slotId) => {
+        const slot = SLOT_BY_ID[slotId];
+        const appliance = selection[slotId];
+        if (!appliance) return [];
+        const box = applianceBox(slot, appliance);
+        const dz = flushOffset(slot, box.d);
+        const points: THREE.Vector3[] = [];
+        for (const sx of [-0.5, 0.5]) {
+          for (const sy of [0, 1]) {
+            for (const sz of [-0.5, 0.5]) {
+              const local = new THREE.Vector3(sx * box.w, box.y + sy * box.h, dz + sz * box.d);
+              local.applyAxisAngle(new THREE.Vector3(0, 1, 0), slot.rotationY);
+              points.push(local.add(new THREE.Vector3(...slot.position)));
+            }
+          }
+        }
+        return points;
+      }),
+    [selection],
   );
   const raycaster = useMemo(() => new THREE.Raycaster(), []);
   const occluded = useRef(new Set<SlotId>());
@@ -120,8 +155,41 @@ export function PinProjector() {
       camera.getWorldDirection(forward);
     }
 
+    // Where each appliance sits on screen, so no label lands on one.
+    const keepOut: KeepOut[] = [];
+    for (const points of keepOutCorners) {
+      if (points.length === 0) continue;
+      let minX = Infinity;
+      let maxX = -Infinity;
+      let minY = Infinity;
+      let maxY = -Infinity;
+      for (const point of points) {
+        projected.copy(point).project(camera);
+        const px = (projected.x * 0.5 + 0.5) * size.width;
+        const py = (-projected.y * 0.5 + 0.5) * size.height;
+        minX = Math.min(minX, px);
+        maxX = Math.max(maxX, px);
+        minY = Math.min(minY, py);
+        maxY = Math.max(maxY, py);
+      }
+      keepOut.push({
+        x: (minX + maxX) / 2,
+        y: (minY + maxY) / 2,
+        w: maxX - minX,
+        h: maxY - minY,
+      });
+    }
+
     for (let i = 0; i < anchors.length; i += 1) {
-      const { slotId, anchor } = anchors[i];
+      const { slotId, candidates } = anchors[i];
+      // The corner that reads as the appliance's right-hand one from here.
+      let anchor = candidates[0];
+      if (candidates.length > 1) {
+        projected.copy(candidates[0]).project(camera);
+        const first = projected.x;
+        projected.copy(candidates[1]).project(camera);
+        if (projected.x > first) anchor = candidates[1];
+      }
       const box = layout[i];
       const parts = pinElements.get(slotId);
       const el = parts?.label;
@@ -161,8 +229,25 @@ export function PinProjector() {
       }
     }
 
-    spreadPins(layout, PIN_GAP);
+    layoutPins(layout, keepOut, PIN_GAP, size.height);
     clampPins(layout, size.width, size.height);
+    layoutPins(layout, keepOut, PIN_GAP, size.height);
+
+    if (DEBUG) {
+      // What the label placement had to work with, so the check that no label
+      // covers an appliance has something to read.
+      (window as unknown as { __pinLayout?: unknown }).__pinLayout = {
+        appliances: keepOut,
+        labels: layout.map((box, i) => ({
+          slot: anchors[i].slotId,
+          x: box.x,
+          y: box.y,
+          w: box.w,
+          h: box.h,
+          hidden: box.hidden,
+        })),
+      };
+    }
 
     for (let i = 0; i < anchors.length; i += 1) {
       const parts = pinElements.get(anchors[i].slotId);
@@ -180,16 +265,15 @@ export function PinProjector() {
         parts.dot.style.opacity = shown;
       }
       if (parts.leader) {
-        // Stop the line at the label's edge rather than its centre, so it
-        // does not run underneath the text.
-        const dx = box.x - box.dotX;
-        const dy = box.y - box.dotY;
-        const length = Math.hypot(dx, dy) || 1;
-        const inset = Math.min(box.w / 2 + 2, length - 1);
+        // To the label's bottom-left corner: the label sits up and to the
+        // right of its dot, so that corner is the one facing back at it, and
+        // the line stops there instead of running under the text.
+        const cornerX = box.x - box.w / 2;
+        const cornerY = box.y + box.h / 2;
         parts.leader.setAttribute("x1", String(Math.round(box.dotX)));
         parts.leader.setAttribute("y1", String(Math.round(box.dotY)));
-        parts.leader.setAttribute("x2", String(Math.round(box.x - (dx / length) * inset)));
-        parts.leader.setAttribute("y2", String(Math.round(box.y - (dy / length) * inset)));
+        parts.leader.setAttribute("x2", String(Math.round(cornerX)));
+        parts.leader.setAttribute("y2", String(Math.round(cornerY)));
         parts.leader.setAttribute("opacity", box.hidden ? "0" : "0.55");
       }
     }

@@ -49,6 +49,7 @@ export function PinOverlay() {
         return (
           <div key={slotId}>
             <span
+              data-pin-dot={slotId}
               ref={(el) => registerPinPart(slotId, "dot", el)}
               style={{ position: "absolute", left: 0, top: 0, opacity: 0, willChange: "transform" }}
               className={[

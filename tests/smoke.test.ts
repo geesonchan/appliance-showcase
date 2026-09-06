@@ -61,9 +61,14 @@ const pinOpacities = (page: Page) =>
     els.map((el) => getComputedStyle(el).opacity),
   );
 
-/** Pin positions are projected through the camera, so they stand in for pose. */
+/**
+ * The dots, which are a pure projection of their anchors and so stand in for
+ * the camera pose. The labels are not: they are pushed off the appliances and
+ * off each other afterwards, so a sub-pixel difference in pose can move one of
+ * them a long way.
+ */
 const pinPositions = (page: Page) =>
-  page.$$eval("button[style*='position: absolute']", (els) =>
+  page.$$eval("[data-pin-dot]", (els) =>
     els.map((el) => (el as HTMLElement).style.transform).join("|"),
   );
 
@@ -220,8 +225,11 @@ describe("desktop", () => {
     const canvas = (await page.locator("canvas").boundingBox())!;
     await page.mouse.move(canvas.x + canvas.width / 2, canvas.y + canvas.height / 2);
     await page.mouse.down();
-    await page.mouse.move(canvas.x + canvas.width / 2 + 600, canvas.y + canvas.height / 2, {
-      steps: 25,
+    // A quarter turn, which puts a run of cabinets between the camera and one
+    // of the pins. Not the walls: those fade as you orbit behind them, and
+    // something you can see through is not in the way.
+    await page.mouse.move(canvas.x + canvas.width / 2 + 300, canvas.y + canvas.height / 2, {
+      steps: 15,
     });
     await page.mouse.up();
     await page.waitForTimeout(1200);
@@ -296,7 +304,7 @@ describe("mobile", () => {
     await page.getByRole("button", { name: "Configure" }).click();
     await page.waitForTimeout(700);
 
-    const shifted = await page.$$eval("button[style*='position: absolute']", (els) =>
+    const shifted = await page.$$eval("[data-pin-dot]", (els) =>
       els.map((el) => {
         const match = /translate3d\((-?\d+)px, (-?\d+)px/.exec(
           (el as HTMLElement).style.transform,
@@ -410,6 +418,61 @@ describe("occlusion fade", () => {
     expect(forFridge).not.toEqual(hidden);
     expect(forFridge).not.toContain("island-counter");
     expect(forFridge.some((id) => id.startsWith("left-fridge"))).toBe(false);
+
+    expect(errors).toEqual([]);
+    await page.close();
+  });
+});
+
+describe("pin labels", () => {
+  /**
+   * The keep-out rule, checked against what was actually laid out.
+   * `window.__pinLayout` publishes the label rectangles and the appliances'
+   * screen footprints under ?debug=1, which is the only way to assert "this
+   * label is not on top of that fridge" without reading pixels.
+   */
+  it("never lands a label on an appliance", async () => {
+    const { page, errors } = await openPage(DESKTOP, false, "?debug=1");
+    const canvas = (await page.locator("canvas").boundingBox())!;
+
+    const check = async (label: string) => {
+      const layout = await page.evaluate(
+        () =>
+          (
+            window as unknown as {
+              __pinLayout?: {
+                appliances: { x: number; y: number; w: number; h: number }[];
+                labels: { slot: string; x: number; y: number; w: number; h: number; hidden: boolean }[];
+              };
+            }
+          ).__pinLayout,
+      );
+      expect(layout, label).toBeTruthy();
+      expect(layout!.labels.length).toBe(6);
+      expect(layout!.appliances.length).toBe(6);
+      for (const box of layout!.labels) {
+        if (box.hidden) continue;
+        expect(box.w, `${box.slot} has no measured width`).toBeGreaterThan(0);
+        for (const area of layout!.appliances) {
+          const clear =
+            Math.abs(box.x - area.x) >= (box.w + area.w) / 2 ||
+            Math.abs(box.y - area.y) >= (box.h + area.h) / 2;
+          expect(clear, `${label}: ${box.slot} label sits on an appliance`).toBe(true);
+        }
+      }
+    };
+
+    await check("default view");
+
+    // ...and it still holds after the room has been turned round.
+    await page.mouse.move(canvas.x + canvas.width / 2, canvas.y + canvas.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(canvas.x + canvas.width / 2 + 260, canvas.y + canvas.height / 2 - 60, {
+      steps: 15,
+    });
+    await page.mouse.up();
+    await page.waitForTimeout(900);
+    await check("after orbiting");
 
     expect(errors).toEqual([]);
     await page.close();

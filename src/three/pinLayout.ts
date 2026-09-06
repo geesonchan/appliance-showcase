@@ -7,40 +7,95 @@ export interface PinBox {
   hidden: boolean;
 }
 
+/** A rectangle a label must stay out of: an appliance, on screen. */
+export interface KeepOut {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
 /**
- * Push overlapping pin labels apart, lowest priority first.
+ * Place the labels: off the appliances, off each other, in pin order.
  *
- * Priority is the array order, which is the pin numbering: 01 keeps its anchor
- * and higher numbers move. A pin only ever moves along Y — the anchor's X is
- * what tells you which appliance it is about, and sliding it sideways would
- * point it at the neighbour.
+ * The two rules have to be resolved together rather than one after the other.
+ * Run separately they fight — pushing a label off a hood drops it onto its
+ * neighbour, separating the two puts it back onto the hood — and nudging away
+ * from one obstacle at a time can walk a label into a third and back again.
  *
- * Mutates the boxes in place: this runs inside the render loop and must not
- * allocate.
+ * So each label is placed in one step, against everything already fixed: the
+ * appliances, which never move, and the labels before it in pin order, which
+ * are already placed. Collect the bands of Y those obstacles forbid at this
+ * label's X, then take the nearest free position. 01 keeps its anchor and
+ * higher numbers give way, which is the priority the numbering already implies.
+ *
+ * A label only ever moves along Y. The anchor's X is what tells you which
+ * appliance it belongs to, and sliding it sideways would point it at the
+ * neighbour. Upward wins ties, because the room sits low in frame and the wall
+ * above it is where the space is.
+ *
+ * Mutates in place: this runs inside the render loop and must not allocate
+ * anything that outlives the call.
  */
-export function spreadPins(boxes: PinBox[], gap: number): void {
-  for (let i = 1; i < boxes.length; i += 1) {
+export function layoutPins(boxes: PinBox[], areas: KeepOut[], gap: number, height: number): void {
+  for (let i = 0; i < boxes.length; i += 1) {
     const box = boxes[i];
     if (box.hidden) continue;
-    // Moving clear of one neighbour can push a pin into another, so re-check.
-    // It settles in one or two passes with six pins.
-    for (let pass = 0; pass < 3; pass += 1) {
-      let moved = false;
-      for (let j = 0; j < i; j += 1) {
-        const other = boxes[j];
-        if (other.hidden) continue;
-        const minX = (box.w + other.w) / 2 + gap;
-        const minY = (box.h + other.h) / 2 + gap;
-        const dx = box.x - other.x;
-        const dy = box.y - other.y;
-        if (Math.abs(dx) >= minX || Math.abs(dy) >= minY) continue;
-        // Carry on the way it was already leaning, and upward on a tie.
-        box.y = other.y + (dy <= 0 ? -minY : minY);
-        moved = true;
-      }
-      if (!moved) break;
+
+    // Every band of Y this label may not occupy, given where it sits in X.
+    const blocked: [number, number][] = [];
+    const consider = (other: KeepOut) => {
+      if (Math.abs(box.x - other.x) >= (box.w + other.w) / 2 + gap) return;
+      const reach = (box.h + other.h) / 2 + gap;
+      blocked.push([other.y - reach, other.y + reach]);
+    };
+    for (const area of areas) consider(area);
+    for (let j = 0; j < i; j += 1) {
+      if (!boxes[j].hidden) consider(boxes[j]);
+    }
+    if (blocked.length === 0) continue;
+
+    box.y = nearestFree(box.y, box.h, blocked, height);
+  }
+}
+
+/**
+ * The closest Y to `wanted` that is outside every blocked band.
+ *
+ * Merges the bands first, because two overlapping obstacles leave no room
+ * between them and stepping to the edge of one would land inside the other —
+ * which is exactly what nudging away from one obstacle at a time got wrong.
+ */
+function nearestFree(
+  wanted: number,
+  boxHeight: number,
+  blocked: [number, number][],
+  height: number,
+): number {
+  const bands = blocked.slice().sort((a, b) => a[0] - b[0]);
+  const merged: [number, number][] = [];
+  for (const band of bands) {
+    const last = merged[merged.length - 1];
+    if (last && band[0] <= last[1]) last[1] = Math.max(last[1], band[1]);
+    else merged.push([band[0], band[1]]);
+  }
+
+  const inside = merged.find(([from, to]) => wanted > from && wanted < to);
+  if (!inside) return wanted;
+
+  const above = inside[0];
+  const below = inside[1];
+  const fits = (y: number) => y - boxHeight / 2 > 0 && y + boxHeight / 2 < height;
+  // Try the nearer edge first, then the other, then give up and stay put
+  // rather than leaving the canvas.
+  const order =
+    wanted - above <= below - wanted ? [above, below] : [below, above];
+  for (const candidate of order) {
+    if (fits(candidate) && !merged.some(([f, t]) => candidate > f && candidate < t)) {
+      return candidate;
     }
   }
+  return order.find(fits) ?? wanted;
 }
 
 /**
