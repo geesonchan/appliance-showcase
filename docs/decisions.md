@@ -283,3 +283,32 @@ nothing to say about it.
 `widthIn` is nullable, and the schema refuses a null on anything except a
 blower — an appliance that goes in a cutout without a width is still an error.
 The importer skips `no width` for every category but that one.
+
+---
+
+## D10 · The quote is derived, never stored
+
+**Decided:** 2026-09-06 (M2 wrap-up).
+
+The quote sheet is built from the same state the scene is showing, at the moment
+it is opened. There is no separate quote document that can be saved, edited or
+left behind: **a quote can never describe a package the customer did not see.**
+
+Two forms over that one document, because they answer different questions — a
+plain-text summary for a person, JSON for a system, with every id, rough-in and
+rule id in it. Both come out of `buildQuote()`, so they cannot disagree.
+
+**What it forbids:** editing a line on the quote without changing the selection
+behind it; a "saved quote" that outlives the configuration it came from; a
+summary assembled separately from the JSON.
+
+**Unknown is not zero.** An unpriced model is left out of the subtotal and the
+count says how many were priced; an unpublished lead time omits the line rather
+than promising "0 weeks". This applies wherever the app states a package fact —
+the right-hand panel follows the same rule.
+
+**Machine translation is labelled.** `zh.json` carries `_translationStatus:
+"machine"` and the top bar shows an `MT` chip while it is active. The file and
+the UI state are marked rather than every string, so the interface stays
+readable; a coverage test fails if the two locales drift apart or a placeholder
+set stops matching.
