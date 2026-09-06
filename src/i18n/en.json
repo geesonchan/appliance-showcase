@@ -140,5 +140,17 @@
   "quote.close": "Close",
   "quote.blockers": "{blockers} blocking item(s) still outstanding",
   "quote.subject": "Quote sheet: {scheme}",
-  "translation.machine": "Machine translated, not reviewed"
+  "translation.machine": "Machine translated, not reviewed",
+  "spec.slotOpening": "Slot opening",
+  "spec.modelNeeds": "{model} needs",
+  "swap.tallNote": "{delta} taller than the opening",
+  "spec.title": "Specifications",
+  "spec.close": "Close",
+  "spec.dimensions": "Dimensions",
+  "spec.product": "Product",
+  "spec.services": "Services",
+  "spec.highlights": "Highlights",
+  "spec.verified": "Verified {date}",
+  "spec.unverified": "Not verified against the manufacturer",
+  "spec.source": "Spec sheet"
 }

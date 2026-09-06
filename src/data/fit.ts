@@ -49,3 +49,24 @@ export function fitCheck(slot: Slot, appliance: Appliance): FitResult {
 /** Inches to one decimal, without a trailing ".0" on whole numbers. */
 export const formatInches = (value: number) =>
   `${Number(value.toFixed(1))}"`;
+
+/**
+ * The opening a model actually needs: the published cutout where there is one,
+ * otherwise the body itself.
+ *
+ * This is not the same thing as the slot's opening, and the difference is the
+ * whole point of showing both. A 36" slot at 72" high accepts a 36"-wide
+ * refrigerator that still needs 84" of height, and only a card that prints the
+ * two side by side makes that visible before the cabinetmaker does.
+ */
+export function requiredOpening(appliance: Appliance): {
+  w: number | null;
+  h: number | null;
+  d: number | null;
+} {
+  return {
+    w: required(appliance.cutoutWidthIn, appliance.widthIn),
+    h: required(appliance.cutoutHeightIn, appliance.heightIn),
+    d: required(appliance.cutoutDepthIn, appliance.depthIn),
+  };
+}

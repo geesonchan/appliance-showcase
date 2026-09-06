@@ -10,7 +10,7 @@
       "labelKey": "slot.fridge",
       "cutout": {
         "w": 36,
-        "h": 72,
+        "h": 84,
         "d": 25
       },
       "compatibleCategories": [
@@ -20,7 +20,7 @@
         "type": "enclosure",
         "openingIn": {
           "w": 36,
-          "h": 72,
+          "h": 84,
           "d": 25
         },
         "panelReady": true,

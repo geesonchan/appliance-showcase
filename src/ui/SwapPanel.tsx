@@ -1,6 +1,6 @@
 import { APPLIANCES_BY_SLOT, blowersFor } from "../data/catalogue";
 import { slotAvailability } from "../data/availability";
-import { fitCheck, formatInches } from "../data/fit";
+import { fitCheck, formatInches, requiredOpening } from "../data/fit";
 import { formatPrice } from "../data/packageSummary";
 import { SLOT_BY_ID } from "../data/slots";
 import { DebugBadge } from "./DebugBadge";
@@ -25,6 +25,7 @@ export function SwapPanel({ slotId }: { slotId: SlotId }) {
   const selectedId = useAppStore((s) => s.selection[slotId]);
   const selectAppliance = useAppStore((s) => s.selectAppliance);
   const selectSlot = useAppStore((s) => s.selectSlot);
+  const openSpec = useAppStore((s) => s.openSpec);
   const selection = useSelection();
   const availability = slotAvailability(selection)[slotId];
   const unavailable = availability?.available === false;
@@ -49,13 +50,15 @@ export function SwapPanel({ slotId }: { slotId: SlotId }) {
             />
           )}
         </h2>
-        <p className="mt-1 text-[11px] tabular-nums text-ink-muted">
-          {t("swap.opening", {
-            w: formatInches(slot.cutout.w),
-            h: formatInches(slot.cutout.h),
-            d: formatInches(slot.cutout.d),
-          })}
-        </p>
+        <OpeningPair slotId={slotId} />
+        <button
+          type="button"
+          onClick={() => openSpec(slotId)}
+          className="mt-3 flex items-center gap-1 text-[11px] font-medium text-accent transition-opacity hover:opacity-80"
+        >
+          {t("scene.enter")}
+          <span aria-hidden="true">→</span>
+        </button>
       </div>
 
       {unavailable && (
@@ -92,6 +95,71 @@ export function SwapPanel({ slotId }: { slotId: SlotId }) {
 
       {slotId === "slot-hood" && <BlowerSection />}
     </div>
+  );
+}
+
+/**
+ * The opening twice over: what the cabinetry offers, and what the specified
+ * model asks for.
+ *
+ * These are different numbers and the difference is the point. The 36" tall
+ * enclosure accepts a 36"-wide refrigerator that needs 84" of height, and
+ * printing only the slot's figure hides that until the cabinetmaker finds it.
+ * A dimension the model exceeds is called out; height and depth report without
+ * blocking, because an enclosure can be furred out or a bridging cabinet
+ * raised, where a wall cannot be widened.
+ */
+export function OpeningPair({ slotId }: { slotId: SlotId }) {
+  const t = useT();
+  const slot = SLOT_BY_ID[slotId];
+  const appliance = useSelectedAppliance(slotId);
+  const needs = appliance ? requiredOpening(appliance) : null;
+
+  const over = (needed: number | null, offered: number) =>
+    needed !== null && needed > offered + 0.05;
+
+  const dims = (
+    w: number | null,
+    h: number | null,
+    d: number | null,
+    highlight = false,
+  ) => (
+    <>
+      <Dim value={w} over={highlight && over(w, slot.cutout.w)} />
+      <span className="text-ink-muted/50"> × </span>
+      <Dim value={h} over={highlight && over(h, slot.cutout.h)} />
+      <span className="text-ink-muted/50"> × </span>
+      <Dim value={d} over={highlight && over(d, slot.cutout.d)} />
+    </>
+  );
+
+  return (
+    <dl className="mt-3 space-y-1 text-[11px] tabular-nums">
+      <div className="flex items-baseline justify-between gap-3">
+        <dt className="text-ink-muted">{t("spec.slotOpening")}</dt>
+        <dd className="text-ink-muted">
+          {dims(slot.cutout.w, slot.cutout.h, slot.cutout.d)}
+        </dd>
+      </div>
+      {needs && (
+        <div className="flex items-baseline justify-between gap-3">
+          <dt className="truncate text-ink-muted">
+            {t("spec.modelNeeds", { model: appliance.model })}
+          </dt>
+          <dd className="shrink-0 text-ink">{dims(needs.w, needs.h, needs.d, true)}</dd>
+        </div>
+      )}
+    </dl>
+  );
+}
+
+/** One dimension, marked when the model asks for more than the slot offers. */
+function Dim({ value, over }: { value: number | null; over: boolean }) {
+  if (value === null) return <span className="text-ink-muted/50">—</span>;
+  return (
+    <span className={over ? "font-medium text-[#B4453A]" : undefined}>
+      {formatInches(value)}
+    </span>
   );
 }
 
@@ -190,7 +258,8 @@ function CandidateRow({
 }) {
   const t = useT();
   const fit = fitCheck(SLOT_BY_ID[slotId], appliance);
-  const tooDeep = fit.depthOverIn !== null && fit.depthOverIn > 0;
+  const tooDeep = fit.depthOverIn !== null && fit.depthOverIn > 0.05;
+  const tooTall = fit.heightOverIn !== null && fit.heightOverIn > 0.05;
   const blocked = disabled || !fit.fits;
 
   return (
@@ -231,6 +300,11 @@ function CandidateRow({
           {fit.fits && fit.fillerEachSideIn !== null && fit.fillerEachSideIn > 0.05 && (
             <span className="mt-1 block text-[11px] text-ink-muted">
               {t("swap.tooNarrow", { delta: formatInches(fit.fillerEachSideIn) })}
+            </span>
+          )}
+          {fit.fits && tooTall && (
+            <span className="mt-1 block text-[11px] text-ink-muted">
+              {t("swap.tallNote", { delta: formatInches(fit.heightOverIn!) })}
             </span>
           )}
           {fit.fits && tooDeep && (

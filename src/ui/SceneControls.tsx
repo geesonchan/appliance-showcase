@@ -116,7 +116,7 @@ export function BottomBar() {
 export function SelectionCallout() {
   const t = useT();
   const selectedSlot = useAppStore((s) => s.selectedSlot);
-  const setMobilePanel = useAppStore((s) => s.setMobilePanel);
+  const openSpec = useAppStore((s) => s.openSpec);
   const appliance = useSelectedAppliance(selectedSlot ?? "slot-range");
   if (!selectedSlot) return null;
 
@@ -132,9 +132,7 @@ export function SelectionCallout() {
       )}
       <button
         type="button"
-        // The specs are the swap panel: already on screen at desktop widths,
-        // one sheet away on a phone.
-        onClick={() => setMobilePanel("list")}
+        onClick={() => openSpec(selectedSlot)}
         className="mt-3 flex w-full items-center justify-between text-[12px] font-medium text-accent transition-opacity hover:opacity-80"
       >
         {t("scene.enter")}

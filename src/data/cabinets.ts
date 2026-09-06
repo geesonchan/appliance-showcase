@@ -1,3 +1,4 @@
+import { SLOT_BY_ID } from "./slots";
 import type { SlotId } from "../types";
 import {
   BACK_RUN,
@@ -39,6 +40,9 @@ const upperX = -ROOM.halfX + ROOM.upperDepth / 2;
 const upperH = ROOM.upperTop - ROOM.upperBottom;
 const upperY = ROOM.upperBottom + upperH / 2;
 const counterT = ROOM.counterThickness;
+
+/** The refrigerator opening's height, in feet, as the slot actually declares it. */
+const FRIDGE_OPENING_H = ft(SLOT_BY_ID["slot-fridge"].cutout.h);
 
 const span = ([a, b]: readonly [number, number]) => b - a;
 const mid = ([a, b]: readonly [number, number]) => (a + b) / 2;
@@ -108,24 +112,27 @@ export const CABINETS: CabinetBox[] = [
     outline: "fridge-enclosure",
     slot: "slot-fridge",
     kind: "surround",
-    position: [leftX, ROOM.upperTop / 2, LEFT_RUN.fridgeEnclosure[0] + PANEL / 2],
-    size: [ROOM.counterDepth, ROOM.upperTop, PANEL],
+    position: [leftX, ROOM.tallTop / 2, LEFT_RUN.fridgeEnclosure[0] + PANEL / 2],
+    size: [ROOM.counterDepth, ROOM.tallTop, PANEL],
   },
   {
     id: "fridge-panel-front",
     outline: "fridge-enclosure",
     slot: "slot-fridge",
     kind: "surround",
-    position: [leftX, ROOM.upperTop / 2, LEFT_RUN.fridgeEnclosure[1] - PANEL / 2],
-    size: [ROOM.counterDepth, ROOM.upperTop, PANEL],
+    position: [leftX, ROOM.tallTop / 2, LEFT_RUN.fridgeEnclosure[1] - PANEL / 2],
+    size: [ROOM.counterDepth, ROOM.tallTop, PANEL],
   },
   {
     id: "fridge-bridge",
     outline: "fridge-enclosure",
     slot: "slot-fridge",
     kind: "upper",
-    position: [leftX, ft(72) + (ROOM.upperTop - ft(72)) / 2, mid(FRIDGE_OPENING)],
-    size: [ROOM.counterDepth, ROOM.upperTop - ft(72), span(FRIDGE_OPENING)],
+    // The bridge starts where the appliance opening stops, so raising the
+    // opening from 72" to 84" shortens the cabinet above it rather than
+    // leaving the refrigerator poking through it.
+    position: [leftX, FRIDGE_OPENING_H + (ROOM.tallTop - FRIDGE_OPENING_H) / 2, mid(FRIDGE_OPENING)],
+    size: [ROOM.counterDepth, ROOM.tallTop - FRIDGE_OPENING_H, span(FRIDGE_OPENING)],
   },
 
   // --- uppers (the hood occupies the wall above the range) ---

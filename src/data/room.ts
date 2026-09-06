@@ -24,6 +24,11 @@ export const ROOM = {
   counterThickness: ft(1.5),
   upperBottom: ft(54),
   upperTop: ft(84),
+  /**
+   * Tall cabinets run past the uppers to 96", which is what an 84" appliance
+   * opening plus a bridging cabinet above it actually needs.
+   */
+  tallTop: ft(96),
   upperDepth: ft(13),
   toeKick: ft(4),
 };

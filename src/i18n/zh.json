@@ -141,5 +141,17 @@
   "quote.close": "关闭",
   "quote.blockers": "此配置尚有 {blockers} 项阻塞未解决",
   "quote.subject": "配置单：{scheme}",
-  "translation.machine": "机器翻译，未经校对"
+  "translation.machine": "机器翻译，未经校对",
+  "spec.slotOpening": "槽位开口",
+  "spec.modelNeeds": "{model} 要求",
+  "swap.tallNote": "比开口高 {delta}",
+  "spec.title": "规格",
+  "spec.close": "关闭",
+  "spec.dimensions": "尺寸",
+  "spec.product": "产品尺寸",
+  "spec.services": "管线要求",
+  "spec.highlights": "亮点",
+  "spec.verified": "已核实 {date}",
+  "spec.unverified": "尚未与厂家资料核对",
+  "spec.source": "规格书"
 }

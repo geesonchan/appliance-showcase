@@ -5,6 +5,7 @@ import { LeftPanel } from "./ui/LeftPanel";
 import { MobileSheet } from "./ui/MobileSheet";
 import { PinOverlay } from "./ui/PinOverlay";
 import { QuoteDialog } from "./ui/QuoteDialog";
+import { SpecCard } from "./ui/SpecCard";
 import { RightPanel } from "./ui/RightPanel";
 import { BottomBar, ModeSwitch, SelectionCallout, Toast } from "./ui/SceneControls";
 import { TopBar } from "./ui/TopBar";
@@ -37,6 +38,7 @@ export default function App() {
 
       <HelpDialog />
       <QuoteDialog />
+      <SpecCard />
     </div>
   );
 }

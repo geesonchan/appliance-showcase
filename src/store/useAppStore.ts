@@ -30,6 +30,11 @@ interface AppState {
   zoomRequest: { token: number; direction: 1 | -1 };
   helpOpen: boolean;
   quoteOpen: boolean;
+  /**
+   * The slot whose spec card is open. Separate from `selectedSlot`: selecting
+   * flies the camera, opening the card does not move it.
+   */
+  specSlot: SlotId | null;
   /** Mobile drawer state; ignored at desktop widths. */
   mobilePanel: "none" | "list" | "config";
   toast: ToastMessage | null;
@@ -51,6 +56,8 @@ interface AppState {
   requestZoom: (direction: 1 | -1) => void;
   setHelpOpen: (open: boolean) => void;
   setQuoteOpen: (open: boolean) => void;
+  openSpec: (slot: SlotId) => void;
+  closeSpec: () => void;
   setMobilePanel: (panel: "none" | "list" | "config") => void;
   showToast: (key: string) => void;
   dismissToast: () => void;
@@ -75,6 +82,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   zoomRequest: { token: 0, direction: 1 },
   helpOpen: false,
   quoteOpen: false,
+  specSlot: null,
   mobilePanel: "none",
   toast: null,
   modeSwitchStartedAt: null,
@@ -104,6 +112,8 @@ export const useAppStore = create<AppState>((set, get) => ({
     set((s) => ({ zoomRequest: { token: s.zoomRequest.token + 1, direction } })),
   setHelpOpen: (helpOpen) => set({ helpOpen }),
   setQuoteOpen: (quoteOpen) => set({ quoteOpen }),
+  openSpec: (specSlot) => set({ specSlot }),
+  closeSpec: () => set({ specSlot: null }),
   setMobilePanel: (mobilePanel) => set({ mobilePanel }),
   showToast: (key) => set({ toast: { id: ++toastId, key } }),
   dismissToast: () => set({ toast: null }),
