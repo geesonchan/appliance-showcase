@@ -10,14 +10,16 @@
 
 import { readFileSync, writeFileSync } from "node:fs";
 import type { Appliance, Category, SlotId } from "../src/types.ts";
+import type { UnknownType } from "./normalise.ts";
 import { appliancesFileSchema, parseDataFile } from "../src/data/schema.ts";
 import {
+  BLANK_TYPE,
   UnknownApplianceTypeError,
   type RawRow,
+  classify,
   slotForCategory,
   toBoolean,
   toBrand,
-  toCategory,
   toDimension,
   toFinish,
   toFuel,
@@ -32,6 +34,12 @@ export interface ConversionSummary {
   exported: number;
   /** Rows dropped, keyed by the reason, e.g. "Washer" or "no slot: cooktop". */
   skipped: Record<string, number>;
+  /**
+   * The models whose Appliance Type was blank. Blank means discontinued, so
+   * they are skipped — but they are named, because "probably discontinued" is
+   * a judgement Leo should confirm rather than a silent deletion.
+   */
+  blankTypeModels: string[];
   /** Rows that parsed but are missing something the app needs. */
   warnings: string[];
 }
@@ -100,8 +108,12 @@ export function convert(
     rowsRead: rows.length,
     exported: 0,
     skipped: {},
+    blankTypeModels: [],
     warnings: [],
   };
+  // Collected rather than thrown on sight, so one run reports every value that
+  // needs a rule instead of making Leo fix them one at a time.
+  const unknowns: UnknownType[] = [];
 
   const skip = (reason: string) => {
     summary.skipped[reason] = (summary.skipped[reason] ?? 0) + 1;
@@ -112,11 +124,26 @@ export function convert(
     const rowNumber = index + 2; // 1-based, plus the header
     const type = row["Appliance Type"] ?? "";
 
-    const category = toCategory(type, rowNumber);
-    if (category === null) {
-      skip(type.trim() || "(blank type)");
+    const classified = classify(type);
+    if (classified.kind === "unknown") {
+      unknowns.push({
+        type,
+        row: rowNumber,
+        brand: (row.Brand ?? "").trim(),
+        model: (row.Model ?? "").trim(),
+      });
       return;
     }
+    if (classified.kind === "skip") {
+      skip(classified.reason);
+      if (classified.reason === BLANK_TYPE) {
+        summary.blankTypeModels.push(
+          `${toBrand(row.Brand ?? "")} ${(row.Model ?? "").trim()}`.trim(),
+        );
+      }
+      return;
+    }
+    const category = classified.category;
 
     const slot = slotForCategory(category, slots);
     if (slot === null) {
@@ -180,6 +207,14 @@ export function convert(
     summary.exported++;
   });
 
+  if (unknowns.length > 0) {
+    const error = new UnknownApplianceTypeError(unknowns);
+    // Carry the partial summary so the CLI can still show what it did classify,
+    // including the blank-type models, in the same run.
+    (error as UnknownApplianceTypeError & { summary: ConversionSummary }).summary = summary;
+    throw error;
+  }
+
   return { appliances, summary };
 }
 
@@ -191,6 +226,12 @@ export function formatSummary(summary: ConversionSummary): string {
   if (skipped.length > 0) {
     lines.push("skipped:");
     for (const [reason, count] of skipped) lines.push(`  ${count.toString().padStart(3)}  ${reason}`);
+  }
+  if (summary.blankTypeModels.length > 0) {
+    lines.push(
+      `blank type (probably discontinued), check these ${summary.blankTypeModels.length}:`,
+    );
+    for (const model of summary.blankTypeModels) lines.push(`  ${model}`);
   }
   if (summary.warnings.length > 0) {
     lines.push(`warnings (${summary.warnings.length}):`);
@@ -217,6 +258,11 @@ function main() {
     result = convert(rows, slotsFile.slots);
   } catch (error) {
     if (error instanceof UnknownApplianceTypeError) {
+      // Show what it did manage to classify first, so one run reports both the
+      // values that need a rule and the blank-type models worth confirming.
+      const partial = (error as UnknownApplianceTypeError & { summary?: ConversionSummary })
+        .summary;
+      if (partial) console.log(formatSummary(partial));
       console.error(`\n${error.message}\n`);
       process.exit(1);
     }

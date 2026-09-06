@@ -31,7 +31,7 @@ docs/decisions.md D4.
 | `brand` | Brand | Known brands win outright (`GE`, `KitchenAid`, `Sub-Zero`, `Vent-A-Hood`…). Otherwise an ALL-CAPS name is title cased (`BOSCH` → `Bosch`, `BERTAZZONI` → `Bertazzoni`) and anything already mixed case is left alone. |
 | `model` | Model | Trimmed. |
 | `id` | Brand + Model | Slug of both, e.g. `bosch-b36cl80sns`. Together they identify a SKU. |
-| `category` | Appliance Type | Lookup, see the table below. An unrecognised value **throws**. |
+| `category` | Appliance Type | Lookup, see the table below. Blank is skipped as discontinued; an unrecognised value fails the import. |
 | `fuel` | Appliance Type | Prefix: `Gas` → gas, `Induction` → induction, `Dual-Fuel` → dual, `Electric` / `E Range` / `ERange` → electric, anything else → `null`. |
 | `installType` | Feature + Appliance Type + Width | An array, gathered from all three. See below. |
 | `finish` | Color + Feature | `SS` → stainless, `Panel Ready` → panel-ready, `White` → white, `Black` → **matte-black** (the only black the scene renders). `Panel Ready` in Feature counts too. Empty → `["stainless"]`. |
@@ -85,13 +85,24 @@ catch every fuel prefix without a row per combination.
 | `Wall Oven`, `Speed Oven`, `Steam Oven` | `wall-oven` |
 | `Wine*`, `Beverage*`, `Freezer*` | `other` |
 | `Washer`, `Dryer`, `Backguard`, `Handle`, `Filter`, `Blower`, `Pedestal`, `Outdoor*` | skipped, counted in the summary |
-| anything else | **throws** |
+| *blank* | skipped as `blank type`, counted, **and the models are listed** |
+| anything else | **fails the import** |
 
-The last two rows are the important pair. A type on the skip list is a
-deliberate decision that it has no place in this scene. A type nobody has
-classified is a mistake, and failing loudly is the only way it gets noticed —
-a silent skip would shrink the catalogue and nobody would spot the missing
-model until a customer asked for it.
+The last three rows are the important ones, and they are three different
+things:
+
+- **On the skip list** is a decision already made: an accessory or a laundry
+  machine has no place in this scene.
+- **Blank** means the model has almost certainly been discontinued — that is
+  what an empty type indicates in `Stock current`. Those rows are skipped, but
+  the import names every one of them, because "probably discontinued" is a
+  judgement to confirm against the sheet, not a silent deletion.
+- **Unrecognised** is a mistake. The import collects every unrecognised value
+  in the file, prints them all with their row number and model, and exits
+  non-zero without writing anything. One run tells you every value that needs a
+  rule; you are never fixing them one at a time. A silent skip would shrink the
+  catalogue and nobody would spot the missing model until a customer asked for
+  it.
 
 Note that `cooktop` and `other` are recognised categories with no slot in this
 kitchen, so those rows are skipped at the next step and counted separately as
@@ -120,17 +131,34 @@ So `Width = "36 CD"` on a `Refrigerator` with `Feature = "French Door"` gives
 The import prints, and the tests assert on:
 
 ```
-read 20 rows, exported 14
+read 22 rows, exported 14
 skipped:
+    2  blank type
+    1  no slot: cooktop
+    1  no slot: other
     1  Washer
     1  Dryer
     1  Backguard
     1  Filter
-    1  no slot: cooktop
-    1  no slot: other
+blank type (probably discontinued), check these 2:
+  Thermador PRD304GHU
+  Zephyr ZRM-E30AS
 warnings (3):
   bosch-b36cl80sns: no sourceUrl
 ```
 
 `exported + skipped` always equals `rowsRead`; a test enforces it, so a row can
 never vanish silently.
+
+When a file also contains unrecognised types, the summary above still prints —
+so you see the blank-type models in the same run — and then the import fails:
+
+```
+2 unrecognised Appliance Type value(s):
+  row 2: "Sous Vide Circulator" (BOSCH B36CL80SNS)
+  row 7: "Warming Drawer" (GE JGP5036SLSS)
+Add a rule to scripts/normalise.ts, or add the value to SKIPPED_TYPES, rather
+than letting the rows through.
+```
+
+`data/appliances.json` is left untouched on that path.

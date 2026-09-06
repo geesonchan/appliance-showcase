@@ -103,8 +103,21 @@ rule in code is reviewable, diffable, and fails a test when it stops matching.
 **Forbidden:** reading a column this app cleaned itself back into the sheet, and
 adding a rule that only exists as a spreadsheet formula.
 
-**One rule has teeth:** an unrecognised `Appliance Type` throws and stops the
-import. Skipping it silently would shrink the catalogue invisibly — the failure
-mode is a model quietly missing from the picker, which nobody notices until a
-customer asks for it. Types that genuinely do not belong (`Washer`, `Handle`,
-`Outdoor*`) are on an explicit skip list and are counted in the export summary.
+**Three ways a row can fail to make it in, and they are not the same thing:**
+
+1. **On the skip list** — `Washer`, `Handle`, `Outdoor*` and the rest. A
+   decision already made; counted in the export summary.
+2. **Blank `Appliance Type`** — in `Stock current` this means the model has
+   almost certainly been discontinued, so the row is skipped and counted
+   separately as `blank type`. The import also **names every one of those
+   models**, because it is inferring intent from an empty cell and that
+   inference should be confirmed against the sheet, not taken on trust.
+3. **Unrecognised** — a value nobody has classified. This **fails the import**.
+   The whole file is scanned first and every unrecognised value is reported at
+   once with its row and model, so one run surfaces all of them; nothing is
+   written on that path. Skipping silently would shrink the catalogue
+   invisibly — the failure mode is a model quietly missing from the picker,
+   which nobody notices until a customer asks for it.
+
+`exported + skipped === rowsRead` is asserted, so no row can disappear without
+appearing in one of those counts.

@@ -1,12 +1,13 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import slotsFile from "../data/slots.json";
-import { convert, parseCsv } from "./csv-to-json.ts";
+import { convert, formatSummary, parseCsv } from "./csv-to-json.ts";
 import {
+  BLANK_TYPE,
   SKIPPED_TYPES,
   UnknownApplianceTypeError,
+  classify,
   toBrand,
-  toCategory,
   toFinish,
   toFuel,
   toHighlights,
@@ -22,6 +23,12 @@ const fixture = () =>
   parseCsv(readFileSync("tests/fixtures/showcase_export.sample.csv", "utf8"));
 
 const run = () => convert(fixture(), SLOTS);
+
+/** The category a type maps to, or null when the row is deliberately skipped. */
+const categoryOf = (type: string) => {
+  const result = classify(type);
+  return result.kind === "category" ? result.category : null;
+};
 
 describe("Appliance Type mapping", () => {
   // Every value the spec lists, so a rule cannot quietly stop matching.
@@ -49,20 +56,68 @@ describe("Appliance Type mapping", () => {
   ];
 
   it.each(cases)("maps %s", (type, expected) => {
-    expect(toCategory(type)).toBe(expected);
+    expect(categoryOf(type)).toBe(expected);
   });
 
   it.each(SKIPPED_TYPES.map((type) => [type]))("skips %s", (type) => {
-    expect(toCategory(type)).toBeNull();
+    expect(classify(type)).toEqual({ kind: "skip", reason: type });
   });
 
-  it("throws on an Appliance Type it has never seen", () => {
-    expect(() => toCategory("Sous Vide Circulator", 7)).toThrow(UnknownApplianceTypeError);
-    expect(() => toCategory("Sous Vide Circulator", 7)).toThrow(/row 7/);
+  it("reports an Appliance Type it has never seen as unknown", () => {
+    expect(classify("Sous Vide Circulator")).toEqual({ kind: "unknown" });
   });
 
-  it("throws rather than silently dropping a blank type", () => {
-    expect(() => toCategory("", 3)).toThrow(UnknownApplianceTypeError);
+  // A blank type means discontinued stock, not a gap in the mapping table.
+  it("skips a blank type rather than treating it as unknown", () => {
+    expect(classify("")).toEqual({ kind: "skip", reason: BLANK_TYPE });
+    expect(classify("   ")).toEqual({ kind: "skip", reason: BLANK_TYPE });
+  });
+});
+
+describe("blank Appliance Type", () => {
+  it("skips the rows, counts them, and names the models", () => {
+    const { appliances, summary } = run();
+    expect(summary.skipped[BLANK_TYPE]).toBe(2);
+    expect(summary.blankTypeModels).toEqual([
+      "Thermador PRD304GHU",
+      "Zephyr ZRM-E30AS",
+    ]);
+    expect(appliances.some((item) => item.model === "PRD304GHU")).toBe(false);
+  });
+
+  it("puts the models in the printed summary", () => {
+    const { summary } = run();
+    const text = formatSummary(summary);
+    expect(text).toMatch(/blank type/);
+    expect(text).toMatch(/Thermador PRD304GHU/);
+  });
+});
+
+describe("unrecognised Appliance Type", () => {
+  const withUnknowns = () => {
+    const rows = fixture();
+    rows[0]["Appliance Type"] = "Sous Vide Circulator";
+    rows[3]["Appliance Type"] = "Warming Drawer";
+    return rows;
+  };
+
+  it("fails the whole import rather than dropping the rows", () => {
+    expect(() => convert(withUnknowns(), SLOTS)).toThrow(UnknownApplianceTypeError);
+  });
+
+  // One run should tell Leo about every value that needs a rule.
+  it("reports every unknown value at once, with its row and model", () => {
+    let error: UnknownApplianceTypeError | undefined;
+    try {
+      convert(withUnknowns(), SLOTS);
+    } catch (caught) {
+      error = caught as UnknownApplianceTypeError;
+    }
+    expect(error?.unknowns).toHaveLength(2);
+    expect(error?.message).toMatch(/Sous Vide Circulator/);
+    expect(error?.message).toMatch(/Warming Drawer/);
+    expect(error?.message).toMatch(/B36CL80SNS/);
+    expect(error?.message).toMatch(/row 2/);
   });
 });
 

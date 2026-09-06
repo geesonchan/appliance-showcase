@@ -64,43 +64,73 @@ const CATEGORY_RULES: { match: (type: string) => boolean; category: Category }[]
   { match: (t) => /^(wine|beverage|freezer)/i.test(t), category: "other" },
 ];
 
+/** The summary key for rows the sheet left unclassified. */
+export const BLANK_TYPE = "blank type";
+
+export interface UnknownType {
+  type: string;
+  row: number;
+  brand: string;
+  model: string;
+}
+
 export class UnknownApplianceTypeError extends Error {
   // Plain fields, not parameter properties: Node runs this file directly and
   // its strip-only TypeScript mode cannot compile that shorthand.
-  value: string;
-  row: number;
+  unknowns: UnknownType[];
 
-  constructor(value: string, row: number) {
+  constructor(unknowns: UnknownType[]) {
+    const list = unknowns
+      .map(
+        ({ row, type, brand, model }) =>
+          `  row ${row}: ${JSON.stringify(type)} (${brand} ${model})`,
+      )
+      .join("\n");
     super(
-      `row ${row}: unrecognised Appliance Type ${JSON.stringify(value)}. ` +
-        `Add a rule to scripts/normalise.ts rather than letting the row through.`,
+      `${unknowns.length} unrecognised Appliance Type value(s):\n${list}\n` +
+        `Add a rule to scripts/normalise.ts, or add the value to SKIPPED_TYPES, ` +
+        `rather than letting the rows through.`,
     );
     this.name = "UnknownApplianceTypeError";
-    this.value = value;
-    this.row = row;
+    this.unknowns = unknowns;
   }
 }
+
+export type Classification =
+  | { kind: "category"; category: Category }
+  | { kind: "skip"; reason: string }
+  | { kind: "unknown" };
 
 /**
  * Classify an Appliance Type.
  *
- * Returns null for the types this scene deliberately ignores. An unrecognised
- * value throws: silently dropping it would quietly shrink the catalogue and
- * nobody would notice until a model went missing from the picker.
+ * Three outcomes, and the difference between the last two is the whole point:
+ *
+ * - a category, for a row that belongs in the scene;
+ * - a skip, for a row that deliberately does not — an accessory, a laundry
+ *   machine, or a blank type, which in this sheet means the model has almost
+ *   certainly been discontinued;
+ * - unknown, for a value nobody has classified. The caller collects these and
+ *   fails the whole import, because a silent skip would shrink the catalogue
+ *   and nobody would spot the missing model until a customer asked for it.
  */
-export function toCategory(type: string, row = 0): Category | null {
+export function classify(type: string): Classification {
   const value = type.trim();
-  if (!value) throw new UnknownApplianceTypeError(type, row);
 
-  if (/^outdoor/i.test(value)) return null;
+  // A blank type is a data signal, not a gap in this table: discontinued stock
+  // loses its type in Stock current. Skip it, but say which models so Leo can
+  // confirm rather than take it on trust.
+  if (!value) return { kind: "skip", reason: BLANK_TYPE };
+
+  if (/^outdoor/i.test(value)) return { kind: "skip", reason: value };
   if (SKIPPED_TYPES.some((skipped) => new RegExp(`^${skipped}$`, "i").test(value))) {
-    return null;
+    return { kind: "skip", reason: value };
   }
 
   for (const rule of CATEGORY_RULES) {
-    if (rule.match(value)) return rule.category;
+    if (rule.match(value)) return { kind: "category", category: rule.category };
   }
-  throw new UnknownApplianceTypeError(type, row);
+  return { kind: "unknown" };
 }
 
 /** Fuel from the Appliance Type prefix. Anything else has no fuel of its own. */
