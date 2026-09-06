@@ -190,3 +190,30 @@ describe("slot availability", () => {
     expect(microwaveSlot.cutout.w).toBe(24);
   });
 });
+
+describe("message numbers", () => {
+  const paramsOf = (slotId: SlotId, appliance: Appliance, ruleId: string, blower: Appliance | null = null) =>
+    evaluateSlot(slot(slotId), appliance, packageContext(appliance, blower)).find(
+      (finding) => finding.ruleId === ruleId,
+    )?.params;
+
+  // "119500 BTU total" on a quote is a number nobody reads at a glance.
+  it("separates thousands in a gas load", () => {
+    expect(paramsOf("slot-range", FIXTURES.gasRange36, "gas-pipe-size")?.btu).toBe("119,500");
+  });
+
+  it("separates thousands in an airflow", () => {
+    const findings = evaluateSlot(
+      slot("slot-hood"),
+      FIXTURES.hoodNeedsBlower,
+      packageContext(FIXTURES.hoodNeedsBlower, FIXTURES.blower1300),
+      "package",
+    );
+    expect(findings.find((f) => f.ruleId === "duct-size")?.params.cfm).toBe("1,300");
+  });
+
+  it("keeps inches to one decimal, unseparated", () => {
+    const deep = { ...FIXTURES.fridgeCounterDepth } as Appliance;
+    expect(paramsOf("slot-fridge", deep, "deeper-than-opening")?.depth).toBe(4);
+  });
+});

@@ -146,6 +146,8 @@ describe("quote summary", () => {
     }
     expect(text).toContain(FIXTURES.blower600.model);
     expect(text).toContain("600 CFM");
+    // The same number in the same shape as the checklist uses.
+    expect(formatQuote(quoteOf({}, FIXTURES.blower1300), t)).toContain("1,300 CFM");
   });
 
   it("lists the install findings under the totals", () => {

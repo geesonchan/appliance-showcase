@@ -2,7 +2,7 @@ import type { Appliance, Slot, SlotId } from "../types";
 import type { Finding, Severity } from "./rules";
 import { fitCheck } from "./fit";
 import { deriveUtilities } from "./utilities";
-import { effectiveCfm } from "./ventilation";
+import { effectiveCfm, formatCfm } from "./ventilation";
 
 /**
  * The configuration as a document.
@@ -187,7 +187,7 @@ export function formatQuote(
     out.push(t("blower.title"));
     out.push(
       `  ${quote.blower.brand} ${quote.blower.model}` +
-        (quote.blower.cfm !== null ? `  ${t("blower.cfm", { cfm: quote.blower.cfm })}` : "") +
+        (quote.blower.cfm !== null ? `  ${t("blower.cfm", { cfm: formatCfm(quote.blower.cfm) })}` : "") +
         (quote.blower.msrpUSD === null
           ? `  ${t("price.onRequest")}`
           : `  ${usd(quote.blower.msrpUSD)}`),

@@ -101,10 +101,12 @@ export function RightPanel() {
             value={`${summary.blower.brand} ${summary.blower.model}`}
           />
         )}
-        <SummaryRow
-          label={t("panel.package.lead")}
-          value={t("panel.package.leadValue", { weeks: summary.leadTimeWeeks })}
-        />
+        {summary.leadTimeWeeks !== null && (
+          <SummaryRow
+            label={t("panel.package.lead")}
+            value={t("panel.package.leadValue", { weeks: summary.leadTimeWeeks })}
+          />
+        )}
         <div className="mt-3 flex gap-1.5">
           {SCHEME.palette.map((color) => (
             <span

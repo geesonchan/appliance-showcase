@@ -166,7 +166,7 @@ export function evaluateSlot(
       params: Object.fromEntries(
         Object.entries(rule.params).map(([key, path]) => {
           const value = resolve(context, path);
-          return [key, typeof value === "number" ? roundInches(key, value) : String(value)];
+          return [key, typeof value === "number" ? formatNumber(key, value) : String(value)];
         }),
       ),
     });
@@ -174,9 +174,17 @@ export function evaluateSlot(
   return findings;
 }
 
-/** Inch measurements read to one decimal; everything else stays as it is. */
-const roundInches = (key: string, value: number) =>
-  /filler|depth/i.test(key) ? Number(value.toFixed(1)) : value;
+/**
+ * How a number reads in a message.
+ *
+ * Inches to one decimal; airflow and gas load with thousands separators,
+ * because "119500 BTU" on a quote is a number nobody reads at a glance.
+ */
+const formatNumber = (key: string, value: number) => {
+  if (/filler|depth/i.test(key)) return Number(value.toFixed(1));
+  if (/btu|cfm/i.test(key)) return value.toLocaleString("en-US");
+  return value;
+};
 
 /** Everything the rules need to know about the package as a whole. */
 export function packageContext(

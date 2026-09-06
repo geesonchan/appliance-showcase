@@ -25,3 +25,12 @@ export function needsMakeupAir(
   const cfm = effectiveCfm(hood, blower);
   return cfm !== null && cfm >= 400;
 }
+
+/**
+ * Airflow as it reads in copy.
+ *
+ * Separated at the thousand, because the install checklist already does and a
+ * package that says "1,000 CFM" in one place and "1000 CFM" in another looks
+ * like two different numbers.
+ */
+export const formatCfm = (cfm: number) => cfm.toLocaleString("en-US");

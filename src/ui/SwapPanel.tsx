@@ -5,6 +5,7 @@ import { formatPrice } from "../data/packageSummary";
 import { SLOT_BY_ID } from "../data/slots";
 import { DebugBadge } from "./DebugBadge";
 import { SCHEME_FALLBACKS } from "../data/catalogue";
+import { formatCfm } from "../data/ventilation";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
 import { useSelectedAppliance, useSelectedBlower, useSelection } from "../store/useSelection";
@@ -114,7 +115,7 @@ function BlowerSection() {
         <p className="mt-1.5 text-[11px] text-ink-muted">
           {t("blower.integrated")}
           {hood?.requires.cfm !== null && hood?.requires.cfm !== undefined
-            ? ` · ${t("blower.cfm", { cfm: hood.requires.cfm })}`
+            ? ` · ${t("blower.cfm", { cfm: formatCfm(hood.requires.cfm) })}`
             : ""}
         </p>
       </div>
@@ -158,7 +159,7 @@ function BlowerSection() {
                   <span className="mt-0.5 block truncate text-[11px] text-ink-muted">
                     {option.model} · {option.installType.join(", ")}
                     {option.requires.cfm !== null
-                      ? ` · ${t("blower.cfm", { cfm: option.requires.cfm })}`
+                      ? ` · ${t("blower.cfm", { cfm: formatCfm(option.requires.cfm) })}`
                       : ""}
                   </span>
                 </span>

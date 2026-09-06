@@ -48,6 +48,11 @@ export function usePackageSummary() {
     rangeHigh: Math.ceil(totalUSD / 1000) * 1000,
     /** i18n keys for each distinct fuel, joined with "+" by the panel. */
     energyKeys: fuels.length > 0 ? fuels.map((fuel) => `energy.${fuel}`) : ["energy.electric"],
-    leadTimeWeeks: Math.max(...items.map((a) => a.leadTimeWeeks ?? 0)),
+    // Unknown, not zero: the current import publishes no lead times at all,
+    // and "0 weeks" would read as a promise.
+    leadTimeWeeks: (() => {
+      const known = items.map((a) => a.leadTimeWeeks).filter((w): w is number => w !== null);
+      return known.length > 0 ? Math.max(...known) : null;
+    })(),
   };
 }
