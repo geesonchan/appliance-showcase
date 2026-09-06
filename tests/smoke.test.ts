@@ -329,3 +329,51 @@ describe("mobile", () => {
     await page.close();
   });
 });
+
+describe("quote sheet", () => {
+  it("carries the package the scene is showing, in both forms", async () => {
+    const { page, errors } = await openPage(DESKTOP);
+
+    // Swap the range so the quote has to reflect a choice, not the default.
+    await page.getByRole("button", { name: /Range/ }).first().click();
+    await page.waitForTimeout(1200);
+    const alternative = page.locator("button", { hasText: /^Select/ }).first();
+    const swapped = (await alternative.count()) > 0;
+    if (swapped) {
+      await alternative.click();
+      await page.waitForTimeout(900);
+    }
+    // The callout names the appliance the camera flew to: "RANGE / Brand Model".
+    const callout = await page
+      .getByRole("button", { name: "View specs" })
+      .locator("xpath=..")
+      .innerText();
+    // "RANGE" / "Thermador PRG366WH" / "View specs" / "→"
+    const lines = callout.split("\n").map((line) => line.trim()).filter(Boolean);
+    const model = (lines[1] ?? "").split(" ").pop() ?? "";
+
+    await page.getByRole("button", { name: "Request quote" }).click();
+    await page.waitForTimeout(500);
+
+    const dialog = page.getByRole("dialog");
+    const summary = await dialog.locator("pre").innerText();
+    // The model in the left column has to be the model on the quote.
+    expect(model.length).toBeGreaterThan(3);
+    expect(summary).toContain(model);
+    expect(summary).not.toMatch(/[{}]|^[a-z]+\.[a-zA-Z]+$/m);
+
+    await dialog.getByRole("button", { name: "JSON" }).click();
+    await page.waitForTimeout(300);
+    const json = JSON.parse(await dialog.locator("pre").innerText());
+    expect(json.lines).toHaveLength(6);
+    expect(json.lines.map((line: { model: string }) => line.model)).toContain(model);
+    // Every finding traces back to the rule that produced it.
+    for (const finding of json.findings) {
+      expect(finding.ruleId).toMatch(/^[a-z-]+$/);
+      expect(finding.message).not.toContain("{");
+    }
+
+    expect(errors).toEqual([]);
+    await page.close();
+  });
+});

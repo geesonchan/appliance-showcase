@@ -6,7 +6,9 @@
  *
  * Pass a round number as the first argument; it defaults to 1.
  * Set BASE_URL to point at a preview build instead of the dev server.
- * Set SET=mobile or SET=desktop to capture only one of the two.
+ * Set SET=mobile or SET=desktop to capture only one of the two, or SET=round4
+ * for the four states round 4 is actually about: the island, the wine door, the
+ * fly-in to the microwave and the install checklist open.
  */
 import { mkdir } from "node:fs/promises";
 import { chromium } from "playwright";
@@ -79,9 +81,72 @@ async function viaSheet(page, tab, action) {
   await page.waitForTimeout(400);
 }
 
+/**
+ * Round 4 is about the island and what came with it, so it is its own set
+ * rather than another pass of the five standard states: the two island pins
+ * only crowd each other from certain angles, and the checklist and the quote
+ * sheet are not scene states at all.
+ */
+async function captureRound4(page) {
+  await page.screenshot({ path: `${outDir}/mobile-island-overview.png` });
+
+  // Fly in on the wine cabinet: its door faces the seating side, so the
+  // overview shows glass rather than a blank cabinet end.
+  await flyTo(page, /Wine cabinet/);
+  await page.screenshot({ path: `${outDir}/mobile-wine-door.png` });
+
+  await click(page, "Reset view");
+  await settle(page, 1100);
+  await flyTo(page, /Microwave/);
+  await page.screenshot({ path: `${outDir}/mobile-microwave.png` });
+
+  await click(page, "Reset view");
+  await settle(page, 1100);
+
+  // The checklist lives in the configure sheet, below the package summary.
+  await click(page, "Configure");
+  await page.waitForTimeout(700);
+  await page.getByText("Install checklist").first().scrollIntoViewIfNeeded();
+  await page.waitForTimeout(400);
+  await page.screenshot({ path: `${outDir}/mobile-checklist.png` });
+  await page.getByRole("button", { name: "Close" }).click();
+  await page.waitForTimeout(500);
+
+  await click(page, "Request quote");
+  await page.waitForTimeout(700);
+  await page.screenshot({ path: `${outDir}/mobile-quote.png` });
+}
+
+/** Pick an appliance from the sheet, then close it so the scene is visible. */
+async function flyTo(page, name) {
+  await click(page, "Appliances");
+  await page.waitForTimeout(500);
+  await page.getByRole("button", { name }).first().click();
+  await page.waitForTimeout(600);
+  await page.getByRole("button", { name: "Close" }).click();
+  await settle(page, 1600);
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round4") {
+    const ctx = await browser.newContext({
+      viewport: MOBILE,
+      deviceScaleFactor: 2,
+      isMobile: true,
+      hasTouch: true,
+    });
+    const page = await ctx.newPage();
+    await page.goto(baseUrl, { waitUntil: "networkidle" });
+    await settle(page, 2200);
+    await captureRound4(page);
+    await ctx.close();
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only !== "desktop") {
     const ctx = await browser.newContext({
