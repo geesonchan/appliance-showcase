@@ -365,3 +365,26 @@ in the appliance catalogue would give it all three and put it on a quote.
 against; adding the sink, the pot filler or the ice-maker line to
 `appliances.json`.
 
+
+---
+
+## D12 · This is a tool for explaining a kitchen, not for selling one
+
+**Decided:** 2026-09-06 (M3), Leo.
+
+The product is what a salesperson stands in front of a customer with, to explain
+**the layout and what installing it actually involves**. It is not a quoting
+tool that happens to have a 3D view.
+
+**What follows from it.** The scene gets the screen: at least 80% of the
+viewport, with both side columns collapsible and the right one closed by
+default. The package total, the price range and Request Quote come off the main
+interface; the quote lives on its own page behind one entry in the top bar.
+Prices still exist — they are on the spec card and on that page — but they are
+not what the room is about.
+
+**What it forbids:** a running total on the main screen; a price on a pin; any
+call to action that treats the room as a checkout. And, from §2.2 of the brief:
+no free-form cabinet placement. Appliances slide within their own cabinet
+segment to a legal position and no further — the moment a customer can drag a
+cabinet anywhere, this is a design tool and every rule in D11 becomes advisory.
