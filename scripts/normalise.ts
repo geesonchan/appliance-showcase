@@ -36,32 +36,144 @@ export interface RawRow {
   verifiedAt: string;
 }
 
-/** Appliance Type values that are real appliances but not part of this scene. */
+/**
+ * Appliance Type values that are deliberately out of scene.
+ *
+ * Compared exactly, case-insensitively. Laundry, then the long tail of parts
+ * and accessories the inventory carries alongside the machines, then the
+ * non-products (warranties, payment codes) the sheet uses as line items.
+ */
 export const SKIPPED_TYPES = [
+  // laundry
   "Washer",
   "Dryer",
-  "Backguard",
-  "Handle",
-  "Filter",
-  "Blower",
+  "E Dryer",
+  "Gas Dryer",
+  "Stacked Gas Dryer",
+  "Laundry Center",
+  "Washer Dryer Combo",
+  "Pedestal Washer",
   "Pedestal",
+  "Steam Clothing Care System",
+  "Stacking Kit",
+  // trim, panels and fittings
+  "Accessory",
+  "Trim Kit",
+  "Toekick",
+  "Backguard",
+  "Knob",
+  "Handle",
+  "Griddle",
+  "Wok Ring",
+  "Backsplash",
+  "Duct Cover",
+  "Transition",
+  "Recirculating Kit",
+  "Baffle Filter",
+  "Blower",
+  "Decorative Plate",
+  "Handle for DW",
+  "Handle for Refrigerator",
+  "Door Panel",
+  "Door Panel for Built-In Fridge",
+  "Refrigerator Kit",
+  "Built-In Refrigerator Mounting Kit",
+  "Dishwasher Panel Mounting Kit",
+  "Dishwasher Set",
+  "Cafe Range Kit",
+  "Mounting Plate",
+  "Microwave Mounting Kit",
+  // consumables and spares
+  "Filter",
+  "Water Filter",
+  "Refrigerator Air Filter",
+  "Microwave Charcoal Filter",
+  "Ice-Maker Kit",
+  "Power Adapter",
+  "Propane Conversion Kit",
+  "Remote Control",
+  // plumbing and other departments
+  "Sink",
+  "Faucet",
+  "Disposer",
+  "Bottom Grid For Sink",
+  "Sink Accessories",
+  "Vacuums",
+  "Vacuums Accessory",
+  "Grill Base",
+  "Grill Cover",
+  "Warming Shelf",
+  "Accessory for Wine Column",
+  // not products at all
+  "Extension Warranty",
+  "Shine Pay",
+  "CON",
 ] as const;
+
+/** The summary key for the catch-all accessory bucket. */
+export const ACCESSORY_LIKE = "accessory-like";
+
+/**
+ * Catch-all for the parts nobody has listed by name yet.
+ *
+ * Deliberately matched *after* the exact tables, so a real appliance whose name
+ * happens to contain one of these words is classified on its own terms first.
+ * Word boundaries rather than substrings, so "Kit" cannot swallow a "Kitchen"
+ * anything.
+ */
+const ACCESSORY_LIKE_PATTERN = /\b(kits?|panels?|handles?|covers?|filters?|accessor\w*)\b/i;
 
 /**
  * Appliance Type to category.
  *
- * Ordered: the first matching rule wins, so the `*Range` and `*Cooktop`
- * suffixes catch every fuel prefix without needing a row per combination.
+ * Ordered: the first matching rule wins. The `*Range`, `*Rangetop` and
+ * `*Cooktop` suffixes catch every fuel prefix without a row per combination;
+ * everything else is anchored, so a part named after an appliance ("Refrigerator
+ * Kit", "Handle for Refrigerator") cannot be mistaken for one.
  */
 const CATEGORY_RULES: { match: (type: string) => boolean; category: Category }[] = [
+  // Ovens. The combo list is explicit because "Countertop Combo Oven" is a
+  // benchtop appliance, not something that goes in a tall tower.
+  { match: (t) => /^(wall|speed|steam)\s+oven$/i.test(t), category: "wall-oven" },
+  { match: (t) => /^(single|double)\s+oven$/i.test(t), category: "wall-oven" },
+  { match: (t) => /^steam\s+double\s+oven$/i.test(t), category: "wall-oven" },
+  {
+    match: (t) => /^(speed|microwave|steam|triple)\s+combo\s+oven$/i.test(t),
+    category: "wall-oven",
+  },
+
+  // Microwaves, including the ones that name their install form.
+  { match: (t) => /^(otr|microwave)$/i.test(t), category: "microwave" },
+  {
+    match: (t) => /^(microwave\s+drawer|built-in\s+microwave|countertop\s+microwave)$/i.test(t),
+    category: "microwave",
+  },
+
+  // Ranges and rangetops. A rangetop is a range without the oven, but it takes
+  // the same slot and the same rough-in, so it lands in the same category.
   { match: (t) => /range$/i.test(t), category: "range" },
+  { match: (t) => /rangetop$/i.test(t), category: "range" },
+
   { match: (t) => /cooktop$/i.test(t), category: "cooktop" },
+
+  // Refrigeration.
   { match: (t) => /^(built-in\s+)?refrigerator$/i.test(t), category: "refrigerator" },
+  { match: (t) => /^refrigerator\s+(column|drawer)$/i.test(t), category: "refrigerator" },
+  { match: (t) => /^undercounter\s+refrigerator$/i.test(t), category: "refrigerator" },
+  { match: (t) => /^all\s+(refrigerator|freezer)$/i.test(t), category: "refrigerator" },
+
   { match: (t) => /^dishwasher$/i.test(t), category: "dishwasher" },
   { match: (t) => /hood$/i.test(t), category: "hood" },
-  { match: (t) => /^(otr|microwave)$/i.test(t), category: "microwave" },
-  { match: (t) => /^(wall|speed|steam)\s+oven$/i.test(t), category: "wall-oven" },
+
+  // Real appliances with no slot in this kitchen. They are classified rather
+  // than skipped, so the summary says "no slot" rather than pretending they are
+  // not appliances.
   { match: (t) => /^(wine|beverage|freezer)/i.test(t), category: "other" },
+  { match: (t) => /^warming\s+drawer$/i.test(t), category: "other" },
+  { match: (t) => /^(built-in|countertop)\s+coffee\s+machine$/i.test(t), category: "other" },
+  { match: (t) => /^countertop\s+combo\s+oven$/i.test(t), category: "other" },
+  { match: (t) => /^ice-?\s?maker$/i.test(t), category: "other" },
+  { match: (t) => /^trash\s+compactor$/i.test(t), category: "other" },
 ];
 
 /** The summary key for rows the sheet left unclassified. */
@@ -123,13 +235,23 @@ export function classify(type: string): Classification {
   if (!value) return { kind: "skip", reason: BLANK_TYPE };
 
   if (/^outdoor/i.test(value)) return { kind: "skip", reason: value };
-  if (SKIPPED_TYPES.some((skipped) => new RegExp(`^${skipped}$`, "i").test(value))) {
-    return { kind: "skip", reason: value };
-  }
+
+  // Exact tables first, both of them, so a part named after an appliance is
+  // decided by name and a real appliance is never swallowed by the catch-all.
+  const listed = SKIPPED_TYPES.find(
+    (skipped) => skipped.toLowerCase() === value.toLowerCase(),
+  );
+  if (listed) return { kind: "skip", reason: listed };
 
   for (const rule of CATEGORY_RULES) {
     if (rule.match(value)) return { kind: "category", category: rule.category };
   }
+
+  // Only now the catch-all, for the parts nobody has listed yet.
+  if (ACCESSORY_LIKE_PATTERN.test(value)) {
+    return { kind: "skip", reason: ACCESSORY_LIKE };
+  }
+
   return { kind: "unknown" };
 }
 
@@ -139,6 +261,8 @@ export function toFuel(type: string): Fuel | null {
   if (/^dual[- ]fuel\b/i.test(value)) return "dual";
   if (/^induction\b/i.test(value)) return "induction";
   if (/^gas\b/i.test(value)) return "gas";
+  // The sheet abbreviates the fuel on rangetops: "G Rangetop".
+  if (/^G\s/.test(value)) return "gas";
   // "Electric Cooktop", "E Range", and the sheet's compact "ERange".
   if (/^electric\b/i.test(value)) return "electric";
   if (/^E\s/.test(value) || /^E(?=[A-Z])/.test(value)) return "electric";
@@ -161,12 +285,19 @@ const INSTALL_WORDS: { pattern: RegExp; value: string }[] = [
   { pattern: /\bsingle\b/i, value: "single" },
   { pattern: /\bdouble\b/i, value: "double" },
   { pattern: /\bcombo\b/i, value: "combo" },
+  { pattern: /\bcountertop\b/i, value: "countertop" },
+  { pattern: /\bundercounter\b/i, value: "undercounter" },
+  { pattern: /\brangetop\b/i, value: "rangetop" },
 ];
 
 export function toInstallType(feature: string, type: string, width: string): string[] {
   const found: string[] = [];
+  // Both columns carry install form. The Appliance Type names it directly for
+  // the families that come in several ("Single Oven", "Microwave Drawer",
+  // "Refrigerator Column"); the Feature column names it for the rest.
+  const words = `${feature} ${type}`;
   for (const { pattern, value } of INSTALL_WORDS) {
-    if (pattern.test(feature) && !found.includes(value)) found.push(value);
+    if (pattern.test(words) && !found.includes(value)) found.push(value);
   }
   if (/\bbuilt[- ]in\b/i.test(type) && !found.includes("built-in")) found.push("built-in");
   if (/\bCD\b/i.test(width) && !found.includes("counter-depth")) found.push("counter-depth");

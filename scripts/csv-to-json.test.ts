@@ -4,9 +4,7 @@ import slotsFile from "../data/slots.json";
 import { convert, formatSummary, parseCsv } from "./csv-to-json.ts";
 import {
   BLANK_TYPE,
-  SKIPPED_TYPES,
   UnknownApplianceTypeError,
-  classify,
   toBrand,
   toFinish,
   toFuel,
@@ -23,103 +21,6 @@ const fixture = () =>
   parseCsv(readFileSync("tests/fixtures/showcase_export.sample.csv", "utf8"));
 
 const run = () => convert(fixture(), SLOTS);
-
-/** The category a type maps to, or null when the row is deliberately skipped. */
-const categoryOf = (type: string) => {
-  const result = classify(type);
-  return result.kind === "category" ? result.category : null;
-};
-
-describe("Appliance Type mapping", () => {
-  // Every value the spec lists, so a rule cannot quietly stop matching.
-  const cases: [string, Category | null][] = [
-    ["Gas Range", "range"],
-    ["Induction Range", "range"],
-    ["Dual-Fuel Range", "range"],
-    ["ERange", "range"],
-    ["Gas Cooktop", "cooktop"],
-    ["Induction Cooktop", "cooktop"],
-    ["Refrigerator", "refrigerator"],
-    ["Built-In Refrigerator", "refrigerator"],
-    ["Dishwasher", "dishwasher"],
-    ["Hood", "hood"],
-    ["OTR", "microwave"],
-    ["Microwave", "microwave"],
-    ["Wall Oven", "wall-oven"],
-    ["Speed Oven", "wall-oven"],
-    ["Steam Oven", "wall-oven"],
-    ["Wine Cooler", "other"],
-    ["Beverage Center", "other"],
-    ["Freezer", "other"],
-    ["Outdoor Grill", null],
-    ["Outdoor Refrigerator", null],
-  ];
-
-  it.each(cases)("maps %s", (type, expected) => {
-    expect(categoryOf(type)).toBe(expected);
-  });
-
-  it.each(SKIPPED_TYPES.map((type) => [type]))("skips %s", (type) => {
-    expect(classify(type)).toEqual({ kind: "skip", reason: type });
-  });
-
-  it("reports an Appliance Type it has never seen as unknown", () => {
-    expect(classify("Sous Vide Circulator")).toEqual({ kind: "unknown" });
-  });
-
-  // A blank type means discontinued stock, not a gap in the mapping table.
-  it("skips a blank type rather than treating it as unknown", () => {
-    expect(classify("")).toEqual({ kind: "skip", reason: BLANK_TYPE });
-    expect(classify("   ")).toEqual({ kind: "skip", reason: BLANK_TYPE });
-  });
-});
-
-describe("blank Appliance Type", () => {
-  it("skips the rows, counts them, and names the models", () => {
-    const { appliances, summary } = run();
-    expect(summary.skipped[BLANK_TYPE]).toBe(2);
-    expect(summary.blankTypeModels).toEqual([
-      "Thermador PRD304GHU",
-      "Zephyr ZRM-E30AS",
-    ]);
-    expect(appliances.some((item) => item.model === "PRD304GHU")).toBe(false);
-  });
-
-  it("puts the models in the printed summary", () => {
-    const { summary } = run();
-    const text = formatSummary(summary);
-    expect(text).toMatch(/blank type/);
-    expect(text).toMatch(/Thermador PRD304GHU/);
-  });
-});
-
-describe("unrecognised Appliance Type", () => {
-  const withUnknowns = () => {
-    const rows = fixture();
-    rows[0]["Appliance Type"] = "Sous Vide Circulator";
-    rows[3]["Appliance Type"] = "Warming Drawer";
-    return rows;
-  };
-
-  it("fails the whole import rather than dropping the rows", () => {
-    expect(() => convert(withUnknowns(), SLOTS)).toThrow(UnknownApplianceTypeError);
-  });
-
-  // One run should tell Leo about every value that needs a rule.
-  it("reports every unknown value at once, with its row and model", () => {
-    let error: UnknownApplianceTypeError | undefined;
-    try {
-      convert(withUnknowns(), SLOTS);
-    } catch (caught) {
-      error = caught as UnknownApplianceTypeError;
-    }
-    expect(error?.unknowns).toHaveLength(2);
-    expect(error?.message).toMatch(/Sous Vide Circulator/);
-    expect(error?.message).toMatch(/Warming Drawer/);
-    expect(error?.message).toMatch(/B36CL80SNS/);
-    expect(error?.message).toMatch(/row 2/);
-  });
-});
 
 describe("fuel from the type prefix", () => {
   it.each([
@@ -170,9 +71,9 @@ describe("skipping rows the scene has no place for", () => {
     expect(summary.skipped.Dryer).toBe(1);
     expect(summary.skipped.Backguard).toBe(1);
     expect(summary.skipped.Filter).toBe(1);
-    // Cooktops and wine coolers are real appliances with no slot in this scene.
+    // Cooktops and the "other" family are real appliances with no slot here.
     expect(summary.skipped["no slot: cooktop"]).toBe(1);
-    expect(summary.skipped["no slot: other"]).toBe(1);
+    expect(summary.skipped["no slot: other"]).toBe(4);
   });
 
   it("accounts for every row it read", () => {
@@ -230,6 +131,69 @@ describe("the rest of the normalisation", () => {
   });
 });
 
+describe("the new families, end to end", () => {
+  const byModel = (model: string) => {
+    const { appliances } = run();
+    return appliances.find((item) => item.model === model);
+  };
+
+  it.each([
+    ["H7880BP", "slot-wall-oven", "combo"],
+    ["MEDMCW31JS", "slot-wall-oven", "combo"],
+    ["HBL8753UC", "slot-wall-oven", "double"],
+    ["SMD2470AH", "slot-microwave", "drawer"],
+    ["CWL112P2RS1", "slot-microwave", "built-in"],
+    ["PCG366WL", "slot-range", "rangetop"],
+    ["ICBSRT366", "slot-range", "rangetop"],
+    ["ICBIC-30R", "slot-fridge", "column"],
+    ["T24UR915LS", "slot-fridge", "undercounter"],
+    ["RB24S25MKIW1", "slot-fridge", "drawer"],
+  ])("%s lands in %s as %s", (model, slot, form) => {
+    const appliance = byModel(model);
+    expect(appliance?.slot).toBe(slot);
+    expect(appliance?.installType).toContain(form);
+  });
+
+  it("reads the fuel off a rangetop prefix", () => {
+    expect(byModel("PCG366WL")?.fuel).toBe("gas");
+    expect(byModel("ICBSRT366")?.fuel).toBe("induction");
+  });
+
+  it("keeps appliances with no slot out, and counts them by category", () => {
+    const { summary } = run();
+    // Coffee machine, ice-maker, warming drawer and the wine cooler.
+    expect(summary.skipped["no slot: other"]).toBe(4);
+    expect(byModel("CVA7440")).toBeUndefined();
+  });
+});
+
+describe("the accessory catch-all in a real file", () => {
+  it("collects unlisted parts into one bucket", () => {
+    const { appliances, summary } = run();
+    expect(summary.skipped["accessory-like"]).toBe(2);
+    expect(appliances.some((item) => item.model === "ACC-LOUVRE")).toBe(false);
+  });
+});
+
+describe("rows with no usable width", () => {
+  it("skips them into one bucket rather than one line each", () => {
+    const { appliances, summary } = run();
+    expect(summary.skipped["no width"]).toBe(1);
+    expect(summary.noWidthModels).toEqual(["Bosch SHX78CM5N"]);
+    expect(appliances.some((item) => item.model === "SHX78CM5N")).toBe(false);
+  });
+
+  it("names them only under verbose", () => {
+    const { summary } = run();
+    expect(formatSummary(summary)).not.toMatch(/SHX78CM5N/);
+    expect(formatSummary(summary, true)).toMatch(/SHX78CM5N/);
+  });
+
+  it("does not fail the import over it", () => {
+    expect(() => run()).not.toThrow();
+  });
+});
+
 describe("the converted file", () => {
   it("passes the schema the app loads", () => {
     const { appliances } = run();
@@ -245,11 +209,15 @@ describe("the converted file", () => {
     ).not.toThrow();
   });
 
-  it("warns about rows with no sourceUrl instead of failing them", () => {
+  it("counts rows with no sourceUrl instead of failing them", () => {
     const rows = fixture();
     rows[0].sourceUrl = "";
     const { summary } = convert(rows, SLOTS);
-    expect(summary.warnings.some((w) => w.includes("no sourceUrl"))).toBe(true);
+    expect(summary.warnings["no sourceUrl"]).toHaveLength(1);
+    // Counted by default, listed only when asked.
+    expect(formatSummary(summary)).toMatch(/1 {2}no sourceUrl/);
+    expect(formatSummary(summary)).not.toMatch(/bosch-b36cl80sns/);
+    expect(formatSummary(summary, true)).toMatch(/bosch-b36cl80sns/);
   });
 });
 

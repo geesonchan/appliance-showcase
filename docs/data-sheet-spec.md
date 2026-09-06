@@ -32,11 +32,11 @@ docs/decisions.md D4.
 | `model` | Model | Trimmed. |
 | `id` | Brand + Model | Slug of both, e.g. `bosch-b36cl80sns`. Together they identify a SKU. |
 | `category` | Appliance Type | Lookup, see the table below. Blank is skipped as discontinued; an unrecognised value fails the import. |
-| `fuel` | Appliance Type | Prefix: `Gas` → gas, `Induction` → induction, `Dual-Fuel` → dual, `Electric` / `E Range` / `ERange` → electric, anything else → `null`. |
-| `installType` | Feature + Appliance Type + Width | An array, gathered from all three. See below. |
+| `fuel` | Appliance Type | Prefix: `Gas` → gas, `G ` → gas (as in `G Rangetop`), `Induction` → induction, `Dual-Fuel` → dual, `Electric` / `E Range` / `ERange` → electric, anything else → `null`. |
+| `installType` | Feature + Appliance Type + Width | An array, gathered from all three. The Appliance Type names the form directly for the families that come in several (`Single Oven`, `Microwave Drawer`, `Refrigerator Column`). See below. |
 | `finish` | Color + Feature | `SS` → stainless, `Panel Ready` → panel-ready, `White` → white, `Black` → **matte-black** (the only black the scene renders). `Panel Ready` in Feature counts too. Empty → `["stainless"]`. |
 | `highlights.en` | Feature | Whatever is left after install form and finish have taken their words: `French Door`, `Bottom Freezer`, `4 Door`… Split on `,` `;` `/`. |
-| `widthIn` | Width | Number with the `CD` / `RD` suffix stripped. A row with no width is skipped and counted. |
+| `widthIn` | Width | Number with the `CD` / `RD` suffix stripped. A row with no usable width is skipped into a single `no width` bucket and named under `--verbose`; it never fails the import. |
 | `depthIn` | Depth | Blank → `null`. |
 | `heightIn` | Height | Blank → `null`. |
 | `slot` | *derived* | From `category`, via each slot's `compatibleCategories` in `data/slots.json`, so the two cannot drift. A category no slot accepts is skipped and counted. |
@@ -74,35 +74,68 @@ docs/decisions.md D4.
 Rules are ordered; the first match wins, so the `Range` and `Cooktop` suffixes
 catch every fuel prefix without a row per combination.
 
-| Appliance Type | category |
-| --- | --- |
-| `*Range` (`Gas Range`, `Induction Range`, `Dual-Fuel Range`, `ERange`) | `range` |
-| `*Cooktop` | `cooktop` |
-| `Refrigerator`, `Built-In Refrigerator` | `refrigerator` |
-| `Dishwasher` | `dishwasher` |
-| `*Hood` | `hood` |
-| `OTR`, `Microwave` | `microwave` |
-| `Wall Oven`, `Speed Oven`, `Steam Oven` | `wall-oven` |
-| `Wine*`, `Beverage*`, `Freezer*` | `other` |
-| `Washer`, `Dryer`, `Backguard`, `Handle`, `Filter`, `Blower`, `Pedestal`, `Outdoor*` | skipped, counted in the summary |
-| *blank* | skipped as `blank type`, counted, **and the models are listed** |
-| anything else | **fails the import** |
+| Appliance Type | category | install form it implies |
+| --- | --- | --- |
+| `*Range` (`Gas Range`, `Induction Range`, `Dual-Fuel Range`, `ERange`) | `range` | — |
+| `G Rangetop`, `Induction Rangetop` | `range` | `rangetop` |
+| `*Cooktop` | `cooktop` | — |
+| `Wall Oven`, `Speed Oven`, `Steam Oven` | `wall-oven` | — |
+| `Single Oven` | `wall-oven` | `single` |
+| `Double Oven`, `Steam Double Oven` | `wall-oven` | `double` |
+| `Speed Combo Oven`, `Microwave Combo Oven`, `Steam Combo Oven`, `Triple Combo Oven` | `wall-oven` | `combo` |
+| `OTR`, `Microwave` | `microwave` | — |
+| `Microwave Drawer` | `microwave` | `drawer` |
+| `Built-In Microwave` | `microwave` | `built-in` |
+| `Countertop Microwave` | `microwave` | `countertop` |
+| `Refrigerator`, `Built-In Refrigerator` | `refrigerator` | — |
+| `Refrigerator Column` | `refrigerator` | `column` |
+| `Undercounter Refrigerator` | `refrigerator` | `undercounter` |
+| `Refrigerator Drawer` | `refrigerator` | `drawer` |
+| `All Refrigerator`, `All Freezer` | `refrigerator` | — |
+| `Dishwasher` | `dishwasher` | — |
+| `*Hood` | `hood` | — |
+| `Wine*`, `Beverage*`, `Freezer*` | `other` | — |
+| `Warming Drawer`, `Ice-Maker`, `Trash Compactor` | `other` | — |
+| `Built-In Coffee Machine`, `Countertop Coffee Machine` | `other` | — |
+| `Countertop Combo Oven` | `other` | `countertop` |
+| the explicit skip list (laundry, parts, warranties — see `SKIPPED_TYPES`) | skipped by name, counted |  |
+| anything containing `Kit`, `Panel`, `Handle`, `Cover`, `Filter` or `Accessor*` | skipped as `accessory-like`, counted |  |
+| *blank* | skipped as `blank type`, counted, **and the models are listed** |  |
+| anything else | **fails the import** |  |
 
-The last three rows are the important ones, and they are three different
-things:
+### Order matters
 
-- **On the skip list** is a decision already made: an accessory or a laundry
-  machine has no place in this scene.
-- **Blank** means the model has almost certainly been discontinued — that is
-  what an empty type indicates in `Stock current`. Those rows are skipped, but
-  the import names every one of them, because "probably discontinued" is a
-  judgement to confirm against the sheet, not a silent deletion.
-- **Unrecognised** is a mistake. The import collects every unrecognised value
-  in the file, prints them all with their row number and model, and exits
-  non-zero without writing anything. One run tells you every value that needs a
-  rule; you are never fixing them one at a time. A silent skip would shrink the
-  catalogue and nobody would spot the missing model until a customer asked for
-  it.
+Rules are tried in this order, and the order is the safety property:
+
+1. blank, then `Outdoor*`
+2. the **explicit skip list**, matched exactly
+3. the **category rules** above, all anchored except the `*Range` / `*Rangetop`
+   / `*Cooktop` / `*Hood` suffixes
+4. the **accessory catch-all**
+5. otherwise, unknown
+
+The catch-all comes last on purpose. `Refrigerator Kit`, `Handle for
+Refrigerator`, `Cafe Range Kit` and `Microwave Mounting Kit` are all parts named
+after appliances; anchoring the category rules and running the exact tables
+first means none of them can be mistaken for the real thing, and a genuine
+appliance can never be swallowed by a word in its name. It also matches on word
+boundaries, so `Kit` cannot eat a `Kitchen` anything.
+
+### Near misses worth knowing about
+
+| These look alike | but | |
+| --- | --- | --- |
+| `Speed Combo Oven` | `wall-oven` | goes in a tall tower |
+| `Countertop Combo Oven` | `other` | sits on the counter |
+| `Countertop Microwave` | `microwave` | |
+| `Countertop Coffee Machine` | `other` | |
+| `Microwave Drawer` | `microwave` | |
+| `Refrigerator Drawer` | `refrigerator` | |
+| `Warming Drawer` | `other` | |
+| `All Freezer` | `refrigerator` | a column that happens to be all freezer |
+| `Freezer` | `other` | standalone |
+
+Each pair has a test.
 
 Note that `cooktop` and `other` are recognised categories with no slot in this
 kitchen, so those rows are skipped at the next step and counted separately as
@@ -119,6 +152,7 @@ in order:
 | Feature | `Under Cabinet` | `under-cabinet` |
 | Feature | `Chimney` | `wall-mount` |
 | Feature | `Insert`, `Island`, `Downdraft`, `Column`, `Drawer`, `Single`, `Double`, `Combo` | the same word, lower cased |
+| Appliance Type | `Single`, `Double`, `Combo`, `Drawer`, `Column`, `Countertop`, `Undercounter`, `Rangetop` | the same word, lower cased |
 | Appliance Type | `Built-In` | `built-in` |
 | Width | `CD` suffix | `counter-depth` |
 | — | nothing matched | `["freestanding"]` |
@@ -131,24 +165,38 @@ So `Width = "36 CD"` on a `Refrigerator` with `Feature = "French Door"` gives
 The import prints, and the tests assert on:
 
 ```
-read 22 rows, exported 14
+read 38 rows, exported 24
 skipped:
-    2  blank type
-    1  no slot: cooktop
-    1  no slot: other
-    1  Washer
-    1  Dryer
-    1  Backguard
-    1  Filter
+     4  no slot: other
+     2  blank type
+     2  accessory-like
+     1  no slot: cooktop
+     1  Washer
+     1  Dryer
+     1  Backguard
+     1  Filter
+     1  no width
 blank type (probably discontinued), check these 2:
   Thermador PRD304GHU
   Zephyr ZRM-E30AS
-warnings (3):
-  bosch-b36cl80sns: no sourceUrl
+warnings:
+     3  no sourceUrl
+     1  no cutoutWidthIn
+re-run with --verbose to list the rows behind those counts
 ```
 
 `exported + skipped` always equals `rowsRead`; a test enforces it, so a row can
 never vanish silently.
+
+Everything is counted rather than listed, with two exceptions:
+
+- **blank types are always named**, because skipping them is an inference from
+  an empty cell and the inference is worth confirming;
+- **`--verbose`** expands the warning buckets and the `no width` bucket into
+  one line per row.
+
+At full-catalogue scale a line per row buries the summary it belongs to, which
+is why counts are the default.
 
 When a file also contains unrecognised types, the summary above still prints —
 so you see the blank-type models in the same run — and then the import fails:

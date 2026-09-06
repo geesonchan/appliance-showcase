@@ -40,8 +40,14 @@ export interface ConversionSummary {
    * a judgement Leo should confirm rather than a silent deletion.
    */
   blankTypeModels: string[];
-  /** Rows that parsed but are missing something the app needs. */
-  warnings: string[];
+  /** The models skipped for having no usable Width. */
+  noWidthModels: string[];
+  /**
+   * Rows that parsed but are missing something the app needs, grouped by
+   * reason. Counted by default and listed only under --verbose: at full-catalogue
+   * scale a line per row buries the summary it belongs to.
+   */
+  warnings: Record<string, string[]>;
 }
 
 /** Minimal RFC 4180 reader: Sheets quotes any cell containing a comma. */
@@ -109,7 +115,11 @@ export function convert(
     exported: 0,
     skipped: {},
     blankTypeModels: [],
-    warnings: [],
+    noWidthModels: [],
+    warnings: {},
+  };
+  const warn = (reason: string, id: string) => {
+    (summary.warnings[reason] ??= []).push(id);
   };
   // Collected rather than thrown on sight, so one run reports every value that
   // needs a rule instead of making Leo fix them one at a time.
@@ -153,7 +163,12 @@ export function convert(
 
     const widthIn = toWidthIn(row.Width ?? "");
     if (widthIn === null) {
-      skip(`no width: ${row.Brand} ${row.Model}`);
+      // One bucket, not one line per model: at 4,700 rows the per-model form
+      // drowns everything else. The models are still named under --verbose.
+      skip("no width");
+      summary.noWidthModels.push(
+        `${toBrand(row.Brand ?? "")} ${(row.Model ?? "").trim()}`.trim(),
+      );
       return;
     }
 
@@ -198,12 +213,8 @@ export function convert(
       },
     });
 
-    if (!row.sourceUrl?.trim()) {
-      summary.warnings.push(`${id}: no sourceUrl`);
-    }
-    if (numberOrNull(row.cutoutWidthIn) === null) {
-      summary.warnings.push(`${id}: no cutoutWidthIn, fit check will use widthIn`);
-    }
+    if (!row.sourceUrl?.trim()) warn("no sourceUrl", id);
+    if (numberOrNull(row.cutoutWidthIn) === null) warn("no cutoutWidthIn", id);
     summary.exported++;
   });
 
@@ -218,35 +229,55 @@ export function convert(
   return { appliances, summary };
 }
 
-export function formatSummary(summary: ConversionSummary): string {
-  const lines = [
-    `read ${summary.rowsRead} rows, exported ${summary.exported}`,
-  ];
+export function formatSummary(summary: ConversionSummary, verbose = false): string {
+  const lines = [`read ${summary.rowsRead} rows, exported ${summary.exported}`];
+
   const skipped = Object.entries(summary.skipped).sort((a, b) => b[1] - a[1]);
   if (skipped.length > 0) {
     lines.push("skipped:");
-    for (const [reason, count] of skipped) lines.push(`  ${count.toString().padStart(3)}  ${reason}`);
+    for (const [reason, count] of skipped) {
+      lines.push(`  ${count.toString().padStart(4)}  ${reason}`);
+    }
   }
+
+  // Named rather than counted: skipping these is an inference from an empty
+  // cell, and the inference is worth confirming.
   if (summary.blankTypeModels.length > 0) {
     lines.push(
       `blank type (probably discontinued), check these ${summary.blankTypeModels.length}:`,
     );
     for (const model of summary.blankTypeModels) lines.push(`  ${model}`);
   }
-  if (summary.warnings.length > 0) {
-    lines.push(`warnings (${summary.warnings.length}):`);
-    for (const warning of summary.warnings.slice(0, 20)) lines.push(`  ${warning}`);
-    if (summary.warnings.length > 20) {
-      lines.push(`  ...and ${summary.warnings.length - 20} more`);
+
+  const warnings = Object.entries(summary.warnings).sort((a, b) => b[1].length - a[1].length);
+  if (warnings.length > 0) {
+    lines.push("warnings:");
+    for (const [reason, ids] of warnings) {
+      lines.push(`  ${ids.length.toString().padStart(4)}  ${reason}`);
+      if (verbose) for (const id of ids) lines.push(`          ${id}`);
     }
   }
+
+  if (verbose && summary.noWidthModels.length > 0) {
+    lines.push(`no width (${summary.noWidthModels.length}):`);
+    for (const model of summary.noWidthModels) lines.push(`  ${model}`);
+  }
+
+  if (!verbose && (warnings.length > 0 || summary.noWidthModels.length > 0)) {
+    lines.push("re-run with --verbose to list the rows behind those counts");
+  }
+
   return lines.join("\n");
 }
 
 function main() {
-  const input = process.argv[2];
+  const args = process.argv.slice(2);
+  const verbose = args.includes("--verbose");
+  const input = args.find((arg) => !arg.startsWith("--"));
   if (!input) {
-    console.error("usage: npm run import:csv -- path/to/showcase_export.csv");
+    console.error(
+      "usage: npm run import:csv -- path/to/showcase_export.csv [--verbose]",
+    );
     process.exit(1);
   }
 
@@ -262,7 +293,7 @@ function main() {
       // values that need a rule and the blank-type models worth confirming.
       const partial = (error as UnknownApplianceTypeError & { summary?: ConversionSummary })
         .summary;
-      if (partial) console.log(formatSummary(partial));
+      if (partial) console.log(formatSummary(partial, verbose));
       console.error(`\n${error.message}\n`);
       process.exit(1);
     }
@@ -286,7 +317,7 @@ function main() {
   parseDataFile(appliancesFileSchema, file, "data/appliances.json");
   writeFileSync("data/appliances.json", `${JSON.stringify(file, null, 2)}\n`, "utf8");
 
-  console.log(formatSummary(result.summary));
+  console.log(formatSummary(result.summary, verbose));
   console.log(`\nwrote data/appliances.json`);
 }
 

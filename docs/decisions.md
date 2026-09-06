@@ -119,5 +119,27 @@ adding a rule that only exists as a spreadsheet formula.
    invisibly — the failure mode is a model quietly missing from the picker,
    which nobody notices until a customer asks for it.
 
+There is a fourth, added after a census run over the full 4,703-row inventory:
+a **catch-all for accessories**. Anything whose type contains `Kit`, `Panel`,
+`Handle`, `Cover`, `Filter` or `Accessor*` and has not already been classified
+is skipped and counted as `accessory-like`. It runs *last*, after both exact
+tables, because the inventory is full of parts named after appliances —
+`Refrigerator Kit`, `Handle for Refrigerator`, `Cafe Range Kit`. Ordering it
+last, and anchoring the category patterns, is what stops the catch-all eating a
+real appliance.
+
 `exported + skipped === rowsRead` is asserted, so no row can disappear without
 appearing in one of those counts.
+
+**Counts by default, rows on request.** The summary reports buckets, not lines:
+`no width: 12` rather than twelve lines. `--verbose` expands them. The one
+exception is blank types, which are always named, for the reason above. A
+census over the whole inventory is what made this necessary — a line per row
+buries the summary it belongs to.
+
+**The mapping table is the specification.** Every value the census turned up
+has a test case in `scripts/classification.test.ts`, including the near misses
+that sit one word apart: `Speed Combo Oven` is a wall oven and `Countertop
+Combo Oven` is not; `Microwave Drawer`, `Refrigerator Drawer` and `Warming
+Drawer` are three different categories; `All Freezer` is refrigeration and
+`Freezer` is not.
