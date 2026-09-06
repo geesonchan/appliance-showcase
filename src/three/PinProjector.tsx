@@ -5,11 +5,14 @@ import { SLOT_ORDER } from "../data/catalogue";
 import { ROOM, SLOT_BY_ID, ft } from "../data/slots";
 import type { SlotId } from "../types";
 import { pinElements } from "./pinRegistry";
+import { spreadPins } from "./pinLayout";
 
 /** How far back along the view axis the occlusion ray starts, in feet. */
 const RAY_BACKOFF = 60;
 /** Ignore hits this close to the anchor; they are the anchor's own surround. */
 const RAY_EPSILON = 0.3;
+/** Clear space kept between two pin labels, in screen pixels. */
+const PIN_GAP = 6;
 
 /**
  * Where a pin sits in the world.
@@ -86,6 +89,12 @@ function owningSlot(object: THREE.Object3D): SlotId | undefined {
  *
  * The raycast is far more expensive than the projection, so it runs on every
  * fourth frame.
+ *
+ * Labels that land on top of each other are then pushed apart vertically, in
+ * pin order: 01 keeps its anchor and higher numbers move. The island is what
+ * forces this — the microwave and the wine cabinet are two feet apart and their
+ * pins both float above the same counter, so at some angles they sit on the
+ * same spot on screen.
  */
 export function PinProjector() {
   const camera = useThree((s) => s.camera);
@@ -103,9 +112,20 @@ export function PinProjector() {
   const forward = useMemo(() => new THREE.Vector3(), []);
   const origin = useMemo(() => new THREE.Vector3(), []);
 
+  // Reused every frame; the projector runs inside the render loop and must not
+  // allocate.
+  const layout = useMemo(
+    () => SLOT_ORDER.map(() => ({ x: 0, y: 0, w: 0, h: 0, hidden: true })),
+    [],
+  );
+
   useFrame(() => {
     frame.current += 1;
     const testOcclusion = frame.current % 4 === 0;
+    // Label sizes only change on selection, language or breakpoint, and reading
+    // them does not force layout here because we only ever write transform and
+    // opacity. Still, once every eight frames is plenty.
+    const measure = frame.current % 8 === 0;
 
     let occluders: THREE.Object3D[] = [];
     if (testOcclusion) {
@@ -119,9 +139,14 @@ export function PinProjector() {
       camera.getWorldDirection(forward);
     }
 
-    for (const { slotId, anchor } of anchors) {
+    for (let i = 0; i < anchors.length; i += 1) {
+      const { slotId, anchor } = anchors[i];
+      const box = layout[i];
       const el = pinElements.get(slotId);
-      if (!el) continue;
+      if (!el) {
+        box.hidden = true;
+        continue;
+      }
 
       if (testOcclusion && occluders.length > 0) {
         origin.copy(anchor).addScaledVector(forward, -RAY_BACKOFF);
@@ -139,13 +164,25 @@ export function PinProjector() {
       projected.copy(anchor).project(camera);
       const offscreen =
         projected.x < -1.15 || projected.x > 1.15 || projected.y < -1.15 || projected.y > 1.15;
-      const x = (projected.x * 0.5 + 0.5) * size.width;
-      const y = (-projected.y * 0.5 + 0.5) * size.height;
 
-      el.style.transform = `translate3d(${Math.round(x)}px, ${Math.round(y)}px, 0) translate(-50%, -50%)`;
-      const hidden = offscreen || occluded.current.has(slotId);
-      el.style.opacity = hidden ? "0" : "1";
-      el.style.pointerEvents = hidden ? "none" : "auto";
+      box.x = (projected.x * 0.5 + 0.5) * size.width;
+      box.y = (-projected.y * 0.5 + 0.5) * size.height;
+      box.hidden = offscreen || occluded.current.has(slotId);
+      if (measure || box.w === 0) {
+        box.w = el.offsetWidth;
+        box.h = el.offsetHeight;
+      }
+    }
+
+    spreadPins(layout, PIN_GAP);
+
+    for (let i = 0; i < anchors.length; i += 1) {
+      const el = pinElements.get(anchors[i].slotId);
+      if (!el) continue;
+      const box = layout[i];
+      el.style.transform = `translate3d(${Math.round(box.x)}px, ${Math.round(box.y)}px, 0) translate(-50%, -50%)`;
+      el.style.opacity = box.hidden ? "0" : "1";
+      el.style.pointerEvents = box.hidden ? "none" : "auto";
     }
   });
 
