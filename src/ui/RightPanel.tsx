@@ -82,7 +82,10 @@ export function RightPanel() {
       <PanelSection title={t("panel.package")}>
         <SummaryRow label={t("panel.package.series")} value={t(SCHEME.nameKey)} />
         <SummaryRow label={t("panel.package.total")} value={formatUSD(summary.totalUSD)} />
-        <SummaryRow label={t("panel.package.energy")} value={t(summary.energyKey)} />
+        <SummaryRow
+          label={t("panel.package.energy")}
+          value={summary.energyKeys.map((key) => t(key)).join(" + ")}
+        />
         <SummaryRow
           label={t("panel.package.lead")}
           value={t("panel.package.leadValue", { weeks: summary.leadTimeWeeks })}

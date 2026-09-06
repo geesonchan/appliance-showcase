@@ -52,7 +52,6 @@
   "energy.electric": "Electric",
   "energy.induction": "Induction",
   "energy.dual": "Dual fuel",
-  "energy.mixed": "Gas + electric",
   "slot.fridge": "Refrigerator",
   "slot.range": "Range",
   "slot.hood": "Ventilation hood",
@@ -91,5 +90,14 @@
   "mobile.close": "Close",
   "mobile.resize": "Resize panel",
   "debug.fps": "fps",
-  "debug.modeSwitch": "mode switch"
+  "debug.modeSwitch": "mode switch",
+  "swap.back": "All appliances",
+  "swap.title": "Alternatives",
+  "swap.opening": "Opening {w} × {h} × {d}",
+  "swap.selected": "Specified",
+  "swap.tooWide": "{delta} too wide",
+  "swap.deepNote": "{delta} deeper than the opening",
+  "swap.count": "{count} options",
+  "swap.noneOther": "No alternatives in the catalogue yet",
+  "debug.unverified": "unverified"
 }

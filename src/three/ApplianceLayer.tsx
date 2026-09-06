@@ -1,12 +1,15 @@
-import { APPLIANCE_BY_SLOT, SLOT_ORDER } from "../data/catalogue";
+import { SLOT_ORDER } from "../data/catalogue";
+import { useSelection } from "../store/useSelection";
 import { ApplianceModel } from "./ApplianceModel";
 
 /** All six appliances, driven by the current package selection. */
 export function ApplianceLayer() {
+  const selection = useSelection();
+
   return (
     <group name="appliance-layer">
       {SLOT_ORDER.map((slotId) => {
-        const appliance = APPLIANCE_BY_SLOT[slotId];
+        const appliance = selection[slotId];
         if (!appliance) return null;
         return (
           <ApplianceModel

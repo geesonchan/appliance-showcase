@@ -21,6 +21,7 @@ npm run dev
 | `npm test` | Build, then unit and smoke tests |
 | `npm run test:unit` | Schema and data invariants only, no browser |
 | `npm run screenshots` | Capture the review set (see below) |
+| `npm run import:csv -- file.csv` | Rebuild the catalogue from a `showcase_export` CSV |
 
 ### Review screenshots
 
@@ -46,7 +47,7 @@ and how long the last render-mode switch took to reach the screen.
 
 ```
 data/                   Source of truth, validated with zod at import time
-  appliances.json       Catalogue: msrpUSD, sourceUrl, verifiedAt, cutouts, requires
+  appliances.json       Catalogue, generated from the inventory sheet CSV
   slots.json            The product half of each slot: cutout, cabinet, utilities
   schemes.json          Which appliance fills each slot by default
 
@@ -58,16 +59,28 @@ src/
     slots.ts            slots.json merged with the placement from room.ts
     room.ts             Room shell, cabinet run segments, slot placement
     cabinets.ts         L-shaped cabinet run derived from the slot openings
+    fit.ts              Does this model go in this opening, and by how much not
+    utilities.ts        What the rough-in becomes given what is actually in the slot
     packageSummary.ts   Package totals shown in both side panels
   i18n/                 t(key, vars) over two JSON tables; en only for now
   store/useAppStore.ts  zustand: render mode, lighting, layers, selection, toasts
   three/                Scene graph, one file per layer
   ui/                   Panels, toolbar, pin overlay, mobile sheet
+scripts/
+  normalise.ts          Every cleaning rule for the sheet's raw columns
+  csv-to-json.ts        CSV in, validated data/appliances.json out
 tests/                  Smoke suite: a real browser against the real build
 docs/decisions.md       Standing decisions, and what each one forbids
+docs/data-sheet-spec.md App field to sheet column, with every mapping rule
 ```
 
 Three things are worth knowing before changing anything:
+
+**Selection is store state, and everything reads it.** `useSelection()` resolves
+the store's slot-to-id map into appliances. The scene, the pins, both panels and
+the utility layers all read it, so a swap updates every one of them from a single
+write; `data/utilities.ts` turns the selected appliance's `requires` into what
+the install view draws.
 
 **Product data is JSON; room geometry is code.** `data/*.json` is what Leo
 maintains and what the Sheet export will replace. Where the oven tower stands is

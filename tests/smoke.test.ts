@@ -152,6 +152,56 @@ describe("desktop", () => {
     await page.close();
   });
 
+  it("swaps a model in place and follows it everywhere", async () => {
+    const { page, errors } = await openPage(DESKTOP);
+    const summaryRow = (label: string) =>
+      page
+        .locator("div")
+        .filter({ hasText: new RegExp(`^${label}`) })
+        .last()
+        .evaluate((el) => el.textContent!.replace(/\s+/g, " ").trim());
+
+    const before = await summaryRow("Package total");
+    await page.getByRole("button", { name: /Range/ }).first().click();
+    await page.waitForTimeout(1200);
+
+    // The 36" pro range cannot go in a 30" opening, and says by how much.
+    const wide = page.getByRole("button", { name: /PRD366WHU/ });
+    expect(await wide.isDisabled()).toBe(true);
+    expect(await wide.textContent()).toMatch(/6" too wide/);
+
+    // Swapping to induction updates the package and the pin.
+    await page.getByRole("button", { name: /CHS900P2MS1/ }).click();
+    await page.waitForTimeout(900);
+    expect(await summaryRow("Package total")).not.toBe(before);
+    expect(await summaryRow("Energy")).toMatch(/Induction/);
+    // The pin and the callout both name the newly specified model.
+    expect(
+      await page.getByRole("button", { name: "02 Range Cafe", exact: true }).count(),
+    ).toBe(1);
+    expect(await page.getByText("Cafe CHS900P2MS1").isVisible()).toBe(true);
+
+    expect(errors).toEqual([]);
+    await page.close();
+  });
+
+  it("redraws the utility runs when the fuel changes", async () => {
+    const { page } = await openPage(DESKTOP);
+    await setMode(page, "Install");
+    await page.waitForTimeout(900);
+    const withGas = await drawsPerFrame(page);
+
+    await page.getByRole("button", { name: /Range/ }).first().click();
+    await page.waitForTimeout(1200);
+    await page.getByRole("button", { name: /CHS900P2MS1/ }).click();
+    await page.waitForTimeout(1200);
+    const withoutGas = await drawsPerFrame(page);
+
+    // Induction needs no gas line, so the scene draws strictly less.
+    expect(withoutGas).toBeLessThan(withGas);
+    await page.close();
+  });
+
   it("fades pins that the room has moved in front of", async () => {
     const { page } = await openPage(DESKTOP);
     const canvas = (await page.locator("canvas").boundingBox())!;

@@ -1,8 +1,10 @@
 import { useMemo } from "react";
 import * as THREE from "three";
 import { ROOM, SLOTS, ft } from "../data/slots";
+import { deriveUtilities } from "../data/utilities";
 import { useAppStore } from "../store/useAppStore";
-import type { Slot, UtilityType } from "../types";
+import { useSelection } from "../store/useSelection";
+import type { Slot, UtilityType, Utilities } from "../types";
 import { UTILITY_COLORS, UTILITY_RADIUS_IN } from "./materials";
 
 const UP = new THREE.Vector3(0, 1, 0);
@@ -157,12 +159,13 @@ function Trunk({
 /** The height an appliance actually lands its connection at. */
 const connectionHeight = (slot: Slot) => slot.position[1] + ft(slot.cutout.h) * 0.45;
 
-function GasRuns() {
+function GasRuns({ effective }: { effective: Record<string, Utilities> }) {
   const r = ft(UTILITY_RADIUS_IN.gas);
   return (
     <group name="utility-gas">
       {SLOTS.map((slot) => {
-        if (!slot.utilities.gas) return null;
+        const gas = effective[slot.id].gas;
+        if (!gas) return null;
         const a = wallAnchor(slot, STANDOFF.default);
         const riserTop = ft(26);
         return (
@@ -179,7 +182,7 @@ function GasRuns() {
               radius={r}
               color={UTILITY_COLORS.gas}
             />
-            {slot.utilities.gas.shutoff && (
+            {gas.shutoff && (
               <Fitting
                 position={[a.x, riserTop, a.z]}
                 size={[ft(4), ft(3), ft(3)]}
@@ -198,7 +201,7 @@ function GasRuns() {
  * feeders are heavier, drop to the toe kick, run under the cabinets, then rise
  * to the appliance.
  */
-function PowerRuns() {
+function PowerRuns({ effective }: { effective: Record<string, Utilities> }) {
   const panelAt = entry(STANDOFF.default);
   return (
     <group name="utility-power">
@@ -210,7 +213,7 @@ function PowerRuns() {
       />
       {SLOTS.map((slot) => {
         const a = wallAnchor(slot, STANDOFF.default);
-        const is240 = slot.utilities.power.voltage === 240;
+        const is240 = effective[slot.id].power.voltage === 240;
         const color = is240 ? UTILITY_COLORS.power240 : UTILITY_COLORS.power120;
         const radius = ft(is240 ? UTILITY_RADIUS_IN.power240 : UTILITY_RADIUS_IN.power120);
         const trunkY = is240 ? HEIGHT.power240Trunk : HEIGHT.power120;
@@ -238,12 +241,12 @@ function PowerRuns() {
   );
 }
 
-function WaterRuns() {
+function WaterRuns({ effective }: { effective: Record<string, Utilities> }) {
   const r = ft(UTILITY_RADIUS_IN.water);
   return (
     <group name="utility-water">
       {SLOTS.map((slot) => {
-        const w = slot.utilities.water;
+        const w = effective[slot.id].water;
         if (!w) return null;
         const supply = wallAnchor(slot, STANDOFF.default);
         return (
@@ -278,11 +281,11 @@ function WaterRuns() {
   );
 }
 
-function DuctRuns() {
+function DuctRuns({ effective }: { effective: Record<string, Utilities> }) {
   return (
     <group name="utility-duct">
       {SLOTS.map((slot) => {
-        const duct = slot.utilities.duct;
+        const duct = effective[slot.id].duct;
         if (!duct || duct.route === "recirc") return null;
         const radius = ft(duct.diameterIn) / 2;
         const top = slot.position[1] + ft(slot.cutout.h) * 0.55;
@@ -324,14 +327,25 @@ function DuctRuns() {
 export function UtilityLayer({ type }: { type: UtilityType }) {
   const renderMode = useAppStore((s) => s.renderMode);
   const enabled = useAppStore((s) => s.visibleUtilities[type]);
+  const selection = useSelection();
   const visible = renderMode === "install" && enabled;
+
+  // What each slot needs given what is actually in it, so swapping a gas range
+  // for induction drops the gas line and thickens the circuit.
+  const effective = useMemo(
+    () =>
+      Object.fromEntries(
+        SLOTS.map((slot) => [slot.id, deriveUtilities(slot, selection[slot.id])]),
+      ) as Record<string, Utilities>,
+    [selection],
+  );
 
   return (
     <group name={"utility-layer-" + type} visible={visible}>
-      {type === "gas" && <GasRuns />}
-      {type === "power" && <PowerRuns />}
-      {type === "water" && <WaterRuns />}
-      {type === "duct" && <DuctRuns />}
+      {type === "gas" && <GasRuns effective={effective} />}
+      {type === "power" && <PowerRuns effective={effective} />}
+      {type === "water" && <WaterRuns effective={effective} />}
+      {type === "duct" && <DuctRuns effective={effective} />}
     </group>
   );
 }

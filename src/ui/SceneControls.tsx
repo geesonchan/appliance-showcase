@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { SLOT_BY_ID } from "../data/slots";
-import { APPLIANCE_BY_SLOT } from "../data/catalogue";
+import { useSelectedAppliance } from "../store/useSelection";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
 import type { RenderMode } from "../types";
@@ -116,10 +116,10 @@ export function SelectionCallout() {
   const t = useT();
   const selectedSlot = useAppStore((s) => s.selectedSlot);
   const showToast = useAppStore((s) => s.showToast);
+  const appliance = useSelectedAppliance(selectedSlot ?? "slot-range");
   if (!selectedSlot) return null;
 
   const slot = SLOT_BY_ID[selectedSlot];
-  const appliance = APPLIANCE_BY_SLOT[selectedSlot];
 
   return (
     <div className="pointer-events-auto absolute bottom-32 right-4 z-20 w-56 rounded-md border border-line bg-surface p-4 md:bottom-24">

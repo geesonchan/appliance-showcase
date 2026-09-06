@@ -1,15 +1,23 @@
-import { APPLIANCE_BY_SLOT, SCHEME, SLOT_ORDER } from "../data/catalogue";
+import { SCHEME, SLOT_ORDER } from "../data/catalogue";
 import { formatThousands, formatUSD, usePackageSummary } from "../data/packageSummary";
 import { SLOT_BY_ID } from "../data/slots";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
+import { useSelection } from "../store/useSelection";
+import { SwapPanel } from "./SwapPanel";
 
-/** Hero copy, the two headline numbers, and the appliance list. */
+/**
+ * Hero copy, the two headline numbers, and the appliance list — until a slot is
+ * selected, at which point the column drills into that slot's alternatives.
+ */
 export function LeftPanel() {
   const t = useT();
   const summary = usePackageSummary();
+  const selection = useSelection();
   const selectedSlot = useAppStore((s) => s.selectedSlot);
   const selectSlot = useAppStore((s) => s.selectSlot);
+
+  if (selectedSlot) return <SwapPanel slotId={selectedSlot} />;
 
   return (
     <div className="flex h-full flex-col overflow-y-auto">
@@ -50,13 +58,13 @@ export function LeftPanel() {
       <ul className="pb-6">
         {SLOT_ORDER.map((slotId, index) => {
           const slot = SLOT_BY_ID[slotId];
-          const appliance = APPLIANCE_BY_SLOT[slotId];
+          const appliance = selection[slotId];
           const active = selectedSlot === slotId;
           return (
             <li key={slotId}>
               <button
                 type="button"
-                onClick={() => selectSlot(active ? null : slotId)}
+                onClick={() => selectSlot(slotId)}
                 className={[
                   "group flex w-full items-center gap-3 border-l-2 px-5 py-3 text-left transition-colors",
                   active

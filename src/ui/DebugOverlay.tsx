@@ -1,10 +1,6 @@
 import { useEffect, useState } from "react";
+import { DEBUG } from "../debug";
 import { useAppStore } from "../store/useAppStore";
-
-/** Enabled with `?debug=1`. Read once; toggling it means a reload. */
-const enabled =
-  typeof window !== "undefined" &&
-  new URLSearchParams(window.location.search).get("debug") === "1";
 
 /** Rolling frame rate over roughly the last half second. */
 function useFps() {
@@ -65,7 +61,7 @@ function DebugPanel() {
   const modeSwitchMs = useModeSwitchTiming();
 
   return (
-    <div className="pointer-events-none absolute bottom-24 left-3 z-50 md:bottom-3 rounded border border-line bg-[rgba(31,42,34,0.88)] px-2.5 py-1.5 font-mono text-[10px] leading-[1.5] text-[#F7F5EF]">
+    <div className="pointer-events-none absolute bottom-20 left-3 z-50 rounded border border-line bg-[rgba(31,42,34,0.88)] px-2.5 py-1.5 font-mono text-[10px] leading-[1.5] text-[#F7F5EF]">
       <div>
         <span className="tabular-nums">{String(fps).padStart(2, "0")}</span> fps
       </div>
@@ -81,6 +77,6 @@ function DebugPanel() {
 
 /** Diagnostics overlay, rendered only when the page is loaded with `?debug=1`. */
 export function DebugOverlay() {
-  if (!enabled) return null;
+  if (!DEBUG) return null;
   return <DebugPanel />;
 }

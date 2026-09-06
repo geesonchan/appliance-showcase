@@ -34,7 +34,7 @@ const click = (page, name) =>
  * through the side panels, which live in a sheet on a phone, so each viewport
  * supplies its own way in.
  */
-async function captureStates(page, prefix, { selectAppliance, setLighting }) {
+async function captureStates(page, prefix, { selectAppliance, setLighting, showAlternatives, hideAlternatives }) {
   await page.screenshot({ path: `${outDir}/${prefix}overview.png` });
 
   await click(page, "White model");
@@ -51,6 +51,13 @@ async function captureStates(page, prefix, { selectAppliance, setLighting }) {
   await selectAppliance(page);
   await settle(page, 1500);
   await page.screenshot({ path: `${outDir}/${prefix}zoomed.png` });
+
+  // The alternatives for the slot just selected, fit check included.
+  await showAlternatives(page);
+  await settle(page, 900);
+  await page.screenshot({ path: `${outDir}/${prefix}swap.png` });
+  await hideAlternatives(page);
+  await settle(page, 600);
 
   // Back to the default framing so day and night are comparable.
   await click(page, "Reset view");
@@ -93,6 +100,16 @@ async function main() {
           p.getByRole("button", { name: /Range/ }).first().click(),
         ),
       setLighting: (p, value) => viaSheet(p, "Configure", () => click(p, value)),
+      // On a phone the alternatives live in the sheet, which stays open.
+      showAlternatives: async (p) => {
+        await click(p, "Appliances");
+        await p.waitForTimeout(600);
+      },
+      // Close the sheet again so the toolbar underneath is reachable.
+      hideAlternatives: async (p) => {
+        await p.getByRole("button", { name: "Close" }).click();
+        await p.waitForTimeout(400);
+      },
     });
 
     // Sixth mobile shot: the half-height sheet, scene still visible above it.
@@ -111,6 +128,12 @@ async function main() {
     await captureStates(page, "desktop-", {
       selectAppliance: (p) => p.getByRole("button", { name: /Range/ }).first().click(),
       setLighting: (p, value) => click(p, value),
+      // The desktop column is already showing them after the selection.
+      showAlternatives: async () => {},
+      hideAlternatives: async (p) => {
+        await click(p, "All appliances");
+        await p.waitForTimeout(400);
+      },
     });
     await ctx.close();
   }

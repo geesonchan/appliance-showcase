@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { SCHEME } from "../data/catalogue";
 import type { Lang, Lighting, RenderMode, SlotId, UtilityType } from "../types";
 
 export interface ToastMessage {
@@ -15,6 +16,8 @@ interface AppState {
   /** Which utility layers are visible while in install mode. */
   visibleUtilities: Record<UtilityType, boolean>;
   selectedSlot: SlotId | null;
+  /** Which appliance fills each slot right now, by id. */
+  selection: Record<SlotId, string>;
   /** Bumped to ask the camera rig to return to the default isometric view. */
   resetToken: number;
   /** Bumped by the +/- buttons; positive steps in, negative steps out. */
@@ -35,6 +38,7 @@ interface AppState {
   toggleLabels: () => void;
   toggleUtility: (type: UtilityType) => void;
   selectSlot: (slot: SlotId | null) => void;
+  selectAppliance: (slot: SlotId, applianceId: string) => void;
   resetView: () => void;
   requestZoom: (direction: 1 | -1) => void;
   setHelpOpen: (open: boolean) => void;
@@ -54,6 +58,9 @@ export const useAppStore = create<AppState>((set, get) => ({
   showLabels: true,
   visibleUtilities: { gas: true, power: true, water: true, duct: true },
   selectedSlot: null,
+  // Starts from the scheme's default and is the single source of truth from
+  // then on; the scene, the summary and the utility layers all read it.
+  selection: { ...SCHEME.defaultSelection } as Record<SlotId, string>,
   resetToken: 0,
   zoomRequest: { token: 0, direction: 1 },
   helpOpen: false,
@@ -78,6 +85,8 @@ export const useAppStore = create<AppState>((set, get) => ({
   // The mobile sheet is half height, so selecting an appliance leaves it open;
   // the fly-in happens in the half of the screen the sheet does not cover.
   selectSlot: (selectedSlot) => set({ selectedSlot }),
+  selectAppliance: (slot, applianceId) =>
+    set((s) => ({ selection: { ...s.selection, [slot]: applianceId } })),
   resetView: () => set((s) => ({ resetToken: s.resetToken + 1, selectedSlot: null })),
   requestZoom: (direction) =>
     set((s) => ({ zoomRequest: { token: s.zoomRequest.token + 1, direction } })),

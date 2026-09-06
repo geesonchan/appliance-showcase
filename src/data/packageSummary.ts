@@ -1,4 +1,4 @@
-import { APPLIANCE_BY_SLOT, SLOT_ORDER } from "./catalogue";
+import { useSelection } from "../store/useSelection";
 
 /** Rounded to whole thousands, e.g. 29481 -> "$29K". */
 export const formatThousands = (usd: number) =>
@@ -12,13 +12,12 @@ export const formatUSD = (usd: number) =>
  * will recompute this as the user swaps models.
  */
 export function usePackageSummary() {
-  const items = SLOT_ORDER.map((slot) => APPLIANCE_BY_SLOT[slot]).filter(Boolean);
+  const selection = useSelection();
+  const items = Object.values(selection).filter(Boolean);
   const totalUSD = items.reduce((sum, a) => sum + a.msrpUSD, 0);
-  const fuels = new Set(items.map((a) => a.fuel).filter(Boolean));
-
-  let energyKey = "energy.electric";
-  if (fuels.size > 1) energyKey = "energy.mixed";
-  else if (fuels.size === 1) energyKey = "energy." + [...fuels][0];
+  // Built from the fuels actually in the package rather than a fixed label:
+  // swapping the gas range for induction has to stop the panel saying "gas".
+  const fuels = [...new Set(items.map((a) => a.fuel).filter(Boolean))].sort();
 
   return {
     items,
@@ -28,7 +27,8 @@ export function usePackageSummary() {
     // real total, so the number stays honest without inventing a margin.
     rangeLow: Math.floor(totalUSD / 1000) * 1000,
     rangeHigh: Math.ceil(totalUSD / 1000) * 1000,
-    energyKey,
+    /** i18n keys for each distinct fuel, joined with "+" by the panel. */
+    energyKeys: fuels.length > 0 ? fuels.map((fuel) => `energy.${fuel}`) : ["energy.electric"],
     leadTimeWeeks: Math.max(...items.map((a) => a.leadTimeWeeks ?? 0)),
   };
 }

@@ -1,7 +1,8 @@
-import { APPLIANCE_BY_SLOT, SLOT_ORDER } from "../data/catalogue";
+import { SLOT_ORDER } from "../data/catalogue";
 import { SLOT_BY_ID } from "../data/slots";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
+import { useSelection } from "../store/useSelection";
 import { registerPin } from "../three/pinRegistry";
 
 /**
@@ -14,6 +15,7 @@ export function PinOverlay() {
   const showLabels = useAppStore((s) => s.showLabels);
   const selectedSlot = useAppStore((s) => s.selectedSlot);
   const selectSlot = useAppStore((s) => s.selectSlot);
+  const selection = useSelection();
 
   if (!showLabels) return null;
 
@@ -21,7 +23,7 @@ export function PinOverlay() {
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
       {SLOT_ORDER.map((slotId, index) => {
         const slot = SLOT_BY_ID[slotId];
-        const appliance = APPLIANCE_BY_SLOT[slotId];
+        const appliance = selection[slotId];
         const selected = selectedSlot === slotId;
         return (
           <button
