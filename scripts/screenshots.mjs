@@ -6,9 +6,9 @@
  *
  * Pass a round number as the first argument; it defaults to 1.
  * Set BASE_URL to point at a preview build instead of the dev server.
- * Set SET=mobile or SET=desktop to capture only one of the two, or SET=round4
- * for the four states round 4 is actually about: the island, the wine door, the
- * fly-in to the microwave and the install checklist open.
+ * Set SET=mobile or SET=desktop to capture only one of the two; SET=round4 for
+ * the island set; SET=round5 for the reworked layout, the two island fly-ins,
+ * the spec card and the quote page.
  */
 import { mkdir } from "node:fs/promises";
 import { chromium } from "playwright";
@@ -127,9 +127,56 @@ async function flyTo(page, name) {
   await settle(page, 1600);
 }
 
+/**
+ * Round 5: the room laid out to the cabinet rules, the fly-ins arriving at each
+ * slot's own angle with whatever is in the way faded, and the two pages the
+ * detail moved onto.
+ */
+async function captureRound5(page) {
+  await page.screenshot({ path: `${outDir}/mobile-overview.png` });
+
+  await flyTo(page, /Microwave/);
+  await page.screenshot({ path: `${outDir}/mobile-microwave.png` });
+  await click(page, "Reset view");
+  await settle(page, 1100);
+
+  await flyTo(page, /Refrigerator/);
+  await page.screenshot({ path: `${outDir}/mobile-fridge.png` });
+
+  // The spec card, for the appliance the camera is already on.
+  await page.getByRole("button", { name: "View specs" }).last().click();
+  await page.waitForTimeout(700);
+  await page.screenshot({ path: `${outDir}/mobile-spec-card.png` });
+  await page.getByRole("button", { name: "Close" }).last().click();
+  await page.waitForTimeout(400);
+  await click(page, "Reset view");
+  await settle(page, 1100);
+
+  await click(page, "Quote");
+  await page.waitForTimeout(800);
+  await page.screenshot({ path: `${outDir}/mobile-quote.png` });
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round5") {
+    const ctx = await browser.newContext({
+      viewport: MOBILE,
+      deviceScaleFactor: 2,
+      isMobile: true,
+      hasTouch: true,
+    });
+    const page = await ctx.newPage();
+    await page.goto(baseUrl, { waitUntil: "networkidle" });
+    await settle(page, 2200);
+    await captureRound5(page);
+    await ctx.close();
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round4") {
     const ctx = await browser.newContext({
