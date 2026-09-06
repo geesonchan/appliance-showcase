@@ -215,6 +215,7 @@ export function convert(
       fuel: toFuel(type),
       blower: toBlower(category, row.blower ?? ""),
       compatibleBlowers: toCompatibleBlowers(category, model),
+      topDepthIn: category === "hood" ? toDimension(row.topDepthIn ?? "") : null,
       widthIn,
       heightIn: numberOrNull(row.Height),
       depthIn: numberOrNull(row.Depth),

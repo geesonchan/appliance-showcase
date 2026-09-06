@@ -17,7 +17,7 @@ export const ft = (inches: number) => inches / 12;
 export const ROOM = {
   halfX: 7,
   halfZ: 6,
-  wallHeight: 9,
+  wallHeight: 8,
   /** Finished counter height: a 34.5" base box under a 1.5" top. */
   counterHeight: ft(36),
   counterThickness: ft(1.5),
@@ -60,6 +60,11 @@ export const CABINET_STANDARDS = {
     aboveCooktopMaxIn: 40,
     /** The duct collar sits this far above the canopy top. */
     outletAboveBodyIn: 8.375,
+    /**
+     * The rectangular opening in the top of the canopy, and how far its centre
+     * sits from the wall. This is what the cabinet above has to be cut for.
+     */
+    outlet: { widthIn: 8.8125, depthIn: 6.8125, fromWallIn: 6 },
   },
 };
 

@@ -2,7 +2,8 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import type { ThreeEvent } from "@react-three/fiber";
 import { applianceBox, flushOffset } from "../data/applianceBox";
-import { ROOM, SLOT_BY_ID, ft } from "../data/slots";
+import { hoodProfile, hoodTopDepthIn } from "../data/hood";
+import { CABINET_STANDARDS, ROOM, SLOT_BY_ID, ft } from "../data/slots";
 import { useAppStore } from "../store/useAppStore";
 import type { Appliance, Category, SlotId } from "../types";
 import { SCENE_COLORS, finishSurface, surface, type SurfaceProps } from "./materials";
@@ -68,6 +69,7 @@ export function ApplianceModel({ slot, appliance }: ApplianceModelProps) {
         <Body
           category={appliance.category}
           installType={appliance.installType}
+          topDepthIn={hoodTopDepthIn(appliance, box.d * 12)}
           w={box.w}
           h={box.h}
           d={box.d}
@@ -180,6 +182,8 @@ function Mat({ s }: { s: SurfaceProps }) {
 interface BodyProps {
   category: Category;
   installType: string[];
+  /** Hoods only: the depth of the flat top of the wedge. */
+  topDepthIn: number;
   w: number;
   h: number;
   d: number;
@@ -197,7 +201,7 @@ interface BodyProps {
  * otherwise every model in the room is an inch or two bigger than its own spec
  * sheet, which is the number this whole app exists to be trusted about.
  */
-function Body({ category, installType, w, h, d, body, trim, glass }: BodyProps) {
+function Body({ category, installType, topDepthIn, w, h, d, body, trim, glass }: BodyProps) {
   /** How far a handle stands off the door face. */
   const grip = ft(1.5);
   const bar = ft(0.9);
@@ -283,7 +287,17 @@ function Body({ category, installType, w, h, d, body, trim, glass }: BodyProps) 
     }
 
     case "hood":
-      return <Hood installType={installType} w={w} h={h} d={d} body={body} glass={glass} />;
+      return (
+        <Hood
+          installType={installType}
+          topDepthIn={topDepthIn}
+          w={w}
+          h={h}
+          d={d}
+          body={body}
+          glass={glass}
+        />
+      );
 
     case "dishwasher":
       return (
@@ -379,14 +393,15 @@ function Body({ category, installType, w, h, d, body, trim, glass }: BodyProps) 
  * A ventilation hood, which is four different objects depending on how it is
  * mounted.
  *
- * An under-cabinet hood is a flat canopy screwed to the underside of a wall
- * cabinet, and drawing a chimney on one is simply wrong — the cabinet is where
- * the chimney would be. A chimney hood carries its own duct cover up the wall,
- * an island hood hangs from the ceiling on a drop, and an insert is buried in
- * joinery so only its intake shows.
+ * An under-cabinet hood is a wedge screwed to the underside of a wall cabinet,
+ * and drawing a chimney on one is simply wrong — the cabinet is where the
+ * chimney would be. A chimney hood carries the same wedge plus a duct cover up
+ * the wall, an island hood hangs from the ceiling on a drop, and an insert is
+ * buried in joinery so only its intake shows.
  */
 function Hood({
   installType,
+  topDepthIn,
   w,
   h,
   d,
@@ -394,6 +409,7 @@ function Hood({
   glass,
 }: {
   installType: string[];
+  topDepthIn: number;
   w: number;
   h: number;
   d: number;
@@ -403,31 +419,40 @@ function Hood({
   const kind = installType.find((type) =>
     ["under-cabinet", "wall-mount", "chimney", "island", "insert"].includes(type),
   );
-  // The intake: baffle filters set into the underside of the canopy.
-  const filters = (
-    <mesh position={[0, ft(0.7), 0]}>
-      <boxGeometry args={[w * 0.88, ft(1), d * 0.8]} />
-      <Mat s={glass} />
-    </mesh>
+
+  const canopy = useMemo(
+    () => wedgeGeometry(w, h, d, topDepthIn),
+    [w, h, d, topDepthIn],
   );
 
   if (kind === "insert") {
     // Buried in custom joinery: only the opening it needs is worth drawing.
     return (
-      <group>
-        <mesh position={[0, h / 2, 0]}>
-          <boxGeometry args={[w * 0.92, h * 0.9, d * 0.9]} />
-          <Mat s={glass} />
-        </mesh>
-      </group>
+      <mesh position={[0, h / 2, 0]}>
+        <boxGeometry args={[w * 0.92, h * 0.9, d * 0.9]} />
+        <Mat s={glass} />
+      </mesh>
     );
   }
 
-  const canopy = (
-    <mesh position={[0, h / 2, 0]} castShadow>
-      <boxGeometry args={[w, h, d]} />
-      <Mat s={body} />
-    </mesh>
+  const outlet = CABINET_STANDARDS.hood.outlet;
+  const body_ = (
+    <>
+      <mesh geometry={canopy} castShadow>
+        <Mat s={body} />
+      </mesh>
+      {/* The intake: baffle filters set into the underside. */}
+      <mesh position={[0, ft(0.7), 0]}>
+        <boxGeometry args={[w * 0.88, ft(1), d * 0.6]} />
+        <Mat s={glass} />
+      </mesh>
+      {/* The duct opening, set into the flat top rather than standing proud
+          of it: it is a hole, and the canopy is 18" to the top of that top. */}
+      <mesh position={[0, h - ft(0.4), -d / 2 + ft(outlet.fromWallIn)]}>
+        <boxGeometry args={[ft(outlet.widthIn), ft(0.8), ft(outlet.depthIn)]} />
+        <Mat s={glass} />
+      </mesh>
+    </>
   );
 
   if (kind === "island") {
@@ -435,8 +460,7 @@ function Hood({
     const drop = ROOM.wallHeight - h;
     return (
       <group>
-        {canopy}
-        {filters}
+        {body_}
         <mesh position={[0, h + drop / 2, 0]}>
           <boxGeometry args={[w * 0.2, drop, d * 0.2]} />
           <Mat s={body} />
@@ -450,22 +474,39 @@ function Hood({
     const riser = ROOM.wallHeight - ROOM.counterHeight - ft(30) - h;
     return (
       <group>
-        {canopy}
-        {filters}
-        <mesh position={[0, h + riser / 2, -d * 0.3]} castShadow>
-          <boxGeometry args={[w * 0.36, riser, d * 0.36]} />
+        {body_}
+        <mesh position={[0, h + riser / 2, -d / 2 + topDepthFt(topDepthIn, d) / 2]} castShadow>
+          <boxGeometry args={[w * 0.36, riser, topDepthFt(topDepthIn, d) * 0.8]} />
           <Mat s={body} />
         </mesh>
       </group>
     );
   }
 
-  // Under-cabinet: the canopy and nothing else. The wall cabinet above it
-  // hides the duct, which is the whole point of the type.
-  return (
-    <group>
-      {canopy}
-      {filters}
-    </group>
-  );
+  // Under-cabinet: the wedge and nothing else. The wall cabinet above it hides
+  // the duct, which is the whole point of the type.
+  return <group>{body_}</group>;
+}
+
+const topDepthFt = (topDepthIn: number, d: number) => Math.min(ft(topDepthIn), d);
+
+/**
+ * The canopy as a solid: the section extruded across the width.
+ *
+ * The profile is described from the wall outward and from the underside up, so
+ * the extrusion comes out lying on its side and has to be turned a quarter turn
+ * to face the room.
+ */
+function wedgeGeometry(w: number, h: number, d: number, topDepthIn: number): THREE.BufferGeometry {
+  const shape = new THREE.Shape();
+  const profile = hoodProfile(d * 12, topDepthIn, h * 12);
+  shape.moveTo(ft(profile[0][0]), ft(profile[0][1]));
+  for (const [x, y] of profile.slice(1)) shape.lineTo(ft(x), ft(y));
+  shape.closePath();
+
+  const geometry = new THREE.ExtrudeGeometry(shape, { depth: w, bevelEnabled: false });
+  // Profile x runs from the wall toward the room; the extrusion runs across it.
+  geometry.rotateY(-Math.PI / 2);
+  geometry.translate(w / 2, 0, -d / 2);
+  return geometry;
 }

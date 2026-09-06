@@ -94,6 +94,11 @@ export const applianceSchema = z.object({
    * offering an empty list. See docs/decisions.md D13.
    */
   compatibleBlowers: z.array(z.string()).default([]),
+  /**
+   * Hoods only: the depth of the flat top of a wedge canopy, where the duct
+   * comes off. Null falls back to the 12" the clearance drawing shows.
+   */
+  topDepthIn: inches.nullable().default(null),
 
   /**
    * Width, or null for a blower. Everything else needs one, because the fit
