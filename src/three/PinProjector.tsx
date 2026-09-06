@@ -1,7 +1,7 @@
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
-import { SLOT_ORDER } from "../data/appliances";
+import { SLOT_ORDER } from "../data/catalogue";
 import { SLOT_BY_ID, ft } from "../data/slots";
 import type { SlotId } from "../types";
 import { pinElements } from "./pinRegistry";

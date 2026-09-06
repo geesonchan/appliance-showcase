@@ -1,0 +1,86 @@
+import appliancesFile from "../../data/appliances.json";
+import schemesFile from "../../data/schemes.json";
+import type { Appliance, Scheme, SlotId } from "../types";
+import {
+  appliancesFileSchema,
+  parseDataFile,
+  schemesFileSchema,
+} from "./schema";
+import { SLOT_BY_ID } from "./slots";
+
+/**
+ * The appliance catalogue and the schemes built from it.
+ *
+ * Validation runs at import time, so a malformed row stops the app at startup
+ * with a readable error rather than surfacing as a wrong fit check or a blank
+ * spec card later on.
+ */
+const parsedAppliances = parseDataFile(
+  appliancesFileSchema,
+  appliancesFile,
+  "data/appliances.json",
+);
+const parsedSchemes = parseDataFile(schemesFileSchema, schemesFile, "data/schemes.json");
+
+export const APPLIANCES: Appliance[] = parsedAppliances.appliances;
+export const CATALOGUE_META = parsedAppliances._meta;
+
+export const APPLIANCE_BY_ID: Record<string, Appliance> = Object.fromEntries(
+  APPLIANCES.map((appliance) => [appliance.id, appliance]),
+);
+
+/** Every candidate for a slot, cheapest first. Step 2 lists these for swapping. */
+export const APPLIANCES_BY_SLOT: Record<SlotId, Appliance[]> = (() => {
+  const grouped = {} as Record<SlotId, Appliance[]>;
+  for (const slotId of Object.keys(SLOT_BY_ID) as SlotId[]) grouped[slotId] = [];
+  for (const appliance of APPLIANCES) grouped[appliance.slot].push(appliance);
+  for (const list of Object.values(grouped)) list.sort((a, b) => a.msrpUSD - b.msrpUSD);
+  return grouped;
+})();
+
+/** Ordering used by the left column, the pin numbering and the plan key. */
+export const SLOT_ORDER: SlotId[] = [
+  "slot-fridge",
+  "slot-range",
+  "slot-hood",
+  "slot-wall-oven",
+  "slot-dishwasher",
+  "slot-microwave",
+];
+
+function resolveScheme(scheme: (typeof parsedSchemes.schemes)[number]): Scheme {
+  // Cross-file integrity: zod can check the shape of an id but not that the
+  // appliance it names exists, or that it belongs to the slot it is filed under.
+  for (const [slotId, applianceId] of Object.entries(scheme.defaultSelection)) {
+    const appliance = APPLIANCE_BY_ID[applianceId];
+    if (!appliance) {
+      throw new Error(
+        `data/schemes.json: ${scheme.id} selects unknown appliance "${applianceId}" for ${slotId}`,
+      );
+    }
+    if (appliance.slot !== slotId) {
+      throw new Error(
+        `data/schemes.json: ${scheme.id} puts ${applianceId} in ${slotId}, but it belongs to ${appliance.slot}`,
+      );
+    }
+  }
+  return scheme as Scheme;
+}
+
+export const SCHEMES: Scheme[] = parsedSchemes.schemes.map(resolveScheme);
+export const SCHEME: Scheme = SCHEMES[0];
+
+/** Resolve a scheme's id-based selection into the appliances themselves. */
+export function selectionFor(scheme: Scheme): Record<SlotId, Appliance> {
+  return Object.fromEntries(
+    SLOT_ORDER.map((slotId) => [slotId, APPLIANCE_BY_ID[scheme.defaultSelection[slotId]]]),
+  ) as Record<SlotId, Appliance>;
+}
+
+/**
+ * The package as currently specified.
+ *
+ * M2 step 1 reads the scheme default. Step 2 replaces this with a store
+ * selector so swapping a model updates the scene; nothing else needs to move.
+ */
+export const APPLIANCE_BY_SLOT: Record<SlotId, Appliance> = selectionFor(SCHEME);

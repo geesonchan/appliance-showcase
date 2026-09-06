@@ -1,4 +1,4 @@
-import { SCHEME } from "../data/appliances";
+import { SCHEME } from "../data/catalogue";
 import { formatUSD, usePackageSummary } from "../data/packageSummary";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";

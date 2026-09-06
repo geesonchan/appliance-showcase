@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { SLOT_BY_ID } from "../data/slots";
-import { APPLIANCE_BY_SLOT } from "../data/appliances";
+import { APPLIANCE_BY_SLOT } from "../data/catalogue";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
 import type { RenderMode } from "../types";

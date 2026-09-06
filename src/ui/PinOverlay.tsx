@@ -1,4 +1,4 @@
-import { APPLIANCE_BY_SLOT, SLOT_ORDER } from "../data/appliances";
+import { APPLIANCE_BY_SLOT, SLOT_ORDER } from "../data/catalogue";
 import { SLOT_BY_ID } from "../data/slots";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";

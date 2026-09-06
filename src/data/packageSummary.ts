@@ -1,4 +1,4 @@
-import { APPLIANCE_BY_SLOT, SLOT_ORDER } from "./appliances";
+import { APPLIANCE_BY_SLOT, SLOT_ORDER } from "./catalogue";
 
 /** Rounded to whole thousands, e.g. 29481 -> "$29K". */
 export const formatThousands = (usd: number) =>
@@ -13,7 +13,7 @@ export const formatUSD = (usd: number) =>
  */
 export function usePackageSummary() {
   const items = SLOT_ORDER.map((slot) => APPLIANCE_BY_SLOT[slot]).filter(Boolean);
-  const totalUSD = items.reduce((sum, a) => sum + a.priceUSD, 0);
+  const totalUSD = items.reduce((sum, a) => sum + a.msrpUSD, 0);
   const fuels = new Set(items.map((a) => a.fuel).filter(Boolean));
 
   let energyKey = "energy.electric";

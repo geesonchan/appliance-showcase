@@ -1,0 +1,23 @@
+{
+  "_meta": {
+    "generatedBy": "seed data, hand written",
+    "updatedAt": "2026-09-05",
+    "provenance": "One demo scheme. defaultSelection picks one appliance per slot out of data/appliances.json; every id here must exist there, which the loader enforces."
+  },
+  "schemes": [
+    {
+      "id": "scheme-01",
+      "nameKey": "scheme.01.name",
+      "conceptKey": "scheme.01.concept",
+      "palette": ["#EFEDE6", "#2E5C45", "#C9A77B", "#1F2A22"],
+      "defaultSelection": {
+        "slot-fridge": "fridge-subzero-cl3650ufd",
+        "slot-range": "range-bluestar-rnb304bv2",
+        "slot-hood": "hood-zephyr-zsa-e36cs",
+        "slot-wall-oven": "oven-thermador-pod301w",
+        "slot-dishwasher": "dw-miele-g5892scvi",
+        "slot-microwave": "mw-sharp-smd2489es"
+      }
+    }
+  ]
+}

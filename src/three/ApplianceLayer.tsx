@@ -1,4 +1,4 @@
-import { APPLIANCE_BY_SLOT, SLOT_ORDER } from "../data/appliances";
+import { APPLIANCE_BY_SLOT, SLOT_ORDER } from "../data/catalogue";
 import { ApplianceModel } from "./ApplianceModel";
 
 /** All six appliances, driven by the current package selection. */

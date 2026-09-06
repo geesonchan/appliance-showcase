@@ -2,7 +2,8 @@
 
 An isometric 3D kitchen that presents six appliances as real cutouts, real cabinet
 runs and real utility rough-ins. See `appliance-showcase-brief.md` for the product
-brief; this repository currently implements **M1 (skeleton)**.
+brief. M1 (skeleton) is complete; M2 is in progress — the data pipeline is in,
+swap-in-place and the rules engine are not yet.
 
 ## Run
 
@@ -17,6 +18,8 @@ npm run dev
 | `npm run build` | Type-check and build to `dist/` |
 | `npm run preview` | Serve the production build on :4173 |
 | `npm run typecheck` | Types only |
+| `npm test` | Build, then unit and smoke tests |
+| `npm run test:unit` | Schema and data invariants only, no browser |
 | `npm run screenshots` | Capture the review set (see below) |
 
 ### Review screenshots
@@ -42,20 +45,34 @@ and how long the last render-mode switch took to reach the screen.
 ## How it is put together
 
 ```
+data/                   Source of truth, validated with zod at import time
+  appliances.json       Catalogue: msrpUSD, sourceUrl, verifiedAt, cutouts, requires
+  slots.json            The product half of each slot: cutout, cabinet, utilities
+  schemes.json          Which appliance fills each slot by default
+
 src/
-  types.ts              Appliance / Slot / Scheme, exactly as in brief §3 and §3.5.2
+  types.ts              Domain types, derived from the zod schemas
   data/
-    slots.ts            The six slots, hard-coded, with cabinetConfig + utilities
+    schema.ts           zod schemas and the loader that fails loudly
+    catalogue.ts        Appliances and schemes, indexed by id and by slot
+    slots.ts            slots.json merged with the placement from room.ts
+    room.ts             Room shell, cabinet run segments, slot placement
     cabinets.ts         L-shaped cabinet run derived from the slot openings
-    appliances.ts       Placeholder catalogue and the current scheme
     packageSummary.ts   Package totals shown in both side panels
   i18n/                 t(key, vars) over two JSON tables; en only for now
   store/useAppStore.ts  zustand: render mode, lighting, layers, selection, toasts
   three/                Scene graph, one file per layer
-  ui/                   Panels, toolbar, pin overlay
+  ui/                   Panels, toolbar, pin overlay, mobile sheet
+tests/                  Smoke suite: a real browser against the real build
+docs/decisions.md       Standing decisions, and what each one forbids
 ```
 
 Three things are worth knowing before changing anything:
+
+**Product data is JSON; room geometry is code.** `data/*.json` is what Leo
+maintains and what the Sheet export will replace. Where the oven tower stands is
+scene construction and lives in `src/data/room.ts`; `slots.ts` merges the two.
+See docs/decisions.md D3.
 
 **Scene units are feet.** Every inch measurement from the brief crosses the
 boundary through `ft()` in `data/slots.ts`. Slot positions are the floor-level

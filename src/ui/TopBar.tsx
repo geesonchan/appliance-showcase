@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { SCHEME } from "../data/appliances";
+import { SCHEME } from "../data/catalogue";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
 import { Segmented } from "./primitives";

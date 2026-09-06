@@ -1,101 +1,54 @@
-export type Lang = "en" | "zh";
+import type { z } from "zod";
+import type {
+  applianceSchema,
+  cabinetConfigSchema,
+  categorySchema,
+  finishSchema,
+  fuelSchema,
+  schemeSchema,
+  slotIdSchema,
+  slotRecordSchema,
+  utilitiesSchema,
+} from "./data/schema";
 
-export type Category =
-  | "refrigerator"
-  | "range"
-  | "cooktop"
-  | "wall-oven"
-  | "dishwasher"
-  | "hood"
-  | "microwave"
-  | "wine"
-  | "other";
+/**
+ * Domain types.
+ *
+ * Everything that comes out of `data/` is derived from the zod schemas rather
+ * than declared twice: the schema is what actually validates at runtime, so a
+ * hand-written mirror of it can only ever drift. Types that describe view
+ * state, not data, are declared here directly.
+ */
 
-export type Fuel = "gas" | "electric" | "induction" | "dual";
+export type Category = z.infer<typeof categorySchema>;
+export type Fuel = z.infer<typeof fuelSchema>;
+export type SlotId = z.infer<typeof slotIdSchema>;
+export type Finish = z.infer<typeof finishSchema>;
+export type CabinetConfig = z.infer<typeof cabinetConfigSchema>;
+export type Utilities = z.infer<typeof utilitiesSchema>;
+export type CabinetType = CabinetConfig["type"];
+export type DuctRoute = NonNullable<Utilities["duct"]>["route"];
 
-export type SlotId =
-  | "slot-fridge"
-  | "slot-range"
-  | "slot-hood"
-  | "slot-dishwasher"
-  | "slot-wall-oven"
-  | "slot-microwave";
+export type Appliance = z.infer<typeof applianceSchema>;
+export type Scheme = z.infer<typeof schemeSchema>;
 
-export type UtilityType = "gas" | "power" | "water" | "duct";
+/** The product half of a slot, as maintained in `data/slots.json`. */
+export type SlotRecord = z.infer<typeof slotRecordSchema>;
 
-export type CabinetType = "base" | "tall" | "upper" | "enclosure" | "countertop-cutout";
-
-export type DuctRoute = "up-through-cabinet" | "back-wall" | "recirc";
-
-export interface CabinetConfig {
-  type: CabinetType;
-  openingIn: { w: number; h: number; d: number };
-  panelReady: boolean;
-  finishedSides: number;
-}
-
-export interface Utilities {
-  gas?: { pipeSize: '1/2"' | '3/4"'; shutoff: boolean };
-  power: { voltage: 120 | 240; amps: number; dedicated: boolean };
-  water?: { supply: boolean; drain: boolean };
-  duct?: { diameterIn: 6 | 8 | 10; route: DuctRoute };
-}
-
-export interface Slot {
-  id: SlotId;
-  /** i18n key resolved through t(); the brief's {en, zh} pair lives in the string tables. */
-  labelKey: string;
-  /** Scene position in feet: floor-level centre of the appliance footprint. */
+/**
+ * A slot as the scene uses it: the record from JSON plus its placement, which
+ * `room.ts` derives from the cabinet run. See docs/decisions.md D3.
+ */
+export type Slot = SlotRecord & {
+  /** Floor-level centre of the appliance footprint, in feet. */
   position: [number, number, number];
-  /** Rotation about Y in radians. 0 faces +Z (out from the back wall). */
+  /** Rotation about Y in radians. 0 faces +Z, out from the back wall. */
   rotationY: number;
-  /** Rough opening at this position, in inches. */
-  cutout: { w: number; h: number; d: number };
-  compatibleCategories: Category[];
-  cabinetConfig: CabinetConfig;
-  utilities: Utilities;
-}
+};
 
-export interface Appliance {
-  id: string;
-  category: Category;
-  brand: string;
-  model: string;
-  series?: string;
-  priceUSD: number;
-  fuel?: Fuel;
-  widthIn: number;
-  heightIn: number;
-  depthIn: number;
-  cutoutWidthIn?: number;
-  cutoutHeightIn?: number;
-  cutoutDepthIn?: number;
-  finish: Finish[];
-  leadTimeWeeks?: number;
-  highlights: { en: string[]; zh: string[] };
-  imageUrl?: string;
-  slot: SlotId;
-  installType: string;
-  requires: {
-    gasBTU?: number;
-    voltage: 120 | 240;
-    amps?: number;
-    water?: boolean;
-    cfm?: number;
-    makeupAirRequired?: boolean;
-  };
-}
+// --- view state, not data ---
 
-/** Finishes the procedural ApplianceModel knows how to render. */
-export type Finish = "stainless" | "panel-ready" | "matte-black" | "white";
-
-export interface Scheme {
-  id: string;
-  nameKey: string;
-  conceptKey: string;
-  palette: string[];
-  defaultSelection: Record<SlotId, string>;
-}
-
+export type Lang = "en" | "zh";
+export type UtilityType = "gas" | "power" | "water" | "duct";
 export type RenderMode = "realistic" | "white" | "install";
 export type Lighting = "day" | "night";

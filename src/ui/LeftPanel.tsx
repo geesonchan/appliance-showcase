@@ -1,4 +1,4 @@
-import { APPLIANCE_BY_SLOT, SCHEME, SLOT_ORDER } from "../data/appliances";
+import { APPLIANCE_BY_SLOT, SCHEME, SLOT_ORDER } from "../data/catalogue";
 import { formatThousands, formatUSD, usePackageSummary } from "../data/packageSummary";
 import { SLOT_BY_ID } from "../data/slots";
 import { useT } from "../i18n/useT";
@@ -79,7 +79,7 @@ export function LeftPanel() {
                 </span>
                 {appliance && (
                   <span className="shrink-0 text-[11px] tabular-nums text-ink-muted">
-                    {formatUSD(appliance.priceUSD)}
+                    {formatUSD(appliance.msrpUSD)}
                   </span>
                 )}
                 <span

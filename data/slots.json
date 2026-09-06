@@ -1,0 +1,213 @@
+{
+  "_meta": {
+    "generatedBy": "seed data, hand written",
+    "updatedAt": "2026-09-05",
+    "provenance": "Model numbers are real products; dimensions, MSRP and sourceUrl are unverified seed values entered from general knowledge, not scraped or confirmed. Every row has verifiedAt: null until someone checks it against the manufacturer page. Replace this file with the Google Sheet export once that exists."
+  },
+  "slots": [
+    {
+      "id": "slot-fridge",
+      "labelKey": "slot.fridge",
+      "cutout": {
+        "w": 36,
+        "h": 72,
+        "d": 25
+      },
+      "compatibleCategories": [
+        "refrigerator"
+      ],
+      "cabinetConfig": {
+        "type": "enclosure",
+        "openingIn": {
+          "w": 36,
+          "h": 72,
+          "d": 25
+        },
+        "panelReady": true,
+        "finishedSides": 2
+      },
+      "utilities": {
+        "gas": null,
+        "power": {
+          "voltage": 120,
+          "amps": 15,
+          "dedicated": true
+        },
+        "water": {
+          "supply": true,
+          "drain": false
+        },
+        "duct": null
+      }
+    },
+    {
+      "id": "slot-range",
+      "labelKey": "slot.range",
+      "cutout": {
+        "w": 30,
+        "h": 36,
+        "d": 24
+      },
+      "compatibleCategories": [
+        "range"
+      ],
+      "cabinetConfig": {
+        "type": "base",
+        "openingIn": {
+          "w": 30,
+          "h": 36,
+          "d": 24
+        },
+        "panelReady": false,
+        "finishedSides": 2
+      },
+      "utilities": {
+        "gas": {
+          "pipeSize": "1/2\"",
+          "shutoff": true
+        },
+        "power": {
+          "voltage": 120,
+          "amps": 15,
+          "dedicated": true
+        },
+        "water": null,
+        "duct": null
+      }
+    },
+    {
+      "id": "slot-hood",
+      "labelKey": "slot.hood",
+      "cutout": {
+        "w": 36,
+        "h": 30,
+        "d": 20
+      },
+      "compatibleCategories": [
+        "hood"
+      ],
+      "cabinetConfig": {
+        "type": "upper",
+        "openingIn": {
+          "w": 36,
+          "h": 30,
+          "d": 20
+        },
+        "panelReady": false,
+        "finishedSides": 2
+      },
+      "utilities": {
+        "gas": null,
+        "power": {
+          "voltage": 120,
+          "amps": 15,
+          "dedicated": true
+        },
+        "water": null,
+        "duct": {
+          "diameterIn": 8,
+          "route": "up-through-cabinet"
+        }
+      }
+    },
+    {
+      "id": "slot-wall-oven",
+      "labelKey": "slot.wallOven",
+      "cutout": {
+        "w": 30,
+        "h": 29,
+        "d": 24
+      },
+      "compatibleCategories": [
+        "wall-oven"
+      ],
+      "cabinetConfig": {
+        "type": "tall",
+        "openingIn": {
+          "w": 30,
+          "h": 29,
+          "d": 24
+        },
+        "panelReady": false,
+        "finishedSides": 1
+      },
+      "utilities": {
+        "gas": null,
+        "power": {
+          "voltage": 240,
+          "amps": 30,
+          "dedicated": true
+        },
+        "water": null,
+        "duct": null
+      }
+    },
+    {
+      "id": "slot-dishwasher",
+      "labelKey": "slot.dishwasher",
+      "cutout": {
+        "w": 24,
+        "h": 34,
+        "d": 24
+      },
+      "compatibleCategories": [
+        "dishwasher"
+      ],
+      "cabinetConfig": {
+        "type": "base",
+        "openingIn": {
+          "w": 24,
+          "h": 34,
+          "d": 24
+        },
+        "panelReady": true,
+        "finishedSides": 0
+      },
+      "utilities": {
+        "gas": null,
+        "power": {
+          "voltage": 120,
+          "amps": 15,
+          "dedicated": true
+        },
+        "water": {
+          "supply": true,
+          "drain": true
+        },
+        "duct": null
+      }
+    },
+    {
+      "id": "slot-microwave",
+      "labelKey": "slot.microwave",
+      "cutout": {
+        "w": 24,
+        "h": 16,
+        "d": 22
+      },
+      "compatibleCategories": [
+        "microwave"
+      ],
+      "cabinetConfig": {
+        "type": "base",
+        "openingIn": {
+          "w": 24,
+          "h": 16,
+          "d": 22
+        },
+        "panelReady": false,
+        "finishedSides": 0
+      },
+      "utilities": {
+        "gas": null,
+        "power": {
+          "voltage": 120,
+          "amps": 20,
+          "dedicated": true
+        },
+        "water": null,
+        "duct": null
+      }
+    }
+  ]
+}

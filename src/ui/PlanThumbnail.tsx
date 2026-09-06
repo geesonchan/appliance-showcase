@@ -1,5 +1,5 @@
 import { CABINETS } from "../data/cabinets";
-import { SLOT_ORDER } from "../data/appliances";
+import { SLOT_ORDER } from "../data/catalogue";
 import { ROOM, SLOT_BY_ID, ft } from "../data/slots";
 import { useAppStore } from "../store/useAppStore";
 
