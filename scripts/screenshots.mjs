@@ -11,7 +11,8 @@
  * built to the trade's dimensions, the appliances at their own size, the new
  * pins and the ducting; SET=round7 for the module-built runs, the wedge canopy,
  * the dimension layer and the cabinet cutout; SET=round9 for the layout
- * controls and the four corners of the parameter set.
+ * controls and the four corners of the parameter set; SET=round10 for the sink
+ * rule, the corner pair and a wall slider being argued with.
  */
 import { mkdir } from "node:fs/promises";
 import { chromium } from "playwright";
@@ -279,9 +280,63 @@ async function captureRound9(page) {
   }
 }
 
+/**
+ * Round 10: the sink's landings, the corner bought as a pair, and a wall
+ * slider that says what it cannot do and offers a way out.
+ */
+async function captureRound10(page) {
+  const shots = [
+    { name: "sink-rule", query: "" },
+    { name: "sink-on-left", query: "?fridge=back&sink=left" },
+    { name: "corner-blind", query: "?corner=blind" },
+    { name: "no-island", query: "?island=none" },
+  ];
+
+  for (const { name, query } of shots) {
+    await page.goto(baseUrl + query, { waitUntil: "networkidle" });
+    await settle(page, 2200);
+    await page.screenshot({ path: `${outDir}/mobile-${name}.png` });
+  }
+
+  // A back wall the sink will not fit on: the bill, and the button that fixes it.
+  await page.goto(`${baseUrl}?back=144`, { waitUntil: "networkidle" });
+  await settle(page, 2200);
+  await page.screenshot({ path: `${outDir}/mobile-refused-scene.png` });
+
+  await click(page, "Configure");
+  await page.waitForTimeout(700);
+  await page.getByText("Apply", { exact: true }).scrollIntoViewIfNeeded();
+  await page.waitForTimeout(400);
+  await page.screenshot({ path: `${outDir}/mobile-refused-bill.png` });
+
+  await click(page, "Apply");
+  await settle(page, 1400);
+  await page.screenshot({ path: `${outDir}/mobile-applied.png` });
+
+  // And the slider itself, with the stretch it can be built at picked out.
+  await page.getByText("Back wall", { exact: true }).scrollIntoViewIfNeeded();
+  await page.waitForTimeout(400);
+  await page.screenshot({ path: `${outDir}/mobile-wall-slider.png` });
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round10") {
+    const ctx = await browser.newContext({
+      viewport: MOBILE,
+      deviceScaleFactor: 2,
+      isMobile: true,
+      hasTouch: true,
+    });
+    const page = await ctx.newPage();
+    await captureRound10(page);
+    await ctx.close();
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round9") {
     const ctx = await browser.newContext({
