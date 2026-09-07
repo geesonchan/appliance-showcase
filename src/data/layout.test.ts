@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { CABINETS, hoodBridgeBand } from "./cabinets";
-import { applianceBox } from "./applianceBox";
 import { counterOutline, isRectilinearL } from "./counter";
 import { FIXTURES as TEST_APPLIANCES } from "./testFixtures";
 import type { Appliance } from "../types";
@@ -436,18 +435,24 @@ describe("the run as Leo specified it", () => {
 });
 
 describe("the countertop is one slab that turns the corner", () => {
-  const counter = counterOutline();
+  // Measured with a slide-in, which drops into the top: the run is unbroken,
+  // so the whole counter is one L. A freestanding range cuts it in two, and
+  // that is `counter.test.ts`'s business.
+  const slideIn = { ...TEST_APPLIANCES.gasRange36, installType: ["slide-in"] } as Appliance;
+  const counter = counterOutline(RUNS, slideIn);
+  const corner = counter.pieces[0];
 
   // The bug this replaced: a box per run left the square between the two legs
   // to nobody, so the corner read as a gap.
   it("traces a single L, not two rectangles", () => {
-    expect(isRectilinearL(counter.outline)).toBe(true);
-    expect(counter.outline).toHaveLength(6);
+    expect(counter.pieces).toHaveLength(1);
+    expect(isRectilinearL(corner.outline)).toBe(true);
+    expect(corner.outline).toHaveLength(6);
   });
 
   it("reaches both walls and both leg ends", () => {
-    const xs = counter.outline.map(([x]) => x);
-    const zs = counter.outline.map(([, z]) => z);
+    const xs = corner.outline.map(([x]) => x);
+    const zs = corner.outline.map(([, z]) => z);
     expect(Math.min(...xs)).toBeCloseTo(-ROOM.halfX, 6);
     expect(Math.min(...zs)).toBeCloseTo(-ROOM.halfZ, 6);
     // Each leg stops at its tower, or at the end of its run.
@@ -460,8 +465,8 @@ describe("the countertop is one slab that turns the corner", () => {
   });
 
   it("cuts the range and the sink through it rather than breaking at them", () => {
-    expect(counter.holes.length).toBe(2);
-    for (const hole of counter.holes) expect(hole).toHaveLength(4);
+    expect(corner.holes.length).toBe(2);
+    for (const hole of corner.holes) expect(hole).toHaveLength(4);
   });
 
   it("sits at 34.5 to 36 inches, so nothing shares a plane with the basin", () => {
@@ -524,58 +529,5 @@ describe("D11 rule 2 · the corner is continuous", () => {
   });
 });
 
-describe("D11 rule 3 · the countertop stops at the range", () => {
-  const rangeSegment = () => back().segments.find((s) => s.fixture === undefined && s.slot === "slot-range")!;
-
-  /** The slab's holes, as rectangles in plan. */
-  const holes = (appliance?: Appliance) =>
-    counterOutline(RUNS, appliance).holes.map((hole) => ({
-      x: [Math.min(...hole.map((p) => p[0])), Math.max(...hole.map((p) => p[0]))] as const,
-      z: [Math.min(...hole.map((p) => p[1])), Math.max(...hole.map((p) => p[1]))] as const,
-    }));
-
-  // A freestanding range stands on the floor between two runs. Stone laid over
-  // its toes is the regression this is here to catch.
-  it("cuts right through, front to back, for a freestanding range", () => {
-    const range = { ...TEST_APPLIANCES.gasRange36, installType: ["freestanding"] } as Appliance;
-    const segment = rangeSegment();
-    const cut = holes(range).find((hole) => Math.abs(hole.x[0] - segment.from) < 1e-9)!;
-
-    expect(cut, "no cutout at the range").toBeDefined();
-    expect(inches(cut.x[1] - cut.x[0])).toBeCloseTo(widthIn(segment), 6);
-    // From the wall to past the front edge, which is the overhang.
-    expect(cut.z[0]).toBeCloseTo(back().centre - ROOM.counterDepth / 2, 6);
-    expect(cut.z[1]).toBeCloseTo(
-      back().centre + ROOM.counterDepth / 2 + ROOM.counterOverhang,
-      6,
-    );
-  });
-
-  it("leaves an inch at the front for a slide-in to lap over", () => {
-    const range = { ...TEST_APPLIANCES.gasRange36, installType: ["slide-in"] } as Appliance;
-    const segment = rangeSegment();
-    const cut = holes(range).find((hole) => Math.abs(hole.x[0] - segment.from) < 1e-9)!;
-    const front = back().centre + ROOM.counterDepth / 2 + ROOM.counterOverhang;
-    expect(inches(front - cut.z[1])).toBeCloseTo(1, 6);
-  });
-
-  // The check that says it out loud: no stone anywhere the machine is.
-  it("keeps the slab clear of the range's own volume", () => {
-    const range = { ...TEST_APPLIANCES.gasRange36, installType: ["freestanding"] } as Appliance;
-    const segment = rangeSegment();
-    const box = applianceBox(SLOT_BY_ID["slot-range"], range);
-    const cut = holes(range).find((hole) => Math.abs(hole.x[0] - segment.from) < 1e-9)!;
-
-    const machine = {
-      x: [
-        (segment.from + segment.to) / 2 - box.w / 2,
-        (segment.from + segment.to) / 2 + box.w / 2,
-      ] as const,
-      z: [back().centre - box.d / 2, back().centre + box.d / 2] as const,
-    };
-    expect(cut.x[0]).toBeLessThanOrEqual(machine.x[0] + 1e-9);
-    expect(cut.x[1]).toBeGreaterThanOrEqual(machine.x[1] - 1e-9);
-    expect(cut.z[0]).toBeLessThanOrEqual(machine.z[0] + 1e-9);
-    expect(cut.z[1]).toBeGreaterThanOrEqual(machine.z[1] - 1e-9);
-  });
-});
+// The countertop's cutout at the range is checked across every layout the
+// generator will build, in counter.test.ts.

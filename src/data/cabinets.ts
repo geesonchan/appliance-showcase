@@ -194,19 +194,29 @@ function runBoxes(run: CabinetRun): CabinetBox[] {
 
   for (const bank of run.uppers) boxes.push(...upperBoxes(run, bank));
 
-  const first = run.segments[0];
-  const last = run.segments[run.segments.length - 1];
-  boxes.push(
-    onRun(
-      run,
-      `${run.id}-toe`,
-      "toe",
-      [first.from, last.to],
-      [0, ROOM.toeKick],
-      ROOM.counterDepth - ft(3),
-      -ft(1.5),
-    ),
-  );
+  // The toe kick runs under the cabinetry, and stops where the cabinetry does.
+  // A freestanding range stands on the floor between two runs of boxes: a
+  // recessed board carried on behind it is a board behind nothing.
+  let start = run.segments[0].from;
+  for (const [i, segment] of run.segments.entries()) {
+    const breaks = segment.slot === "slot-range";
+    const end = breaks ? segment.from : segment.to;
+    const last = i === run.segments.length - 1;
+    if ((breaks || last) && end > start) {
+      boxes.push(
+        onRun(
+          run,
+          `${run.id}-toe-${boxes.length}`,
+          "toe",
+          [start, end],
+          [0, ROOM.toeKick],
+          ROOM.counterDepth - ft(3),
+          -ft(1.5),
+        ),
+      );
+    }
+    if (breaks) start = segment.to;
+  }
 
   return boxes;
 }

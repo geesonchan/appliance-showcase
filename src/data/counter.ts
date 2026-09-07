@@ -5,29 +5,48 @@ import type { Appliance } from "../types";
 /** A point on the floor plan, in world feet. */
 export type Point2 = readonly [number, number];
 
-export interface CounterOutline {
-  /** The slab's edge, as one closed polygon. */
+/** One slab: its edge, and the openings cut through it. */
+export interface CounterPiece {
   outline: Point2[];
-  /** Openings cut through it: the sink bowl, the range. */
+  /** Openings that do not reach an edge — a sink bowl, a slide-in's cutout. */
   holes: Point2[][];
+}
+
+export interface CounterOutline {
+  /**
+   * The pieces of stone. Usually one, turning the corner; a freestanding range
+   * cuts the run clean through and makes two.
+   */
+  pieces: CounterPiece[];
   /** Underside and top, in feet. */
   band: readonly [number, number];
 }
 
+/** What a slide-in laps over, which is the one bit of counter that stays. */
+const RANGE_LIP_IN = 1;
+
 /**
- * The countertop, as one piece.
+ * The countertop.
  *
  * It used to be a box per run, which left a hole at the inside corner where
- * neither leg reached — the two legs each stopped at their own centre line and
- * the 12" square between them belonged to nobody. A countertop is a single
- * fabricated slab that turns the corner, so it is described here as a single
- * L-shaped polygon and drawn once.
+ * neither leg reached. A countertop is a single fabricated slab that turns the
+ * corner, so it is described here as one L-shaped polygon and drawn once.
  *
- * Two things cut through it rather than breaking it. A slide-in range drops
- * into a cutout, and an undermount sink drops into another; the slab carries on
- * around both. What does stop it is a tall cabinet, which goes through to the
- * ceiling — so each leg of the L runs from the corner to whichever comes first,
- * its tower or its end.
+ * Two kinds of opening go through it, and they are not the same kind.
+ *
+ * An undermount sink and a slide-in range drop *into* the top: the stone
+ * carries on all round them, and they are holes. A freestanding range does not
+ * drop into anything — it stands on the floor between two runs of cabinets and
+ * the stone stops at each side of it. That is not a hole, it is the end of one
+ * slab and the start of the next, which is why this returns pieces.
+ *
+ * The distinction is not pedantry. A hole that reaches the edge of its own
+ * outline is not a hole: the triangulator quietly drops it and the slab comes
+ * back solid, which is exactly what a freestanding range looked like here.
+ *
+ * What also stops the stone is a tall cabinet, which goes through to the
+ * ceiling — so each leg runs from the corner to whichever comes first, its
+ * tower or its end.
  */
 export function counterOutline(
   runs: CabinetRun[] = RUNS,
@@ -43,22 +62,29 @@ export function counterOutline(
   const zBack = back.centre - ROOM.counterDepth / 2;
   const zFront = back.centre + ROOM.counterDepth / 2 + ROOM.counterOverhang;
 
-  const leftEnd = legEnd(left);
-  const backEnd = legEnd(back);
+  // Each leg as a band from the corner outward, split wherever a freestanding
+  // range cuts it through.
+  const leftSpans = spans(zBack, legEnd(left), cuts(left, range));
+  const backSpans = spans(xBack, legEnd(back), cuts(back, range));
 
-  // Clockwise from the inside corner of the room.
-  const outline: Point2[] = [
-    [xBack, zBack],
-    [backEnd, zBack],
-    [backEnd, zFront],
-    [xFront, zFront],
-    [xFront, leftEnd],
-    [xBack, leftEnd],
+  // The first span of each leg meets at the corner and is one piece of stone;
+  // anything past a cut is a slab of its own.
+  const outlines: Point2[][] = [
+    lShape(
+      { back: xBack, front: xFront, to: leftSpans[0][1] },
+      { back: zBack, front: zFront, to: backSpans[0][1] },
+    ),
+    ...leftSpans.slice(1).map((span) => rect(span, [xBack, xFront], "z")),
+    ...backSpans.slice(1).map((span) => rect(span, [zBack, zFront], "x")),
   ];
 
+  const holes = [...rangeHoles(runs, range), ...sinkHoles(runs)];
+
   return {
-    outline,
-    holes: [...rangeHoles(runs, range), ...sinkHoles(runs)],
+    pieces: outlines.map((outline) => ({
+      outline,
+      holes: holes.filter((hole) => inside(centroid(hole), outline)),
+    })),
     band: [ROOM.counterHeight - ROOM.counterThickness, ROOM.counterHeight] as const,
   };
 }
@@ -69,39 +95,62 @@ function legEnd(run: CabinetRun): number {
   return tower ? tower.from : run.segments[run.segments.length - 1].to;
 }
 
+/** True when the machine specified stands on the floor rather than dropping in. */
+const standsOnTheFloor = (range?: Appliance) =>
+  !range || range.installType.some((type) => /freestanding/i.test(type));
+
+/** Where a leg's stone is cut clean through, along the run. */
+function cuts(run: CabinetRun, range?: Appliance): [number, number][] {
+  if (!standsOnTheFloor(range)) return [];
+  return run.segments
+    .filter((segment) => segment.slot === "slot-range")
+    .map((segment) => [segment.from, segment.to] as [number, number]);
+}
+
+/** A run from `from` to `to`, minus the stretches cut out of it. */
+function spans(from: number, to: number, gaps: [number, number][]): [number, number][] {
+  const out: [number, number][] = [];
+  let cursor = from;
+  for (const [a, b] of [...gaps].sort((x, y) => x[0] - y[0])) {
+    if (a > cursor) out.push([cursor, a]);
+    cursor = Math.max(cursor, b);
+  }
+  if (to > cursor) out.push([cursor, to]);
+  return out.length > 0 ? out : [[from, from]];
+}
+
+/** The corner piece: two bands meeting, written clockwise from the inside. */
+function lShape(
+  leftLeg: { back: number; front: number; to: number },
+  backLeg: { back: number; front: number; to: number },
+): Point2[] {
+  return [
+    [leftLeg.back, backLeg.back],
+    [backLeg.to, backLeg.back],
+    [backLeg.to, backLeg.front],
+    [leftLeg.front, backLeg.front],
+    [leftLeg.front, leftLeg.to],
+    [leftLeg.back, leftLeg.to],
+  ];
+}
+
 /**
- * How a range meets the countertop, which is not one thing.
- *
- * A freestanding range does not drop into anything: it stands on the floor
- * between two runs of cabinets and the countertop stops at each side of it. So
- * the cutout goes right through, front to back, and the machine you see from
- * the front is the machine, not a slab of stone laid over its toes.
- *
- * A slide-in does drop in, and laps an inch of its cooktop over the counter
- * each side — so that inch of stone stays, at the front, for the lip to sit on.
+ * A slide-in range drops into the top, so its cutout is a hole with an inch of
+ * stone left at the front for the cooktop to lap over.
  */
 function rangeHoles(runs: CabinetRun[], appliance?: Appliance): Point2[][] {
-  const holes: Point2[][] = [];
-  const freestanding =
-    !appliance || appliance.installType.some((type) => /freestanding/i.test(type));
+  if (standsOnTheFloor(appliance)) return [];
 
+  const holes: Point2[][] = [];
   for (const run of runs) {
     const range = run.segments.find((segment) => segment.slot === "slot-range");
     if (!range) continue;
-
-    // The back of the slab is the wall; the front is the overhang.
-    const back = -ROOM.counterDepth / 2;
-    const front = ROOM.counterDepth / 2 + ROOM.counterOverhang;
-    // A slide-in leaves the front inch of stone for its cooktop to lap over.
-    const stop = freestanding ? front : front - ft(RANGE_LIP_IN);
-    const across = [run.centre + back, run.centre + stop] as const;
-    holes.push(rect([range.from, range.to], across, run.axis));
+    const back = -ROOM.counterDepth / 2 + ft(0.5);
+    const front = ROOM.counterDepth / 2 + ROOM.counterOverhang - ft(RANGE_LIP_IN);
+    holes.push(rect([range.from, range.to], [run.centre + back, run.centre + front], run.axis));
   }
   return holes;
 }
-
-/** What a slide-in laps over, which is the one bit of counter that stays. */
-const RANGE_LIP_IN = 1;
 
 /** And so does an undermount basin. */
 function sinkHoles(runs: CabinetRun[]): Point2[][] {
@@ -116,9 +165,7 @@ function sinkHoles(runs: CabinetRun[]): Point2[][] {
         run.centre + bowl.acrossCentre - bowl.acrossHalf,
         run.centre + bowl.acrossCentre + bowl.acrossHalf,
       ] as const;
-      holes.push(
-        rect([centre - bowl.alongHalf, centre + bowl.alongHalf], across, run.axis),
-      );
+      holes.push(rect([centre - bowl.alongHalf, centre + bowl.alongHalf], across, run.axis));
     }
   }
   return holes;
@@ -143,6 +190,22 @@ function rect(
     [across[1], along[1]],
     [across[0], along[1]],
   ];
+}
+
+const centroid = (points: Point2[]): Point2 => [
+  points.reduce((sum, p) => sum + p[0], 0) / points.length,
+  points.reduce((sum, p) => sum + p[1], 0) / points.length,
+];
+
+/** Ray casting, to say which piece of stone an opening belongs to. */
+function inside([x, z]: Point2, outline: Point2[]): boolean {
+  let within = false;
+  for (let i = 0, j = outline.length - 1; i < outline.length; j = i++) {
+    const [xi, zi] = outline[i];
+    const [xj, zj] = outline[j];
+    if (zi > z !== zj > z && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) within = !within;
+  }
+  return within;
 }
 
 /**

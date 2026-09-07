@@ -153,7 +153,10 @@ describe("the corner", () => {
   it("keeps the countertop a single L at either corner", () => {
     for (const cornerType of ["lazy-susan", "blind"] as const) {
       expect(setLayoutParams(params({ cornerType })).ok).toBe(true);
-      expect(isRectilinearL(counterOutline().outline), cornerType).toBe(true);
+      // The piece that turns the corner is an L, whatever else the range has
+      // cut off the end of a leg.
+      const pieces = counterOutline().pieces;
+      expect(pieces.some((piece) => isRectilinearL(piece.outline)), cornerType).toBe(true);
     }
   });
 

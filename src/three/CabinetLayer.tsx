@@ -222,12 +222,18 @@ function CounterSlab() {
   // an inch of stone left at the front for its cooktop to lap over.
   const range = useSelection()["slot-range"];
   const geometry = useMemo(() => {
-    const { outline, holes, band } = counterOutline(RUNS, range);
-    const shape = new THREE.Shape(outline.map(([x, z]) => new THREE.Vector2(x, z)));
-    for (const hole of holes) {
-      shape.holes.push(new THREE.Path(hole.map(([x, z]) => new THREE.Vector2(x, z))));
-    }
-    const extruded = new THREE.ExtrudeGeometry(shape, {
+    const { pieces, band } = counterOutline(RUNS, range);
+    // One extrusion for all of them: a freestanding range cuts the run into two
+    // slabs, and they are still one countertop as far as the scene is concerned
+    // — one geometry, one material, one shadow.
+    const shapes = pieces.map(({ outline, holes }) => {
+      const shape = new THREE.Shape(outline.map(([x, z]) => new THREE.Vector2(x, z)));
+      for (const hole of holes) {
+        shape.holes.push(new THREE.Path(hole.map(([x, z]) => new THREE.Vector2(x, z))));
+      }
+      return shape;
+    });
+    const extruded = new THREE.ExtrudeGeometry(shapes, {
       depth: band[1] - band[0],
       bevelEnabled: false,
     });
