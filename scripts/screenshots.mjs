@@ -13,7 +13,8 @@
  * the dimension layer and the cabinet cutout; SET=round9 for the layout
  * controls and the four corners of the parameter set; SET=round10 for the sink
  * rule, the corner pair and a wall slider being argued with; SET=round11 for
- * the materials, the lighting and the finish picker.
+ * the materials, the lighting and the finish picker; SET=round12 for the six
+ * visual corrections and the mode-switch timing.
  */
 import { mkdir } from "node:fs/promises";
 import { chromium } from "playwright";
@@ -370,9 +371,68 @@ async function clickIn(page, name) {
   await page.waitForTimeout(400);
 }
 
+/**
+ * Round 12: the six corrections, and what a mode switch costs now.
+ */
+async function captureRound12(page) {
+  await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await settle(page, 2400);
+  await page.screenshot({ path: `${outDir}/mobile-overview.png` });
+
+  for (const [name, match] of [
+    ["range", /Range/],
+    ["fridge", /Refrigerator/],
+    ["dishwasher", /Dishwasher/],
+  ]) {
+    await page.goto(baseUrl, { waitUntil: "networkidle" });
+    await settle(page, 2400);
+    await flyTo(page, match);
+    await settle(page, 1500);
+    await page.screenshot({ path: `${outDir}/mobile-${name}.png` });
+  }
+
+  // The sink on the left leg, where its tap used to point at the wrong wall.
+  await page.goto(`${baseUrl}?fridge=back&sink=left`, { waitUntil: "networkidle" });
+  await settle(page, 2400);
+  await page.screenshot({ path: `${outDir}/mobile-sink-left.png` });
+
+  // Oak doors, which is where the grain and the panelled dishwasher show.
+  await page.goto(`${baseUrl}?cabinet=oak`, { waitUntil: "networkidle" });
+  await settle(page, 2400);
+  await page.screenshot({ path: `${outDir}/mobile-oak.png` });
+
+  // And what a mode switch costs, measured in a page that is actually drawing.
+  await page.goto(`${baseUrl}?debug=1`, { waitUntil: "networkidle" });
+  await settle(page, 3000);
+  const timings = [];
+  for (const mode of ["White model", "Install", "Materials", "White model", "Install"]) {
+    await click(page, mode);
+    await page.waitForTimeout(900);
+    const panel = await page.locator("div.font-mono").innerText();
+    timings.push(`${mode}: ${panel.split(String.fromCharCode(10))[1]}`);
+  }
+  console.log(timings.join(" | "));
+  await page.screenshot({ path: `${outDir}/mobile-mode-switch.png` });
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round12") {
+    const ctx = await browser.newContext({
+      viewport: MOBILE,
+      deviceScaleFactor: 2,
+      isMobile: true,
+      hasTouch: true,
+    });
+    const page = await ctx.newPage();
+    await captureRound12(page);
+    await ctx.close();
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round11") {
     const ctx = await browser.newContext({

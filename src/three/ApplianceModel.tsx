@@ -16,6 +16,7 @@ import {
   finishSurface,
   isPanelReady,
   surface,
+  tint,
   type SurfaceProps,
 } from "./materials";
 
@@ -450,8 +451,8 @@ function Range({
   const { bands } = parts;
   // Cast iron is nearly matte and nearly black; the oven window is glass over
   // a dark cavity. The rest of the machine is the steel it is sold as.
-  const iron = { ...glass, color: "#1C1E1C", metalness: 0.2, roughness: 0.7 };
-  const dark = { ...glass, color: "#151715", metalness: 0.1, roughness: 0.8 };
+  const iron = tint(glass, "#1C1E1C", { metalness: 0.2, roughness: 0.7 });
+  const dark = tint(glass, "#151715", { metalness: 0.1, roughness: 0.8 });
 
   /** A panel on the front face, given a band and an inset from the sides. */
   const front = (band: readonly [number, number], inset: number) => ({

@@ -48,8 +48,12 @@ export function Surface({
     // Each mesh gets its own clone: repeat is per-surface, and a shared texture
     // would let the last cabinet drawn set the grain size for all of them.
     const make = (kind: NonNullable<SurfaceProps["map"]>) => {
+      // Cloned but deliberately not marked dirty. A clone shares its source
+      // with the original, which is already on the GPU; setting `needsUpdate`
+      // marks that shared source for re-upload, and with a clone per door that
+      // was eighty uploads of a 512px canvas on the frame a mode switch
+      // landed. Repeat and rotation are uniforms — they cost nothing.
       const clone = texture(kind, px).clone();
-      clone.needsUpdate = true;
       // Turning about the middle rather than the corner, so a rotated map
       // still covers the face it is on.
       clone.center.set(0.5, 0.5);

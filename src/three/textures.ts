@@ -25,6 +25,8 @@ function random(seed: number) {
 }
 
 export type TextureKind =
+  | "blank"
+  | "blank-normal"
   | "brushed-normal"
   | "oak"
   | "oak-floor"
@@ -193,7 +195,25 @@ function tile(size: number) {
   return element;
 }
 
+/**
+ * A single white pixel, and a single flat normal.
+ *
+ * Not decoration: they are what a mapped surface wears in the white model and
+ * the install view. Dropping the map instead would change which shader the
+ * material compiles to, and a mode switch would pay to swap the program on
+ * every cabinet in the room. A white pixel multiplies to nothing and a flat
+ * normal perturbs nothing, so the picture is the same and the program is too.
+ */
+function flat(size: number, colour: string) {
+  const { element, ctx } = canvas(size);
+  ctx.fillStyle = colour;
+  ctx.fillRect(0, 0, size, size);
+  return element;
+}
+
 const DRAW: Record<TextureKind, (size: number) => HTMLCanvasElement> = {
+  blank: () => flat(1, "#ffffff"),
+  "blank-normal": () => flat(1, "#8080ff"),
   "brushed-normal": brushedNormal,
   oak: (size) => oak(size, false),
   "oak-floor": (size) => oak(size, true),
@@ -221,7 +241,9 @@ export function texture(kind: TextureKind, size: number): THREE.Texture {
   // A normal map carries directions, not colour, so it must not be gamma
   // corrected on the way in.
   made.colorSpace =
-    kind === "brushed-normal" ? THREE.NoColorSpace : THREE.SRGBColorSpace;
+    kind === "brushed-normal" || kind === "blank-normal"
+      ? THREE.NoColorSpace
+      : THREE.SRGBColorSpace;
   cache.set(key, made);
   return made;
 }

@@ -158,7 +158,18 @@ export function finish(
     metalness: spec.metalness,
     roughness: spec.roughness,
   });
-  if (mode !== "realistic") return resolved;
+  if (mode !== "realistic") {
+    // The same maps, drawn blank. Which textures a material has is part of the
+    // shader it compiles to, so a surface that keeps its slots filled keeps its
+    // program — and leaving the realistic view stops being a compile for every
+    // cabinet in the room and becomes a uniform write.
+    return {
+      ...resolved,
+      map: spec.map ? "blank" : undefined,
+      normalMap: spec.normalMap ? "blank-normal" : undefined,
+      repeatFt: spec.repeatFt,
+    };
+  }
   return {
     ...resolved,
     map: spec.map,
@@ -216,3 +227,20 @@ export function wallColor(mode: RenderMode, lighting: Lighting): string {
  * brown is drawing the one thing about it that is wrong.
  */
 export const isPanelReady = (finishes: Finish[]) => finishes.includes("panel-ready");
+
+/**
+ * A variant colour that only applies where the room has materials at all.
+ *
+ * Cast iron is nearly black, and saying so directly meant it stayed nearly
+ * black in the white model — where the whole point is that every volume is the
+ * same shade and only the shading tells you what is what. This leaves the white
+ * model alone and tints everywhere else.
+ */
+export function tint(
+  base: SurfaceProps,
+  color: string,
+  pbr?: { metalness: number; roughness: number },
+): SurfaceProps {
+  if (base.color === SCENE_COLORS.whiteModel) return base;
+  return { ...base, color, ...pbr };
+}
