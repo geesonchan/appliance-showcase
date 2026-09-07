@@ -4,16 +4,45 @@ import { CABINETS, CABINET_OUTLINES, type CabinetBox } from "../data/cabinets";
 import { counterOutline } from "../data/counter";
 import { useIsMobile } from "../hooks/useIsMobile";
 import { useAppStore } from "../store/useAppStore";
-import { SCENE_COLORS, surface } from "./materials";
+import { ft } from "../data/room";
+import { SCENE_COLORS, finish, type FinishToken, type SurfaceProps } from "./materials";
+import { Surface } from "./Surface";
+import { texture } from "./textures";
 
-const KIND_COLOR: Record<CabinetBox["kind"], string> = {
-  base: SCENE_COLORS.cabinet,
-  tall: SCENE_COLORS.cabinet,
-  surround: SCENE_COLORS.cabinet,
-  upper: SCENE_COLORS.cabinetUpper,
-  counter: SCENE_COLORS.counter,
-  toe: SCENE_COLORS.toe,
+/**
+ * The slab's own map.
+ *
+ * An extruded shape carries UVs in world units, so the stone tiles itself at
+ * the right size with no repeat to set — which is the one place the shared
+ * `Surface` component does not fit.
+ */
+function counterMap(props: SurfaceProps, quality: "high" | "low") {
+  if (!props.map) return null;
+  const map = texture(props.map, quality === "high" ? 512 : 256).clone();
+  map.needsUpdate = true;
+  map.repeat.set(1 / (props.repeatFt ?? 1), 1 / (props.repeatFt ?? 1));
+  return map;
+}
+
+/**
+ * Which finish each kind of carcass is made in.
+ *
+ * Every box that carries a door is painted, and the paint colour is whatever
+ * the finish picker says. The toe kick is not: it is a recessed board nobody
+ * chooses a colour for, and painting it the door colour makes the run look
+ * like it is standing on a plinth of itself.
+ */
+const KIND_FINISH: Record<CabinetBox["kind"], FinishToken> = {
+  base: "painted",
+  tall: "painted",
+  surround: "painted",
+  upper: "painted",
+  counter: "quartz-white",
+  toe: "painted",
 };
+
+/** How thick a door is, and the gap between one door and the next, in feet. */
+const DOOR = { thickness: ft(0.75), reveal: ft(0.125), bevel: ft(0.125) };
 
 /** Opacity of the ghosted carcass behind the install wireframe. */
 const GHOST_OPACITY = 0.06;
@@ -24,39 +53,115 @@ function useBoxGeometry(size: [number, number, number]) {
   return useMemo(() => new THREE.BoxGeometry(size[0], size[1], size[2]), [size]);
 }
 
+/**
+ * Which way a box's door faces, and how wide that face is.
+ *
+ * The perimeter runs are against the -X and -Z walls, so a box on the left run
+ * is deeper across x than along z and opens toward +x; a box on the back run
+ * does the opposite. The island opens toward the room. Working it out from the
+ * box's own proportions rather than carrying an axis on every box keeps the
+ * generator from having to know which way a door swings.
+ */
+function facing(box: CabinetBox): { axis: "x" | "z"; sign: 1; width: number; height: number } {
+  const alongZ = box.size[0] < box.size[2];
+  return {
+    axis: alongZ ? "x" : "z",
+    sign: 1,
+    width: alongZ ? box.size[2] : box.size[0],
+    height: box.size[1],
+  };
+}
+
+/**
+ * A door on the front of a carcass: a panel, a reveal round it, and a chamfer
+ * on its edge.
+ *
+ * Two layers, because that is what a cabinet is — a box with a slab hung on the
+ * front of it. The eighth-inch gap between doors and the eighth-inch chamfer on
+ * each edge are what stop a run of cabinets reading as one long extrusion: at
+ * this scale they are two pixels each, and they are the two pixels that say
+ * where one door stops and the next starts.
+ */
+function Door({ box, s }: { box: CabinetBox; s: SurfaceProps }) {
+  const { axis, width, height } = facing(box);
+  const depth = axis === "x" ? box.size[0] : box.size[2];
+  const w = width - DOOR.reveal;
+  const h = height - DOOR.reveal;
+  const front = depth / 2 + DOOR.thickness / 2;
+
+  // A chamfered slab: the panel, and a slightly smaller one proud of it, which
+  // reads as a bevelled edge from every angle the room is looked at.
+  const panels = [
+    { w, h, z: front - DOOR.thickness / 4, depth: DOOR.thickness / 2 },
+    {
+      w: w - DOOR.bevel * 2,
+      h: h - DOOR.bevel * 2,
+      z: front + DOOR.thickness / 4,
+      depth: DOOR.thickness / 2,
+    },
+  ];
+
+  return (
+    <group
+      name={"door-" + box.id}
+      rotation={axis === "x" ? [0, Math.PI / 2, 0] : [0, 0, 0]}
+    >
+      {panels.map((panel, i) => (
+        <mesh key={i} position={[0, 0, panel.z]} castShadow receiveShadow>
+          <boxGeometry args={[panel.w, panel.h, panel.depth]} />
+          <Surface s={s} size={[panel.w, panel.h]} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
 /** The solid carcass, ghosted rather than hidden in install mode. */
 function CabinetSolid({ box }: { box: CabinetBox }) {
   const renderMode = useAppStore((s) => s.renderMode);
   const isMobile = useIsMobile();
   const geometry = useBoxGeometry(box.size);
-  const props = surface(renderMode, KIND_COLOR[box.kind], {
-    metalness: 0,
-    roughness: box.kind === "counter" ? 0.4 : 0.85,
-  });
+  const paint = useAppStore((s) => s.finishes.cabinet);
+  const counter = useAppStore((s) => s.finishes.counter);
+
+  const token = box.kind === "counter" ? counter : KIND_FINISH[box.kind];
+  // Scheme 01 is a two-tone kitchen: the picked colour on the base run and the
+  // towers, and the scheme's own light finish on the wall cabinets. Painting
+  // both the same takes the contrast out of the room.
+  const colour =
+    box.kind === "toe"
+      ? SCENE_COLORS.toe
+      : box.kind === "upper"
+        ? SCENE_COLORS.cabinetUpper
+        : box.kind === "counter"
+          ? undefined
+          : paint;
+  const props = finish(renderMode, token, colour);
 
   const install = renderMode === "install";
   // On a phone the install view is outline-only; the ghost fill just muddies it.
   const hidden = install && isMobile;
+  // A door goes on anything with a front: not the toe kick, which is recessed,
+  // and not the countertop, which is a slab.
+  const hasDoor =
+    !install && box.kind !== "toe" && box.kind !== "counter" && box.size[1] > ft(6);
 
   return (
-    <mesh
-      geometry={geometry}
-      visible={!hidden}
-      castShadow
-      receiveShadow
-      userData={{ slot: box.slot, boxId: box.id }}
-    >
-      {/* Keyed on the mode: three.js needs a fresh material when the
-          `transparent` flag flips, not just a property write. */}
-      <meshStandardMaterial
-        key={renderMode}
-        color={props.color}
-        metalness={props.metalness}
-        roughness={props.roughness}
-        transparent={install}
-        opacity={install ? GHOST_OPACITY : 1}
-      />
-    </mesh>
+    <>
+      <mesh
+        geometry={geometry}
+        visible={!hidden}
+        castShadow
+        receiveShadow
+        userData={{ slot: box.slot, boxId: box.id }}
+      >
+        <Surface
+          s={{ ...props, transparent: install, opacity: install ? GHOST_OPACITY : 1 }}
+          size={[box.size[0], box.size[1]]}
+        />
+      </mesh>
+      {hasDoor && <Door box={box} s={props} />}
+    </>
   );
 }
 
@@ -100,6 +205,7 @@ function CabinetWireframe({ box, faint }: { box: CabinetBox; faint: boolean }) {
  */
 function CounterSlab() {
   const renderMode = useAppStore((s) => s.renderMode);
+  const quality = useAppStore((s) => s.quality);
   const geometry = useMemo(() => {
     const { outline, holes, band } = counterOutline();
     const shape = new THREE.Shape(outline.map(([x, z]) => new THREE.Vector2(x, z)));
@@ -116,16 +222,27 @@ function CounterSlab() {
     return extruded;
   }, []);
 
-  const props = surface(renderMode, SCENE_COLORS.counter, { metalness: 0, roughness: 0.4 });
+  const token = useAppStore((s) => s.finishes.counter);
+  const props = finish(renderMode, token);
   const install = renderMode === "install";
+  // Memoised: each call clones a texture, and a clone made every render is a
+  // clone leaked every render.
+  const map = useMemo(
+    () => counterMap(props, quality),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [props.map, props.repeatFt, quality],
+  );
 
   return (
-    <mesh geometry={geometry} castShadow receiveShadow visible={!install || true}>
+    <mesh geometry={geometry} castShadow receiveShadow>
+      {/* Double-sided: the slab is an extrusion with holes cut through it, and
+          the inside of a sink cutout is a face you can see. */}
       <meshStandardMaterial
-        key={renderMode}
+        key={`${renderMode}-${token}`}
         color={props.color}
         metalness={props.metalness}
         roughness={props.roughness}
+        map={map}
         transparent={install}
         opacity={install ? GHOST_OPACITY : 1}
         side={THREE.DoubleSide}
