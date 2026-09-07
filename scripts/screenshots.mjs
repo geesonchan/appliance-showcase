@@ -471,6 +471,40 @@ async function captureRound14(page) {
 }
 
 /** Round 15: the grille, the canopy's neighbours, and the two stones again. */
+/**
+ * Round 16: the second package.
+ *
+ * Package C is a 30" freestanding range under a 30" chimney hood and a 36"
+ * counter-depth refrigerator standing at the end of a run with nothing built
+ * round it — so the two shots are the room as a whole and the refrigerator up
+ * close, which is where the missing joinery is the point.
+ */
+async function captureRound16(page) {
+  const toPackage = async (code) => {
+    await page.locator(`[data-segment="package"] button`, { hasText: code }).first().click();
+    await settle(page, 2000);
+  };
+
+  await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await settle(page, 2400);
+  await page.screenshot({ path: `${outDir}/mobile-a-overview.png` });
+
+  await toPackage("C");
+  await page.screenshot({ path: `${outDir}/mobile-c-overview.png` });
+
+  await flyTo(page, /Refrigerator/);
+  await settle(page, 1500);
+  await page.screenshot({ path: `${outDir}/mobile-c-fridge.png` });
+
+  // The hood too: no cabinet over a chimney, and the flue runs to the ceiling.
+  await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await settle(page, 2400);
+  await toPackage("C");
+  await flyTo(page, /Ventilation hood/);
+  await settle(page, 1500);
+  await page.screenshot({ path: `${outDir}/mobile-c-hood.png` });
+}
+
 async function captureRound15(page) {
   await page.goto(baseUrl, { waitUntil: "networkidle" });
   await settle(page, 2400);
@@ -501,6 +535,21 @@ async function captureRound15(page) {
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round16") {
+    const ctx = await browser.newContext({
+      viewport: MOBILE,
+      deviceScaleFactor: 2,
+      isMobile: true,
+      hasTouch: true,
+    });
+    const page = await ctx.newPage();
+    await captureRound16(page);
+    await ctx.close();
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round15") {
     const ctx = await browser.newContext({
