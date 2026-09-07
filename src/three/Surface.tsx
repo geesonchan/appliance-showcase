@@ -23,10 +23,14 @@ export function Surface({ s, size }: { s: SurfaceProps; size?: [number, number] 
   const quality = useAppStore((state) => state.quality);
   const px = TEXTURE_SIZE[quality];
 
+  // Destructured, because `size` arrives as a fresh array literal on every
+  // render: memoising on the array itself recloned every texture every frame
+  // the component drew.
+  const [alongFt, acrossFt] = size ?? [0, 0];
   const maps = useMemo(() => {
     const repeat = s.repeatFt ?? 1;
-    const along = size ? Math.max(0.25, size[0] / repeat) : 1;
-    const across = size ? Math.max(0.25, size[1] / repeat) : 1;
+    const along = size ? Math.max(0.25, alongFt / repeat) : 1;
+    const across = size ? Math.max(0.25, acrossFt / repeat) : 1;
 
     // Each mesh gets its own clone: repeat is per-surface, and a shared texture
     // would let the last cabinet drawn set the grain size for all of them.
@@ -40,11 +44,16 @@ export function Surface({ s, size }: { s: SurfaceProps; size?: [number, number] 
       map: s.map ? make(s.map) : null,
       normalMap: s.normalMap ? make(s.normalMap) : null,
     };
-  }, [s.map, s.normalMap, s.repeatFt, px, size]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [s.map, s.normalMap, s.repeatFt, px, alongFt, acrossFt]);
 
   return (
     <meshStandardMaterial
-      key={`${s.transparent ? "ghost" : "solid"}-${s.map ?? ""}-${s.normalMap ?? ""}`}
+      // Keyed on transparency alone. Three.js needs a fresh material when that
+      // flag flips, but a map appearing or going is a property write on the
+      // material it already has — and keying on the maps too meant a render
+      // mode switch built a new material for every cabinet in the room.
+      key={s.transparent ? "ghost" : "solid"}
       color={s.color}
       metalness={s.metalness}
       roughness={s.roughness}

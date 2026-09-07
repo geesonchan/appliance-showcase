@@ -26,6 +26,14 @@ export function ShaderWarmup() {
     () => new THREE.EdgesGeometry(new THREE.BoxGeometry(0.01, 0.01, 0.01)),
     [],
   );
+  // A one-pixel stand-in for every textured variant. Three.js keys its program
+  // cache on which maps a material has, not on which texture, so any map will
+  // do — and a real one would be a texture generated for a mesh nobody sees.
+  const pixel = useMemo(() => {
+    const made = new THREE.DataTexture(new Uint8Array([128, 128, 255, 255]), 1, 1);
+    made.needsUpdate = true;
+    return made;
+  }, []);
 
   useEffect(() => {
     // One frame of delay so the graph is mounted and the lights are set up.
@@ -53,6 +61,27 @@ export function ShaderWarmup() {
       <lineSegments geometry={edges}>
         <lineBasicMaterial transparent opacity={0.25} />
       </lineSegments>
+
+      {/* The textured variants, which is what M3-5 added and what a switch back
+          into the realistic view was paying to compile. A material with a map
+          and one with a map and a normal map are two more programs; so is the
+          double-sided counter slab, in both its solid and its ghosted form. */}
+      <mesh castShadow receiveShadow>
+        <boxGeometry args={[0.01, 0.01, 0.01]} />
+        <meshStandardMaterial map={pixel} />
+      </mesh>
+      <mesh castShadow receiveShadow>
+        <boxGeometry args={[0.01, 0.01, 0.01]} />
+        <meshStandardMaterial map={pixel} normalMap={pixel} />
+      </mesh>
+      <mesh castShadow receiveShadow>
+        <boxGeometry args={[0.01, 0.01, 0.01]} />
+        <meshStandardMaterial map={pixel} side={THREE.DoubleSide} />
+      </mesh>
+      <mesh castShadow receiveShadow>
+        <boxGeometry args={[0.01, 0.01, 0.01]} />
+        <meshStandardMaterial transparent opacity={0.06} side={THREE.DoubleSide} />
+      </mesh>
     </group>
   );
 }
