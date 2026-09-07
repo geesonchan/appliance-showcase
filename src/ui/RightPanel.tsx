@@ -4,6 +4,7 @@ import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
 import { UTILITY_COLORS } from "../three/materials";
 import type { UtilityType } from "../types";
+import { FinishPicker } from "./FinishPicker";
 import { InstallChecklist } from "./InstallChecklist";
 import { LayoutControls } from "./LayoutControls";
 import { PlanThumbnail } from "./PlanThumbnail";
@@ -67,6 +68,8 @@ export function RightPanel() {
           />
         </div>
       </PanelSection>
+
+      <FinishPicker />
 
       {/* Utility layers are only meaningful in install mode, so the section
           stays visible but goes quiet outside it. */}
