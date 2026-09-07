@@ -11,6 +11,11 @@ export interface Dimension {
   /** What it measures, in inches. */
   valueIn: number;
   /**
+   * Which slots this figure is about. Empty means it describes the room rather
+   * than any one appliance, so it disappears while a slot is being looked at.
+   */
+  slots: SlotId[];
+  /**
    * Where along the line the figure sits, 0 to 1. Staggered between
    * neighbouring dimensions so two adjacent chains do not print on top of each
    * other — the same reason a draughtsman staggers them.
@@ -34,7 +39,11 @@ export interface Dimension {
  * drawing stacks them, each at its own offset so the extension lines do not
  * collide.
  */
-export function dimensionsFor(selection: Partial<Record<SlotId, Appliance>>): Dimension[] {
+export function dimensionsFor(
+  selection: Partial<Record<SlotId, Appliance>>,
+  /** When a slot is being looked at, only the figures about it are drawn. */
+  selectedSlot: SlotId | null = null,
+): Dimension[] {
   const backRun = RUN_BY_ID.back;
   const range = SLOT_BY_ID["slot-range"];
   const hood = SLOT_BY_ID["slot-hood"];
@@ -66,18 +75,25 @@ export function dimensionsFor(selection: Partial<Record<SlotId, Appliance>>): Di
     to: [at(step), y1, plane],
     valueIn: Number(((y1 - y0) * 12).toFixed(3)),
     labelAt: 0.5,
+    slots: [],
     ...extra,
   });
 
-  return [
+  const all: Dimension[] = [
     vertical("floor-to-ceiling", 3, 0, ROOM.wallHeight, { labelAt: 0.72 }),
     vertical("floor-to-counter", 2, 0, ROOM.counterHeight, { labelAt: 0.3 }),
-    vertical("floor-to-cooktop", 1, 0, cooktop, { labelAt: 0.62 }),
+    vertical("floor-to-cooktop", 1, 0, cooktop, {
+      labelAt: 0.62,
+      slots: ["slot-range", "slot-hood"],
+    }),
     vertical("cooktop-to-canopy", 0, cooktop, hoodBottom, {
       noteKey: "dimension.clearanceRange",
       noteVars: { min: hoodStd.aboveCooktopMinIn, max: hoodStd.aboveCooktopMaxIn },
+      slots: ["slot-range", "slot-hood"],
     }),
-    vertical("canopy-height", 0, hoodBottom, hoodBottom + canopy),
+    vertical("canopy-height", 0, hoodBottom, hoodBottom + canopy, {
+      slots: ["slot-range", "slot-hood"],
+    }),
     vertical("counter-to-uppers", 4, ROOM.counterHeight, ROOM.upperBottom, {
       noteKey: "dimension.standard",
       noteVars: { value: upper.bottomAboveCounterIn },
@@ -86,6 +102,7 @@ export function dimensionsFor(selection: Partial<Record<SlotId, Appliance>>): Di
     {
       id: "island-aisle",
       labelAt: 0.5,
+      slots: ["slot-microwave", "slot-wine"],
       from: [ISLAND.x[0] + 1, 0.03, backRun.centre + ROOM.counterDepth / 2],
       to: [ISLAND.x[0] + 1, 0.03, ISLAND.z[0]],
       valueIn: Number(
@@ -93,6 +110,12 @@ export function dimensionsFor(selection: Partial<Record<SlotId, Appliance>>): Di
       ),
     },
   ];
+
+  // Nothing selected: the whole drawing. Looking at one appliance: only the
+  // figures about it, because flying in to read one clearance and getting
+  // seven numbers is worse than getting none.
+  if (!selectedSlot) return all;
+  return all.filter((dimension) => dimension.slots.includes(selectedSlot));
 }
 
 /** Inches as a builder writes them: 36¾ rather than 36.75. */

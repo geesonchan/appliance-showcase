@@ -19,7 +19,11 @@ export function DimensionOverlay() {
   const selection = useSelection();
   const renderMode = useAppStore((s) => s.renderMode);
   const showDimensions = useAppStore((s) => s.showDimensions);
-  const dimensions = useMemo(() => dimensionsFor(selection), [selection]);
+  const selectedSlot = useAppStore((s) => s.selectedSlot);
+  const dimensions = useMemo(
+    () => dimensionsFor(selection, selectedSlot),
+    [selection, selectedSlot],
+  );
 
   if (!showDimensions || renderMode !== "install") return null;
 

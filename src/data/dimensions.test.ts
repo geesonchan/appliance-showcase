@@ -82,3 +82,42 @@ describe("figures read as a builder writes them", () => {
     expect(formatDimension(4.1875)).toBe('4-3/16"');
   });
 });
+
+describe("a fly-in shows only the figures about that appliance", () => {
+  const ids = (slot: SlotId | null) =>
+    dimensionsFor(selection(), slot).map((dimension) => dimension.id);
+
+  it("shows the whole drawing when nothing is selected", () => {
+    expect(ids(null).length).toBeGreaterThan(5);
+    expect(ids(null)).toContain("floor-to-ceiling");
+    expect(ids(null)).toContain("island-aisle");
+  });
+
+  // Leo's case: flying to the range should say how high the cooking surface is,
+  // how much air is above it and how deep the canopy is. Nothing else.
+  it("narrows to the cooktop, the clearance and the canopy for the range", () => {
+    expect(ids("slot-range").sort()).toEqual(
+      ["canopy-height", "cooktop-to-canopy", "floor-to-cooktop"].sort(),
+    );
+  });
+
+  it("gives the hood the same three, because they are the same question", () => {
+    expect(ids("slot-hood").sort()).toEqual(ids("slot-range").sort());
+  });
+
+  it("gives the island slots their aisle", () => {
+    expect(ids("slot-microwave")).toEqual(["island-aisle"]);
+    expect(ids("slot-wine")).toEqual(["island-aisle"]);
+  });
+
+  it("says nothing rather than everything for a slot with no figures", () => {
+    expect(ids("slot-dishwasher")).toEqual([]);
+  });
+
+  it("drops the room-wide figures whenever a slot is selected", () => {
+    for (const slot of ["slot-range", "slot-hood", "slot-microwave"] as SlotId[]) {
+      expect(ids(slot)).not.toContain("floor-to-ceiling");
+      expect(ids(slot)).not.toContain("counter-to-uppers");
+    }
+  });
+});

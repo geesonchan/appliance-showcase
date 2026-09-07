@@ -33,7 +33,11 @@ export function DimensionProjector() {
   const renderMode = useAppStore((s) => s.renderMode);
   const showDimensions = useAppStore((s) => s.showDimensions);
 
-  const dimensions = useMemo(() => dimensionsFor(selection), [selection]);
+  const selectedSlot = useAppStore((s) => s.selectedSlot);
+  const dimensions = useMemo(
+    () => dimensionsFor(selection, selectedSlot),
+    [selection, selectedSlot],
+  );
   const corners = useApplianceCorners(selection);
   const a = useMemo(() => new THREE.Vector3(), []);
   const b = useMemo(() => new THREE.Vector3(), []);
