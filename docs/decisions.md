@@ -359,7 +359,14 @@ each one has a test with a case that breaks it.
 7. **The island's two openings face opposite ways**: the microwave drawer to the
    working side, the wine cabinet to the seating side (already D5), with a 42"
    aisle to the perimeter run.
-8. **The dishwasher's power, water and drain all land in the sink base.** This
+8. **The corner is continuous.** A lazy susan is a 36" square that belongs to
+   both legs: the other leg starts exactly where its square stops, with no gap
+   and no overlap, and the wall corner cabinet does the same at its own 24".
+   The countertop is one L-shaped slab turning the corner, fabricated and drawn
+   as a single piece — the range and the sink are holes cut through it, not
+   breaks in it. A box per run leaves the square between the legs to nobody,
+   which is what the room used to show.
+9. **The dishwasher's power, water and drain all land in the sink base.** This
    is not a separate preference — it is the physical fact rule 5 is a
    consequence of. The dishwasher goes beside the sink because that is the
    cabinet its three connections are in, and the checker reads the model's own
@@ -477,3 +484,4 @@ narrowing to nothing.
 wall cabinet that stops short of the canopy's top; offering a blower because it
 shares a badge; putting any of these numbers in the geometry instead of in
 `CABINET_STANDARDS`, where the checker can read them.
+

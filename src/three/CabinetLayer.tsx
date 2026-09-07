@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import * as THREE from "three";
 import { CABINETS, CABINET_OUTLINES, type CabinetBox } from "../data/cabinets";
+import { counterOutline } from "../data/counter";
 import { useIsMobile } from "../hooks/useIsMobile";
 import { useAppStore } from "../store/useAppStore";
 import { SCENE_COLORS, surface } from "./materials";
@@ -90,6 +91,50 @@ function CabinetWireframe({ box, faint }: { box: CabinetBox; faint: boolean }) {
 }
 
 /**
+ * The countertop: one slab, turning the corner.
+ *
+ * Extruded from a single L-shaped polygon with the range and the sink cut
+ * through it, rather than a box per run. Two boxes meeting at a corner leave
+ * the square between them to nobody, which is exactly what the room used to
+ * show; a fabricator makes one piece and so does this.
+ */
+function CounterSlab() {
+  const renderMode = useAppStore((s) => s.renderMode);
+  const geometry = useMemo(() => {
+    const { outline, holes, band } = counterOutline();
+    const shape = new THREE.Shape(outline.map(([x, z]) => new THREE.Vector2(x, z)));
+    for (const hole of holes) {
+      shape.holes.push(new THREE.Path(hole.map(([x, z]) => new THREE.Vector2(x, z))));
+    }
+    const extruded = new THREE.ExtrudeGeometry(shape, {
+      depth: band[1] - band[0],
+      bevelEnabled: false,
+    });
+    // The shape is drawn on the floor plan; stand it up and lift it to height.
+    extruded.rotateX(Math.PI / 2);
+    extruded.translate(0, band[1], 0);
+    return extruded;
+  }, []);
+
+  const props = surface(renderMode, SCENE_COLORS.counter, { metalness: 0, roughness: 0.4 });
+  const install = renderMode === "install";
+
+  return (
+    <mesh geometry={geometry} castShadow receiveShadow visible={!install || true}>
+      <meshStandardMaterial
+        key={renderMode}
+        color={props.color}
+        metalness={props.metalness}
+        roughness={props.roughness}
+        transparent={install}
+        opacity={install ? GHOST_OPACITY : 1}
+        side={THREE.DoubleSide}
+      />
+    </mesh>
+  );
+}
+
+/**
  * The cabinetry layer. It is always mounted; `showCabinets` only toggles
  * visibility and render mode only changes materials, so neither rebuilds the
  * scene graph.
@@ -106,6 +151,7 @@ export function CabinetLayer() {
 
   return (
     <group name="cabinet-layer" visible={showCabinets}>
+      <CounterSlab />
       {CABINETS.map((box) => (
         <group key={box.id} position={box.position} userData={{ slot: box.slot }}>
           <CabinetSolid box={box} />

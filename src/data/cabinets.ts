@@ -1,6 +1,5 @@
 import type { SlotId } from "../types";
 import { SLOT_BY_ID } from "./slots";
-import { bowlExtent, FIXTURE_BY_ID } from "./fixtures";
 import {
   ISLAND,
   PANEL,
@@ -38,9 +37,8 @@ export interface CabinetBox {
   size: [number, number, number];
 }
 
-const counterT = ROOM.counterThickness;
 /** The base box under the top: 34.5" plus a 1.5" counter makes 36". */
-const BASE_BOX = [0, ROOM.counterHeight - counterT] as const;
+const BASE_BOX = [0, ROOM.counterHeight - ROOM.counterThickness] as const;
 
 /** The refrigerator opening's height, in feet, as the slot actually declares it. */
 const FRIDGE_OPENING_H = ft(SLOT_BY_ID["slot-fridge"].cutout.h);
@@ -75,83 +73,6 @@ function onRun(
   const position: [number, number, number] =
     run.axis === "x" ? [mid(along), mid(y), across] : [across, mid(y), mid(along)];
   return { id, kind, position, size, ...extra };
-}
-
-/** Extents along a run and across it, in run-local feet. */
-interface CounterPiece {
-  along: readonly [number, number];
-  across: readonly [number, number];
-}
-
-/** Where each basin cuts through the top, in run-local feet. */
-function bowlHoles(run: CabinetRun): CounterPiece[] {
-  const holes: CounterPiece[] = [];
-  for (const segment of run.segments) {
-    if (!segment.fixture) continue;
-    const bowl = bowlExtent(FIXTURE_BY_ID[segment.fixture]);
-    if (!bowl) continue;
-    const centre = (segment.from + segment.to) / 2;
-    holes.push({
-      along: [centre - bowl.alongHalf, centre + bowl.alongHalf],
-      across: [bowl.acrossCentre - bowl.acrossHalf, bowl.acrossCentre + bowl.acrossHalf],
-    });
-  }
-  return holes.sort((a, b) => a.along[0] - b.along[0]);
-}
-
-/**
- * The countertop, in one piece from the corner to wherever something stops it.
- *
- * Rule 3 in docs/decisions.md D11: unbroken. Two things break it and they break
- * it differently. A slide-in range sits *in* the top, so the run resumes on the
- * far side of it; a tall cabinet goes through to the ceiling, so what follows is
- * a separate stretch of counter rather than the same one continuing.
- *
- * A sink is a hole, not a break: the top carries on around it. Cutting a real
- * opening rather than laying the bowl on the surface is also what stops the two
- * from z-fighting, since they then never share a plane.
- */
-function counterPieces(run: CabinetRun): CounterPiece[] {
-  const backEdge = -ROOM.counterDepth / 2;
-  const frontEdge = ROOM.counterDepth / 2 + ROOM.counterOverhang;
-  const full = [backEdge, frontEdge] as const;
-
-  const spans: (readonly [number, number])[] = [];
-  let start: number | null = null;
-  for (const segment of run.segments) {
-    if (segment.kind === "tall" || segment.slot === "slot-range") {
-      if (start !== null) spans.push([start, segment.from] as const);
-      start = segment.to;
-    } else if (start === null) {
-      start = segment.from;
-    }
-  }
-  const last = run.segments[run.segments.length - 1];
-  if (start !== null) spans.push([start, last.to] as const);
-
-  const holes = bowlHoles(run);
-  const pieces: CounterPiece[] = [];
-
-  for (const span of spans) {
-    if (span[1] - span[0] <= 1e-6) continue;
-    let cursor = span[0];
-    for (const hole of holes) {
-      if (hole.along[0] < span[0] || hole.along[1] > span[1]) continue;
-      if (hole.along[0] - cursor > 1e-6) {
-        pieces.push({ along: [cursor, hole.along[0]], across: full });
-      }
-      // The strips behind and in front of the opening.
-      if (hole.across[0] - backEdge > 1e-6) {
-        pieces.push({ along: hole.along, across: [backEdge, hole.across[0]] });
-      }
-      if (frontEdge - hole.across[1] > 1e-6) {
-        pieces.push({ along: hole.along, across: [hole.across[1], frontEdge] });
-      }
-      cursor = hole.along[1];
-    }
-    if (span[1] - cursor > 1e-6) pieces.push({ along: [cursor, span[1]], across: full });
-  }
-  return pieces;
 }
 
 /** Walk a segment's modules, handing each its own stretch of the run. */
@@ -200,8 +121,13 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
       return;
     }
 
+    // A lazy susan is a square: it belongs to both legs, so it is as deep as
+    // it is wide and the other leg starts where it stops. Drawing it one
+    // cabinet deep is what left a hole at the inside corner.
+    const depth = module.kind === "corner" ? ft(module.widthIn) : ROOM.counterDepth;
+    const offset = module.kind === "corner" ? (depth - ROOM.counterDepth) / 2 : 0;
     boxes.push(
-      onRun(run, `${segment.id}-${module.code}`, "base", along, base, ROOM.counterDepth, 0, {
+      onRun(run, `${segment.id}-${module.code}`, "base", along, base, depth, offset, {
         module,
       }),
     );
@@ -233,8 +159,13 @@ function upperBoxes(run: CabinetRun, bank: UpperBank): CabinetBox[] {
   const inset = (ROOM.counterDepth - ROOM.upperDepth) / 2;
   const band = bank.band ?? hoodBridgeBand();
   eachModule(bank.from, bank.modules, (module, along) => {
+    // Same at high level: a corner wall cabinet reaches into both legs, so the
+    // run next to it starts where its square stops rather than overlapping it.
+    const corner = module.kind === "corner";
+    const depth = corner ? ft(module.widthIn) : ROOM.upperDepth;
+    const across = corner ? -(ROOM.counterDepth - depth) / 2 : -inset;
     boxes.push(
-      onRun(run, `${bank.id}-${module.code}`, "upper", along, band, ROOM.upperDepth, -inset, {
+      onRun(run, `${bank.id}-${module.code}`, "upper", along, band, depth, across, {
         module,
         slot: module.slot,
       }),
@@ -247,20 +178,6 @@ function runBoxes(run: CabinetRun): CabinetBox[] {
   const boxes: CabinetBox[] = run.segments.flatMap((segment) => segmentBoxes(run, segment));
 
   for (const bank of run.uppers) boxes.push(...upperBoxes(run, bank));
-
-  for (const [i, piece] of counterPieces(run).entries()) {
-    boxes.push(
-      onRun(
-        run,
-        `${run.id}-counter-${i}`,
-        "counter",
-        piece.along,
-        [ROOM.counterHeight - counterT, ROOM.counterHeight],
-        piece.across[1] - piece.across[0],
-        (piece.across[0] + piece.across[1]) / 2,
-      ),
-    );
-  }
 
   const first = run.segments[0];
   const last = run.segments[run.segments.length - 1];
@@ -294,22 +211,22 @@ export const CABINETS: CabinetBox[] = [
     id: "island-left",
     outline: "island",
     kind: "base",
-    position: [mid([ISLAND.x[0], ISLAND.microwave[0]]), ROOM.counterHeight / 2, mid(ISLAND.z)],
-    size: [span([ISLAND.x[0], ISLAND.microwave[0]]), ROOM.counterHeight, span(ISLAND.z)],
+    position: [mid([ISLAND.x[0], ISLAND.microwave[0]]), BASE_BOX[1] / 2, mid(ISLAND.z)],
+    size: [span([ISLAND.x[0], ISLAND.microwave[0]]), BASE_BOX[1], span(ISLAND.z)],
   },
   {
     id: "island-middle",
     outline: "island",
     kind: "base",
-    position: [mid([ISLAND.microwave[1], ISLAND.wine[0]]), ROOM.counterHeight / 2, mid(ISLAND.z)],
-    size: [span([ISLAND.microwave[1], ISLAND.wine[0]]), ROOM.counterHeight, span(ISLAND.z)],
+    position: [mid([ISLAND.microwave[1], ISLAND.wine[0]]), BASE_BOX[1] / 2, mid(ISLAND.z)],
+    size: [span([ISLAND.microwave[1], ISLAND.wine[0]]), BASE_BOX[1], span(ISLAND.z)],
   },
   {
     id: "island-right",
     outline: "island",
     kind: "base",
-    position: [mid([ISLAND.wine[1], ISLAND.x[1]]), ROOM.counterHeight / 2, mid(ISLAND.z)],
-    size: [span([ISLAND.wine[1], ISLAND.x[1]]), ROOM.counterHeight, span(ISLAND.z)],
+    position: [mid([ISLAND.wine[1], ISLAND.x[1]]), BASE_BOX[1] / 2, mid(ISLAND.z)],
+    size: [span([ISLAND.wine[1], ISLAND.x[1]]), BASE_BOX[1], span(ISLAND.z)],
   },
   {
     // Behind the microwave, on the seating side.
@@ -318,12 +235,12 @@ export const CABINETS: CabinetBox[] = [
     kind: "base",
     position: [
       mid(ISLAND.microwave),
-      ROOM.counterHeight / 2,
+      BASE_BOX[1] / 2,
       mid([ISLAND.workingZ + ROOM.counterDepth, ISLAND.z[1]]),
     ],
     size: [
       span(ISLAND.microwave),
-      ROOM.counterHeight,
+      BASE_BOX[1],
       span([ISLAND.workingZ + ROOM.counterDepth, ISLAND.z[1]]),
     ],
   },
@@ -334,22 +251,22 @@ export const CABINETS: CabinetBox[] = [
     kind: "base",
     position: [
       mid(ISLAND.wine),
-      ROOM.counterHeight / 2,
+      BASE_BOX[1] / 2,
       mid([ISLAND.z[0], ISLAND.seatingZ - ROOM.counterDepth]),
     ],
     size: [
       span(ISLAND.wine),
-      ROOM.counterHeight,
+      BASE_BOX[1],
       span([ISLAND.z[0], ISLAND.seatingZ - ROOM.counterDepth]),
     ],
   },
   {
     id: "island-counter",
     kind: "counter",
-    position: [mid(ISLAND.x), ROOM.counterHeight + counterT / 2, mid(ISLAND.z)],
+    position: [mid(ISLAND.x), ROOM.counterHeight - ROOM.counterThickness / 2, mid(ISLAND.z)],
     size: [
       span(ISLAND.x) + ROOM.counterOverhang * 2,
-      counterT,
+      ROOM.counterThickness,
       span(ISLAND.z) + ROOM.counterOverhang * 2,
     ],
   },

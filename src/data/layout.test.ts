@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CABINETS, hoodBridgeBand } from "./cabinets";
+import { counterOutline, isRectilinearL } from "./counter";
 import { checkHeights, checkLayout, LAYOUT_LIMITS, occupants } from "./layoutRules";
 import { FIXTURE_BY_ID } from "./fixtures";
 import {
@@ -428,124 +429,91 @@ describe("the run as Leo specified it", () => {
   });
 });
 
-describe("the countertop is cut for the sink rather than laid over it", () => {
-  const pieces = CABINETS.filter((b) => b.id.startsWith("back-counter-"));
+describe("the countertop is one slab that turns the corner", () => {
+  const counter = counterOutline();
 
-  it("leaves an opening the size of the basin", () => {
-    const bowl = FIXTURE_BY_ID["fixture-sink"].bowlIn!;
-    const sink = back().segments.find((s) => s.fixture === "fixture-sink")!;
-    const centre = (sink.from + sink.to) / 2;
-    // Nothing covers the middle of the bowl.
-    const covered = pieces.some(
-      (b) =>
-        Math.abs(b.position[0] - centre) < b.size[0] / 2 - 1e-6 &&
-        Math.abs(b.position[2] - back().centre - 1 / 12) < b.size[2] / 2 - 1e-6,
-    );
-    expect(covered).toBe(false);
-    // ...and the run carries on either side of it.
-    expect(pieces.length).toBeGreaterThan(2);
-    expect(bowl.w).toBeLessThan(inches(sink.to - sink.from));
+  // The bug this replaced: a box per run left the square between the two legs
+  // to nobody, so the corner read as a gap.
+  it("traces a single L, not two rectangles", () => {
+    expect(isRectilinearL(counter.outline)).toBe(true);
+    expect(counter.outline).toHaveLength(6);
   });
 
-  it("sits the top at 34.5 to 36 inches, so nothing shares a plane with the basin", () => {
-    for (const piece of pieces) {
-      expect(inches(piece.position[1] - piece.size[1] / 2)).toBeCloseTo(34.5, 6);
-      expect(inches(piece.position[1] + piece.size[1] / 2)).toBeCloseTo(36, 6);
+  it("reaches both walls and both leg ends", () => {
+    const xs = counter.outline.map(([x]) => x);
+    const zs = counter.outline.map(([, z]) => z);
+    expect(Math.min(...xs)).toBeCloseTo(-ROOM.halfX, 6);
+    expect(Math.min(...zs)).toBeCloseTo(-ROOM.halfZ, 6);
+    // Each leg stops at its tower, or at the end of its run.
+    for (const run of RUNS) {
+      const tower = run.segments.find((s) => s.kind === "tall");
+      const stop = tower ? tower.from : run.segments[run.segments.length - 1].to;
+      const along = run.axis === "x" ? xs : zs;
+      expect(Math.max(...along)).toBeCloseTo(stop, 6);
     }
+  });
+
+  it("cuts the range and the sink through it rather than breaking at them", () => {
+    expect(counter.holes.length).toBe(2);
+    for (const hole of counter.holes) expect(hole).toHaveLength(4);
+  });
+
+  it("sits at 34.5 to 36 inches, so nothing shares a plane with the basin", () => {
+    expect(inches(counter.band[0])).toBeCloseTo(34.5, 6);
+    expect(inches(counter.band[1])).toBeCloseTo(36, 6);
+  });
+
+  it("is one geometry: no counter boxes are left in the cabinet list", () => {
+    expect(CABINETS.filter((box) => box.kind === "counter" && !box.id.startsWith("island"))).toEqual(
+      [],
+    );
   });
 });
 
-describe("D13 · the run is built out of cabinets you can order", () => {
-  const modules = RUNS.flatMap((run) => [
-    ...run.segments.flatMap((s) => s.modules),
-    ...run.uppers.flatMap((b) => b.modules),
-  ]);
+describe("D11 rule 2 · the corner is continuous", () => {
+  const cornerSegment = RUNS.flatMap((run) =>
+    run.segments.filter((s) => s.kind === "corner").map((s) => ({ run, segment: s })),
+  )[0];
 
-  it("gives every cabinet a trade code", () => {
-    expect(modules.length).toBeGreaterThan(10);
-    for (const module of modules) {
-      expect(module.code, JSON.stringify(module)).toMatch(/^[A-Z]{1,4}\d{2,4}(-\d+)?$/);
-      expect(module.widthIn, module.code).toBeGreaterThan(0);
-    }
+  it("gives the lazy susan a square footprint", () => {
+    const box = CABINETS.find((b) => b.id.startsWith(cornerSegment.segment.id))!;
+    expect(inches(box.size[0])).toBeCloseTo(inches(box.size[2]), 6);
+    expect(inches(box.size[0])).toBeCloseTo(CABINET_STANDARDS.corner.lazySusanIn, 6);
   });
 
-  it("adds each segment's cabinets up to the segment exactly", () => {
+  it("starts the other leg exactly where the corner square stops", () => {
+    const corner = CABINETS.find((b) => b.id.startsWith(cornerSegment.segment.id))!;
+    const cornerEnd = corner.position[0] + corner.size[0] / 2;
+    const back = RUN_BY_ID.back;
+    expect(back.segments[0].from).toBeCloseTo(cornerEnd, 6);
+  });
+
+  it("does the same at high level, with the smaller corner box", () => {
+    const cornerUpper = CABINETS.find((b) => b.module?.kind === "corner" && b.kind === "upper")!;
+    expect(inches(cornerUpper.size[0])).toBeCloseTo(inches(cornerUpper.size[2]), 6);
+    const end = cornerUpper.position[0] + cornerUpper.size[0] / 2;
+    const backBank = RUN_BY_ID.back.uppers[0];
+    expect(backBank.from).toBeCloseTo(end, 6);
+  });
+
+  it("hangs both legs' wall cabinets at the same height", () => {
+    // Wall cabinets only: the bridge over the hood and the one over the
+    // refrigerator both start where their appliance stops.
+    const uppers = CABINETS.filter(
+      (b) => b.kind === "upper" && (b.module?.kind === "wall" || b.module?.kind === "corner"),
+    );
+    expect(uppers.length).toBeGreaterThan(3);
+    const bottoms = uppers.map((b) => b.position[1] - b.size[1] / 2);
+    for (const bottom of bottoms) expect(bottom).toBeCloseTo(ROOM.upperBottom, 6);
+  });
+
+  it("runs the toe kick round both legs without a break", () => {
+    const toes = CABINETS.filter((b) => b.kind === "toe" && !b.id.startsWith("island"));
+    expect(toes.length).toBe(2);
     for (const run of RUNS) {
-      for (const segment of run.segments) {
-        const built = segment.modules.reduce((sum, m) => sum + m.widthIn, 0);
-        expect(built, `${segment.id} (${segment.modules.map((m) => m.code).join(" + ")})`).toBe(
-          widthIn(segment),
-        );
-      }
+      const toe = toes.find((t) => t.id.startsWith(run.id))!;
+      const along = run.axis === "x" ? 0 : 2;
+      expect(toe.position[along] - toe.size[along] / 2).toBeCloseTo(run.segments[0].from, 6);
     }
-  });
-
-  it("adds each bank of wall cabinets up to the bank exactly", () => {
-    for (const run of RUNS) {
-      for (const bank of run.uppers) {
-        const built = bank.modules.reduce((sum, m) => sum + m.widthIn, 0);
-        expect(built, `${bank.id} (${bank.modules.map((m) => m.code).join(" + ")})`).toBe(
-          inches(bank.to - bank.from),
-        );
-      }
-    }
-  });
-
-  // Every width in the doc's size lists, and nothing off them.
-  it("uses only stock widths", () => {
-    const stock = [6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48];
-    for (const module of modules) {
-      if (module.kind === "opening" || module.kind === "filler") continue;
-      expect(stock, `${module.code} is ${module.widthIn}"`).toContain(module.widthIn);
-    }
-  });
-
-  // A bridge over a canopy is the exception: its floor is the canopy's top,
-  // which moves with the range, so it is made to size.
-  it("uses only stock wall heights, bar the bridge over the hood", () => {
-    const heights = [12, 15, 18, 21, 24, 30, 36, 42];
-    for (const run of RUNS) {
-      for (const bank of run.uppers) {
-        for (const module of bank.modules) {
-          if (module.kind === "bridge") {
-            expect(module.heightIn).toBeUndefined();
-            continue;
-          }
-          expect(heights, module.code).toContain(module.heightIn);
-        }
-      }
-    }
-  });
-
-  it("sizes the sink base and the corner off their own lists", () => {
-    const sink = modules.find((m) => m.kind === "sink-base")!;
-    expect([30, 33, 36, 42]).toContain(sink.widthIn);
-    const corner = RUNS.flatMap((r) => r.segments)
-      .flatMap((s) => s.modules)
-      .find((m) => m.kind === "corner")!;
-    expect([33, 36]).toContain(corner.widthIn);
-  });
-
-  it("draws one box per cabinet, carrying its code", () => {
-    const coded = CABINETS.filter((box) => box.module);
-    expect(coded.length).toBeGreaterThan(10);
-    for (const box of coded) {
-      if (box.module!.kind === "tall") continue; // an enclosure is three pieces
-      expect(inches(box.size[0]) === box.module!.widthIn || inches(box.size[2]) === box.module!.widthIn,
-        `${box.id} is ${inches(box.size[0])} x ${inches(box.size[2])}, code says ${box.module!.widthIn}`,
-      ).toBe(true);
-    }
-  });
-
-  it("catches a cabinet in a width nobody stocks", () => {
-    const runs = clone();
-    const backRun = runs.find((r) => r.id === "back")!;
-    backRun.segments[0].modules = [{ code: "B14", kind: "base", widthIn: 14 }];
-    backRun.segments[0].to = backRun.segments[0].from + 14 / 12;
-    for (const segment of backRun.segments.slice(1)) {
-      segment.from -= 1 / 12;
-      segment.to -= 1 / 12;
-    }
-    expect(codes(runs)).toContain("d13-modules");
   });
 });

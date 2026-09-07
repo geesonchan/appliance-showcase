@@ -100,6 +100,9 @@ function chain(start: number, build: ((at: number) => RunSegment)[]): RunSegment
 
 const mid = ([a, b]: readonly [number, number]) => (a + b) / 2;
 
+/** A corner wall cabinet reaches 24" into each leg. */
+const CORNER_UPPER_IN = 24;
+
 /**
  * Check the parameters before building anything.
  *
@@ -178,6 +181,9 @@ function runsFor(params: LayoutParams): CabinetRun[] {
   const corner = CABINET_STANDARDS.corner.lazySusanIn;
   const leftStart = -ROOM.halfZ;
   const backStart = -ROOM.halfX + ft(corner);
+  // A corner wall cabinet is 24" square where the base one is 36", so the wall
+  // run on the other leg picks up sooner than the base run does.
+  const upperStart = -ROOM.halfX + ft(CORNER_UPPER_IN);
 
   const lazySusan = (at: number) =>
     segment("corner", "corner", at, [M(`LS${corner}`, "corner", corner)]);
@@ -242,7 +248,7 @@ function runsFor(params: LayoutParams): CabinetRun[] {
         axis: "x",
         centre: backCentre,
         segments: prefix("back", back),
-        uppers: backUppers(back, backStart, W),
+        uppers: backUppers(back, upperStart, W),
       },
     ];
   }
@@ -275,7 +281,7 @@ function runsFor(params: LayoutParams): CabinetRun[] {
       axis: "x",
       centre: backCentre,
       segments: prefix("back", back),
-      uppers: backUppers(back, backStart, W),
+      uppers: backUppers(back, upperStart, W),
     },
   ];
 }
@@ -298,10 +304,9 @@ function leftUppers(
 ) {
   const tower = segments.find((s) => s.kind === "tall");
   const end = tower ? tower.from : segments[segments.length - 1].to;
-  const cornerIn = 24;
-  const rest = Math.round((end - start) * 12) - cornerIn;
+  const rest = Math.round((end - start) * 12) - CORNER_UPPER_IN;
   return bank("upper-left", start, end, [
-    M("WER2442", "corner", cornerIn, { heightIn: 42 }),
+    M(`WER${CORNER_UPPER_IN}42`, "corner", CORNER_UPPER_IN, { heightIn: 42 }),
     ...fillWidth(rest, W),
   ]);
 }
@@ -331,7 +336,7 @@ function backUppers(
       from: start,
       to: hood[0],
       band: [ROOM.upperBottom, ROOM.upperTop] as const,
-      modules: [W(Math.round((hood[0] - start) * 12))],
+      modules: fillWidth(Math.round((hood[0] - start) * 12), W),
     },
     {
       id: "upper-back-hood",
