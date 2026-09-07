@@ -29,6 +29,19 @@ interface AppState {
   layoutVersion: number;
   renderMode: RenderMode;
   lighting: Lighting;
+  /**
+   * The finishes the room is shown in. Not part of the package and not on the
+   * quote: a customer choosing between four greens is choosing how to look at
+   * the kitchen, not what to buy. See docs/decisions.md D12.
+   */
+  finishes: { cabinet: string; counter: CounterFinish; floor: FloorFinish };
+  /**
+   * Render quality. Dropped automatically when the frame rate will not hold,
+   * which is the only thing allowed to change it besides ?quality= in the URL.
+   */
+  quality: Quality;
+  /** Frames per second over the last second, for the ?debug=1 overlay. */
+  fps: number;
   showCabinets: boolean;
   showLabels: boolean;
   /** Which utility layers are visible while in install mode. */
@@ -74,6 +87,9 @@ interface AppState {
   setLayout: (patch: Partial<LayoutParams>) => void;
   setRenderMode: (mode: RenderMode) => void;
   setLighting: (lighting: Lighting) => void;
+  setFinish: (patch: Partial<AppState["finishes"]>) => void;
+  setQuality: (quality: Quality) => void;
+  reportFps: (fps: number) => void;
   toggleCabinets: () => void;
   toggleLabels: () => void;
   toggleUtility: (type: UtilityType) => void;
@@ -97,6 +113,67 @@ interface AppState {
 
 let toastId = 0;
 
+export type Quality = "high" | "low";
+export type CounterFinish = "quartz-white" | "marble-veined" | "wood-oak";
+export type FloorFinish = "floor-oak" | "tile-white";
+
+/**
+ * The four cabinet colours, which are paint chips rather than data.
+ *
+ * Scheme 01's own green first, so the room opens as it was specified.
+ */
+export const CABINET_COLORS = [
+  { key: "finish.cabinet.green", value: "#2E5C45" },
+  { key: "finish.cabinet.navy", value: "#2B3A4A" },
+  { key: "finish.cabinet.clay", value: "#9C7B63" },
+  { key: "finish.cabinet.bone", value: "#E3DFD3" },
+] as const;
+
+/**
+ * The finishes the page opens in.
+ *
+ * From the query string, so a room in a particular set of finishes is a link:
+ * `?cabinet=navy&counter=marble`. The screenshot runs need that, and so does
+ * anybody sending a colleague the version they were looking at.
+ */
+function initialFinishes() {
+  const defaults = {
+    cabinet: CABINET_COLORS[0].value,
+    counter: "quartz-white" as CounterFinish,
+    floor: "floor-oak" as FloorFinish,
+  };
+  if (typeof window === "undefined") return defaults;
+
+  const query = new URLSearchParams(window.location.search);
+  const cabinet = CABINET_COLORS.find((paint) => paint.key.endsWith(query.get("cabinet") ?? ""));
+  const counters: Record<string, CounterFinish> = {
+    quartz: "quartz-white",
+    marble: "marble-veined",
+    oak: "wood-oak",
+  };
+  const floors: Record<string, FloorFinish> = { oak: "floor-oak", tile: "tile-white" };
+
+  return {
+    cabinet: query.get("cabinet") && cabinet ? cabinet.value : defaults.cabinet,
+    counter: counters[query.get("counter") ?? ""] ?? defaults.counter,
+    floor: floors[query.get("floor") ?? ""] ?? defaults.floor,
+  };
+}
+
+/**
+ * Where quality starts.
+ *
+ * A phone starts low and is measured up rather than starting high and being
+ * caught out: the first second of a hitching scene is the second somebody
+ * decides the app is slow. `?quality=` overrides both, for screenshots.
+ */
+function initialQuality(): Quality {
+  if (typeof window === "undefined") return "high";
+  const asked = new URLSearchParams(window.location.search).get("quality");
+  if (asked === "high" || asked === "low") return asked;
+  return window.matchMedia("(max-width: 767px)").matches ? "low" : "high";
+}
+
 export const useAppStore = create<AppState>((set, get) => ({
   lang: "en",
   layoutParams: REQUESTED_PARAMS,
@@ -104,6 +181,9 @@ export const useAppStore = create<AppState>((set, get) => ({
   layoutVersion: 0,
   renderMode: "realistic",
   lighting: "day",
+  finishes: initialFinishes(),
+  quality: initialQuality(),
+  fps: 0,
   showCabinets: true,
   showLabels: true,
   visibleUtilities: { gas: true, power: true, water: true, duct: true },
@@ -153,6 +233,9 @@ export const useAppStore = create<AppState>((set, get) => ({
     get().showToast(`mode.toast.${renderMode}`);
   },
   setLighting: (lighting) => set({ lighting }),
+  setFinish: (patch) => set((s) => ({ finishes: { ...s.finishes, ...patch } })),
+  setQuality: (quality) => set({ quality }),
+  reportFps: (fps) => set({ fps }),
   toggleCabinets: () => set((s) => ({ showCabinets: !s.showCabinets })),
   toggleLabels: () => set((s) => ({ showLabels: !s.showLabels })),
   toggleUtility: (type) =>

@@ -1,4 +1,5 @@
 import type { Finish, Lighting, RenderMode } from "../types";
+import type { TextureKind } from "./textures";
 
 /** Palette used by the procedural scene, keyed to the §6 design tokens. */
 export const SCENE_COLORS = {
@@ -61,6 +62,100 @@ export interface SurfaceProps {
   roughness: number;
   transparent: boolean;
   opacity: number;
+  /** Colour map, when the surface has one. */
+  map?: TextureKind;
+  normalMap?: TextureKind;
+  /** How many feet of room one tile of the map covers. */
+  repeatFt?: number;
+  normalScale?: number;
+}
+
+/**
+ * The finishes a kitchen is specified in.
+ *
+ * A token rather than a colour: "the cabinet doors are painted" is a decision
+ * about the surface, and the colour is a separate decision inside it. Quartz
+ * and marble are the same slab thickness and differ only in what is drawn on
+ * them; stainless and black stainless are the same steel at different
+ * brightness. Keeping them as tokens is what lets the finish picker change one
+ * without knowing anything about the geometry it lands on.
+ */
+export type FinishToken =
+  | "painted"
+  | "stainless"
+  | "black-stainless"
+  | "wood-oak"
+  | "quartz-white"
+  | "marble-veined"
+  | "tile-white"
+  | "floor-oak";
+
+export const FINISHES: Record<FinishToken, Omit<SurfaceProps, "transparent" | "opacity">> = {
+  // Cabinet paint: a satin sheen, not a gloss. The colour is supplied.
+  painted: { color: SCENE_COLORS.cabinet, metalness: 0.02, roughness: 0.5 },
+  // Steel is not rough so much as scratched one way, which is what the normal
+  // map is for: a low roughness with a directional grain over it.
+  stainless: {
+    color: "#B9BDBA",
+    metalness: 0.9,
+    roughness: 0.35,
+    normalMap: "brushed-normal",
+    repeatFt: 1.2,
+    normalScale: 0.35,
+  },
+  "black-stainless": {
+    color: "#3A3D3B",
+    metalness: 0.85,
+    roughness: 0.42,
+    normalMap: "brushed-normal",
+    repeatFt: 1.2,
+    normalScale: 0.3,
+  },
+  "wood-oak": { color: "#FFFFFF", metalness: 0, roughness: 0.62, map: "oak", repeatFt: 2 },
+  "quartz-white": {
+    color: "#FFFFFF",
+    metalness: 0.02,
+    roughness: 0.28,
+    map: "quartz",
+    repeatFt: 3,
+  },
+  "marble-veined": {
+    color: "#FFFFFF",
+    metalness: 0.02,
+    roughness: 0.22,
+    map: "marble",
+    repeatFt: 5,
+  },
+  "tile-white": { color: "#FFFFFF", metalness: 0.03, roughness: 0.35, map: "tile", repeatFt: 1 },
+  "floor-oak": { color: "#FFFFFF", metalness: 0, roughness: 0.72, map: "oak-floor", repeatFt: 4 },
+};
+
+/**
+ * A finish, resolved against the render mode.
+ *
+ * The white model and the install view are deliberately without materials —
+ * that is what they are for — so a token only survives into the realistic view.
+ * `color` overrides the token's own, which is how four cabinet colours share one
+ * painted finish.
+ */
+export function finish(
+  mode: RenderMode,
+  token: FinishToken,
+  color?: string,
+): SurfaceProps {
+  const spec = FINISHES[token];
+  const resolved = surface(mode, color ?? spec.color, {
+    metalness: spec.metalness,
+    roughness: spec.roughness,
+  });
+  if (mode !== "realistic") return resolved;
+  return {
+    ...resolved,
+    map: spec.map,
+    normalMap: spec.normalMap,
+    repeatFt: spec.repeatFt,
+    normalScale: spec.normalScale,
+  };
 }
 
 /**
