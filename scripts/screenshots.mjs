@@ -17,7 +17,9 @@
  * visual corrections and the mode-switch timing; SET=round13 for the accent
  * run, the redrawn refrigerator and the counter cut through at the range;
  * SET=round14 for the generated layout that showed the counter over the range,
- * the refrigerator's published split, and marble against quartz.
+ * the refrigerator's published split, and marble against quartz; SET=round15
+ * for the one-piece refrigerator, the redrawn marble and the cabinets against
+ * the canopy.
  */
 import { mkdir } from "node:fs/promises";
 import { chromium } from "playwright";
@@ -468,9 +470,52 @@ async function captureRound14(page) {
   }
 }
 
+/** Round 15: the grille, the canopy's neighbours, and the two stones again. */
+async function captureRound15(page) {
+  await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await settle(page, 2400);
+  await page.screenshot({ path: `${outDir}/mobile-overview.png` });
+
+  for (const [name, match] of [
+    ["fridge", /Refrigerator/],
+    ["hood", /Ventilation hood/],
+  ]) {
+    await page.goto(baseUrl, { waitUntil: "networkidle" });
+    await settle(page, 2400);
+    await flyTo(page, match);
+    await settle(page, 1500);
+    await page.screenshot({ path: `${outDir}/mobile-${name}.png` });
+  }
+
+  for (const stone of ["marble", "quartz"]) {
+    await page.goto(`${baseUrl}?counter=${stone}`, { waitUntil: "networkidle" });
+    await settle(page, 2400);
+    await page.screenshot({ path: `${outDir}/mobile-${stone}.png` });
+    // And close up, where the difference between the two has to survive.
+    await flyTo(page, /Dishwasher/);
+    await settle(page, 1500);
+    await page.screenshot({ path: `${outDir}/mobile-${stone}-close.png` });
+  }
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round15") {
+    const ctx = await browser.newContext({
+      viewport: MOBILE,
+      deviceScaleFactor: 2,
+      isMobile: true,
+      hasTouch: true,
+    });
+    const page = await ctx.newPage();
+    await captureRound15(page);
+    await ctx.close();
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round14") {
     const ctx = await browser.newContext({
