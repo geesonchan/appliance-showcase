@@ -3,6 +3,8 @@ import { fitCheck, formatInches, requiredOpening } from "../data/fit";
 import { formatPrice } from "../data/packageSummary";
 import { SLOT_BY_ID } from "../data/slots";
 import { deriveUtilities } from "../data/utilities";
+import { hasGenericRoughIn } from "../data/roughIn";
+import { DebugBadge } from "./DebugBadge";
 import { useChecklist } from "../data/useChecklist";
 import { effectiveCfm, formatCfm } from "../data/ventilation";
 import { DEBUG } from "../debug";
@@ -113,6 +115,14 @@ export function SpecCard() {
           </Section>
 
           <Section title={t("spec.services")}>
+            {hasGenericRoughIn(appliance) && (
+              <div className="mb-1.5">
+                <DebugBadge
+                  labelKey="debug.genericRoughIn"
+                  title="No installation drawing read for this model; the room's generic heights are shown"
+                />
+              </div>
+            )}
             <Row
               label={t("spec.power")}
               value={

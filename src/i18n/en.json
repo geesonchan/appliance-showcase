@@ -167,5 +167,9 @@
   "rule.hoodCabinetCutout": "Cabinet above the hood needs a {size} cutout in its floor for the duct",
   "duct.callout": "Cabinet floor needs a {size} cutout; the duct passes through the cabinet",
   "layout.refused": "That layout cannot be built:",
-  "layout.showing": "Showing the default instead: {island}\" island, refrigerator at the {fridge} end."
+  "layout.showing": "Showing the default instead: {island}\" island, refrigerator at the {fridge} end.",
+  "roughIn.callout": "{type}: {where}, {at}",
+  "rule.roughIn": "{type} — {where}, {at}",
+  "debug.genericRoughIn": "generic rough-in",
+  "rule.dishwasherServices": "Power, water and drain all land in the sink base — which is why the dishwasher goes beside it"
 }

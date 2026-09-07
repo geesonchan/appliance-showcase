@@ -168,5 +168,9 @@
   "rule.hoodCabinetCutout": "油烟机上方吊柜底板需开 {size} 切口供风管穿过",
   "duct.callout": "吊柜底板需开 {size} 切口，风管穿柜",
   "layout.refused": "这个布局生成不了：",
-  "layout.showing": "显示的是默认布局：island {island}\"，冰箱在{fridge}端。"
+  "layout.showing": "显示的是默认布局：island {island}\"，冰箱在{fridge}端。",
+  "roughIn.callout": "{type}：{where}，{at}",
+  "rule.roughIn": "{type} — {where}，{at}",
+  "debug.genericRoughIn": "通用管线位置",
+  "rule.dishwasherServices": "电、水、排水三条都落在水槽柜里——这就是洗碗机必须紧邻水槽的原因"
 }

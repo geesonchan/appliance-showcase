@@ -247,6 +247,45 @@ export const schemesFileSchema = z.object({
   schemes: z.array(schemeSchema).min(1),
 });
 
+/**
+ * Where one connection lands, read off the model's own installation drawing.
+ *
+ * Coordinates are relative to the appliance's opening rather than to the room:
+ * x from the left side panel, y up from the opening floor, z either the rear
+ * wall or the front edge. That is how a manual dimensions them, and it is the
+ * only frame that survives the cabinet moving.
+ */
+export const roughInPointSchema = z.object({
+  type: z.enum(["power", "water", "gas", "duct", "drain", "anti-tip", "air-gap", "service-channel"]),
+  /** Which box it is in: this appliance's opening, or a neighbour's. */
+  location: z.enum([
+    "in-cutout",
+    "adjacent-cabinet-left",
+    "adjacent-cabinet-right",
+    "under-sink",
+    "above-cabinet",
+  ]),
+  x: z.union([inches, z.enum(["left", "center", "right"])]),
+  y: z.union([inches, z.enum(["bottom", "center", "top"])]),
+  z: z.enum(["rear", "front"]),
+  /** For a bracket or a channel rather than a point connection. */
+  size: z.tuple([inches, inches, inches]).nullable().default(null),
+  /** A drain's high loop peaks here, measured from the floor. */
+  highLoopApexIn: inches.nullable().default(null),
+  note: z.string().nullable().default(null),
+});
+
+export const roughInFileSchema = z.object({
+  _meta: metaSchema,
+  roughIn: z.record(
+    z.string(),
+    z.object({
+      sourceUrl: z.string().min(1),
+      points: z.array(roughInPointSchema).min(1),
+    }),
+  ),
+});
+
 export const fixturesFileSchema = z.object({
   _meta: metaSchema,
   fixtures: z.array(fixtureRecordSchema).min(1),
@@ -256,6 +295,7 @@ export type ApplianceRecord = z.infer<typeof applianceSchema>;
 export type SlotRecord = z.infer<typeof slotRecordSchema>;
 export type SchemeRecord = z.infer<typeof schemeSchema>;
 export type FixtureRecord = z.infer<typeof fixtureRecordSchema>;
+export type RoughInPoint = z.infer<typeof roughInPointSchema>;
 
 /**
  * Parse a data file, failing loudly.

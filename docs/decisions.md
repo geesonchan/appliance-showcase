@@ -359,6 +359,11 @@ each one has a test with a case that breaks it.
 7. **The island's two openings face opposite ways**: the microwave drawer to the
    working side, the wine cabinet to the seating side (already D5), with a 42"
    aisle to the perimeter run.
+8. **The dishwasher's power, water and drain all land in the sink base.** This
+   is not a separate preference — it is the physical fact rule 5 is a
+   consequence of. The dishwasher goes beside the sink because that is the
+   cabinet its three connections are in, and the checker reads the model's own
+   installation drawing to say so rather than taking it on trust.
 
 **Scheme 01 as laid out.** Left wall, from the far end back to the corner:
 refrigerator tower, 15" landing, corner cabinet. Back wall, from the corner
@@ -436,6 +441,17 @@ Both are checked by `checkLayout`, and the M3-3 generator has to satisfy both.
   up again, so their tops line up with the canopy's.
 - Duct collar 8-3/8" above the canopy top, with the electrical zone behind it.
 - Canopy at least as wide as the range, and centred on it.
+- **The clearance is measured from the cooking surface**, which is the range's
+  own top rather than the counter beside it: a slide-in range's grates stand
+  proud of the counter, and hanging the hood off the counter spends three
+  quarters of an inch of a clearance that has no slack in it. The hood slot
+  records the surface the wall was drilled for; specifying a range that differs
+  from it is what the clearance rule catches.
+- **A run may finish up to 6" short of the ceiling.** With the canopy at
+  84-3/4" and a 96" ceiling there are 11-1/4" for the bridge above it, and
+  nobody lists an 11" bridge — so it is ordered to the whole inch and the
+  remainder is the closing scribe. Anything more than 6" stops reading as a
+  scribe and starts reading as a mistake.
 
 **Ducting**, from the ducting sheet — five installations, not five drawings of
 one:

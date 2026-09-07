@@ -375,7 +375,8 @@ describe("quote sheet", () => {
     expect(json.lines.map((line: { model: string }) => line.model)).toContain(model);
     // Every finding traces back to the rule that produced it.
     for (const finding of json.findings) {
-      expect(finding.ruleId).toMatch(/^[a-z-]+$/);
+      // A rule id, or a rough-in line keyed by slot and connection.
+      expect(finding.ruleId).toMatch(/^[a-z-]+(:[a-z0-9-]+)*$/);
       expect(finding.message).not.toContain("{");
     }
 

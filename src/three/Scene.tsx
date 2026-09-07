@@ -11,6 +11,7 @@ import { Lights } from "./Lights";
 import { ModuleLabelProjector } from "./ModuleLabelProjector";
 import { OcclusionFade } from "./OcclusionFade";
 import { PinProjector } from "./PinProjector";
+import { RoughInLayer } from "./RoughInLayer";
 import { SceneDebug } from "./SceneDebug";
 import { ShaderWarmup } from "./ShaderWarmup";
 import { UtilityLayer } from "./UtilityLayer";
@@ -68,6 +69,7 @@ export function Scene() {
         <UtilityLayer type="power" />
         <UtilityLayer type="water" />
         <UtilityLayer type="duct" />
+        <RoughInLayer />
         <OcclusionFade />
         {/* Order matters: the dimension figures are placed first and the
             pins avoid wherever they landed. */}

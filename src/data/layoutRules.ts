@@ -1,4 +1,5 @@
 import { hoodBridgeBand } from "./cabinets";
+import { roughInFor } from "./roughIn";
 import { FIXTURE_BY_ID } from "./fixtures";
 import {
   CABINET_STANDARDS,
@@ -10,7 +11,7 @@ import {
   type RunSegment,
 } from "./room";
 import { SLOT_BY_ID } from "./slots";
-import type { SlotId } from "../types";
+import type { Appliance, SlotId } from "../types";
 
 /**
  * The cabinet rules, as something the code can be held to.
@@ -112,7 +113,11 @@ function landing(run: CabinetRun, index: number, direction: -1 | 1): number {
  * generate a layout *and say why*, which is the same question asked of a
  * different set of runs.
  */
-export function checkLayout(runs: CabinetRun[] = RUNS): LayoutViolation[] {
+export function checkLayout(
+  runs: CabinetRun[] = RUNS,
+  /** The models specified, when the check has them: rule 8 reads their drawings. */
+  selection?: Partial<Record<SlotId, Appliance>>,
+): LayoutViolation[] {
   const problems: LayoutViolation[] = [];
   const fail = (code: string, message: string) => problems.push({ code, message });
 
@@ -276,6 +281,20 @@ export function checkLayout(runs: CabinetRun[] = RUNS): LayoutViolation[] {
         `dishwasher is ${inches(centres).toFixed(1)}" from the sink, limit is ${LAYOUT_LIMITS.dishwasherToSinkIn}"`,
       );
     }
+  }
+
+  // D11 rule 8: the dishwasher's services all land in the sink base. This is
+  // the physical fact rule 5 is a consequence of — the dishwasher is beside the
+  // sink because that is the cabinet its power, water and drain are in.
+  const dishwasherModel = selection?.["slot-dishwasher"];
+  const points = dishwasherModel ? (roughInFor(dishwasherModel)?.points ?? []) : [];
+  const stray = points.filter((point) => point.location !== "under-sink");
+  if (stray.length > 0) {
+    fail(
+      "d11-8",
+      `the dishwasher's ${stray.map((p) => p.type).join(", ")} ` +
+        `${stray.length === 1 ? "does" : "do"} not land in the sink base`,
+    );
   }
 
   // D11 rule 6: the refrigerator has counter to land things on.

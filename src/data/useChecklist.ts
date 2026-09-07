@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { SLOT_ORDER } from "./catalogue";
 import { SLOT_BY_ID } from "./slots";
 import { evaluateSlot, packageContext, type Finding } from "./rules";
+import { resolveRoughIn, roughInSentence } from "./roughIn";
 import { useSelection, useSelectedBlower } from "../store/useSelection";
 
 export interface Checklist {
@@ -26,6 +27,21 @@ export function useChecklist(): Checklist {
     const findings = [
       ...SLOT_ORDER.flatMap((slotId) =>
         evaluateSlot(SLOT_BY_ID[slotId], selection[slotId], context),
+      ),
+      // One line per connection the model's own drawing calls for. These are
+      // not rules — nothing decides whether they fire — they are the numbers
+      // an installer repeats back.
+      ...SLOT_ORDER.flatMap((slotId) =>
+        resolveRoughIn(slotId, selection[slotId]).map((resolved, i) => ({
+          ruleId: `rough-in:${slotId}:${resolved.point.type}:${i}`,
+          severity: "info" as const,
+          messageKey: "rule.roughIn",
+          slot: slotId,
+          params: {
+            type: resolved.point.type,
+            ...roughInSentence(resolved.point),
+          },
+        })),
       ),
       // Package-wide findings are attributed to the hood, which is what they
       // are actually about.

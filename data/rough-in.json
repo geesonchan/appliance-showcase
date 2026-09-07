@@ -1,0 +1,114 @@
+{
+  "_meta": {
+    "generatedBy": "hand written from manufacturer installation drawings",
+    "updatedAt": "2026-09-06",
+    "provenance": "Positions are read off each model's own installation manual, not from a general rule. Coordinates are relative to that appliance's opening: x from the left side panel, y up from the opening floor, z either the rear wall or the front edge. A model with no entry here falls back to the room's generic rough-in heights and is marked as such under ?debug=1."
+  },
+  "roughIn": {
+    "thermador-ph36hws": {
+      "sourceUrl": "docs/reference/thermador-hood-clearance.png",
+      "points": [
+        {
+          "type": "power",
+          "location": "above-cabinet",
+          "x": "center",
+          "y": "bottom",
+          "z": "rear",
+          "size": [8, 5, 3],
+          "note": "Electrical zone behind the canopy's top, against the wall"
+        }
+      ]
+    },
+    "thermador-t36bt120ns": {
+      "sourceUrl": "docs/reference/thermador-t36bt120ns.png",
+      "points": [
+        {
+          "type": "power",
+          "location": "adjacent-cabinet-right",
+          "x": 6,
+          "y": 6,
+          "z": "rear",
+          "note": "Receptacle in the neighbouring cabinet, near the floor"
+        },
+        {
+          "type": "water",
+          "location": "adjacent-cabinet-right",
+          "x": 12,
+          "y": 6,
+          "z": "rear",
+          "note": "Ice maker supply, same cabinet as the receptacle"
+        },
+        {
+          "type": "service-channel",
+          "location": "in-cutout",
+          "x": "center",
+          "y": "bottom",
+          "z": "rear",
+          "size": [36, 7.25, 2],
+          "note": "Service channel across the back of the opening, 7-1/4\" tall"
+        }
+      ]
+    },
+    "thermador-md24bs": {
+      "sourceUrl": "docs/reference/thermador-md24bs.png",
+      "points": [
+        {
+          "type": "power",
+          "location": "in-cutout",
+          "x": 4,
+          "y": 14.625,
+          "z": "rear",
+          "note": "Outlet on the back wall of the opening, left of centre"
+        },
+        {
+          "type": "anti-tip",
+          "location": "in-cutout",
+          "x": "center",
+          "y": "top",
+          "z": "rear",
+          "size": [6, 3.5, 1.5],
+          "note": "Anti-tip bracket, top rear of the opening"
+        }
+      ]
+    },
+    "bosch-shv78cm3n": {
+      "sourceUrl": "docs/reference/bosch-dishwasher-install.png",
+      "points": [
+        {
+          "type": "power",
+          "location": "under-sink",
+          "x": 6,
+          "y": 6,
+          "z": "rear",
+          "note": "Receptacle in the sink base, not in the dishwasher opening"
+        },
+        {
+          "type": "water",
+          "location": "under-sink",
+          "x": 12,
+          "y": 8,
+          "z": "rear",
+          "note": "Hot water shut-off valve in the sink base"
+        },
+        {
+          "type": "drain",
+          "location": "under-sink",
+          "x": 18,
+          "y": 10,
+          "z": "rear",
+          "highLoopApexIn": 38,
+          "note": "Drain to the sink base, run as a high loop"
+        },
+        {
+          "type": "air-gap",
+          "location": "under-sink",
+          "x": 24,
+          "y": "top",
+          "z": "rear",
+          "size": [2, 3, 2],
+          "note": "Air gap at the counter, above the sink base"
+        }
+      ]
+    }
+  }
+}

@@ -168,7 +168,7 @@ export function Toast() {
         visible ? "opacity-100" : "opacity-0",
       ].join(" ")}
     >
-      {t(toast.key)}
+      {t(toast.key, toast.vars)}
     </div>
   );
 }

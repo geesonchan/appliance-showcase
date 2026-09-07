@@ -5,6 +5,8 @@ import type { Lang, Lighting, RenderMode, SlotId, UtilityType } from "../types";
 export interface ToastMessage {
   id: number;
   key: string;
+  /** Values for the message's placeholders, when it has any. */
+  vars?: Record<string, string | number>;
 }
 
 interface AppState {
@@ -71,7 +73,7 @@ interface AppState {
   openSpec: (slot: SlotId) => void;
   closeSpec: () => void;
   setMobilePanel: (panel: "none" | "list" | "config") => void;
-  showToast: (key: string) => void;
+  showToast: (key: string, vars?: Record<string, string | number>) => void;
   dismissToast: () => void;
   reportModeSwitch: (ms: number) => void;
 }
@@ -133,7 +135,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   openSpec: (specSlot) => set({ specSlot }),
   closeSpec: () => set({ specSlot: null }),
   setMobilePanel: (mobilePanel) => set({ mobilePanel }),
-  showToast: (key) => set({ toast: { id: ++toastId, key } }),
+  showToast: (key, vars) => set({ toast: { id: ++toastId, key, vars } }),
   dismissToast: () => set({ toast: null }),
   reportModeSwitch: (ms) => set({ modeSwitchMs: Math.round(ms), modeSwitchStartedAt: null }),
 }));
