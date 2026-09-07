@@ -15,7 +15,9 @@
  * rule, the corner pair and a wall slider being argued with; SET=round11 for
  * the materials, the lighting and the finish picker; SET=round12 for the six
  * visual corrections and the mode-switch timing; SET=round13 for the accent
- * run, the redrawn refrigerator and the counter cut through at the range.
+ * run, the redrawn refrigerator and the counter cut through at the range;
+ * SET=round14 for the generated layout that showed the counter over the range,
+ * the refrigerator's published split, and marble against quartz.
  */
 import { mkdir } from "node:fs/promises";
 import { chromium } from "playwright";
@@ -438,9 +440,52 @@ async function captureRound13(page) {
   await page.screenshot({ path: `${outDir}/mobile-oak.png` });
 }
 
+/** Round 14: the counter on a generated layout, the split, and the two stones. */
+async function captureRound14(page) {
+  // Leo's case: the layout the generator produced, where the stone was still
+  // over the range.
+  const generated = "?fridge=back&sink=left&corner=blind&accentRun=left&accent=ink";
+  await page.goto(baseUrl + generated, { waitUntil: "networkidle" });
+  await settle(page, 2400);
+  await page.screenshot({ path: `${outDir}/mobile-generated.png` });
+
+  await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await settle(page, 2400);
+  await flyTo(page, /Range/);
+  await settle(page, 1500);
+  await page.screenshot({ path: `${outDir}/mobile-range.png` });
+
+  await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await settle(page, 2400);
+  await flyTo(page, /Refrigerator/);
+  await settle(page, 1500);
+  await page.screenshot({ path: `${outDir}/mobile-fridge.png` });
+
+  for (const stone of ["marble", "quartz"]) {
+    await page.goto(`${baseUrl}?counter=${stone}`, { waitUntil: "networkidle" });
+    await settle(page, 2400);
+    await page.screenshot({ path: `${outDir}/mobile-${stone}.png` });
+  }
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round14") {
+    const ctx = await browser.newContext({
+      viewport: MOBILE,
+      deviceScaleFactor: 2,
+      isMobile: true,
+      hasTouch: true,
+    });
+    const page = await ctx.newPage();
+    await captureRound14(page);
+    await ctx.close();
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round13") {
     const ctx = await browser.newContext({
