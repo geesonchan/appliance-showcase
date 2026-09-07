@@ -391,16 +391,16 @@ describe("the run as Leo specified it", () => {
     ]);
   });
 
-  // The dishwasher is on the range side of the sink: the cook turns from the
-  // cooktop to the dishwasher to the sink without crossing the kitchen, and it
-  // stands in for the 24" side D11 rule 10 asks for.
-  it("reads counter, range, counter, dishwasher, sink, counter along the back", () => {
+  // Range, landing, sink, dishwasher: the work goes past the counter you put
+  // the pan down on, then the bowl, then the machine you load from it. The
+  // dishwasher stands in for the 24" side D11 rule 10 asks for.
+  it("reads counter, range, counter, sink, dishwasher, counter along the back", () => {
     expect(back().segments.map((s) => s.kind)).toEqual([
       "counter",
       "appliance",
       "counter",
-      "appliance",
       "fixture",
+      "appliance",
       "counter",
     ]);
   });

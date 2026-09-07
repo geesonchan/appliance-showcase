@@ -377,9 +377,9 @@ each one has a test with a case that breaks it.
     the 24" side, because 24" of surface at counter height is what the rule is
     for. Between the sink base and the corner cabinet there is at least 15" of
     counter, or the corner cabinet's door has nowhere to open. The sink group
-    sits centred in what is left of the leg, with the dishwasher on the side
-    toward the range — the cook turns from the cooktop to the dishwasher to the
-    sink without crossing the kitchen. The figures are Leo's to change and live
+    sits centred in what is left of the leg and reads range, landing, sink,
+    dishwasher: past the counter you put the pan down on, then the bowl, then
+    the machine you load from it. The figures are Leo's to change and live
     in `LAYOUT_LIMITS` in `roomShell.ts`, where the generator lays a run out to
     them and `checkLayout` holds it to them.
 
@@ -399,6 +399,14 @@ a template that cannot be built has to say why.
 supply and drain roughed in, so the layout rules and the install view both have
 to know about it — but it has no brand, no price and no alternatives. Putting it
 in the appliance catalogue would give it all three and put it on a quote.
+
+**The stretch after the corner is not a rule of its own.** An early version of
+the generator always left 12" of counter between the corner cabinet and
+whatever came next. Nothing asks for that: rule 1 keeps the tower off the
+corner through the tower's own 15" landing, and rule 10 keeps the sink off it
+through its 15". A drawer base beside a lazy susan is ordinary. So that stretch
+is wanted rather than needed, and it is the first thing dropped when a wall is
+short — which is what a designer drops first too.
 
 **Rule 7 is about an island.** Two openings coming in from opposite faces with
 an aisle to the perimeter is a fact about an island; a kitchen whose parameters

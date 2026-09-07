@@ -306,7 +306,7 @@ describe("D11 rule 10 · the sink has counter on both sides", () => {
     expect(checkLayout()).toEqual([]);
   });
 
-  it("puts the dishwasher on the range side of the sink", () => {
+  it("puts the dishwasher on the far side of the sink from the range", () => {
     for (const [fridgeEnd, sinkLeg] of [
       ["left", "back"],
       ["back", "left"],
@@ -316,8 +316,9 @@ describe("D11 rule 10 · the sink has counter on both sides", () => {
       const dishwasher = run.segments.findIndex((s) => s.slot === "slot-dishwasher");
       const sink = run.segments.findIndex((s) => s.fixture === "fixture-sink");
       // Both runs are ordered from the corner outward and the range is always
-      // at the corner end, so "toward the range" is the lower index.
-      expect(dishwasher, `${sinkLeg} leg`).toBe(sink - 1);
+      // at the corner end, so "away from the range" is the higher index: the
+      // work runs range, landing, sink, dishwasher.
+      expect(dishwasher, `${sinkLeg} leg`).toBe(sink + 1);
     }
   });
 

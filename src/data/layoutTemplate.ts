@@ -58,8 +58,8 @@ export interface LayoutParams {
  * what it cannot do, with the arithmetic underneath, teaches the constraint.
  */
 export const PARAM_LIMITS = {
-  backWallIn: { min: 96, max: 168, step: 6 },
-  leftWallIn: { min: 96, max: 168, step: 6 },
+  backWallIn: { min: 96, max: 192, step: 6 },
+  leftWallIn: { min: 96, max: 192, step: 6 },
   islandLengthIn: { min: 48, max: 96, step: 6 },
   islandDepthIn: { min: 24, max: 42, step: 6 },
   aisleIn: { min: 42, max: 60, step: 3 },
@@ -670,17 +670,17 @@ function planLegs(params: LayoutParams) {
   /**
    * The sink group, laid out to D11 rule 10.
    *
-   * The dishwasher goes on the side toward the range, so the cook turns from
-   * the cooktop to the dishwasher to the sink without crossing the kitchen, and
-   * it stands in for the wide side the rule asks for — 24" of counter-height
-   * surface is 24" of counter-height surface. The far side is plain counter at
-   * the narrow figure. Both legs read from the corner outward and the range is
-   * always at the corner end of the run, so "toward the range" is always first.
+   * Range, landing, sink, dishwasher: the work goes past the counter you put
+   * the pan down on, then the bowl, then the machine you load from it. The
+   * dishwasher stands in for the wide side the rule asks for — 24" of surface
+   * at counter height is 24" of surface at counter height — and the landing
+   * before the sink is the narrow one. Both legs read from the corner outward
+   * and the range is always at the corner end, so the landing comes first.
    */
   const sinkGroup = (): Item[] => [
-    dishwasher,
-    sink,
     gap("sink-landing", sinkRule.narrowIn, "d11-10"),
+    sink,
+    dishwasher,
   ];
 
   const left: Item[] = [
