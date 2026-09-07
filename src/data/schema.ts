@@ -121,6 +121,23 @@ export const applianceSchema = z.object({
     ])
     .nullable()
     .default(null),
+  /**
+   * Refrigerators: how the front divides, from the manufacturer's elevation.
+   *
+   * Four figures up the front — the toe grille, the low drawer, the high
+   * drawer, the pair of doors — so a machine is drawn in its own proportions
+   * rather than in fractions somebody picked. Null means nobody has read the
+   * drawing, and the proportions of the class are used instead.
+   */
+  doorSplit: z
+    .object({
+      toeIn: inches,
+      drawerLowIn: inches,
+      drawerHighIn: inches,
+      doorIn: inches,
+    })
+    .nullable()
+    .default(null),
 
   /**
    * Width, or null for a blower. Everything else needs one, because the fit

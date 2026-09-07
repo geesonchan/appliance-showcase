@@ -48,14 +48,9 @@ export interface Panel {
  * and the toe grille is the four inches at the bottom that is not a door at all.
  */
 export const FRIDGE_PROPORTIONS = {
-  /** Where the doors stop, as a fraction of the height above the toe grille. */
-  doorFraction: 0.58,
-  /** The seam down the middle of a pair of doors. */
+  /** The seam down the middle of a pair of doors, and between panels. */
   centreGapIn: 0.125,
-  /** Between a door and the drawer under it, and between the two drawers. */
-  gapIn: 0.25,
-  /** The dark grille under the drawers. */
-  toeGrilleIn: 4,
+  gapIn: 0.125,
   /** Doors stand proud of the carcass — it is a built-in, not a flush panel. */
   proudIn: 0.75,
   /** Tubular handles: a diameter, and how much of their panel they run. */
@@ -63,6 +58,48 @@ export const FRIDGE_PROPORTIONS = {
   doorHandleFraction: 0.8,
   drawerHandleFraction: 0.9,
 };
+
+/**
+ * What the front divides into when nobody has read the drawing.
+ *
+ * The proportions of the class rather than of a model: a built-in french door
+ * gives a bit under three fifths of its front to the doors, splits the rest
+ * between two drawers, and stands on a grille. A machine whose own elevation
+ * has been read uses that instead — see `doorSplit` on the record.
+ */
+export const GENERIC_SPLIT = {
+  toeIn: 7.25,
+  drawerLowIn: 19.75,
+  drawerHighIn: 10.5,
+  doorIn: 49.4375,
+};
+
+export type DoorSplit = typeof GENERIC_SPLIT;
+
+/**
+ * The four bands of the front, fitted to the machine.
+ *
+ * The published figures are proportions, not a sum: on the Thermador Freedom
+ * elevation they come to 86-15/16" against a cabinet height of 83-7/8",
+ * because one of them is measured to somewhere this app cannot see. Scaling
+ * them to the opening keeps every ratio between them — which is what the eye
+ * reads — and makes the stack come out at the height the machine actually is.
+ */
+export function doorSplitOf(appliance: Appliance, heightFt: number) {
+  const published: DoorSplit = appliance.doorSplit ?? GENERIC_SPLIT;
+  const gaps = (FRIDGE_PROPORTIONS.gapIn * 3) / 12;
+  const raw =
+    (published.toeIn + published.drawerLowIn + published.drawerHighIn + published.doorIn) / 12;
+  const scale = (heightFt - gaps) / raw;
+
+  return {
+    toe: (published.toeIn / 12) * scale,
+    drawerLow: (published.drawerLowIn / 12) * scale,
+    drawerHigh: (published.drawerHighIn / 12) * scale,
+    door: (published.doorIn / 12) * scale,
+    gap: FRIDGE_PROPORTIONS.gapIn / 12,
+  };
+}
 
 /**
  * The fronts of a refrigerator, in the order they are hung.
@@ -77,12 +114,8 @@ export function fridgeParts(appliance: Appliance, box: { w: number; h: number })
   const config = doorConfigOf(appliance);
   const P = FRIDGE_PROPORTIONS;
   const { w } = box;
-  const toe = P.toeGrilleIn / 12;
-  const gap = P.gapIn / 12;
+  const split = doorSplitOf(appliance, box.h);
   const centre = P.centreGapIn / 12;
-  /** The stack of fronts sits on the grille. */
-  const from = toe;
-  const height = box.h - toe;
   const grip = P.handleDiameterIn / 12;
 
   /** A pair of doors, hinged at the outside edges. */
@@ -136,26 +169,30 @@ export function fridgeParts(appliance: Appliance, box: { w: number; h: number })
     },
   });
 
-  const doorsTo = from + height * P.doorFraction;
+  // Bottom to top: the grille, the low drawer, the high drawer, the doors,
+  // with a gap between each.
+  const lowFrom = split.toe;
+  const lowTo = lowFrom + split.drawerLow;
+  const highFrom = lowTo + split.gap;
+  const highTo = highFrom + split.drawerHigh;
+  const doorsFrom = highTo + split.gap;
 
   switch (config) {
-    case "french-door-2-drawer": {
+    case "french-door-2-drawer":
       // Two doors over a refrigerator drawer over a freezer drawer: four
       // fronts, four handles, which is what a T36BT120NS is.
-      const split = (doorsTo + gap + from) / 2;
       return [
-        ...pair("door", doorsTo + gap, box.h),
-        drawer("drawer-fresh", split + gap / 2, doorsTo),
-        drawer("drawer-freezer", from, split - gap / 2),
+        ...pair("door", doorsFrom, box.h),
+        drawer("drawer-fresh", highFrom, highTo),
+        drawer("drawer-freezer", lowFrom, lowTo),
       ];
-    }
     case "french-door-1-drawer":
-      return [...pair("door", doorsTo + gap, box.h), drawer("drawer-freezer", from, doorsTo)];
+      return [...pair("door", doorsFrom, box.h), drawer("drawer-freezer", lowFrom, highTo)];
     case "bottom-freezer":
-      return [door("door", doorsTo + gap, box.h), drawer("drawer-freezer", from, doorsTo)];
+      return [door("door", doorsFrom, box.h), drawer("drawer-freezer", lowFrom, highTo)];
     case "side-by-side":
-      return pair("door", from, box.h);
+      return pair("door", lowFrom, box.h);
     case "column":
-      return [door("door", from, box.h)];
+      return [door("door", lowFrom, box.h)];
   }
 }

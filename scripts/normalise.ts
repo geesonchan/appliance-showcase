@@ -449,15 +449,48 @@ export const COMPATIBLE_BLOWERS: Record<string, string[]> = {
  * PRG366WH / PRG304WH: Thermador Pro Harmony spec sheet, page 1
  * (docs/reference/prg366wh-spec.pdf).
  */
+export interface DoorSplit {
+  toeIn: number;
+  drawerLowIn: number;
+  drawerHighIn: number;
+  doorIn: number;
+}
+
+/**
+ * How a Thermador Freedom built-in divides up the front, from the elevation on
+ * page 4 of the T36IT100NP sheet. The T36BT120NS is the same cabinet in the
+ * same series and takes the same split.
+ *
+ * The four figures do not add to the 83-7/8" the same sheet gives as the
+ * height — they come to 86-15/16", three inches over, before the gaps between
+ * the panels. One of them is measured to somewhere this app cannot see. So they
+ * are recorded here exactly as published and fitted to the machine in
+ * `fridgeParts`, which keeps every proportion between them and makes the stack
+ * come out at whatever the opening actually is.
+ */
+const FREEDOM_SPLIT: DoorSplit = {
+  toeIn: 7.25,
+  drawerLowIn: 19.75,
+  drawerHighIn: 10.5,
+  doorIn: 49.4375,
+};
+
 export const PUBLISHED_SPECS: Record<
   string,
-  { heightIn?: number; depthIn?: number; burners?: number; doorConfig?: DoorConfig }
+  {
+    heightIn?: number;
+    depthIn?: number;
+    burners?: number;
+    doorConfig?: DoorConfig;
+    doorSplit?: DoorSplit;
+  }
 > = {
   PRG366WH: { heightIn: 36.75, depthIn: 24.75, burners: 6 },
   PRG304WH: { heightIn: 36.75, depthIn: 24.75, burners: 4 },
   // Thermador Freedom: two doors over a refrigerator drawer and a freezer
   // drawer. Sold as a four-door, which is what the Feature column tends to say.
-  T36BT120NS: { doorConfig: "french-door-2-drawer" },
+  T36BT120NS: { doorConfig: "french-door-2-drawer", doorSplit: FREEDOM_SPLIT },
+  T36IT100NP: { doorSplit: FREEDOM_SPLIT },
 };
 
 export type DoorConfig =

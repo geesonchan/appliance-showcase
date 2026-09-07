@@ -3,7 +3,7 @@ import * as THREE from "three";
 import type { ThreeEvent } from "@react-three/fiber";
 import { applianceBox, flushOffset } from "../data/applianceBox";
 import { hoodProfile, hoodTopDepthIn } from "../data/hood";
-import { FRIDGE_PROPORTIONS, fridgeParts } from "../data/fridgeModel";
+import { FRIDGE_PROPORTIONS, doorSplitOf, fridgeParts } from "../data/fridgeModel";
 import { RANGE_PROPORTIONS, rangeParts } from "../data/rangeModel";
 import { Surface } from "./Surface";
 import { CABINET_STANDARDS, ROOM, SLOT_BY_ID, ft } from "../data/slots";
@@ -394,7 +394,8 @@ function Fridge({
   const carcassZ = -(d - carcassD) / 2;
   const doorZ = carcassZ + carcassD / 2 + proud + doorThickness / 2;
   const handleZ = d / 2 - handleR;
-  const toe = ft(P.toeGrilleIn);
+  // The grille is the band the split gives it, scaled to this machine.
+  const toe = doorSplitOf(appliance, h).toe;
   const grille = tint(body, "#3A3E3C", { metalness: 0.4, roughness: 0.8 });
 
   return (

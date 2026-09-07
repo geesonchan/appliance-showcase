@@ -45,7 +45,8 @@
       },
       "compatibleBlowers": [],
       "burners": null,
-      "doorConfig": null
+      "doorConfig": null,
+      "doorSplit": null
     },
     {
       "id": "bosch-shv78cm3n",
@@ -87,7 +88,8 @@
       },
       "compatibleBlowers": [],
       "burners": null,
-      "doorConfig": null
+      "doorConfig": null,
+      "doorSplit": null
     },
     {
       "id": "bosch-shx78cm5n",
@@ -131,7 +133,8 @@
       },
       "compatibleBlowers": [],
       "burners": null,
-      "doorConfig": null
+      "doorConfig": null,
+      "doorSplit": null
     },
     {
       "id": "ge-jvm3160rfss",
@@ -173,7 +176,8 @@
       },
       "compatibleBlowers": [],
       "burners": null,
-      "doorConfig": null
+      "doorConfig": null,
+      "doorSplit": null
     },
     {
       "id": "maytag-mfes4030rs",
@@ -217,7 +221,8 @@
       },
       "compatibleBlowers": [],
       "burners": null,
-      "doorConfig": null
+      "doorConfig": null,
+      "doorSplit": null
     },
     {
       "id": "thermador-hmcb30ws",
@@ -259,7 +264,8 @@
       },
       "compatibleBlowers": [],
       "burners": null,
-      "doorConfig": null
+      "doorConfig": null,
+      "doorSplit": null
     },
     {
       "id": "thermador-hmwb361ws",
@@ -301,7 +307,8 @@
       },
       "compatibleBlowers": [],
       "burners": null,
-      "doorConfig": null
+      "doorConfig": null,
+      "doorSplit": null
     },
     {
       "id": "thermador-md24bs",
@@ -343,7 +350,8 @@
       },
       "compatibleBlowers": [],
       "burners": null,
-      "doorConfig": null
+      "doorConfig": null,
+      "doorSplit": null
     },
     {
       "id": "thermador-ph36hws",
@@ -392,7 +400,8 @@
         "VTN2DA"
       ],
       "burners": null,
-      "doorConfig": null
+      "doorConfig": null,
+      "doorSplit": null
     },
     {
       "id": "thermador-prg304wh",
@@ -434,7 +443,8 @@
       },
       "compatibleBlowers": [],
       "burners": 4,
-      "doorConfig": null
+      "doorConfig": null,
+      "doorSplit": null
     },
     {
       "id": "thermador-prg366wh",
@@ -476,7 +486,8 @@
       },
       "compatibleBlowers": [],
       "burners": 6,
-      "doorConfig": null
+      "doorConfig": null,
+      "doorSplit": null
     },
     {
       "id": "thermador-t36bt120ns",
@@ -518,7 +529,13 @@
       },
       "compatibleBlowers": [],
       "burners": null,
-      "doorConfig": "french-door-2-drawer"
+      "doorConfig": "french-door-2-drawer",
+      "doorSplit": {
+        "toeIn": 7.25,
+        "drawerLowIn": 19.75,
+        "drawerHighIn": 10.5,
+        "doorIn": 49.4375
+      }
     },
     {
       "id": "thermador-t36ft820ns",
@@ -562,7 +579,8 @@
       },
       "compatibleBlowers": [],
       "burners": null,
-      "doorConfig": "french-door-1-drawer"
+      "doorConfig": "french-door-1-drawer",
+      "doorSplit": null
     },
     {
       "id": "thermador-t36it100np",
@@ -606,7 +624,13 @@
       },
       "compatibleBlowers": [],
       "burners": null,
-      "doorConfig": "french-door-1-drawer"
+      "doorConfig": "french-door-1-drawer",
+      "doorSplit": {
+        "toeIn": 7.25,
+        "drawerLowIn": 19.75,
+        "drawerHighIn": 10.5,
+        "doorIn": 49.4375
+      }
     },
     {
       "id": "thermador-vti2fz",
@@ -650,7 +674,8 @@
       },
       "compatibleBlowers": [],
       "burners": null,
-      "doorConfig": null
+      "doorConfig": null,
+      "doorSplit": null
     },
     {
       "id": "thermador-vtn2fz",
@@ -694,7 +719,8 @@
       },
       "compatibleBlowers": [],
       "burners": null,
-      "doorConfig": null
+      "doorConfig": null,
+      "doorSplit": null
     },
     {
       "id": "thermador-vtr2fz",
@@ -738,7 +764,8 @@
       },
       "compatibleBlowers": [],
       "burners": null,
-      "doorConfig": null
+      "doorConfig": null,
+      "doorSplit": null
     },
     {
       "id": "zephyr-ak7136as-bf",
@@ -780,7 +807,8 @@
       },
       "compatibleBlowers": [],
       "burners": null,
-      "doorConfig": null
+      "doorConfig": null,
+      "doorSplit": null
     },
     {
       "id": "zephyr-prw24c01cg",
@@ -822,7 +850,8 @@
       },
       "compatibleBlowers": [],
       "burners": null,
-      "doorConfig": null
+      "doorConfig": null,
+      "doorSplit": null
     }
   ]
 }

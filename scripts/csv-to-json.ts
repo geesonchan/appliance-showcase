@@ -229,6 +229,7 @@ export function convert(
       // Null means nobody has said, and the app draws the commonest front and
       // marks it a guess.
       doorConfig: published.doorConfig ?? toDoorConfig(category, row.Feature ?? ""),
+      doorSplit: published.doorSplit ?? null,
       cutoutWidthIn: numberOrNull(row.cutoutWidthIn),
       cutoutHeightIn: numberOrNull(row.cutoutHeightIn),
       cutoutDepthIn: numberOrNull(row.cutoutDepthIn),

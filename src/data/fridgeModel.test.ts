@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { APPLIANCES_BY_SLOT } from "./catalogue";
+import { APPLIANCES, APPLIANCES_BY_SLOT } from "./catalogue";
 import {
   FRIDGE_PROPORTIONS,
+  GENERIC_SPLIT,
   doorConfigOf,
+  doorSplitOf,
   fridgeParts,
   hasGenericDoors,
 } from "./fridgeModel";
@@ -102,7 +104,8 @@ describe("the front matches the elevation", () => {
 
   it("stands the fronts on the toe grille, not on the floor", () => {
     const lowest = Math.min(...four().map((p) => p.y - p.h / 2));
-    expect(inches(lowest)).toBeCloseTo(FRIDGE_PROPORTIONS.toeGrilleIn, 6);
+    expect(lowest).toBeCloseTo(doorSplitOf(fridge(), box.h).toe, 9);
+    expect(lowest).toBeGreaterThan(0);
   });
 
   it("leaves an eighth between the doors and a quarter between the drawers", () => {
@@ -143,5 +146,56 @@ describe("the front matches the elevation", () => {
         expect(panel.handle.y, panel.id).toBeLessThanOrEqual(panel.y + panel.h / 2 + 1e-9);
       }
     }
+  });
+});
+
+describe("the front divides the way the elevation does", () => {
+  const specified = () =>
+    APPLIANCES_BY_SLOT["slot-fridge"].find((a) => a.model === "T36BT120NS")!;
+  const inches = (feet: number) => feet * 12;
+  /** The opening a built-in refrigerator goes in, in feet. */
+  const opening = 84 / 12;
+
+  it("keeps the published split on the two models whose drawing was read", () => {
+    for (const model of ["T36BT120NS", "T36IT100NP"]) {
+      const appliance = APPLIANCES.find((a) => a.model === model);
+      expect(appliance, `${model} is not in the catalogue`).toBeDefined();
+      // Same series, same cabinet, same elevation.
+      expect(appliance!.doorSplit, model).toEqual(GENERIC_SPLIT);
+    }
+  });
+
+  // Leo's check: the four bands and the gaps between them fill the machine.
+  it("stacks the four bands and their gaps to the full height", () => {
+    const split = doorSplitOf(specified(), opening);
+    const total =
+      split.toe + split.drawerLow + split.drawerHigh + split.door + split.gap * 3;
+    expect(inches(total)).toBeCloseTo(84, 6);
+  });
+
+  it("gives the doors more than half the front", () => {
+    const split = doorSplitOf(specified(), opening);
+    expect(split.door / opening).toBeGreaterThanOrEqual(0.55);
+  });
+
+  it("keeps the published proportions between the bands", () => {
+    const published = specified().doorSplit!;
+    const split = doorSplitOf(specified(), opening);
+    // Every ratio survives the fit; only the scale changes.
+    expect(split.door / split.drawerLow).toBeCloseTo(published.doorIn / published.drawerLowIn, 9);
+    expect(split.drawerHigh / split.toe).toBeCloseTo(
+      published.drawerHighIn / published.toeIn,
+      9,
+    );
+  });
+
+  it("draws the panels in the order the elevation has them", () => {
+    const panels = fridgeParts(specified(), { w: 3, h: opening });
+    const byHeight = [...panels].sort((a, b) => a.y - b.y);
+    expect(byHeight[0].id).toBe("drawer-freezer");
+    expect(byHeight[1].id).toBe("drawer-fresh");
+    expect(byHeight.slice(2).every((p) => p.id.startsWith("door"))).toBe(true);
+    // The low drawer is the deeper of the two, which is what the sheet says.
+    expect(byHeight[0].h).toBeGreaterThan(byHeight[1].h);
   });
 });
