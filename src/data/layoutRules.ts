@@ -1,3 +1,4 @@
+import { hoodBridgeBand } from "./cabinets";
 import { FIXTURE_BY_ID } from "./fixtures";
 import {
   CABINET_STANDARDS,
@@ -182,6 +183,9 @@ export function checkLayout(runs: CabinetRun[] = RUNS): LayoutViolation[] {
         );
       }
       for (const module of bank.modules) {
+        // A bridge over a canopy is made to size: its floor is the canopy's
+        // top, which moves with the range under it.
+        if (module.kind === "bridge") continue;
         if (module.heightIn && !UPPER_HEIGHTS.includes(module.heightIn)) {
           fail("d13-modules", `${module.code} is ${module.heightIn}" tall, not a stock height`);
         }
@@ -351,10 +355,23 @@ export function checkHeights(): LayoutViolation[] {
     fail("d13-tall", `tall cabinets are ${inches(ROOM.tallTop)}" tall`);
   }
 
-  // The canopy: 30" over a 36" cooktop puts its underside at 66" and its top at
-  // 84", which is where the run of wall cabinets picks up again.
+  // D13: a run may finish short of the ceiling, but only by a scribe.
+  const { closingGapIn } = CABINET_STANDARDS;
+  for (const top of [ROOM.upperTop, ROOM.tallTop, hoodBridgeBand()[1]]) {
+    const gap = inches(ROOM.wallHeight - top);
+    if (gap < closingGapIn.min - 1e-6 || gap > closingGapIn.max + 1e-6) {
+      fail(
+        "d13-closing-gap",
+        `a run finishes ${gap.toFixed(2)}" below the ceiling, wants ${closingGapIn.min}-${closingGapIn.max}"`,
+      );
+    }
+  }
+
+  // The canopy hangs its clearance above the cooking surface the wall was
+  // drilled for — not above the counter, which is lower.
   const hoodSlot = SLOT_BY_ID["slot-hood"];
-  const bottomAbove = inches(hoodSlot.position[1] - ROOM.counterHeight);
+  const builtFor = hoodSlot.builtForCooktopIn ?? base.counterHeightIn;
+  const bottomAbove = inches(hoodSlot.position[1]) - builtFor;
   if (bottomAbove < hood.aboveCooktopMinIn || bottomAbove > hood.aboveCooktopMaxIn) {
     fail(
       "d13-hood",

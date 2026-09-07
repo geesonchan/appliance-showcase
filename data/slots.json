@@ -133,7 +133,8 @@
       "labelOffset": {
         "dx": 62,
         "dy": -30
-      }
+      },
+      "builtForCooktopIn": 36.75
     },
     {
       "id": "slot-dishwasher",

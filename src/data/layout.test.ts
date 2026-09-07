@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CABINETS } from "./cabinets";
+import { CABINETS, hoodBridgeBand } from "./cabinets";
 import { checkHeights, checkLayout, LAYOUT_LIMITS, occupants } from "./layoutRules";
 import { FIXTURE_BY_ID } from "./fixtures";
 import {
@@ -291,16 +291,22 @@ describe("D13 · wall cabinets", () => {
     );
   });
 
-  it("picks the run up again where the canopy stops, at 84 inches", () => {
-    const overHood = CABINETS.find((b) => b.id === "upper-back-hood-W4212")!;
+  it("picks the run up again exactly where the canopy stops", () => {
+    const overHood = CABINETS.find((b) => b.id === "upper-back-hood-W42")!;
     const bottom = overHood.position[1] - overHood.size[1] / 2;
-    expect(inches(bottom)).toBeCloseTo(84, 6);
-    // ...and finishes level with the cabinets either side of it.
-    const flanking = CABINETS.find((b) => b.id === "upper-back-left-W1242")!;
-    expect(overHood.position[1] + overHood.size[1] / 2).toBeCloseTo(
-      flanking.position[1] + flanking.size[1] / 2,
-      6,
-    );
+    const hood = SLOT_BY_ID["slot-hood"];
+    expect(inches(bottom)).toBeCloseTo(inches(hood.position[1]) + hood.cutout.h, 6);
+  });
+
+  // It cannot finish level with them: 96" less an 84-3/4" canopy top is
+  // 11-1/4", and nobody lists an 11" bridge. Made to size, with the remainder
+  // as the closing scribe D13 allows.
+  it("orders the bridge to a whole inch and scribes the rest", () => {
+    const [floor, top] = hoodBridgeBand();
+    expect(inches(top - floor) % 1).toBeCloseTo(0, 6);
+    const gap = inches(ROOM.wallHeight - top);
+    expect(gap).toBeGreaterThanOrEqual(CABINET_STANDARDS.closingGapIn.min);
+    expect(gap).toBeLessThanOrEqual(CABINET_STANDARDS.closingGapIn.max);
   });
 });
 
@@ -345,14 +351,16 @@ describe("D13 · tall cabinets and the L", () => {
 });
 
 describe("D13 · the canopy", () => {
+  // Above the cooking surface, which is the range's own top: a slide-in range's
+  // grates stand proud of the counter beside it.
   it("hangs 18 inches of canopy 30 inches over the cooking surface", () => {
     const hood = SLOT_BY_ID["slot-hood"];
     expect(hood.cutout.h).toBe(CABINET_STANDARDS.hood.bodyHeightIn);
-    expect(inches(hood.position[1] - ROOM.counterHeight)).toBe(
+    expect(hood.builtForCooktopIn).not.toBeNull();
+    expect(inches(hood.position[1]) - hood.builtForCooktopIn!).toBe(
       CABINET_STANDARDS.hood.aboveCooktopMinIn,
     );
-    // 36 + 30 + 18 = 84, where the wall cabinets pick up again.
-    expect(inches(hood.position[1]) + hood.cutout.h).toBe(84);
+    expect(hood.builtForCooktopIn!).toBeGreaterThan(CABINET_STANDARDS.base.counterHeightIn);
   });
 
   it("leaves the canopy at least as wide as the range", () => {
@@ -361,11 +369,10 @@ describe("D13 · the canopy", () => {
     );
   });
 
-  it("catches a canopy hung too low over a gas range", () => {
-    // checkHeights reads the room directly, so this is asserted through the
-    // standard rather than by mutating a module constant.
+  it("clears the cooking surface by the amount the manufacturer allows", () => {
     const { aboveCooktopMinIn, aboveCooktopMaxIn } = CABINET_STANDARDS.hood;
-    const actual = inches(SLOT_BY_ID["slot-hood"].position[1] - ROOM.counterHeight);
+    const hood = SLOT_BY_ID["slot-hood"];
+    const actual = inches(hood.position[1]) - hood.builtForCooktopIn!;
     expect(actual).toBeGreaterThanOrEqual(aboveCooktopMinIn);
     expect(actual).toBeLessThanOrEqual(aboveCooktopMaxIn);
     expect(checkHeights()).toEqual([]);
@@ -493,11 +500,17 @@ describe("D13 · the run is built out of cabinets you can order", () => {
     }
   });
 
-  it("uses only stock wall heights", () => {
+  // A bridge over a canopy is the exception: its floor is the canopy's top,
+  // which moves with the range, so it is made to size.
+  it("uses only stock wall heights, bar the bridge over the hood", () => {
     const heights = [12, 15, 18, 21, 24, 30, 36, 42];
     for (const run of RUNS) {
       for (const bank of run.uppers) {
         for (const module of bank.modules) {
+          if (module.kind === "bridge") {
+            expect(module.heightIn).toBeUndefined();
+            continue;
+          }
           expect(heights, module.code).toContain(module.heightIn);
         }
       }

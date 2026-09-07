@@ -210,13 +210,31 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
   return boxes;
 }
 
+/**
+ * The bridge over a canopy: from the canopy's top up to the ceiling, less a
+ * closing scribe.
+ *
+ * It cannot be a stock box. Hanging the canopy 30" over a 36-3/4" cooking
+ * surface puts its top at 84-3/4", and 96" less that is 11-1/4" — no supplier
+ * lists an 11" bridge. A made-to-size bridge over a hood is ordinary, so it is
+ * ordered to the whole inch and the remainder becomes the closing gap D13
+ * allows at the ceiling.
+ */
+export function hoodBridgeBand(): readonly [number, number] {
+  const hood = SLOT_BY_ID["slot-hood"];
+  const floor = hood.position[1] + ft(hood.cutout.h);
+  const heightIn = Math.floor((ROOM.wallHeight - floor) * 12);
+  return [floor, floor + ft(heightIn)] as const;
+}
+
 /** A bank of wall cabinets, likewise one box per module. */
 function upperBoxes(run: CabinetRun, bank: UpperBank): CabinetBox[] {
   const boxes: CabinetBox[] = [];
   const inset = (ROOM.counterDepth - ROOM.upperDepth) / 2;
+  const band = bank.band ?? hoodBridgeBand();
   eachModule(bank.from, bank.modules, (module, along) => {
     boxes.push(
-      onRun(run, `${bank.id}-${module.code}`, "upper", along, bank.band, ROOM.upperDepth, -inset, {
+      onRun(run, `${bank.id}-${module.code}`, "upper", along, band, ROOM.upperDepth, -inset, {
         module,
         slot: module.slot,
       }),

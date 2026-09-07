@@ -184,6 +184,12 @@ export const slotRecordSchema = z.object({
    * nothing.
    */
   labelOffset: z.object({ dx: z.number(), dy: z.number() }),
+  /**
+   * Hood slots only: the cooking surface the wall was drilled for. The canopy
+   * hangs its clearance above *this*, not above the counter beside it — a
+   * slide-in range's grates sit proud of the top. See docs/decisions.md D13.
+   */
+  builtForCooktopIn: inches.nullable().default(null),
   compatibleCategories: z.array(categorySchema).min(1),
   cabinetConfig: cabinetConfigSchema,
   utilities: utilitiesSchema,

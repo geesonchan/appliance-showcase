@@ -47,6 +47,11 @@ export const CABINET_STANDARDS = {
   tall: { depthIn: 24, heightsIn: [84, 90, 96] },
   /** A lazy susan is a 36" square; a blind corner is 42" along one run. */
   corner: { lazySusanIn: 36, blindIn: 42 },
+  /**
+   * A run may finish short of the ceiling. Six inches is where a gap stops
+   * reading as a scribe and starts reading as a mistake.
+   */
+  closingGapIn: { min: 0, max: 6 },
   /** An L needs a short leg of at least 8ft and a long leg of 10-12ft. */
   legIn: { shortMin: 96, longMin: 120, longMax: 144 },
   /**
@@ -131,8 +136,12 @@ export interface UpperBank {
   id: string;
   from: number;
   to: number;
-  /** Bottom and top above the floor, in feet. */
-  band: readonly [number, number];
+  /**
+   * Bottom and top above the floor, in feet. Absent on the bank over a hood,
+   * whose floor is the canopy's top and therefore moves with the range: see
+   * `hoodBridgeBand` in cabinets.ts.
+   */
+  band?: readonly [number, number];
   modules: CabinetModule[];
 }
 
@@ -299,12 +308,7 @@ export const RUNS: CabinetRun[] = [
         id: "upper-back-hood",
         from: -3,
         to: 0.5,
-        band: [
-          ROOM.counterHeight +
-            ft(CABINET_STANDARDS.hood.aboveCooktopMinIn + CABINET_STANDARDS.hood.bodyHeightIn),
-          ROOM.upperTop,
-        ],
-        modules: [M("W4212", "bridge", 42, { heightIn: 12, slot: "slot-hood" })],
+        modules: [M("W42", "bridge", 42, { slot: "slot-hood" })],
       },
       {
         id: "upper-back-right",

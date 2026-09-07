@@ -1,4 +1,5 @@
 import { CABINET_STANDARDS, RUNS, ft } from "./room";
+import { SLOT_BY_ID } from "./slots";
 import type { Appliance, Slot } from "../types";
 
 /**
@@ -87,12 +88,11 @@ export function hoodOutlet(slot: Slot, appliance: Appliance | undefined): HoodOu
  * it in mid-air.
  */
 export function hoodCabinetFloor(): number | null {
-  for (const run of RUNS) {
-    for (const bank of run.uppers) {
-      if (bank.modules.some((module) => module.slot === "slot-hood")) return bank.band[0];
-    }
-  }
-  return null;
+  const hood = SLOT_BY_ID["slot-hood"];
+  const carries = RUNS.some((run) =>
+    run.uppers.some((bank) => bank.modules.some((module) => module.slot === "slot-hood")),
+  );
+  return carries ? hood.position[1] + ft(hood.cutout.h) : null;
 }
 
 /** Formatted for the install checklist and the duct's own callout. */

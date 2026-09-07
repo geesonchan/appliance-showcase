@@ -228,14 +228,21 @@ describe("message numbers", () => {
 describe("the canopy has to clear the cooking surface", () => {
   const hood = FIXTURES.hoodNeedsBlower;
 
-  it("passes when the range is the height the room was built for", () => {
-    const short = { ...FIXTURES.gasRange36, heightIn: 36 } as Appliance;
-    expect(firePackage2(hood, short)).not.toContain("canopy-clearance");
+  it("passes for the range the room was built for", () => {
+    const built = {
+      ...FIXTURES.gasRange36,
+      heightIn: slot("slot-hood").builtForCooktopIn!,
+    } as Appliance;
+    expect(canopyClearance(built)).toBe(30);
+    expect(firePackage2(hood, built)).not.toContain("canopy-clearance");
   });
 
   // The canopy hangs where the wall was drilled; a taller range eats the gap.
   it("fires when a taller range closes the gap below 30 inches", () => {
-    const tall = { ...FIXTURES.gasRange36, heightIn: 36.75 } as Appliance;
+    const tall = {
+      ...FIXTURES.gasRange36,
+      heightIn: slot("slot-hood").builtForCooktopIn! + 1,
+    } as Appliance;
     expect(canopyClearance(tall)).toBeLessThan(30);
     expect(firePackage2(hood, tall)).toContain("canopy-clearance");
   });
