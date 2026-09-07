@@ -485,3 +485,27 @@ wall cabinet that stops short of the canopy's top; offering a blower because it
 shares a badge; putting any of these numbers in the geometry instead of in
 `CABINET_STANDARDS`, where the checker can read them.
 
+
+---
+
+## D14 · The layout is a plain sequence, not a derived value
+
+**Registered:** 2026-09-06 (M3-4), before building it.
+
+M3-4 is the Run Composer: a track per leg, filled by hand from a module
+palette, with an "auto-fill" that calls the generator. Appliances appear in the
+track as `RO` openings. `checkLayout` runs on every edit. Only along a wall,
+only from the module list, filling rather than drawing — there is no free
+two-dimensional placement, for the reason in D12.
+
+**The constraint that has to hold now, before any of that is built:** what the
+generator returns is an ordinary array of ordinary objects. Not a getter, not a
+memo keyed to the parameters, not a frozen constant — a list somebody can splice
+an item into. The moment the composer exists, the generator stops being the only
+author of a layout and becomes the thing that proposes one; if its output were a
+derived value, "edit item 3" would have nowhere to write.
+
+**What it forbids:** deriving the segment list lazily from the parameters at
+read time; freezing or memoising it in a way that makes an edit meaningless;
+any code that assumes the current layout came from the generator rather than
+from a person.

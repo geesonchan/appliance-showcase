@@ -173,3 +173,38 @@ describe("the canopy still lands where D13 puts it", () => {
     }
   });
 });
+
+describe("what it returns is a list somebody can edit", () => {
+  // D14, registered before M3-4 is built: the composer will splice items into
+  // these arrays, so they cannot be getters, memos or frozen constants.
+  it("hands back plain arrays, not derived values", () => {
+    const layout = built();
+    for (const run of layout.runs) {
+      expect(Array.isArray(run.segments)).toBe(true);
+      expect(Object.isFrozen(run.segments)).toBe(false);
+      expect(Object.getOwnPropertyDescriptor(run, "segments")?.get).toBeUndefined();
+      for (const segment of run.segments) {
+        expect(Array.isArray(segment.modules)).toBe(true);
+        expect(Object.isFrozen(segment)).toBe(false);
+      }
+    }
+  });
+
+  it("survives an item being spliced out of a track", () => {
+    const layout = built();
+    const run = layout.runs[0];
+    const before = run.segments.length;
+    run.segments.splice(1, 1);
+    expect(run.segments).toHaveLength(before - 1);
+    // And the edit is visible to whatever reads it next, rather than being
+    // recomputed away.
+    expect(layout.runs[0].segments).toHaveLength(before - 1);
+  });
+
+  it("gives each call its own arrays, so one edit cannot reach another layout", () => {
+    const a = built();
+    const b = built();
+    a.runs[0].segments.pop();
+    expect(b.runs[0].segments.length).toBeGreaterThan(a.runs[0].segments.length);
+  });
+});
