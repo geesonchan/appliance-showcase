@@ -19,11 +19,12 @@ const parts = (over: Partial<Appliance> = {}) => fridgeParts(fridge(over), box);
 describe("a refrigerator has the fronts its record says it has", () => {
   it("hangs two doors over two drawers on a four-door", () => {
     const panels = parts({ doorConfig: "french-door-2-drawer" });
-    expect(panels).toHaveLength(4);
     expect(panels.filter((p) => p.id.startsWith("door"))).toHaveLength(2);
     expect(panels.filter((p) => p.id.startsWith("drawer"))).toHaveLength(2);
-    // Four fronts, four handles: Leo's count for a T36BT120NS.
-    expect(panels.map((p) => p.handle)).toHaveLength(4);
+    // Four things that open, four handles: Leo's count for a T36BT120NS. The
+    // grille is a fifth front and has none, because it does not open.
+    expect(panels.filter((p) => p.handle !== null)).toHaveLength(4);
+    expect(panels.filter((p) => p.id === "grille")).toHaveLength(1);
   });
 
   it("counts the fronts for every configuration", () => {
@@ -35,9 +36,8 @@ describe("a refrigerator has the fronts its record says it has", () => {
       column: 1,
     };
     for (const [doorConfig, count] of Object.entries(counts)) {
-      expect(parts({ doorConfig: doorConfig as Appliance["doorConfig"] }), doorConfig).toHaveLength(
-        count,
-      );
+      const panels = parts({ doorConfig: doorConfig as Appliance["doorConfig"] });
+      expect(panels.filter((p) => p.handle !== null), doorConfig).toHaveLength(count);
     }
   });
 
@@ -68,8 +68,8 @@ describe("a refrigerator has the fronts its record says it has", () => {
       p.id.startsWith("door"),
     );
     for (const door of doors) {
-      expect(Math.abs(door.handle.x)).toBeLessThan(Math.abs(door.x));
-      expect(door.handle.along).toBe("y");
+      expect(Math.abs(door.handle!.x)).toBeLessThan(Math.abs(door.x));
+      expect(door.handle!.along).toBe("y");
     }
   });
 
@@ -77,7 +77,7 @@ describe("a refrigerator has the fronts its record says it has", () => {
     const drawers = parts({ doorConfig: "french-door-2-drawer" }).filter((p) =>
       p.id.startsWith("drawer"),
     );
-    for (const drawer of drawers) expect(drawer.handle.along).toBe("x");
+    for (const drawer of drawers) expect(drawer.handle!.along).toBe("x");
   });
 });
 
@@ -103,7 +103,11 @@ describe("the front matches the elevation", () => {
   const inches = (feet: number) => feet * 12;
 
   it("stands the fronts on the toe grille, not on the floor", () => {
-    const lowest = Math.min(...four().map((p) => p.y - p.h / 2));
+    const lowest = Math.min(
+      ...four()
+        .filter((p) => p.id !== "grille")
+        .map((p) => p.y - p.h / 2),
+    );
     expect(lowest).toBeCloseTo(doorSplitOf(fridge(), box.h).toe, 9);
     expect(lowest).toBeGreaterThan(0);
   });
@@ -127,6 +131,7 @@ describe("the front matches the elevation", () => {
 
   it("runs a door handle down four fifths of its door and a drawer bar across nine tenths", () => {
     for (const panel of four()) {
+      if (!panel.handle) continue;
       const fraction = panel.id.startsWith("door")
         ? FRIDGE_PROPORTIONS.doorHandleFraction
         : FRIDGE_PROPORTIONS.drawerHandleFraction;
@@ -137,6 +142,7 @@ describe("the front matches the elevation", () => {
 
   it("keeps every handle on the panel it belongs to", () => {
     for (const panel of four()) {
+      if (!panel.handle) continue;
       const half = panel.handle.length / 2;
       if (panel.handle.along === "y") {
         expect(panel.handle.y + half, panel.id).toBeLessThanOrEqual(panel.y + panel.h / 2 + 1e-9);
@@ -190,12 +196,55 @@ describe("the front divides the way the elevation does", () => {
   });
 
   it("draws the panels in the order the elevation has them", () => {
-    const panels = fridgeParts(specified(), { w: 3, h: opening });
+    const panels = fridgeParts(specified(), { w: 3, h: opening }).filter(
+      (p) => p.id !== "grille",
+    );
     const byHeight = [...panels].sort((a, b) => a.y - b.y);
     expect(byHeight[0].id).toBe("drawer-freezer");
     expect(byHeight[1].id).toBe("drawer-fresh");
     expect(byHeight.slice(2).every((p) => p.id.startsWith("door"))).toBe(true);
     // The low drawer is the deeper of the two, which is what the sheet says.
     expect(byHeight[0].h).toBeGreaterThan(byHeight[1].h);
+  });
+});
+
+describe("a built-in refrigerator is one piece of steel", () => {
+  // Leo's rule: the toe grille is the same panel with air getting through it,
+  // not a dark plinth the machine happens to be standing on. So it is a front
+  // like the others, and nothing in the model gives any front a finish of its
+  // own — the layer draws them all in the appliance's.
+  it("makes the grille a front, with no material of its own", () => {
+    for (const doorConfig of [
+      "french-door-2-drawer",
+      "french-door-1-drawer",
+      "bottom-freezer",
+      "side-by-side",
+      "column",
+    ] as const) {
+      const panels = parts({ doorConfig });
+      const grille = panels.find((p) => p.id === "grille");
+      expect(grille, doorConfig).toBeDefined();
+      expect(grille!.w, doorConfig).toBe(panels[0].w > 0 ? grille!.w : 0);
+      for (const panel of panels) {
+        expect(Object.keys(panel), `${doorConfig} ${panel.id}`).not.toContain("finish");
+      }
+    }
+  });
+
+  it("gives the grille vents and no handle", () => {
+    const grille = parts({ doorConfig: "french-door-2-drawer" }).find((p) => p.id === "grille")!;
+    expect(grille.handle).toBeNull();
+    expect(grille.vents!.count).toBeGreaterThan(1);
+    // A vent slot you could get a finger into is a gap, not a vent.
+    expect(grille.vents!.heightFt * 12).toBeLessThanOrEqual(0.125);
+  });
+
+  it("runs the grille the full width, flush with the fronts above it", () => {
+    const panels = parts({ doorConfig: "french-door-2-drawer" });
+    const grille = panels.find((p) => p.id === "grille")!;
+    const drawer = panels.find((p) => p.id === "drawer-freezer")!;
+    expect(grille.w).toBeCloseTo(drawer.w, 9);
+    expect(grille.y - grille.h / 2).toBeCloseTo(0, 9);
+    expect(grille.y + grille.h / 2).toBeCloseTo(drawer.y - drawer.h / 2, 9);
   });
 });

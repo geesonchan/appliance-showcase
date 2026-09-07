@@ -27,7 +27,7 @@ export const hasGenericDoors = (appliance: Appliance | undefined) =>
 export const doorConfigOf = (appliance: Appliance): DoorConfig =>
   appliance.doorConfig ?? DEFAULT_DOOR_CONFIG;
 
-/** A door or a drawer front, in feet, relative to the body's centre and floor. */
+/** A front, in feet, relative to the body's centre and floor. */
 export interface Panel {
   id: string;
   /** Centre of the panel. */
@@ -35,8 +35,20 @@ export interface Panel {
   y: number;
   w: number;
   h: number;
-  /** Its handle: a tube on two brackets, along one axis or the other. */
-  handle: { x: number; y: number; length: number; along: "x" | "y" };
+  /**
+   * Its handle: a tube on two brackets, along one axis or the other. The toe
+   * grille has none, because it does not open.
+   */
+  handle: { x: number; y: number; length: number; along: "x" | "y" } | null;
+  /**
+   * Vent slots across it, for the grille at the bottom.
+   *
+   * A built-in refrigerator is one piece of steel from the floor to the top of
+   * its doors — the grille is the same panel with air getting through it, not a
+   * dark plinth the machine is standing on. So it is a front like the others,
+   * and what makes it a grille is the slots.
+   */
+  vents?: { count: number; heightFt: number };
 }
 
 /**
@@ -169,6 +181,17 @@ export function fridgeParts(appliance: Appliance, box: { w: number; h: number })
     },
   });
 
+  /** The toe grille: the same steel, with air getting through it. */
+  const grille = (): Panel => ({
+    id: "grille",
+    x: 0,
+    y: split.toe / 2,
+    w,
+    h: split.toe,
+    handle: null,
+    vents: { count: 4, heightFt: Math.min(0.125 / 12, split.toe / 12) },
+  });
+
   // Bottom to top: the grille, the low drawer, the high drawer, the doors,
   // with a gap between each.
   const lowFrom = split.toe;
@@ -185,14 +208,15 @@ export function fridgeParts(appliance: Appliance, box: { w: number; h: number })
         ...pair("door", doorsFrom, box.h),
         drawer("drawer-fresh", highFrom, highTo),
         drawer("drawer-freezer", lowFrom, lowTo),
+        grille(),
       ];
     case "french-door-1-drawer":
-      return [...pair("door", doorsFrom, box.h), drawer("drawer-freezer", lowFrom, highTo)];
+      return [...pair("door", doorsFrom, box.h), drawer("drawer-freezer", lowFrom, highTo), grille()];
     case "bottom-freezer":
-      return [door("door", doorsFrom, box.h), drawer("drawer-freezer", lowFrom, highTo)];
+      return [door("door", doorsFrom, box.h), drawer("drawer-freezer", lowFrom, highTo), grille()];
     case "side-by-side":
-      return pair("door", lowFrom, box.h);
+      return [...pair("door", lowFrom, box.h), grille()];
     case "column":
-      return [door("door", lowFrom, box.h)];
+      return [door("door", lowFrom, box.h), grille()];
   }
 }

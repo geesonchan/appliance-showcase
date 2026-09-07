@@ -3,7 +3,7 @@ import * as THREE from "three";
 import type { ThreeEvent } from "@react-three/fiber";
 import { applianceBox, flushOffset } from "../data/applianceBox";
 import { hoodProfile, hoodTopDepthIn } from "../data/hood";
-import { FRIDGE_PROPORTIONS, doorSplitOf, fridgeParts } from "../data/fridgeModel";
+import { FRIDGE_PROPORTIONS, fridgeParts } from "../data/fridgeModel";
 import { RANGE_PROPORTIONS, rangeParts } from "../data/rangeModel";
 import { Surface } from "./Surface";
 import { CABINET_STANDARDS, ROOM, SLOT_BY_ID, ft } from "../data/slots";
@@ -395,20 +395,15 @@ function Fridge({
   const doorZ = carcassZ + carcassD / 2 + proud + doorThickness / 2;
   const handleZ = d / 2 - handleR;
   // The grille is the band the split gives it, scaled to this machine.
-  const toe = doorSplitOf(appliance, h).toe;
-  const grille = tint(body, "#3A3E3C", { metalness: 0.4, roughness: 0.8 });
+  // The slots in the grille are a shade of the panel they are cut into, not a
+  // colour of their own: what you see through a vent is the dark inside it.
+  const slot = tint(body, "#2A2E2C", { metalness: 0.3, roughness: 0.85 });
 
   return (
     <group name="fridge">
       <mesh position={[0, h / 2, carcassZ]} castShadow receiveShadow>
         <boxGeometry args={[w, h, carcassD]} />
         <Mat s={body} size={[w, h]} />
-      </mesh>
-
-      {/* The grille under the drawers: dark, recessed, and not a door. */}
-      <mesh position={[0, toe / 2, doorZ - doorThickness / 4]}>
-        <boxGeometry args={[w, toe, doorThickness / 2]} />
-        <Mat s={grille} />
       </mesh>
 
       {panels.map((panel) => (
@@ -418,24 +413,45 @@ function Fridge({
             <Mat s={body} size={[panel.w, panel.h]} />
           </mesh>
 
+          {/* Vent slots: the panel is one piece of steel, and these are the
+              lines of air through it. Nothing here is a different material. */}
+          {panel.vents &&
+            Array.from({ length: panel.vents.count }, (_, i) => {
+              const step = panel.h / (panel.vents!.count + 1);
+              return (
+                <mesh
+                  key={i}
+                  position={[
+                    panel.x,
+                    panel.y - panel.h / 2 + step * (i + 1),
+                    doorZ + doorThickness / 2,
+                  ]}
+                >
+                  <boxGeometry args={[panel.w * 0.9, panel.vents!.heightFt, ft(0.05)]} />
+                  <Mat s={slot} />
+                </mesh>
+              );
+            })}
+
           {/* A tube on two brackets, the way one is actually mounted. */}
+          {panel.handle && (
           <group name={`fridge-handle-${panel.id}`}>
             <mesh
-              position={[panel.handle.x, panel.handle.y, handleZ]}
-              rotation={panel.handle.along === "x" ? [0, 0, Math.PI / 2] : [0, 0, 0]}
+              position={[panel.handle!.x, panel.handle!.y, handleZ]}
+              rotation={panel.handle!.along === "x" ? [0, 0, Math.PI / 2] : [0, 0, 0]}
             >
-              <cylinderGeometry args={[handleR, handleR, panel.handle.length, 14]} />
+              <cylinderGeometry args={[handleR, handleR, panel.handle!.length, 14]} />
               <Mat s={trim} />
             </mesh>
             {[-1, 1].map((end) => {
-              const along = (end * panel.handle.length) / 2;
+              const along = (end * panel.handle!.length) / 2;
               const bracketZ = (doorZ + doorThickness / 2 + handleZ) / 2;
               return (
                 <mesh
                   key={end}
                   position={[
-                    panel.handle.x + (panel.handle.along === "x" ? along : 0),
-                    panel.handle.y + (panel.handle.along === "y" ? along : 0),
+                    panel.handle!.x + (panel.handle!.along === "x" ? along : 0),
+                    panel.handle!.y + (panel.handle!.along === "y" ? along : 0),
                     bracketZ,
                   ]}
                 >
@@ -451,6 +467,7 @@ function Fridge({
               );
             })}
           </group>
+          )}
         </group>
       ))}
     </group>
