@@ -32,10 +32,15 @@ jobs:
 
       - run: npm ci
 
-      # The unit suite, which is the part that does not need a browser. The
-      # smoke suite drives a real Chromium against a real build and takes five
-      # minutes; it belongs in a check of its own, not in the path to the link.
-      - run: npx vitest run src/ scripts/
+      # The unit suite, which is the part that does not need a browser. Through
+      # its own config, not by narrowing the full one: the full config's global
+      # setup starts a preview server for the smoke suite, and on a runner with
+      # nothing built yet that is thirty seconds of waiting and then a failure.
+      #
+      # The smoke suite drives a real Chromium against a real build and takes
+      # five minutes. It belongs in a check of its own, not in the path to the
+      # link.
+      - run: npm run test:unit
 
       # `npm run build` type-checks first, so a build that publishes is a build
       # that compiled.
