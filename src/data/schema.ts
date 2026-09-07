@@ -264,6 +264,68 @@ export const schemeSchema = z.object({
   defaultBlower: z.string().min(1).nullable().default(null),
 });
 
+/**
+ * One slot as a package specifies it.
+ *
+ * A slot has two halves already — `data/slots.json` for the product side and
+ * `room.ts` for the placement — and this is the third: what *this* package puts
+ * there. The width and the install type are the package's to choose, because
+ * that is most of what separates one from another; the label, the utilities and
+ * the rough-in stay with the slot, because a 30" range and a 36" range still
+ * need gas in the same place.
+ */
+export const packageSlotSchema = z.object({
+  slotId: slotIdSchema,
+  category: categorySchema,
+  /** The appliance's own width. What the opening becomes is `enclosure`'s job. */
+  widthIn: inches,
+  installType: z.string().min(1),
+  /** Full height, so it finishes a run rather than sitting under a counter. */
+  tallUnit: z.boolean().default(false),
+  /**
+   * Whether the cabinetmaker builds around it.
+   *
+   * A built-in refrigerator stands in an opening with a finished panel each
+   * side and a cabinet bridging over it. A freestanding one stands at the end
+   * of the run with nothing round it at all — and drawing panels beside it is
+   * drawing a kitchen nobody ordered.
+   */
+  enclosure: z.boolean().default(false),
+});
+
+export const packageSchema = z
+  .object({
+    id: z.string().min(1),
+    name: z.object({ en: z.string().min(1), zh: z.string().min(1) }),
+    /** Rank, 1 highest. The picker is ordered by it. */
+    tier: z.number().int().positive(),
+    /**
+     * False for a package that exists as a name and a place in the order but
+     * has no slots yet. It is offered and refused rather than hidden, so the
+     * range on sale is visible even where it is not finished.
+     */
+    available: z.boolean().default(true),
+    slots: z.array(packageSlotSchema),
+    /**
+     * Partial, because a registered package has no slots and therefore no
+     * defaults. The refine below is what requires one per slot it does have.
+     */
+    defaultSelection: z.partialRecord(slotIdSchema, z.string().min(1)),
+    defaultBlower: z.string().min(1).nullable().default(null),
+  })
+  .refine((p) => !p.available || p.slots.length === 6, {
+    message: "an available package has to fill all six slots",
+    path: ["slots"],
+  })
+  .refine((p) => new Set(p.slots.map((s) => s.slotId)).size === p.slots.length, {
+    message: "two entries for the same slot",
+    path: ["slots"],
+  })
+  .refine((p) => p.slots.every((s) => p.defaultSelection[s.slotId]), {
+    message: "a slot with no default selection",
+    path: ["defaultSelection"],
+  });
+
 /** Every data file carries provenance so its trust level travels with it. */
 export const metaSchema = z.object({
   generatedBy: z.string(),
@@ -284,6 +346,11 @@ export const slotsFileSchema = z.object({
 export const schemesFileSchema = z.object({
   _meta: metaSchema,
   schemes: z.array(schemeSchema).min(1),
+});
+
+export const packagesFileSchema = z.object({
+  _meta: metaSchema,
+  packages: z.array(packageSchema).min(1),
 });
 
 /**

@@ -7,6 +7,8 @@ import type {
   fixtureIdSchema,
   fixtureRecordSchema,
   fuelSchema,
+  packageSchema,
+  packageSlotSchema,
   schemeSchema,
   slotIdSchema,
   slotRecordSchema,
@@ -34,6 +36,9 @@ export type DuctRoute = NonNullable<Utilities["duct"]>["route"];
 
 export type Appliance = z.infer<typeof applianceSchema>;
 export type Scheme = z.infer<typeof schemeSchema>;
+
+export type Package = z.infer<typeof packageSchema>;
+export type PackageSlot = z.infer<typeof packageSlotSchema>;
 
 /** The product half of a slot, as maintained in `data/slots.json`. */
 export type SlotRecord = z.infer<typeof slotRecordSchema>;

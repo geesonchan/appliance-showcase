@@ -1,0 +1,128 @@
+{
+  "_meta": {
+    "generatedBy": "seed data, hand written",
+    "updatedAt": "2026-09-07",
+    "provenance": "Package A is the six slots the app has always had, written down. Package C is Leo's round-16 note: 30\" freestanding range, 30\" chimney hood, 36\" freestanding counter-depth refrigerator standing at the end of a run, 24\" dishwasher, microwave drawer and wine cabinet. Package B is registered so its id and its place in the tier order are fixed; its slots are Leo's to write. The defaultSelection for C is picked from the catalogue by category, width and install type and is a stand-in until Leo supplies the models — every one of them is a real record in data/appliances.json, none is invented."
+  },
+  "packages": [
+    {
+      "id": "package-a",
+      "name": { "en": "Signature", "zh": "旗舰" },
+      "tier": 1,
+      "available": true,
+      "slots": [
+        {
+          "slotId": "slot-fridge",
+          "category": "refrigerator",
+          "widthIn": 36,
+          "installType": "built-in",
+          "tallUnit": true,
+          "enclosure": true
+        },
+        {
+          "slotId": "slot-range",
+          "category": "range",
+          "widthIn": 36,
+          "installType": "freestanding"
+        },
+        {
+          "slotId": "slot-hood",
+          "category": "hood",
+          "widthIn": 36,
+          "installType": "under-cabinet"
+        },
+        {
+          "slotId": "slot-dishwasher",
+          "category": "dishwasher",
+          "widthIn": 24,
+          "installType": "freestanding"
+        },
+        {
+          "slotId": "slot-microwave",
+          "category": "microwave",
+          "widthIn": 24,
+          "installType": "drawer"
+        },
+        {
+          "slotId": "slot-wine",
+          "category": "wine",
+          "widthIn": 24,
+          "installType": "freestanding"
+        }
+      ],
+      "defaultSelection": {
+        "slot-fridge": "thermador-t36bt120ns",
+        "slot-range": "thermador-prg366wh",
+        "slot-hood": "thermador-ph36hws",
+        "slot-dishwasher": "bosch-shv78cm3n",
+        "slot-microwave": "thermador-md24bs",
+        "slot-wine": "zephyr-prw24c01cg"
+      },
+      "defaultBlower": "thermador-vtn2fz"
+    },
+    {
+      "id": "package-b",
+      "name": { "en": "Professional", "zh": "专业" },
+      "tier": 2,
+      "available": false,
+      "slots": [],
+      "defaultSelection": {},
+      "defaultBlower": null
+    },
+    {
+      "id": "package-c",
+      "name": { "en": "Essential", "zh": "标准" },
+      "tier": 3,
+      "available": true,
+      "slots": [
+        {
+          "slotId": "slot-fridge",
+          "category": "refrigerator",
+          "widthIn": 36,
+          "installType": "counter-depth",
+          "tallUnit": true,
+          "enclosure": false
+        },
+        {
+          "slotId": "slot-range",
+          "category": "range",
+          "widthIn": 30,
+          "installType": "freestanding"
+        },
+        {
+          "slotId": "slot-hood",
+          "category": "hood",
+          "widthIn": 30,
+          "installType": "chimney"
+        },
+        {
+          "slotId": "slot-dishwasher",
+          "category": "dishwasher",
+          "widthIn": 24,
+          "installType": "freestanding"
+        },
+        {
+          "slotId": "slot-microwave",
+          "category": "microwave",
+          "widthIn": 24,
+          "installType": "drawer"
+        },
+        {
+          "slotId": "slot-wine",
+          "category": "wine",
+          "widthIn": 24,
+          "installType": "freestanding"
+        }
+      ],
+      "defaultSelection": {
+        "slot-fridge": "thermador-t36ft820ns",
+        "slot-range": "thermador-prg304wh",
+        "slot-hood": "thermador-hmcb30ws",
+        "slot-dishwasher": "bosch-shx78cm5n",
+        "slot-microwave": "thermador-md24bs",
+        "slot-wine": "zephyr-prw24c01cg"
+      },
+      "defaultBlower": null
+    }
+  ]
+}
