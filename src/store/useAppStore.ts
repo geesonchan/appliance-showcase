@@ -131,6 +131,15 @@ export const useAppStore = create<AppState>((set, get) => ({
   // without being carried across.
   setLayout: (patch) => {
     const layoutParams = { ...get().layoutParams, ...patch };
+    // One leg will not carry the sink and the refrigerator both, so moving one
+    // onto the other's leg pushes that one across. Whichever was just asked
+    // for wins; the other yields. Asking for the pair directly still refuses,
+    // with the reason, which is what a link in the query string gets.
+    if (layoutParams.fridgeEnd === layoutParams.sinkLeg) {
+      const other = layoutParams.sinkLeg === "back" ? "left" : "back";
+      if (patch.fridgeEnd) layoutParams.sinkLeg = other;
+      else if (patch.sinkLeg) layoutParams.fridgeEnd = other;
+    }
     const result = setLayoutParams(layoutParams);
     set((s) => ({
       layoutParams,
