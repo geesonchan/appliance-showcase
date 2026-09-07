@@ -10,7 +10,8 @@
  * the island set; SET=round5 for the reworked layout; SET=round6 for the room
  * built to the trade's dimensions, the appliances at their own size, the new
  * pins and the ducting; SET=round7 for the module-built runs, the wedge canopy,
- * the dimension layer and the cabinet cutout.
+ * the dimension layer and the cabinet cutout; SET=round9 for the layout
+ * controls and the four corners of the parameter set.
  */
 import { mkdir } from "node:fs/promises";
 import { chromium } from "playwright";
@@ -235,9 +236,67 @@ async function captureRound7(page) {
   await page.screenshot({ path: `${outDir}/mobile-checklist.png` });
 }
 
+/**
+ * Round 9: the parameters as controls, and the room at the ends of their range.
+ *
+ * The four combinations are the corners of what the template will build rather
+ * than four pretty rooms: the smallest kitchen that still passes every rule,
+ * the largest, the one where the refrigerator and the sink have swapped legs,
+ * and the one with no island at all — which only fits because a blind corner
+ * hands the back wall a foot of run.
+ */
+const ROUND9 = [
+  { name: "controls", query: "" },
+  { name: "smallest", query: "?back=150&left=108" },
+  { name: "largest", query: "?back=168&left=144&island=96&islandDepth=42" },
+  { name: "swapped", query: "?fridge=back&sink=left&corner=blind" },
+  { name: "no-island", query: "?island=none&corner=blind" },
+];
+
+async function captureRound9(page) {
+  for (const { name, query } of ROUND9) {
+    await page.goto(baseUrl + query, { waitUntil: "networkidle" });
+    await settle(page, 2200);
+
+    if (name === "controls") {
+      // The rail is a sheet on a phone and the sheet stops at half the screen,
+      // so nine controls will not fit in one frame: the room the kitchen is in,
+      // then the kitchen in it.
+      await click(page, "Configure");
+      await page.waitForTimeout(700);
+      for (const [at, file] of [
+        ["Back wall", "mobile-controls-room"],
+        ["Island depth", "mobile-controls-layout"],
+      ]) {
+        await page.getByText(at, { exact: true }).scrollIntoViewIfNeeded();
+        await page.waitForTimeout(400);
+        await page.screenshot({ path: `${outDir}/${file}.png` });
+      }
+      continue;
+    }
+
+    await page.screenshot({ path: `${outDir}/mobile-${name}.png` });
+  }
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round9") {
+    const ctx = await browser.newContext({
+      viewport: MOBILE,
+      deviceScaleFactor: 2,
+      isMobile: true,
+      hasTouch: true,
+    });
+    const page = await ctx.newPage();
+    await captureRound9(page);
+    await ctx.close();
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round7") {
     const ctx = await browser.newContext({
