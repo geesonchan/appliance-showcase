@@ -23,7 +23,7 @@ const kitchen = (fridgeEnd: "left" | "back", over: Partial<LayoutParams> = {}) =
 });
 const built = (over: Partial<LayoutParams> = {}) => {
   const result = build(over);
-  if (!result.ok) throw new Error(result.reasons.join(" "));
+  if (!result.ok) throw new Error(result.reasons.map((r) => r.key).join(" "));
   return result.layout;
 };
 
@@ -142,8 +142,8 @@ describe("what it refuses, and what it says", () => {
     const result = build({ islandLengthIn: 50 });
     expect(result.ok).toBe(false);
     if (result.ok) return;
-    expect(result.reasons.join(" ")).toContain('48"');
-    expect(result.reasons.join(" ")).toContain('54"');
+    expect(result.reasons[0].key).toBe("refusal.offStep");
+    expect(result.reasons[0].vars).toMatchObject({ value: 50, below: 48, above: 54 });
   });
 
   it("refuses a length outside the range", () => {
@@ -151,7 +151,8 @@ describe("what it refuses, and what it says", () => {
       const result = build({ islandLengthIn });
       expect(result.ok).toBe(false);
       if (result.ok) continue;
-      expect(result.reasons.join(" ")).toContain(`${PARAM_LIMITS.islandLengthIn.max}"`);
+      expect(result.reasons[0].key).toBe("refusal.outOfRange");
+      expect(result.reasons[0].vars.max).toBe(PARAM_LIMITS.islandLengthIn.max);
     }
   });
 
@@ -160,8 +161,10 @@ describe("what it refuses, and what it says", () => {
     expect(result.ok).toBe(false);
     if (result.ok) return;
     for (const reason of result.reasons) {
-      expect(reason.length).toBeGreaterThan(20);
-      expect(reason).toMatch(/\.$/);
+      // Every figure it prints is one it was given, so the sentence can be
+      // written in either language without the generator knowing which.
+      expect(reason.key).toMatch(/^refusal\./);
+      expect(Object.keys(reason.vars).length).toBeGreaterThan(0);
     }
   });
 

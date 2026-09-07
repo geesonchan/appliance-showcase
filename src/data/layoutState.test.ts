@@ -87,7 +87,8 @@ describe("a refusal leaves the room standing", () => {
     const result = setLayoutParams({ ...DEFAULT_PARAMS, islandLengthIn: 50 });
 
     expect(result.ok).toBe(false);
-    expect(result.reasons.join(" ")).toContain('50"');
+    expect(result.reasons[0].key).toBe("refusal.offStep");
+    expect(result.reasons[0].vars.value).toBe(50);
     // Same layout object: nothing was rebuilt.
     expect(LAYOUT_PARAMS).toBe(standing);
     expect(LAYOUT_ISSUES).toEqual(result.reasons);

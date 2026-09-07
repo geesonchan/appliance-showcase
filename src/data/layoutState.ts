@@ -1,6 +1,6 @@
 import { rebuildCabinets } from "./cabinets";
 import { rebuildFixtures } from "./fixtures";
-import { generateLayout, type LayoutParams } from "./layoutTemplate";
+import { generateLayout, type LayoutParams, type Refusal } from "./layoutTemplate";
 import { LAYOUT, applyLayout } from "./room";
 import { rebuildSlots } from "./slots";
 
@@ -19,7 +19,7 @@ import { rebuildSlots } from "./slots";
  * take a range, a sink, a dishwasher and a tower" is the useful outcome; going
  * blank is not.
  */
-export function setLayoutParams(params: LayoutParams): { ok: boolean; reasons: string[] } {
+export function setLayoutParams(params: LayoutParams): { ok: boolean; reasons: Refusal[] } {
   const attempt = generateLayout(params);
 
   if (!attempt.ok) {

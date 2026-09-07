@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { SCHEME } from "../data/catalogue";
 import { setLayoutParams } from "../data/layoutState";
-import type { LayoutParams } from "../data/layoutTemplate";
+import type { LayoutParams, Refusal } from "../data/layoutTemplate";
 import { LAYOUT_ISSUES, REQUESTED_PARAMS } from "../data/room";
 import type { Lang, Lighting, RenderMode, SlotId, UtilityType } from "../types";
 
@@ -20,7 +20,7 @@ interface AppState {
    * `layoutIssues` instead. See docs/decisions.md D14.
    */
   layoutParams: LayoutParams;
-  layoutIssues: string[];
+  layoutIssues: Refusal[];
   /**
    * Bumped whenever the room actually changed. Everything derived from the
    * layout is a module value rather than state, so the pieces of the interface

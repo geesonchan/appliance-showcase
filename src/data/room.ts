@@ -4,6 +4,7 @@ import {
   generateLayout,
   type GeneratedLayout,
   type LayoutParams,
+  type Refusal,
   type SlotPlacement,
 } from "./layoutTemplate";
 import { ft, setRoomSize, type CabinetRun, type RunSegment } from "./roomShell";
@@ -11,7 +12,15 @@ import type { FixtureId, SlotId } from "../types";
 
 export * from "./roomShell";
 export { PARAM_LIMITS, DEFAULT_PARAMS } from "./layoutTemplate";
-export type { LayoutParams, SlotPlacement, IslandLayout } from "./layoutTemplate";
+export type {
+  LayoutParams,
+  Refusal,
+  RequirementItem,
+  SlotPlacement,
+  IslandLayout,
+  WallRequirement,
+} from "./layoutTemplate";
+export { feasibleRange, wallRequirement, generateLayout } from "./layoutTemplate";
 
 /**
  * The room this page is showing.
@@ -33,7 +42,7 @@ export type { LayoutParams, SlotPlacement, IslandLayout } from "./layoutTemplate
 export let REQUESTED_PARAMS: LayoutParams = DEFAULT_PARAMS;
 
 /** What the template refused to build, and why. Empty when it built. */
-export let LAYOUT_ISSUES: string[] = [];
+export let LAYOUT_ISSUES: Refusal[] = [];
 
 export let LAYOUT: GeneratedLayout;
 export let LAYOUT_PARAMS: LayoutParams;
@@ -68,7 +77,7 @@ export let SLOT_PLACEMENT: Record<SlotId, SlotPlacement>;
 export let FIXTURE_PLACEMENT: Record<FixtureId, SlotPlacement>;
 
 /** Install a generated layout as the room. Everything derived follows. */
-export function applyLayout(layout: GeneratedLayout, requested: LayoutParams, issues: string[]) {
+export function applyLayout(layout: GeneratedLayout, requested: LayoutParams, issues: Refusal[]) {
   LAYOUT = layout;
   LAYOUT_PARAMS = layout.params;
   // The shell follows the walls the layout was generated for, so the room, the
@@ -112,17 +121,17 @@ export const spanOf = (s: RunSegment) => s.to - s.from;
  * because a link is a reproducible room where a slider drag is not, and the
  * screenshot runs need to ask for a particular kitchen without clicking.
  */
-function readParams(): { params: LayoutParams; issues: string[] } {
+function readParams(): { params: LayoutParams; issues: Refusal[] } {
   if (typeof window === "undefined") return { params: DEFAULT_PARAMS, issues: [] };
 
   const query = new URLSearchParams(window.location.search);
-  const issues: string[] = [];
+  const issues: Refusal[] = [];
   const params = { ...DEFAULT_PARAMS };
 
   const number = (name: string, key: "backWallIn" | "leftWallIn" | "islandLengthIn" | "islandDepthIn" | "aisleIn") => {
     const raw = query.get(name);
     if (raw === null) return;
-    if (!Number.isFinite(Number(raw))) issues.push(`"${raw}" is not a length.`);
+    if (!Number.isFinite(Number(raw))) issues.push({ key: "refusal.notALength", vars: { raw } });
     else params[key] = Number(raw);
   };
   const choice = <K extends "fridgeEnd" | "sinkLeg" | "cornerType">(
@@ -132,7 +141,8 @@ function readParams(): { params: LayoutParams; issues: string[] } {
   ) => {
     const raw = query.get(name) as LayoutParams[K] | null;
     if (raw === null) return;
-    if (!allowed.includes(raw)) issues.push(`"${raw}" is not one of ${allowed.join(", ")}.`);
+    if (!allowed.includes(raw))
+      issues.push({ key: "refusal.notAChoice", vars: { raw, allowed: allowed.join(", ") } });
     else params[key] = raw;
   };
 

@@ -79,6 +79,8 @@ export function Slider({
   max,
   step,
   format = (n) => `${n}"`,
+  feasible,
+  caption,
   onChange,
 }: {
   label: string;
@@ -87,13 +89,35 @@ export function Slider({
   max: number;
   step: number;
   format?: (value: number) => string;
+  /**
+   * The stretch of the range this configuration can actually be built at. The
+   * slider keeps its whole travel — shortening it would hide the constraint
+   * instead of teaching it — and greys out the rest.
+   */
+  feasible?: { minIn: number; maxIn: number } | null;
+  /** What the limit is made of, printed under the track. */
+  caption?: ReactNode;
   onChange: (next: number) => void;
 }) {
+  const at = (n: number) => ((n - min) / (max - min)) * 100;
+  const band = feasible
+    ? `linear-gradient(to right, var(--line) 0 ${at(feasible.minIn)}%, ` +
+      `var(--ink-muted) ${at(feasible.minIn)}% ${at(feasible.maxIn)}%, ` +
+      `var(--line) ${at(feasible.maxIn)}% 100%)`
+    : undefined;
+  const outside = feasible ? value < feasible.minIn || value > feasible.maxIn : false;
+
   return (
     <label className="block py-1.5">
       <span className="flex items-baseline justify-between gap-3">
         <span className="text-[13px] text-ink">{label}</span>
-        <span className="text-[12px] tabular-nums text-ink-muted">{format(value)}</span>
+        <span
+          className={
+            "text-[12px] tabular-nums " + (outside ? "font-medium text-[#8A2018]" : "text-ink-muted")
+          }
+        >
+          {format(value)}
+        </span>
       </span>
       <input
         type="range"
@@ -102,8 +126,10 @@ export function Slider({
         step={step}
         value={value}
         onChange={(event) => onChange(Number(event.target.value))}
-        className="mt-1.5 h-1 w-full cursor-pointer appearance-none rounded-full bg-line accent-accent"
+        style={band ? { background: band, backgroundSize: "100% 4px" } : undefined}
+        className="mt-1.5 h-1 w-full cursor-pointer appearance-none rounded-full bg-line bg-center bg-no-repeat accent-accent"
       />
+      {caption && <span className="mt-1 block text-[10px] leading-tight text-ink-muted">{caption}</span>}
     </label>
   );
 }
