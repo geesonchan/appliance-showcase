@@ -3,9 +3,9 @@ import * as THREE from "three";
 import { CABINETS, CABINET_OUTLINES, type CabinetBox } from "../data/cabinets";
 import { counterOutline } from "../data/counter";
 import { useIsMobile } from "../hooks/useIsMobile";
-import { useAppStore } from "../store/useAppStore";
+import { cabinetToken, useAppStore } from "../store/useAppStore";
 import { ft } from "../data/room";
-import { SCENE_COLORS, finish, type FinishToken, type SurfaceProps } from "./materials";
+import { SCENE_COLORS, finish, type SurfaceProps } from "./materials";
 import { Surface } from "./Surface";
 import { texture } from "./textures";
 
@@ -25,24 +25,18 @@ function counterMap(props: SurfaceProps, quality: "high" | "low") {
 }
 
 /**
- * Which finish each kind of carcass is made in.
- *
- * Every box that carries a door is painted, and the paint colour is whatever
- * the finish picker says. The toe kick is not: it is a recessed board nobody
- * chooses a colour for, and painting it the door colour makes the run look
- * like it is standing on a plinth of itself.
+ * A shaker door, in feet: a frame of stiles and rails with a panel recessed
+ * inside it, an eighth of an inch of gap to the next door, and the panel set
+ * back a quarter.
  */
-const KIND_FINISH: Record<CabinetBox["kind"], FinishToken> = {
-  base: "painted",
-  tall: "painted",
-  surround: "painted",
-  upper: "painted",
-  counter: "quartz-white",
-  toe: "painted",
+const DOOR = {
+  thickness: ft(0.75),
+  reveal: ft(0.125),
+  /** Width of the frame around the panel. */
+  rail: ft(2.25),
+  /** How far the panel sits behind the face of the frame. */
+  recess: ft(0.25),
 };
-
-/** How thick a door is, and the gap between one door and the next, in feet. */
-const DOOR = { thickness: ft(0.75), reveal: ft(0.125), bevel: ft(0.125) };
 
 /** Opacity of the ghosted carcass behind the install wireframe. */
 const GHOST_OPACITY = 0.06;
@@ -73,14 +67,17 @@ function facing(box: CabinetBox): { axis: "x" | "z"; sign: 1; width: number; hei
 }
 
 /**
- * A door on the front of a carcass: a panel, a reveal round it, and a chamfer
- * on its edge.
+ * A shaker door: a frame with a panel recessed inside it.
  *
- * Two layers, because that is what a cabinet is — a box with a slab hung on the
- * front of it. The eighth-inch gap between doors and the eighth-inch chamfer on
- * each edge are what stop a run of cabinets reading as one long extrusion: at
- * this scale they are two pixels each, and they are the two pixels that say
- * where one door stops and the next starts.
+ * Two layers, because that is what a cabinet door is. The eighth-inch gap
+ * between doors is what stops a run reading as one long extrusion — at this
+ * scale it is two pixels, and it is the two pixels that say where one door
+ * stops and the next starts.
+ *
+ * The grain matters as much as the shape. On a real door the stiles run with
+ * its height and the rails run across, so the frame here takes the map one way
+ * and the panel inside it the other. On a painted door none of that shows,
+ * which is the point of a token: the same geometry, a different finish.
  */
 function Door({ box, s }: { box: CabinetBox; s: SurfaceProps }) {
   const { axis, width, height } = facing(box);
@@ -89,16 +86,10 @@ function Door({ box, s }: { box: CabinetBox; s: SurfaceProps }) {
   const h = height - DOOR.reveal;
   const front = depth / 2 + DOOR.thickness / 2;
 
-  // A chamfered slab: the panel, and a slightly smaller one proud of it, which
-  // reads as a bevelled edge from every angle the room is looked at.
-  const panels = [
-    { w, h, z: front - DOOR.thickness / 4, depth: DOOR.thickness / 2 },
-    {
-      w: w - DOOR.bevel * 2,
-      h: h - DOOR.bevel * 2,
-      z: front + DOOR.thickness / 4,
-      depth: DOOR.thickness / 2,
-    },
+  // The panel only exists if there is a door big enough to have one.
+  const panel: [number, number] = [
+    Math.max(0, w - DOOR.rail * 2),
+    Math.max(0, h - DOOR.rail * 2),
   ];
 
   return (
@@ -106,12 +97,21 @@ function Door({ box, s }: { box: CabinetBox; s: SurfaceProps }) {
       name={"door-" + box.id}
       rotation={axis === "x" ? [0, Math.PI / 2, 0] : [0, 0, 0]}
     >
-      {panels.map((panel, i) => (
-        <mesh key={i} position={[0, 0, panel.z]} castShadow receiveShadow>
-          <boxGeometry args={[panel.w, panel.h, panel.depth]} />
-          <Surface s={s} size={[panel.w, panel.h]} />
+      {/* The frame: stiles up the sides, rails across. Drawn as one slab, with
+          its grain running across, because that is the rails' direction and the
+          rails are what meets the eye at the top and bottom of a run. */}
+      <mesh position={[0, 0, front]} castShadow receiveShadow>
+        <boxGeometry args={[w, h, DOOR.thickness]} />
+        <Surface s={s} size={[w, h]} rotate={0} />
+      </mesh>
+
+      {/* The panel, set back inside the frame, its grain running up the door. */}
+      {panel[0] > 0 && panel[1] > 0 && (
+        <mesh position={[0, 0, front + DOOR.thickness / 2 - DOOR.recess]} receiveShadow>
+          <boxGeometry args={[panel[0], panel[1], DOOR.thickness / 2]} />
+          <Surface s={s} size={[panel[0], panel[1]]} rotate={Math.PI / 2} />
         </mesh>
-      ))}
+      )}
     </group>
   );
 }
@@ -125,7 +125,11 @@ function CabinetSolid({ box }: { box: CabinetBox }) {
   const counter = useAppStore((s) => s.finishes.counter);
 
   const twoTone = useAppStore((s) => s.finishes.twoToneUppers);
-  const token = box.kind === "counter" ? counter : KIND_FINISH[box.kind];
+  // A wood door is not a painted door in a wood colour: it takes the wood
+  // token, grain and all, and the colour override falls away with it.
+  const doorToken = cabinetToken(paint);
+  const token =
+    box.kind === "counter" ? counter : box.kind === "toe" ? "painted" : doorToken;
   // One colour through the room unless somebody asks for two. A two-tone
   // kitchen — the picked colour below, a lighter finish above — is a decision
   // a designer makes on purpose, not what "the cabinets are green" means.
@@ -134,7 +138,7 @@ function CabinetSolid({ box }: { box: CabinetBox }) {
       ? SCENE_COLORS.toe
       : box.kind === "upper" && twoTone
         ? SCENE_COLORS.cabinetUpper
-        : box.kind === "counter"
+        : box.kind === "counter" || doorToken !== "painted"
           ? undefined
           : paint;
   const props = finish(renderMode, token, colour);

@@ -133,11 +133,19 @@ export type FloorFinish = "floor-oak" | "tile-white";
  * Scheme 01's own green first, so the room opens as it was specified.
  */
 export const CABINET_COLORS = [
-  { key: "finish.cabinet.green", value: "#2E5C45" },
-  { key: "finish.cabinet.navy", value: "#2B3A4A" },
-  { key: "finish.cabinet.clay", value: "#9C7B63" },
-  { key: "finish.cabinet.bone", value: "#E3DFD3" },
+  { key: "finish.cabinet.green", value: "#2E5C45", token: "painted" as const },
+  { key: "finish.cabinet.navy", value: "#2B3A4A", token: "painted" as const },
+  { key: "finish.cabinet.clay", value: "#9C7B63", token: "painted" as const },
+  { key: "finish.cabinet.bone", value: "#E3DFD3", token: "painted" as const },
+  // Not a colour: a door made of something. Its swatch shows the wood rather
+  // than a flat brown, which is the whole difference between the two.
+  { key: "finish.cabinet.oak", value: "#C6A276", token: "wood-oak" as const },
 ] as const;
+
+/** The finish token behind a swatch: paint, or the wood itself. */
+export function cabinetToken(value: string) {
+  return CABINET_COLORS.find((paint) => paint.value === value)?.token ?? "painted";
+}
 
 /**
  * The finishes the page opens in.

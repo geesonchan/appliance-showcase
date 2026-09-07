@@ -19,7 +19,20 @@ const TEXTURE_SIZE = { high: 512, low: 256 } as const;
  * can say "one tile of oak every two feet" and mean it: the same wood grain
  * comes out the same size on a 12-foot floor and a 2-foot door.
  */
-export function Surface({ s, size }: { s: SurfaceProps; size?: [number, number] }) {
+export function Surface({
+  s,
+  size,
+  rotate = 0,
+}: {
+  s: SurfaceProps;
+  size?: [number, number];
+  /**
+   * Turn the map, in radians. Wood has a direction: a door stile runs with the
+   * height of the door and the rail across it, and one texture turned ninety
+   * degrees is how you get both without drawing a second one.
+   */
+  rotate?: number;
+}) {
   const quality = useAppStore((state) => state.quality);
   const px = TEXTURE_SIZE[quality];
 
@@ -37,7 +50,11 @@ export function Surface({ s, size }: { s: SurfaceProps; size?: [number, number] 
     const make = (kind: NonNullable<SurfaceProps["map"]>) => {
       const clone = texture(kind, px).clone();
       clone.needsUpdate = true;
-      clone.repeat.set(along, across);
+      // Turning about the middle rather than the corner, so a rotated map
+      // still covers the face it is on.
+      clone.center.set(0.5, 0.5);
+      clone.rotation = rotate;
+      clone.repeat.set(rotate === 0 ? along : across, rotate === 0 ? across : along);
       return clone;
     };
     return {
@@ -45,7 +62,7 @@ export function Surface({ s, size }: { s: SurfaceProps; size?: [number, number] 
       normalMap: s.normalMap ? make(s.normalMap) : null,
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [s.map, s.normalMap, s.repeatFt, px, alongFt, acrossFt]);
+  }, [s.map, s.normalMap, s.repeatFt, px, alongFt, acrossFt, rotate]);
 
   return (
     <meshStandardMaterial

@@ -68,31 +68,71 @@ function brushedNormal(size: number) {
   return element;
 }
 
-/** Oak: warm bands with the grain running along them. */
+/**
+ * Oak: boards in four tones, with growth rings running along them.
+ *
+ * The four tones are the point. A single brown with lines scratched into it
+ * reads as brown paper; a floor reads as wood because one board is lighter than
+ * the one beside it, and the eye finds the seam between them before it finds
+ * any grain. So this lays boards across the tile, gives each a shade off a
+ * four-step ladder, darkens the seam, and only then draws rings in it.
+ *
+ * The grain runs along the texture's x axis. A surface that wants it the other
+ * way rotates the map rather than getting a texture of its own — which is how a
+ * door frame runs one way and the panel inside it runs the other.
+ */
 function oak(size: number, dark: boolean) {
   const { element, ctx } = canvas(size);
   const next = random(dark ? 21 : 13);
-  const base = dark ? "#9A7448" : "#C6A276";
-  ctx.fillStyle = base;
-  ctx.fillRect(0, 0, size, size);
+  const tones = dark
+    ? ["#B08A5E", "#9C7448", "#87613C", "#A67F53"]
+    : ["#D6B58C", "#C6A276", "#B18F63", "#CDAA80"];
+  const ink = dark ? "48,32,18" : "100,72,44";
 
-  for (let i = 0; i < 26; i += 1) {
-    const y = next() * size;
-    const height = size * (0.01 + next() * 0.05);
-    ctx.fillStyle = `rgba(${dark ? "60,42,24" : "120,88,54"},${0.06 + next() * 0.14})`;
-    ctx.fillRect(0, y, size, height);
-  }
-  // The grain itself: long wandering lines, which is what reads as wood.
-  for (let i = 0; i < size / 2; i += 1) {
-    const y = next() * size;
-    ctx.strokeStyle = `rgba(${dark ? "56,38,20" : "110,80,48"},${0.05 + next() * 0.2})`;
-    ctx.lineWidth = next() < 0.15 ? 1.6 : 0.7;
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    for (let x = 0; x <= size; x += size / 16) {
-      ctx.lineTo(x, y + Math.sin((x / size) * Math.PI * (1 + next())) * size * 0.012);
+  const boards = 4;
+  const boardH = size / boards;
+  const hair = Math.max(1, size / 256);
+
+  for (let b = 0; b < boards; b += 1) {
+    const top = b * boardH;
+    ctx.fillStyle = tones[Math.floor(next() * tones.length)];
+    ctx.fillRect(0, top, size, boardH);
+
+    // The seam between two boards: a shadow with a lit chamfer under it.
+    ctx.fillStyle = `rgba(${ink},0.5)`;
+    ctx.fillRect(0, top, size, hair);
+    ctx.fillStyle = "rgba(255,248,236,0.18)";
+    ctx.fillRect(0, top + hair, size, hair * 0.7);
+
+    // Growth rings: long wandering lines along the board, never across it.
+    const rings = Math.max(6, Math.round(boardH / 4));
+    for (let i = 0; i < rings; i += 1) {
+      const at = top + hair * 2 + next() * (boardH - hair * 3);
+      const wander = boardH * 0.05;
+      const phase = next() * Math.PI * 2;
+      ctx.strokeStyle = `rgba(${ink},${0.1 + next() * 0.32})`;
+      ctx.lineWidth = next() < 0.2 ? 1.8 : 0.8;
+      ctx.beginPath();
+      ctx.moveTo(0, at);
+      for (let x = 0; x <= size; x += size / 24) {
+        ctx.lineTo(x, at + Math.sin(phase + (x / size) * Math.PI * 2) * wander);
+      }
+      ctx.stroke();
     }
-    ctx.stroke();
+
+    // A knot or two, which is what stops it reading as a printed pattern.
+    if (next() < 0.4) {
+      const kx = next() * size;
+      const ky = top + boardH * (0.3 + next() * 0.4);
+      const r = boardH * 0.07;
+      ctx.strokeStyle = `rgba(${ink},0.4)`;
+      ctx.lineWidth = 1.2;
+      for (let ring = 1; ring <= 3; ring += 1) {
+        ctx.beginPath();
+        ctx.ellipse(kx, ky, r * ring * 1.6, r * ring, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
   }
   return element;
 }
