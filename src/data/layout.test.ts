@@ -386,7 +386,6 @@ describe("the run as Leo specified it", () => {
       "corner",
       "counter",
       "counter",
-      "counter",
       "tall",
     ]);
   });

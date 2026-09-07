@@ -129,9 +129,10 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
 
     // A lazy susan is a square: it belongs to both legs, so it is as deep as
     // it is wide and the other leg starts where it stops. Drawing it one
-    // cabinet deep is what left a hole at the inside corner.
-    const depth = module.kind === "corner" ? ft(module.widthIn) : ROOM.counterDepth;
-    const offset = module.kind === "corner" ? (depth - ROOM.counterDepth) / 2 : 0;
+    // cabinet deep is what left a hole at the inside corner. A blind corner
+    // says so itself — it is 42" long and still only 24" deep.
+    const depth = module.depthIn ? ft(module.depthIn) : ROOM.counterDepth;
+    const offset = (depth - ROOM.counterDepth) / 2;
     boxes.push(
       onRun(run, `${segment.id}-${module.code}-${index}`, "base", along, base, depth, offset, {
         module,
@@ -167,9 +168,8 @@ function upperBoxes(run: CabinetRun, bank: UpperBank): CabinetBox[] {
   eachModule(bank.from, bank.modules, (module, along, index) => {
     // Same at high level: a corner wall cabinet reaches into both legs, so the
     // run next to it starts where its square stops rather than overlapping it.
-    const corner = module.kind === "corner";
-    const depth = corner ? ft(module.widthIn) : ROOM.upperDepth;
-    const across = corner ? -(ROOM.counterDepth - depth) / 2 : -inset;
+    const depth = module.depthIn ? ft(module.depthIn) : ROOM.upperDepth;
+    const across = module.depthIn ? -(ROOM.counterDepth - depth) / 2 : -inset;
     boxes.push(
       onRun(run, `${bank.id}-${module.code}-${index}`, "upper", along, band, depth, across, {
         module,
@@ -207,13 +207,20 @@ function runBoxes(run: CabinetRun): CabinetBox[] {
  * white model and the install wireframe all read from the same boxes.
  */
 function buildCabinets(): CabinetBox[] {
-  return [
-    ...RUNS.flatMap(runBoxes),
+  return [...RUNS.flatMap(runBoxes), ...(ISLAND.present ? islandBoxes() : [])];
+}
 
-    // --- island ---
-    // The two openings come in from opposite faces, so the carcass is the island
-    // minus each of them: solid across the full depth where there is no opening,
-    // and solid behind each opening on its own side.
+/**
+ * The island.
+ *
+ * The two openings come in from opposite faces, so the carcass is the island
+ * minus each of them: solid across the full depth where there is no opening,
+ * and solid behind each opening on its own side. A kitchen whose parameters ask
+ * for no island has none of these boxes at all — the microwave and the wine
+ * cabinet go on the perimeter instead.
+ */
+function islandBoxes(): CabinetBox[] {
+  return [
     {
       id: "island-left",
       outline: "island",

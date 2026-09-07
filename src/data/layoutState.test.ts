@@ -22,7 +22,7 @@ describe("changing a parameter changes the whole room", () => {
   it("moves the appliances with the cabinets", () => {
     expect(segmentForSlot("slot-fridge")!.id.startsWith("left")).toBe(true);
 
-    setLayoutParams({ ...DEFAULT_PARAMS, fridgeEnd: "back" });
+    setLayoutParams({ ...DEFAULT_PARAMS, fridgeEnd: "back", sinkLeg: "left" });
 
     const tower = segmentForSlot("slot-fridge")!;
     expect(tower.id.startsWith("back")).toBe(true);
@@ -31,7 +31,7 @@ describe("changing a parameter changes the whole room", () => {
   });
 
   it("re-cuts the carcass around the appliances that moved", () => {
-    setLayoutParams({ ...DEFAULT_PARAMS, fridgeEnd: "back" });
+    setLayoutParams({ ...DEFAULT_PARAMS, fridgeEnd: "back", sinkLeg: "left" });
 
     const tower = module("T4296")!;
     expect(tower).toBeDefined();
@@ -40,7 +40,7 @@ describe("changing a parameter changes the whole room", () => {
   });
 
   it("takes the sink and the dishwasher with the refrigerator", () => {
-    setLayoutParams({ ...DEFAULT_PARAMS, fridgeEnd: "back" });
+    setLayoutParams({ ...DEFAULT_PARAMS, fridgeEnd: "back", sinkLeg: "left" });
 
     expect(FIXTURE_BY_ID["fixture-sink"].position[0]).toBeCloseTo(RUN_BY_ID.left.centre, 6);
     expect(SLOT_BY_ID["slot-dishwasher"].position[0]).toBeCloseTo(RUN_BY_ID.left.centre, 6);
@@ -57,7 +57,7 @@ describe("changing a parameter changes the whole room", () => {
   });
 
   it("puts everything back when the parameters go back", () => {
-    setLayoutParams({ ...DEFAULT_PARAMS, fridgeEnd: "back", islandLengthIn: 96 });
+    setLayoutParams({ ...DEFAULT_PARAMS, fridgeEnd: "back", sinkLeg: "left", islandLengthIn: 96 });
     setLayoutParams(DEFAULT_PARAMS);
 
     expect(segmentForSlot("slot-fridge")!.id.startsWith("left")).toBe(true);
@@ -71,7 +71,8 @@ describe("every box the generator produces can be told apart", () => {
   it("gives every cabinet a unique id, whatever the parameters", () => {
     for (const fridgeEnd of ["left", "back"] as const) {
       for (let islandLengthIn = 48; islandLengthIn <= 96; islandLengthIn += 6) {
-        setLayoutParams({ ...DEFAULT_PARAMS, fridgeEnd, islandLengthIn });
+        const sinkLeg = fridgeEnd === "left" ? ("back" as const) : ("left" as const);
+        setLayoutParams({ ...DEFAULT_PARAMS, fridgeEnd, sinkLeg, islandLengthIn });
         const ids = CABINETS.map((box) => box.id);
         const duplicates = ids.filter((id, i) => ids.indexOf(id) !== i);
         expect(duplicates, `${fridgeEnd} / ${islandLengthIn}"`).toEqual([]);

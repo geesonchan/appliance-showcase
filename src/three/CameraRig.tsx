@@ -58,7 +58,6 @@ function fitExtents() {
   return { w: extent(right) * 1.06, h: extent(up) * 1.06 };
 }
 
-const FIT_FEET = fitExtents();
 
 const easeInOutCubic = (t: number) =>
   t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -101,8 +100,12 @@ export function CameraRig() {
   const camUp = useMemo(() => new THREE.Vector3(), []);
   const desiredOffset = useMemo(() => new THREE.Vector3(), []);
 
-  // Keep the whole room framed at any canvas size rather than cropping.
-  const fitZoom = Math.min(size.width / FIT_FEET.w, size.height / FIT_FEET.h);
+  // Keep the whole room framed at any canvas size rather than cropping. The
+  // room's own size is a parameter, so this is recomputed when it changes
+  // rather than measured once at import.
+  const layoutVersion = useAppStore((s) => s.layoutVersion);
+  const fit = useMemo(fitExtents, [layoutVersion]);
+  const fitZoom = Math.min(size.width / fit.w, size.height / fit.h);
 
   const startTween = (
     target: THREE.Vector3,

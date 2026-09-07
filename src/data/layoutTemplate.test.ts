@@ -11,6 +11,16 @@ import { CABINET_STANDARDS, ROOM } from "./roomShell";
 const inches = (feet: number) => feet * 12;
 const build = (over: Partial<LayoutParams> = {}) =>
   generateLayout({ ...DEFAULT_PARAMS, ...over });
+/**
+ * A kitchen with the refrigerator at one end. The sink goes on the other leg,
+ * because one leg will not carry both — the generator refuses that pairing, so
+ * the tests ask for the kitchen rather than for half of it.
+ */
+const kitchen = (fridgeEnd: "left" | "back", over: Partial<LayoutParams> = {}) => ({
+  fridgeEnd,
+  sinkLeg: fridgeEnd === "left" ? ("back" as const) : ("left" as const),
+  ...over,
+});
 const built = (over: Partial<LayoutParams> = {}) => {
   const result = build(over);
   if (!result.ok) throw new Error(result.reasons.join(" "));
@@ -22,7 +32,7 @@ describe("the generator produces layouts that can be built", () => {
 
   it.each(lengths)("passes every rule at %i inches of island", (islandLengthIn) => {
     for (const fridgeEnd of ["left", "back"] as const) {
-      const layout = built({ islandLengthIn, fridgeEnd });
+      const layout = built(kitchen(fridgeEnd, { islandLengthIn }));
       expect(
         checkLayout(layout.runs),
         `${islandLengthIn}" island, fridge ${fridgeEnd}`,
@@ -32,7 +42,7 @@ describe("the generator produces layouts that can be built", () => {
 
   it("adds every segment's cabinets up to the segment exactly", () => {
     for (const fridgeEnd of ["left", "back"] as const) {
-      for (const run of built({ fridgeEnd }).runs) {
+      for (const run of built(kitchen(fridgeEnd)).runs) {
         for (const segment of run.segments) {
           const built_ = segment.modules.reduce((sum, m) => sum + m.widthIn, 0);
           expect(built_, `${segment.id}`).toBeCloseTo(inches(segment.to - segment.from), 6);
@@ -93,13 +103,13 @@ describe("the island grows with its parameter", () => {
 
 describe("moving the refrigerator moves the sink with it", () => {
   it("finishes the left leg with the tower by default", () => {
-    const left = built({ fridgeEnd: "left" }).runs.find((r) => r.id === "left")!;
+    const left = built(kitchen("left")).runs.find((r) => r.id === "left")!;
     expect(left.segments[left.segments.length - 1].slot).toBe("slot-fridge");
   });
 
   // A 14ft wall will not take a range, a sink, a dishwasher and a 42" tower.
   it("finishes the back leg with the tower and moves the plumbing across", () => {
-    const layout = built({ fridgeEnd: "back" });
+    const layout = built(kitchen("back"));
     const back = layout.runs.find((r) => r.id === "back")!;
     const left = layout.runs.find((r) => r.id === "left")!;
     expect(back.segments[back.segments.length - 1].slot).toBe("slot-fridge");
@@ -109,8 +119,8 @@ describe("moving the refrigerator moves the sink with it", () => {
   });
 
   it("turns the appliances to face the leg they end up on", () => {
-    const onBack = built({ fridgeEnd: "back" }).slots;
-    const onLeft = built({ fridgeEnd: "left" }).slots;
+    const onBack = built(kitchen("back")).slots;
+    const onLeft = built(kitchen("left")).slots;
     expect(onLeft["slot-fridge"].rotationY).toBeCloseTo(Math.PI / 2, 6);
     expect(onBack["slot-fridge"].rotationY).toBeCloseTo(0, 6);
     expect(onBack["slot-dishwasher"].rotationY).toBeCloseTo(Math.PI / 2, 6);
@@ -118,7 +128,7 @@ describe("moving the refrigerator moves the sink with it", () => {
 
   it("keeps both legs inside the room whichever end the tower is at", () => {
     for (const fridgeEnd of ["left", "back"] as const) {
-      for (const run of built({ fridgeEnd }).runs) {
+      for (const run of built(kitchen(fridgeEnd)).runs) {
         const end = run.segments[run.segments.length - 1].to;
         const limit = run.axis === "x" ? ROOM.halfX : ROOM.halfZ;
         expect(end, `${run.id} leg, fridge ${fridgeEnd}`).toBeLessThanOrEqual(limit + 1e-9);
@@ -164,7 +174,7 @@ describe("what it refuses, and what it says", () => {
 describe("the canopy still lands where D13 puts it", () => {
   it("hangs over the range wherever the range is", () => {
     for (const fridgeEnd of ["left", "back"] as const) {
-      const slots = built({ fridgeEnd }).slots;
+      const slots = built(kitchen(fridgeEnd)).slots;
       expect(slots["slot-hood"].position[0]).toBeCloseTo(slots["slot-range"].position[0], 6);
       expect(slots["slot-hood"].position[2]).toBeCloseTo(slots["slot-range"].position[2], 6);
       expect(inches(slots["slot-hood"].position[1])).toBeGreaterThanOrEqual(

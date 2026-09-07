@@ -16,12 +16,13 @@ import type { FixtureId, SlotId } from "../types";
 export const ft = (inches: number) => inches / 12;
 
 /**
- * Room shell, in feet. A 14' x 12' kitchen with an L-shaped run against the
- * -X and -Z walls; the room opens toward the camera at +X / +Z.
+ * Room shell, in feet. A 14' x 12' kitchen by default, with an L-shaped run
+ * against the -X and -Z walls; the room opens toward the camera at +X / +Z.
  *
- * The depth is set by the island rather than by taste: a 24" run plus a 36"
- * island plus the 42" aisles either side of it is what a working kitchen needs,
- * and anything shallower puts the island within arm's reach of the range.
+ * `halfX` and `halfZ` are the two wall lengths, halved, and they are the one
+ * pair of values here that a parameter changes — `setRoomSize` is called by
+ * `applyLayout` so the shell, the camera framing and the plan all follow the
+ * walls the layout was generated for. Everything else is true of every kitchen.
  */
 export const ROOM = {
   halfX: 7,
@@ -40,6 +41,12 @@ export const ROOM = {
   tallTop: ft(96),
   toeKick: ft(4),
 };
+
+/** Set the room to the walls a layout was generated for, in inches. */
+export function setRoomSize(backWallIn: number, leftWallIn: number) {
+  ROOM.halfX = ft(backWallIn) / 2;
+  ROOM.halfZ = ft(leftWallIn) / 2;
+}
 
 /**
  * The dimensions a North American kitchen is actually built to.
@@ -120,6 +127,13 @@ export interface CabinetModule {
   widthIn: number;
   /** Present where the height is part of the code — wall and tall boxes. */
   heightIn?: number;
+  /**
+   * How far the box stands off the wall, where that is not the run's own depth.
+   * A lazy susan is a 36" square and reaches into both legs; a blind corner is
+   * a 42" box that is still only 24" deep, and drawing it square put a foot of
+   * cabinet out into the floor.
+   */
+  depthIn?: number;
   /** The appliance or fixture this module houses. */
   slot?: SlotId;
   fixture?: FixtureId;

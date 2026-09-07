@@ -6,7 +6,7 @@ import {
   type LayoutParams,
   type SlotPlacement,
 } from "./layoutTemplate";
-import { ft, type CabinetRun, type RunSegment } from "./roomShell";
+import { ft, setRoomSize, type CabinetRun, type RunSegment } from "./roomShell";
 import type { FixtureId, SlotId } from "../types";
 
 export * from "./roomShell";
@@ -71,6 +71,9 @@ export let FIXTURE_PLACEMENT: Record<FixtureId, SlotPlacement>;
 export function applyLayout(layout: GeneratedLayout, requested: LayoutParams, issues: string[]) {
   LAYOUT = layout;
   LAYOUT_PARAMS = layout.params;
+  // The shell follows the walls the layout was generated for, so the room, the
+  // camera framing and the plan cannot disagree about how big the kitchen is.
+  setRoomSize(layout.params.backWallIn, layout.params.leftWallIn);
   REQUESTED_PARAMS = requested;
   LAYOUT_ISSUES = issues;
 
@@ -105,34 +108,49 @@ export const spanOf = (s: RunSegment) => s.to - s.from;
 /**
  * The starting parameters, from the query string.
  *
- * `?island=96&fridge=back` still works and is what the screenshot runs use —
- * a link is a reproducible room, where a slider drag is not.
+ * Every parameter has a name there — `?island=96&fridge=back&corner=blind` —
+ * because a link is a reproducible room where a slider drag is not, and the
+ * screenshot runs need to ask for a particular kitchen without clicking.
  */
 function readParams(): { params: LayoutParams; issues: string[] } {
   if (typeof window === "undefined") return { params: DEFAULT_PARAMS, issues: [] };
 
   const query = new URLSearchParams(window.location.search);
-  const island = query.get("island");
-  const fridge = query.get("fridge");
+  const issues: string[] = [];
+  const params = { ...DEFAULT_PARAMS };
 
-  if (island !== null && !Number.isFinite(Number(island))) {
-    return { params: DEFAULT_PARAMS, issues: [`"${island}" is not a length.`] };
-  }
-  if (fridge !== null && fridge !== "left" && fridge !== "back") {
-    return {
-      params: DEFAULT_PARAMS,
-      issues: [`The refrigerator goes at the left end or the back end, not "${fridge}".`],
-    };
-  }
-
-  return {
-    params: {
-      ...DEFAULT_PARAMS,
-      islandLengthIn: island === null ? DEFAULT_PARAMS.islandLengthIn : Number(island),
-      fridgeEnd: fridge === "back" ? "back" : DEFAULT_PARAMS.fridgeEnd,
-    },
-    issues: [],
+  const number = (name: string, key: "backWallIn" | "leftWallIn" | "islandLengthIn" | "islandDepthIn" | "aisleIn") => {
+    const raw = query.get(name);
+    if (raw === null) return;
+    if (!Number.isFinite(Number(raw))) issues.push(`"${raw}" is not a length.`);
+    else params[key] = Number(raw);
   };
+  const choice = <K extends "fridgeEnd" | "sinkLeg" | "cornerType">(
+    name: string,
+    key: K,
+    allowed: readonly LayoutParams[K][],
+  ) => {
+    const raw = query.get(name) as LayoutParams[K] | null;
+    if (raw === null) return;
+    if (!allowed.includes(raw)) issues.push(`"${raw}" is not one of ${allowed.join(", ")}.`);
+    else params[key] = raw;
+  };
+
+  number("back", "backWallIn");
+  number("left", "leftWallIn");
+  number("island", "islandLengthIn");
+  number("islandDepth", "islandDepthIn");
+  number("aisle", "aisleIn");
+  choice("fridge", "fridgeEnd", ["left", "back"]);
+  choice("sink", "sinkLeg", ["left", "back"]);
+  choice("corner", "cornerType", ["lazy-susan", "blind"]);
+  if (query.get("island") === "none") {
+    params.hasIsland = false;
+    params.islandLengthIn = DEFAULT_PARAMS.islandLengthIn;
+    issues.length = 0;
+  }
+
+  return issues.length > 0 ? { params: DEFAULT_PARAMS, issues } : { params, issues: [] };
 }
 
 const requested = readParams();

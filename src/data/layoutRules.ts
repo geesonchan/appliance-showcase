@@ -8,6 +8,7 @@ import {
   ROOM,
   RUNS,
   type CabinetRun,
+  type IslandLayout,
   type RunSegment,
 } from "./room";
 import { SLOT_BY_ID } from "./slots";
@@ -117,6 +118,8 @@ export function checkLayout(
   runs: CabinetRun[] = RUNS,
   /** The models specified, when the check has them: rule 8 reads their drawings. */
   selection?: Partial<Record<SlotId, Appliance>>,
+  /** The island the runs were generated with, when checking a layout that is not the room. */
+  island: IslandLayout = ISLAND,
 ): LayoutViolation[] {
   const problems: LayoutViolation[] = [];
   const fail = (code: string, message: string) => problems.push({ code, message });
@@ -314,7 +317,9 @@ export function checkLayout(
     }
   }
 
-  // D11 rule 7: the island's two openings face opposite ways.
+  // D11 rule 7: the two openings face opposite ways. On an island that is what
+  // makes it work from both sides; with no island they land on different legs,
+  // which comes to the same thing.
   const microwave = SLOT_BY_ID["slot-microwave"];
   const wine = SLOT_BY_ID["slot-wine"];
   if (Math.abs(Math.cos(microwave.rotationY) - Math.cos(wine.rotationY)) < 1e-6) {
@@ -326,13 +331,17 @@ export function checkLayout(
       "the microwave drawer should face the working side and the wine cabinet the seating side",
     );
   }
-  const runFront = runs.find((r) => r.id === "back")!.centre + ROOM.counterDepth / 2;
-  const aisle = inches(ISLAND.z[0] - runFront);
-  if (aisle < LAYOUT_LIMITS.aisleIn - 1e-6) {
-    fail(
-      "d11-7",
-      `${aisle.toFixed(1)}" aisle between the island and the back run, needs ${LAYOUT_LIMITS.aisleIn}"`,
-    );
+  // The aisle is a fact about an island, so a kitchen without one has nothing
+  // to check here rather than a zero-inch aisle to complain about.
+  if (island.present) {
+    const runFront = runs.find((r) => r.id === "back")!.centre + ROOM.counterDepth / 2;
+    const aisle = inches(island.z[0] - runFront);
+    if (aisle < LAYOUT_LIMITS.aisleIn - 1e-6) {
+      fail(
+        "d11-7",
+        `${aisle.toFixed(1)}" aisle between the island and the back run, needs ${LAYOUT_LIMITS.aisleIn}"`,
+      );
+    }
   }
 
   problems.push(...checkHeights());

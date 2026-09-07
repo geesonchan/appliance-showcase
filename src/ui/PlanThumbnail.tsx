@@ -4,12 +4,6 @@ import { ROOM, SLOT_BY_ID, ft } from "../data/slots";
 import { useAppStore } from "../store/useAppStore";
 
 const PAD = 0.6;
-const W = ROOM.halfX * 2;
-const D = ROOM.halfZ * 2;
-
-/** World x/z to SVG coordinates. */
-const sx = (x: number) => x + ROOM.halfX + PAD;
-const sz = (z: number) => z + ROOM.halfZ + PAD;
 
 /**
  * A small top-down key showing where each appliance sits. Not the full plan
@@ -19,6 +13,14 @@ const sz = (z: number) => z + ROOM.halfZ + PAD;
 export function PlanThumbnail() {
   const selectedSlot = useAppStore((s) => s.selectedSlot);
   const selectSlot = useAppStore((s) => s.selectSlot);
+
+  // Read per render rather than once at import: the wall lengths are
+  // parameters now, and this component is remounted when they change.
+  const W = ROOM.halfX * 2;
+  const D = ROOM.halfZ * 2;
+  /** World x/z to SVG coordinates. */
+  const sx = (x: number) => x + ROOM.halfX + PAD;
+  const sz = (z: number) => z + ROOM.halfZ + PAD;
 
   return (
     <svg

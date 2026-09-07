@@ -1,5 +1,5 @@
 import { applianceBox } from "./applianceBox";
-import { CABINET_STANDARDS, ISLAND, ROOM, RUN_BY_ID, ft } from "./room";
+import { CABINET_STANDARDS, ISLAND, ROOM, RUNS, RUN_BY_ID, ft } from "./room";
 import { SLOT_BY_ID } from "./slots";
 import type { Appliance, SlotId } from "../types";
 
@@ -52,7 +52,7 @@ export function dimensionsFor(
   // In front of the run's face, so the lines are not buried in the cabinets.
   const plane = backRun.centre + ROOM.counterDepth / 2 + 0.35;
   // Left of the range opening, stepping outward so they read as a chain.
-  const rangeSegment = backRun.segments.find((s) => s.slot === "slot-range")!;
+  const rangeSegment = RUNS.flatMap((run) => run.segments).find((s) => s.slot === "slot-range")!;
   const at = (step: number) => rangeSegment.from - 0.5 - step * 1.5;
 
   const rangeAppliance = selection["slot-range"];
@@ -98,17 +98,27 @@ export function dimensionsFor(
       noteKey: "dimension.standard",
       noteVars: { value: upper.bottomAboveCounterIn },
     }),
-    // The aisle, measured on the floor between the run and the island.
-    {
-      id: "island-aisle",
-      labelAt: 0.5,
-      slots: ["slot-microwave", "slot-wine"],
-      from: [ISLAND.x[0] + 1, 0.03, backRun.centre + ROOM.counterDepth / 2],
-      to: [ISLAND.x[0] + 1, 0.03, ISLAND.z[0]],
-      valueIn: Number(
-        ((ISLAND.z[0] - backRun.centre - ROOM.counterDepth / 2) * 12).toFixed(3),
-      ),
-    },
+    // The aisle, measured on the floor between the run and the island. A room
+    // with no island has no aisle to dimension, so the figure is absent rather
+    // than zero.
+    ...(ISLAND.present
+      ? [
+          {
+            id: "island-aisle",
+            labelAt: 0.5,
+            slots: ["slot-microwave", "slot-wine"] as SlotId[],
+            from: [ISLAND.x[0] + 1, 0.03, backRun.centre + ROOM.counterDepth / 2] as [
+              number,
+              number,
+              number,
+            ],
+            to: [ISLAND.x[0] + 1, 0.03, ISLAND.z[0]] as [number, number, number],
+            valueIn: Number(
+              ((ISLAND.z[0] - backRun.centre - ROOM.counterDepth / 2) * 12).toFixed(3),
+            ),
+          },
+        ]
+      : []),
   ];
 
   // Nothing selected: the whole drawing. Looking at one appliance: only the
