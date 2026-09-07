@@ -88,13 +88,18 @@ export const SLOT_ORDER: SlotId[] = [
 /**
  * Whether a model can stand in the slot this package specifies.
  *
- * The same rule the fit check uses — the published cutout where there is one,
- * otherwise the body, and narrower is a filler rather than a refusal — asked of
- * the package's opening instead of the room's. A 36" range does not go in
- * package C's 30" hole; a 24" dishwasher goes in either package's 24" one.
+ * Three questions, and the third is the one that is easy to miss. The category
+ * has to match. The width has to fit, by the same rule the fit check uses — the
+ * published cutout where there is one, otherwise the body, and narrower is a
+ * filler rather than a refusal. And it has to install the way the package
+ * installs it: a built-in refrigerator is 36" wide and fits package C's 36"
+ * opening perfectly, and it is still the wrong machine, because package C
+ * leaves it standing at the end of a run with the finished sides it does not
+ * have.
  */
 export function suitsPackageSlot(appliance: Appliance, slot: PackageSlot): boolean {
   if (appliance.category !== slot.category) return false;
+  if (!appliance.installType.includes(slot.installType)) return false;
   const width = appliance.cutoutWidthIn ?? appliance.widthIn;
   return width === null || width <= slot.widthIn;
 }
@@ -103,10 +108,18 @@ export function suitsPackageSlot(appliance: Appliance, slot: PackageSlot): boole
  * The selection carried across a package change.
  *
  * By slot id, because the six slots do not change: a dishwasher stays a
- * dishwasher wherever it is specified from. What changes is whether the model
- * still fits the opening the new package leaves, and one that does not falls
- * back to that package's own default rather than being drawn overhanging its
- * cabinet.
+ * dishwasher wherever it is specified from. Two things stop one coming across.
+ *
+ * It may not fit what the new package leaves — a 36" range in a 30" opening, or
+ * a built-in refrigerator where the new package stands one at the end of a run
+ * with no panels. Those fall back to the new package's own default rather than
+ * being drawn overhanging their cabinet.
+ *
+ * And it may never have been chosen at all. A slot still sitting on the
+ * outgoing package's default was specified by that package, not by the
+ * customer, so it gives way to what the incoming one specifies — otherwise
+ * asking for package C shows you package A's dishwasher and calls it C. A
+ * deliberate swap is a different thing and does come across.
  *
  * With nothing to carry it also builds the opening selection, so there is one
  * function rather than two that have to agree.
@@ -114,14 +127,17 @@ export function suitsPackageSlot(appliance: Appliance, slot: PackageSlot): boole
 export function migrateSelection(
   entry: Package,
   current: Partial<Record<SlotId, string>> = {},
+  from?: Package,
 ): Record<SlotId, string> {
   const selection = {} as Record<SlotId, string>;
   for (const slot of entry.slots) {
-    const kept = current[slot.slotId] ? APPLIANCE_BY_ID[current[slot.slotId]!] : undefined;
+    const id = current[slot.slotId];
     const fallback = entry.defaultSelection[slot.slotId];
     if (!fallback) {
       throw new Error(`data/packages.json: ${entry.id} has no default for ${slot.slotId}`);
     }
+    const untouched = from ? from.defaultSelection[slot.slotId] === id : false;
+    const kept = id && !untouched ? APPLIANCE_BY_ID[id] : undefined;
     selection[slot.slotId] = kept && suitsPackageSlot(kept, slot) ? kept.id : fallback;
   }
   return selection;

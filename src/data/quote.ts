@@ -35,7 +35,7 @@ export interface QuoteLine {
 
 export interface Quote {
   generatedAt: string;
-  scheme: { id: string; nameKey: string };
+  package: { id: string; name: string };
   lines: QuoteLine[];
   /** The blower, when the hood needs one. Its own line, not folded into the hood. */
   blower: {
@@ -65,8 +65,15 @@ export interface Quote {
 }
 
 export interface QuoteInput {
-  schemeId: string;
-  schemeNameKey: string;
+  packageId: string;
+  /**
+   * The package's name, already in the reader's language.
+   *
+   * A name rather than a key, because a package's name is written in the data
+   * file in both languages rather than in the dictionary — it is the product's
+   * name, not the interface's copy.
+   */
+  packageName: string;
   slots: Slot[];
   selection: Record<SlotId, Appliance>;
   blower: Appliance | null;
@@ -120,7 +127,7 @@ export function buildQuote(input: QuoteInput): Quote {
 
   return {
     generatedAt: new Date().toISOString(),
-    scheme: { id: input.schemeId, nameKey: input.schemeNameKey },
+    package: { id: input.packageId, name: input.packageName },
     lines,
     blower:
       hoodNeedsBlower && blower
@@ -164,8 +171,8 @@ export function formatQuote(
   t: (key: string, vars?: Record<string, string | number>) => string,
 ): string {
   const out: string[] = [];
-  out.push(t(quote.scheme.nameKey));
-  out.push("=".repeat(t(quote.scheme.nameKey).length));
+  out.push(quote.package.name);
+  out.push("=".repeat(quote.package.name.length));
   out.push("");
 
   for (const line of quote.lines) {

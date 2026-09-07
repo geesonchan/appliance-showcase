@@ -235,7 +235,8 @@
       "sourceUrl": null,
       "verifiedAt": null,
       "installType": [
-        "wall-mount"
+        "wall-mount",
+        "chimney"
       ],
       "fuel": null,
       "blower": "integrated",

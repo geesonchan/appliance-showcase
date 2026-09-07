@@ -100,6 +100,7 @@ export function ApplianceModel({ slot, appliance }: ApplianceModelProps) {
           appliance={appliance}
           installType={appliance.installType}
           topDepthIn={hoodTopDepthIn(appliance, box.d * 12)}
+          baseY={def.position[1] + box.y}
           w={box.w}
           h={box.h}
           d={box.d}
@@ -226,6 +227,8 @@ interface BodyProps {
   installType: string[];
   /** Hoods only: the depth of the flat top of the wedge. */
   topDepthIn: number;
+  /** Where the appliance's own bottom sits above the floor, in feet. */
+  baseY: number;
   w: number;
   h: number;
   d: number;
@@ -243,7 +246,19 @@ interface BodyProps {
  * otherwise every model in the room is an inch or two bigger than its own spec
  * sheet, which is the number this whole app exists to be trusted about.
  */
-function Body({ category, appliance, installType, topDepthIn, w, h, d, body, trim, glass }: BodyProps) {
+function Body({
+  category,
+  appliance,
+  installType,
+  topDepthIn,
+  baseY,
+  w,
+  h,
+  d,
+  body,
+  trim,
+  glass,
+}: BodyProps) {
   /** How far a handle stands off the door face. */
   const grip = ft(1.5);
   const bar = ft(0.9);
@@ -270,6 +285,7 @@ function Body({ category, appliance, installType, topDepthIn, w, h, d, body, tri
       return (
         <Hood
           installType={installType}
+          baseY={baseY}
           topDepthIn={topDepthIn}
           w={w}
           h={h}
@@ -754,6 +770,7 @@ function IslandTrim({
 function Hood({
   installType,
   topDepthIn,
+  baseY,
   w,
   h,
   d,
@@ -762,6 +779,7 @@ function Hood({
 }: {
   installType: string[];
   topDepthIn: number;
+  baseY: number;
   w: number;
   h: number;
   d: number;
@@ -822,8 +840,11 @@ function Hood({
   }
 
   if (kind === "wall-mount" || kind === "chimney") {
-    // The duct cover runs from the top of the canopy to the ceiling.
-    const riser = ROOM.wallHeight - ROOM.counterHeight - ft(30) - h;
+    // The duct cover runs from the top of the canopy to the ceiling — measured
+    // from where the canopy actually is, which moves with the range under it.
+    // Assuming a 30" clearance over a 36" counter put it three quarters of an
+    // inch through the ceiling on a range whose cooking surface is higher.
+    const riser = Math.max(0, ROOM.wallHeight - baseY - h);
     return (
       <group>
         {body_}

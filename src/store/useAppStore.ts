@@ -1,6 +1,11 @@
 import { create } from "zustand";
-import { SCHEME } from "../data/catalogue";
-import { setLayoutParams } from "../data/layoutState";
+import {
+  APPLIANCE_BY_ID,
+  migrateBlower,
+  migrateSelection,
+} from "../data/catalogue";
+import { DEFAULT_PACKAGE, PACKAGE_BY_ID } from "../data/packages";
+import { setActivePackage, setLayoutParams } from "../data/layoutState";
 import type { LayoutParams, Refusal } from "../data/layoutTemplate";
 import { LAYOUT_ISSUES, REQUESTED_PARAMS } from "../data/room";
 import type { Lang, Lighting, RenderMode, SlotId, UtilityType } from "../types";
@@ -58,6 +63,13 @@ interface AppState {
   showDimensions: boolean;
   selectedSlot: SlotId | null;
   /** Which appliance fills each slot right now, by id. */
+  /**
+   * Which package the room is built to.
+   *
+   * It decides how wide every opening is, so it is upstream of the layout
+   * rather than beside it: changing it regenerates the room. See D16.
+   */
+  packageId: string;
   selection: Record<SlotId, string>;
   /**
    * The blower specified with the hood, or null. A blower is an accessory
@@ -105,6 +117,7 @@ interface AppState {
   selectSlot: (slot: SlotId | null) => void;
   selectAppliance: (slot: SlotId, applianceId: string) => void;
   selectBlower: (blowerId: string | null) => void;
+  setPackageId: (packageId: string) => void;
   resetView: () => void;
   requestZoom: (direction: 1 | -1) => void;
   setHelpOpen: (open: boolean) => void;
@@ -251,10 +264,11 @@ export const useAppStore = create<AppState>((set, get) => ({
   visibleUtilities: { gas: true, power: true, water: true, duct: true },
   showDimensions: true,
   selectedSlot: null,
-  // Starts from the scheme's default and is the single source of truth from
+  packageId: DEFAULT_PACKAGE.id,
+  // Starts from the package's default and is the single source of truth from
   // then on; the scene, the summary and the utility layers all read it.
-  selection: { ...SCHEME.defaultSelection } as Record<SlotId, string>,
-  blowerId: SCHEME.defaultBlower,
+  selection: migrateSelection(DEFAULT_PACKAGE),
+  blowerId: DEFAULT_PACKAGE.defaultBlower,
   resetToken: 0,
   zoomRequest: { token: 0, direction: 1 },
   helpOpen: false,
@@ -311,6 +325,38 @@ export const useAppStore = create<AppState>((set, get) => ({
   selectAppliance: (slot, applianceId) =>
     set((s) => ({ selection: { ...s.selection, [slot]: applianceId } })),
   selectBlower: (blowerId) => set({ blowerId }),
+
+  /**
+   * Change the package the room is built to.
+   *
+   * The room is regenerated first, because a package that will not fit the
+   * walls as they stand is refused and the switch does not happen — the same
+   * bargain a refused slider makes. What was chosen carries across by slot id:
+   * a dishwasher stays a dishwasher, and only a model that no longer fits the
+   * opening falls back to the new package's own default.
+   */
+  setPackageId: (packageId) => {
+    const entry = PACKAGE_BY_ID[packageId];
+    if (!entry?.available) return;
+
+    const result = setActivePackage(packageId);
+    if (!result.ok) {
+      set({ layoutIssues: result.reasons });
+      return;
+    }
+    set((s) => {
+      const selection = migrateSelection(entry, s.selection, PACKAGE_BY_ID[s.packageId]);
+      const hood = APPLIANCE_BY_ID[selection["slot-hood"]];
+      return {
+        packageId,
+        selection,
+        blowerId: migrateBlower(entry, hood, s.blowerId),
+        layoutIssues: [],
+        layoutVersion: s.layoutVersion + 1,
+        selectedSlot: null,
+      };
+    });
+  },
   resetView: () => set((s) => ({ resetToken: s.resetToken + 1, selectedSlot: null })),
   requestZoom: (direction) =>
     set((s) => ({ zoomRequest: { token: s.zoomRequest.token + 1, direction } })),

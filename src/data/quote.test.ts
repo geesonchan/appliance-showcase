@@ -29,8 +29,8 @@ function quoteOf(
     ...evaluateSlot(SLOT_BY_ID["slot-hood"], hood, context, "package"),
   ];
   return buildQuote({
-    schemeId: "test",
-    schemeNameKey: "scheme.01.name",
+    packageId: "test",
+    packageName: "Test package",
     slots: SLOTS,
     selection: picked,
     blower,

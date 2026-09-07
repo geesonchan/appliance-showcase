@@ -297,6 +297,14 @@ export const packageSchema = z
   .object({
     id: z.string().min(1),
     name: z.object({ en: z.string().min(1), zh: z.string().min(1) }),
+    /**
+     * What everyone calls it: A, B, C.
+     *
+     * The same in both languages, and short enough to be a control on a phone
+     * where the full name is not. It is how Leo refers to them and how the
+     * showroom does, so it is a field rather than the id with a prefix cut off.
+     */
+    code: z.string().min(1).max(2),
     /** Rank, 1 highest. The picker is ordered by it. */
     tier: z.number().int().positive(),
     /**

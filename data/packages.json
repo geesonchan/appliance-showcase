@@ -7,7 +7,11 @@
   "packages": [
     {
       "id": "package-a",
-      "name": { "en": "Signature", "zh": "旗舰" },
+      "name": {
+        "en": "Package A",
+        "zh": "套餐 A"
+      },
+      "code": "A",
       "tier": 1,
       "available": true,
       "slots": [
@@ -62,7 +66,11 @@
     },
     {
       "id": "package-b",
-      "name": { "en": "Professional", "zh": "专业" },
+      "name": {
+        "en": "Package B",
+        "zh": "套餐 B"
+      },
+      "code": "B",
       "tier": 2,
       "available": false,
       "slots": [],
@@ -71,7 +79,11 @@
     },
     {
       "id": "package-c",
-      "name": { "en": "Essential", "zh": "标准" },
+      "name": {
+        "en": "Package C",
+        "zh": "套餐 C"
+      },
+      "code": "C",
       "tier": 3,
       "available": true,
       "slots": [

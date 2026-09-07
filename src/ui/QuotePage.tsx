@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { SCHEME } from "../data/catalogue";
 import { formatInches, requiredOpening } from "../data/fit";
 import { formatPrice } from "../data/packageSummary";
 import { buildQuote, formatQuote, type Quote, type QuoteLine } from "../data/quote";
@@ -9,7 +8,7 @@ import { formatCfm } from "../data/ventilation";
 import { DEBUG } from "../debug";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
-import { useSelectedBlower, useSelection } from "../store/useSelection";
+import { useActivePackage, useSelectedBlower, useSelection } from "../store/useSelection";
 import type { Severity } from "../data/rules";
 
 const DOT: Record<Severity, string> = {
@@ -40,11 +39,12 @@ export function QuotePage() {
   const [raw, setRaw] = useState<"none" | "summary" | "json">("none");
 
   const hood = selection["slot-hood"];
+  const activePackage = useActivePackage();
   const quote = useMemo(
     () =>
       buildQuote({
-        schemeId: SCHEME.id,
-        schemeNameKey: SCHEME.nameKey,
+        packageId: activePackage.entry.id,
+        packageName: activePackage.name,
         slots: SLOTS,
         selection,
         blower,
@@ -52,7 +52,7 @@ export function QuotePage() {
         findings,
         t,
       }),
-    [selection, blower, hood, findings, t],
+    [activePackage, selection, blower, hood, findings, t],
   );
 
   const summary = useMemo(() => formatQuote(quote, t), [quote, t]);
@@ -90,7 +90,7 @@ export function QuotePage() {
 
   const mailto =
     "mailto:?subject=" +
-    encodeURIComponent(t("quote.subject", { scheme: t(SCHEME.nameKey) })) +
+    encodeURIComponent(t("quote.subject", { package: activePackage.name })) +
     "&body=" +
     encodeURIComponent(summary);
 
@@ -101,7 +101,7 @@ export function QuotePage() {
           <h1 className="truncate font-display text-[18px] leading-none text-accent">
             {t("quote.title")}
           </h1>
-          <p className="mt-1 truncate text-[11px] text-ink-muted">{t(SCHEME.nameKey)}</p>
+          <p className="mt-1 truncate text-[11px] text-ink-muted">{activePackage.name}</p>
         </div>
         <button
           type="button"

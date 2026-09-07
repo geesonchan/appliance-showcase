@@ -1,5 +1,7 @@
 import { afterAll, describe, expect, it } from "vitest";
+import { applianceBox } from "./applianceBox";
 import { CABINETS } from "./cabinets";
+import { APPLIANCE_BY_ID } from "./catalogue";
 import { checkLayout } from "./layoutRules";
 import { setActivePackage, setLayoutParams } from "./layoutState";
 import {
@@ -165,6 +167,18 @@ describe("a freestanding refrigerator stands on its own", () => {
       if (!setLayoutParams(params(over)).ok) continue;
       expect(fridgeBoxes(), `package-c ${JSON.stringify(over)}`).toEqual([]);
     }
+  });
+
+  it("fills no leftover round it, because there is no opening to fill", () => {
+    activate("package-c");
+    const slot = SLOT_BY_ID["slot-fridge"];
+    const appliance = APPLIANCE_BY_ID[PACKAGE_BY_ID["package-c"].defaultSelection["slot-fridge"]!];
+
+    // 84" of space and a 72" refrigerator: the twelve inches above it are the
+    // room, not a panel the cabinetmaker makes.
+    expect(slot.cutout.h).toBeGreaterThan(appliance.heightIn!);
+    const box = applianceBox(slot, appliance);
+    expect(box.filler).toEqual({ below: 0, above: 0, eachSide: 0 });
   });
 
   it("stops the wall cabinets at it and carries the toe kick past it, either way", () => {

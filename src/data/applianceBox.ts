@@ -57,15 +57,21 @@ export function applianceBox(slot: Slot, appliance: Appliance): ApplianceBox {
   const hung = slot.id === "slot-hood";
   const fromTop = hung || hangsFromTheTop(appliance);
 
+  // The leftover is only cabinetry where there is cabinetry. A full-height
+  // appliance the joiner does not build round — a refrigerator standing at the
+  // end of a counter — leaves no panel above it and no filler beside it: what
+  // is there is the room. See docs/decisions.md D16.
+  const standsAlone = slot.cabinetConfig.type === "tall";
+
   return {
     w,
     h,
     d,
     y: fromTop && !hung ? spareH : 0,
     filler: {
-      below: hung ? 0 : fromTop ? spareH : 0,
-      above: hung ? 0 : fromTop ? 0 : spareH,
-      eachSide: spareW / 2,
+      below: hung || standsAlone ? 0 : fromTop ? spareH : 0,
+      above: hung || standsAlone ? 0 : fromTop ? 0 : spareH,
+      eachSide: standsAlone ? 0 : spareW / 2,
     },
   };
 }

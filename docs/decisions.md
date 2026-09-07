@@ -567,3 +567,56 @@ derived value, "edit item 3" would have nowhere to write.
 read time; freezing or memoising it in a way that makes an edit meaningless;
 any code that assumes the current layout came from the generator rather than
 from a person.
+
+## D16 · A package is data, and it is the third half of a slot
+
+**The decision.** Which appliances a kitchen is specified with lives in
+`data/packages.json`, and the generator reads its slot list from there rather
+than knowing the six appliances by name. A package entry says, per slot: the
+category, the appliance's own width, how it installs, whether it is a
+full-height unit, and whether the cabinetmaker builds around it.
+
+**Why the slot has three halves now.** `data/slots.json` carries the product
+side — the label, the utility rough-ins, the best view — because that does not
+change when the model does: a 30" range and a 36" range want gas in the same
+place. `room.ts` carries the placement, because where a thing stands is scene
+construction. The package carries the size and the joinery, because that is
+most of what separates one package from another. Splitting them this way means
+a second package is a data file, not a branch.
+
+**The two flags that change the room rather than resize it.**
+
+`enclosure: false` is a full-height appliance standing on its own — a
+freestanding refrigerator at the end of a counter. No finished panel either
+side, no cabinet bridging over the top, the toe kick stops at it the way it
+already stopped at a freestanding range, and no filler panel above it: what is
+above it is the room. Its opening is the appliance's own width, where an
+enclosed one is the appliance plus a finished panel each side. Charging a
+freestanding unit for panels nobody ordered is how a wall comes out 6" short.
+
+`installType: "chimney"` takes the cabinet off the wall above the hood. An
+under-cabinet hood is screwed to the underside of one and the duct runs up
+inside it, so that box is structural. A chimney hood carries its own flue to
+the ceiling, and a cabinet over it would be a cabinet with a stainless duct
+through the middle of it. The D13 addendum still holds either way: the banks
+each side sit hard against the canopy's flanks.
+
+**Switching packages.** The room is regenerated first, and a package that will
+not fit the walls as they stand is refused and does not take — the same bargain
+a refused slider makes. A room drawn to one package while the data says another
+is a 30" range in a 36" hole.
+
+What was chosen carries across by slot id, because the six slots do not change.
+Two things stop a model coming across. It may not fit what the new package
+leaves — and that is not only width: a built-in refrigerator is exactly as wide
+as package C's opening and is still the wrong machine, because C stands it at
+the end of a run with the finished sides it does not have. And it may never
+have been chosen: a slot still sitting on the outgoing package's default was
+specified by that package, not by the customer, so it gives way to what the
+incoming one specifies. Otherwise asking for package C shows you package A's
+dishwasher and calls it C.
+
+**What it forbids:** a width, an install type or a piece of joinery written
+into the generator; a package that adds an appliance the template has nowhere
+to stand (that is a loud failure, not a silent omission); a package switch that
+leaves the carcass and the data disagreeing.

@@ -1,4 +1,5 @@
 import { SCHEME } from "../data/catalogue";
+import { useActivePackage } from "../store/useSelection";
 import { usePackageSummary } from "../data/packageSummary";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
@@ -29,6 +30,7 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
 export function RightPanel() {
   const t = useT();
   const summary = usePackageSummary();
+  const activePackage = useActivePackage();
 
   const lighting = useAppStore((s) => s.lighting);
   const setLighting = useAppStore((s) => s.setLighting);
@@ -98,7 +100,7 @@ export function RightPanel() {
 
       <PanelSection title={t("panel.package")}>
         {/* No total here: money lives on the quote page. See D12. */}
-        <SummaryRow label={t("panel.package.series")} value={t(SCHEME.nameKey)} />
+        <SummaryRow label={t("panel.package.series")} value={activePackage.name} />
         <SummaryRow
           label={t("panel.package.energy")}
           value={summary.energyKeys.map((key) => t(key)).join(" + ")}
