@@ -4,6 +4,7 @@ import { HelpDialog } from "./ui/HelpDialog";
 import { LeftPanel } from "./ui/LeftPanel";
 import { MobileSheet } from "./ui/MobileSheet";
 import { DimensionOverlay } from "./ui/DimensionOverlay";
+import { LayoutIssues } from "./ui/LayoutIssues";
 import { ModuleLabels } from "./ui/ModuleLabels";
 import { PinOverlay } from "./ui/PinOverlay";
 import { QuotePage } from "./ui/QuotePage";
@@ -71,6 +72,7 @@ export default function App() {
           <Scene />
           <PinOverlay />
           <DimensionOverlay />
+          <LayoutIssues />
           <ModuleLabels />
           <ModeSwitch />
           <SelectionCallout />

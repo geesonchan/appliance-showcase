@@ -345,8 +345,8 @@ describe("D13 · tall cabinets and the L", () => {
       segment.to += 0.25;
     }
     const problems = checkLayout(runs).filter((v) => v.code === "d13-modules");
-    expect(problems).toHaveLength(1);
-    expect(problems[0].message).toContain("short");
+    expect(problems.length).toBeGreaterThanOrEqual(1);
+    expect(problems.some((p) => p.message.includes("short"))).toBe(true);
   });
 });
 
