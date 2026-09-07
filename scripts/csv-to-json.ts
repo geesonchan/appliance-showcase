@@ -22,6 +22,7 @@ import {
   toBoolean,
   toBrand,
   toCompatibleBlowers,
+  toPublished,
   toDimension,
   toFinish,
   toFuel,
@@ -197,6 +198,7 @@ export function convert(
     const brand = toBrand(row.Brand ?? "");
     const model = (row.Model ?? "").trim();
     const id = toId(brand, model);
+    const published = toPublished(model);
 
     const voltage = Number(row.voltage) === 240 ? 240 : 120;
     const cfm = numberOrNull(row.cfm);
@@ -217,8 +219,11 @@ export function convert(
       compatibleBlowers: toCompatibleBlowers(category, model),
       topDepthIn: category === "hood" ? toDimension(row.topDepthIn ?? "") : null,
       widthIn,
-      heightIn: numberOrNull(row.Height),
-      depthIn: numberOrNull(row.Depth),
+      // The sheet first, then the manufacturer's drawing where one has been
+      // read: a shop records what it stocks, not what the machine looks like.
+      heightIn: numberOrNull(row.Height) ?? published.heightIn ?? null,
+      depthIn: numberOrNull(row.Depth) ?? published.depthIn ?? null,
+      burners: published.burners ?? null,
       cutoutWidthIn: numberOrNull(row.cutoutWidthIn),
       cutoutHeightIn: numberOrNull(row.cutoutHeightIn),
       cutoutDepthIn: numberOrNull(row.cutoutDepthIn),

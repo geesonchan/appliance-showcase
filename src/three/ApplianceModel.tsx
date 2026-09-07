@@ -3,8 +3,10 @@ import * as THREE from "three";
 import type { ThreeEvent } from "@react-three/fiber";
 import { applianceBox, flushOffset } from "../data/applianceBox";
 import { hoodProfile, hoodTopDepthIn } from "../data/hood";
+import { RANGE_PROPORTIONS, rangeParts } from "../data/rangeModel";
 import { CABINET_STANDARDS, ROOM, SLOT_BY_ID, ft } from "../data/slots";
 import { useAppStore } from "../store/useAppStore";
+import { useSelection } from "../store/useSelection";
 import type { Appliance, Category, SlotId } from "../types";
 import { SCENE_COLORS, finishSurface, surface, type SurfaceProps } from "./materials";
 
@@ -68,6 +70,7 @@ export function ApplianceModel({ slot, appliance }: ApplianceModelProps) {
       <group name={"appliance-body-" + slot} position={[0, box.y, dz]}>
         <Body
           category={appliance.category}
+          appliance={appliance}
           installType={appliance.installType}
           topDepthIn={hoodTopDepthIn(appliance, box.d * 12)}
           w={box.w}
@@ -83,6 +86,14 @@ export function ApplianceModel({ slot, appliance }: ApplianceModelProps) {
           </lineSegments>
         )}
       </group>
+
+      {/* Outside the body group on purpose: the height a range is sold at is
+          the height of its cooking surface, and the low back rail stands above
+          that line, exactly as it does on the drawing. Keeping it out here
+          leaves the body's bounding box equal to the published dimensions. */}
+      {appliance.category === "range" && (
+        <IslandTrim slot={slot} box={box} dz={dz} body={body} />
+      )}
 
       <Filler slot={slot} box={box} surface={cabinet} trim={trim} />
     </group>
@@ -181,6 +192,8 @@ function Mat({ s }: { s: SurfaceProps }) {
 
 interface BodyProps {
   category: Category;
+  /** The record itself: a range reads its own burner count off it. */
+  appliance: Appliance;
   installType: string[];
   /** Hoods only: the depth of the flat top of the wedge. */
   topDepthIn: number;
@@ -201,7 +214,7 @@ interface BodyProps {
  * otherwise every model in the room is an inch or two bigger than its own spec
  * sheet, which is the number this whole app exists to be trusted about.
  */
-function Body({ category, installType, topDepthIn, w, h, d, body, trim, glass }: BodyProps) {
+function Body({ category, appliance, installType, topDepthIn, w, h, d, body, trim, glass }: BodyProps) {
   /** How far a handle stands off the door face. */
   const grip = ft(1.5);
   const bar = ft(0.9);
@@ -245,46 +258,12 @@ function Body({ category, installType, topDepthIn, w, h, d, body, trim, glass }:
         </group>
       );
 
-    case "range": {
-      // The published height is to the top of the grates, so the carcass stops
-      // short and the grates bring it up to the number on the spec sheet.
-      const grate = ft(0.8);
-      const ch = h - grate;
+    case "range":
+      // A cooktop is a plate in a counter and stays one; a range is a machine
+      // with a front, and a customer reads that front.
       return (
-        <group>
-          <mesh position={[0, ch / 2, cz]} castShadow>
-            <boxGeometry args={[w, ch, cd]} />
-            <Mat s={body} />
-          </mesh>
-          <mesh position={[0, ch * 0.38, face]}>
-            <boxGeometry args={[w * 0.8, ch * 0.45, 0.01]} />
-            <Mat s={glass} />
-          </mesh>
-          <mesh position={[0, ch * 0.66, gripZ]}>
-            <boxGeometry args={[w * 0.92, bar, bar]} />
-            <Mat s={trim} />
-          </mesh>
-          {[-0.3, -0.1, 0.1, 0.3].map((k) => (
-            <mesh key={k} position={[w * k, ch * 0.88, face]} rotation={[Math.PI / 2, 0, 0]}>
-              <cylinderGeometry args={[ft(0.9), ft(0.9), ft(0.6), 16]} />
-              <Mat s={trim} />
-            </mesh>
-          ))}
-          {/* cast iron grates over four burners */}
-          {[
-            [-0.24, -0.22],
-            [0.24, -0.22],
-            [-0.24, 0.2],
-            [0.24, 0.2],
-          ].map(([bx, bz], i) => (
-            <mesh key={i} position={[w * bx, ch + grate / 2, cd * bz + cz]}>
-              <cylinderGeometry args={[ft(3.6), ft(3.6), grate, 6]} />
-              <Mat s={glass} />
-            </mesh>
-          ))}
-        </group>
+        <Range appliance={appliance} w={w} h={h} d={d} body={body} trim={trim} glass={glass} />
       );
-    }
 
     case "hood":
       return (
@@ -387,6 +366,221 @@ function Body({ category, installType, topDepthIn, w, h, d, body, trim, glass }:
         </mesh>
       );
   }
+}
+
+/**
+ * A pro-style range, drawn the way somebody standing in front of one sees it.
+ *
+ * Bottom to top: a black toe kick, a drawer front, the oven door with its
+ * window and tubular handle, the control fascia with its two banks of knobs
+ * either side of a display, then the deck and the cast-iron grates that bring
+ * the machine up to its published height. The arrangement comes from
+ * `rangeParts`, which is where it can be checked; this only draws it.
+ *
+ * A freestanding range has finished sides and stands on its own. A slide-in has
+ * neither: its sides are unfinished because cabinets close them in, and its
+ * cooktop laps an inch over the counter each side of the front.
+ */
+function Range({
+  appliance,
+  w,
+  h,
+  d,
+  body,
+  trim,
+  glass,
+}: {
+  appliance: Appliance;
+  w: number;
+  h: number;
+  d: number;
+  body: SurfaceProps;
+  trim: SurfaceProps;
+  glass: SurfaceProps;
+}) {
+  const parts = useMemo(() => rangeParts(appliance, { w, h, d }), [appliance, w, h, d]);
+  const { bands } = parts;
+  const iron = { ...glass, color: "#1C1E1C", metalness: 0.2, roughness: 0.7 };
+  const dark = { ...glass, color: "#151715", metalness: 0.1, roughness: 0.8 };
+
+  /** A panel on the front face, given a band and an inset from the sides. */
+  const front = (band: readonly [number, number], inset: number) => ({
+    y: (band[0] + band[1]) / 2,
+    height: band[1] - band[0],
+    width: w - inset * 2,
+  });
+
+  const carcassTop = bands.deck[1];
+  /**
+   * A manufacturer's depth is quoted with the handle on, so the carcass is set
+   * back by the handle's projection rather than the handle hung off the front.
+   * The cooktop keeps the full depth and overhangs the door, which is what a
+   * range does.
+   */
+  const grip = ft(1.5);
+  const bar = ft(1);
+  const carcassD = d - grip;
+  const carcassZ = -(d - carcassD) / 2;
+  const face = carcassZ + carcassD / 2 + 0.002;
+  const reveal = ft(0.125);
+  const door = front(bands.door, reveal);
+  const control = front(bands.control, reveal);
+  const plinth = front(bands.plinth, reveal);
+
+  return (
+    <group name="range">
+      {/* The carcass, up to the deck the grates sit on. */}
+      <mesh position={[0, bands.deck[0] / 2, carcassZ]} castShadow receiveShadow>
+        <boxGeometry args={[w, bands.deck[0], carcassD]} />
+        <Mat s={body} />
+      </mesh>
+      {/* The deck the grates stand on, at the full published depth: a range's
+          cooktop overhangs its door. */}
+      <mesh position={[0, (bands.deck[0] + bands.deck[1]) / 2, 0]} castShadow receiveShadow>
+        <boxGeometry args={[w, bands.deck[1] - bands.deck[0], d]} />
+        <Mat s={body} />
+      </mesh>
+
+      {/* Toe kick, set back so the machine reads as standing on legs. */}
+      <mesh position={[0, (bands.toe[0] + bands.toe[1]) / 2, carcassZ - ft(0.5)]}>
+        <boxGeometry args={[w - ft(0.5), bands.toe[1] - bands.toe[0], carcassD - ft(1)]} />
+        <Mat s={dark} />
+      </mesh>
+
+      {/* The drawer front between the toe kick and the oven door. */}
+      {plinth.height > ft(1) && (
+        <mesh position={[0, plinth.y, face]}>
+          <boxGeometry args={[plinth.width, plinth.height - reveal, ft(0.25)]} />
+          <Mat s={body} />
+        </mesh>
+      )}
+
+      {/* Oven door: a panel, a window, and a tubular handle across the top. */}
+      <mesh position={[0, door.y, face]}>
+        <boxGeometry args={[door.width, door.height - reveal, ft(0.25)]} />
+        <Mat s={body} />
+      </mesh>
+      <mesh position={[0, door.y - door.height * 0.06, face + ft(0.2)]}>
+        <boxGeometry args={[door.width * 0.82, door.height * 0.5, ft(0.1)]} />
+        <Mat s={glass} />
+      </mesh>
+      <mesh
+        position={[0, bands.door[1] - ft(1.5), d / 2 - bar / 2]}
+        rotation={[0, 0, Math.PI / 2]}
+      >
+        <cylinderGeometry args={[bar / 2, bar / 2, door.width * 0.94, 12]} />
+        <Mat s={trim} />
+      </mesh>
+
+      {/* Control fascia: two banks of knobs with the display between them. */}
+      <mesh position={[0, control.y, face]}>
+        <boxGeometry args={[control.width, control.height - reveal, ft(0.25)]} />
+        <Mat s={body} />
+      </mesh>
+      <mesh position={[parts.display.x, parts.display.y, face + ft(0.3)]}>
+        <boxGeometry args={[parts.display.w, parts.display.h, ft(0.1)]} />
+        <Mat s={dark} />
+      </mesh>
+      <group name="range-knobs">
+        {parts.knobs.map((knob, i) => (
+          <mesh
+            key={i}
+            name={`range-knob-${i}`}
+            position={[knob.x, knob.y, face + ft(0.5)]}
+            rotation={[Math.PI / 2, 0, 0]}
+          >
+            <cylinderGeometry args={[knob.r, knob.r * 0.86, ft(1), 16]} />
+            <Mat s={dark} />
+          </mesh>
+        ))}
+      </group>
+
+      {/* Cast iron over the burners, laid two deep with nothing between them
+          but a shadow line. Each grate carries its own bars, because a flat
+          black rectangle reads as a hole in the cooktop rather than a trivet. */}
+      <group name="range-grates">
+        {parts.grates.map((grate, i) => {
+          const gap = ft(RANGE_PROPORTIONS.grateGapIn);
+          const y = (bands.grate[0] + bands.grate[1]) / 2;
+          return (
+            <group key={i} name={`range-grate-${i}`} position={[grate.x, y, grate.z]}>
+              <mesh castShadow>
+                <boxGeometry args={[grate.w - gap, grate.h * 0.45, grate.d - gap]} />
+                <Mat s={iron} />
+              </mesh>
+              {[-0.28, 0, 0.28].map((t) => (
+                <mesh key={t} position={[0, grate.h * 0.225, grate.d * t]}>
+                  <boxGeometry args={[grate.w - gap, grate.h * 0.55, ft(0.6)]} />
+                  <Mat s={iron} />
+                </mesh>
+              ))}
+            </group>
+          );
+        })}
+      </group>
+
+      {/* Finished sides on a freestanding machine; a counter lap on a slide-in.
+          The side panels sit inside the envelope, because the width a range is
+          sold at is the width with its sides on. */}
+      {parts.sides === "finished" &&
+        [-1, 1].map((side) => (
+          <mesh
+            key={side}
+            position={[(side * (w - reveal)) / 2, bands.deck[0] / 2, carcassZ]}
+            castShadow
+          >
+            <boxGeometry args={[reveal, bands.deck[0], carcassD - ft(0.5)]} />
+            <Mat s={trim} />
+          </mesh>
+        ))}
+      {/* A slide-in laps its cooktop over the counter beside it. That lap is
+          outside the published depth on purpose: a slide-in's quoted depth is
+          the body, and the overhang is what makes it a slide-in. */}
+      {parts.counterLip && (
+        <mesh
+          position={[0, carcassTop - parts.counterLip.h / 2, d / 2 + parts.counterLip.d / 2]}
+        >
+          <boxGeometry args={[w, parts.counterLip.h, parts.counterLip.d]} />
+          <Mat s={body} />
+        </mesh>
+      )}
+    </group>
+  );
+}
+
+/**
+ * The low back rail behind the cooking surface.
+ *
+ * Three inches of finished steel, and the one part of a range that stands above
+ * the height it is sold at — which is why it is drawn outside the body group
+ * rather than inside the published envelope.
+ */
+function IslandTrim({
+  slot,
+  box,
+  dz,
+  body,
+}: {
+  slot: SlotId;
+  box: ReturnType<typeof applianceBox>;
+  dz: number;
+  body: SurfaceProps;
+}) {
+  const appliance = useSelection()[slot];
+  if (!appliance) return null;
+  const parts = rangeParts(appliance, box);
+  const depth = parts.islandTrim.d;
+
+  return (
+    <mesh
+      name={"appliance-trim-" + slot}
+      position={[0, box.y + box.h + parts.islandTrim.h / 2, dz - box.d / 2 + depth / 2]}
+      castShadow
+    >
+      <boxGeometry args={[box.w, parts.islandTrim.h, depth]} />
+      <Mat s={body} />
+    </mesh>
+  );
 }
 
 /**

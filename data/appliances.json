@@ -43,7 +43,8 @@
         "cfm": null,
         "makeupAirRequired": false
       },
-      "compatibleBlowers": []
+      "compatibleBlowers": [],
+      "burners": null
     },
     {
       "id": "bosch-shv78cm3n",
@@ -83,7 +84,8 @@
         "cfm": null,
         "makeupAirRequired": false
       },
-      "compatibleBlowers": []
+      "compatibleBlowers": [],
+      "burners": null
     },
     {
       "id": "bosch-shx78cm5n",
@@ -125,7 +127,8 @@
         "cfm": null,
         "makeupAirRequired": false
       },
-      "compatibleBlowers": []
+      "compatibleBlowers": [],
+      "burners": null
     },
     {
       "id": "ge-jvm3160rfss",
@@ -165,7 +168,8 @@
         "cfm": null,
         "makeupAirRequired": false
       },
-      "compatibleBlowers": []
+      "compatibleBlowers": [],
+      "burners": null
     },
     {
       "id": "maytag-mfes4030rs",
@@ -207,7 +211,8 @@
         "cfm": null,
         "makeupAirRequired": false
       },
-      "compatibleBlowers": []
+      "compatibleBlowers": [],
+      "burners": null
     },
     {
       "id": "thermador-hmcb30ws",
@@ -247,7 +252,8 @@
         "cfm": null,
         "makeupAirRequired": false
       },
-      "compatibleBlowers": []
+      "compatibleBlowers": [],
+      "burners": null
     },
     {
       "id": "thermador-hmwb361ws",
@@ -287,7 +293,8 @@
         "cfm": null,
         "makeupAirRequired": false
       },
-      "compatibleBlowers": []
+      "compatibleBlowers": [],
+      "burners": null
     },
     {
       "id": "thermador-md24bs",
@@ -327,7 +334,8 @@
         "cfm": null,
         "makeupAirRequired": false
       },
-      "compatibleBlowers": []
+      "compatibleBlowers": [],
+      "burners": null
     },
     {
       "id": "thermador-ph36hws",
@@ -374,7 +382,8 @@
         "VTI2FZ",
         "VTN2FZ",
         "VTN2DA"
-      ]
+      ],
+      "burners": null
     },
     {
       "id": "thermador-prg304wh",
@@ -392,8 +401,8 @@
       "fuel": "gas",
       "blower": null,
       "widthIn": 30,
-      "heightIn": null,
-      "depthIn": null,
+      "heightIn": 36.75,
+      "depthIn": 24.75,
       "cutoutWidthIn": null,
       "cutoutHeightIn": null,
       "cutoutDepthIn": null,
@@ -414,7 +423,8 @@
         "cfm": null,
         "makeupAirRequired": false
       },
-      "compatibleBlowers": []
+      "compatibleBlowers": [],
+      "burners": 4
     },
     {
       "id": "thermador-prg366wh",
@@ -432,8 +442,8 @@
       "fuel": "gas",
       "blower": null,
       "widthIn": 36,
-      "heightIn": null,
-      "depthIn": null,
+      "heightIn": 36.75,
+      "depthIn": 24.75,
       "cutoutWidthIn": 36,
       "cutoutHeightIn": 36.75,
       "cutoutDepthIn": 24,
@@ -454,7 +464,8 @@
         "cfm": null,
         "makeupAirRequired": false
       },
-      "compatibleBlowers": []
+      "compatibleBlowers": [],
+      "burners": 6
     },
     {
       "id": "thermador-t36bt120ns",
@@ -494,7 +505,8 @@
         "cfm": null,
         "makeupAirRequired": false
       },
-      "compatibleBlowers": []
+      "compatibleBlowers": [],
+      "burners": null
     },
     {
       "id": "thermador-t36ft820ns",
@@ -536,7 +548,8 @@
         "cfm": null,
         "makeupAirRequired": false
       },
-      "compatibleBlowers": []
+      "compatibleBlowers": [],
+      "burners": null
     },
     {
       "id": "thermador-t36it100np",
@@ -578,7 +591,8 @@
         "cfm": null,
         "makeupAirRequired": false
       },
-      "compatibleBlowers": []
+      "compatibleBlowers": [],
+      "burners": null
     },
     {
       "id": "thermador-vti2fz",
@@ -620,7 +634,8 @@
         "cfm": 1000,
         "makeupAirRequired": true
       },
-      "compatibleBlowers": []
+      "compatibleBlowers": [],
+      "burners": null
     },
     {
       "id": "thermador-vtn2fz",
@@ -662,7 +677,8 @@
         "cfm": 1000,
         "makeupAirRequired": true
       },
-      "compatibleBlowers": []
+      "compatibleBlowers": [],
+      "burners": null
     },
     {
       "id": "thermador-vtr2fz",
@@ -704,7 +720,8 @@
         "cfm": 1000,
         "makeupAirRequired": true
       },
-      "compatibleBlowers": []
+      "compatibleBlowers": [],
+      "burners": null
     },
     {
       "id": "zephyr-ak7136as-bf",
@@ -744,7 +761,8 @@
         "cfm": null,
         "makeupAirRequired": false
       },
-      "compatibleBlowers": []
+      "compatibleBlowers": [],
+      "burners": null
     },
     {
       "id": "zephyr-prw24c01cg",
@@ -784,7 +802,8 @@
         "cfm": null,
         "makeupAirRequired": false
       },
-      "compatibleBlowers": []
+      "compatibleBlowers": [],
+      "burners": null
     }
   ]
 }

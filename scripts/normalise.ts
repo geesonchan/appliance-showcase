@@ -433,6 +433,35 @@ export const COMPATIBLE_BLOWERS: Record<string, string[]> = {
   PH30HWS: ["VTR1FZ", "VTR2FZ", "VTI1FZ", "VTI2FZ", "VTN1DZ", "VTN2DA"],
 };
 
+/**
+ * What a manufacturer's drawing says and the shop's sheet does not.
+ *
+ * The inventory sheet carries what a shop stocks: brand, model, width, price.
+ * It does not carry the height of a range's carcass or how many burners are on
+ * it, because no buyer needs that to order one — but this app draws the machine,
+ * so it does. Same reasoning as the blower chart above and docs/decisions.md D4:
+ * a fact from a published drawing belongs in code with its source, not typed
+ * into a spreadsheet somebody else owns.
+ *
+ * Only models whose drawing has actually been read appear here. Anything else
+ * falls back to the sheet, and then to the opening it goes in.
+ *
+ * PRG366WH / PRG304WH: Thermador Pro Harmony spec sheet, page 1
+ * (docs/reference/prg366wh-spec.pdf).
+ */
+export const PUBLISHED_SPECS: Record<
+  string,
+  { heightIn?: number; depthIn?: number; burners?: number }
+> = {
+  PRG366WH: { heightIn: 36.75, depthIn: 24.75, burners: 6 },
+  PRG304WH: { heightIn: 36.75, depthIn: 24.75, burners: 4 },
+};
+
+/** The published figure for a model, where a drawing has been read. */
+export function toPublished(model: string) {
+  return PUBLISHED_SPECS[model.trim().toUpperCase()] ?? {};
+}
+
 /** The blowers a hood model accepts, or an empty list when nobody has checked. */
 export function toCompatibleBlowers(category: Category, model: string): string[] {
   if (category !== "hood") return [];

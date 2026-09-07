@@ -99,6 +99,12 @@ export const applianceSchema = z.object({
    * comes off. Null falls back to the 12" the clearance drawing shows.
    */
   topDepthIn: inches.nullable().default(null),
+  /**
+   * Ranges and cooktops: how many burners the machine has. What is on the
+   * front of a range is not decoration — a customer counts the knobs — so the
+   * number comes from the manufacturer's drawing rather than from the width.
+   */
+  burners: z.number().int().positive().nullable().default(null),
 
   /**
    * Width, or null for a blower. Everything else needs one, because the fit

@@ -157,6 +157,30 @@ describe("desktop", () => {
     await page.close();
   });
 
+  // Leo's check on the range: whatever is drawn on the front of it — knobs,
+  // door, grates — the machine standing in the room is the size the spec sheet
+  // says. The low back rail is the one thing above that line, and it is drawn
+  // outside the body for exactly that reason.
+  it("draws the range at the size its own record publishes", async () => {
+    const { page } = await openPage(DESKTOP, false, "?debug=1");
+    await page.waitForTimeout(1200);
+
+    const measured = await page.evaluate(
+      () =>
+        (
+          window as unknown as {
+            __applianceBoxes?: Record<string, { w: number; h: number; d: number }>;
+          }
+        ).__applianceBoxes?.["slot-range"],
+    );
+    expect(measured).toBeTruthy();
+    // Thermador PRG366WH: 36" x 36-3/4" x 24-3/4", from its own spec sheet.
+    expect(measured!.w).toBeCloseTo(36, 1);
+    expect(measured!.h).toBeCloseTo(36.75, 1);
+    expect(measured!.d).toBeCloseTo(24.75, 1);
+    await page.close();
+  });
+
   it("swaps a model in place and follows it everywhere", async () => {
     const { page, errors } = await openPage(DESKTOP, false, "?debug=1");
     // The measured geometry, which is the only proof the scene itself changed

@@ -29,3 +29,13 @@ They live in `CABINET_STANDARDS.hood` in `src/data/room.ts`, so the drawings
 arriving later can be checked against the code rather than the other way round.
 If a figure here turns out to disagree with the sheet, change the constant and
 the room rebuilds around it.
+
+## prg366wh-spec.pdf — not in the repository yet
+
+Leo's round-11 note points at `docs/reference/prg366wh-spec.pdf` page 1 for the
+Thermador Pro Harmony range. The file has not been added, so the figures used
+are the ones written out in that note: 36" x 36-3/4" x 24-3/4", six burners in
+three columns of two, a 3" island trim, eight knobs across the fascia, and a
+door taking about 60% of the front. They are in `PUBLISHED_SPECS` in
+`scripts/normalise.ts` and in `RANGE_PROPORTIONS` in `src/data/rangeModel.ts`.
+Drop the PDF in and they can be checked against it.

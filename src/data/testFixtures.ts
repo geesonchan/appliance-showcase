@@ -24,6 +24,7 @@ export function appliance(overrides: Partial<Appliance> & { id: string }): Appli
     blower: null,
     compatibleBlowers: [],
     topDepthIn: null,
+    burners: null,
     widthIn: 36,
     heightIn: 36,
     depthIn: 24,
