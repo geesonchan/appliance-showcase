@@ -69,8 +69,10 @@ export function Scene() {
         <UtilityLayer type="water" />
         <UtilityLayer type="duct" />
         <OcclusionFade />
-        <PinProjector />
+        {/* Order matters: the dimension figures are placed first and the
+            pins avoid wherever they landed. */}
         <DimensionProjector />
+        <PinProjector />
         <SceneDebug />
         <ModuleLabelProjector />
       </Suspense>

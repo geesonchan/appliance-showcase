@@ -2,13 +2,13 @@ import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 import { SLOT_ORDER } from "../data/catalogue";
-import { applianceBox, flushOffset } from "../data/applianceBox";
 import { DEBUG } from "../debug";
 import { SLOT_BY_ID } from "../data/slots";
 import { useSelection } from "../store/useSelection";
 import type { SlotId } from "../types";
 import { pinAnchors } from "./pinAnchor";
 import { pinElements } from "./pinRegistry";
+import { dimensionRects, projectRects, useApplianceCorners } from "./keepOut";
 import { clampPins, layoutPins, type KeepOut } from "./pinLayout";
 
 /** How far back along the view axis the occlusion ray starts, in feet. */
@@ -95,32 +95,7 @@ export function PinProjector() {
     [selection],
   );
 
-  /**
-   * The appliances' own footprints on screen, which no label may cover. Rebuilt
-   * with the anchors, since both come from the same boxes.
-   */
-  const keepOutCorners = useMemo(
-    () =>
-      SLOT_ORDER.map((slotId) => {
-        const slot = SLOT_BY_ID[slotId];
-        const appliance = selection[slotId];
-        if (!appliance) return [];
-        const box = applianceBox(slot, appliance);
-        const dz = flushOffset(slot, box.d);
-        const points: THREE.Vector3[] = [];
-        for (const sx of [-0.5, 0.5]) {
-          for (const sy of [0, 1]) {
-            for (const sz of [-0.5, 0.5]) {
-              const local = new THREE.Vector3(sx * box.w, box.y + sy * box.h, dz + sz * box.d);
-              local.applyAxisAngle(new THREE.Vector3(0, 1, 0), slot.rotationY);
-              points.push(local.add(new THREE.Vector3(...slot.position)));
-            }
-          }
-        }
-        return points;
-      }),
-    [selection],
-  );
+  const keepOutCorners = useApplianceCorners(selection);
   const raycaster = useMemo(() => new THREE.Raycaster(), []);
   const occluded = useRef(new Set<SlotId>());
   const frame = useRef(0);
@@ -134,6 +109,7 @@ export function PinProjector() {
     () => SLOT_ORDER.map(() => ({ x: 0, y: 0, dotX: 0, dotY: 0, w: 0, h: 0, hidden: true })),
     [],
   );
+  const appliances = useMemo<KeepOut[]>(() => [], []);
 
   useFrame(() => {
     frame.current += 1;
@@ -155,30 +131,11 @@ export function PinProjector() {
       camera.getWorldDirection(forward);
     }
 
-    // Where each appliance sits on screen, so no label lands on one.
-    const keepOut: KeepOut[] = [];
-    for (const points of keepOutCorners) {
-      if (points.length === 0) continue;
-      let minX = Infinity;
-      let maxX = -Infinity;
-      let minY = Infinity;
-      let maxY = -Infinity;
-      for (const point of points) {
-        projected.copy(point).project(camera);
-        const px = (projected.x * 0.5 + 0.5) * size.width;
-        const py = (-projected.y * 0.5 + 0.5) * size.height;
-        minX = Math.min(minX, px);
-        maxX = Math.max(maxX, px);
-        minY = Math.min(minY, py);
-        maxY = Math.max(maxY, py);
-      }
-      keepOut.push({
-        x: (minX + maxX) / 2,
-        y: (minY + maxY) / 2,
-        w: maxX - minX,
-        h: maxY - minY,
-      });
-    }
+    // Where each appliance sits on screen, plus wherever the dimension figures
+    // ended up: the figures are tied to the geometry they measure, so the pins
+    // are what gives way.
+    projectRects(keepOutCorners, camera, size.width, size.height, projected, appliances);
+    const keepOut = appliances.concat(dimensionRects);
 
     for (let i = 0; i < anchors.length; i += 1) {
       const { slotId, candidates } = anchors[i];
