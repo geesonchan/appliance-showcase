@@ -30,6 +30,15 @@ export const RANGE_PROPORTIONS = {
   islandTrimIn: 3,
   /** A slide-in laps this far over the counter each side of its front. */
   counterLipIn: 1,
+  /** Knobs are 2-1/4" across on a Thermador Pro Harmony, and stainless. */
+  knobDiameterIn: 2.25,
+  /** The oven handle: a 1-1/4" tube on two brackets, near the door's width. */
+  handleDiameterIn: 1.25,
+  handleFractionOfDoor: 0.9,
+  /** The window in the oven door, as a fraction of the door's height. */
+  windowFraction: 0.4,
+  /** The stainless band between the fascia and the door. */
+  bandIn: 1,
   /** Grates are laid two deep, in as many columns as that takes. */
   grateRows: 2,
   /** Stainless left showing round the edge of the deck. */
@@ -150,12 +159,18 @@ export function rangeParts(
   const knobs: RangeParts["knobs"] = [];
   const count = knobCount(burners);
   const perSide = count / 2;
-  const r = Math.min(ft(0.85), control / 2.6);
+  // A knob is the size the drawing says, unless the fascia is too shallow to
+  // take one — a 30" range has the same 2-1/4" knobs as a 36".
+  const r = Math.min(ft(P.knobDiameterIn / 2), control / 2.4);
   const centreY = (bands.control[0] + bands.control[1]) / 2;
   const displayW = box.w * 0.16;
   for (const side of [-1, 1]) {
-    const from = side * (displayW / 2 + ft(0.75));
-    const to = side * (box.w / 2 - ft(1));
+    // Three quarters of an inch of steel between the display and the first
+    // knob, measured to the knob's edge.
+    const from = side * (displayW / 2 + ft(0.75) + r);
+    // An inch of steel outside the last knob, measured to its edge rather than
+    // its centre: a knob half over the side of the machine is not a knob.
+    const to = side * (box.w / 2 - ft(1) - r);
     for (let i = 0; i < perSide; i += 1) {
       const t = perSide === 1 ? 0.5 : i / (perSide - 1);
       knobs.push({ x: from + (to - from) * t, y: centreY, r });

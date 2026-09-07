@@ -400,6 +400,8 @@ function Range({
 }) {
   const parts = useMemo(() => rangeParts(appliance, { w, h, d }), [appliance, w, h, d]);
   const { bands } = parts;
+  // Cast iron is nearly matte and nearly black; the oven window is glass over
+  // a dark cavity. The rest of the machine is the steel it is sold as.
   const iron = { ...glass, color: "#1C1E1C", metalness: 0.2, roughness: 0.7 };
   const dark = { ...glass, color: "#151715", metalness: 0.1, roughness: 0.8 };
 
@@ -418,7 +420,6 @@ function Range({
    * range does.
    */
   const grip = ft(1.5);
-  const bar = ft(1);
   const carcassD = d - grip;
   const carcassZ = -(d - carcassD) / 2;
   const face = carcassZ + carcassD / 2 + 0.002;
@@ -435,10 +436,11 @@ function Range({
         <Mat s={body} />
       </mesh>
       {/* The deck the grates stand on, at the full published depth: a range's
-          cooktop overhangs its door. */}
+          cooktop overhangs its door. Steel, not black — the black on a pro
+          range is the cast iron sitting on it. */}
       <mesh position={[0, (bands.deck[0] + bands.deck[1]) / 2, 0]} castShadow receiveShadow>
         <boxGeometry args={[w, bands.deck[1] - bands.deck[0], d]} />
-        <Mat s={body} />
+        <Mat s={trim} />
       </mesh>
 
       {/* Toe kick, set back so the machine reads as standing on legs. */}
@@ -460,15 +462,45 @@ function Range({
         <boxGeometry args={[door.width, door.height - reveal, ft(0.25)]} />
         <Mat s={body} />
       </mesh>
-      <mesh position={[0, door.y - door.height * 0.06, face + ft(0.2)]}>
-        <boxGeometry args={[door.width * 0.82, door.height * 0.5, ft(0.1)]} />
+      <mesh position={[0, door.y - door.height * 0.04, face + ft(0.2)]}>
+        <boxGeometry
+          args={[
+            door.width * 0.78,
+            door.height * RANGE_PROPORTIONS.windowFraction,
+            ft(0.1),
+          ]}
+        />
         <Mat s={glass} />
       </mesh>
-      <mesh
-        position={[0, bands.door[1] - ft(1.5), d / 2 - bar / 2]}
-        rotation={[0, 0, Math.PI / 2]}
-      >
-        <cylinderGeometry args={[bar / 2, bar / 2, door.width * 0.94, 12]} />
+
+      {/* The handle: a tube on two brackets, the way one is actually mounted.
+          Hanging a bar straight off the door face is what makes an appliance
+          look like a fridge magnet of itself. */}
+      {(() => {
+        const handleR = ft(RANGE_PROPORTIONS.handleDiameterIn / 2);
+        const handleY = bands.door[1] - ft(2);
+        const length = door.width * RANGE_PROPORTIONS.handleFractionOfDoor;
+        const bracketZ = (face + (d / 2 - handleR)) / 2;
+        return (
+          <group name="range-handle">
+            <mesh position={[0, handleY, d / 2 - handleR]} rotation={[0, 0, Math.PI / 2]}>
+              <cylinderGeometry args={[handleR, handleR, length, 14]} />
+              <Mat s={trim} />
+            </mesh>
+            {[-1, 1].map((side) => (
+              <mesh key={side} position={[(side * length) / 2, handleY, bracketZ]}>
+                <boxGeometry args={[handleR * 1.4, handleR * 1.4, d / 2 - handleR - face]} />
+                <Mat s={trim} />
+              </mesh>
+            ))}
+          </group>
+        );
+      })()}
+
+      {/* The band between the fascia and the door, which is what stops the
+          front of a pro range reading as one flat sheet. */}
+      <mesh position={[0, bands.door[1] + ft(RANGE_PROPORTIONS.bandIn) / 2, face + ft(0.15)]}>
+        <boxGeometry args={[w, ft(RANGE_PROPORTIONS.bandIn), ft(0.3)]} />
         <Mat s={trim} />
       </mesh>
 
@@ -489,8 +521,8 @@ function Range({
             position={[knob.x, knob.y, face + ft(0.5)]}
             rotation={[Math.PI / 2, 0, 0]}
           >
-            <cylinderGeometry args={[knob.r, knob.r * 0.86, ft(1), 16]} />
-            <Mat s={dark} />
+            <cylinderGeometry args={[knob.r, knob.r * 0.88, ft(1.1), 18]} />
+            <Mat s={trim} />
           </mesh>
         ))}
       </group>

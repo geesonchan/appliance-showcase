@@ -152,3 +152,33 @@ describe("the range in the catalogue", () => {
     expect(surface).toBeCloseTo(ft(36.75), 9);
   });
 });
+
+describe("the front reads like the drawing", () => {
+  it("gives the knobs the diameter the sheet publishes", () => {
+    for (const widthIn of [30, 36]) {
+      const range = proRange({ widthIn, burners: widthIn >= 36 ? 6 : 4 });
+      for (const knob of parts(range).knobs) {
+        expect(inches(knob.r * 2), `${widthIn}"`).toBeCloseTo(
+          RANGE_PROPORTIONS.knobDiameterIn,
+          6,
+        );
+      }
+    }
+  });
+
+  it("spaces each bank of knobs evenly", () => {
+    const { knobs } = parts(proRange({ burners: 6 }));
+    for (const side of [-1, 1]) {
+      const bank = knobs.filter((k) => Math.sign(k.x) === side).map((k) => k.x).sort();
+      const steps = bank.slice(1).map((x, i) => x - bank[i]);
+      for (const step of steps) expect(step).toBeCloseTo(steps[0], 9);
+    }
+  });
+
+  it("leaves the display between the two banks, touching neither", () => {
+    const { knobs, display } = parts(proRange({ burners: 6 }));
+    for (const knob of knobs) {
+      expect(Math.abs(knob.x) - knob.r).toBeGreaterThan(display.w / 2);
+    }
+  });
+});
