@@ -14,7 +14,8 @@
  * controls and the four corners of the parameter set; SET=round10 for the sink
  * rule, the corner pair and a wall slider being argued with; SET=round11 for
  * the materials, the lighting and the finish picker; SET=round12 for the six
- * visual corrections and the mode-switch timing.
+ * visual corrections and the mode-switch timing; SET=round13 for the accent
+ * run, the redrawn refrigerator and the counter cut through at the range.
  */
 import { mkdir } from "node:fs/promises";
 import { chromium } from "playwright";
@@ -415,9 +416,46 @@ async function captureRound12(page) {
   await page.screenshot({ path: `${outDir}/mobile-mode-switch.png` });
 }
 
+/** Round 13: the accent run, the refrigerator, the range, and a wood kitchen. */
+async function captureRound13(page) {
+  await page.goto(`${baseUrl}?accentRun=island&accent=oak`, { waitUntil: "networkidle" });
+  await settle(page, 2400);
+  await page.screenshot({ path: `${outDir}/mobile-accent-island.png` });
+
+  for (const [name, match] of [
+    ["fridge", /Refrigerator/],
+    ["range", /Range/],
+  ]) {
+    await page.goto(baseUrl, { waitUntil: "networkidle" });
+    await settle(page, 2400);
+    await flyTo(page, match);
+    await settle(page, 1500);
+    await page.screenshot({ path: `${outDir}/mobile-${name}.png` });
+  }
+
+  await page.goto(`${baseUrl}?cabinet=oak`, { waitUntil: "networkidle" });
+  await settle(page, 2400);
+  await page.screenshot({ path: `${outDir}/mobile-oak.png` });
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round13") {
+    const ctx = await browser.newContext({
+      viewport: MOBILE,
+      deviceScaleFactor: 2,
+      isMobile: true,
+      hasTouch: true,
+    });
+    const page = await ctx.newPage();
+    await captureRound13(page);
+    await ctx.close();
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round12") {
     const ctx = await browser.newContext({

@@ -51,10 +51,14 @@ describe("panel-ready appliances wear the cabinet's door", () => {
     }
   });
 
+  // The white model and the install view show no grain — but the slot stays
+  // filled with a blank so the shader is the same one, which is what keeps a
+  // mode switch from recompiling every material in the room.
   it("goes back to plain shading in the modes that have no materials", () => {
     for (const mode of ["white", "install"] as const) {
       const front = finish(mode, "wood-oak");
-      expect(front.map, mode).toBeUndefined();
+      expect(front.map, mode).toBe("blank");
+      expect(front.color, mode).not.toBe(FINISHES["wood-oak"].color);
     }
   });
 });
