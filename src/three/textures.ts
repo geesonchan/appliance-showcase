@@ -36,11 +36,41 @@ export type TextureKind =
 
 const cache = new Map<string, THREE.Texture>();
 
+/**
+ * The part of a 2D context these textures use.
+ *
+ * Named rather than taken from the DOM, so a test can pass something that
+ * records the strokes instead of drawing them — which is the only way to ask
+ * "is marble different from quartz, and is either of them more than a flat
+ * colour" without a canvas to rasterise onto.
+ */
+export interface Ink {
+  fillStyle: string;
+  strokeStyle: string;
+  lineWidth: number;
+  lineCap?: CanvasLineCap;
+  fillRect(x: number, y: number, w: number, h: number): void;
+  beginPath(): void;
+  moveTo(x: number, y: number): void;
+  lineTo(x: number, y: number): void;
+  quadraticCurveTo(cx: number, cy: number, x: number, y: number): void;
+  ellipse(
+    x: number,
+    y: number,
+    rx: number,
+    ry: number,
+    rotation: number,
+    from: number,
+    to: number,
+  ): void;
+  stroke(): void;
+}
+
 function canvas(size: number) {
   const element = document.createElement("canvas");
   element.width = size;
   element.height = size;
-  return { element, ctx: element.getContext("2d")! };
+  return { element, ctx: element.getContext("2d")! as unknown as Ink };
 }
 
 /**
@@ -50,8 +80,7 @@ function canvas(size: number) {
  * fridge door shows a band of reflection rather than a blur. Fine horizontal
  * streaks in the red channel tilt the normal side to side and do exactly that.
  */
-function brushedNormal(size: number) {
-  const { element, ctx } = canvas(size);
+export function brushedNormal(ctx: Ink, size: number) {
   const next = random(7);
   ctx.fillStyle = "#8080ff";
   ctx.fillRect(0, 0, size, size);
@@ -67,7 +96,6 @@ function brushedNormal(size: number) {
     ctx.lineTo(x + length, y);
     ctx.stroke();
   }
-  return element;
 }
 
 /**
@@ -83,8 +111,7 @@ function brushedNormal(size: number) {
  * way rotates the map rather than getting a texture of its own — which is how a
  * door frame runs one way and the panel inside it runs the other.
  */
-function oak(size: number, dark: boolean) {
-  const { element, ctx } = canvas(size);
+export function oak(ctx: Ink, size: number, dark: boolean) {
   const next = random(dark ? 21 : 13);
   const tones = dark
     ? ["#B08A5E", "#9C7448", "#87613C", "#A67F53"]
@@ -136,51 +163,106 @@ function oak(size: number, dark: boolean) {
       }
     }
   }
-  return element;
 }
 
-/** Marble: a pale ground with veins running across it. */
-function marble(size: number) {
-  const { element, ctx } = canvas(size);
+/**
+ * Marble: a warm white ground with two or three big veins across it.
+ *
+ * The scale is the point. Marble reads as marble because a vein crosses the
+ * whole slab in one sweep, half an inch wide, with a soft edge and finer
+ * branches running off it — not because the surface is speckled. That is
+ * quartz, and drawing both as noise is why the two came out looking the same.
+ *
+ * Each vein is drawn three times: a wide pale pass for the bleed into the
+ * stone, a narrower mid pass, and a thin dark line down the middle. That is
+ * what a soft edge is, without a blur to do it with.
+ */
+export function marble(ctx: Ink, size: number) {
   const next = random(31);
-  ctx.fillStyle = "#F2F1EC";
+  ctx.fillStyle = "#F4F1EA";
   ctx.fillRect(0, 0, size, size);
 
-  for (let i = 0; i < 14; i += 1) {
-    const width = next() < 0.3 ? 2.4 : 1;
-    ctx.strokeStyle = `rgba(120,124,126,${0.1 + next() * 0.28})`;
-    ctx.lineWidth = width;
-    ctx.beginPath();
-    let x = -size * 0.1;
-    let y = next() * size;
-    ctx.moveTo(x, y);
-    while (x < size * 1.1) {
-      x += size * (0.05 + next() * 0.1);
-      y += (next() - 0.5) * size * 0.22;
-      ctx.lineTo(x, y);
+  /** One vein, wandering from one edge of the tile to the other. */
+  const vein = (
+    from: { x: number; y: number },
+    slope: number,
+    width: number,
+    ink: string,
+    depth: number,
+  ) => {
+    let { x, y } = from;
+    const step = size / 7;
+    const points: { x: number; y: number }[] = [{ x, y }];
+    while (x < size * 1.2) {
+      x += step;
+      y += step * slope + (next() - 0.5) * size * 0.09;
+      points.push({ x, y });
     }
-    ctx.stroke();
+    // Three passes, widest and palest first: the bleed, the body, the line.
+    for (const [scale, alpha] of [
+      [3.2, 0.1],
+      [1.7, 0.22],
+      [1, 0.42],
+    ]) {
+      ctx.strokeStyle = `rgba(${ink},${alpha * depth})`;
+      ctx.lineWidth = Math.max(0.6, width * scale);
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length - 1; i += 1) {
+        const mid = {
+          x: (points[i].x + points[i + 1].x) / 2,
+          y: (points[i].y + points[i + 1].y) / 2,
+        };
+        ctx.quadraticCurveTo(points[i].x, points[i].y, mid.x, mid.y);
+      }
+      ctx.stroke();
+    }
+    return points;
+  };
+
+  // Two or three main veins, running diagonally and well apart, each half an
+  // inch wide at a foot of stone per two feet of tile.
+  const main = 2 + Math.floor(next() * 2);
+  const wide = size / 24;
+  for (let i = 0; i < main; i += 1) {
+    const spine = vein(
+      { x: -size * 0.2, y: size * (0.15 + (i / main) * 0.7) },
+      0.35 + next() * 0.5,
+      wide,
+      "108,110,112",
+      1,
+    );
+    // Finer branches, leaving the spine at a shallower angle.
+    for (let b = 0; b < 3; b += 1) {
+      const at = spine[1 + Math.floor(next() * (spine.length - 2))];
+      vein(at, -0.2 + next() * 0.9, wide * 0.3, "126,128,130", 0.75);
+    }
   }
-  return element;
 }
 
-/** Engineered quartz: near-white with a fine speckle, and no veining. */
-function quartz(size: number) {
-  const { element, ctx } = canvas(size);
+/**
+ * Engineered quartz: a solid ground with a fine even speckle and no veining.
+ *
+ * Speckle is what quartz is: crushed stone in resin, the same all over, with
+ * no direction and no feature bigger than a grain. Nothing here is wider than a
+ * sixteenth of an inch at the scale the counter is drawn.
+ */
+export function quartz(ctx: Ink, size: number) {
   const next = random(5);
   ctx.fillStyle = "#EFEEE8";
   ctx.fillRect(0, 0, size, size);
-  for (let i = 0; i < size * 8; i += 1) {
-    const shade = Math.floor(190 + next() * 55);
-    ctx.fillStyle = `rgba(${shade},${shade},${shade - 6},${0.25 + next() * 0.4})`;
-    ctx.fillRect(next() * size, next() * size, 1 + next(), 1 + next());
+  // A sixteenth of an inch at three feet of counter per tile.
+  const grain = Math.max(1, size / 576);
+  for (let i = 0; i < size * 14; i += 1) {
+    const shade = Math.floor(196 + next() * 52);
+    ctx.fillStyle = `rgba(${shade},${shade},${shade - 8},${0.3 + next() * 0.45})`;
+    ctx.fillRect(next() * size, next() * size, grain, grain);
   }
-  return element;
 }
 
 /** Square tile with a grout line, for the splash behind the range. */
-function tile(size: number) {
-  const { element, ctx } = canvas(size);
+export function tile(ctx: Ink, size: number) {
   const cells = 4;
   const cell = size / cells;
   ctx.fillStyle = "#CFCCC2";
@@ -192,7 +274,6 @@ function tile(size: number) {
       ctx.fillRect(x * cell + inset, y * cell + inset, cell - inset * 2, cell - inset * 2);
     }
   }
-  return element;
 }
 
 /**
@@ -204,19 +285,20 @@ function tile(size: number) {
  * every cabinet in the room. A white pixel multiplies to nothing and a flat
  * normal perturbs nothing, so the picture is the same and the program is too.
  */
-function flat(size: number, colour: string) {
-  const { element, ctx } = canvas(size);
-  ctx.fillStyle = colour;
-  ctx.fillRect(0, 0, size, size);
-  return element;
+function flat(colour: string) {
+  return (ctx: Ink, size: number) => {
+    ctx.fillStyle = colour;
+    ctx.fillRect(0, 0, size, size);
+  };
 }
 
-const DRAW: Record<TextureKind, (size: number) => HTMLCanvasElement> = {
-  blank: () => flat(1, "#ffffff"),
-  "blank-normal": () => flat(1, "#8080ff"),
+/** What draws each map. Exported so a test can run one against a recorder. */
+export const DRAW: Record<TextureKind, (ctx: Ink, size: number) => void> = {
+  blank: flat("#ffffff"),
+  "blank-normal": flat("#8080ff"),
   "brushed-normal": brushedNormal,
-  oak: (size) => oak(size, false),
-  "oak-floor": (size) => oak(size, true),
+  oak: (ctx, size) => oak(ctx, size, false),
+  "oak-floor": (ctx, size) => oak(ctx, size, true),
   marble,
   quartz,
   tile,
@@ -234,7 +316,10 @@ export function texture(kind: TextureKind, size: number): THREE.Texture {
   const found = cache.get(key);
   if (found) return found;
 
-  const made = new THREE.CanvasTexture(DRAW[kind](size));
+  const px = kind === "blank" || kind === "blank-normal" ? 1 : size;
+  const { element, ctx } = canvas(px);
+  DRAW[kind](ctx, px);
+  const made = new THREE.CanvasTexture(element);
   made.wrapS = THREE.RepeatWrapping;
   made.wrapT = THREE.RepeatWrapping;
   made.anisotropy = 4;

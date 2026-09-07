@@ -122,19 +122,23 @@ export const FINISHES: Record<FinishToken, Omit<SurfaceProps, "transparent" | "o
     normalScale: 0.3,
   },
   "wood-oak": { color: "#FFFFFF", metalness: 0, roughness: 0.62, map: "oak", repeatFt: 2 },
+  // Quartz is duller than marble, and that is half of what separates them by
+  // eye. The other half is that one has a grain and the other has veins.
   "quartz-white": {
     color: "#FFFFFF",
     metalness: 0.02,
-    roughness: 0.28,
+    roughness: 0.35,
     map: "quartz",
     repeatFt: 3,
   },
+  // A vein has to cross a whole counter to read as one, so the tile is big:
+  // twelve feet of stone to a tile, which is most of a run.
   "marble-veined": {
     color: "#FFFFFF",
     metalness: 0.02,
-    roughness: 0.22,
+    roughness: 0.2,
     map: "marble",
-    repeatFt: 5,
+    repeatFt: 12,
   },
   "tile-white": { color: "#FFFFFF", metalness: 0.03, roughness: 0.35, map: "tile", repeatFt: 1 },
   "floor-oak": { color: "#FFFFFF", metalness: 0, roughness: 0.72, map: "oak-floor", repeatFt: 4 },
