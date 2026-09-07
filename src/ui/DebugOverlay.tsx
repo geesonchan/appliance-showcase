@@ -59,6 +59,8 @@ function useModeSwitchTiming() {
 function DebugPanel() {
   const fps = useFps();
   const modeSwitchMs = useModeSwitchTiming();
+  const quality = useAppStore((s) => s.quality);
+  const sceneFps = useAppStore((s) => s.fps);
 
   return (
     <div className="pointer-events-none absolute bottom-20 left-3 z-50 rounded border border-line bg-[rgba(31,42,34,0.88)] px-2.5 py-1.5 font-mono text-[10px] leading-[1.5] text-[#F7F5EF]">
@@ -70,6 +72,12 @@ function DebugPanel() {
         <span className="tabular-nums">
           {modeSwitchMs === null ? "—" : `${modeSwitchMs} ms`}
         </span>
+      </div>
+      {/* The tier the quality guard settled on, and the frame rate it settled
+          on it from — which is the render loop's own count, not this panel's. */}
+      <div data-quality={quality}>
+        quality <span>{quality}</span>{" "}
+        <span className="tabular-nums opacity-60">({sceneFps} fps in scene)</span>
       </div>
     </div>
   );
