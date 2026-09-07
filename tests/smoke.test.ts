@@ -56,6 +56,28 @@ async function openPage(viewport: typeof DESKTOP, isMobile = false, query = "") 
   return { page, errors };
 }
 
+/**
+ * Wait for the fly-in to arrive, rather than for a number of milliseconds.
+ *
+ * The fade is recalculated as the camera moves, and on the way to an appliance
+ * the camera passes through angles where things stand in the sight line that
+ * do not stand in it when it arrives. Sampling at a fixed delay asserted about
+ * whichever frame the machine happened to be on — which passed on a quiet
+ * machine and failed on a busy one, for no difference in the app.
+ */
+async function settled(page: Page, ms = 500, limit = 12_000) {
+  const read = () =>
+    page.evaluate(() => ((window as unknown as { __faded?: string[] }).__faded ?? []).join("|"));
+  const deadline = Date.now() + limit;
+  let last = await read();
+  while (Date.now() < deadline) {
+    await page.waitForTimeout(ms);
+    const now = await read();
+    if (now === last) return;
+    last = now;
+  }
+}
+
 const pinOpacities = (page: Page) =>
   page.$$eval("button[style*='position: absolute']", (els) =>
     els.map((el) => getComputedStyle(el).opacity),
@@ -445,7 +467,7 @@ describe("occlusion fade", () => {
     // The microwave drawer faces the perimeter: the island's own counter
     // overhangs it, whatever angle you arrive at.
     await page.getByRole("button", { name: /^05 Microwave/ }).first().click();
-    await page.waitForTimeout(1600);
+    await settled(page);
     const hidden = (await faded())!;
     expect(hidden).toContain("island-counter");
     // The appliance's own enclosure is never in its own way.
@@ -453,13 +475,13 @@ describe("occlusion fade", () => {
 
     // Everything comes back when the room does.
     await page.getByRole("button", { name: "Reset view" }).click();
-    await page.waitForTimeout(1300);
+    await settled(page);
     expect(await faded()).toEqual([]);
 
     // Another slot fades a different set, and never its own enclosure: the
     // check is targeted, not "dim the room whenever a slot is open".
     await page.getByRole("button", { name: /^01 Refrigerator/ }).first().click();
-    await page.waitForTimeout(1600);
+    await settled(page);
     const forFridge = (await faded())!;
     expect(forFridge).not.toEqual(hidden);
     expect(forFridge).not.toContain("island-counter");

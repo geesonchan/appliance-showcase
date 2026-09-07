@@ -274,9 +274,14 @@ function islandBoxes(): Omit<CabinetBox, "run">[] {
     },
     {
       // Behind the microwave, on the seating side.
+      //
+      // Part of that appliance's own enclosure, and it says so: an appliance's
+      // own joinery must never count as something standing in its way, or
+      // flying to the microwave fades the box the microwave is sitting in.
       id: "island-behind-microwave",
       outline: "island",
       kind: "base",
+      slot: "slot-microwave",
       position: [
         mid(ISLAND.microwave),
         BASE_BOX[1] / 2,
@@ -289,10 +294,11 @@ function islandBoxes(): Omit<CabinetBox, "run">[] {
       ],
     },
     {
-      // Behind the wine cabinet, on the working side.
+      // Behind the wine cabinet, on the working side. Its enclosure too.
       id: "island-behind-wine",
       outline: "island",
       kind: "base",
+      slot: "slot-wine",
       position: [
         mid(ISLAND.wine),
         BASE_BOX[1] / 2,
