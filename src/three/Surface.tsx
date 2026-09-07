@@ -42,8 +42,12 @@ export function Surface({
   const [alongFt, acrossFt] = size ?? [0, 0];
   const maps = useMemo(() => {
     const repeat = s.repeatFt ?? 1;
+    // A stone can tile differently along a surface and across it: a countertop
+    // is a long narrow piece cut out of a slab, and what shows on it is the
+    // couple of feet the cut passed through.
+    const repeatAcross = s.repeatAcrossFt ?? repeat;
     const along = size ? Math.max(0.25, alongFt / repeat) : 1;
-    const across = size ? Math.max(0.25, acrossFt / repeat) : 1;
+    const across = size ? Math.max(0.25, acrossFt / repeatAcross) : 1;
 
     // Each mesh gets its own clone: repeat is per-surface, and a shared texture
     // would let the last cabinet drawn set the grain size for all of them.
@@ -66,7 +70,7 @@ export function Surface({
       normalMap: s.normalMap ? make(s.normalMap) : null,
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [s.map, s.normalMap, s.repeatFt, px, alongFt, acrossFt, rotate]);
+  }, [s.map, s.normalMap, s.repeatFt, s.repeatAcrossFt, px, alongFt, acrossFt, rotate]);
 
   return (
     <meshStandardMaterial

@@ -62,14 +62,37 @@ const strokes = (kind: TextureKind) => record(kind).ops.filter((op) => op.kind =
 const fills = (kind: TextureKind) => record(kind).ops.filter((op) => op.kind === "fill");
 
 describe("marble and quartz are different stones", () => {
-  it("draws marble as a few long veins, not as noise", () => {
+  it("draws marble as veins that cross the slab, not as noise", () => {
     const veins = strokes("marble");
     expect(veins.length, "marble draws nothing").toBeGreaterThan(0);
-    // Every pass crosses most of the tile: that is what makes it a vein.
-    const long = veins.filter((v) => v.h > 256 * 0.8);
-    expect(long.length, "no vein crosses the slab").toBeGreaterThan(0);
-    // And some of them are wide, which is the bleed either side of the line.
-    expect(Math.max(...veins.map((v) => v.w))).toBeGreaterThan(256 / 24);
+
+    // A vein is walked in short segments so its width can change along it, so
+    // "does it cross the slab" is the sum of a run rather than one stroke.
+    const travelled = veins.reduce((sum, v) => sum + v.h, 0);
+    expect(travelled, "nothing crosses the slab").toBeGreaterThan(256 * 3);
+
+    // Its width varies: a line of one width is a drawn line, not a vein.
+    const widths = new Set(veins.map((v) => v.w.toFixed(3)));
+    expect(widths.size, "every stroke is the same width").toBeGreaterThan(20);
+
+    // And there is clouding under it — strokes far wider than any vein.
+    expect(Math.max(...veins.map((v) => v.w))).toBeGreaterThan(256 * 0.1);
+  });
+
+  // Warm grey with brown in it, never a neutral grey and never black: it is
+  // what separates a marble from a photocopy of one.
+  it("keeps the veining warm rather than neutral", () => {
+    const inks = strokes("marble")
+      .map((v) => v.style.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/))
+      .filter((m): m is RegExpMatchArray => m !== null)
+      .map((m) => [Number(m[1]), Number(m[2]), Number(m[3])] as const);
+
+    expect(inks.length).toBeGreaterThan(0);
+    for (const [r, g, b] of inks) {
+      expect(r, "vein is not warm").toBeGreaterThan(b);
+      expect(g).toBeGreaterThan(b);
+      expect(Math.min(r, g, b), "vein is nearly black").toBeGreaterThan(60);
+    }
   });
 
   it("draws quartz as fine grain, with nothing crossing it", () => {

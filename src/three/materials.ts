@@ -75,8 +75,17 @@ export interface SurfaceProps {
   /** Colour map, when the surface has one. */
   map?: TextureKind;
   normalMap?: TextureKind;
-  /** How many feet of room one tile of the map covers. */
+  /** How many feet of room one tile of the map covers, along the surface. */
   repeatFt?: number;
+  /**
+   * And across it, where that differs.
+   *
+   * A countertop is a long narrow piece cut out of a slab, and what you see on
+   * it is the couple of feet of stone the cut passed through. Tiling a
+   * twelve-foot square onto a two-foot-deep band shows a sixth of the pattern
+   * and usually none of the veins — which is why the marble came out blank.
+   */
+  repeatAcrossFt?: number;
   normalScale?: number;
 }
 
@@ -138,7 +147,10 @@ export const FINISHES: Record<FinishToken, Omit<SurfaceProps, "transparent" | "o
     metalness: 0.02,
     roughness: 0.2,
     map: "marble",
+    // Twelve feet along the run, two and a half across it: the proportions of
+    // the piece the fabricator actually cuts.
     repeatFt: 12,
+    repeatAcrossFt: 2.5,
   },
   "tile-white": { color: "#FFFFFF", metalness: 0.03, roughness: 0.35, map: "tile", repeatFt: 1 },
   "floor-oak": { color: "#FFFFFF", metalness: 0, roughness: 0.72, map: "oak-floor", repeatFt: 4 },
@@ -172,6 +184,7 @@ export function finish(
       map: spec.map ? "blank" : undefined,
       normalMap: spec.normalMap ? "blank-normal" : undefined,
       repeatFt: spec.repeatFt,
+      repeatAcrossFt: spec.repeatAcrossFt,
     };
   }
   return {
@@ -179,6 +192,7 @@ export function finish(
     map: spec.map,
     normalMap: spec.normalMap,
     repeatFt: spec.repeatFt,
+    repeatAcrossFt: spec.repeatAcrossFt,
     normalScale: spec.normalScale,
   };
 }

@@ -9,7 +9,7 @@ are no image files in the repository, and nothing is fetched from a CDN.
 | --- | --- | --- | --- |
 | `brushed-normal` | Horizontal streaks in a normal map, so stainless catches a band of reflection rather than a blur | Drawn on a canvas in `brushedNormal()` | Original, MIT with this repository |
 | `oak` / `oak-floor` | Warm bands with grain lines wandering along them | `oak()` | Original |
-| `marble` | Pale ground with veins struck across it | `marble()` | Original |
+| `marble` | Warm off-white with clouding, one or two tapering veins and their branches | `marble()` | Original |
 | `quartz` | Near-white with a fine speckle and no veining | `quartz()` | Original |
 | `tile` | A four-by-four grid with a grout line | `tile()` | Original |
 
@@ -21,6 +21,41 @@ on a desktop, 256px on a phone or after the frame-rate guard steps in.
 `RoomEnvironment` from `three/examples/jsm/environments/`, filtered through
 `PMREMGenerator`. It ships with three.js under the same MIT licence as the
 library, so it is a dependency rather than an asset.
+
+## What marble actually looks like
+
+Before redrawing the marble I looked at Calacatta and Statuario photographs on
+Pexels — search results only, nothing downloaded, nothing in this repository.
+Six or seven slabs across two searches
+(`pexels.com/search/calacatta marble`, `pexels.com/search/statuario marble texture`).
+What they have in common, in the order the eye takes it in:
+
+1. **The ground is not white.** It is a warm off-white, and it has slow,
+   low-contrast clouding through it. That clouding is what stops a slab reading
+   as a painted board before you have even noticed a vein.
+2. **One vein dominates.** Occasionally two. It crosses the whole slab, corner
+   to corner, in a long curve — never straight, never turning a corner.
+3. **Its width changes along its length, and both ends taper to nothing.** A
+   vein that starts and stops at full width reads as a drawn line, which is
+   exactly what this app's first attempt looked like.
+4. **There is a halo.** The same colour, much fainter and several times wider,
+   bleeding into the stone either side of the vein.
+5. **Branches leave at a shallow angle** — twenty to forty degrees — each
+   shorter and finer than the last, often clustered rather than evenly spaced.
+6. **The colour is warm.** Statuario runs cool grey, Calacatta runs gold-taupe;
+   both have brown in them. Neither is a neutral grey and neither is black.
+
+The generator in `textures.ts` is built to those six points, and
+`textures.test.ts` holds it to the ones that can be stated as numbers: the
+veining crosses the tile, its width varies, and the ink is warmer than it is
+blue.
+
+**One consequence worth recording.** A countertop is a long narrow piece cut out
+of a slab, so the pattern on it is the couple of feet of stone the cut passed
+through — not a square metre of it squashed onto a band. That is why the marble
+finish tiles twelve feet along a run and two and a half across it, and why a
+first attempt at a square twelve-foot tile came out looking blank: it was
+showing a sixth of the pattern and usually none of the veins.
 
 ## Why not photographs
 

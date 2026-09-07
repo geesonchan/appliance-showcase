@@ -166,79 +166,182 @@ export function oak(ctx: Ink, size: number, dark: boolean) {
 }
 
 /**
- * Marble: a warm white ground with two or three big veins across it.
+ * Marble, drawn the way a Calacatta or a Statuario slab actually looks.
  *
- * The scale is the point. Marble reads as marble because a vein crosses the
- * whole slab in one sweep, half an inch wide, with a soft edge and finer
- * branches running off it — not because the surface is speckled. That is
- * quartz, and drawing both as noise is why the two came out looking the same.
+ * Observed from photographs rather than invented; the notes are in
+ * docs/reference/assets.md. What matters, in the order the eye takes it in:
  *
- * Each vein is drawn three times: a wide pale pass for the bleed into the
- * stone, a narrower mid pass, and a thin dark line down the middle. That is
- * what a soft edge is, without a blur to do it with.
+ * - The ground is not white. It is a warm off-white with slow, low-contrast
+ *   clouding through it, and the clouding is what stops a slab reading as a
+ *   painted board before you have even noticed a vein.
+ * - There is one dominant vein, occasionally two, and it crosses the whole
+ *   slab. It is not straight and it does not turn corners; it is a long curve.
+ * - Its width changes along its length, and both ends taper away to nothing.
+ *   A vein that starts and stops at full width reads as a drawn line.
+ * - Around it there is a halo — the same colour, much fainter and much wider,
+ *   bleeding into the stone.
+ * - Branches leave it at a shallow angle, twenty to forty degrees, each shorter
+ *   and finer than the one before.
+ * - The colour is warm: grey with brown in it, never a neutral grey and never
+ *   black.
+ *
+ * Everything is drawn three times, offset by a tile width each way, so a vein
+ * running off one edge arrives on the other and the tile has no seam.
  */
+
+/** A point on a cubic bezier. */
+function bezier(
+  p0: [number, number],
+  p1: [number, number],
+  p2: [number, number],
+  p3: [number, number],
+  t: number,
+): [number, number] {
+  const u = 1 - t;
+  const a = u * u * u;
+  const b = 3 * u * u * t;
+  const c = 3 * u * t * t;
+  const d = t * t * t;
+  return [
+    a * p0[0] + b * p1[0] + c * p2[0] + d * p3[0],
+    a * p0[1] + b * p1[1] + c * p2[1] + d * p3[1],
+  ];
+}
+
 export function marble(ctx: Ink, size: number) {
   const next = random(31);
-  ctx.fillStyle = "#F4F1EA";
-  ctx.fillRect(0, 0, size, size);
+  /** A twelve-foot tile, so an inch of stone is this many pixels. */
+  const inch = size / (12 * 12);
+  // Warm grey with brown in it. Darker than it looks written down: a Calacatta
+  // vein is plainly darker than the stone around it from across a room, and a
+  // vein you have to go looking for is a vein nobody drew.
+  const warm = (alpha: number) => `rgba(96,86,74,${alpha})`;
+  const pale = (alpha: number) => `rgba(132,123,110,${alpha})`;
 
-  /** One vein, wandering from one edge of the tile to the other. */
-  const vein = (
-    from: { x: number; y: number },
-    slope: number,
-    width: number,
-    ink: string,
-    depth: number,
-  ) => {
-    let { x, y } = from;
-    const step = size / 7;
-    const points: { x: number; y: number }[] = [{ x, y }];
+  ctx.fillStyle = "#F5F2EB";
+  ctx.fillRect(0, 0, size, size);
+  ctx.lineCap = "round";
+
+  /** Slow clouding: very wide, very faint strokes wandering across the slab. */
+  for (let i = 0; i < 7; i += 1) {
+    ctx.strokeStyle = `rgba(196,190,180,${0.05 + next() * 0.05})`;
+    ctx.lineWidth = size * (0.12 + next() * 0.16);
+    ctx.beginPath();
+    let x = -size * 0.2;
+    let y = next() * size;
+    ctx.moveTo(x, y);
     while (x < size * 1.2) {
-      x += step;
-      y += step * slope + (next() - 0.5) * size * 0.09;
-      points.push({ x, y });
+      const cx = x + size * 0.2;
+      const cy = y + (next() - 0.5) * size * 0.3;
+      x += size * 0.4;
+      y += (next() - 0.5) * size * 0.35;
+      ctx.quadraticCurveTo(cx, cy, x, y);
     }
-    // Three passes, widest and palest first: the bleed, the body, the line.
-    for (const [scale, alpha] of [
-      [3.2, 0.1],
-      [1.7, 0.22],
-      [1, 0.42],
-    ]) {
-      ctx.strokeStyle = `rgba(${ink},${alpha * depth})`;
-      ctx.lineWidth = Math.max(0.6, width * scale);
-      ctx.lineCap = "round";
-      ctx.beginPath();
-      ctx.moveTo(points[0].x, points[0].y);
-      for (let i = 1; i < points.length - 1; i += 1) {
-        const mid = {
-          x: (points[i].x + points[i + 1].x) / 2,
-          y: (points[i].y + points[i + 1].y) / 2,
-        };
-        ctx.quadraticCurveTo(points[i].x, points[i].y, mid.x, mid.y);
+    ctx.stroke();
+  }
+
+  /**
+   * One vein: a bezier walked in short segments, each stroked at its own
+   * width. That is the only way to get a line that swells in the middle and
+   * fades to nothing at both ends — a single stroke has one width.
+   */
+  function vein(
+    from: [number, number],
+    to: [number, number],
+    widthIn: number,
+    ink: (alpha: number) => string,
+    strength: number,
+    depth: number,
+  ) {
+    const bend = size * (0.18 + next() * 0.22);
+    const p1: [number, number] = [
+      from[0] + (to[0] - from[0]) * 0.3,
+      from[1] + (to[1] - from[1]) * 0.3 - bend,
+    ];
+    const p2: [number, number] = [
+      from[0] + (to[0] - from[0]) * 0.7,
+      from[1] + (to[1] - from[1]) * 0.7 + bend * 0.7,
+    ];
+
+    const steps = 40;
+    const points: [number, number][] = [];
+    for (let i = 0; i <= steps; i += 1) points.push(bezier(from, p1, p2, to, i / steps));
+
+    // The halo first, then the vein: wide and faint under narrow and dark.
+    for (const [spread, alpha] of [
+      [6, 0.14],
+      [2.4, 0.3],
+      [1, 0.78],
+    ] as const) {
+      for (let i = 1; i < points.length; i += 1) {
+        const t = i / steps;
+        // Thin at both ends, fattest around the middle, wobbling as it goes.
+        const taper = Math.sin(Math.PI * t) ** 0.55;
+        const wobble = 0.7 + 0.6 * Math.sin(t * 9 + depth);
+        ctx.strokeStyle = ink(alpha * strength);
+        ctx.lineWidth = Math.max(0.4, widthIn * inch * taper * wobble * spread);
+        // Three passes across the tile, so nothing stops at an edge.
+        for (const shift of [-size, 0, size]) {
+          ctx.beginPath();
+          ctx.moveTo(points[i - 1][0] + shift, points[i - 1][1]);
+          ctx.lineTo(points[i][0] + shift, points[i][1]);
+          ctx.stroke();
+        }
       }
-      ctx.stroke();
     }
     return points;
-  };
+  }
 
-  // Two or three main veins, running diagonally and well apart, each half an
-  // inch wide at a foot of stone per two feet of tile.
-  const main = 2 + Math.floor(next() * 2);
-  const wide = size / 24;
-  for (let i = 0; i < main; i += 1) {
-    const spine = vein(
-      { x: -size * 0.2, y: size * (0.15 + (i / main) * 0.7) },
-      0.35 + next() * 0.5,
-      wide,
-      "108,110,112",
-      1,
-    );
-    // Finer branches, leaving the spine at a shallower angle.
-    for (let b = 0; b < 3; b += 1) {
-      const at = spine[1 + Math.floor(next() * (spine.length - 2))];
-      vein(at, -0.2 + next() * 0.9, wide * 0.3, "126,128,130", 0.75);
+  /** Branches: shallow, shorter each time, finer each time. */
+  function branches(spine: [number, number][], widthIn: number, depth: number) {
+    let reach = size * 0.34;
+    let width = widthIn * 0.5;
+    for (let i = 0; i < 7; i += 1) {
+      const at = spine[6 + Math.floor(next() * (spine.length - 12))];
+      // Twenty to forty degrees off the slab's diagonal, either side of it.
+      const angle = (20 + next() * 20) * (Math.PI / 180) * (next() < 0.5 ? -1 : 1);
+      const to: [number, number] = [
+        at[0] + Math.cos(angle) * reach,
+        at[1] + Math.sin(angle) * reach,
+      ];
+      vein(at, to, width, pale, 0.8, depth + i);
+      reach *= 0.76;
+      width *= 0.82;
     }
   }
+
+  // The dominant vein, corner to corner, and a companion much fainter and
+  // never parallel to it.
+  const main = vein(
+    [-size * 0.15, size * (0.72 + next() * 0.16)],
+    [size * 1.15, size * (0.08 + next() * 0.16)],
+    0.75,
+    warm,
+    1,
+    0,
+  );
+  branches(main, 0.75, 3);
+  // A second dominant vein, lower down and curving the other way, so the slab
+  // is not one line across an empty field.
+  const crossing = vein(
+    [-size * 0.15, size * (1.05 + next() * 0.1)],
+    [size * 1.15, size * (0.6 + next() * 0.2)],
+    0.55,
+    warm,
+    0.85,
+    7,
+  );
+  branches(crossing, 0.5, 17);
+
+  const second = vein(
+    [-size * 0.15, size * (0.25 + next() * 0.15)],
+    [size * 1.15, size * (0.55 + next() * 0.25)],
+    0.35,
+    pale,
+    0.7,
+    5,
+  );
+  branches(second, 0.35, 11);
 }
 
 /**
@@ -311,12 +414,23 @@ export const DRAW: Record<TextureKind, (ctx: Ink, size: number) => void> = {
  * texture repeating every 2 feet is `repeat: 2`, not a guess in UV space. The
  * caller sets it because the same oak serves a 12-foot floor and a 2-foot door.
  */
+/**
+ * How much resolution a map needs beyond the tier's default.
+ *
+ * Marble's tile is twelve feet across, because a vein has to cross a whole
+ * counter to read as one — which leaves a three-quarter-inch vein about three
+ * pixels wide at the default size. So it gets twice the pixels; everything else
+ * has no detail that fine.
+ */
+const DETAIL: Partial<Record<TextureKind, number>> = { marble: 2 };
+
 export function texture(kind: TextureKind, size: number): THREE.Texture {
   const key = `${kind}@${size}`;
   const found = cache.get(key);
   if (found) return found;
 
-  const px = kind === "blank" || kind === "blank-normal" ? 1 : size;
+  const px =
+    kind === "blank" || kind === "blank-normal" ? 1 : size * (DETAIL[kind] ?? 1);
   const { element, ctx } = canvas(px);
   DRAW[kind](ctx, px);
   const made = new THREE.CanvasTexture(element);

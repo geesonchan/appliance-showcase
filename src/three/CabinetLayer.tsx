@@ -23,7 +23,7 @@ function counterMap(props: SurfaceProps, quality: "high" | "low") {
   // Not marked dirty: the clone shares an already-uploaded source, and saying
   // otherwise costs a texture upload for nothing. See `Surface`.
   const map = texture(props.map, quality === "high" ? 512 : 256).clone();
-  map.repeat.set(1 / (props.repeatFt ?? 1), 1 / (props.repeatFt ?? 1));
+  map.repeat.set(1 / (props.repeatFt ?? 1), 1 / (props.repeatAcrossFt ?? props.repeatFt ?? 1));
   return map;
 }
 
