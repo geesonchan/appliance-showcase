@@ -25,11 +25,14 @@ import { UtilityLayer } from "./UtilityLayer";
 function StaticShadowMap() {
   const gl = useThree((s) => s.gl);
   const lighting = useAppStore((s) => s.lighting);
+  // A rebuilt room casts different shadows, so the one refresh has to happen
+  // after the new geometry is mounted as well as after a lighting change.
+  const layoutVersion = useAppStore((s) => s.layoutVersion);
 
   useEffect(() => {
     gl.shadowMap.autoUpdate = false;
     gl.shadowMap.needsUpdate = true;
-  }, [gl, lighting]);
+  }, [gl, lighting, layoutVersion]);
 
   return null;
 }
@@ -42,6 +45,7 @@ function StaticShadowMap() {
 export function Scene() {
   const selectSlot = useAppStore((s) => s.selectSlot);
   const lighting = useAppStore((s) => s.lighting);
+  const layoutVersion = useAppStore((s) => s.layoutVersion);
 
   return (
     <Canvas
@@ -61,22 +65,28 @@ export function Scene() {
         <StaticShadowMap />
         <ShaderWarmup />
         <Lights />
-        <KitchenShell />
-        <CabinetLayer />
-        <FixtureLayer />
-        <ApplianceLayer />
-        <UtilityLayer type="gas" />
-        <UtilityLayer type="power" />
-        <UtilityLayer type="water" />
-        <UtilityLayer type="duct" />
-        <RoughInLayer />
-        <OcclusionFade />
-        {/* Order matters: the dimension figures are placed first and the
-            pins avoid wherever they landed. */}
-        <DimensionProjector />
-        <PinProjector />
-        <SceneDebug />
-        <ModuleLabelProjector />
+        {/* Everything made out of the layout hangs off one key. Changing a
+            parameter rebuilds the room's geometry wholesale, which is honest
+            about what happened — but the Canvas and the camera rig stay
+            outside it, so the view does not jump while you drag a slider. */}
+        <group key={layoutVersion}>
+          <KitchenShell />
+          <CabinetLayer />
+          <FixtureLayer />
+          <ApplianceLayer />
+          <UtilityLayer type="gas" />
+          <UtilityLayer type="power" />
+          <UtilityLayer type="water" />
+          <UtilityLayer type="duct" />
+          <RoughInLayer />
+          <OcclusionFade />
+          {/* Order matters: the dimension figures are placed first and the
+              pins avoid wherever they landed. */}
+          <DimensionProjector />
+          <PinProjector />
+          <SceneDebug />
+          <ModuleLabelProjector />
+        </group>
       </Suspense>
       <CameraRig />
     </Canvas>

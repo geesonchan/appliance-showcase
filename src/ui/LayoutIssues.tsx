@@ -1,5 +1,6 @@
-import { LAYOUT_ISSUES, LAYOUT_PARAMS } from "../data/room";
+import { LAYOUT_PARAMS } from "../data/room";
 import { useT } from "../i18n/useT";
+import { useAppStore } from "../store/useAppStore";
 
 /**
  * What the template refused to build, and why.
@@ -11,14 +12,15 @@ import { useT } from "../i18n/useT";
  */
 export function LayoutIssues() {
   const t = useT();
-  if (LAYOUT_ISSUES.length === 0) return null;
+  const issues = useAppStore((s) => s.layoutIssues);
+  if (issues.length === 0) return null;
 
   return (
     <div className="pointer-events-none absolute inset-x-0 top-16 z-20 flex justify-center px-4">
       <div className="pointer-events-auto max-w-md rounded-sm border border-[#E5C6C2] bg-[#FDF3F2] px-4 py-2.5">
         <p className="text-[11px] font-medium text-[#8A2018]">{t("layout.refused")}</p>
         <ul className="mt-1 space-y-0.5">
-          {LAYOUT_ISSUES.map((issue) => (
+          {issues.map((issue) => (
             <li key={issue} className="text-[11px] leading-snug text-[#8A2018]">
               {issue}
             </li>

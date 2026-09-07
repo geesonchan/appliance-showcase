@@ -30,6 +30,14 @@ export default function App() {
   const rightOpen = useAppStore((s) => s.rightOpen);
   const toggleLeft = useAppStore((s) => s.toggleLeft);
   const toggleRight = useAppStore((s) => s.toggleRight);
+  /**
+   * The parts of the interface that are drawings of the room rather than
+   * controls over it. Rebuilding the layout replaces the module values they
+   * read, so they are keyed on the version and remount when it moves; the
+   * right rail is deliberately not, because remounting it mid-drag would take
+   * the slider out from under the pointer.
+   */
+  const layoutVersion = useAppStore((s) => s.layoutVersion);
 
   const columns = [
     leftOpen ? "minmax(200px,15%)" : "36px",
@@ -49,7 +57,7 @@ export default function App() {
           {leftOpen ? (
             <>
               <div className="min-h-0 flex-1">
-                <LeftPanel />
+                <LeftPanel key={layoutVersion} />
               </div>
               <RailToggle
                 side="left"
@@ -70,10 +78,10 @@ export default function App() {
 
         <main className="relative min-h-0">
           <Scene />
-          <PinOverlay />
-          <DimensionOverlay />
+          <PinOverlay key={`pins-${layoutVersion}`} />
+          <DimensionOverlay key={`dims-${layoutVersion}`} />
           <LayoutIssues />
-          <ModuleLabels />
+          <ModuleLabels key={`modules-${layoutVersion}`} />
           <ModeSwitch />
           <SelectionCallout />
           <BottomBar />
@@ -108,7 +116,7 @@ export default function App() {
 
       <HelpDialog />
       <QuotePage />
-      <SpecCard />
+      <SpecCard key={layoutVersion} />
     </div>
   );
 }

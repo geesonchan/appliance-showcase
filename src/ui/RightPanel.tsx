@@ -39,6 +39,7 @@ export function RightPanel() {
   const toggleUtility = useAppStore((s) => s.toggleUtility);
   const showDimensions = useAppStore((s) => s.showDimensions);
   const toggleDimensions = useAppStore((s) => s.toggleDimensions);
+  const layoutVersion = useAppStore((s) => s.layoutVersion);
 
   return (
     <div className="flex h-full flex-col overflow-y-auto">
@@ -120,10 +121,10 @@ export function RightPanel() {
         </div>
       </PanelSection>
 
-      <InstallChecklist />
+      <InstallChecklist key={layoutVersion} />
 
       <PanelSection title={t("panel.plan")}>
-        <PlanThumbnail />
+        <PlanThumbnail key={layoutVersion} />
       </PanelSection>
     </div>
   );

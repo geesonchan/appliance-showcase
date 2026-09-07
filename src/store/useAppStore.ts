@@ -1,5 +1,8 @@
 import { create } from "zustand";
 import { SCHEME } from "../data/catalogue";
+import { setLayoutParams } from "../data/layoutState";
+import type { LayoutParams } from "../data/layoutTemplate";
+import { LAYOUT_ISSUES, REQUESTED_PARAMS } from "../data/room";
 import type { Lang, Lighting, RenderMode, SlotId, UtilityType } from "../types";
 
 export interface ToastMessage {
@@ -11,6 +14,19 @@ export interface ToastMessage {
 
 interface AppState {
   lang: Lang;
+  /**
+   * The layout parameters as asked for, which is not always what is standing:
+   * a combination the template refuses leaves the room alone and fills
+   * `layoutIssues` instead. See docs/decisions.md D14.
+   */
+  layoutParams: LayoutParams;
+  layoutIssues: string[];
+  /**
+   * Bumped whenever the room actually changed. Everything derived from the
+   * layout is a module value rather than state, so the pieces of the interface
+   * that read it are keyed on this and rebuild when it moves.
+   */
+  layoutVersion: number;
   renderMode: RenderMode;
   lighting: Lighting;
   showCabinets: boolean;
@@ -55,6 +71,7 @@ interface AppState {
   modeSwitchMs: number | null;
 
   setLang: (lang: Lang) => void;
+  setLayout: (patch: Partial<LayoutParams>) => void;
   setRenderMode: (mode: RenderMode) => void;
   setLighting: (lighting: Lighting) => void;
   toggleCabinets: () => void;
@@ -82,6 +99,9 @@ let toastId = 0;
 
 export const useAppStore = create<AppState>((set, get) => ({
   lang: "en",
+  layoutParams: REQUESTED_PARAMS,
+  layoutIssues: LAYOUT_ISSUES,
+  layoutVersion: 0,
   renderMode: "realistic",
   lighting: "day",
   showCabinets: true,
@@ -106,6 +126,18 @@ export const useAppStore = create<AppState>((set, get) => ({
   modeSwitchMs: null,
 
   setLang: (lang) => set({ lang }),
+  // The selection is keyed by slot id and the slot ids do not change with the
+  // parameters, so which appliance is in which opening survives a rebuild
+  // without being carried across.
+  setLayout: (patch) => {
+    const layoutParams = { ...get().layoutParams, ...patch };
+    const result = setLayoutParams(layoutParams);
+    set((s) => ({
+      layoutParams,
+      layoutIssues: result.reasons,
+      layoutVersion: result.ok ? s.layoutVersion + 1 : s.layoutVersion,
+    }));
+  },
   setRenderMode: (renderMode) => {
     if (get().renderMode === renderMode) return;
     set({ renderMode, modeSwitchStartedAt: performance.now() });

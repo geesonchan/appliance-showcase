@@ -14,14 +14,18 @@ import type { Fixture, FixtureId } from "../types";
  */
 const parsed = parseDataFile(fixturesFileSchema, fixturesFile, "data/fixtures.json");
 
-export const FIXTURES: Fixture[] = parsed.fixtures.map((record) => ({
-  ...record,
-  ...FIXTURE_PLACEMENT[record.id],
-}));
+export let FIXTURES: Fixture[];
+export let FIXTURE_BY_ID: Record<FixtureId, Fixture>;
 
-export const FIXTURE_BY_ID: Record<FixtureId, Fixture> = Object.fromEntries(
-  FIXTURES.map((fixture) => [fixture.id, fixture]),
-) as Record<FixtureId, Fixture>;
+/** Re-place the fittings against the room as it now stands. */
+export function rebuildFixtures() {
+  FIXTURES = parsed.fixtures.map((record) => ({ ...record, ...FIXTURE_PLACEMENT[record.id] }));
+  FIXTURE_BY_ID = Object.fromEntries(
+    FIXTURES.map((fixture) => [fixture.id, fixture]),
+  ) as Record<FixtureId, Fixture>;
+}
+
+rebuildFixtures();
 
 /**
  * Where a fixture's basin sits, in run-local feet: how far it reaches along the

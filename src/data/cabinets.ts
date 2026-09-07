@@ -41,7 +41,7 @@ export interface CabinetBox {
 const BASE_BOX = [0, ROOM.counterHeight - ROOM.counterThickness] as const;
 
 /** The refrigerator opening's height, in feet, as the slot actually declares it. */
-const FRIDGE_OPENING_H = ft(SLOT_BY_ID["slot-fridge"].cutout.h);
+const fridgeOpeningH = () => ft(SLOT_BY_ID["slot-fridge"].cutout.h);
 
 const span = ([a, b]: readonly [number, number]) => b - a;
 const mid = ([a, b]: readonly [number, number]) => (a + b) / 2;
@@ -116,7 +116,7 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
       boxes.push(
         onRun(run, `${segment.id}-panel-a`, "surround", [along[0], opening[0]], tall, ROOM.counterDepth, 0, { outline, slot: module.slot, module }),
         onRun(run, `${segment.id}-panel-b`, "surround", [opening[1], along[1]], tall, ROOM.counterDepth, 0, { outline, slot: module.slot, module }),
-        onRun(run, `${segment.id}-bridge`, "upper", opening, [FRIDGE_OPENING_H, tall[1]], ROOM.counterDepth, 0, { outline, slot: module.slot, module }),
+        onRun(run, `${segment.id}-bridge`, "upper", opening, [fridgeOpeningH(), tall[1]], ROOM.counterDepth, 0, { outline, slot: module.slot, module }),
       );
       return;
     }
@@ -197,86 +197,88 @@ function runBoxes(run: CabinetRun): CabinetBox[] {
 }
 
 /**
- * The L-shaped cabinet run plus the island, derived once so the finished view,
- * the white model and the install wireframe all read from the same boxes.
+ * The L-shaped cabinet run plus the island, built so the finished view, the
+ * white model and the install wireframe all read from the same boxes.
  */
-export const CABINETS: CabinetBox[] = [
-  ...RUNS.flatMap(runBoxes),
+function buildCabinets(): CabinetBox[] {
+  return [
+    ...RUNS.flatMap(runBoxes),
 
-  // --- island ---
-  // The two openings come in from opposite faces, so the carcass is the island
-  // minus each of them: solid across the full depth where there is no opening,
-  // and solid behind each opening on its own side.
-  {
-    id: "island-left",
-    outline: "island",
-    kind: "base",
-    position: [mid([ISLAND.x[0], ISLAND.microwave[0]]), BASE_BOX[1] / 2, mid(ISLAND.z)],
-    size: [span([ISLAND.x[0], ISLAND.microwave[0]]), BASE_BOX[1], span(ISLAND.z)],
-  },
-  {
-    id: "island-middle",
-    outline: "island",
-    kind: "base",
-    position: [mid([ISLAND.microwave[1], ISLAND.wine[0]]), BASE_BOX[1] / 2, mid(ISLAND.z)],
-    size: [span([ISLAND.microwave[1], ISLAND.wine[0]]), BASE_BOX[1], span(ISLAND.z)],
-  },
-  {
-    id: "island-right",
-    outline: "island",
-    kind: "base",
-    position: [mid([ISLAND.wine[1], ISLAND.x[1]]), BASE_BOX[1] / 2, mid(ISLAND.z)],
-    size: [span([ISLAND.wine[1], ISLAND.x[1]]), BASE_BOX[1], span(ISLAND.z)],
-  },
-  {
-    // Behind the microwave, on the seating side.
-    id: "island-behind-microwave",
-    outline: "island",
-    kind: "base",
-    position: [
-      mid(ISLAND.microwave),
-      BASE_BOX[1] / 2,
-      mid([ISLAND.workingZ + ROOM.counterDepth, ISLAND.z[1]]),
-    ],
-    size: [
-      span(ISLAND.microwave),
-      BASE_BOX[1],
-      span([ISLAND.workingZ + ROOM.counterDepth, ISLAND.z[1]]),
-    ],
-  },
-  {
-    // Behind the wine cabinet, on the working side.
-    id: "island-behind-wine",
-    outline: "island",
-    kind: "base",
-    position: [
-      mid(ISLAND.wine),
-      BASE_BOX[1] / 2,
-      mid([ISLAND.z[0], ISLAND.seatingZ - ROOM.counterDepth]),
-    ],
-    size: [
-      span(ISLAND.wine),
-      BASE_BOX[1],
-      span([ISLAND.z[0], ISLAND.seatingZ - ROOM.counterDepth]),
-    ],
-  },
-  {
-    id: "island-counter",
-    kind: "counter",
-    position: [mid(ISLAND.x), ROOM.counterHeight - ROOM.counterThickness / 2, mid(ISLAND.z)],
-    size: [
-      span(ISLAND.x) + ROOM.counterOverhang * 2,
-      ROOM.counterThickness,
-      span(ISLAND.z) + ROOM.counterOverhang * 2,
-    ],
-  },
-  {
-    id: "island-toe",
-    kind: "toe",
-    position: [mid(ISLAND.x), ROOM.toeKick / 2, mid(ISLAND.z)],
-    size: [span(ISLAND.x) - ft(3), ROOM.toeKick, span(ISLAND.z) - ft(3)],
-  },
-];
+    // --- island ---
+    // The two openings come in from opposite faces, so the carcass is the island
+    // minus each of them: solid across the full depth where there is no opening,
+    // and solid behind each opening on its own side.
+    {
+      id: "island-left",
+      outline: "island",
+      kind: "base",
+      position: [mid([ISLAND.x[0], ISLAND.microwave[0]]), BASE_BOX[1] / 2, mid(ISLAND.z)],
+      size: [span([ISLAND.x[0], ISLAND.microwave[0]]), BASE_BOX[1], span(ISLAND.z)],
+    },
+    {
+      id: "island-middle",
+      outline: "island",
+      kind: "base",
+      position: [mid([ISLAND.microwave[1], ISLAND.wine[0]]), BASE_BOX[1] / 2, mid(ISLAND.z)],
+      size: [span([ISLAND.microwave[1], ISLAND.wine[0]]), BASE_BOX[1], span(ISLAND.z)],
+    },
+    {
+      id: "island-right",
+      outline: "island",
+      kind: "base",
+      position: [mid([ISLAND.wine[1], ISLAND.x[1]]), BASE_BOX[1] / 2, mid(ISLAND.z)],
+      size: [span([ISLAND.wine[1], ISLAND.x[1]]), BASE_BOX[1], span(ISLAND.z)],
+    },
+    {
+      // Behind the microwave, on the seating side.
+      id: "island-behind-microwave",
+      outline: "island",
+      kind: "base",
+      position: [
+        mid(ISLAND.microwave),
+        BASE_BOX[1] / 2,
+        mid([ISLAND.workingZ + ROOM.counterDepth, ISLAND.z[1]]),
+      ],
+      size: [
+        span(ISLAND.microwave),
+        BASE_BOX[1],
+        span([ISLAND.workingZ + ROOM.counterDepth, ISLAND.z[1]]),
+      ],
+    },
+    {
+      // Behind the wine cabinet, on the working side.
+      id: "island-behind-wine",
+      outline: "island",
+      kind: "base",
+      position: [
+        mid(ISLAND.wine),
+        BASE_BOX[1] / 2,
+        mid([ISLAND.z[0], ISLAND.seatingZ - ROOM.counterDepth]),
+      ],
+      size: [
+        span(ISLAND.wine),
+        BASE_BOX[1],
+        span([ISLAND.z[0], ISLAND.seatingZ - ROOM.counterDepth]),
+      ],
+    },
+    {
+      id: "island-counter",
+      kind: "counter",
+      position: [mid(ISLAND.x), ROOM.counterHeight - ROOM.counterThickness / 2, mid(ISLAND.z)],
+      size: [
+        span(ISLAND.x) + ROOM.counterOverhang * 2,
+        ROOM.counterThickness,
+        span(ISLAND.z) + ROOM.counterOverhang * 2,
+      ],
+    },
+    {
+      id: "island-toe",
+      kind: "toe",
+      position: [mid(ISLAND.x), ROOM.toeKick / 2, mid(ISLAND.z)],
+      size: [span(ISLAND.x) - ft(3), ROOM.toeKick, span(ISLAND.z) - ft(3)],
+    },
+  ];
+}
 
 /** Trim pieces that only add line noise at phone scale. */
 const OUTLINE_SKIP: CabinetKind[] = ["counter", "toe"];
@@ -301,7 +303,7 @@ function unionBox(id: string, boxes: CabinetBox[]): CabinetBox {
  * group collapsed to a single box. This is what the install view draws on a
  * phone, where the full carcass wireframe turns into noise.
  */
-export const CABINET_OUTLINES: CabinetBox[] = (() => {
+function buildOutlines(): CabinetBox[] {
   const result: CabinetBox[] = [];
   const groups = new Map<string, CabinetBox[]>();
 
@@ -318,7 +320,24 @@ export const CABINET_OUTLINES: CabinetBox[] = (() => {
 
   for (const [id, boxes] of groups) result.push(unionBox(id, boxes));
   return result;
-})();
+}
+
+export let CABINETS: CabinetBox[];
+export let CABINET_OUTLINES: CabinetBox[];
+
+/**
+ * Re-cut the carcass for the room as it now stands.
+ *
+ * Called after the runs and the slots have been replaced, never before: the
+ * boxes are derived from both, and a half-updated set would draw a cabinet run
+ * from one layout around appliances from another.
+ */
+export function rebuildCabinets() {
+  CABINETS = buildCabinets();
+  CABINET_OUTLINES = buildOutlines();
+}
+
+rebuildCabinets();
 
 /**
  * One label per cabinet, not per box.

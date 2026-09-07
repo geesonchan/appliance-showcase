@@ -35,8 +35,20 @@ function place(record: SlotRecord) {
   return { ...record, ...placement, position: [x, y, z] as [number, number, number] };
 }
 
-export const SLOTS: Slot[] = parsed.slots.map(place);
+export let SLOTS: Slot[];
+export let SLOT_BY_ID: Record<SlotId, Slot>;
 
-export const SLOT_BY_ID: Record<SlotId, Slot> = Object.fromEntries(
-  SLOTS.map((slot) => [slot.id, slot]),
-) as Record<SlotId, Slot>;
+/**
+ * Re-place the slots against the room as it now stands.
+ *
+ * The product half of a slot never changes; only where it ended up does. So a
+ * rebuild re-runs the placement over the same parsed records rather than
+ * re-reading and re-validating the file, which would make every slider step
+ * pay for a schema pass.
+ */
+export function rebuildSlots() {
+  SLOTS = parsed.slots.map(place);
+  SLOT_BY_ID = Object.fromEntries(SLOTS.map((slot) => [slot.id, slot])) as Record<SlotId, Slot>;
+}
+
+rebuildSlots();
