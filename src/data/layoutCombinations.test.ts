@@ -1,5 +1,6 @@
 import { afterAll, describe, expect, it } from "vitest";
 import { CABINETS } from "./cabinets";
+import { FIXTURE_BY_ID, sinkParts } from "./fixtures";
 import { counterOutline, isRectilinearL } from "./counter";
 import { setLayoutParams } from "./layoutState";
 import { checkLayout } from "./layoutRules";
@@ -474,5 +475,47 @@ describe("a refusal comes with a way out", () => {
     expect(refusal.vars.shortIn).toBe(
       Number(refusal.vars.minimumIn) - Number(refusal.vars.wallIn),
     );
+  });
+});
+
+describe("the sink faces the way its run does", () => {
+  /** The tap's world position, which is the fixture's frame turned into the room's. */
+  const faucet = () => {
+    const sink = FIXTURE_BY_ID["fixture-sink"];
+    const parts = sinkParts(sink)!;
+    const [x, , z] = sink.position;
+    const angle = sink.rotationY;
+    // Three.js turns (x, z) about Y into (x·cos + z·sin, −x·sin + z·cos).
+    return {
+      x: x + parts.riser.x * Math.cos(angle) + parts.riser.z * Math.sin(angle),
+      z: z - parts.riser.x * Math.sin(angle) + parts.riser.z * Math.cos(angle),
+    };
+  };
+
+  // Leo's check: wherever the sink ends up, the tap is against a wall. A sink
+  // drawn in world coordinates kept its tap pointing at the back wall after the
+  // run moved to the left one, which put it out over the floor.
+  it("keeps the tap within four inches of a wall, on either leg", () => {
+    for (const [fridgeEnd, sinkLeg] of [
+      ["left", "back"],
+      ["back", "left"],
+    ] as const) {
+      expect(setLayoutParams(params({ fridgeEnd, sinkLeg })).ok).toBe(true);
+      const at = faucet();
+      const toBack = Math.abs(at.z + ROOM.halfZ);
+      const toLeft = Math.abs(at.x + ROOM.halfX);
+      expect(inches(Math.min(toBack, toLeft)), `sink on the ${sinkLeg} leg`).toBeLessThan(4);
+    }
+  });
+
+  it("turns the basin with the run, so its long side stays along the wall", () => {
+    for (const [sinkLeg, angle] of [
+      ["back", 0],
+      ["left", Math.PI / 2],
+    ] as const) {
+      const fridgeEnd = sinkLeg === "back" ? "left" : "back";
+      expect(setLayoutParams(params({ fridgeEnd, sinkLeg })).ok).toBe(true);
+      expect(FIXTURE_BY_ID["fixture-sink"].rotationY, sinkLeg).toBeCloseTo(angle, 6);
+    }
   });
 });

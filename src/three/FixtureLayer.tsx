@@ -1,5 +1,5 @@
-import { bowlExtent, FIXTURES } from "../data/fixtures";
-import { ROOM, ft } from "../data/slots";
+import { FIXTURES, sinkParts } from "../data/fixtures";
+import { ROOM } from "../data/slots";
 import { useAppStore } from "../store/useAppStore";
 import { finishSurface } from "./materials";
 import type { Fixture } from "../types";
@@ -26,64 +26,54 @@ export function FixtureLayer() {
 }
 
 /**
- * An undermount bowl and a faucet.
+ * An undermount bowl and a faucet, turned to face the way its run does.
  *
  * The bowl is drawn as a recess sunk into the counter rather than a solid, so
  * the white model reads as an opening in the run — which is what it is, and
  * what the cabinetmaker cuts.
+ *
+ * Everything is drawn in the run's own frame inside a rotated group, the same
+ * as an appliance. Drawing it in world coordinates is why the tap stayed
+ * pointing at the back wall after the sink moved to the left one.
  */
 function Sink({ fixture }: { fixture: Fixture }) {
   const renderMode = useAppStore((s) => s.renderMode);
-  const bowl = fixture.bowlIn;
-  if (!bowl) return null;
+  const parts = sinkParts(fixture);
+  if (!parts) return null;
 
-  const extent = bowlExtent(fixture);
-  if (!extent) return null;
-
-  const [x, , z] = fixture.position;
-  // The finished top: a 34.5" box under a 1.5" counter. The counter is cut
-  // around this basin rather than laid over it, so the two never share a plane
-  // and cannot z-fight; see `counterPieces` in data/cabinets.ts.
+  const { basin, riser, spout } = parts;
   const counterTop = ROOM.counterHeight;
-  const w = ft(bowl.w);
-  const d = ft(bowl.d);
-  const h = ft(bowl.h);
-  const bowlZ = z + extent.acrossCentre;
-
   // A sink and its faucet are stainless whatever the cabinetry is doing, and
   // the finish helper already knows how each render mode treats it.
   const metal = finishSurface(renderMode, "stainless");
+  const Steel = () => (
+    <meshStandardMaterial
+      key={renderMode}
+      color={metal.color}
+      metalness={metal.metalness}
+      roughness={metal.roughness}
+    />
+  );
 
   return (
-    <group userData={{ fixture: fixture.id }}>
+    <group
+      position={fixture.position}
+      rotation={[0, fixture.rotationY, 0]}
+      userData={{ fixture: fixture.id }}
+    >
       {/* The basin, its rim flush with the finished counter. */}
-      <mesh position={[x, counterTop - h / 2, bowlZ]} receiveShadow>
-        <boxGeometry args={[w, h, d]} />
-        <meshStandardMaterial
-          key={renderMode}
-          color={metal.color}
-          metalness={metal.metalness}
-          roughness={metal.roughness}
-        />
+      <mesh position={[basin.x, counterTop - basin.h / 2, basin.z]} receiveShadow>
+        <boxGeometry args={[basin.w, basin.h, basin.d]} />
+        <Steel />
       </mesh>
-      {/* Faucet: a riser behind the bowl with a spout reaching over it. */}
-      <mesh position={[x, counterTop + ft(5), bowlZ - d / 2 - ft(1.5)]} castShadow>
-        <cylinderGeometry args={[ft(0.6), ft(0.6), ft(10), 10]} />
-        <meshStandardMaterial
-          key={renderMode}
-          color={metal.color}
-          metalness={metal.metalness}
-          roughness={metal.roughness}
-        />
+      {/* Faucet: a riser on the wall side with a spout reaching over the bowl. */}
+      <mesh position={[riser.x, counterTop + riser.h / 2, riser.z]} castShadow>
+        <cylinderGeometry args={[riser.r, riser.r, riser.h, 10]} />
+        <Steel />
       </mesh>
-      <mesh position={[x, counterTop + ft(10), bowlZ - d / 4]} castShadow>
-        <boxGeometry args={[ft(1.2), ft(1.2), d / 2 + ft(1.5)]} />
-        <meshStandardMaterial
-          key={renderMode}
-          color={metal.color}
-          metalness={metal.metalness}
-          roughness={metal.roughness}
-        />
+      <mesh position={[spout.x, counterTop + riser.h, spout.z]} castShadow>
+        <boxGeometry args={[spout.w, spout.w, spout.reach]} />
+        <Steel />
       </mesh>
     </group>
   );

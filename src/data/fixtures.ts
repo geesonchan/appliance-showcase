@@ -44,3 +44,32 @@ export function bowlExtent(fixture: Fixture) {
     depth: fixture.bowlIn.h / 12,
   };
 }
+
+/**
+ * The parts of a sink, in the run's own frame.
+ *
+ * Along the run is x and across it is z, with the wall at negative z — the same
+ * frame every appliance is drawn in. The faucet goes against the wall side of
+ * the bowl because that is where the supply comes up, and the spout reaches
+ * back over it. Working these out here rather than in the layer is what makes
+ * "the faucet is within four inches of the wall" a thing a test can ask,
+ * whichever leg the sink ended up on.
+ */
+export function sinkParts(fixture: Fixture) {
+  const bowl = fixture.bowlIn;
+  const extent = bowlExtent(fixture);
+  if (!bowl || !extent) return null;
+
+  const w = bowl.w / 12;
+  const d = bowl.d / 12;
+  const h = bowl.h / 12;
+  const across = extent.acrossCentre;
+  /** The wall side of the basin, which is where the tap deck is. */
+  const behind = across - d / 2 - 1.5 / 12;
+
+  return {
+    basin: { w, d, h, x: 0, z: across },
+    riser: { r: 0.6 / 12, h: 10 / 12, x: 0, z: behind },
+    spout: { w: 1.2 / 12, reach: d / 2 + 1.5 / 12, x: 0, z: across - d / 4 },
+  };
+}
