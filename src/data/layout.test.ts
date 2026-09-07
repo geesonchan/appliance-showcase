@@ -253,7 +253,7 @@ describe("D13 · base cabinets", () => {
   });
 
   it("builds the carcass to 34.5 inches, not to the finished height", () => {
-    const box = CABINETS.find((b) => b.id === "back-sink-SB30")!;
+    const box = CABINETS.find((b) => b.id === "back-sink-SB30-0")!;
     expect(inches(box.size[1])).toBeCloseTo(34.5, 6);
     expect(inches(box.size[2])).toBeCloseTo(24, 6);
   });
@@ -293,7 +293,7 @@ describe("D13 · wall cabinets", () => {
   });
 
   it("picks the run up again exactly where the canopy stops", () => {
-    const overHood = CABINETS.find((b) => b.id === "upper-back-hood-W42")!;
+    const overHood = CABINETS.find((b) => b.id === "upper-back-hood-W42-0")!;
     const bottom = overHood.position[1] - overHood.size[1] / 2;
     const hood = SLOT_BY_ID["slot-hood"];
     expect(inches(bottom)).toBeCloseTo(inches(hood.position[1]) + hood.cutout.h, 6);

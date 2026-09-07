@@ -75,16 +75,22 @@ function onRun(
   return { id, kind, position, size, ...extra };
 }
 
-/** Walk a segment's modules, handing each its own stretch of the run. */
+/**
+ * Walk a segment's modules, handing each its own stretch of the run.
+ *
+ * The index comes with it because a bank can hold two of the same box — a 72"
+ * stretch is two W3642s — and a box's id has to stay unique whatever the
+ * parameters produce, or React quietly drops the second one.
+ */
 function eachModule(
   from: number,
   modules: CabinetModule[],
-  visit: (module: CabinetModule, along: readonly [number, number]) => void,
+  visit: (module: CabinetModule, along: readonly [number, number], index: number) => void,
 ) {
   let cursor = from;
-  for (const module of modules) {
+  for (const [index, module] of modules.entries()) {
     const next = cursor + ft(module.widthIn);
-    visit(module, [cursor, next] as const);
+    visit(module, [cursor, next] as const, index);
     cursor = next;
   }
 }
@@ -102,7 +108,7 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
   const boxes: CabinetBox[] = [];
   const base = BASE_BOX;
 
-  eachModule(segment.from, segment.modules, (module, along) => {
+  eachModule(segment.from, segment.modules, (module, along, index) => {
     if (module.kind === "opening") return;
 
     if (module.kind === "tall") {
@@ -127,7 +133,7 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
     const depth = module.kind === "corner" ? ft(module.widthIn) : ROOM.counterDepth;
     const offset = module.kind === "corner" ? (depth - ROOM.counterDepth) / 2 : 0;
     boxes.push(
-      onRun(run, `${segment.id}-${module.code}`, "base", along, base, depth, offset, {
+      onRun(run, `${segment.id}-${module.code}-${index}`, "base", along, base, depth, offset, {
         module,
       }),
     );
@@ -158,14 +164,14 @@ function upperBoxes(run: CabinetRun, bank: UpperBank): CabinetBox[] {
   const boxes: CabinetBox[] = [];
   const inset = (ROOM.counterDepth - ROOM.upperDepth) / 2;
   const band = bank.band ?? hoodBridgeBand();
-  eachModule(bank.from, bank.modules, (module, along) => {
+  eachModule(bank.from, bank.modules, (module, along, index) => {
     // Same at high level: a corner wall cabinet reaches into both legs, so the
     // run next to it starts where its square stops rather than overlapping it.
     const corner = module.kind === "corner";
     const depth = corner ? ft(module.widthIn) : ROOM.upperDepth;
     const across = corner ? -(ROOM.counterDepth - depth) / 2 : -inset;
     boxes.push(
-      onRun(run, `${bank.id}-${module.code}`, "upper", along, band, depth, across, {
+      onRun(run, `${bank.id}-${module.code}-${index}`, "upper", along, band, depth, across, {
         module,
         slot: module.slot,
       }),

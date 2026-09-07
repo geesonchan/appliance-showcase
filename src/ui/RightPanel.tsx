@@ -5,6 +5,7 @@ import { useAppStore } from "../store/useAppStore";
 import { UTILITY_COLORS } from "../three/materials";
 import type { UtilityType } from "../types";
 import { InstallChecklist } from "./InstallChecklist";
+import { LayoutControls } from "./LayoutControls";
 import { PlanThumbnail } from "./PlanThumbnail";
 import { PanelSection, Segmented, Toggle } from "./primitives";
 
@@ -89,6 +90,8 @@ export function RightPanel() {
           />
         </div>
       </PanelSection>
+
+      <LayoutControls />
 
       <PanelSection title={t("panel.package")}>
         {/* No total here: money lives on the quote page. See D12. */}

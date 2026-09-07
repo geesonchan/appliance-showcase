@@ -53,7 +53,7 @@ export default function App() {
         className="grid min-h-0 flex-1 md:[grid-template-columns:var(--cols)]"
         style={{ ["--cols" as string]: columns }}
       >
-        <aside className="hidden min-h-0 border-r border-line bg-surface md:flex md:flex-col">
+        <aside className="hidden min-h-0 min-w-0 border-r border-line bg-surface md:flex md:flex-col">
           {leftOpen ? (
             <>
               <div className="min-h-0 flex-1">
@@ -76,7 +76,10 @@ export default function App() {
           )}
         </aside>
 
-        <main className="relative min-h-0">
+        {/* min-w-0: without it the middle track cannot shrink below the
+            canvas it is already showing, and opening a rail pushes the page
+            wider instead of narrowing the scene. */}
+        <main className="relative min-h-0 min-w-0">
           <Scene />
           <PinOverlay key={`pins-${layoutVersion}`} />
           <DimensionOverlay key={`dims-${layoutVersion}`} />
@@ -90,7 +93,7 @@ export default function App() {
           <DebugOverlay />
         </main>
 
-        <aside className="hidden min-h-0 border-l border-line bg-surface md:flex md:flex-col">
+        <aside className="hidden min-h-0 min-w-0 border-l border-line bg-surface md:flex md:flex-col">
           {rightOpen ? (
             <>
               <div className="min-h-0 flex-1">

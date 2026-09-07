@@ -65,6 +65,49 @@ export function Toggle({
   );
 }
 
+/**
+ * A dimension you can drag, with the figure it is currently at.
+ *
+ * The steps are the trade's, not the pixel's: an island comes in 6" increments
+ * because that is how a countertop is ordered, so the control snaps to them and
+ * there is no way to ask for 50".
+ */
+export function Slider({
+  label,
+  value,
+  min,
+  max,
+  step,
+  format = (n) => `${n}"`,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  format?: (value: number) => string;
+  onChange: (next: number) => void;
+}) {
+  return (
+    <label className="block py-1.5">
+      <span className="flex items-baseline justify-between gap-3">
+        <span className="text-[13px] text-ink">{label}</span>
+        <span className="text-[12px] tabular-nums text-ink-muted">{format(value)}</span>
+      </span>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(event) => onChange(Number(event.target.value))}
+        className="mt-1.5 h-1 w-full cursor-pointer appearance-none rounded-full bg-line accent-accent"
+      />
+    </label>
+  );
+}
+
 export interface SegmentOption<T extends string> {
   value: T;
   label: string;

@@ -65,6 +65,21 @@ describe("changing a parameter changes the whole room", () => {
   });
 });
 
+describe("every box the generator produces can be told apart", () => {
+  // A 72" stretch of wall is two W3642s. Naming a box after its module alone
+  // gave them the same id, and React drew one of them.
+  it("gives every cabinet a unique id, whatever the parameters", () => {
+    for (const fridgeEnd of ["left", "back"] as const) {
+      for (let islandLengthIn = 48; islandLengthIn <= 96; islandLengthIn += 6) {
+        setLayoutParams({ ...DEFAULT_PARAMS, fridgeEnd, islandLengthIn });
+        const ids = CABINETS.map((box) => box.id);
+        const duplicates = ids.filter((id, i) => ids.indexOf(id) !== i);
+        expect(duplicates, `${fridgeEnd} / ${islandLengthIn}"`).toEqual([]);
+      }
+    }
+  });
+});
+
 describe("a refusal leaves the room standing", () => {
   it("keeps the layout and hands back the reason", () => {
     const standing = LAYOUT_PARAMS;
