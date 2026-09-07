@@ -3,8 +3,16 @@ import { CABINETS } from "./cabinets";
 import { counterOutline, isRectilinearL } from "./counter";
 import { setLayoutParams } from "./layoutState";
 import { checkLayout } from "./layoutRules";
-import { DEFAULT_PARAMS, PARAM_LIMITS, type LayoutParams } from "./layoutTemplate";
-import { ISLAND, ROOM, RUN_BY_ID, segmentForSlot } from "./room";
+import {
+  DEFAULT_PARAMS,
+  PARAM_LIMITS,
+  feasibleRange,
+  generateLayout,
+  wallRequirement,
+  type LayoutParams,
+  type Refusal,
+} from "./layoutTemplate";
+import { CABINET_STANDARDS, ISLAND, LAYOUT_LIMITS, ROOM, RUN_BY_ID, RUNS, segmentForSlot } from "./room";
 import { SLOT_BY_ID } from "./slots";
 
 /**
@@ -38,7 +46,7 @@ const values = (limit: { min: number; max: number; step: number }) => {
  * checked. A generator whose output is fine until something downstream reads it
  * has not produced a buildable kitchen.
  */
-function attempt(over: Partial<LayoutParams>): { built: true } | { built: false; reasons: string[] } {
+function attempt(over: Partial<LayoutParams>): { built: true } | { built: false; reasons: Refusal[] } {
   const result = setLayoutParams(params(over));
   if (!result.ok) return { built: false, reasons: result.reasons };
   const problems = checkLayout();
@@ -46,12 +54,20 @@ function attempt(over: Partial<LayoutParams>): { built: true } | { built: false;
   return { built: true };
 }
 
-/** Every refusal has to be a sentence a salesperson could read out loud. */
-function expectSentences(reasons: string[], where: string) {
+/**
+ * Every refusal has to be something the interface can print and act on: a key
+ * it can translate, figures it can substitute, and — where the shape of the
+ * room is the problem — the bill and a way out.
+ */
+function expectSentences(reasons: Refusal[], where: string) {
   expect(reasons.length, where).toBeGreaterThan(0);
   for (const reason of reasons) {
-    expect(reason.length, `${where}: "${reason}"`).toBeGreaterThan(20);
-    expect(reason, where).toMatch(/\.$/);
+    expect(reason.key, where).toMatch(/^refusal\./);
+    expect(Object.keys(reason.vars).length, `${where}: ${reason.key}`).toBeGreaterThan(0);
+    if (reason.key === "refusal.wallShort") {
+      expect(reason.occupancy?.length, `${where}: no bill`).toBeGreaterThan(0);
+      expect(reason.suggestion, `${where}: no way out`).toBeDefined();
+    }
   }
 }
 
@@ -92,8 +108,8 @@ describe("the wall lengths", () => {
   });
 
   it("fills the wall it was given, to the inch", () => {
-    for (const backWallIn of [150, 162, 168]) {
-      const result = setLayoutParams(params({ backWallIn }));
+    for (const backWallIn of [156, 162, 168]) {
+      const result = setLayoutParams(params({ backWallIn, cornerType: "blind" }));
       expect(result.ok, `${backWallIn}"`).toBe(true);
       expect(inches(ROOM.halfX * 2)).toBe(backWallIn);
       const back = RUN_BY_ID.back.segments;
@@ -104,8 +120,8 @@ describe("the wall lengths", () => {
   it("refuses a wall off the step, and names the two lengths that would work", () => {
     const result = setLayoutParams(params({ backWallIn: 155 }));
     expect(result.ok).toBe(false);
-    expect(result.reasons.join(" ")).toContain('150"');
-    expect(result.reasons.join(" ")).toContain('156"');
+    expect(result.reasons[0].key).toBe("refusal.offStep");
+    expect(result.reasons[0].vars).toMatchObject({ value: 155, below: 150, above: 156 });
   });
 });
 
@@ -203,37 +219,259 @@ describe("the island", () => {
   it("refuses an island the room cannot hold, and says which way it does not fit", () => {
     const long = setLayoutParams(params({ backWallIn: 132, islandLengthIn: 96 }));
     expect(long.ok).toBe(false);
-    expect(long.reasons.join(" ")).toContain("will not fit");
+    expect(long.reasons.map((r) => r.key)).toContain("refusal.islandLong");
 
     const deep = setLayoutParams(params({ leftWallIn: 96, islandDepthIn: 42, aisleIn: 42 }));
     expect(deep.ok).toBe(false);
-    expect(deep.reasons.join(" ")).toContain("deep");
+    expect(deep.reasons.map((r) => r.key)).toContain("refusal.islandDeep");
   });
 
   it("takes the island out of the room when it is switched off", () => {
-    // Without an island the back leg has two more openings to carry, which a
-    // lazy susan does not leave room for — the blind corner is what buys it.
-    const result = setLayoutParams(params({ hasIsland: false, cornerType: "blind" }));
-    expect(result.ok, result.reasons.join(" ")).toBe(true);
+    const result = setLayoutParams(params({ hasIsland: false }));
+    expect(result.ok, result.reasons.map((r) => r.key).join(" ")).toBe(true);
 
     expect(ISLAND.present).toBe(false);
     expect(CABINETS.filter((box) => box.id.startsWith("island"))).toEqual([]);
-    // The two openings are on the perimeter now, and on opposite legs, which is
-    // what keeps them facing opposite ways. See D11 rule 7.
-    expect(segmentForSlot("slot-microwave")!.id.startsWith("back")).toBe(true);
+    // Both openings go on the leg the sink is not on: the other one is already
+    // carrying the range, the sink base and the dishwasher, and 48" more of
+    // opening is exactly what it does not have.
+    expect(segmentForSlot("slot-microwave")!.id.startsWith("left")).toBe(true);
     expect(segmentForSlot("slot-wine")!.id.startsWith("left")).toBe(true);
-    expect(
-      Math.abs(
-        Math.cos(SLOT_BY_ID["slot-microwave"].rotationY) -
-          Math.cos(SLOT_BY_ID["slot-wine"].rotationY),
-      ),
-    ).toBeGreaterThan(0.5);
+    expect(SLOT_BY_ID["slot-microwave"].mount).toBe("wall");
+    expect(SLOT_BY_ID["slot-wine"].mount).toBe("wall");
   });
 
   it("says what is short when there is nowhere to put them", () => {
-    const result = setLayoutParams(params({ hasIsland: false, cornerType: "lazy-susan" }));
+    // A blind corner takes 6" more of its own leg than a lazy susan, and with
+    // two extra openings already on that leg those 6" are what runs out.
+    const result = setLayoutParams(params({ hasIsland: false, cornerType: "blind" }));
     expect(result.ok).toBe(false);
-    expectSentences(result.reasons, "no island, lazy susan");
-    expect(result.reasons.join(" ")).toContain("blind");
+    expectSentences(result.reasons, "no island, blind corner");
+    expect(result.reasons[0].key).toBe("refusal.wallShort");
+    expect(result.reasons[0].occupancy?.map((item) => item.code)).toContain("BBC42");
+  });
+});
+
+describe("D11 rule 10 · the sink has counter on both sides", () => {
+  /** Usable surface beside the sink: counter, or the dishwasher standing in. */
+  const beside = (direction: -1 | 1) => {
+    const run = RUNS.find((r) => r.segments.some((seg) => seg.fixture === "fixture-sink"))!;
+    const index = run.segments.findIndex((seg) => seg.fixture === "fixture-sink");
+    let total = 0;
+    for (let i = index + direction; i >= 0 && i < run.segments.length; i += direction) {
+      const segment = run.segments[i];
+      if (segment.slot === "slot-dishwasher") return inches(segment.to - segment.from);
+      if (segment.kind !== "counter") break;
+      total += inches(segment.to - segment.from);
+    }
+    return total;
+  };
+
+  /** Counter between the corner cabinet — or where it stops — and the sink. */
+  const fromCorner = () => {
+    const run = RUNS.find((r) => r.segments.some((seg) => seg.fixture === "fixture-sink"))!;
+    const index = run.segments.findIndex((seg) => seg.fixture === "fixture-sink");
+    const corner = run.segments.findIndex((seg) => seg.kind === "corner");
+    return run.segments
+      .slice(corner + 1, index)
+      .filter((seg) => seg.kind === "counter")
+      .reduce((sum, seg) => sum + inches(seg.to - seg.from), 0);
+  };
+
+  // Leo's case: with the refrigerator finishing the back leg the sink is
+  // displaced onto the left one, where the corner is, so both halves of the
+  // rule are live at once.
+  const combinations = [
+    ...values(PARAM_LIMITS.leftWallIn).map((leftWallIn) => ({ leftWallIn })),
+    ...(["lazy-susan", "blind"] as const).map((cornerType) => ({ cornerType })),
+    ...values(PARAM_LIMITS.islandLengthIn).map((islandLengthIn) => ({ islandLengthIn })),
+  ];
+
+  it.each(combinations)("holds with the refrigerator on the back leg: %o", (over) => {
+    const result = setLayoutParams(params({ fridgeEnd: "back", sinkLeg: "left", ...over }));
+    if (!result.ok) {
+      expectSentences(result.reasons, JSON.stringify(over));
+      return;
+    }
+
+    const { wideIn, narrowIn, fromCornerIn } = LAYOUT_LIMITS.sink;
+    const sides = [beside(-1), beside(1)];
+    expect(Math.max(...sides), `wide side ${JSON.stringify(over)}`).toBeGreaterThanOrEqual(wideIn);
+    expect(Math.min(...sides), `narrow side ${JSON.stringify(over)}`).toBeGreaterThanOrEqual(
+      narrowIn,
+    );
+    expect(fromCorner(), `off the corner ${JSON.stringify(over)}`).toBeGreaterThanOrEqual(
+      fromCornerIn,
+    );
+    expect(checkLayout()).toEqual([]);
+  });
+
+  it("puts the dishwasher on the range side of the sink", () => {
+    for (const [fridgeEnd, sinkLeg] of [
+      ["left", "back"],
+      ["back", "left"],
+    ] as const) {
+      expect(setLayoutParams(params({ fridgeEnd, sinkLeg })).ok).toBe(true);
+      const run = RUN_BY_ID[sinkLeg];
+      const dishwasher = run.segments.findIndex((s) => s.slot === "slot-dishwasher");
+      const sink = run.segments.findIndex((s) => s.fixture === "fixture-sink");
+      // Both runs are ordered from the corner outward and the range is always
+      // at the corner end, so "toward the range" is the lower index.
+      expect(dishwasher, `${sinkLeg} leg`).toBe(sink - 1);
+    }
+  });
+
+  it("catches a sink pushed up against the corner", () => {
+    expect(setLayoutParams(params({ fridgeEnd: "back", sinkLeg: "left" })).ok).toBe(true);
+    const runs = structuredClone(RUNS);
+    const left = runs.find((r) => r.id === "left")!;
+    // Swap the counter after the corner with the dishwasher-and-sink pair, so
+    // the sink base finishes hard against the corner cabinet.
+    const order = ["left-corner", "left-sink", "left-dishwasher"].concat(
+      left.segments
+        .map((s) => s.id)
+        .filter((id) => !["left-corner", "left-sink", "left-dishwasher"].includes(id)),
+    );
+    const by = new Map(left.segments.map((s) => [s.id, s]));
+    let cursor = left.segments[0].from;
+    left.segments = order.map((id) => {
+      const segment = by.get(id)!;
+      const moved = { ...segment, from: cursor, to: cursor + (segment.to - segment.from) };
+      cursor = moved.to;
+      return moved;
+    });
+    expect(checkLayout(runs).map((v) => v.code)).toContain("d11-10");
+  });
+});
+
+describe("the corner cabinet and the one over it are bought as a pair", () => {
+  it("changes both when the parameter changes", () => {
+    for (const [cornerType, base, upper] of [
+      ["lazy-susan", "LS36", "WER2442"],
+      ["blind", "BBC42", "WBC2442"],
+    ] as const) {
+      expect(setLayoutParams(params({ cornerType })).ok).toBe(true);
+
+      const corners = RUNS.flatMap((run) => run.segments)
+        .flatMap((segment) => segment.modules)
+        .filter((module) => module.kind === "corner");
+      expect(corners.map((m) => m.code), cornerType).toEqual([base]);
+
+      const wallCorners = RUNS.flatMap((run) => run.uppers)
+        .flatMap((bank) => bank.modules)
+        .filter((module) => module.kind === "corner");
+      expect(wallCorners.map((m) => m.code), cornerType).toEqual([upper]);
+    }
+  });
+
+  // A diagonal wall cabinet is square and the next leg's bank starts where it
+  // stops; a blind one is an ordinary 12" deep box, so that bank picks up
+  // sooner. Getting this wrong leaves the two banks overlapping in the corner.
+  it("starts the other leg's wall run where its own corner box stops", () => {
+    for (const [cornerType, acrossIn] of [
+      ["lazy-susan", 24],
+      ["blind", 12],
+    ] as const) {
+      expect(setLayoutParams(params({ cornerType })).ok).toBe(true);
+      const first = RUN_BY_ID.back.uppers[0];
+      expect(inches(first.from + ROOM.halfX), cornerType).toBeCloseTo(acrossIn, 6);
+    }
+  });
+});
+
+describe("what the shortest wall is made of", () => {
+  it("adds up to the minimum it claims, item by item", () => {
+    for (const cornerType of ["lazy-susan", "blind"] as const) {
+      for (const leg of ["left", "back"] as const) {
+        const requirement = wallRequirement(params({ cornerType }), leg);
+        const sum = requirement.items.reduce((total, item) => total + item.widthIn, 0);
+        expect(sum, `${leg} / ${cornerType}`).toBe(requirement.minimumIn);
+      }
+    }
+  });
+
+  // Leo's rule: every number the interface prints has to be traceable to a
+  // cabinet somebody orders or a rule somebody wrote down.
+  it("traces every figure to a module or a rule", () => {
+    for (const leg of ["left", "back"] as const) {
+      for (const item of wallRequirement(params(), leg).items) {
+        expect(Boolean(item.code) !== Boolean(item.rule), JSON.stringify(item)).toBe(true);
+        expect(item.labelKey).toMatch(/^requirement\./);
+        expect(item.widthIn).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("never claims a leg shorter than D13 allows", () => {
+    for (const leg of ["left", "back"] as const) {
+      const requirement = wallRequirement(params(), leg);
+      const across = leg === "back" ? 36 : 0;
+      expect(requirement.minimumIn - across).toBeGreaterThanOrEqual(
+        CABINET_STANDARDS.legIn.shortMin,
+      );
+      expect(requirement.maximumIn - across).toBe(CABINET_STANDARDS.legIn.longMax);
+    }
+  });
+});
+
+describe("the greyed-out half of a slider", () => {
+  it("is exactly the lengths that will not build", () => {
+    for (const key of ["backWallIn", "leftWallIn"] as const) {
+      for (const cornerType of ["lazy-susan", "blind"] as const) {
+        const base = params({ cornerType });
+        const range = feasibleRange(base, key);
+        for (const value of values(PARAM_LIMITS[key])) {
+          const built = generateLayout({ ...base, [key]: value }).ok;
+          const inside = range !== null && value >= range.minIn && value <= range.maxIn;
+          expect(inside, `${key} ${value}" / ${cornerType}`).toBe(built);
+        }
+      }
+    }
+  });
+
+  it("agrees with the minimum printed under it", () => {
+    for (const [key, leg] of [
+      ["backWallIn", "back"],
+      ["leftWallIn", "left"],
+    ] as const) {
+      const range = feasibleRange(params(), key);
+      expect(range?.minIn).toBe(wallRequirement(params(), leg).minimumIn);
+    }
+  });
+});
+
+describe("a refusal comes with a way out", () => {
+  const shortWall = (over: Partial<LayoutParams>) => {
+    const result = generateLayout(params(over));
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("unreachable");
+    return result.reasons.find((r) => r.key === "refusal.wallShort")!;
+  };
+
+  it("hands back a change that actually builds", () => {
+    for (const over of [
+      { backWallIn: 132, islandLengthIn: 48 },
+      { backWallIn: 150, islandLengthIn: 48 },
+      {
+        leftWallIn: 96,
+        islandDepthIn: 24,
+        fridgeEnd: "back" as const,
+        sinkLeg: "left" as const,
+      },
+    ]) {
+      const refusal = shortWall(over);
+      expect(refusal.suggestion, JSON.stringify(over)).toBeDefined();
+      const applied = generateLayout({ ...params(over), ...refusal.suggestion!.patch });
+      expect(applied.ok, `${refusal.suggestion!.key} on ${JSON.stringify(over)}`).toBe(true);
+    }
+  });
+
+  it("shows the bill for the wall it is refusing", () => {
+    const refusal = shortWall({ backWallIn: 132, islandLengthIn: 48 });
+    expect(refusal.occupancy?.map((item) => item.code)).toContain("SB30");
+    expect(refusal.occupancy?.map((item) => item.rule)).toContain("d11-10");
+    expect(refusal.vars.shortIn).toBe(
+      Number(refusal.vars.minimumIn) - Number(refusal.vars.wallIn),
+    );
   });
 });

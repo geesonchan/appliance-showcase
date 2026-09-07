@@ -4,6 +4,7 @@ import { FIXTURE_BY_ID } from "./fixtures";
 import {
   CABINET_STANDARDS,
   ISLAND,
+  LAYOUT_LIMITS,
   type CabinetModule,
   ROOM,
   RUNS,
@@ -29,16 +30,9 @@ import type { Appliance, SlotId } from "../types";
  *
  * Every clearance is in inches, which is how the trade states them.
  */
-export const LAYOUT_LIMITS = {
-  /** D11 rule 4: counter each side of the range. */
-  rangeLandingIn: 12,
-  /** D11 rule 5: how far the dishwasher may sit from the sink. */
-  dishwasherToSinkIn: 36,
-  /** D11 rule 6: counter on the refrigerator's door side. */
-  fridgeLandingIn: 15,
-  /** The aisle a working kitchen needs, for the island. */
-  aisleIn: 42,
-};
+// The clearances themselves live in roomShell.ts, where the generator can read
+// them too: it lays a run out to them and this holds it to them.
+export { LAYOUT_LIMITS } from "./room";
 
 /**
  * The stock width lists, from docs/reference/cabinet-modules.md.
@@ -300,6 +294,53 @@ export function checkLayout(
     );
   }
 
+  // D11 rule 10: the sink has counter on both sides and stands clear of the
+  // corner cabinet. One side is a working side and the other is somewhere to
+  // stack, and the dishwasher counts as the wide one — 24" of surface at
+  // counter height is 24" of surface at counter height.
+  const sinkRun = runs.find((run) => run.segments.some((s) => s.fixture === "fixture-sink"));
+  if (sinkRun) {
+    const index = sinkRun.segments.findIndex((s) => s.fixture === "fixture-sink");
+    const { wideIn, narrowIn, fromCornerIn } = LAYOUT_LIMITS.sink;
+
+    /** What is beside the sink on one side, in inches of usable surface. */
+    const beside = (direction: -1 | 1) => {
+      const next = sinkRun.segments[index + direction];
+      if (!next) return 0;
+      if (next.slot === "slot-dishwasher") return widthIn(next);
+      return landing(sinkRun, index, direction);
+    };
+    const sides = [beside(-1), beside(1)];
+    if (Math.max(...sides) < wideIn - 1e-6) {
+      fail(
+        "d11-10",
+        `sink has ${sides.map((v) => v.toFixed(0)).join('" and ')}" beside it, ` +
+          `one side needs ${wideIn}"`,
+      );
+    }
+    if (Math.min(...sides) < narrowIn - 1e-6) {
+      fail(
+        "d11-10",
+        `sink has only ${Math.min(...sides).toFixed(0)}" on one side, needs ${narrowIn}"`,
+      );
+    }
+
+    // The corner cabinet's door has to clear the sink base. On the leg that
+    // carries the corner that is the corner segment; on the other leg it is
+    // where the run starts, which is where the corner box stops.
+    const cornerAt = sinkRun.segments.findIndex((s) => s.kind === "corner");
+    const between = sinkRun.segments
+      .slice(cornerAt + 1, index)
+      .filter((s) => s.kind === "counter")
+      .reduce((sum, s) => sum + widthIn(s), 0);
+    if (between < fromCornerIn - 1e-6) {
+      fail(
+        "d11-10",
+        `sink base is ${between.toFixed(0)}" of counter from the corner, needs ${fromCornerIn}"`,
+      );
+    }
+  }
+
   // D11 rule 6: the refrigerator has counter to land things on.
   const fridge = locate(runs, "slot-fridge");
   if (!fridge) {
@@ -317,23 +358,23 @@ export function checkLayout(
     }
   }
 
-  // D11 rule 7: the two openings face opposite ways. On an island that is what
-  // makes it work from both sides; with no island they land on different legs,
-  // which comes to the same thing.
-  const microwave = SLOT_BY_ID["slot-microwave"];
-  const wine = SLOT_BY_ID["slot-wine"];
-  if (Math.abs(Math.cos(microwave.rotationY) - Math.cos(wine.rotationY)) < 1e-6) {
-    fail("d11-7", "the microwave and the wine cabinet face the same way");
-  }
-  if (microwave.position[2] > wine.position[2]) {
-    fail(
-      "d11-7",
-      "the microwave drawer should face the working side and the wine cabinet the seating side",
-    );
-  }
-  // The aisle is a fact about an island, so a kitchen without one has nothing
-  // to check here rather than a zero-inch aisle to complain about.
+  // D11 rule 7 is about an island: two openings coming in from opposite faces,
+  // with an aisle to the perimeter. A kitchen with no island has neither a
+  // seating side nor an aisle, and its microwave and wine cabinet are two base
+  // cabinets in a run — there is nothing here to check rather than a rule to
+  // fail.
   if (island.present) {
+    const microwave = SLOT_BY_ID["slot-microwave"];
+    const wine = SLOT_BY_ID["slot-wine"];
+    if (Math.abs(Math.cos(microwave.rotationY) - Math.cos(wine.rotationY)) < 1e-6) {
+      fail("d11-7", "the microwave and the wine cabinet face the same way");
+    }
+    if (microwave.position[2] > wine.position[2]) {
+      fail(
+        "d11-7",
+        "the microwave drawer should face the working side and the wine cabinet the seating side",
+      );
+    }
     const runFront = runs.find((r) => r.id === "back")!.centre + ROOM.counterDepth / 2;
     const aisle = inches(island.z[0] - runFront);
     if (aisle < LAYOUT_LIMITS.aisleIn - 1e-6) {

@@ -176,18 +176,19 @@ describe("D11 rule 5 · the dishwasher is beside the sink", () => {
   it("catches a dishwasher moved away from the sink", () => {
     const runs = clone();
     const backRun = runs.find((r) => r.id === "back")!;
-    const dw = backRun.segments.find((s) => s.slot === "slot-dishwasher")!;
-    const end = backRun.segments[backRun.segments.length - 1];
-    // Swap the dishwasher with the counter at the open end.
-    const width = dw.to - dw.from;
-    Object.assign(dw, { slot: undefined, kind: "counter", id: "back-was-dishwasher" });
-    Object.assign(end, { slot: "slot-dishwasher", kind: "appliance", from: end.to - width });
-    backRun.segments.splice(backRun.segments.length - 1, 0, {
-      id: "back-filler",
-      kind: "counter",
-      from: dw.to,
-      to: end.from,
-      modules: [],
+    // Send the dishwasher to the corner end of the run and re-tile behind it,
+    // which leaves the sink where it is with the range between them.
+    const order = [
+      "back-dishwasher",
+      ...backRun.segments.map((s) => s.id).filter((id) => id !== "back-dishwasher"),
+    ];
+    const by = new Map(backRun.segments.map((s) => [s.id, s]));
+    let cursor = backRun.segments[0].from;
+    backRun.segments = order.map((id) => {
+      const segment = by.get(id)!;
+      const moved = { ...segment, from: cursor, to: cursor + (segment.to - segment.from) };
+      cursor = moved.to;
+      return moved;
     });
     expect(codes(runs)).toContain("d11-5");
   });
@@ -390,13 +391,16 @@ describe("the run as Leo specified it", () => {
     ]);
   });
 
-  it("reads counter, range, counter, sink, dishwasher, counter along the back", () => {
+  // The dishwasher is on the range side of the sink: the cook turns from the
+  // cooktop to the dishwasher to the sink without crossing the kitchen, and it
+  // stands in for the 24" side D11 rule 10 asks for.
+  it("reads counter, range, counter, dishwasher, sink, counter along the back", () => {
     expect(back().segments.map((s) => s.kind)).toEqual([
       "counter",
       "appliance",
       "counter",
-      "fixture",
       "appliance",
+      "fixture",
       "counter",
     ]);
   });

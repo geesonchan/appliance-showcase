@@ -1,5 +1,6 @@
 import {
   CABINET_STANDARDS,
+  LAYOUT_LIMITS,
   PANEL,
   ROOM,
   ft,
@@ -50,13 +51,15 @@ export interface LayoutParams {
 /**
  * The range each dimension may take, and the step it moves in.
  *
- * The steps are the trade's. The ends are D13's: both legs of an L are between
- * 96" and 144" measured from the inside corner, so a back wall shorter than
- * 132" cannot carry a 36" corner and a legal leg behind it.
+ * The steps are the trade's. The ends are the whole of what a wall could
+ * physically be, not what this configuration can use — what it can use is
+ * `feasibleRange`, which is narrower and moves as the other parameters move.
+ * A slider that silently shortens itself teaches nothing; one that greys out
+ * what it cannot do, with the arithmetic underneath, teaches the constraint.
  */
 export const PARAM_LIMITS = {
-  backWallIn: { min: 132, max: 168, step: 6 },
-  leftWallIn: { min: 96, max: 144, step: 6 },
+  backWallIn: { min: 96, max: 168, step: 6 },
+  leftWallIn: { min: 96, max: 168, step: 6 },
   islandLengthIn: { min: 48, max: 96, step: 6 },
   islandDepthIn: { min: 24, max: 42, step: 6 },
   aisleIn: { min: 42, max: 60, step: 3 },
@@ -100,9 +103,54 @@ export interface GeneratedLayout {
   fixtures: Record<FixtureId, SlotPlacement>;
 }
 
+/**
+ * One thing taking up a wall, and what says it has to be there.
+ *
+ * Every figure the interface prints about a refusal comes from one of these,
+ * so every number on screen is traceable to a cabinet somebody orders or a rule
+ * somebody wrote down. "The back wall is 6 inches short" is an assertion; "36"
+ * of range, 30" of sink base, 24" of dishwasher and three landings" is an
+ * argument.
+ */
+export interface RequirementItem {
+  widthIn: number;
+  /** The module it is, when it is a cabinet: LS36, RO36, SB30. */
+  code?: string;
+  /** The rule that puts it there, when it is a stretch of counter: "d11-4". */
+  rule?: string;
+  labelKey: string;
+}
+
+/** What has to go on a leg, and the wall lengths that hold it. */
+export interface WallRequirement {
+  leg: "left" | "back";
+  items: RequirementItem[];
+  /** Including whatever the corner takes out of this leg's wall. */
+  minimumIn: number;
+  /** D13 caps a leg at 144"; past that it is two runs, not one. */
+  maximumIn: number;
+}
+
+/**
+ * A refusal, as a message the interface can render and act on.
+ *
+ * The text is a key and its values rather than a sentence, because a refusal is
+ * as much a part of the product as the room is and the product is bilingual. A
+ * value whose name ends in `Key` is itself a key, translated before it is
+ * substituted.
+ */
+export interface Refusal {
+  key: string;
+  vars: Record<string, string | number>;
+  /** What is on the wall, when the wall being too short is the problem. */
+  occupancy?: RequirementItem[];
+  /** A change that would make this build, ready to apply. */
+  suggestion?: { key: string; vars: Record<string, string | number>; patch: Partial<LayoutParams> };
+}
+
 export type GenerateResult =
   | { ok: true; layout: GeneratedLayout }
-  | { ok: false; reasons: string[] };
+  | { ok: false; reasons: Refusal[] };
 
 const M = (
   code: string,
@@ -130,22 +178,28 @@ const CORNERS = {
     /** Square: it is as deep as it is wide, which is why it fills the corner. */
     depthIn: CABINET_STANDARDS.corner.lazySusanIn,
     code: `LS${CABINET_STANDARDS.corner.lazySusanIn}`,
+    /**
+     * The wall cabinet over it. A diagonal corner box is square like the susan
+     * below it, so the other leg's bank starts 24" in; a blind wall corner is
+     * an ordinary 12" deep box with a blind end, so that bank picks up at 12".
+     * The two go together — you do not put a blind base under a diagonal wall
+     * cabinet, and the door swings would not agree if you did.
+     */
+    upper: { code: "WER2442", alongIn: 24, acrossIn: 24, depthIn: 24 },
   },
   blind: {
     alongIn: CABINET_STANDARDS.corner.blindIn,
     acrossIn: 24,
     depthIn: CABINET_STANDARDS.base.depthIn,
     code: `BBC${CABINET_STANDARDS.corner.blindIn}`,
+    upper: { code: "WBC2442", alongIn: 24, acrossIn: 12, depthIn: CABINET_STANDARDS.upper.depthIn },
   },
 } as const;
 
-/** A corner wall cabinet reaches 24" into each leg, whatever is below it. */
-const CORNER_UPPER_IN = 24;
-
 /** The openings, dimensioned to the appliances that go in them. */
 const OPENING_IN = { range: 36, dishwasher: 24, microwave: 24, wine: 24, fridge: 42 };
-/** Counter beside the range (D11 rule 4) and beside the tower (rule 6). */
-const LANDING_IN = { range: 12, fridge: 15, corner: 12 };
+/** The sink base, which is a fixture's cabinet rather than an opening. */
+const SINK_BASE_IN = 30;
 
 // --- packing a leg --------------------------------------------------------
 
@@ -167,6 +221,9 @@ type Item =
       kind: "gap";
       id: string;
       minIn: number;
+      /** The rule that asks for it, for the breakdown under the slider. */
+      rule: string;
+      labelKey: string;
       /**
        * A stretch that is wanted but not needed: the base cabinet finishing a
        * run at the open end of the room. It is the first thing to go when the
@@ -183,24 +240,32 @@ const fixed = (
   extra: { slot?: SlotId; fixture?: FixtureId } = {},
 ): Item => ({ kind: "fixed", id, widthIn, segmentKind, module, ...extra });
 
-const gap = (id: string, minIn: number, optional = false): Item => ({
-  kind: "gap",
-  id,
-  minIn,
-  optional,
-});
+const gap = (
+  id: string,
+  minIn: number,
+  rule: string,
+  extra: { optional?: boolean } = {},
+): Item => ({ kind: "gap", id, minIn, rule, labelKey: `requirement.${id}`, ...extra });
 
-/** Two stretches of counter with nothing between them are one stretch. */
+/**
+ * Two stretches of counter with nothing between them are one stretch.
+ *
+ * Its minimum is the larger of the two, not their sum: one run of counter
+ * between the corner cabinet and the refrigerator tower answers both "the
+ * tower is not hard against the corner" and "the tower has 15" to land on".
+ * Adding them would charge the wall twice for the same cabinet.
+ */
 function mergeGaps(items: Item[]): Item[] {
   const merged: Item[] = [];
   for (const item of items) {
     const last = merged[merged.length - 1];
     if (item.kind === "gap" && last?.kind === "gap") {
-      merged[merged.length - 1] = gap(
-        last.id,
-        last.minIn + item.minIn,
-        Boolean(last.optional && item.optional),
-      );
+      const wider = item.minIn > last.minIn ? item : last;
+      merged[merged.length - 1] = {
+        ...wider,
+        id: last.id,
+        optional: Boolean(last.optional && item.optional),
+      };
       continue;
     }
     merged.push(item);
@@ -355,17 +420,21 @@ function fillWidth(totalIn: number, make: (widthIn: number) => CabinetModule): C
 
 // --- validation -----------------------------------------------------------
 
-function step(name: keyof typeof PARAM_LIMITS, value: number, noun: string): string | null {
+function step(name: keyof typeof PARAM_LIMITS, value: number): Refusal | null {
   const { min, max, step: increment } = PARAM_LIMITS[name];
-  if (value < min || value > max) {
-    return `${noun} runs from ${min}" to ${max}"; ${value}" is outside that.`;
-  }
+  const vars = { paramKey: `param.${name}`, min, max, step: increment, value };
+  if (value < min || value > max) return { key: "refusal.outOfRange", vars };
   if ((value - min) % increment !== 0) {
     const below = Math.floor((value - min) / increment) * increment + min;
-    return (
-      `${noun} comes in ${increment}" steps from ${min}"; ` +
-      `${value}" falls between ${below}" and ${below + increment}".`
-    );
+    return {
+      key: "refusal.offStep",
+      vars: { ...vars, below, above: below + increment },
+      suggestion: {
+        key: "suggestion.round",
+        vars: { paramKey: `param.${name}`, value: below },
+        patch: { [name]: below } as Partial<LayoutParams>,
+      },
+    };
   }
   return null;
 }
@@ -374,53 +443,164 @@ function step(name: keyof typeof PARAM_LIMITS, value: number, noun: string): str
  * Check the parameters before building anything.
  *
  * Refusing is a first-class outcome: the answer to "can I have a 50 inch
- * island?" is no, and the useful part is the sentence that follows.
+ * island?" is no, and the useful part is what follows — which is why a refusal
+ * carries a key, its figures, and where it can a change that would fix it.
  */
-function validate(params: LayoutParams): string[] {
-  const reasons: string[] = [];
-  const push = (reason: string | null) => {
+function validate(params: LayoutParams): Refusal[] {
+  const reasons: Refusal[] = [];
+  const push = (reason: Refusal | null) => {
     if (reason) reasons.push(reason);
   };
 
-  push(step("backWallIn", params.backWallIn, "The back wall"));
-  push(step("leftWallIn", params.leftWallIn, "The left wall"));
+  push(step("backWallIn", params.backWallIn));
+  push(step("leftWallIn", params.leftWallIn));
 
   // The tower and the sink base both need a run's worth of wall behind them,
   // and D13 caps a leg at 144". One leg will not carry a range, a sink, a
   // dishwasher and a 42" tower however long the wall is.
   if (params.fridgeEnd === params.sinkLeg) {
-    const leg = params.sinkLeg === "back" ? "back" : "left";
-    reasons.push(
-      `The ${leg} leg cannot take both the sink and the refrigerator: a leg stops at ` +
-        `${CABINET_STANDARDS.legIn.longMax}" and those two plus the range need more than that. ` +
-        `Put one of them on the other leg.`,
-    );
+    const other = params.sinkLeg === "back" ? "left" : "back";
+    reasons.push({
+      key: "refusal.oneLegBoth",
+      vars: { legKey: `leg.${params.sinkLeg}`, maxIn: CABINET_STANDARDS.legIn.longMax },
+      suggestion: {
+        key: "suggestion.moveSink",
+        vars: { legKey: `leg.${other}` },
+        patch: { sinkLeg: other },
+      },
+    });
   }
 
   if (params.hasIsland) {
-    push(step("islandLengthIn", params.islandLengthIn, "An island"));
-    push(step("islandDepthIn", params.islandDepthIn, "An island's depth"));
-    push(step("aisleIn", params.aisleIn, "The aisle"));
+    push(step("islandLengthIn", params.islandLengthIn));
+    push(step("islandDepthIn", params.islandDepthIn));
+    push(step("aisleIn", params.aisleIn));
 
     // The island stands clear of the left run by an aisle, and everything from
     // there to the far side of the room is what it has to fit in.
     const alongIn = params.backWallIn - CABINET_STANDARDS.base.depthIn - params.aisleIn;
     if (params.islandLengthIn > alongIn) {
-      reasons.push(
-        `A ${params.islandLengthIn}" island will not fit: with a ${params.aisleIn}" aisle off the ` +
-          `left run there is ${alongIn}" of room across a ${params.backWallIn}" wall.`,
-      );
+      const step_ = PARAM_LIMITS.islandLengthIn.step;
+      const fits = Math.floor(alongIn / step_) * step_;
+      reasons.push({
+        key: "refusal.islandLong",
+        vars: {
+          islandIn: params.islandLengthIn,
+          aisleIn: params.aisleIn,
+          roomIn: alongIn,
+          wallIn: params.backWallIn,
+        },
+        suggestion:
+          fits >= PARAM_LIMITS.islandLengthIn.min
+            ? {
+                key: "suggestion.shortenIsland",
+                vars: { value: fits },
+                patch: { islandLengthIn: fits },
+              }
+            : undefined,
+      });
     }
     const acrossIn = CABINET_STANDARDS.base.depthIn + params.aisleIn + params.islandDepthIn;
     if (acrossIn > params.leftWallIn) {
-      reasons.push(
-        `The back run, a ${params.aisleIn}" aisle and a ${params.islandDepthIn}" island come to ` +
-          `${acrossIn}", which is more than the ${params.leftWallIn}" the room is deep.`,
-      );
+      reasons.push({
+        key: "refusal.islandDeep",
+        vars: {
+          aisleIn: params.aisleIn,
+          islandIn: params.islandDepthIn,
+          needIn: acrossIn,
+          wallIn: params.leftWallIn,
+        },
+        suggestion: {
+          key: "suggestion.lengthen",
+          vars: { paramKey: "param.leftWallIn", value: acrossIn },
+          patch: { leftWallIn: acrossIn },
+        },
+      });
     }
   }
 
   return reasons;
+}
+
+/**
+ * A change that would let this configuration build, given a wall that is short.
+ *
+ * The order is what a designer would try in the room, cheapest first: move the
+ * sink to the other leg, then change what turns the corner, then give in and
+ * lengthen the wall. Each candidate is generated before it is offered, so the
+ * button never hands back another refusal.
+ */
+let suggesting = false;
+
+function suggestionForWall(
+  params: LayoutParams,
+  key: "backWallIn" | "leftWallIn",
+): Refusal["suggestion"] {
+  // Working out whether a suggestion builds means generating it, and a
+  // generation that fails would otherwise go looking for a suggestion of its
+  // own. One level is all this question needs.
+  if (suggesting) return undefined;
+  suggesting = true;
+  try {
+    return firstSuggestion(params, key);
+  } finally {
+    suggesting = false;
+  }
+}
+
+function firstSuggestion(
+  params: LayoutParams,
+  key: "backWallIn" | "leftWallIn",
+): Refusal["suggestion"] {
+  const otherLeg = params.sinkLeg === "back" ? ("left" as const) : ("back" as const);
+  const otherCorner =
+    params.cornerType === "blind" ? ("lazy-susan" as const) : ("blind" as const);
+
+  const candidates: NonNullable<Refusal["suggestion"]>[] = [
+    {
+      key: "suggestion.moveSinkMinimum",
+      vars: { legKey: `leg.${otherLeg}`, paramKey: `param.${key}` },
+      // The refrigerator has to go somewhere, and it cannot share a leg with
+      // the sink, so it takes the leg the sink just left.
+      patch: { sinkLeg: otherLeg, fridgeEnd: params.sinkLeg },
+    },
+    {
+      key: "suggestion.corner",
+      vars: { cornerKey: `panel.room.corner.${otherCorner === "blind" ? "blind" : "lazySusan"}`, paramKey: `param.${key}` },
+      patch: { cornerType: otherCorner },
+    },
+    // An island is where the microwave drawer and the wine cabinet want to be;
+    // putting it back takes 48" of opening off the perimeter run.
+    ...(params.hasIsland
+      ? []
+      : [
+          {
+            key: "suggestion.island",
+            vars: { paramKey: `param.${key}` } as Record<string, string | number>,
+            patch: { hasIsland: true } as Partial<LayoutParams>,
+          },
+        ]),
+  ];
+
+  for (const candidate of candidates) {
+    const patched = { ...params, ...candidate.patch };
+    if (!generateLayout(patched).ok) continue;
+    const range = feasibleRange(patched, key);
+    if (range) candidate.vars.minimumIn = range.minIn;
+    return candidate;
+  }
+
+  // Nothing rearranges into it: the wall itself has to move.
+  const here = feasibleRange(params, key);
+  if (here) {
+    const nearest = params[key] < here.minIn ? here.minIn : here.maxIn;
+    return {
+      key: nearest > params[key] ? "suggestion.lengthen" : "suggestion.shorten",
+      vars: { paramKey: `param.${key}`, value: nearest },
+      patch: { [key]: nearest } as Partial<LayoutParams>,
+    };
+  }
+  return undefined;
 }
 
 // --- the layout itself ----------------------------------------------------
@@ -463,15 +643,16 @@ function islandFor(params: LayoutParams, halfX: number, halfZ: number): IslandLa
  */
 function planLegs(params: LayoutParams) {
   const corner = CORNERS[params.cornerType];
+  const { sink: sinkRule } = LAYOUT_LIMITS;
 
   const opening = (slot: SlotId, id: string, widthIn: number) =>
     fixed(id, widthIn, "appliance", M(`RO${widthIn}`, "opening", widthIn, { slot }), { slot });
 
   const sink = fixed(
     "sink",
-    30,
+    SINK_BASE_IN,
     "fixture",
-    M("SB30", "sink-base", 30, { fixture: "fixture-sink" }),
+    M(`SB${SINK_BASE_IN}`, "sink-base", SINK_BASE_IN, { fixture: "fixture-sink" }),
     { fixture: "fixture-sink" },
   );
   const dishwasher = opening("slot-dishwasher", "dishwasher", OPENING_IN.dishwasher);
@@ -486,6 +667,22 @@ function planLegs(params: LayoutParams) {
     { slot: "slot-fridge" },
   );
 
+  /**
+   * The sink group, laid out to D11 rule 10.
+   *
+   * The dishwasher goes on the side toward the range, so the cook turns from
+   * the cooktop to the dishwasher to the sink without crossing the kitchen, and
+   * it stands in for the wide side the rule asks for — 24" of counter-height
+   * surface is 24" of counter-height surface. The far side is plain counter at
+   * the narrow figure. Both legs read from the corner outward and the range is
+   * always at the corner end of the run, so "toward the range" is always first.
+   */
+  const sinkGroup = (): Item[] => [
+    dishwasher,
+    sink,
+    gap("sink-landing", sinkRule.narrowIn, "d11-10"),
+  ];
+
   const left: Item[] = [
     fixed(
       "corner",
@@ -493,26 +690,46 @@ function planLegs(params: LayoutParams) {
       "corner",
       M(corner.code, "corner", corner.alongIn, { depthIn: corner.depthIn }),
     ),
-    gap("corner-landing", LANDING_IN.corner),
+    // A sink base hard against a corner cabinet stops its door opening, so this
+    // stretch is required when the sink is what follows the corner. Otherwise
+    // it is only wanted: rule 1 already keeps the tower off the corner through
+    // its own landing, and a drawer base beside a lazy susan is ordinary.
+    params.sinkLeg === "left"
+      ? gap("corner-landing", sinkRule.fromCornerIn, "d11-10")
+      : gap("corner-landing", LAYOUT_LIMITS.cornerLandingIn, "d11-1", { optional: true }),
   ];
-  if (params.sinkLeg === "left") left.push(sink, dishwasher);
-  if (!params.hasIsland) left.push(opening("slot-wine", "wine", OPENING_IN.wine));
+  if (params.sinkLeg === "left") left.push(...sinkGroup());
+  // With no island the microwave drawer and the wine cabinet have to stand in
+  // the perimeter run, and they go on the leg the sink is not on: that leg is
+  // already carrying the range, the sink base and the dishwasher, and 48" more
+  // of opening is exactly what it does not have.
+  if (!params.hasIsland && params.sinkLeg === "back") {
+    left.push(
+      opening("slot-microwave", "microwave", OPENING_IN.microwave),
+      opening("slot-wine", "wine", OPENING_IN.wine),
+    );
+  }
 
   const back: Item[] = [
-    gap("range-landing-left", LANDING_IN.range),
+    gap("range-landing-left", LAYOUT_LIMITS.rangeLandingIn, "d11-4"),
     opening("slot-range", "range", OPENING_IN.range),
-    gap("range-landing-right", LANDING_IN.range),
+    gap("range-landing-right", LAYOUT_LIMITS.rangeLandingIn, "d11-4"),
   ];
-  if (params.sinkLeg === "back") back.push(sink, dishwasher);
-  if (!params.hasIsland) back.push(opening("slot-microwave", "microwave", OPENING_IN.microwave));
+  if (params.sinkLeg === "back") back.push(...sinkGroup());
+  if (!params.hasIsland && params.sinkLeg === "left") {
+    back.push(
+      opening("slot-microwave", "microwave", OPENING_IN.microwave),
+      opening("slot-wine", "wine", OPENING_IN.wine),
+    );
+  }
 
   // The tower finishes its leg, with a landing before it (D11 rule 6).
   if (params.fridgeEnd === "left") {
-    left.push(gap("fridge-landing", LANDING_IN.fridge), tower);
-    back.push(gap("back-end", LANDING_IN.corner, true));
+    left.push(gap("fridge-landing", LAYOUT_LIMITS.fridgeLandingIn, "d11-6"), tower);
+    back.push(gap("back-end", LAYOUT_LIMITS.cornerLandingIn, "d13-modules", { optional: true }));
   } else {
-    back.push(gap("fridge-landing", LANDING_IN.fridge), tower);
-    left.push(gap("left-end", LANDING_IN.corner, true));
+    back.push(gap("fridge-landing", LAYOUT_LIMITS.fridgeLandingIn, "d11-6"), tower);
+    left.push(gap("left-end", LAYOUT_LIMITS.cornerLandingIn, "d13-modules", { optional: true }));
   }
 
   return {
@@ -521,21 +738,122 @@ function planLegs(params: LayoutParams) {
   };
 }
 
-/** Wall cabinets over a stretch of leg: a corner box, then whatever fills it. */
-function bankFor(id: string, from: number, to: number, withCorner: boolean): UpperBank {
+/**
+ * What has to go on a leg, and the shortest wall that holds it.
+ *
+ * This is the same plan the generator packs, read as a bill rather than as a
+ * layout: every fixed item at its own width and every stretch of counter at the
+ * minimum its rule asks for. D13's floor on a leg is added as a line of its own
+ * when it is the binding constraint, because "96" because a leg is never
+ * shorter than that" is as real a reason as a cabinet.
+ */
+export function wallRequirement(params: LayoutParams, leg: "left" | "back"): WallRequirement {
+  const plan = planLegs(params)[leg];
+  const corner = CORNERS[params.cornerType];
+  const items: RequirementItem[] = [];
+
+  // The corner cabinet stands on one leg and eats into the other, so it is on
+  // both bills: 36" of the left wall as a cabinet, and 36" of the back wall as
+  // the bite it takes out of it. One box, two walls.
+  if (leg === "back") {
+    items.push({
+      widthIn: corner.acrossIn,
+      code: corner.code,
+      labelKey: "requirement.cornerAcross",
+    });
+  }
+
+  for (const item of plan.items) {
+    if (item.kind === "fixed") {
+      items.push({
+        widthIn: item.widthIn,
+        code: item.module.code,
+        labelKey: `requirement.${item.id}`,
+      });
+    } else if (!item.optional) {
+      items.push({ widthIn: item.minIn, rule: item.rule, labelKey: item.labelKey });
+    }
+  }
+
+  const across = leg === "back" ? corner.acrossIn : 0;
+  const legIn = items.reduce((sum, item) => sum + item.widthIn, 0) - across;
+  const floor = CABINET_STANDARDS.legIn.shortMin;
+  if (legIn < floor) {
+    items.push({ widthIn: floor - legIn, rule: "d13-leg", labelKey: "requirement.legFloor" });
+  }
+
+  let minimumIn = Math.max(legIn, floor) + across;
+
+  // A wall is two things at once: the length of its own run, and the width or
+  // depth of the room the island stands in. Whichever asks for more is the
+  // minimum, and the difference goes on the bill so the figure still adds up.
+  if (params.hasIsland) {
+    const clearance =
+      CABINET_STANDARDS.base.depthIn +
+      params.aisleIn +
+      (leg === "back" ? params.islandLengthIn : params.islandDepthIn);
+    if (clearance > minimumIn) {
+      items.push({
+        widthIn: clearance - minimumIn,
+        rule: "d11-7",
+        labelKey: "requirement.islandClearance",
+      });
+      minimumIn = clearance;
+    }
+  }
+
+  return { leg, items, minimumIn, maximumIn: CABINET_STANDARDS.legIn.longMax + across };
+}
+
+/**
+ * The lengths of one wall this configuration can actually be built at.
+ *
+ * Probed rather than derived: the constraints on a wall come from four
+ * directions — what has to stand on it, D13's cap on a leg, the island's length
+ * and the island's depth — and a second copy of that arithmetic would be a
+ * second thing to keep right. There are at most a dozen steps to try.
+ */
+export function feasibleRange(
+  params: LayoutParams,
+  key: "backWallIn" | "leftWallIn",
+): { minIn: number; maxIn: number } | null {
+  const { min, max, step } = PARAM_LIMITS[key];
+  let minIn: number | null = null;
+  let maxIn = min;
+  for (let value = min; value <= max; value += step) {
+    if (!generateLayout({ ...params, [key]: value }).ok) continue;
+    if (minIn === null) minIn = value;
+    maxIn = value;
+  }
+  return minIn === null ? null : { minIn, maxIn };
+}
+
+/**
+ * Wall cabinets over a stretch of leg: the corner box, then whatever fills it.
+ *
+ * The corner box is the one the parameter chose. A diagonal wall cabinet goes
+ * over a lazy susan and a blind wall corner over a blind base — they are bought
+ * as a pair, and mixing them puts a door swing where the box behind it is not.
+ */
+function bankFor(
+  id: string,
+  from: number,
+  to: number,
+  corner: (typeof CORNERS)[keyof typeof CORNERS] | null,
+): UpperBank {
   const totalIn = Math.round((to - from) * 12);
-  const rest = withCorner ? totalIn - CORNER_UPPER_IN : totalIn;
+  const rest = corner ? totalIn - corner.upper.alongIn : totalIn;
   return {
     id,
     from,
     to,
     band: [ROOM.upperBottom, ROOM.upperTop] as const,
     modules: [
-      ...(withCorner
+      ...(corner
         ? [
-            M(`WER${CORNER_UPPER_IN}42`, "corner", CORNER_UPPER_IN, {
+            M(corner.upper.code, "corner", corner.upper.alongIn, {
               heightIn: 42,
-              depthIn: CORNER_UPPER_IN,
+              depthIn: corner.upper.depthIn,
             }),
           ]
         : []),
@@ -560,22 +878,22 @@ function banksAroundHood(
   runId: string,
   segments: RunSegment[],
   start: number,
-  withCorner: boolean,
+  corner: (typeof CORNERS)[keyof typeof CORNERS] | null,
 ): UpperBank[] {
   const range = segments.find((segment) => segment.slot === "slot-range");
   const stop = bankStop(segments);
-  if (!range) return [bankFor(`upper-${runId}`, start, stop, withCorner)];
+  if (!range) return [bankFor(`upper-${runId}`, start, stop, corner)];
 
   const hood = [range.from - ft(3), range.to + ft(3)] as const;
   return [
-    bankFor(`upper-${runId}-left`, start, hood[0], withCorner),
+    bankFor(`upper-${runId}-left`, start, hood[0], corner),
     {
       id: `upper-${runId}-hood`,
       from: hood[0],
       to: hood[1],
       modules: [M("W42", "bridge", 42, { slot: "slot-hood" })],
     },
-    bankFor(`upper-${runId}-right`, hood[1], stop, false),
+    bankFor(`upper-${runId}-right`, hood[1], stop, null),
   ];
 }
 
@@ -660,26 +978,49 @@ export function generateLayout(params: LayoutParams): GenerateResult {
   const corner = CORNERS[params.cornerType];
   const plan = planLegs(params);
 
+  // Both walls are judged before either is built: fixing one and finding the
+  // other waiting is the worst way to learn a room is too small. A wall that is
+  // wrong carries what is standing on it and one change that would make it fit.
+  const wrongLength: Refusal[] = [];
+  for (const leg of ["left", "back"] as const) {
+    const key = leg === "back" ? ("backWallIn" as const) : ("leftWallIn" as const);
+    const requirement = wallRequirement(params, leg);
+    const vars = {
+      paramKey: `param.${key}`,
+      wallIn: params[key],
+      minimumIn: requirement.minimumIn,
+      maximumIn: requirement.maximumIn,
+    };
+    if (params[key] < requirement.minimumIn) {
+      wrongLength.push({
+        key: "refusal.wallShort",
+        vars: { ...vars, shortIn: requirement.minimumIn - params[key] },
+        occupancy: requirement.items,
+        suggestion: suggestionForWall(params, key),
+      });
+    } else if (params[key] > requirement.maximumIn) {
+      // Not a shortage: D13 stops a single run at 144", and a longer wall is
+      // two runs with something between them, which is a different template.
+      wrongLength.push({
+        key: "refusal.wallLong",
+        vars: { ...vars, overIn: params[key] - requirement.maximumIn },
+        suggestion: {
+          key: "suggestion.shorten",
+          vars: { paramKey: `param.${key}`, value: requirement.maximumIn },
+          patch: { [key]: requirement.maximumIn } as Partial<LayoutParams>,
+        },
+      });
+    }
+  }
+  if (wrongLength.length > 0) return { ok: false, reasons: wrongLength };
+
   const packedLeft = packLeg(plan.left.availableIn, plan.left.items);
   const packedBack = packLeg(plan.back.availableIn, plan.back.items);
-
-  // Two shortfalls are reported together: fixing one and finding the other
-  // waiting is the worst way to learn a room is too small.
-  const shortfall = (leg: "left" | "back", other: "left" | "back", by: number) => {
-    const alternative =
-      params.cornerType === "lazy-susan"
-        ? 'turn the corner with a blind cabinet, which gives the back wall 12" more'
-        : "take something off it";
-    return (
-      `The ${leg} wall is ${by}" short of what has to go on it. ` +
-      `Lengthen it, move something to the ${other} wall, or ${alternative}.`
-    );
-  };
-  const backShort = "shortIn" in packedBack ? [shortfall("back", "left", packedBack.shortIn)] : [];
-  if ("shortIn" in packedLeft) {
-    return { ok: false, reasons: [shortfall("left", "back", packedLeft.shortIn), ...backShort] };
+  if ("shortIn" in packedLeft || "shortIn" in packedBack) {
+    // The requirement above is the same arithmetic, so this cannot normally
+    // happen; if it ever does, it is a bug rather than a room that is too small.
+    throw new Error("layoutTemplate: a wall passed its requirement and would not pack");
   }
-  if ("shortIn" in packedBack) return { ok: false, reasons: backShort };
 
   const leftSegments = layOut("left", -halfZ, plan.left.items, packedLeft.widths);
   const backSegments = layOut(
@@ -690,22 +1031,23 @@ export function generateLayout(params: LayoutParams): GenerateResult {
   );
   const island = islandFor(params, halfX, halfZ);
 
-  // The wall cabinets pick up 24" in from the corner on both legs, whatever
-  // turns the corner underneath them.
+  // The left leg's bank starts at the wall; the back leg's picks up where the
+  // corner wall cabinet stops, which is 24" in over a lazy susan and 12" in
+  // over a blind corner.
   const runs: CabinetRun[] = [
     {
       id: "left",
       axis: "z",
       centre: -halfX + ROOM.counterDepth / 2,
       segments: leftSegments,
-      uppers: [bankFor("upper-left", -halfZ, bankStop(leftSegments), true)],
+      uppers: [bankFor("upper-left", -halfZ, bankStop(leftSegments), corner)],
     },
     {
       id: "back",
       axis: "x",
       centre: -halfZ + ROOM.counterDepth / 2,
       segments: backSegments,
-      uppers: banksAroundHood("back", backSegments, -halfX + ft(CORNER_UPPER_IN), false),
+      uppers: banksAroundHood("back", backSegments, -halfX + ft(corner.upper.acrossIn), null),
     },
   ];
 

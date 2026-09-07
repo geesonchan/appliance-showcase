@@ -372,6 +372,17 @@ each one has a test with a case that breaks it.
    cabinet its three connections are in, and the checker reads the model's own
    installation drawing to say so rather than taking it on trust.
 
+10. **The sink has counter on both sides and stands clear of the corner.** One
+    side is at least 24" and the other at least 18"; the dishwasher counts as
+    the 24" side, because 24" of surface at counter height is what the rule is
+    for. Between the sink base and the corner cabinet there is at least 15" of
+    counter, or the corner cabinet's door has nowhere to open. The sink group
+    sits centred in what is left of the leg, with the dishwasher on the side
+    toward the range — the cook turns from the cooktop to the dishwasher to the
+    sink without crossing the kitchen. The figures are Leo's to change and live
+    in `LAYOUT_LIMITS` in `roomShell.ts`, where the generator lays a run out to
+    them and `checkLayout` holds it to them.
+
 **Scheme 01 as laid out.** Left wall, from the far end back to the corner:
 refrigerator tower, 15" landing, corner cabinet. Back wall, from the corner
 out: 18" counter, range with its hood, 18" counter, sink, dishwasher, counter to
@@ -389,10 +400,16 @@ supply and drain roughed in, so the layout rules and the install view both have
 to know about it — but it has no brand, no price and no alternatives. Putting it
 in the appliance catalogue would give it all three and put it on a quote.
 
+**Rule 7 is about an island.** Two openings coming in from opposite faces with
+an aisle to the perimeter is a fact about an island; a kitchen whose parameters
+ask for none has neither a seating side nor an aisle, and its microwave drawer
+and wine cabinet are two base cabinets in a run. The checker skips the rule
+rather than failing it.
+
 **What this forbids:** placing an appliance by eye; a layout template that
 "mostly" follows the rules; hard-coded cabinet boxes that no rule can be run
 against; adding the sink, the pot filler or the ice-maker line to
-`appliances.json`.
+`appliances.json`; a refusal that says no without saying what is in the way.
 
 
 ---
