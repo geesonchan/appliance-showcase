@@ -396,9 +396,20 @@ function layOut(runId: string, start: number, items: Item[], gapWidths: number[]
  * 36 + 30 + 12, which is what a supplier would quote. What no box covers
  * becomes a filler, scribed to the wall.
  */
-function fillWidth(totalIn: number, make: (widthIn: number) => CabinetModule): CabinetModule[] {
+function fillWidth(
+  totalIn: number,
+  make: (widthIn: number) => CabinetModule,
+  /**
+   * Which end the scribe goes. A filler is a strip of finished panel with
+   * nothing behind it, and it belongs where nothing has to reach past it —
+   * against a wall. Beside a hood it is a gap you cannot get a cloth into and
+   * a foot of shelf nobody has. See docs/decisions.md D13.
+   */
+  fillerAt: "start" | "end" = "end",
+): CabinetModule[] {
   const stock = [36, 33, 30, 27, 24, 21, 18, 15, 12];
-  const modules: CabinetModule[] = [];
+  const boxes: CabinetModule[] = [];
+  const fillers: CabinetModule[] = [];
   let left = Math.round(totalIn);
   while (left > 0) {
     const next = stock.find((width) => {
@@ -408,14 +419,14 @@ function fillWidth(totalIn: number, make: (widthIn: number) => CabinetModule): C
     });
     if (next === undefined) {
       const filler = left >= 6 ? 6 : 3;
-      modules.push(M(`BF${filler}`, "filler", filler));
+      fillers.push(M(`BF${filler}`, "filler", filler));
       left -= filler;
       continue;
     }
-    modules.push(make(next));
+    boxes.push(make(next));
     left -= next;
   }
-  return modules;
+  return fillerAt === "start" ? [...fillers, ...boxes] : [...boxes, ...fillers];
 }
 
 // --- validation -----------------------------------------------------------
@@ -840,6 +851,8 @@ function bankFor(
   from: number,
   to: number,
   corner: (typeof CORNERS)[keyof typeof CORNERS] | null,
+  /** Which end of this bank the scribe goes. Away from the hood, always. */
+  fillerAt: "start" | "end" = "end",
 ): UpperBank {
   const totalIn = Math.round((to - from) * 12);
   const rest = corner ? totalIn - corner.upper.alongIn : totalIn;
@@ -857,7 +870,7 @@ function bankFor(
             }),
           ]
         : []),
-      ...(rest > 0 ? fillWidth(rest, wallModule) : []),
+      ...(rest > 0 ? fillWidth(rest, wallModule, fillerAt) : []),
     ],
   };
 }
@@ -884,16 +897,21 @@ function banksAroundHood(
   const stop = bankStop(segments);
   if (!range) return [bankFor(`upper-${runId}`, start, stop, corner)];
 
-  const hood = [range.from - ft(3), range.to + ft(3)] as const;
+  // The canopy is as wide as the range under it — a hood narrower than its
+  // cooktop is a rule violation, and a wider one is not in the catalogue — so
+  // the bank each side stops exactly at the canopy's flank. A gap there is one
+  // you cannot get a cloth into and a foot of shelf nobody has.
+  const hood = [range.from, range.to] as const;
+  const bridgeIn = Math.round((hood[1] - hood[0]) * 12);
   return [
-    bankFor(`upper-${runId}-left`, start, hood[0], corner),
+    bankFor(`upper-${runId}-left`, start, hood[0], corner, "start"),
     {
       id: `upper-${runId}-hood`,
       from: hood[0],
       to: hood[1],
-      modules: [M("W42", "bridge", 42, { slot: "slot-hood" })],
+      modules: [M(`W${bridgeIn}`, "bridge", bridgeIn, { slot: "slot-hood" })],
     },
-    bankFor(`upper-${runId}-right`, hood[1], stop, null),
+    bankFor(`upper-${runId}-right`, hood[1], stop, null, "end"),
   ];
 }
 

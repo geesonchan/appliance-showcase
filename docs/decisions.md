@@ -414,6 +414,13 @@ ask for none has neither a seating side nor an aisle, and its microwave drawer
 and wine cabinet are two base cabinets in a run. The checker skips the rule
 rather than failing it.
 
+**The wall cabinets meet the canopy.** The bank each side of a hood stops
+exactly at its flank, and the cabinet against it is a cabinet rather than a
+filler. A gap beside a canopy is one nobody can get a cloth into and a foot of
+shelf nobody has, and the scribe a run needs belongs against a wall, where
+nothing has to reach past it. The bridge over the canopy is the canopy's own
+width.
+
 **What this forbids:** placing an appliance by eye; a layout template that
 "mostly" follows the rules; hard-coded cabinet boxes that no rule can be run
 against; adding the sink, the pot filler or the ice-maker line to

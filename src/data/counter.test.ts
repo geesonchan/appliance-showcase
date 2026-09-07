@@ -155,3 +155,63 @@ describe("the slab is still one piece where the run is", () => {
     }
   });
 });
+
+describe("the wall cabinets come right up to the canopy", () => {
+  /** The bridge over the hood, and the boxes either side of it, along the run. */
+  function aroundTheHood() {
+    const run = RUNS.find((r) => r.segments.some((s) => s.slot === "slot-range"))!;
+    const along = run.axis === "x" ? 0 : 2;
+    const uppers = CABINETS.filter(
+      (box) => box.kind === "upper" && box.id.startsWith(`upper-${run.id}`),
+    );
+    const bridge = uppers.find((box) => box.module?.kind === "bridge")!;
+    const edge = (box: (typeof uppers)[number]) => ({
+      low: box.position[along] - box.size[along] / 2,
+      high: box.position[along] + box.size[along] / 2,
+    });
+    const hood = edge(bridge);
+    const left = uppers
+      .filter((box) => box !== bridge && edge(box).high <= hood.low + 1e-9)
+      .sort((a, b) => edge(b).high - edge(a).high)[0];
+    const right = uppers
+      .filter((box) => box !== bridge && edge(box).low >= hood.high - 1e-9)
+      .sort((a, b) => edge(a).low - edge(b).low)[0];
+    return { hood, bridge, left, right, edge };
+  }
+
+  // Leo's rule: a gap beside a canopy is one you cannot get a cloth into and a
+  // foot of shelf nobody has.
+  it.each(combinations())("leaves no gap either side of it, for %o", (over) => {
+    const result = setLayoutParams(params(over));
+    if (!result.ok) return;
+
+    const { hood, left, right, edge } = aroundTheHood();
+    expect(left, `nothing to the left of the canopy at ${JSON.stringify(over)}`).toBeDefined();
+    expect(right, `nothing to the right of the canopy at ${JSON.stringify(over)}`).toBeDefined();
+    expect(inches(hood.low - edge(left).high), "gap on the left").toBeCloseTo(0, 6);
+    expect(inches(edge(right).low - hood.high), "gap on the right").toBeCloseTo(0, 6);
+  });
+
+  // A filler is a strip of finished panel with nothing behind it. It belongs
+  // against a wall, not against the one thing in the run you have to clean.
+  it.each(combinations())("puts a cabinet against it, not a scribe, for %o", (over) => {
+    const result = setLayoutParams(params(over));
+    if (!result.ok) return;
+
+    const { left, right } = aroundTheHood();
+    expect(left.module?.kind, `filler left of the canopy at ${JSON.stringify(over)}`).not.toBe(
+      "filler",
+    );
+    expect(right.module?.kind, `filler right of the canopy at ${JSON.stringify(over)}`).not.toBe(
+      "filler",
+    );
+  });
+
+  it("makes the bridge exactly as wide as the canopy under it", () => {
+    expect(setLayoutParams(DEFAULT_PARAMS).ok).toBe(true);
+    const { bridge } = aroundTheHood();
+    const hood = SLOT_BY_ID["slot-hood"];
+    const along = bridge.size[0] > bridge.size[2] ? 0 : 2;
+    expect(inches(bridge.size[along])).toBeCloseTo(hood.cutout.w, 6);
+  });
+});

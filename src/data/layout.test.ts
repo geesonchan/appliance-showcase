@@ -296,7 +296,7 @@ describe("D13 · wall cabinets", () => {
   });
 
   it("picks the run up again exactly where the canopy stops", () => {
-    const overHood = CABINETS.find((b) => b.id === "upper-back-hood-W42-0")!;
+    const overHood = CABINETS.find((b) => b.module?.kind === "bridge")!;
     const bottom = overHood.position[1] - overHood.size[1] / 2;
     const hood = SLOT_BY_ID["slot-hood"];
     expect(inches(bottom)).toBeCloseTo(inches(hood.position[1]) + hood.cutout.h, 6);

@@ -7,7 +7,7 @@ import {
   type Refusal,
   type SlotPlacement,
 } from "./layoutTemplate";
-import { ft, setRoomSize, type CabinetRun, type RunSegment } from "./roomShell";
+import { setRoomSize, type CabinetRun, type RunSegment } from "./roomShell";
 import type { FixtureId, SlotId } from "../types";
 
 export * from "./roomShell";
@@ -58,7 +58,12 @@ export let RUN: { backZ: number; leftX: number };
  */
 export let FRIDGE_OPENING: readonly [number, number];
 
-/** Wall left clear above the range for the hood, 3" proud of it each side. */
+/**
+ * Wall left clear above the range for the canopy.
+ *
+ * The canopy's own width, which is the range's: the wall cabinets come right up
+ * to its flanks on both sides. See docs/decisions.md D13.
+ */
 export let HOOD_OPENING: readonly [number, number];
 
 /**
@@ -95,7 +100,7 @@ export function applyLayout(layout: GeneratedLayout, requested: LayoutParams, is
 
   FRIDGE_OPENING = fridgeOpeningOf(layout);
   const range = segmentForSlot("slot-range");
-  HOOD_OPENING = range ? ([range.from - ft(3), range.to + ft(3)] as const) : ([0, 0] as const);
+  HOOD_OPENING = range ? ([range.from, range.to] as const) : ([0, 0] as const);
 
   ISLAND = layout.island;
   SLOT_PLACEMENT = layout.slots;
