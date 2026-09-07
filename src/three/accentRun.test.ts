@@ -80,9 +80,10 @@ describe("the accent colour goes on a whole run", () => {
   // An accent that is one of the five you just chose from is not an accent.
   it("offers a second palette that is not the first", () => {
     expect(ACCENT_COLORS).toHaveLength(CABINET_COLORS.length);
+    // The oak swatch appears on both, because oak is oak. Nothing else does.
     const shared = ACCENT_COLORS.filter((a) =>
-      CABINET_COLORS.some((c) => c.value === a.value && c.key === a.key),
-    );
-    expect(shared).toEqual([]);
+      CABINET_COLORS.some((c) => c.value === a.value),
+    ).map((a) => a.token);
+    expect(shared).toEqual(["wood-oak"]);
   });
 });

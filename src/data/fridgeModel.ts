@@ -35,87 +35,127 @@ export interface Panel {
   y: number;
   w: number;
   h: number;
-  /** Where its handle runs, and which way. */
+  /** Its handle: a tube on two brackets, along one axis or the other. */
   handle: { x: number; y: number; length: number; along: "x" | "y" };
 }
 
 /**
- * Where the fresh food section stops and the frozen one starts, as a fraction
- * of the height. Two thirds is what a french-door cabinet gives to the top.
+ * The proportions of a built-in french door, from the front elevation
+ * (docs/reference/t36bt120ns-front.png).
+ *
+ * Every figure here is read off that drawing rather than chosen: the doors take
+ * a shade under three fifths of the front, the two drawers split what is left,
+ * and the toe grille is the four inches at the bottom that is not a door at all.
  */
-const SPLIT = { twoDrawer: 0.62, oneDrawer: 0.56, bottomFreezer: 0.6 };
-/** The gasket line between one door and the next. */
-const GAP = 0.5 / 12;
+export const FRIDGE_PROPORTIONS = {
+  /** Where the doors stop, as a fraction of the height above the toe grille. */
+  doorFraction: 0.58,
+  /** The seam down the middle of a pair of doors. */
+  centreGapIn: 0.125,
+  /** Between a door and the drawer under it, and between the two drawers. */
+  gapIn: 0.25,
+  /** The dark grille under the drawers. */
+  toeGrilleIn: 4,
+  /** Doors stand proud of the carcass — it is a built-in, not a flush panel. */
+  proudIn: 0.75,
+  /** Tubular handles: a diameter, and how much of their panel they run. */
+  handleDiameterIn: 1.25,
+  doorHandleFraction: 0.8,
+  drawerHandleFraction: 0.9,
+};
 
 /**
  * The fronts of a refrigerator, in the order they are hung.
  *
- * Handles sit on the opening edge of each door, which is what tells you which
- * way it swings: a french door pair opens outward from the middle, a drawer
- * pulls from a bar across it.
+ * A pair of doors carries a vertical handle each, both beside the centre seam,
+ * which is where the photograph puts them and where you would actually grab
+ * them: the pair opens outward from the middle. A drawer carries a horizontal
+ * bar across it. The toe grille is not a panel and does not appear here — it is
+ * drawn under everything, because nothing opens.
  */
 export function fridgeParts(appliance: Appliance, box: { w: number; h: number }): Panel[] {
   const config = doorConfigOf(appliance);
-  const { w, h } = box;
-  const half = (w - GAP) / 2;
-  const grip = 1.5 / 12;
+  const P = FRIDGE_PROPORTIONS;
+  const { w } = box;
+  const toe = P.toeGrilleIn / 12;
+  const gap = P.gapIn / 12;
+  const centre = P.centreGapIn / 12;
+  /** The stack of fronts sits on the grille. */
+  const from = toe;
+  const height = box.h - toe;
+  const grip = P.handleDiameterIn / 12;
 
-  /** A pair of doors from `from` to `to`, hinged at the outside edges. */
-  const pair = (id: string, from: number, to: number): Panel[] =>
-    [-1, 1].map((side) => ({
-      id: `${id}-${side < 0 ? "left" : "right"}`,
-      x: (side * (half + GAP)) / 2,
-      y: (from + to) / 2,
-      w: half,
-      h: to - from - GAP,
-      handle: {
-        // On the opening edge, which is the middle of the pair.
-        x: side * (GAP / 2 + grip),
-        y: (from + to) / 2,
-        length: (to - from) * 0.55,
-        along: "y" as const,
-      },
-    }));
+  /** A pair of doors, hinged at the outside edges. */
+  const pair = (id: string, low: number, high: number): Panel[] =>
+    [-1, 1].map((side) => {
+      const half = (w - centre) / 2;
+      return {
+        id: `${id}-${side < 0 ? "left" : "right"}`,
+        x: (side * (half + centre)) / 2,
+        y: (low + high) / 2,
+        w: half,
+        h: high - low,
+        handle: {
+          // Beside the seam, which is the edge that opens.
+          x: side * (centre / 2 + grip),
+          y: (low + high) / 2,
+          length: (high - low) * P.doorHandleFraction,
+          along: "y" as const,
+        },
+      };
+    });
 
   /** A drawer front across the full width, with a bar across it. */
-  const drawer = (id: string, from: number, to: number): Panel => ({
+  const drawer = (id: string, low: number, high: number): Panel => ({
     id,
     x: 0,
-    y: (from + to) / 2,
+    y: (low + high) / 2,
     w,
-    h: to - from - GAP,
-    handle: { x: 0, y: (from + to) / 2 + (to - from) * 0.28, length: w * 0.6, along: "x" },
+    h: high - low,
+    handle: {
+      x: 0,
+      // Near the top of the front, which is where you lift from.
+      y: high - (high - low) * 0.25,
+      length: w * P.drawerHandleFraction,
+      along: "x",
+    },
   });
 
   /** A single door across the full width, hinged on the left. */
-  const door = (id: string, from: number, to: number): Panel => ({
+  const door = (id: string, low: number, high: number): Panel => ({
     id,
     x: 0,
-    y: (from + to) / 2,
+    y: (low + high) / 2,
     w,
-    h: to - from - GAP,
-    handle: { x: w / 2 - grip * 2, y: (from + to) / 2, length: (to - from) * 0.5, along: "y" },
+    h: high - low,
+    handle: {
+      x: w / 2 - grip * 1.5,
+      y: (low + high) / 2,
+      length: (high - low) * P.doorHandleFraction,
+      along: "y",
+    },
   });
+
+  const doorsTo = from + height * P.doorFraction;
 
   switch (config) {
     case "french-door-2-drawer": {
       // Two doors over a refrigerator drawer over a freezer drawer: four
       // fronts, four handles, which is what a T36BT120NS is.
-      const top = h * SPLIT.twoDrawer;
-      const middle = top + (h - top) / 2;
-      return [...pair("door", top, h), drawer("drawer-fresh", middle, top), drawer("drawer-freezer", 0, middle)];
+      const split = (doorsTo + gap + from) / 2;
+      return [
+        ...pair("door", doorsTo + gap, box.h),
+        drawer("drawer-fresh", split + gap / 2, doorsTo),
+        drawer("drawer-freezer", from, split - gap / 2),
+      ];
     }
-    case "french-door-1-drawer": {
-      const top = h * SPLIT.oneDrawer;
-      return [...pair("door", top, h), drawer("drawer-freezer", 0, top)];
-    }
-    case "bottom-freezer": {
-      const top = h * SPLIT.bottomFreezer;
-      return [door("door", top, h), drawer("drawer-freezer", 0, top)];
-    }
+    case "french-door-1-drawer":
+      return [...pair("door", doorsTo + gap, box.h), drawer("drawer-freezer", from, doorsTo)];
+    case "bottom-freezer":
+      return [door("door", doorsTo + gap, box.h), drawer("drawer-freezer", from, doorsTo)];
     case "side-by-side":
-      return pair("door", 0, h);
+      return pair("door", from, box.h);
     case "column":
-      return [door("door", 0, h)];
+      return [door("door", from, box.h)];
   }
 }

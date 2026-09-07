@@ -3,7 +3,7 @@ import * as THREE from "three";
 import type { ThreeEvent } from "@react-three/fiber";
 import { applianceBox, flushOffset } from "../data/applianceBox";
 import { hoodProfile, hoodTopDepthIn } from "../data/hood";
-import { fridgeParts } from "../data/fridgeModel";
+import { FRIDGE_PROPORTIONS, fridgeParts } from "../data/fridgeModel";
 import { RANGE_PROPORTIONS, rangeParts } from "../data/rangeModel";
 import { Surface } from "./Surface";
 import { CABINET_STANDARDS, ROOM, SLOT_BY_ID, ft } from "../data/slots";
@@ -355,12 +355,18 @@ function Body({ category, appliance, installType, topDepthIn, w, h, d, body, tri
 }
 
 /**
- * A refrigerator, with the fronts its own record says it has.
+ * A refrigerator, drawn from its front elevation.
  *
- * A french door with two drawers and a side-by-side are the same box and
- * nothing like the same machine, so the panels come from `fridgeParts` and this
- * only hangs them. Handles sit on the opening edge of each door, which is what
- * tells you which way it swings.
+ * Two doors over two drawers, each panel standing three quarters of an inch
+ * proud of the carcass — it is a built-in, and what you see of a built-in is
+ * four slabs with shadow between them. Handles are tubes on brackets: vertical
+ * beside the centre seam on the doors, horizontal across the drawers. Under
+ * everything is the toe grille, which is the one part that does not open.
+ *
+ * Which fronts there are comes from `fridgeParts`, which reads the machine's
+ * own record. All of it stays inside the published envelope: the carcass is set
+ * back by the door thickness and the handle's reach, so a 36 x 84 x 25 opening
+ * gets a 36 x 84 x 25 machine.
  */
 function Fridge({
   appliance,
@@ -378,39 +384,72 @@ function Fridge({
   trim: SurfaceProps;
 }) {
   const panels = useMemo(() => fridgeParts(appliance, { w, h }), [appliance, w, h]);
-  // The handle stands off the door, so the carcass is set back by its
-  // projection: a published depth is quoted with the handles on.
-  const grip = ft(1.5);
-  const bar = ft(0.9);
-  const carcassD = d - grip;
+  const P = FRIDGE_PROPORTIONS;
+
+  const handleR = ft(P.handleDiameterIn) / 2;
+  const proud = ft(P.proudIn);
+  const doorThickness = ft(0.75);
+  /** Everything in front of the carcass: the door, its stand-off, the handle. */
+  const carcassD = d - proud - doorThickness - handleR * 2;
   const carcassZ = -(d - carcassD) / 2;
-  const face = carcassZ + carcassD / 2;
-  const gasket = ft(0.25);
+  const doorZ = carcassZ + carcassD / 2 + proud + doorThickness / 2;
+  const handleZ = d / 2 - handleR;
+  const toe = ft(P.toeGrilleIn);
+  const grille = tint(body, "#3A3E3C", { metalness: 0.4, roughness: 0.8 });
 
   return (
     <group name="fridge">
       <mesh position={[0, h / 2, carcassZ]} castShadow receiveShadow>
         <boxGeometry args={[w, h, carcassD]} />
-        <Mat s={body} />
+        <Mat s={body} size={[w, h]} />
+      </mesh>
+
+      {/* The grille under the drawers: dark, recessed, and not a door. */}
+      <mesh position={[0, toe / 2, doorZ - doorThickness / 4]}>
+        <boxGeometry args={[w, toe, doorThickness / 2]} />
+        <Mat s={grille} />
       </mesh>
 
       {panels.map((panel) => (
         <group key={panel.id} name={`fridge-panel-${panel.id}`}>
-          <mesh position={[panel.x, panel.y, face + gasket / 2]} castShadow>
-            <boxGeometry args={[panel.w, panel.h, gasket]} />
+          <mesh position={[panel.x, panel.y, doorZ]} castShadow receiveShadow>
+            <boxGeometry args={[panel.w, panel.h, doorThickness]} />
             <Mat s={body} size={[panel.w, panel.h]} />
           </mesh>
-          <mesh
-            position={[
-              panel.handle.x,
-              panel.handle.y,
-              d / 2 - bar / 2,
-            ]}
-            rotation={panel.handle.along === "x" ? [0, 0, Math.PI / 2] : [0, 0, 0]}
-          >
-            <cylinderGeometry args={[bar / 2, bar / 2, panel.handle.length, 12]} />
-            <Mat s={trim} />
-          </mesh>
+
+          {/* A tube on two brackets, the way one is actually mounted. */}
+          <group name={`fridge-handle-${panel.id}`}>
+            <mesh
+              position={[panel.handle.x, panel.handle.y, handleZ]}
+              rotation={panel.handle.along === "x" ? [0, 0, Math.PI / 2] : [0, 0, 0]}
+            >
+              <cylinderGeometry args={[handleR, handleR, panel.handle.length, 14]} />
+              <Mat s={trim} />
+            </mesh>
+            {[-1, 1].map((end) => {
+              const along = (end * panel.handle.length) / 2;
+              const bracketZ = (doorZ + doorThickness / 2 + handleZ) / 2;
+              return (
+                <mesh
+                  key={end}
+                  position={[
+                    panel.handle.x + (panel.handle.along === "x" ? along : 0),
+                    panel.handle.y + (panel.handle.along === "y" ? along : 0),
+                    bracketZ,
+                  ]}
+                >
+                  <boxGeometry
+                    args={[
+                      handleR * 1.6,
+                      handleR * 1.6,
+                      handleZ - doorZ - doorThickness / 2 + handleR,
+                    ]}
+                  />
+                  <Mat s={trim} />
+                </mesh>
+              );
+            })}
+          </group>
         </group>
       ))}
     </group>

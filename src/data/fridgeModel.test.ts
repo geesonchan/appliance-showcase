@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { APPLIANCES_BY_SLOT } from "./catalogue";
-import { doorConfigOf, fridgeParts, hasGenericDoors } from "./fridgeModel";
+import {
+  FRIDGE_PROPORTIONS,
+  doorConfigOf,
+  fridgeParts,
+  hasGenericDoors,
+} from "./fridgeModel";
 import { FIXTURES } from "./testFixtures";
 import type { Appliance } from "../types";
 
@@ -88,5 +93,55 @@ describe("what the record does not say is marked as a guess", () => {
     expect(specified, "T36BT120NS is not in the catalogue").toBeDefined();
     expect(specified!.doorConfig).toBe("french-door-2-drawer");
     expect(hasGenericDoors(specified!)).toBe(false);
+  });
+});
+
+describe("the front matches the elevation", () => {
+  const four = () => parts({ doorConfig: "french-door-2-drawer" });
+  const inches = (feet: number) => feet * 12;
+
+  it("stands the fronts on the toe grille, not on the floor", () => {
+    const lowest = Math.min(...four().map((p) => p.y - p.h / 2));
+    expect(inches(lowest)).toBeCloseTo(FRIDGE_PROPORTIONS.toeGrilleIn, 6);
+  });
+
+  it("leaves an eighth between the doors and a quarter between the drawers", () => {
+    const panels = four();
+    const [left, right] = panels.filter((p) => p.id.startsWith("door"));
+    expect(inches(right.x - right.w / 2 - (left.x + left.w / 2))).toBeCloseTo(
+      FRIDGE_PROPORTIONS.centreGapIn,
+      6,
+    );
+
+    const drawers = panels
+      .filter((p) => p.id.startsWith("drawer"))
+      .sort((a, b) => a.y - b.y);
+    expect(inches(drawers[1].y - drawers[1].h / 2 - (drawers[0].y + drawers[0].h / 2))).toBeCloseTo(
+      FRIDGE_PROPORTIONS.gapIn,
+      6,
+    );
+  });
+
+  it("runs a door handle down four fifths of its door and a drawer bar across nine tenths", () => {
+    for (const panel of four()) {
+      const fraction = panel.id.startsWith("door")
+        ? FRIDGE_PROPORTIONS.doorHandleFraction
+        : FRIDGE_PROPORTIONS.drawerHandleFraction;
+      const against = panel.id.startsWith("door") ? panel.h : panel.w;
+      expect(panel.handle.length / against, panel.id).toBeCloseTo(fraction, 6);
+    }
+  });
+
+  it("keeps every handle on the panel it belongs to", () => {
+    for (const panel of four()) {
+      const half = panel.handle.length / 2;
+      if (panel.handle.along === "y") {
+        expect(panel.handle.y + half, panel.id).toBeLessThanOrEqual(panel.y + panel.h / 2 + 1e-9);
+        expect(Math.abs(panel.handle.x - panel.x), panel.id).toBeLessThanOrEqual(panel.w / 2);
+      } else {
+        expect(panel.handle.x + half, panel.id).toBeLessThanOrEqual(panel.x + panel.w / 2 + 1e-9);
+        expect(panel.handle.y, panel.id).toBeLessThanOrEqual(panel.y + panel.h / 2 + 1e-9);
+      }
+    }
   });
 });

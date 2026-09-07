@@ -181,6 +181,27 @@ describe("desktop", () => {
     await page.close();
   });
 
+  // The same check on the refrigerator, whose front is four proud panels with
+  // handles standing off them: all of it has to fit the opening it goes in.
+  it("draws the refrigerator inside its own opening", async () => {
+    const { page } = await openPage(DESKTOP, false, "?debug=1");
+    await page.waitForTimeout(1200);
+
+    const measured = await page.evaluate(
+      () =>
+        (
+          window as unknown as {
+            __applianceBoxes?: Record<string, { w: number; h: number; d: number }>;
+          }
+        ).__applianceBoxes?.["slot-fridge"],
+    );
+    expect(measured).toBeTruthy();
+    expect(measured!.w).toBeCloseTo(36, 1);
+    expect(measured!.h).toBeCloseTo(84, 1);
+    expect(measured!.d).toBeCloseTo(25, 1);
+    await page.close();
+  });
+
   it("swaps a model in place and follows it everywhere", async () => {
     const { page, errors } = await openPage(DESKTOP, false, "?debug=1");
     // The measured geometry, which is the only proof the scene itself changed
