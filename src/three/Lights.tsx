@@ -1,3 +1,4 @@
+import { ROOM, RUN, ft } from "../data/room";
 import { useAppStore } from "../store/useAppStore";
 import type { Lighting, RenderMode } from "../types";
 
@@ -24,9 +25,12 @@ interface Rig {
  * flicker the scene.
  */
 const RIGS: Record<RenderMode, Record<Lighting, Rig>> = {
+  // The realistic rig is deliberately the darkest of the three now that an
+  // environment map carries the fill. Ambient light that used to stand in for
+  // bounced light is doing it twice, and the room came out flat and pale.
   realistic: {
-    day: { hemi: 1.1, ambient: 0.3, directional: 1.5, shadows: 1 },
-    night: { hemi: 0.5, ambient: 0.22, directional: 0.5, shadows: 0.85 },
+    day: { hemi: 0.35, ambient: 0.05, directional: 1.9, shadows: 1 },
+    night: { hemi: 0.16, ambient: 0.04, directional: 0.35, shadows: 0.85 },
   },
   white: {
     day: { hemi: 0.55, ambient: 0.25, directional: 1.5, shadows: 0 },
@@ -38,23 +42,38 @@ const RIGS: Record<RenderMode, Record<Lighting, Rig>> = {
   },
 };
 
+/**
+ * Light colour by the clock, in the temperatures a fixture is sold at.
+ *
+ * 4000K is the neutral white a kitchen is lit to in daylight; 3000K is the
+ * warm white the same room switches to at night, which is why an evening
+ * kitchen looks like one and not like a shop floor. The hex values are those
+ * temperatures converted once, here, rather than picked by eye.
+ */
+const KELVIN = {
+  day: { key: "#FFF2E0", fill: "#EAF2FF", ground: "#D9D3C4" },
+  night: { key: "#FFD9A8", fill: "#43536B", ground: "#2A3230" },
+} as const;
+
 export function Lights() {
   const lighting = useAppStore((s) => s.lighting);
   const renderMode = useAppStore((s) => s.renderMode);
   const day = lighting === "day";
   const rig = RIGS[renderMode][lighting];
+  const tone = KELVIN[lighting];
+  const underCabinet = renderMode === "realistic" && !day;
 
   return (
     <group name="lights">
       <hemisphereLight
-        args={[day ? "#FFFDF6" : "#5B6B7A", day ? "#D9D3C4" : "#2A3230"]}
+        args={[day ? "#FFFDF6" : tone.fill, tone.ground]}
         intensity={rig.hemi}
       />
       <ambientLight intensity={rig.ambient} />
       <directionalLight
         position={[10, 13, 8]}
         intensity={rig.directional}
-        color={day ? "#FFF6E2" : "#9FB6D0"}
+        color={day ? tone.key : tone.fill}
         castShadow
         shadow-intensity={rig.shadows}
         shadow-mapSize={[2048, 2048]}
@@ -67,14 +86,33 @@ export function Lights() {
         shadow-bias={-0.0002}
         shadow-normalBias={0.035}
       />
-      {/* warm fill standing in for under-cabinet lighting after dark */}
+      {/* The ceiling fitting: a soft downward wash over the whole room, which
+          is what stops the corners going black once the key light is warm. */}
       <pointLight
-        position={[-2.25, 4.4, -4]}
-        intensity={day ? 0 : 16}
-        distance={9}
-        decay={2}
-        color="#FFC98A"
+        position={[0, ROOM.wallHeight - ft(6), 1]}
+        intensity={day ? 4 : 5}
+        distance={26}
+        decay={1.6}
+        color={tone.key}
       />
+
+      {/* Under-cabinet lighting: a strip along each run rather than one lamp,
+          so the counter reads as lit from above it and the wall cabinets cast
+          the line they should. Off in daylight, and off in the modes that are
+          deliberately without atmosphere. */}
+      {[
+        { position: [RUN.leftX + ft(6), ROOM.upperBottom - ft(1), 0] as const },
+        { position: [0, ROOM.upperBottom - ft(1), RUN.backZ + ft(6)] as const },
+      ].map((strip, i) => (
+        <pointLight
+          key={i}
+          position={strip.position}
+          intensity={underCabinet ? 14 : 0}
+          distance={10}
+          decay={2}
+          color="#FFC98A"
+        />
+      ))}
     </group>
   );
 }

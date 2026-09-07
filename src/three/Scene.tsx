@@ -1,9 +1,11 @@
 import { Suspense, useEffect } from "react";
+import * as THREE from "three";
 import { Canvas, useThree } from "@react-three/fiber";
 import { useAppStore } from "../store/useAppStore";
 import { ApplianceLayer } from "./ApplianceLayer";
 import { CabinetLayer } from "./CabinetLayer";
 import { CameraRig } from "./CameraRig";
+import { Environment } from "./Environment";
 import { DimensionProjector } from "./DimensionProjector";
 import { FixtureLayer } from "./FixtureLayer";
 import { KitchenShell } from "./KitchenShell";
@@ -11,6 +13,7 @@ import { Lights } from "./Lights";
 import { ModuleLabelProjector } from "./ModuleLabelProjector";
 import { OcclusionFade } from "./OcclusionFade";
 import { PinProjector } from "./PinProjector";
+import { QualityGuard } from "./QualityGuard";
 import { RoughInLayer } from "./RoughInLayer";
 import { SceneDebug } from "./SceneDebug";
 import { ShaderWarmup } from "./ShaderWarmup";
@@ -55,7 +58,17 @@ export function Scene() {
       // `Lights`, and `StaticShadowMap` controls when the map is refreshed.
       shadows
       dpr={[1, 1.75]}
+      // MSAA rather than a post-processing pass: an EffectComposer would turn
+      // the hardware antialiasing off to get its own, and this scene is mostly
+      // long straight edges, which is exactly what MSAA is good at.
       gl={{ antialias: true, powerPreference: "high-performance" }}
+      // ACES, because the room now has real highlights in it — a stainless door
+      // under a 4000K key clips to white without it, and a white kitchen with
+      // no detail in the bright half is not a photograph of anything.
+      onCreated={({ gl }) => {
+        gl.toneMapping = THREE.ACESFilmicToneMapping;
+        gl.toneMappingExposure = 0.95;
+      }}
       camera={{ position: [12, 15, 12], zoom: 46, near: -100, far: 200 }}
       onPointerMissed={() => selectSlot(null)}
     >
@@ -64,6 +77,8 @@ export function Scene() {
       <Suspense fallback={null}>
         <StaticShadowMap />
         <ShaderWarmup />
+        <QualityGuard />
+        <Environment />
         <Lights />
         {/* Everything made out of the layout hangs off one key. Changing a
             parameter rebuilds the room's geometry wholesale, which is honest

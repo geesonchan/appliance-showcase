@@ -81,6 +81,17 @@ export default function App() {
             wider instead of narrowing the scene. */}
         <main className="relative min-h-0 min-w-0">
           <Scene />
+          {/* The vignette, as an overlay rather than a shader pass. A post
+              stack would cost the MSAA the scene is antialiased with, for a
+              darkening the browser composites for free. */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 62%, rgba(24,26,22,0.10) 100%)",
+            }}
+          />
           <PinOverlay key={`pins-${layoutVersion}`} />
           <DimensionOverlay key={`dims-${layoutVersion}`} />
           <LayoutIssues />
