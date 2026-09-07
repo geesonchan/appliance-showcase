@@ -34,7 +34,17 @@ interface AppState {
    * quote: a customer choosing between four greens is choosing how to look at
    * the kitchen, not what to buy. See docs/decisions.md D12.
    */
-  finishes: { cabinet: string; counter: CounterFinish; floor: FloorFinish };
+  finishes: {
+    cabinet: string;
+    counter: CounterFinish;
+    floor: FloorFinish;
+    /**
+     * Wall cabinets in the scheme's own light finish rather than the door
+     * colour. Off by default: one colour is what "the cabinets are green"
+     * means, and a two-tone kitchen is a decision somebody makes on purpose.
+     */
+    twoToneUppers: boolean;
+  };
   /**
    * Render quality. Dropped automatically when the frame rate will not hold,
    * which is the only thing allowed to change it besides ?quality= in the URL.
@@ -141,6 +151,7 @@ function initialFinishes() {
     cabinet: CABINET_COLORS[0].value,
     counter: "quartz-white" as CounterFinish,
     floor: "floor-oak" as FloorFinish,
+    twoToneUppers: false,
   };
   if (typeof window === "undefined") return defaults;
 
@@ -157,6 +168,7 @@ function initialFinishes() {
     cabinet: query.get("cabinet") && cabinet ? cabinet.value : defaults.cabinet,
     counter: counters[query.get("counter") ?? ""] ?? defaults.counter,
     floor: floors[query.get("floor") ?? ""] ?? defaults.floor,
+    twoToneUppers: query.get("twoTone") === "1",
   };
 }
 

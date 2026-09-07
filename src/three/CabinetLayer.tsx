@@ -124,14 +124,15 @@ function CabinetSolid({ box }: { box: CabinetBox }) {
   const paint = useAppStore((s) => s.finishes.cabinet);
   const counter = useAppStore((s) => s.finishes.counter);
 
+  const twoTone = useAppStore((s) => s.finishes.twoToneUppers);
   const token = box.kind === "counter" ? counter : KIND_FINISH[box.kind];
-  // Scheme 01 is a two-tone kitchen: the picked colour on the base run and the
-  // towers, and the scheme's own light finish on the wall cabinets. Painting
-  // both the same takes the contrast out of the room.
+  // One colour through the room unless somebody asks for two. A two-tone
+  // kitchen — the picked colour below, a lighter finish above — is a decision
+  // a designer makes on purpose, not what "the cabinets are green" means.
   const colour =
     box.kind === "toe"
       ? SCENE_COLORS.toe
-      : box.kind === "upper"
+      : box.kind === "upper" && twoTone
         ? SCENE_COLORS.cabinetUpper
         : box.kind === "counter"
           ? undefined

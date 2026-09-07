@@ -251,5 +251,6 @@
   "finish.floor": "Floor",
   "finish.floor.oak": "Oak",
   "finish.floor.tile": "Tile",
-  "debug.quality": "Quality"
+  "debug.quality": "Quality",
+  "finish.twoTone": "Two-tone uppers"
 }

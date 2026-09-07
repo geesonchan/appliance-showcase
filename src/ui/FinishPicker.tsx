@@ -5,7 +5,7 @@ import {
   type CounterFinish,
   type FloorFinish,
 } from "../store/useAppStore";
-import { PanelSection, Segmented } from "./primitives";
+import { PanelSection, Segmented, Toggle } from "./primitives";
 
 /**
  * How the room is finished, as against what is in it.
@@ -42,6 +42,14 @@ export function FinishPicker() {
             />
           );
         })}
+      </div>
+
+      <div className="mt-3">
+        <Toggle
+          label={t("finish.twoTone")}
+          checked={finishes.twoToneUppers}
+          onChange={(twoToneUppers) => setFinish({ twoToneUppers })}
+        />
       </div>
 
       <div className="mt-4">
