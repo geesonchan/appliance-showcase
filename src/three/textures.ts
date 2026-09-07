@@ -212,11 +212,11 @@ export function marble(ctx: Ink, size: number) {
   const next = random(31);
   /** A twelve-foot tile, so an inch of stone is this many pixels. */
   const inch = size / (12 * 12);
-  // Warm grey with brown in it. Darker than it looks written down: a Calacatta
-  // vein is plainly darker than the stone around it from across a room, and a
-  // vein you have to go looking for is a vein nobody drew.
-  const warm = (alpha: number) => `rgba(96,86,74,${alpha})`;
-  const pale = (alpha: number) => `rgba(132,123,110,${alpha})`;
+  // A light ink wash rather than a drawing: warm grey with brown in it, kept
+  // pale, so the slab reads as quiet stone rather than as a marked-up board.
+  // The strength is in the halo and the taper, not in how dark the line is.
+  const warm = (alpha: number) => `rgba(140,131,117,${alpha})`;
+  const pale = (alpha: number) => `rgba(170,163,151,${alpha})`;
 
   ctx.fillStyle = "#F5F2EB";
   ctx.fillRect(0, 0, size, size);
@@ -269,9 +269,9 @@ export function marble(ctx: Ink, size: number) {
 
     // The halo first, then the vein: wide and faint under narrow and dark.
     for (const [spread, alpha] of [
-      [6, 0.14],
-      [2.4, 0.3],
-      [1, 0.78],
+      [7, 0.09],
+      [2.6, 0.18],
+      [1, 0.46],
     ] as const) {
       for (let i = 1; i < points.length; i += 1) {
         const t = i / steps;
@@ -294,9 +294,11 @@ export function marble(ctx: Ink, size: number) {
 
   /** Branches: shallow, shorter each time, finer each time. */
   function branches(spine: [number, number][], widthIn: number, depth: number) {
-    let reach = size * 0.34;
-    let width = widthIn * 0.5;
-    for (let i = 0; i < 7; i += 1) {
+    let reach = size * 0.3;
+    let width = widthIn * 0.45;
+    // Three, not a network. An ink wash is a few decided strokes and a lot of
+    // paper; a slab covered in branches reads as granite, or as busy.
+    for (let i = 0; i < 3; i += 1) {
       const at = spine[6 + Math.floor(next() * (spine.length - 12))];
       // Twenty to forty degrees off the slab's diagonal, either side of it.
       const angle = (20 + next() * 20) * (Math.PI / 180) * (next() < 0.5 ? -1 : 1);
@@ -305,8 +307,8 @@ export function marble(ctx: Ink, size: number) {
         at[1] + Math.sin(angle) * reach,
       ];
       vein(at, to, width, pale, 0.8, depth + i);
-      reach *= 0.76;
-      width *= 0.82;
+      reach *= 0.7;
+      width *= 0.75;
     }
   }
 
@@ -321,27 +323,18 @@ export function marble(ctx: Ink, size: number) {
     0,
   );
   branches(main, 0.75, 3);
-  // A second dominant vein, lower down and curving the other way, so the slab
-  // is not one line across an empty field.
-  const crossing = vein(
-    [-size * 0.15, size * (1.05 + next() * 0.1)],
-    [size * 1.15, size * (0.6 + next() * 0.2)],
-    0.55,
-    warm,
-    0.85,
-    7,
-  );
-  branches(crossing, 0.5, 17);
 
+  // One companion, far paler and never parallel to it. That is the whole
+  // composition: a stroke, a lighter answer to it, and space.
   const second = vein(
     [-size * 0.15, size * (0.25 + next() * 0.15)],
-    [size * 1.15, size * (0.55 + next() * 0.25)],
-    0.35,
+    [size * 1.15, size * (0.58 + next() * 0.22)],
+    0.3,
     pale,
-    0.7,
+    0.6,
     5,
   );
-  branches(second, 0.35, 11);
+  branches(second, 0.3, 11);
 }
 
 /**

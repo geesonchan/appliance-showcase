@@ -1,0 +1,56 @@
+name: Deploy to GitHub Pages
+
+# Every push to the default branch republishes the site. Nothing else does —
+# a pull request builds and type-checks but does not deploy, so what is on the
+# link is always what is on the branch.
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time, and a newer push waits rather than cancelling: half a
+# site is worse than an old one.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # The unit suite, which is the part that does not need a browser. The
+      # smoke suite drives a real Chromium against a real build and takes five
+      # minutes; it belongs in a check of its own, not in the path to the link.
+      - run: npx vitest run src/ scripts/
+
+      # `npm run build` type-checks first, so a build that publishes is a build
+      # that compiled.
+      - run: npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
