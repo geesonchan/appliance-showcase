@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { CABINETS } from "../data/cabinets";
-import { ACCENT_COLORS, CABINET_COLORS, cabinetToken, type AccentRun } from "../store/useAppStore";
+import { SLOT_ORDER } from "../data/catalogue";
+import { runForSlot } from "../data/room";
+import {
+  ACCENT_COLORS,
+  CABINET_COLORS,
+  cabinetPaint,
+  type AccentRun,
+} from "../store/useAppStore";
 import { SCENE_COLORS, finish } from "./materials";
 
 /**
@@ -11,8 +18,9 @@ import { SCENE_COLORS, finish } from "./materials";
  * makes. Splitting a run at counter height is a different thing and mostly a
  * dated one. See docs/decisions.md D15.
  *
- * This is the layer's rule stated once, so the test and the component cannot
- * disagree about it.
+ * Through `cabinetPaint`, which is what the layer calls. Restating the rule
+ * here instead is how the bug got in: the test agreed with a copy of the rule
+ * while a drawer front under the microwave was painted from a third place.
  */
 function boxFinish(
   box: (typeof CABINETS)[number],
@@ -20,11 +28,9 @@ function boxFinish(
   accent: string,
   accentRun: AccentRun,
 ) {
-  const colour = box.run === accentRun ? accent : primary;
-  const token = box.kind === "toe" ? "painted" : cabinetToken(colour);
-  const override =
-    box.kind === "toe" ? SCENE_COLORS.toe : token === "painted" ? colour : undefined;
-  return finish("realistic", token, override);
+  const door = cabinetPaint({ cabinet: primary, accent, accentRun }, box.run);
+  if (box.kind === "toe") return finish("realistic", "painted", SCENE_COLORS.toe);
+  return finish("realistic", door.token, door.colour);
 }
 
 const doors = (accentRun: AccentRun, primary: string, accent: string) =>
@@ -75,6 +81,38 @@ describe("the accent colour goes on a whole run", () => {
   it("paints the whole room in the primary when no run is picked", () => {
     const signatures = new Set(doors("none", primary, accent).map((box) => signature(box.surface)));
     expect(signatures.size).toBe(1);
+  });
+
+  /**
+   * The cabinetry around an appliance belongs to the run it stands in.
+   *
+   * The drawer front under the microwave, the panels either side of the fridge,
+   * the strip beside the dishwasher: `ApplianceModel` draws them, and it has to
+   * ask the same question the cabinet beside them asked. It used to paint them
+   * from a constant, which is why they stayed green in a navy kitchen.
+   */
+  it("finishes the joinery round an appliance with the run it stands in", () => {
+    for (const slot of SLOT_ORDER) {
+      const run = runForSlot(slot);
+      expect(["left", "back", "island"], `${slot} is on no run`).toContain(run);
+
+      // On the accent run it is the accent, everywhere else the primary — and
+      // it matches what a cabinet box on the same run is painted.
+      const onRun = cabinetPaint({ cabinet: primary, accent, accentRun: run }, run);
+      expect(onRun.value, `${slot} joinery ignores its own run`).toBe(accent);
+
+      const neighbour = CABINETS.find((box) => box.run === run && box.kind !== "toe");
+      expect(neighbour, `no cabinet on the ${run} run`).toBeTruthy();
+      expect(signature(finish("realistic", onRun.token, onRun.colour))).toBe(
+        signature(boxFinish(neighbour!, primary, accent, run)),
+      );
+
+      const offRun = cabinetPaint(
+        { cabinet: primary, accent, accentRun: run === "left" ? "back" : "left" },
+        run,
+      );
+      expect(offRun.value, `${slot} joinery takes an accent it should not`).toBe(primary);
+    }
   });
 
   // An accent that is one of the five you just chose from is not an accent.

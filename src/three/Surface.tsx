@@ -87,6 +87,7 @@ export function Surface({
         s.map ? "map" : "flat",
         s.normalMap ? "bump" : "smooth",
       ].join("-")}
+      userData={{ hardware: s.hardware === true }}
       color={s.color}
       metalness={s.metalness}
       roughness={s.roughness}

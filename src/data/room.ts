@@ -116,6 +116,21 @@ export function segmentForSlot(slotId: SlotId): RunSegment | undefined {
   return undefined;
 }
 
+/**
+ * Which stretch of cabinetry a slot stands in.
+ *
+ * The cabinetry around an appliance is finished with the run it belongs to, so
+ * anything drawn as joinery beside an appliance has to be able to ask this. An
+ * island slot is on the island; everything else is on the leg carrying it.
+ */
+export function runForSlot(slotId: SlotId): "left" | "back" | "island" {
+  if (SLOT_PLACEMENT[slotId]?.mount === "island") return "island";
+  for (const run of RUNS) {
+    if (run.segments.some((segment) => segment.slot === slotId)) return run.id;
+  }
+  return "back";
+}
+
 export const extent = (s: RunSegment) => [s.from, s.to] as const;
 export const spanOf = (s: RunSegment) => s.to - s.from;
 

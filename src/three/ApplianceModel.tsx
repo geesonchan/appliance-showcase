@@ -7,7 +7,8 @@ import { FRIDGE_PROPORTIONS, fridgeParts } from "../data/fridgeModel";
 import { RANGE_PROPORTIONS, rangeParts } from "../data/rangeModel";
 import { Surface } from "./Surface";
 import { CABINET_STANDARDS, ROOM, SLOT_BY_ID, ft } from "../data/slots";
-import { cabinetToken, useAppStore } from "../store/useAppStore";
+import { runForSlot } from "../data/room";
+import { cabinetPaint, useAppStore } from "../store/useAppStore";
 import { useSelection } from "../store/useSelection";
 import type { Appliance, Category, SlotId } from "../types";
 import {
@@ -44,20 +45,23 @@ export function ApplianceModel({ slot, appliance }: ApplianceModelProps) {
   const selectSlot = useAppStore((s) => s.selectSlot);
   const selected = useAppStore((s) => s.selectedSlot === slot);
 
+  // The joinery around this appliance, in the finish of the run it stands in —
+  // which is what the panels filling its opening are made of, and what a
+  // panel-ready machine's own front is.
+  const finishes = useAppStore((s) => s.finishes);
+  const door = cabinetPaint(finishes, runForSlot(slot));
+  const cabinetSurface = finish(renderMode, door.token, door.colour);
+
   // A panel-ready machine wears the cabinet's door, because that is what it is
   // sold as: no front of its own, and the joiner hangs the same one on it as on
   // the cabinet beside it. Change the kitchen's colour and it changes with it.
-  const paint = useAppStore((s) => s.finishes.cabinet);
   const panelReady = isPanelReady(appliance.finish);
-  const body = panelReady
-    ? finish(renderMode, cabinetToken(paint), cabinetToken(paint) === "painted" ? paint : undefined)
-    : finishSurface(renderMode, appliance.finish[0]);
-  const trim = surface(renderMode, "#8E938D", { metalness: 0.9, roughness: 0.25 });
-  const glass = surface(renderMode, "#2B322D", { metalness: 0.3, roughness: 0.1 });
-  const cabinet = surface(renderMode, SCENE_COLORS.cabinet, {
-    metalness: 0,
-    roughness: 0.85,
-  });
+  const body = panelReady ? cabinetSurface : finishSurface(renderMode, appliance.finish[0]);
+  // Handles, knobs, rails and glass. Marked as hardware so that a panel-ready
+  // machine — whose whole front is cabinetry — does not count its own handle
+  // as a cabinet finish.
+  const trim = { ...surface(renderMode, "#8E938D", { metalness: 0.9, roughness: 0.25 }), hardware: true };
+  const glass = { ...surface(renderMode, "#2B322D", { metalness: 0.3, roughness: 0.1 }), hardware: true };
 
   const box = applianceBox(def, appliance);
   const dz = flushOffset(def, box.d);
@@ -83,7 +87,14 @@ export function ApplianceModel({ slot, appliance }: ApplianceModelProps) {
     >
       {/* Named apart from the filler so the appliance's own extents can be
           measured — the bounding-box check depends on it. */}
-      <group name={"appliance-body-" + slot} position={[0, box.y, dz]}>
+      {/* A panel-ready machine's own fronts are cabinetry: they are the same
+          door the joiner hangs on the box beside it, so they answer to the
+          same rule about which colour a run is in. */}
+      <group
+        name={"appliance-body-" + slot}
+        position={[0, box.y, dz]}
+        userData={{ cabinetRole: panelReady }}
+      >
         <Body
           category={appliance.category}
           appliance={appliance}
@@ -111,7 +122,7 @@ export function ApplianceModel({ slot, appliance }: ApplianceModelProps) {
         <IslandTrim slot={slot} box={box} dz={dz} body={body} />
       )}
 
-      <Filler slot={slot} box={box} surface={cabinet} trim={trim} />
+      <Filler slot={slot} box={box} surface={cabinetSurface} trim={trim} />
     </group>
   );
 }
@@ -145,9 +156,14 @@ function Filler({
   if (box.filler.below > MIN) {
     pieces.push(
       <group key="below">
-        <mesh position={[0, box.filler.below / 2, 0]} castShadow receiveShadow>
+        <mesh
+          position={[0, box.filler.below / 2, 0]}
+          castShadow
+          receiveShadow
+          userData={{ cabinetRole: true }}
+        >
           <boxGeometry args={[openingW, box.filler.below, depth]} />
-          <Mat s={cabinet} />
+          <Mat s={cabinet} size={[openingW, box.filler.below]} />
         </mesh>
         {/* A drawer pull, so it reads as a drawer rather than a blank panel. */}
         <mesh position={[0, box.filler.below * 0.62, front]}>
@@ -164,9 +180,10 @@ function Filler({
         position={[0, box.y + box.h + box.filler.above / 2, 0]}
         castShadow
         receiveShadow
+        userData={{ cabinetRole: true }}
       >
         <boxGeometry args={[openingW, box.filler.above, depth]} />
-        <Mat s={cabinet} />
+        <Mat s={cabinet} size={[openingW, box.filler.above]} />
       </mesh>,
     );
   }
@@ -177,9 +194,10 @@ function Filler({
           key={"side" + side}
           position={[side * (box.w / 2 + box.filler.eachSide / 2), box.y + box.h / 2, 0]}
           castShadow
+          userData={{ cabinetRole: true }}
         >
           <boxGeometry args={[box.filler.eachSide, box.h, depth]} />
-          <Mat s={cabinet} />
+          <Mat s={cabinet} size={[box.filler.eachSide, box.h]} />
         </mesh>,
       );
     }
@@ -397,7 +415,9 @@ function Fridge({
   // The grille is the band the split gives it, scaled to this machine.
   // The slots in the grille are a shade of the panel they are cut into, not a
   // colour of their own: what you see through a vent is the dark inside it.
-  const slot = tint(body, "#2A2E2C", { metalness: 0.3, roughness: 0.85 });
+  // Hardware, not a finish: it is the shadow inside a vent, so it does not
+  // count as a colour the cabinetmaker chose even on a panel-ready machine.
+  const slot = { ...tint(body, "#2A2E2C", { metalness: 0.3, roughness: 0.85 }), hardware: true };
 
   return (
     <group name="fridge">

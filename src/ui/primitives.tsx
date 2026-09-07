@@ -146,21 +146,28 @@ export function Segmented<T extends string>({
   value,
   onChange,
   size = "md",
+  name,
 }: {
   options: SegmentOption<T>[];
   value: T;
   onChange: (next: T) => void;
   size?: "sm" | "md";
+  /** Names the control in the DOM, so a test can reach it without its label. */
+  name?: string;
 }) {
   const pad = size === "sm" ? "px-3 py-1 text-[11px]" : "px-4 py-1.5 text-[12px]";
   return (
-    <div className="inline-flex rounded-full border border-line bg-surface p-[3px]">
+    <div
+      data-segment={name}
+      className="inline-flex rounded-full border border-line bg-surface p-[3px]"
+    >
       {options.map((option) => {
         const active = option.value === value;
         return (
           <button
             key={option.value}
             type="button"
+            data-value={option.value}
             disabled={option.disabled}
             title={option.title}
             onClick={() => onChange(option.value)}

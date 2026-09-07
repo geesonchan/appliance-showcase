@@ -41,7 +41,12 @@ not history.
 ### Diagnostics
 
 Load any URL with `?debug=1` for a small overlay showing the live frame rate
-and how long the last render-mode switch took to reach the screen.
+and how long the last render-mode switch took to reach the screen. It also puts
+a few handles on `window`, which is how the smoke suite asserts things a
+screenshot cannot: `__applianceBoxes` (what each machine actually measures),
+`__pinLayout`, `__faded`, `__generic`, and `__cabinetPanels()` — call it for the
+distinct colours currently on the room's cabinet panels, which should never be
+more than the picked colour and the accent.
 
 ## How it is put together
 

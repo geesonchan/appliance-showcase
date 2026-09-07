@@ -44,6 +44,7 @@ function Swatches({
             <button
               key={paint.value}
               type="button"
+              data-swatch={paint.value}
               aria-pressed={active}
               title={t(paint.key)}
               onClick={() => onChange(paint.value)}
@@ -78,6 +79,7 @@ export function FinishPicker() {
         <span className="mb-1.5 block text-[13px] text-ink">{t("finish.accentRun")}</span>
         <Segmented
           size="sm"
+          name="accent-run"
           value={finishes.accentRun}
           onChange={(accentRun: AccentRun) => setFinish({ accentRun })}
           options={[

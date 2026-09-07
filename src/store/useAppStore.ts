@@ -157,6 +157,24 @@ export const ACCENT_COLORS = [
   { key: "finish.accent.slate", value: "#6B7375", token: "painted" as const },
 ] as const;
 
+/**
+ * The finish a stretch of cabinetry is in, primary or accent.
+ *
+ * The one place that decides it. Anything drawn as cabinetry has to go through
+ * here — the doors, the panels filling an appliance's opening, the front of a
+ * panel-ready machine — because the alternative is what happened: a drawer
+ * front under the microwave stayed the scheme's green while the room went navy,
+ * for no reason except that it was written down somewhere else.
+ */
+export function cabinetPaint(
+  finishes: { cabinet: string; accent: string; accentRun: AccentRun },
+  run: "left" | "back" | "island",
+) {
+  const value = run === finishes.accentRun ? finishes.accent : finishes.cabinet;
+  const token = cabinetToken(value);
+  return { value, token, colour: token === "painted" ? value : undefined };
+}
+
 /** The finish token behind a swatch on either palette: paint, or the wood. */
 export function cabinetToken(value: string) {
   return (

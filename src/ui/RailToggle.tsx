@@ -23,6 +23,7 @@ export function RailToggle({
     return (
       <button
         type="button"
+        data-rail={side}
         onClick={onClick}
         title={label}
         className="flex h-8 shrink-0 items-center justify-center gap-1.5 border-t border-line text-[10px] text-ink-muted transition-colors hover:text-accent"
@@ -36,6 +37,7 @@ export function RailToggle({
   return (
     <button
       type="button"
+      data-rail={side}
       onClick={onClick}
       title={label}
       aria-label={label}

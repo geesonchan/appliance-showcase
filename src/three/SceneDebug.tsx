@@ -33,6 +33,7 @@ export function SceneDebug() {
         boxes[slot] = measure(group, size);
       }
       (window as unknown as { __applianceBoxes?: typeof boxes }).__applianceBoxes = boxes;
+
       // Which appliances are being drawn from a guess rather than from what
       // somebody read off a drawing.
       (window as unknown as { __generic?: string[] }).__generic = Object.values(selection)
@@ -42,7 +43,53 @@ export function SceneDebug() {
     return () => cancelAnimationFrame(id);
   }, [scene, selection]);
 
+  // Every colour the room has painted a cabinet panel. A kitchen has exactly
+  // two: the one that was picked, and the accent if a run is wearing one. A
+  // third means something is drawing joinery from a colour written down
+  // somewhere else — which is what a drawer front under the microwave was
+  // doing after the doors changed.
+  //
+  // Published as a question rather than an answer. The others here are
+  // measurements of geometry, which settles once and stays put; a colour
+  // changes every time somebody touches a swatch, and a snapshot taken a frame
+  // after the click reported the picker's previous choice. Asking the scene at
+  // the moment you want to know cannot be stale.
+  useEffect(() => {
+    if (!DEBUG) return;
+    (window as unknown as { __cabinetPanels?: () => string[] }).__cabinetPanels = () => {
+      const painted = new Set<string>();
+      scene.traverse((object) => {
+        const mesh = object as THREE.Mesh;
+        if (mesh.isMesh) collectPanelColour(mesh, painted);
+      });
+      return [...painted].sort();
+    };
+  }, [scene]);
+
   return null;
+}
+
+/**
+ * Add a mesh's colour to the set, if it is cabinetry.
+ *
+ * Cabinetry is a mesh tagged as such, or anything inside a group that is — a
+ * panel-ready machine's whole front is the cabinetmaker's, not the
+ * manufacturer's.
+ */
+function collectPanelColour(mesh: THREE.Mesh, into: Set<string>) {
+  let node: THREE.Object3D | null = mesh;
+  while (node) {
+    if (node.userData?.cabinetRole === true) {
+      for (const material of ([] as THREE.Material[]).concat(mesh.material)) {
+        if (material.userData?.hardware) continue;
+        const standard = material as THREE.MeshStandardMaterial;
+        if (standard.color) into.add(`#${standard.color.getHexString().toUpperCase()}`);
+      }
+      return;
+    }
+    if (node.userData?.cabinetRole === false) return;
+    node = node.parent;
+  }
 }
 
 /**

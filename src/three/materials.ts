@@ -87,6 +87,13 @@ export interface SurfaceProps {
    */
   repeatAcrossFt?: number;
   normalScale?: number;
+  /**
+   * Hardware rather than a surface: a handle, a knob, a pane of glass.
+   *
+   * It rides on the material so the scene can be asked which panels the
+   * cabinetmaker made without the answer including the steel screwed to them.
+   */
+  hardware?: boolean;
 }
 
 /**

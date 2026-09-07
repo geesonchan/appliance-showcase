@@ -1,11 +1,11 @@
 import { useMemo } from "react";
 import * as THREE from "three";
-import { CABINETS, CABINET_OUTLINES, type CabinetBox } from "../data/cabinets";
+import { CABINETS, CABINET_OUTLINES, type CabinetBox, wearsDoorFinish } from "../data/cabinets";
 import { counterOutline } from "../data/counter";
 import { RUNS } from "../data/room";
 import { useSelection } from "../store/useSelection";
 import { useIsMobile } from "../hooks/useIsMobile";
-import { cabinetToken, useAppStore } from "../store/useAppStore";
+import { cabinetPaint, useAppStore } from "../store/useAppStore";
 import { ft } from "../data/room";
 import { SCENE_COLORS, finish, type SurfaceProps } from "./materials";
 import { Surface } from "./Surface";
@@ -103,14 +103,18 @@ function Door({ box, s }: { box: CabinetBox; s: SurfaceProps }) {
       {/* The frame: stiles up the sides, rails across. Drawn as one slab, with
           its grain running across, because that is the rails' direction and the
           rails are what meets the eye at the top and bottom of a run. */}
-      <mesh position={[0, 0, front]} castShadow receiveShadow>
+      <mesh position={[0, 0, front]} castShadow receiveShadow userData={{ cabinetRole: true }}>
         <boxGeometry args={[w, h, DOOR.thickness]} />
         <Surface s={s} size={[w, h]} rotate={0} />
       </mesh>
 
       {/* The panel, set back inside the frame, its grain running up the door. */}
       {panel[0] > 0 && panel[1] > 0 && (
-        <mesh position={[0, 0, front + DOOR.thickness / 2 - DOOR.recess]} receiveShadow>
+        <mesh
+          position={[0, 0, front + DOOR.thickness / 2 - DOOR.recess]}
+          receiveShadow
+          userData={{ cabinetRole: true }}
+        >
           <boxGeometry args={[panel[0], panel[1], DOOR.thickness / 2]} />
           <Surface s={s} size={[panel[0], panel[1]]} rotate={Math.PI / 2} />
         </mesh>
@@ -124,29 +128,20 @@ function CabinetSolid({ box }: { box: CabinetBox }) {
   const renderMode = useAppStore((s) => s.renderMode);
   const isMobile = useIsMobile();
   const geometry = useBoxGeometry(box.size);
-  const paint = useAppStore((s) => s.finishes.cabinet);
-  const counter = useAppStore((s) => s.finishes.counter);
+  const finishes = useAppStore((s) => s.finishes);
+  const counter = finishes.counter;
 
-  const accent = useAppStore((s) => s.finishes.accent);
-  const accentRun = useAppStore((s) => s.finishes.accentRun);
   // A kitchen is finished by the run, not by the shelf: the accent colour goes
   // on one whole leg or on the island — wall cabinets, base cabinets and towers
   // together. See docs/decisions.md D15.
-  const colourOf = box.run === accentRun ? accent : paint;
-  // A wood door is not a painted door in a wood colour: it takes the wood
-  // token, grain and all, and the colour override falls away with it.
-  const doorToken = cabinetToken(colourOf);
+  const door = cabinetPaint(finishes, box.run);
   const token =
-    box.kind === "counter" ? counter : box.kind === "toe" ? "painted" : doorToken;
+    box.kind === "counter" ? counter : box.kind === "toe" ? "painted" : door.token;
   // One colour through the room unless somebody asks for two. A two-tone
   // kitchen — the picked colour below, a lighter finish above — is a decision
   // a designer makes on purpose, not what "the cabinets are green" means.
   const colour =
-    box.kind === "toe"
-      ? SCENE_COLORS.toe
-      : box.kind === "counter" || doorToken !== "painted"
-        ? undefined
-        : colourOf;
+    box.kind === "toe" ? SCENE_COLORS.toe : box.kind === "counter" ? undefined : door.colour;
   const props = finish(renderMode, token, colour);
 
   const install = renderMode === "install";
@@ -164,7 +159,7 @@ function CabinetSolid({ box }: { box: CabinetBox }) {
         visible={!hidden}
         castShadow
         receiveShadow
-        userData={{ slot: box.slot, boxId: box.id }}
+        userData={{ slot: box.slot, boxId: box.id, cabinetRole: wearsDoorFinish(box.kind) }}
       >
         <Surface
           s={{ ...props, transparent: install, opacity: install ? GHOST_OPACITY : 1 }}

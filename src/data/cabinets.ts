@@ -318,6 +318,16 @@ function islandBoxes(): Omit<CabinetBox, "run">[] {
 /** Trim pieces that only add line noise at phone scale. */
 const OUTLINE_SKIP: CabinetKind[] = ["counter", "toe"];
 
+/**
+ * Whether a box is finished in the door colour.
+ *
+ * The counter is stone and the toe kick is dark whatever the doors are; every
+ * other box in the room is the cabinetmaker's, and takes the run's finish.
+ */
+export function wearsDoorFinish(kind: CabinetKind) {
+  return !OUTLINE_SKIP.includes(kind);
+}
+
 function unionBox(id: string, boxes: CabinetBox[]): CabinetBox {
   const axes = [0, 1, 2].map((axis) => {
     const min = Math.min(...boxes.map((b) => b.position[axis] - b.size[axis] / 2));

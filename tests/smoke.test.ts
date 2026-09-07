@@ -524,3 +524,56 @@ describe("pin labels", () => {
     await page.close();
   });
 });
+
+describe("cabinet finishes", () => {
+  /**
+   * Every panel the cabinetmaker makes is in one of two colours.
+   *
+   * A kitchen is finished in the colour that was picked, and — if a run is
+   * wearing one — the accent. Nothing else. A third colour on screen means
+   * something is drawing joinery from a value written down somewhere other
+   * than the picker, which is exactly what a drawer front under the microwave
+   * was doing: it stayed the scheme's green while the rest of the room went
+   * navy. `window.__cabinetPanels` publishes the distinct colours actually on
+   * the cabinet-role meshes, so the rule can be checked against the scene
+   * rather than against the code that was meant to produce it.
+   *
+   * Handles, knobs and the dark inside a vent are hardware, not panels, and
+   * are marked as such at the material.
+   */
+  const panels = (page: Page) =>
+    page.evaluate(
+      () => (window as unknown as { __cabinetPanels: () => string[] }).__cabinetPanels(),
+    );
+
+  it("paints every cabinet panel in the picked colour, and the accent run in the accent", async () => {
+    const { page, errors } = await openPage(DESKTOP, false, "?debug=1");
+
+    const NAVY = "#2B3A4A";
+    const BRICK = "#8A4A38";
+
+    // The configuration rail opens closed.
+    await page.click(`button[data-rail="right"]`);
+
+    // One colour through the whole room.
+    await page.click(`[data-segment="accent-run"] button[data-value="none"]`);
+    await page.click(`button[data-swatch="${NAVY}"]`);
+    await page.waitForTimeout(600);
+    expect(await panels(page)).toEqual([NAVY]);
+
+    // And two once a run is wearing a second — the left leg here, which every
+    // layout has.
+    await page.click(`[data-segment="accent-run"] button[data-value="left"]`);
+    await page.click(`button[data-swatch="${BRICK}"]`);
+    await page.waitForTimeout(600);
+    expect(await panels(page)).toEqual([NAVY, BRICK].sort());
+
+    // That the joinery around an appliance follows its own run — the drawer
+    // front under the microwave, the fridge surround, the filler beside the
+    // dishwasher — is `cabinetPaint` over `runForSlot`, and is asserted on the
+    // arithmetic in src/three/accentRun.test.ts.
+
+    expect(errors).toEqual([]);
+    await page.context().close();
+  });
+});
