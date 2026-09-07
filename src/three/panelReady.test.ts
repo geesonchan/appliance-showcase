@@ -58,7 +58,11 @@ describe("panel-ready appliances wear the cabinet's door", () => {
     for (const mode of ["white", "install"] as const) {
       const front = finish(mode, "wood-oak");
       expect(front.map, mode).toBe("blank");
-      expect(front.color, mode).not.toBe(FINISHES["wood-oak"].color);
     }
+    // The white model flattens everything to one shade; the install view keeps
+    // the colour and ghosts it, because the utility runs have to read against
+    // something.
+    expect(finish("white", "wood-oak").color).not.toBe(FINISHES["wood-oak"].color);
+    expect(finish("install", "wood-oak").opacity).toBeLessThan(1);
   });
 });

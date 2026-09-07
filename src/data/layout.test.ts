@@ -518,13 +518,24 @@ describe("D11 rule 2 · the corner is continuous", () => {
     for (const bottom of bottoms) expect(bottom).toBeCloseTo(ROOM.upperBottom, 6);
   });
 
-  it("runs the toe kick round both legs without a break", () => {
-    const toes = CABINETS.filter((b) => b.kind === "toe" && !b.id.startsWith("island"));
-    expect(toes.length).toBe(2);
+  it("runs the toe kick along each leg, breaking only at the range", () => {
+    const toes = CABINETS.filter((box) => box.kind === "toe" && !box.id.startsWith("island"));
+    // One per leg, plus one more on the leg the range splits: a freestanding
+    // machine stands on the floor, and a recessed board behind it is a board
+    // behind nothing.
+    expect(toes).toHaveLength(3);
     for (const run of RUNS) {
-      const toe = toes.find((t) => t.id.startsWith(run.id))!;
+      const onRun = toes.filter((box) => box.id.startsWith(run.id));
+      expect(onRun.length, `${run.id} has no toe kick`).toBeGreaterThan(0);
       const along = run.axis === "x" ? 0 : 2;
-      expect(toe.position[along] - toe.size[along] / 2).toBeCloseTo(run.segments[0].from, 6);
+      const reach = onRun.reduce(
+        (sum, box) => sum + box.size[along],
+        0,
+      );
+      const leg = run.segments[run.segments.length - 1].to - run.segments[0].from;
+      const range = run.segments.find((s) => s.slot === "slot-range");
+      const cut = range ? range.to - range.from : 0;
+      expect(reach, `${run.id} toe kick`).toBeCloseTo(leg - cut, 6);
     }
   });
 });
