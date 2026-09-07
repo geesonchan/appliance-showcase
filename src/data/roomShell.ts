@@ -117,8 +117,9 @@ export const LAYOUT_LIMITS = {
   sink: { wideIn: 24, narrowIn: 18, fromCornerIn: 15 },
 };
 
-/** Thickness of a finished panel or a tower side, in feet. */
-export const PANEL = ft(3);
+/** Thickness of a finished panel or a tower side. */
+export const PANEL_IN = 3;
+export const PANEL = ft(PANEL_IN);
 
 /**
  * What a stretch of a cabinet run is for.
@@ -144,6 +145,15 @@ export type ModuleKind =
   | "wall"
   | "bridge"
   | "tall"
+  /**
+   * A full-height appliance standing in the run with nothing built round it.
+   *
+   * A freestanding refrigerator at the end of a counter is not joinery: there
+   * is no panel either side and no cabinet bridging over it. It still takes up
+   * its width and still stops the wall cabinets, which is why it is a module
+   * at all rather than a gap.
+   */
+  | "tall-open"
   | "corner"
   | "filler"
   | "opening";

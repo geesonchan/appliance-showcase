@@ -57,7 +57,10 @@ function isOrderable(module: CabinetModule): boolean {
     case "corner":
       return CORNER_WIDTHS.includes(module.widthIn);
     case "opening":
-      // A rough opening is dimensioned to the appliance, not off a size list.
+    case "tall-open":
+      // A rough opening is dimensioned to the appliance, not off a size list —
+      // and a freestanding full-height unit is a rough opening that happens to
+      // reach the ceiling.
       return module.widthIn > 0;
     case "tall":
       // An enclosure is built: an opening plus a finished panel each side.

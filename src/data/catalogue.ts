@@ -1,6 +1,6 @@
 import appliancesFile from "../../data/appliances.json";
 import schemesFile from "../../data/schemes.json";
-import type { Appliance, Scheme, SlotId } from "../types";
+import type { Appliance, Package, PackageSlot, Scheme, SlotId } from "../types";
 import {
   appliancesFileSchema,
   parseDataFile,
@@ -84,6 +84,63 @@ export const SLOT_ORDER: SlotId[] = [
   "slot-microwave",
   "slot-wine",
 ];
+
+/**
+ * Whether a model can stand in the slot this package specifies.
+ *
+ * The same rule the fit check uses — the published cutout where there is one,
+ * otherwise the body, and narrower is a filler rather than a refusal — asked of
+ * the package's opening instead of the room's. A 36" range does not go in
+ * package C's 30" hole; a 24" dishwasher goes in either package's 24" one.
+ */
+export function suitsPackageSlot(appliance: Appliance, slot: PackageSlot): boolean {
+  if (appliance.category !== slot.category) return false;
+  const width = appliance.cutoutWidthIn ?? appliance.widthIn;
+  return width === null || width <= slot.widthIn;
+}
+
+/**
+ * The selection carried across a package change.
+ *
+ * By slot id, because the six slots do not change: a dishwasher stays a
+ * dishwasher wherever it is specified from. What changes is whether the model
+ * still fits the opening the new package leaves, and one that does not falls
+ * back to that package's own default rather than being drawn overhanging its
+ * cabinet.
+ *
+ * With nothing to carry it also builds the opening selection, so there is one
+ * function rather than two that have to agree.
+ */
+export function migrateSelection(
+  entry: Package,
+  current: Partial<Record<SlotId, string>> = {},
+): Record<SlotId, string> {
+  const selection = {} as Record<SlotId, string>;
+  for (const slot of entry.slots) {
+    const kept = current[slot.slotId] ? APPLIANCE_BY_ID[current[slot.slotId]!] : undefined;
+    const fallback = entry.defaultSelection[slot.slotId];
+    if (!fallback) {
+      throw new Error(`data/packages.json: ${entry.id} has no default for ${slot.slotId}`);
+    }
+    selection[slot.slotId] = kept && suitsPackageSlot(kept, slot) ? kept.id : fallback;
+  }
+  return selection;
+}
+
+/**
+ * The blower that goes with a package's hood.
+ *
+ * A hood with a blower in it takes none, and carrying one across from a package
+ * whose hood needed one leaves a part on the quote that fits nothing. Otherwise
+ * the current choice stands if the new hood accepts it, and the package's own
+ * default takes over if it does not.
+ */
+export function migrateBlower(entry: Package, hood: Appliance, current: string | null) {
+  if (hood.blower === "integrated") return null;
+  const kept = current ? APPLIANCE_BY_ID[current] : undefined;
+  if (kept && blowersFor(hood).some((blower) => blower.id === kept.id)) return kept.id;
+  return entry.defaultBlower;
+}
 
 /**
  * Reconcile a scheme with the catalogue actually loaded.

@@ -2,6 +2,7 @@ import {
   CABINET_STANDARDS,
   LAYOUT_LIMITS,
   PANEL,
+  PANEL_IN,
   ROOM,
   ft,
   type CabinetModule,
@@ -10,7 +11,8 @@ import {
   type RunSegment,
   type UpperBank,
 } from "./roomShell";
-import type { FixtureId, SlotId } from "../types";
+import type { FixtureId, Package, PackageSlot, SlotId } from "../types";
+import { PACKAGE, slotsOf } from "./packages";
 
 /**
  * The L-with-island template.
@@ -197,9 +199,40 @@ const CORNERS = {
 } as const;
 
 /** The openings, dimensioned to the appliances that go in them. */
-const OPENING_IN = { range: 36, dishwasher: 24, microwave: 24, wine: 24, fridge: 42 };
 /** The sink base, which is a fixture's cabinet rather than an opening. */
 const SINK_BASE_IN = 30;
+
+/**
+ * The opening a slot needs, in inches.
+ *
+ * The appliance's own width, plus a finished panel each side where the
+ * cabinetmaker builds round it. A built-in refrigerator is 36" of appliance in
+ * a 42" hole; a freestanding one is 36" of appliance and nothing else, and
+ * charging it for panels nobody ordered is how a wall comes out 6" short.
+ */
+export const openingIn = (slot: PackageSlot) =>
+  slot.widthIn + (slot.enclosure ? PANEL_IN * 2 : 0);
+
+/** How far in from its opening the appliance itself sits. */
+export const insetOf = (slot: PackageSlot) => (slot.enclosure ? PANEL : 0);
+
+/**
+ * Where each category stands in the L.
+ *
+ * The package says what is on the list and how wide it is; this says what the
+ * template does with it. They are different kinds of knowledge: a new package
+ * is a data file, but a kitchen with a second oven in it is a new template.
+ * A category with no entry here is a package the template cannot build, and it
+ * says so rather than quietly leaving the appliance out.
+ */
+const ROLES = {
+  refrigerator: "tower",
+  range: "range",
+  hood: "over-range",
+  dishwasher: "sink-group",
+  microwave: "island-or-perimeter",
+  wine: "island-or-perimeter",
+} as const;
 
 // --- packing a leg --------------------------------------------------------
 
@@ -546,6 +579,7 @@ let suggesting = false;
 function suggestionForWall(
   params: LayoutParams,
   key: "backWallIn" | "leftWallIn",
+  pkg: Package,
 ): Refusal["suggestion"] {
   // Working out whether a suggestion builds means generating it, and a
   // generation that fails would otherwise go looking for a suggestion of its
@@ -553,7 +587,7 @@ function suggestionForWall(
   if (suggesting) return undefined;
   suggesting = true;
   try {
-    return firstSuggestion(params, key);
+    return firstSuggestion(params, key, pkg);
   } finally {
     suggesting = false;
   }
@@ -562,6 +596,7 @@ function suggestionForWall(
 function firstSuggestion(
   params: LayoutParams,
   key: "backWallIn" | "leftWallIn",
+  pkg: Package,
 ): Refusal["suggestion"] {
   const otherLeg = params.sinkLeg === "back" ? ("left" as const) : ("back" as const);
   const otherCorner =
@@ -595,14 +630,14 @@ function firstSuggestion(
 
   for (const candidate of candidates) {
     const patched = { ...params, ...candidate.patch };
-    if (!generateLayout(patched).ok) continue;
-    const range = feasibleRange(patched, key);
+    if (!generateLayout(patched, pkg).ok) continue;
+    const range = feasibleRange(patched, key, pkg);
     if (range) candidate.vars.minimumIn = range.minIn;
     return candidate;
   }
 
   // Nothing rearranges into it: the wall itself has to move.
-  const here = feasibleRange(params, key);
+  const here = feasibleRange(params, key, pkg);
   if (here) {
     const nearest = params[key] < here.minIn ? here.minIn : here.maxIn;
     return {
@@ -616,7 +651,12 @@ function firstSuggestion(
 
 // --- the layout itself ----------------------------------------------------
 
-function islandFor(params: LayoutParams, halfX: number, halfZ: number): IslandLayout {
+function islandFor(
+  params: LayoutParams,
+  spec: Record<SlotId, PackageSlot>,
+  halfX: number,
+  halfZ: number,
+): IslandLayout {
   const backFace = -halfZ + ROOM.counterDepth;
   const leftFace = -halfX + ROOM.counterDepth;
   const length = ft(params.hasIsland ? params.islandLengthIn : 0);
@@ -627,9 +667,10 @@ function islandFor(params: LayoutParams, halfX: number, halfZ: number): IslandLa
   const x = [centre - length / 2, centre + length / 2] as const;
   const z = [backFace + ft(params.aisleIn), backFace + ft(params.aisleIn) + depth] as const;
 
-  const opening = ft(OPENING_IN.microwave);
+  const microwave = ft(openingIn(spec["slot-microwave"]));
+  const wine = ft(openingIn(spec["slot-wine"]));
   // Flush to the ends on a short island, inset on a long one.
-  const inset = Math.min(ft(6), Math.max(0, (length - opening * 2) / 2));
+  const inset = Math.min(ft(6), Math.max(0, (length - microwave - wine) / 2));
 
   return {
     present: params.hasIsland,
@@ -638,8 +679,8 @@ function islandFor(params: LayoutParams, halfX: number, halfZ: number): IslandLa
     workingZ: z[0],
     seatingZ: z[1],
     height: ROOM.counterHeight,
-    microwave: [x[0] + inset, x[0] + inset + opening] as const,
-    wine: [x[1] - inset - opening, x[1] - inset] as const,
+    microwave: [x[0] + inset, x[0] + inset + microwave] as const,
+    wine: [x[1] - inset - wine, x[1] - inset] as const,
   };
 }
 
@@ -652,12 +693,33 @@ function islandFor(params: LayoutParams, halfX: number, halfZ: number): IslandLa
  * have to live on the perimeter, and they go on opposite legs: it is the only
  * way they still face opposite ways, which is what D11 rule 7 is about.
  */
-function planLegs(params: LayoutParams) {
+function planLegs(params: LayoutParams, pkg: Package) {
   const corner = CORNERS[params.cornerType];
   const { sink: sinkRule } = LAYOUT_LIMITS;
+  const spec = slotsOf(pkg);
 
-  const opening = (slot: SlotId, id: string, widthIn: number) =>
-    fixed(id, widthIn, "appliance", M(`RO${widthIn}`, "opening", widthIn, { slot }), { slot });
+  // Every slot the package lists has to have somewhere to go. A package the
+  // template cannot build is a loud failure at import, not an appliance that
+  // quietly never appears in the room.
+  for (const slot of pkg.slots) {
+    if (!(slot.category in ROLES)) {
+      throw new Error(
+        `layoutTemplate: ${pkg.id} puts a ${slot.category} in ${slot.slotId}, ` +
+          "and the L-with-island template has nowhere to stand one",
+      );
+    }
+  }
+
+  const opening = (slotId: SlotId, id: string) => {
+    const widthIn = openingIn(spec[slotId]);
+    return fixed(
+      id,
+      widthIn,
+      "appliance",
+      M(`RO${widthIn}`, "opening", widthIn, { slot: slotId }),
+      { slot: slotId },
+    );
+  };
 
   const sink = fixed(
     "sink",
@@ -666,15 +728,26 @@ function planLegs(params: LayoutParams) {
     M(`SB${SINK_BASE_IN}`, "sink-base", SINK_BASE_IN, { fixture: "fixture-sink" }),
     { fixture: "fixture-sink" },
   );
-  const dishwasher = opening("slot-dishwasher", "dishwasher", OPENING_IN.dishwasher);
+  const dishwasher = opening("slot-dishwasher", "dishwasher");
+
+  /**
+   * The refrigerator, which finishes a leg either way.
+   *
+   * Built in, it is a tower: two finished panels, the opening between them and
+   * a cabinet bridging over. Freestanding, it is the appliance and nothing
+   * else — no panels, no bridge — so it is the same segment carrying a
+   * different module, and the joinery falls away with the flag rather than
+   * with a branch in every file that draws a run.
+   */
+  const fridge = spec["slot-fridge"];
+  const fridgeIn = openingIn(fridge);
   const tower = fixed(
     "fridge",
-    OPENING_IN.fridge,
-    "tall",
-    M(`T${OPENING_IN.fridge}96`, "tall", OPENING_IN.fridge, {
-      heightIn: 96,
-      slot: "slot-fridge",
-    }),
+    fridgeIn,
+    fridge.tallUnit ? "tall" : "appliance",
+    fridge.enclosure
+      ? M(`T${fridgeIn}96`, "tall", fridgeIn, { heightIn: 96, slot: "slot-fridge" })
+      : M(`RO${fridgeIn}`, "tall-open", fridgeIn, { heightIn: 96, slot: "slot-fridge" }),
     { slot: "slot-fridge" },
   );
 
@@ -716,21 +789,21 @@ function planLegs(params: LayoutParams) {
   // of opening is exactly what it does not have.
   if (!params.hasIsland && params.sinkLeg === "back") {
     left.push(
-      opening("slot-microwave", "microwave", OPENING_IN.microwave),
-      opening("slot-wine", "wine", OPENING_IN.wine),
+      opening("slot-microwave", "microwave"),
+      opening("slot-wine", "wine"),
     );
   }
 
   const back: Item[] = [
     gap("range-landing-left", LAYOUT_LIMITS.rangeLandingIn, "d11-4"),
-    opening("slot-range", "range", OPENING_IN.range),
+    opening("slot-range", "range"),
     gap("range-landing-right", LAYOUT_LIMITS.rangeLandingIn, "d11-4"),
   ];
   if (params.sinkLeg === "back") back.push(...sinkGroup());
   if (!params.hasIsland && params.sinkLeg === "left") {
     back.push(
-      opening("slot-microwave", "microwave", OPENING_IN.microwave),
-      opening("slot-wine", "wine", OPENING_IN.wine),
+      opening("slot-microwave", "microwave"),
+      opening("slot-wine", "wine"),
     );
   }
 
@@ -758,8 +831,12 @@ function planLegs(params: LayoutParams) {
  * when it is the binding constraint, because "96" because a leg is never
  * shorter than that" is as real a reason as a cabinet.
  */
-export function wallRequirement(params: LayoutParams, leg: "left" | "back"): WallRequirement {
-  const plan = planLegs(params)[leg];
+export function wallRequirement(
+  params: LayoutParams,
+  leg: "left" | "back",
+  pkg: Package = PACKAGE,
+): WallRequirement {
+  const plan = planLegs(params, pkg)[leg];
   const corner = CORNERS[params.cornerType];
   const items: RequirementItem[] = [];
 
@@ -827,12 +904,13 @@ export function wallRequirement(params: LayoutParams, leg: "left" | "back"): Wal
 export function feasibleRange(
   params: LayoutParams,
   key: "backWallIn" | "leftWallIn",
+  pkg: Package = PACKAGE,
 ): { minIn: number; maxIn: number } | null {
   const { min, max, step } = PARAM_LIMITS[key];
   let minIn: number | null = null;
   let maxIn = min;
   for (let value = min; value <= max; value += step) {
-    if (!generateLayout({ ...params, [key]: value }).ok) continue;
+    if (!generateLayout({ ...params, [key]: value }, pkg).ok) continue;
     if (minIn === null) minIn = value;
     maxIn = value;
   }
@@ -886,12 +964,20 @@ function bankStop(segments: RunSegment[]): number {
  *
  * The bridge over the hood has no band of its own: its floor is the canopy's
  * top, which moves with whichever range goes in. See `hoodBridgeBand`.
+ *
+ * Whether there is a bridge at all is the hood's own business. An
+ * under-cabinet hood is screwed to the underside of one and the duct runs up
+ * inside it, so the box is structural. A chimney hood carries its own duct
+ * cover to the ceiling, and a cabinet over it would be a cabinet with a
+ * stainless flue through the middle of it — the space above a chimney hood is
+ * meant to be empty.
  */
 function banksAroundHood(
   runId: string,
   segments: RunSegment[],
   start: number,
   corner: (typeof CORNERS)[keyof typeof CORNERS] | null,
+  spec: Record<SlotId, PackageSlot>,
 ): UpperBank[] {
   const range = segments.find((segment) => segment.slot === "slot-range");
   const stop = bankStop(segments);
@@ -903,20 +989,29 @@ function banksAroundHood(
   // you cannot get a cloth into and a foot of shelf nobody has.
   const hood = [range.from, range.to] as const;
   const bridgeIn = Math.round((hood[1] - hood[0]) * 12);
+  const bridged = spec["slot-hood"].installType === "under-cabinet";
   return [
     bankFor(`upper-${runId}-left`, start, hood[0], corner, "start"),
-    {
-      id: `upper-${runId}-hood`,
-      from: hood[0],
-      to: hood[1],
-      modules: [M(`W${bridgeIn}`, "bridge", bridgeIn, { slot: "slot-hood" })],
-    },
+    ...(bridged
+      ? [
+          {
+            id: `upper-${runId}-hood`,
+            from: hood[0],
+            to: hood[1],
+            modules: [M(`W${bridgeIn}`, "bridge", bridgeIn, { slot: "slot-hood" })],
+          },
+        ]
+      : []),
     bankFor(`upper-${runId}-right`, hood[1], stop, null, "end"),
   ];
 }
 
 /** Where each appliance and fixture ends up, given the runs and the island. */
-function placements(runs: CabinetRun[], island: IslandLayout) {
+function placements(
+  runs: CabinetRun[],
+  island: IslandLayout,
+  spec: Record<SlotId, PackageSlot>,
+) {
   const onRun = (run: CabinetRun, at: number): [number, number, number] =>
     run.axis === "x" ? [at, 0, run.centre] : [run.centre, 0, at];
   const facing = (run: CabinetRun) => (run.axis === "x" ? 0 : Math.PI / 2);
@@ -964,7 +1059,9 @@ function placements(runs: CabinetRun[], island: IslandLayout) {
 
   return {
     slots: {
-      "slot-fridge": wall("slot-fridge", PANEL),
+      // Inset by a panel inside its enclosure; hard against the run's own line
+      // when there is no enclosure to be inside.
+      "slot-fridge": wall("slot-fridge", insetOf(spec["slot-fridge"])),
       "slot-range": wall("slot-range"),
       "slot-hood": {
         position: [rangeAt[0], hoodY, rangeAt[2]] as [number, number, number],
@@ -987,14 +1084,18 @@ function placements(runs: CabinetRun[], island: IslandLayout) {
   };
 }
 
-export function generateLayout(params: LayoutParams): GenerateResult {
+export function generateLayout(
+  params: LayoutParams,
+  pkg: Package = PACKAGE,
+): GenerateResult {
   const reasons = validate(params);
   if (reasons.length > 0) return { ok: false, reasons };
 
   const halfX = ft(params.backWallIn) / 2;
   const halfZ = ft(params.leftWallIn) / 2;
   const corner = CORNERS[params.cornerType];
-  const plan = planLegs(params);
+  const spec = slotsOf(pkg);
+  const plan = planLegs(params, pkg);
 
   // Both walls are judged before either is built: fixing one and finding the
   // other waiting is the worst way to learn a room is too small. A wall that is
@@ -1002,7 +1103,7 @@ export function generateLayout(params: LayoutParams): GenerateResult {
   const wrongLength: Refusal[] = [];
   for (const leg of ["left", "back"] as const) {
     const key = leg === "back" ? ("backWallIn" as const) : ("leftWallIn" as const);
-    const requirement = wallRequirement(params, leg);
+    const requirement = wallRequirement(params, leg, pkg);
     const vars = {
       paramKey: `param.${key}`,
       wallIn: params[key],
@@ -1014,7 +1115,7 @@ export function generateLayout(params: LayoutParams): GenerateResult {
         key: "refusal.wallShort",
         vars: { ...vars, shortIn: requirement.minimumIn - params[key] },
         occupancy: requirement.items,
-        suggestion: suggestionForWall(params, key),
+        suggestion: suggestionForWall(params, key, pkg),
       });
     } else if (params[key] > requirement.maximumIn) {
       // Not a shortage: D13 stops a single run at 144", and a longer wall is
@@ -1047,7 +1148,7 @@ export function generateLayout(params: LayoutParams): GenerateResult {
     plan.back.items,
     packedBack.widths,
   );
-  const island = islandFor(params, halfX, halfZ);
+  const island = islandFor(params, spec, halfX, halfZ);
 
   // The left leg's bank starts at the wall; the back leg's picks up where the
   // corner wall cabinet stops, which is 24" in over a lazy susan and 12" in
@@ -1065,11 +1166,11 @@ export function generateLayout(params: LayoutParams): GenerateResult {
       axis: "x",
       centre: -halfZ + ROOM.counterDepth / 2,
       segments: backSegments,
-      uppers: banksAroundHood("back", backSegments, -halfX + ft(corner.upper.acrossIn), null),
+      uppers: banksAroundHood("back", backSegments, -halfX + ft(corner.upper.acrossIn), null, spec),
     },
   ];
 
-  const placed = placements(runs, island);
+  const placed = placements(runs, island, spec);
 
   return {
     ok: true,
@@ -1077,11 +1178,20 @@ export function generateLayout(params: LayoutParams): GenerateResult {
   };
 }
 
-/** The refrigerator opening, for the scene that draws the enclosure. */
-export function fridgeOpeningOf(layout: GeneratedLayout): readonly [number, number] {
+/**
+ * The refrigerator opening, for the scene that draws the enclosure.
+ *
+ * Inside the panels where there are panels; the whole segment where there are
+ * none, because then the opening and the appliance are the same thing.
+ */
+export function fridgeOpeningOf(
+  layout: GeneratedLayout,
+  pkg: Package = PACKAGE,
+): readonly [number, number] {
+  const inset = insetOf(slotsOf(pkg)["slot-fridge"]);
   for (const run of layout.runs) {
     const tower = run.segments.find((s) => s.slot === "slot-fridge");
-    if (tower) return [tower.from + PANEL, tower.to - PANEL] as const;
+    if (tower) return [tower.from + inset, tower.to - inset] as const;
   }
   return [0, 0] as const;
 }

@@ -120,6 +120,11 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
   eachModule(segment.from, segment.modules, (module, along, index) => {
     if (module.kind === "opening") return;
 
+    // A freestanding full-height appliance is not joinery. It reserves its
+    // width and it stops the wall cabinets, and that is the whole of the
+    // cabinetmaker's involvement: no side panels, no bridge over the top.
+    if (module.kind === "tall-open") return;
+
     if (module.kind === "tall") {
       // A finished panel each side, the appliance opening between them, and a
       // bridging cabinet over the top. The bridge starts where the opening
@@ -195,11 +200,14 @@ function runBoxes(run: CabinetRun): CabinetBox[] {
   for (const bank of run.uppers) boxes.push(...upperBoxes(run, bank));
 
   // The toe kick runs under the cabinetry, and stops where the cabinetry does.
-  // A freestanding range stands on the floor between two runs of boxes: a
-  // recessed board carried on behind it is a board behind nothing.
+  // A freestanding range stands on the floor between two runs of boxes, and so
+  // does a freestanding refrigerator: a recessed board carried on behind
+  // either is a board behind nothing.
   let start = run.segments[0].from;
   for (const [i, segment] of run.segments.entries()) {
-    const breaks = segment.slot === "slot-range";
+    const breaks =
+      segment.slot === "slot-range" ||
+      segment.modules.some((module) => module.kind === "tall-open");
     const end = breaks ? segment.from : segment.to;
     const last = i === run.segments.length - 1;
     if ((breaks || last) && end > start) {
