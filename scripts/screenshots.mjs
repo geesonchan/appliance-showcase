@@ -12,7 +12,8 @@
  * pins and the ducting; SET=round7 for the module-built runs, the wedge canopy,
  * the dimension layer and the cabinet cutout; SET=round9 for the layout
  * controls and the four corners of the parameter set; SET=round10 for the sink
- * rule, the corner pair and a wall slider being argued with.
+ * rule, the corner pair and a wall slider being argued with; SET=round11 for
+ * the materials, the lighting and the finish picker.
  */
 import { mkdir } from "node:fs/promises";
 import { chromium } from "playwright";
@@ -319,9 +320,74 @@ async function captureRound10(page) {
   await page.screenshot({ path: `${outDir}/mobile-wall-slider.png` });
 }
 
+/**
+ * Round 11: the room as a render rather than a diagram.
+ *
+ * Day and night on the default view, the range close up where the steel and
+ * the cast iron have to hold up, and the four cabinet colours. Each one is a
+ * query string, so every frame here is a link.
+ */
+async function captureRound11(page) {
+  const shots = [
+    { name: "day", query: "" },
+    { name: "night", query: "", after: async () => clickIn(page, "Night") },
+    { name: "marble-tile", query: "?counter=marble&floor=tile" },
+    { name: "cabinet-green", query: "?cabinet=green" },
+    { name: "cabinet-navy", query: "?cabinet=navy" },
+    { name: "cabinet-clay", query: "?cabinet=clay" },
+    { name: "cabinet-bone", query: "?cabinet=bone" },
+  ];
+
+  for (const shot of shots) {
+    await page.goto(baseUrl + shot.query, { waitUntil: "networkidle" });
+    await settle(page, 2400);
+    if (shot.after) await shot.after();
+    await settle(page, 1200);
+    await page.screenshot({ path: `${outDir}/mobile-${shot.name}.png` });
+  }
+
+  // The range close up: the steel, the cast iron and the knobs at the size a
+  // customer actually looks at them.
+  await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await settle(page, 2400);
+  await flyTo(page, /Range/);
+  await settle(page, 1600);
+  await page.screenshot({ path: `${outDir}/mobile-range.png` });
+
+  // And the frame rate, with the quality tier the guard settled on.
+  await page.goto(`${baseUrl}?debug=1`, { waitUntil: "networkidle" });
+  await settle(page, 5000);
+  await page.screenshot({ path: `${outDir}/mobile-fps.png` });
+}
+
+/** Open the sheet, press a control inside it, and close it again. */
+async function clickIn(page, name) {
+  await click(page, "Configure");
+  await page.waitForTimeout(600);
+  await click(page, name);
+  await page.waitForTimeout(400);
+  await page.getByRole("button", { name: "Close" }).click();
+  await page.waitForTimeout(400);
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round11") {
+    const ctx = await browser.newContext({
+      viewport: MOBILE,
+      deviceScaleFactor: 2,
+      isMobile: true,
+      hasTouch: true,
+    });
+    const page = await ctx.newPage();
+    await captureRound11(page);
+    await ctx.close();
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round10") {
     const ctx = await browser.newContext({
