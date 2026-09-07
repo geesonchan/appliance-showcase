@@ -252,6 +252,13 @@
   "finish.floor.oak": "Oak",
   "finish.floor.tile": "Tile",
   "debug.quality": "Quality",
-  "finish.twoTone": "Two-tone uppers",
-  "finish.cabinet.oak": "Oak"
+  "finish.cabinet.oak": "Oak",
+  "finish.accentRun": "Accent run",
+  "finish.accentRun.none": "None",
+  "finish.accent": "Accent colour",
+  "finish.accent.oak": "Oak",
+  "finish.accent.ink": "Ink",
+  "finish.accent.brick": "Brick",
+  "finish.accent.cream": "Cream",
+  "finish.accent.slate": "Slate"
 }

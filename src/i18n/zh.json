@@ -253,6 +253,13 @@
   "finish.floor.oak": "橡木",
   "finish.floor.tile": "瓷砖",
   "debug.quality": "画质档",
-  "finish.twoTone": "吊柜用浅色",
-  "finish.cabinet.oak": "橡木"
+  "finish.cabinet.oak": "橡木",
+  "finish.accentRun": "副色柜列",
+  "finish.accentRun.none": "无",
+  "finish.accent": "副色",
+  "finish.accent.oak": "橡木",
+  "finish.accent.ink": "墨黑",
+  "finish.accent.brick": "砖红",
+  "finish.accent.cream": "奶油",
+  "finish.accent.slate": "石板灰"
 }

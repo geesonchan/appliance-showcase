@@ -36,14 +36,12 @@ interface AppState {
    */
   finishes: {
     cabinet: string;
+    /** The second colour, worn by one whole run. See docs/decisions.md D15. */
+    accent: string;
+    /** Which run wears it, or none — which is the default. */
+    accentRun: AccentRun;
     counter: CounterFinish;
     floor: FloorFinish;
-    /**
-     * Wall cabinets in the scheme's own light finish rather than the door
-     * colour. Off by default: one colour is what "the cabinets are green"
-     * means, and a two-tone kitchen is a decision somebody makes on purpose.
-     */
-    twoToneUppers: boolean;
   };
   /**
    * Render quality. Dropped automatically when the frame rate will not hold,
@@ -124,6 +122,7 @@ interface AppState {
 let toastId = 0;
 
 export type Quality = "high" | "low";
+export type AccentRun = "none" | "left" | "back" | "island";
 export type CounterFinish = "quartz-white" | "marble-veined" | "wood-oak";
 export type FloorFinish = "floor-oak" | "tile-white";
 
@@ -142,9 +141,28 @@ export const CABINET_COLORS = [
   { key: "finish.cabinet.oak", value: "#C6A276", token: "wood-oak" as const },
 ] as const;
 
-/** The finish token behind a swatch: paint, or the wood itself. */
+/**
+ * The second palette, for the run that is doing something different.
+ *
+ * A different five, because an accent that is one of the five you just chose
+ * from is not an accent — it is the same kitchen with a mistake in it. These
+ * are the colours a designer reaches for beside a painted run: the wood, a
+ * near-black, a deep clay, an off-white and a slate.
+ */
+export const ACCENT_COLORS = [
+  { key: "finish.accent.oak", value: "#C6A276", token: "wood-oak" as const },
+  { key: "finish.accent.ink", value: "#23282B", token: "painted" as const },
+  { key: "finish.accent.brick", value: "#8A4A38", token: "painted" as const },
+  { key: "finish.accent.cream", value: "#EFE8D8", token: "painted" as const },
+  { key: "finish.accent.slate", value: "#6B7375", token: "painted" as const },
+] as const;
+
+/** The finish token behind a swatch on either palette: paint, or the wood. */
 export function cabinetToken(value: string) {
-  return CABINET_COLORS.find((paint) => paint.value === value)?.token ?? "painted";
+  return (
+    [...CABINET_COLORS, ...ACCENT_COLORS].find((paint) => paint.value === value)?.token ??
+    "painted"
+  );
 }
 
 /**
@@ -157,14 +175,19 @@ export function cabinetToken(value: string) {
 function initialFinishes() {
   const defaults = {
     cabinet: CABINET_COLORS[0].value,
+    accent: ACCENT_COLORS[0].value,
+    accentRun: "none" as AccentRun,
     counter: "quartz-white" as CounterFinish,
     floor: "floor-oak" as FloorFinish,
-    twoToneUppers: false,
   };
   if (typeof window === "undefined") return defaults;
 
   const query = new URLSearchParams(window.location.search);
-  const cabinet = CABINET_COLORS.find((paint) => paint.key.endsWith(query.get("cabinet") ?? ""));
+  const swatch = (palette: typeof CABINET_COLORS | typeof ACCENT_COLORS, name: string | null) =>
+    name ? palette.find((paint) => paint.key.endsWith(name)) : undefined;
+  const cabinet = swatch(CABINET_COLORS, query.get("cabinet"));
+  const accent = swatch(ACCENT_COLORS, query.get("accent"));
+  const runs: AccentRun[] = ["none", "left", "back", "island"];
   const counters: Record<string, CounterFinish> = {
     quartz: "quartz-white",
     marble: "marble-veined",
@@ -173,10 +196,11 @@ function initialFinishes() {
   const floors: Record<string, FloorFinish> = { oak: "floor-oak", tile: "tile-white" };
 
   return {
-    cabinet: query.get("cabinet") && cabinet ? cabinet.value : defaults.cabinet,
+    cabinet: cabinet?.value ?? defaults.cabinet,
+    accent: accent?.value ?? defaults.accent,
+    accentRun: runs.find((run) => run === query.get("accentRun")) ?? defaults.accentRun,
     counter: counters[query.get("counter") ?? ""] ?? defaults.counter,
     floor: floors[query.get("floor") ?? ""] ?? defaults.floor,
-    twoToneUppers: query.get("twoTone") === "1",
   };
 }
 

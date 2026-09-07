@@ -513,6 +513,32 @@ shares a badge; putting any of these numbers in the geometry instead of in
 
 ---
 
+## D15 · A kitchen is finished by the run, not by the shelf
+
+**Decided:** 2026-09-07 (M3-5, round 13), Leo.
+
+A second colour in a kitchen goes on a whole stretch of cabinetry — the island
+in oak, the back wall in ink — and takes the wall cabinets, the base cabinets
+and the towers on that run with it. It does not go on "the uppers".
+
+**Why.** Splitting a run at counter height is a different decision and mostly a
+dated one: it reads as two kitchens meeting rather than one kitchen with a
+feature. What a designer actually says is "the island is different", and the
+whole island is different, top to bottom.
+
+**What follows from it.** Every cabinet box carries the run it belongs to, so
+the question the interface asks is "which run" rather than "which height". The
+finish picker offers a primary palette and a separate accent palette — a
+separate one, because an accent chosen from the five you just chose the main
+colour from is the same kitchen with a mistake in it — and no accent run at
+all is the default, because one colour is what "the cabinets are green" means.
+
+**What it forbids:** a finish control that splits a run horizontally; an accent
+that only reaches part of a run; putting either palette on the quote. Colour is
+how the room is looked at, not what is bought (D12).
+
+---
+
 ## D14 · The layout is a plain sequence, not a derived value
 
 **Registered:** 2026-09-06 (M3-4), before building it.

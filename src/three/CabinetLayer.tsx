@@ -127,10 +127,15 @@ function CabinetSolid({ box }: { box: CabinetBox }) {
   const paint = useAppStore((s) => s.finishes.cabinet);
   const counter = useAppStore((s) => s.finishes.counter);
 
-  const twoTone = useAppStore((s) => s.finishes.twoToneUppers);
+  const accent = useAppStore((s) => s.finishes.accent);
+  const accentRun = useAppStore((s) => s.finishes.accentRun);
+  // A kitchen is finished by the run, not by the shelf: the accent colour goes
+  // on one whole leg or on the island — wall cabinets, base cabinets and towers
+  // together. See docs/decisions.md D15.
+  const colourOf = box.run === accentRun ? accent : paint;
   // A wood door is not a painted door in a wood colour: it takes the wood
   // token, grain and all, and the colour override falls away with it.
-  const doorToken = cabinetToken(paint);
+  const doorToken = cabinetToken(colourOf);
   const token =
     box.kind === "counter" ? counter : box.kind === "toe" ? "painted" : doorToken;
   // One colour through the room unless somebody asks for two. A two-tone
@@ -139,11 +144,9 @@ function CabinetSolid({ box }: { box: CabinetBox }) {
   const colour =
     box.kind === "toe"
       ? SCENE_COLORS.toe
-      : box.kind === "upper" && twoTone
-        ? SCENE_COLORS.cabinetUpper
-        : box.kind === "counter" || doorToken !== "painted"
-          ? undefined
-          : paint;
+      : box.kind === "counter" || doorToken !== "painted"
+        ? undefined
+        : colourOf;
   const props = finish(renderMode, token, colour);
 
   const install = renderMode === "install";

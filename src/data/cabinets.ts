@@ -31,6 +31,15 @@ export interface CabinetBox {
   slot?: SlotId;
   /** The cabinet this box is, when it is one. Shown under ?debug=1. */
   module?: CabinetModule;
+  /**
+   * Which stretch of cabinetry this box belongs to.
+   *
+   * A kitchen is finished by the run, not by the shelf: an accent colour goes
+   * on one whole leg or on the island, wall cabinets and base cabinets and
+   * towers together. So every box carries its run, and the finish picker asks
+   * about runs rather than about heights. See docs/decisions.md D15.
+   */
+  run: "left" | "back" | "island";
   /** Centre of the box, in feet. */
   position: [number, number, number];
   /** Full extents, in feet. */
@@ -72,7 +81,7 @@ function onRun(
       : [depth, span(y), span(along)];
   const position: [number, number, number] =
     run.axis === "x" ? [mid(along), mid(y), across] : [across, mid(y), mid(along)];
-  return { id, kind, position, size, ...extra };
+  return { id, kind, position, size, run: run.id, ...extra };
 }
 
 /**
@@ -207,7 +216,10 @@ function runBoxes(run: CabinetRun): CabinetBox[] {
  * white model and the install wireframe all read from the same boxes.
  */
 function buildCabinets(): CabinetBox[] {
-  return [...RUNS.flatMap(runBoxes), ...(ISLAND.present ? islandBoxes() : [])];
+  return [
+    ...RUNS.flatMap(runBoxes),
+    ...(ISLAND.present ? islandBoxes().map((box) => ({ ...box, run: "island" as const })) : []),
+  ];
 }
 
 /**
@@ -219,7 +231,7 @@ function buildCabinets(): CabinetBox[] {
  * for no island has none of these boxes at all — the microwave and the wine
  * cabinet go on the perimeter instead.
  */
-function islandBoxes(): CabinetBox[] {
+function islandBoxes(): Omit<CabinetBox, "run">[] {
   return [
     {
       id: "island-left",
@@ -306,6 +318,7 @@ function unionBox(id: string, boxes: CabinetBox[]): CabinetBox {
     id,
     kind: boxes[0].kind,
     slot: boxes[0].slot,
+    run: boxes[0].run,
     position: [axes[0].centre, axes[1].centre, axes[2].centre],
     size: [axes[0].extent, axes[1].extent, axes[2].extent],
   };
