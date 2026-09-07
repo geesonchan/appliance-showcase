@@ -5,11 +5,19 @@ import { applianceBox, flushOffset } from "../data/applianceBox";
 import { hoodProfile, hoodTopDepthIn } from "../data/hood";
 import { fridgeParts } from "../data/fridgeModel";
 import { RANGE_PROPORTIONS, rangeParts } from "../data/rangeModel";
+import { Surface } from "./Surface";
 import { CABINET_STANDARDS, ROOM, SLOT_BY_ID, ft } from "../data/slots";
-import { useAppStore } from "../store/useAppStore";
+import { cabinetToken, useAppStore } from "../store/useAppStore";
 import { useSelection } from "../store/useSelection";
 import type { Appliance, Category, SlotId } from "../types";
-import { SCENE_COLORS, finishSurface, surface, type SurfaceProps } from "./materials";
+import {
+  SCENE_COLORS,
+  finish,
+  finishSurface,
+  isPanelReady,
+  surface,
+  type SurfaceProps,
+} from "./materials";
 
 export interface ApplianceModelProps {
   slot: SlotId;
@@ -35,8 +43,14 @@ export function ApplianceModel({ slot, appliance }: ApplianceModelProps) {
   const selectSlot = useAppStore((s) => s.selectSlot);
   const selected = useAppStore((s) => s.selectedSlot === slot);
 
-  const finish = appliance.finish[0];
-  const body = finishSurface(renderMode, finish);
+  // A panel-ready machine wears the cabinet's door, because that is what it is
+  // sold as: no front of its own, and the joiner hangs the same one on it as on
+  // the cabinet beside it. Change the kitchen's colour and it changes with it.
+  const paint = useAppStore((s) => s.finishes.cabinet);
+  const panelReady = isPanelReady(appliance.finish);
+  const body = panelReady
+    ? finish(renderMode, cabinetToken(paint), cabinetToken(paint) === "painted" ? paint : undefined)
+    : finishSurface(renderMode, appliance.finish[0]);
   const trim = surface(renderMode, "#8E938D", { metalness: 0.9, roughness: 0.25 });
   const glass = surface(renderMode, "#2B322D", { metalness: 0.3, roughness: 0.1 });
   const cabinet = surface(renderMode, SCENE_COLORS.cabinet, {
@@ -175,20 +189,15 @@ function Filler({
 }
 
 /**
- * Keyed on the transparency flag: three.js needs a fresh material when
- * `transparent` flips, not just a property write.
+ * An appliance's material.
+ *
+ * Delegates to the shared `Surface`, so a panel-ready machine wearing an oak
+ * cabinet door gets the same grain the cabinet does. `size` is the face the
+ * material lands on, in feet, which is what keeps that grain the same size on a
+ * dishwasher front as on the door beside it.
  */
-function Mat({ s }: { s: SurfaceProps }) {
-  return (
-    <meshStandardMaterial
-      key={s.transparent ? "ghost" : "solid"}
-      color={s.color}
-      metalness={s.metalness}
-      roughness={s.roughness}
-      transparent={s.transparent}
-      opacity={s.opacity}
-    />
-  );
+function Mat({ s, size }: { s: SurfaceProps; size?: [number, number] }) {
+  return <Surface s={s} size={size} />;
 }
 
 interface BodyProps {
@@ -252,18 +261,21 @@ function Body({ category, appliance, installType, topDepthIn, w, h, d, body, tri
       );
 
     case "dishwasher":
+      // A panel-ready dishwasher is a door with a machine behind it, so the
+      // front is drawn as a door — the cabinet's own finish, at the cabinet's
+      // own grain — and only the handle stays steel.
       return (
         <group>
           <mesh position={[0, h / 2, cz]} castShadow>
             <boxGeometry args={[w, h, cd]} />
-            <Mat s={body} />
+            <Mat s={body} size={[w, h]} />
           </mesh>
-          <mesh position={[0, h * 0.94, gripZ]}>
-            <boxGeometry args={[w * 0.9, bar, bar]} />
-            <Mat s={trim} />
+          <mesh position={[0, h * 0.5, face]} castShadow>
+            <boxGeometry args={[w * 0.96, h * 0.96, ft(0.25)]} />
+            <Mat s={body} size={[w * 0.96, h * 0.96]} />
           </mesh>
-          <mesh position={[0, h * 0.5, face]}>
-            <boxGeometry args={[w * 0.9, h * 0.7, 0.01]} />
+          <mesh position={[0, h * 0.94, gripZ]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[bar / 2, bar / 2, w * 0.9, 12]} />
             <Mat s={trim} />
           </mesh>
         </group>
@@ -385,7 +397,7 @@ function Fridge({
         <group key={panel.id} name={`fridge-panel-${panel.id}`}>
           <mesh position={[panel.x, panel.y, face + gasket / 2]} castShadow>
             <boxGeometry args={[panel.w, panel.h, gasket]} />
-            <Mat s={body} />
+            <Mat s={body} size={[panel.w, panel.h]} />
           </mesh>
           <mesh
             position={[

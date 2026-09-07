@@ -42,18 +42,28 @@ export const UTILITY_RADIUS_IN = {
   power120: 0.4,
 } as const;
 
-const FINISH_COLORS: Record<Finish, string> = {
-  stainless: "#B7BBB7",
-  "panel-ready": "#C9A77B",
-  "matte-black": "#2A2D2A",
-  white: "#F1F0EA",
+/**
+ * The finish a catalogue record names, as one of the room's own tokens.
+ *
+ * The sheet's vocabulary is a buyer's — "stainless", "matte black" — and the
+ * room's is a surface's. Mapping one onto the other here means a steel
+ * appliance and a steel countertop edge are the same steel, brushed the same
+ * way, rather than two definitions of the colour of metal that drift apart.
+ *
+ * Panel-ready is the odd one: a machine sold without a front. It only lands
+ * here if something has forgotten to resolve it against the cabinets, so it
+ * gets the wood it would most likely be hung in.
+ */
+const FINISH_TOKENS: Record<Finish, FinishToken> = {
+  stainless: "stainless",
+  "panel-ready": "wood-oak",
+  "matte-black": "black-stainless",
+  white: "painted",
 };
 
-const FINISH_PBR: Record<Finish, { metalness: number; roughness: number }> = {
-  stainless: { metalness: 0.85, roughness: 0.32 },
-  "panel-ready": { metalness: 0.05, roughness: 0.75 },
-  "matte-black": { metalness: 0.15, roughness: 0.7 },
-  white: { metalness: 0.05, roughness: 0.6 },
+const FINISH_OVERRIDE: Partial<Record<Finish, string>> = {
+  "matte-black": "#2A2D2A",
+  white: "#F1F0EA",
 };
 
 export interface SurfaceProps {
@@ -183,8 +193,8 @@ export function surface(
   return { color, ...pbr, transparent: false, opacity: 1 };
 }
 
-export function finishSurface(mode: RenderMode, finish: Finish): SurfaceProps {
-  return surface(mode, FINISH_COLORS[finish], FINISH_PBR[finish]);
+export function finishSurface(mode: RenderMode, named: Finish): SurfaceProps {
+  return finish(mode, FINISH_TOKENS[named], FINISH_OVERRIDE[named]);
 }
 
 export function floorColor(mode: RenderMode, lighting: Lighting): string {
@@ -196,3 +206,13 @@ export function wallColor(mode: RenderMode, lighting: Lighting): string {
   if (mode === "white") return SCENE_COLORS.whiteModel;
   return lighting === "night" ? SCENE_COLORS.wallNight : SCENE_COLORS.wall;
 }
+
+/**
+ * True when a machine is meant to disappear into the joinery.
+ *
+ * A panel-ready dishwasher is sold without a front: the cabinetmaker hangs the
+ * same door on it as on the cabinet beside it, in the same wood or the same
+ * paint, and the only steel you see is the handle. Drawing it in a generic
+ * brown is drawing the one thing about it that is wrong.
+ */
+export const isPanelReady = (finishes: Finish[]) => finishes.includes("panel-ready");
