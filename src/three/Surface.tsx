@@ -70,11 +70,19 @@ export function Surface({
 
   return (
     <meshStandardMaterial
-      // Keyed on transparency alone. Three.js needs a fresh material when that
-      // flag flips, but a map appearing or going is a property write on the
-      // material it already has — and keying on the maps too meant a render
-      // mode switch built a new material for every cabinet in the room.
-      key={s.transparent ? "ghost" : "solid"}
+      // Keyed on what a shader has to be recompiled for: the transparency
+      // flag, and whether there is a map at all. Not on *which* map — a finish
+      // token keeps its slots filled in every render mode, so a mode switch
+      // does not rekey, while changing the doors from paint to oak does.
+      //
+      // Keying on transparency alone was wrong and it showed: an oak door
+      // rendered white, because the material picked up the texture without
+      // recompiling the program that samples it.
+      key={[
+        s.transparent ? "ghost" : "solid",
+        s.map ? "map" : "flat",
+        s.normalMap ? "bump" : "smooth",
+      ].join("-")}
       color={s.color}
       metalness={s.metalness}
       roughness={s.roughness}
