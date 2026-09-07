@@ -1,6 +1,6 @@
 import { bowlExtent, FIXTURE_BY_ID } from "./fixtures";
 import { ROOM, RUNS, ft, type CabinetRun } from "./room";
-import { SLOT_BY_ID } from "./slots";
+import type { Appliance } from "../types";
 
 /** A point on the floor plan, in world feet. */
 export type Point2 = readonly [number, number];
@@ -29,7 +29,11 @@ export interface CounterOutline {
  * ceiling — so each leg of the L runs from the corner to whichever comes first,
  * its tower or its end.
  */
-export function counterOutline(runs: CabinetRun[] = RUNS): CounterOutline {
+export function counterOutline(
+  runs: CabinetRun[] = RUNS,
+  /** The range that is specified, which decides how its cutout is shaped. */
+  range?: Appliance,
+): CounterOutline {
   const left = runs.find((run) => run.axis === "z")!;
   const back = runs.find((run) => run.axis === "x")!;
 
@@ -54,7 +58,7 @@ export function counterOutline(runs: CabinetRun[] = RUNS): CounterOutline {
 
   return {
     outline,
-    holes: [...rangeHoles(runs), ...sinkHoles(runs)],
+    holes: [...rangeHoles(runs, range), ...sinkHoles(runs)],
     band: [ROOM.counterHeight - ROOM.counterThickness, ROOM.counterHeight] as const,
   };
 }
@@ -65,19 +69,39 @@ function legEnd(run: CabinetRun): number {
   return tower ? tower.from : run.segments[run.segments.length - 1].to;
 }
 
-/** A slide-in range drops into the top rather than interrupting it. */
-function rangeHoles(runs: CabinetRun[]): Point2[][] {
+/**
+ * How a range meets the countertop, which is not one thing.
+ *
+ * A freestanding range does not drop into anything: it stands on the floor
+ * between two runs of cabinets and the countertop stops at each side of it. So
+ * the cutout goes right through, front to back, and the machine you see from
+ * the front is the machine, not a slab of stone laid over its toes.
+ *
+ * A slide-in does drop in, and laps an inch of its cooktop over the counter
+ * each side — so that inch of stone stays, at the front, for the lip to sit on.
+ */
+function rangeHoles(runs: CabinetRun[], appliance?: Appliance): Point2[][] {
   const holes: Point2[][] = [];
+  const freestanding =
+    !appliance || appliance.installType.some((type) => /freestanding/i.test(type));
+
   for (const run of runs) {
     const range = run.segments.find((segment) => segment.slot === "slot-range");
     if (!range) continue;
-    // The cutout is the appliance's own width, set back from the front edge.
-    const depth = ft(SLOT_BY_ID["slot-range"].cutout.d);
-    const across = [run.centre - depth / 2, run.centre + depth / 2] as const;
+
+    // The back of the slab is the wall; the front is the overhang.
+    const back = -ROOM.counterDepth / 2;
+    const front = ROOM.counterDepth / 2 + ROOM.counterOverhang;
+    // A slide-in leaves the front inch of stone for its cooktop to lap over.
+    const stop = freestanding ? front : front - ft(RANGE_LIP_IN);
+    const across = [run.centre + back, run.centre + stop] as const;
     holes.push(rect([range.from, range.to], across, run.axis));
   }
   return holes;
 }
+
+/** What a slide-in laps over, which is the one bit of counter that stays. */
+const RANGE_LIP_IN = 1;
 
 /** And so does an undermount basin. */
 function sinkHoles(runs: CabinetRun[]): Point2[][] {

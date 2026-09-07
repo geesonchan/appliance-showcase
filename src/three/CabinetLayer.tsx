@@ -2,6 +2,8 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import { CABINETS, CABINET_OUTLINES, type CabinetBox } from "../data/cabinets";
 import { counterOutline } from "../data/counter";
+import { RUNS } from "../data/room";
+import { useSelection } from "../store/useSelection";
 import { useIsMobile } from "../hooks/useIsMobile";
 import { cabinetToken, useAppStore } from "../store/useAppStore";
 import { ft } from "../data/room";
@@ -212,8 +214,12 @@ function CabinetWireframe({ box, faint }: { box: CabinetBox; faint: boolean }) {
 function CounterSlab() {
   const renderMode = useAppStore((s) => s.renderMode);
   const quality = useAppStore((s) => s.quality);
+  // The range is part of the slab's shape, not something laid on top of it: a
+  // freestanding machine is a hole right through and a slide-in is a hole with
+  // an inch of stone left at the front for its cooktop to lap over.
+  const range = useSelection()["slot-range"];
   const geometry = useMemo(() => {
-    const { outline, holes, band } = counterOutline();
+    const { outline, holes, band } = counterOutline(RUNS, range);
     const shape = new THREE.Shape(outline.map(([x, z]) => new THREE.Vector2(x, z)));
     for (const hole of holes) {
       shape.holes.push(new THREE.Path(hole.map(([x, z]) => new THREE.Vector2(x, z))));
@@ -226,7 +232,7 @@ function CounterSlab() {
     extruded.rotateX(Math.PI / 2);
     extruded.translate(0, band[1], 0);
     return extruded;
-  }, []);
+  }, [range]);
 
   const token = useAppStore((s) => s.finishes.counter);
   const props = finish(renderMode, token);

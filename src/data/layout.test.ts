@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { CABINETS, hoodBridgeBand } from "./cabinets";
+import { applianceBox } from "./applianceBox";
 import { counterOutline, isRectilinearL } from "./counter";
+import { FIXTURES as TEST_APPLIANCES } from "./testFixtures";
+import type { Appliance } from "../types";
 import { checkHeights, checkLayout, LAYOUT_LIMITS, occupants } from "./layoutRules";
 import { FIXTURE_BY_ID } from "./fixtures";
 import {
@@ -518,5 +521,61 @@ describe("D11 rule 2 · the corner is continuous", () => {
       const along = run.axis === "x" ? 0 : 2;
       expect(toe.position[along] - toe.size[along] / 2).toBeCloseTo(run.segments[0].from, 6);
     }
+  });
+});
+
+describe("D11 rule 3 · the countertop stops at the range", () => {
+  const rangeSegment = () => back().segments.find((s) => s.fixture === undefined && s.slot === "slot-range")!;
+
+  /** The slab's holes, as rectangles in plan. */
+  const holes = (appliance?: Appliance) =>
+    counterOutline(RUNS, appliance).holes.map((hole) => ({
+      x: [Math.min(...hole.map((p) => p[0])), Math.max(...hole.map((p) => p[0]))] as const,
+      z: [Math.min(...hole.map((p) => p[1])), Math.max(...hole.map((p) => p[1]))] as const,
+    }));
+
+  // A freestanding range stands on the floor between two runs. Stone laid over
+  // its toes is the regression this is here to catch.
+  it("cuts right through, front to back, for a freestanding range", () => {
+    const range = { ...TEST_APPLIANCES.gasRange36, installType: ["freestanding"] } as Appliance;
+    const segment = rangeSegment();
+    const cut = holes(range).find((hole) => Math.abs(hole.x[0] - segment.from) < 1e-9)!;
+
+    expect(cut, "no cutout at the range").toBeDefined();
+    expect(inches(cut.x[1] - cut.x[0])).toBeCloseTo(widthIn(segment), 6);
+    // From the wall to past the front edge, which is the overhang.
+    expect(cut.z[0]).toBeCloseTo(back().centre - ROOM.counterDepth / 2, 6);
+    expect(cut.z[1]).toBeCloseTo(
+      back().centre + ROOM.counterDepth / 2 + ROOM.counterOverhang,
+      6,
+    );
+  });
+
+  it("leaves an inch at the front for a slide-in to lap over", () => {
+    const range = { ...TEST_APPLIANCES.gasRange36, installType: ["slide-in"] } as Appliance;
+    const segment = rangeSegment();
+    const cut = holes(range).find((hole) => Math.abs(hole.x[0] - segment.from) < 1e-9)!;
+    const front = back().centre + ROOM.counterDepth / 2 + ROOM.counterOverhang;
+    expect(inches(front - cut.z[1])).toBeCloseTo(1, 6);
+  });
+
+  // The check that says it out loud: no stone anywhere the machine is.
+  it("keeps the slab clear of the range's own volume", () => {
+    const range = { ...TEST_APPLIANCES.gasRange36, installType: ["freestanding"] } as Appliance;
+    const segment = rangeSegment();
+    const box = applianceBox(SLOT_BY_ID["slot-range"], range);
+    const cut = holes(range).find((hole) => Math.abs(hole.x[0] - segment.from) < 1e-9)!;
+
+    const machine = {
+      x: [
+        (segment.from + segment.to) / 2 - box.w / 2,
+        (segment.from + segment.to) / 2 + box.w / 2,
+      ] as const,
+      z: [back().centre - box.d / 2, back().centre + box.d / 2] as const,
+    };
+    expect(cut.x[0]).toBeLessThanOrEqual(machine.x[0] + 1e-9);
+    expect(cut.x[1]).toBeGreaterThanOrEqual(machine.x[1] - 1e-9);
+    expect(cut.z[0]).toBeLessThanOrEqual(machine.z[0] + 1e-9);
+    expect(cut.z[1]).toBeGreaterThanOrEqual(machine.z[1] - 1e-9);
   });
 });
