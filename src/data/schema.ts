@@ -105,6 +105,22 @@ export const applianceSchema = z.object({
    * number comes from the manufacturer's drawing rather than from the width.
    */
   burners: z.number().int().positive().nullable().default(null),
+  /**
+   * Refrigerators: how the front opens. What a customer sees of a refrigerator
+   * is its doors, so this is read from the sheet's Feature column rather than
+   * guessed from the width — a 36" french door with two drawers and a 36"
+   * side-by-side are the same box and nothing like the same machine.
+   */
+  doorConfig: z
+    .enum([
+      "french-door-2-drawer",
+      "french-door-1-drawer",
+      "bottom-freezer",
+      "side-by-side",
+      "column",
+    ])
+    .nullable()
+    .default(null),
 
   /**
    * Width, or null for a blower. Everything else needs one, because the fit

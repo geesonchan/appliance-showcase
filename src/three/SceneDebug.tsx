@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import * as THREE from "three";
 import { useThree } from "@react-three/fiber";
 import { SLOT_ORDER } from "../data/catalogue";
+import { hasGenericDoors } from "../data/fridgeModel";
+import { hasGenericRoughIn } from "../data/roughIn";
 import { DEBUG } from "../debug";
 import { useSelection } from "../store/useSelection";
 
@@ -31,6 +33,11 @@ export function SceneDebug() {
         boxes[slot] = measure(group, size);
       }
       (window as unknown as { __applianceBoxes?: typeof boxes }).__applianceBoxes = boxes;
+      // Which appliances are being drawn from a guess rather than from what
+      // somebody read off a drawing.
+      (window as unknown as { __generic?: string[] }).__generic = Object.values(selection)
+        .filter((appliance) => hasGenericDoors(appliance) || hasGenericRoughIn(appliance))
+        .map((appliance) => appliance.model);
     });
     return () => cancelAnimationFrame(id);
   }, [scene, selection]);

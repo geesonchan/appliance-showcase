@@ -451,11 +451,50 @@ export const COMPATIBLE_BLOWERS: Record<string, string[]> = {
  */
 export const PUBLISHED_SPECS: Record<
   string,
-  { heightIn?: number; depthIn?: number; burners?: number }
+  { heightIn?: number; depthIn?: number; burners?: number; doorConfig?: DoorConfig }
 > = {
   PRG366WH: { heightIn: 36.75, depthIn: 24.75, burners: 6 },
   PRG304WH: { heightIn: 36.75, depthIn: 24.75, burners: 4 },
+  // Thermador Freedom: two doors over a refrigerator drawer and a freezer
+  // drawer. Sold as a four-door, which is what the Feature column tends to say.
+  T36BT120NS: { doorConfig: "french-door-2-drawer" },
 };
+
+export type DoorConfig =
+  | "french-door-2-drawer"
+  | "french-door-1-drawer"
+  | "bottom-freezer"
+  | "side-by-side"
+  | "column";
+
+/**
+ * How a refrigerator opens, read off the sheet's Feature column.
+ *
+ * The words are the ones a vendor actually writes: "French Door", "4 Door",
+ * "2 Drawer", "Side by Side", "Column". A french door with two drawers under it
+ * is sold as a four-door, so both spellings land in the same place.
+ *
+ * A refrigerator with nothing useful in Feature gets the commonest
+ * configuration and is flagged as a guess, the same way a model with no
+ * rough-in drawing is: the room still draws something, and `?debug=1` says
+ * which ones nobody has checked.
+ */
+export function toDoorConfig(category: Category, feature: string): DoorConfig | null {
+  if (category !== "refrigerator") return null;
+  const text = (feature ?? "").toLowerCase();
+
+  if (/column|all[- ]?(freezer|refrigerator)/.test(text)) return "column";
+  if (/side[- ]?by[- ]?side/.test(text)) return "side-by-side";
+  if (/french/.test(text) || /\bfd\b/.test(text)) {
+    if (/4[- ]?door|2[- ]?drawer|two[- ]?drawer/.test(text)) return "french-door-2-drawer";
+    return "french-door-1-drawer";
+  }
+  if (/bottom[- ]?(mount|freezer)/.test(text)) return "bottom-freezer";
+  return null;
+}
+
+/** The one a refrigerator gets when the sheet says nothing about its doors. */
+export const DEFAULT_DOOR_CONFIG: DoorConfig = "french-door-1-drawer";
 
 /** The published figure for a model, where a drawing has been read. */
 export function toPublished(model: string) {

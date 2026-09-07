@@ -22,6 +22,7 @@ import {
   toBoolean,
   toBrand,
   toCompatibleBlowers,
+  toDoorConfig,
   toPublished,
   toDimension,
   toFinish,
@@ -224,6 +225,10 @@ export function convert(
       heightIn: numberOrNull(row.Height) ?? published.heightIn ?? null,
       depthIn: numberOrNull(row.Depth) ?? published.depthIn ?? null,
       burners: published.burners ?? null,
+      // The drawing first where one has been read, then the sheet's own words.
+      // Null means nobody has said, and the app draws the commonest front and
+      // marks it a guess.
+      doorConfig: published.doorConfig ?? toDoorConfig(category, row.Feature ?? ""),
       cutoutWidthIn: numberOrNull(row.cutoutWidthIn),
       cutoutHeightIn: numberOrNull(row.cutoutHeightIn),
       cutoutDepthIn: numberOrNull(row.cutoutDepthIn),

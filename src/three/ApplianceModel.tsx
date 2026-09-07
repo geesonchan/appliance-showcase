@@ -3,6 +3,7 @@ import * as THREE from "three";
 import type { ThreeEvent } from "@react-three/fiber";
 import { applianceBox, flushOffset } from "../data/applianceBox";
 import { hoodProfile, hoodTopDepthIn } from "../data/hood";
+import { fridgeParts } from "../data/fridgeModel";
 import { RANGE_PROPORTIONS, rangeParts } from "../data/rangeModel";
 import { CABINET_STANDARDS, ROOM, SLOT_BY_ID, ft } from "../data/slots";
 import { useAppStore } from "../store/useAppStore";
@@ -228,35 +229,7 @@ function Body({ category, appliance, installType, topDepthIn, w, h, d, body, tri
 
   switch (category) {
     case "refrigerator":
-      return (
-        <group>
-          <mesh position={[0, h / 2, cz]} castShadow>
-            <boxGeometry args={[w, h, cd]} />
-            <Mat s={body} />
-          </mesh>
-          {/* french-door seam plus the freezer drawer split */}
-          <mesh position={[0, h * 0.72, face]}>
-            <boxGeometry args={[ft(0.6), h * 0.55, 0.01]} />
-            <Mat s={trim} />
-          </mesh>
-          <mesh position={[0, h * 0.44, face]}>
-            <boxGeometry args={[w * 0.98, ft(0.6), 0.01]} />
-            <Mat s={trim} />
-          </mesh>
-          <mesh position={[-w * 0.16, h * 0.66, gripZ]}>
-            <boxGeometry args={[bar, h * 0.34, bar]} />
-            <Mat s={trim} />
-          </mesh>
-          <mesh position={[w * 0.16, h * 0.66, gripZ]}>
-            <boxGeometry args={[bar, h * 0.34, bar]} />
-            <Mat s={trim} />
-          </mesh>
-          <mesh position={[0, h * 0.2, gripZ]}>
-            <boxGeometry args={[w * 0.5, bar, bar]} />
-            <Mat s={trim} />
-          </mesh>
-        </group>
-      );
+      return <Fridge appliance={appliance} w={w} h={h} d={d} body={body} trim={trim} />;
 
     case "range":
       // A cooktop is a plate in a counter and stays one; a range is a machine
@@ -366,6 +339,69 @@ function Body({ category, appliance, installType, topDepthIn, w, h, d, body, tri
         </mesh>
       );
   }
+}
+
+/**
+ * A refrigerator, with the fronts its own record says it has.
+ *
+ * A french door with two drawers and a side-by-side are the same box and
+ * nothing like the same machine, so the panels come from `fridgeParts` and this
+ * only hangs them. Handles sit on the opening edge of each door, which is what
+ * tells you which way it swings.
+ */
+function Fridge({
+  appliance,
+  w,
+  h,
+  d,
+  body,
+  trim,
+}: {
+  appliance: Appliance;
+  w: number;
+  h: number;
+  d: number;
+  body: SurfaceProps;
+  trim: SurfaceProps;
+}) {
+  const panels = useMemo(() => fridgeParts(appliance, { w, h }), [appliance, w, h]);
+  // The handle stands off the door, so the carcass is set back by its
+  // projection: a published depth is quoted with the handles on.
+  const grip = ft(1.5);
+  const bar = ft(0.9);
+  const carcassD = d - grip;
+  const carcassZ = -(d - carcassD) / 2;
+  const face = carcassZ + carcassD / 2;
+  const gasket = ft(0.25);
+
+  return (
+    <group name="fridge">
+      <mesh position={[0, h / 2, carcassZ]} castShadow receiveShadow>
+        <boxGeometry args={[w, h, carcassD]} />
+        <Mat s={body} />
+      </mesh>
+
+      {panels.map((panel) => (
+        <group key={panel.id} name={`fridge-panel-${panel.id}`}>
+          <mesh position={[panel.x, panel.y, face + gasket / 2]} castShadow>
+            <boxGeometry args={[panel.w, panel.h, gasket]} />
+            <Mat s={body} />
+          </mesh>
+          <mesh
+            position={[
+              panel.handle.x,
+              panel.handle.y,
+              d / 2 - bar / 2,
+            ]}
+            rotation={panel.handle.along === "x" ? [0, 0, Math.PI / 2] : [0, 0, 0]}
+          >
+            <cylinderGeometry args={[bar / 2, bar / 2, panel.handle.length, 12]} />
+            <Mat s={trim} />
+          </mesh>
+        </group>
+      ))}
+    </group>
+  );
 }
 
 /**
