@@ -6,7 +6,7 @@ import { resolveRoughIn, roughInSentence } from "./roughIn";
 import { useSelection, useSelectedBlower } from "../store/useSelection";
 import { applianceBox } from "./applianceBox";
 import { CHIMNEY, chimneyParts, isChimney } from "./hood";
-import { ISLAND, LAYOUT_LIMITS, RUNS } from "./room";
+import { ISLAND, LAYOUT_LIMITS, OMITTED_SLOTS, RUNS } from "./room";
 import type { Appliance, SlotId } from "../types";
 
 export interface Checklist {
@@ -79,13 +79,30 @@ function installParts(selection: Record<SlotId, Appliance>): Finding[] {
  * Where the island's two machines went, when there is no island.
  *
  * A room without one still has to put the microwave drawer and the wine cabinet
- * somewhere, and where they end up is not obvious from looking: the drawer is
- * in the base beside the range, under the landing, and the wine cabinet is at
- * the far end of the refrigerator's leg. Somebody pricing the run needs to know
- * that before they read the drawing, so it is a line rather than a discovery.
+ * somewhere, and where they end up is not obvious from looking: both are base
+ * cabinets on the refrigerator's leg, the last two before its landing. Somebody
+ * pricing the run needs to know that before they read the drawing, so it is a
+ * line rather than a discovery.
+ *
+ * And when the leg would not take them even with everything on it at its
+ * minimum, the room is built without them. That is the louder line of the two:
+ * it is the one thing on this screen the customer did not ask for and cannot
+ * see, and it comes with the two ways of getting them back.
  */
 function noIslandFallback(): Finding[] {
   if (ISLAND.present) return [];
+
+  if (OMITTED_SLOTS.length > 0) {
+    return [
+      {
+        ruleId: "no-island-omitted",
+        severity: "warning",
+        messageKey: "rule.noIslandOmitted",
+        slot: "slot-microwave",
+        params: {},
+      },
+    ];
+  }
 
   const runOf = (slot: SlotId) =>
     RUNS.find((run) => run.segments.some((segment) => segment.slot === slot))?.id;

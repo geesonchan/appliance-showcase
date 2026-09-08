@@ -1,10 +1,10 @@
 import slotsFile from "../../data/slots.json";
 import type { PackageSlot, Slot, SlotId, SlotRecord } from "../types";
 import { PACKAGE_SLOTS } from "./packages";
-import { CABINET_STANDARDS, SLOT_PLACEMENT, ft } from "./room";
+import { CABINET_STANDARDS, OMITTED_SLOTS, SLOT_PLACEMENT, ft } from "./room";
 import { parseDataFile, slotsFileSchema } from "./schema";
 
-export { ft, CABINET_STANDARDS, ROOM, RUN, RUNS, RUN_BY_ID, PANEL, FRIDGE_OPENING, HOOD_OPENING, ISLAND } from "./room";
+export { ft, CABINET_STANDARDS, ROOM, RUN, RUNS, RUN_BY_ID, PANEL, FRIDGE_OPENING, HOOD_OPENING, ISLAND, OMITTED_SLOTS, isOmitted } from "./room";
 
 /**
  * The six slots.
@@ -70,7 +70,15 @@ function place(record: SlotRecord) {
   return { ...record, ...placement, position: [x, y, z] as [number, number, number] };
 }
 
+/** The slots standing in the room: the package's, less anything omitted. */
 export let SLOTS: Slot[];
+/**
+ * Every slot the package names, omitted ones included.
+ *
+ * A slot the room was built without is still a slot somebody can look up — the
+ * checklist names it, the catalogue files models under it — so it keeps its
+ * entry here. `SLOTS` is the list of what is actually in the room.
+ */
 export let SLOT_BY_ID: Record<SlotId, Slot>;
 
 /**
@@ -82,8 +90,9 @@ export let SLOT_BY_ID: Record<SlotId, Slot>;
  * pay for a schema pass.
  */
 export function rebuildSlots() {
-  SLOTS = parsed.slots.map((record) => place(size(record, PACKAGE_SLOTS[record.id])));
-  SLOT_BY_ID = Object.fromEntries(SLOTS.map((slot) => [slot.id, slot])) as Record<SlotId, Slot>;
+  const all = parsed.slots.map((record) => place(size(record, PACKAGE_SLOTS[record.id])));
+  SLOT_BY_ID = Object.fromEntries(all.map((slot) => [slot.id, slot])) as Record<SlotId, Slot>;
+  SLOTS = all.filter((slot) => !OMITTED_SLOTS.includes(slot.id));
 }
 
 rebuildSlots();

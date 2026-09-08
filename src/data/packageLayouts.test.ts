@@ -12,7 +12,7 @@ import {
   type Refusal,
 } from "./layoutTemplate";
 import { BUILDABLE_PACKAGES, DEFAULT_PACKAGE, PACKAGE_BY_ID, slotsOf } from "./packages";
-import { LAYOUT_LIMITS, ROOM, RUNS, ft } from "./room";
+import { LAYOUT, LAYOUT_LIMITS, ROOM, RUNS, ft } from "./room";
 import { SLOT_BY_ID } from "./slots";
 
 /**
@@ -424,9 +424,10 @@ describe("the door clearance is said out loud", () => {
 /**
  * The island's two machines, when there is no island.
  *
- * They are split rather than stacked: 48" of opening in one place is what made
- * a blind corner refuse a room that is otherwise fine. And where they went is a
- * line on the install list, because it is not obvious from looking.
+ * They belong on the refrigerator's leg, and no leg D13 allows is long enough
+ * to carry them, so every no-island room is built without them. That is not a
+ * refusal: they are the two things a kitchen can do without, and what is left
+ * out is a line on the install list and two fewer on the appliance count.
  */
 describe("no island, in both packages", () => {
   afterAll(() => {
@@ -434,35 +435,38 @@ describe("no island, in both packages", () => {
     setLayoutParams(DEFAULT_PARAMS);
   });
 
-  it("splits them across the legs, and passes every rule doing it", () => {
+  it("builds without them rather than refusing, and passes every rule doing it", () => {
     for (const id of BUILDABLE_PACKAGES.map((entry) => entry.id)) {
       activate(id);
       for (const cornerType of ["blind", "lazy-susan"] as const) {
-        const where = `${id} / ${cornerType}`;
-        const result = setLayoutParams(params({ hasIsland: false, cornerType }));
-        if (!result.ok) {
-          // A lazy susan reaches 36" into the back run where a blind corner
-          // reaches 12, and the back leg is carrying the microwave as well.
-          // Refusing with a reason is the right answer; refusing by deleting
-          // the cabinet after the dishwasher is what this round stopped.
-          expect(cornerType, where).toBe("lazy-susan");
-          for (const reason of result.reasons) expectPrintable(reason, where);
-          continue;
+        for (const fridgeEnd of ["left", "back"] as const) {
+          const sinkLeg = fridgeEnd === "left" ? ("back" as const) : ("left" as const);
+          const where = `${id} / ${cornerType} / fridge ${fridgeEnd}`;
+          const result = setLayoutParams(
+            params({ hasIsland: false, cornerType, fridgeEnd, sinkLeg }),
+          );
+          // Never a refusal over these two. A no-island room that will not
+          // build is one whose walls are wrong, and that is a different
+          // sentence with a different way out.
+          if (!result.ok) {
+            for (const reason of result.reasons) expectPrintable(reason, where);
+            for (const reason of result.reasons) {
+              expect(["refusal.wallShort", "refusal.wallLong"], where).toContain(reason.key);
+            }
+            continue;
+          }
+          expect(checkLayout(), where).toEqual([]);
+
+          expect([...LAYOUT.omitted], where).toEqual(["slot-microwave", "slot-wine"]);
+          // Left out of the room, not stranded in it.
+          const slots = RUNS.flatMap((run) => run.segments).map((s) => s.slot);
+          expect(slots, where).not.toContain("slot-microwave");
+          expect(slots, where).not.toContain("slot-wine");
+          // And the kitchen is still a kitchen.
+          for (const slot of ["slot-range", "slot-fridge", "slot-dishwasher"] as const) {
+            expect(slots, where).toContain(slot);
+          }
         }
-        expect(checkLayout(), where).toEqual([]);
-
-        // The drawer is beside the range, under the landing; the wine cabinet
-        // finishes the refrigerator's leg, before the tower.
-        const back = RUNS.find((run) => run.segments.some((s) => s.slot === "slot-range"))!;
-        const rangeAt = back.segments.findIndex((s) => s.slot === "slot-range");
-        expect(back.segments[rangeAt - 1].slot, where).toBe("slot-microwave");
-
-        const fridgeRun = RUNS.find((run) =>
-          run.segments.some((s) => s.slot === "slot-fridge"),
-        )!;
-        const order = fridgeRun.segments.map((s) => s.slot);
-        expect(order.indexOf("slot-wine"), where).toBeLessThan(order.indexOf("slot-fridge"));
-        expect(fridgeRun.segments[fridgeRun.segments.length - 1].slot, where).toBe("slot-fridge");
       }
     }
   });

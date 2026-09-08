@@ -1,7 +1,7 @@
 import { SCHEME, SCHEME_FALLBACKS, SLOT_ORDER } from "../data/catalogue";
 import { usePackageSummary } from "../data/packageSummary";
 import { formatInches } from "../data/fit";
-import { ROOM, SLOT_BY_ID } from "../data/slots";
+import { ROOM, SLOT_BY_ID, isOmitted } from "../data/slots";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
 import { useSelection } from "../store/useSelection";
@@ -53,13 +53,22 @@ export function LeftPanel() {
         </div>
       </div>
 
+      {/* Two machines short of the package, and why: the count above is the
+          room as drawn, and the difference is the one thing on this screen the
+          customer did not ask for. */}
+      {summary.omitted.length > 0 && (
+        <p className="border-b border-line bg-[rgba(46,92,69,0.05)] px-5 py-3 text-[11px] leading-[1.5] text-ink-muted">
+          {t("rule.noIslandOmitted")}
+        </p>
+      )}
+
       <div className="flex items-baseline justify-between px-5 pb-2 pt-5">
         <h2 className="tracking-label text-[10px] text-ink-muted">{t("list.title")}</h2>
         <span className="text-[10px] text-ink-muted/70">{t("list.hint")}</span>
       </div>
 
       <ul className="pb-6">
-        {SLOT_ORDER.map((slotId, index) => {
+        {SLOT_ORDER.filter((slotId) => !isOmitted(slotId)).map((slotId, index) => {
           const slot = SLOT_BY_ID[slotId];
           const appliance = selection[slotId];
           const active = selectedSlot === slotId;

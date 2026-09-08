@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import { applianceBox, flushOffset } from "../data/applianceBox";
 import { SLOT_ORDER } from "../data/catalogue";
-import { SLOT_BY_ID } from "../data/slots";
+import { SLOT_BY_ID, isOmitted } from "../data/slots";
 import type { Appliance, SlotId } from "../types";
 import type { KeepOut } from "./pinLayout";
 
@@ -21,7 +21,8 @@ export function useApplianceCorners(selection: Record<SlotId, Appliance>) {
       SLOT_ORDER.map((slotId) => {
         const slot = SLOT_BY_ID[slotId];
         const appliance = selection[slotId];
-        if (!appliance) return [];
+        // Nothing to keep a label off when the room was built without it.
+        if (!appliance || isOmitted(slotId)) return [];
         const box = applianceBox(slot, appliance);
         const dz = flushOffset(slot, box.d);
         const points: THREE.Vector3[] = [];

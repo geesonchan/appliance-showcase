@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import { SLOT_ORDER } from "../data/catalogue";
 import { resolveRoughIn, roughInFor, roughInSentence, type ResolvedPoint } from "../data/roughIn";
-import { ROOM, ft } from "../data/slots";
+import { ROOM, ft, isOmitted } from "../data/slots";
 import { useAppStore } from "../store/useAppStore";
 import { useSelection } from "../store/useSelection";
 import { UTILITY_COLORS } from "./materials";
@@ -40,7 +40,10 @@ export function RoughInLayer() {
   const points = useMemo(
     () =>
       SLOT_ORDER.flatMap((slotId) =>
-        resolveRoughIn(slotId, selection[slotId]).map((resolved) => ({ slotId, resolved })),
+        // A machine that is not in the room has nothing to rough in for.
+        isOmitted(slotId)
+          ? []
+          : resolveRoughIn(slotId, selection[slotId]).map((resolved) => ({ slotId, resolved })),
       ),
     [selection],
   );

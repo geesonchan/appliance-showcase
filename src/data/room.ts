@@ -86,6 +86,17 @@ export let HOOD_OPENING: readonly [number, number];
 export let ISLAND: GeneratedLayout["island"];
 
 export let SLOT_PLACEMENT: Record<SlotId, SlotPlacement>;
+/**
+ * The machines this room was built without: never more than the island's two,
+ * and only in a room with no island short of the wall to carry them.
+ *
+ * Read it before drawing or counting anything keyed by slot. They keep their
+ * entries everywhere else — a missing key is a crash rather than an absence —
+ * so this is the one place that says what is actually in the room.
+ */
+export let OMITTED_SLOTS: readonly SlotId[] = [];
+/** Whether a slot is one the room was built without. */
+export const isOmitted = (slotId: SlotId) => OMITTED_SLOTS.includes(slotId);
 export let FIXTURE_PLACEMENT: Record<FixtureId, SlotPlacement>;
 
 /** Install a generated layout as the room. Everything derived follows. */
@@ -111,6 +122,7 @@ export function applyLayout(layout: GeneratedLayout, requested: LayoutParams, is
 
   ISLAND = layout.island;
   SLOT_PLACEMENT = layout.slots;
+  OMITTED_SLOTS = layout.omitted;
   FIXTURE_PLACEMENT = layout.fixtures;
 }
 

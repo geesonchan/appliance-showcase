@@ -1,6 +1,6 @@
 import { CABINETS } from "../data/cabinets";
 import { SLOT_ORDER } from "../data/catalogue";
-import { ROOM, SLOT_BY_ID, ft } from "../data/slots";
+import { ROOM, SLOT_BY_ID, ft, isOmitted } from "../data/slots";
 import { useAppStore } from "../store/useAppStore";
 
 const PAD = 0.6;
@@ -61,8 +61,9 @@ export function PlanThumbnail() {
 
       {SLOT_ORDER.map((slotId, index) => {
         const slot = SLOT_BY_ID[slotId];
-        // The hood sits above the range; in plan it would just cover it.
-        if (slotId === "slot-hood") return null;
+        // The hood sits above the range; in plan it would just cover it. A
+        // machine the room was built without is not on the plan at all.
+        if (slotId === "slot-hood" || isOmitted(slotId)) return null;
         const alongZ = Math.abs(slot.rotationY) > 0.01;
         const w = ft(alongZ ? slot.cutout.d : slot.cutout.w);
         const h = ft(alongZ ? slot.cutout.w : slot.cutout.d);

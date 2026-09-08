@@ -1,3 +1,5 @@
+import type { SlotId } from "../types";
+import { OMITTED_SLOTS } from "./room";
 import { useSelection, useSelectedBlower } from "../store/useSelection";
 
 /** A price, or the copy for a model the sheet has no price for. */
@@ -18,7 +20,11 @@ export function usePackageSummary() {
   // The blower is its own line: it is a separate purchase with its own lead
   // time, and burying it in the hood's price hides that. See decisions.md D6.
   const items = [
-    ...Object.values(selection).filter(Boolean),
+    // What is in the room, which in a small kitchen with no island is not
+    // everything the package names: see `OMITTED_SLOTS`.
+    ...Object.entries(selection)
+      .filter(([slotId, appliance]) => appliance && !OMITTED_SLOTS.includes(slotId as SlotId))
+      .map(([, appliance]) => appliance),
     ...(hood?.blower === "required" && blower ? [blower] : []),
   ];
   // Totals cover only what has a price. An unpriced model is a real state in
@@ -32,6 +38,8 @@ export function usePackageSummary() {
 
   return {
     items,
+    /** Named on the panel beside the count they are missing from. */
+    omitted: OMITTED_SLOTS,
     blower: hood?.blower === "required" ? blower : null,
     count: items.length,
     pricedCount: priced.length,

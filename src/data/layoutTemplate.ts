@@ -117,6 +117,14 @@ export interface GeneratedLayout {
   island: IslandLayout;
   slots: Record<SlotId, SlotPlacement>;
   fixtures: Record<FixtureId, SlotPlacement>;
+  /**
+   * What the package names and the room was built without.
+   *
+   * Only ever the island's two machines, and only ever in a room with no
+   * island to put them on. Everything that draws or counts reads this; the
+   * checklist says it out loud.
+   */
+  omitted: readonly SlotId[];
 }
 
 /**
@@ -773,7 +781,7 @@ function islandFor(
  * have to live on the perimeter, and they go on opposite legs: it is the only
  * way they still face opposite ways, which is what D11 rule 7 is about.
  */
-function planLegs(params: LayoutParams, pkg: Package) {
+function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[] = []) {
   const corner = CORNERS[params.cornerType];
   const { sink: sinkRule } = LAYOUT_LIMITS;
   const spec = slotsOf(pkg);
@@ -926,36 +934,13 @@ function planLegs(params: LayoutParams, pkg: Package) {
   ];
   if (params.sinkLeg === "left") left.push(...sinkGroup());
 
-  /**
-   * Where the island's two machines go when there is no island.
-   *
-   * Not both onto whichever leg is quieter: 48" of opening in one place is what
-   * made a blind corner refuse a room that is otherwise fine. They are split,
-   * and each goes somewhere it costs almost nothing.
-   *
-   * The microwave drawer goes in the base beside the range, on the landing
-   * side. It is a drawer: there is a countertop over it, so the landing D11
-   * rule 4 asks for is still there — the same argument rule 10 already makes
-   * about the dishwasher counting as the sink's wide side. So it costs the run
-   * only what the landing was going to take anyway.
-   *
-   * The wine cabinet goes at the far end of the refrigerator's leg — the last
-   * base cabinet before the tower's landing, because D11 rule 1 keeps the tower
-   * itself last and a run of counter cut in two by a tall unit is what that
-   * rule exists to stop.
-   */
-  const fallback = !params.hasIsland;
-  const microwaveIn = fallback ? openingIn(spec["slot-microwave"]) : 0;
   // The narrow landing goes on the corner side, where a corner already eats
   // into what you can reach; the wide one goes toward the sink, which is where
-  // a pan actually lands. The microwave drawer's own counter is part of the
-  // corner-side landing, so it comes off that minimum rather than adding to it.
+  // a pan actually lands.
   const landing = LAYOUT_LIMITS.rangeLanding;
-  const landingLeftIn = Math.max(0, landing.narrowIn - microwaveIn);
 
   const back: Item[] = [
-    gap("range-landing-left", landingLeftIn, "d11-4", { shrink: "corner-to-range" }),
-    ...(fallback ? [opening("slot-microwave", "microwave")] : []),
+    gap("range-landing-left", landing.narrowIn, "d11-4", { shrink: "corner-to-range" }),
     opening("slot-range", "range"),
     gap("range-landing-right", landing.wideIn, "d11-4", { shrink: "range-to-sink" }),
   ];
@@ -963,12 +948,31 @@ function planLegs(params: LayoutParams, pkg: Package) {
 
   // The tower finishes its leg, with a landing before it (D11 rule 6) — and,
   // with no island, the wine cabinet past it at the very end of the run.
-  const wine = fallback ? [opening("slot-wine", "wine")] : [];
+  /**
+   * Where the island's two machines go when there is no island.
+   *
+   * Both onto the refrigerator's leg, the last base cabinets before the
+   * tower's landing — D11 rule 1 keeps the tower itself last. That leg is the
+   * one not carrying the range and the sink, which is the only place 48" of
+   * opening is going to come from.
+   *
+   * And when it will not take them, the room is built without them rather than
+   * refused. A wine cabinet and a microwave drawer are the two things a kitchen
+   * can do without; refusing to draw a room over them would be refusing over
+   * the wrong thing. What is left out is said, on the checklist and beside the
+   * appliance count, rather than quietly missing.
+   */
+  const spare = params.hasIsland
+    ? []
+    : (["slot-microwave", "slot-wine"] as const)
+        .filter((slot) => !omitted.includes(slot))
+        .map((slot) => opening(slot, slot.replace("slot-", "")));
+
   if (params.fridgeEnd === "left") {
-    left.push(...wine, gap("fridge-landing", LAYOUT_LIMITS.fridgeLandingIn, "d11-6"), tower);
+    left.push(...spare, gap("fridge-landing", LAYOUT_LIMITS.fridgeLandingIn, "d11-6"), tower);
     back.push(...terminal("back-end", "wall"));
   } else {
-    back.push(...wine, gap("fridge-landing", LAYOUT_LIMITS.fridgeLandingIn, "d11-6"), tower);
+    back.push(...spare, gap("fridge-landing", LAYOUT_LIMITS.fridgeLandingIn, "d11-6"), tower);
     left.push(...terminal("left-end", "open"));
   }
 
@@ -987,12 +991,13 @@ function planLegs(params: LayoutParams, pkg: Package) {
  * when it is the binding constraint, because "96" because a leg is never
  * shorter than that" is as real a reason as a cabinet.
  */
-export function wallRequirement(
+function requirementFor(
   params: LayoutParams,
   leg: "left" | "back",
-  pkg: Package = PACKAGE,
+  pkg: Package,
+  omitted: readonly SlotId[],
 ): WallRequirement {
-  const plan = planLegs(params, pkg)[leg];
+  const plan = planLegs(params, pkg, omitted)[leg];
   const corner = CORNERS[params.cornerType];
   const items: RequirementItem[] = [];
 
@@ -1053,6 +1058,57 @@ export function wallRequirement(
   }
 
   return { leg, items, minimumIn, maximumIn: CABINET_STANDARDS.legIn.longMax + across };
+}
+
+/**
+ * The two machines a room can be built without.
+ *
+ * They are the island's, and in a room with no island they move onto the
+ * refrigerator's leg. Everything else in the package is the kitchen: a room
+ * with no range is not a smaller kitchen, it is a refusal.
+ */
+export const SPARE_SLOTS = ["slot-microwave", "slot-wine"] as const;
+
+/**
+ * What this room cannot find room for — never more than the spare two.
+ *
+ * A wall too short for the microwave drawer and the wine cabinet is not a
+ * refusal. Refusing to draw a kitchen over the two things a kitchen can do
+ * without would be refusing over the wrong thing, so they are left out and
+ * said out loud instead: on the install checklist, and beside the appliance
+ * count that drops when they go.
+ *
+ * The test is the leg at its own minimum. If everything on it stood at the
+ * least its rule allows and the wall is still short, no amount of shrinking
+ * gets the two machines on, and they go. Anything longer keeps them.
+ */
+export function omittedSlots(params: LayoutParams, pkg: Package = PACKAGE): readonly SlotId[] {
+  if (params.hasIsland) return [];
+  const spare = SPARE_SLOTS.filter((slotId) => pkg.slots.some((slot) => slot.slotId === slotId));
+  if (spare.length === 0) return [];
+  // Only the leg they would stand on is asked. A room refused over the *other*
+  // wall is a room that is too small for a kitchen, and leaving the wine
+  // cabinet out would not make it any bigger.
+  const leg = params.fridgeEnd === "left" ? ("left" as const) : ("back" as const);
+  const key = leg === "back" ? ("backWallIn" as const) : ("leftWallIn" as const);
+  const fits = params[key] >= requirementFor(params, leg, pkg, []).minimumIn;
+  return fits ? [] : spare;
+}
+
+/**
+ * What has to go on a leg, and the shortest wall that holds it.
+ *
+ * The bill for the room as it will actually be built, which in a small
+ * no-island room is a room without the spare two. Printing the fuller bill
+ * under a slider that will happily go below it would be printing a figure the
+ * interface itself does not believe.
+ */
+export function wallRequirement(
+  params: LayoutParams,
+  leg: "left" | "back",
+  pkg: Package = PACKAGE,
+): WallRequirement {
+  return requirementFor(params, leg, pkg, omittedSlots(params, pkg));
 }
 
 /**
@@ -1176,6 +1232,7 @@ function placements(
   runs: CabinetRun[],
   island: IslandLayout,
   spec: Record<SlotId, PackageSlot>,
+  omitted: readonly SlotId[],
 ) {
   const onRun = (run: CabinetRun, at: number): [number, number, number] =>
     run.axis === "x" ? [at, 0, run.centre] : [run.centre, 0, at];
@@ -1222,6 +1279,17 @@ function placements(
 
   const sink = find((s) => s.fixture === "fixture-sink");
 
+  /**
+   * A machine the room was built without still answers when it is asked for.
+   *
+   * Everything in the scene is keyed by slot, and a missing key is a crash
+   * rather than an absence. So an omitted machine keeps a placement, standing
+   * at the origin where nothing draws it: `layout.omitted` is what the scene
+   * actually reads before it draws anything.
+   */
+  const spare = (slot: SlotId, placed: () => SlotPlacement): SlotPlacement =>
+    omitted.includes(slot) ? { position: [0, 0, 0], rotationY: 0, mount: "wall" } : placed();
+
   return {
     slots: {
       // Inset by a panel inside its enclosure; hard against the run's own line
@@ -1234,10 +1302,12 @@ function placements(
         mount: "wall" as const,
       },
       "slot-dishwasher": wall("slot-dishwasher"),
-      "slot-microwave": island.present
-        ? islandSlot(island.microwave, "working")
-        : wall("slot-microwave"),
-      "slot-wine": island.present ? islandSlot(island.wine, "seating") : wall("slot-wine"),
+      "slot-microwave": spare("slot-microwave", () =>
+        island.present ? islandSlot(island.microwave, "working") : wall("slot-microwave"),
+      ),
+      "slot-wine": spare("slot-wine", () =>
+        island.present ? islandSlot(island.wine, "seating") : wall("slot-wine"),
+      ),
     },
     fixtures: {
       "fixture-sink": {
@@ -1260,7 +1330,8 @@ export function generateLayout(
   const halfZ = ft(params.leftWallIn) / 2;
   const corner = CORNERS[params.cornerType];
   const spec = slotsOf(pkg);
-  const plan = planLegs(params, pkg);
+  const omitted = omittedSlots(params, pkg);
+  const plan = planLegs(params, pkg, omitted);
 
   // Both walls are judged before either is built: fixing one and finding the
   // other waiting is the worst way to learn a room is too small. A wall that is
@@ -1268,7 +1339,7 @@ export function generateLayout(
   const wrongLength: Refusal[] = [];
   for (const leg of ["left", "back"] as const) {
     const key = leg === "back" ? ("backWallIn" as const) : ("leftWallIn" as const);
-    const requirement = wallRequirement(params, leg, pkg);
+    const requirement = requirementFor(params, leg, pkg, omitted);
     const vars = {
       paramKey: `param.${key}`,
       wallIn: params[key],
@@ -1335,11 +1406,18 @@ export function generateLayout(
     },
   ];
 
-  const placed = placements(runs, island, spec);
+  const placed = placements(runs, island, spec, omitted);
 
   return {
     ok: true,
-    layout: { params, runs, island, slots: placed.slots, fixtures: placed.fixtures },
+    layout: {
+      params,
+      runs,
+      island,
+      slots: placed.slots,
+      fixtures: placed.fixtures,
+      omitted,
+    },
   };
 }
 

@@ -14,8 +14,8 @@ import {
   type LayoutParams,
   type Refusal,
 } from "./layoutTemplate";
-import { CABINET_STANDARDS, ISLAND, LAYOUT_LIMITS, ROOM, RUN_BY_ID, RUNS, segmentForSlot } from "./room";
-import { SLOT_BY_ID } from "./slots";
+import { CABINET_STANDARDS, ISLAND, LAYOUT, LAYOUT_LIMITS, ROOM, RUN_BY_ID, RUNS, segmentForSlot } from "./room";
+import { SLOTS } from "./slots";
 
 /**
  * One set of combinations per parameter.
@@ -234,35 +234,54 @@ describe("the island", () => {
   /**
    * Where the island's two machines go when there is no island.
    *
-   * Not both onto whichever leg is quieter: 48" of opening in one place is what
-   * made a blind corner refuse a room that is otherwise fine. They are split,
-   * and each goes somewhere it costs almost nothing — the wine cabinet at the
-   * far end of the refrigerator's leg, and the microwave drawer in the base
-   * beside the range, where the counter over it is the landing D11 rule 4 asks
-   * for anyway.
+   * Both onto the refrigerator's leg, the last base cabinets before its
+   * landing: that is the leg not already carrying the range and the sink, and
+   * 48" of opening is not coming from anywhere else.
+   *
+   * Except that it does not fit, and cannot: the leg needs 147" to carry them
+   * and D13 stops a single run at 144". So in this template the answer is
+   * always the same one — build without them — and this is the test that says
+   * why, and that would start failing the day the cap, the package or the
+   * template moves enough to make room.
    */
-  it("takes the island out of the room and splits its two machines", () => {
+  it("finds no legal wall long enough for both machines on one leg", () => {
+    for (const fridgeEnd of ["left", "back"] as const) {
+      const sinkLeg = fridgeEnd === "left" ? ("back" as const) : ("left" as const);
+      const key = fridgeEnd === "left" ? ("leftWallIn" as const) : ("backWallIn" as const);
+      for (const value of values(PARAM_LIMITS[key])) {
+        const at = params({ hasIsland: false, fridgeEnd, sinkLeg, [key]: value });
+        // A wall long enough to carry them is a wall D13 has already refused
+        // for being longer than a run may be, so it never becomes a room.
+        const built = generateLayout(at);
+        if (!built.ok) continue;
+        expect([...built.layout.omitted], `${fridgeEnd} leg at ${value}"`).toEqual([
+          "slot-microwave",
+          "slot-wine",
+        ]);
+      }
+    }
+  });
+
+  /**
+   * And when the leg will not take them, the room is built without them.
+   *
+   * The two machines an island carries are the two a kitchen can do without,
+   * so a wall too short for them is not a refusal: it is a room with four
+   * appliances in it and a line saying which two are missing and how to get
+   * them back. Refusing here would be refusing over the wrong thing.
+   */
+  it("builds the room without them rather than refusing, and says which", () => {
     const result = setLayoutParams(params({ hasIsland: false }));
     expect(result.ok, result.reasons.map((r) => r.key).join(" ")).toBe(true);
 
     expect(ISLAND.present).toBe(false);
     expect(CABINETS.filter((box) => box.id.startsWith("island"))).toEqual([]);
-    expect(SLOT_BY_ID["slot-microwave"].mount).toBe("wall");
-    expect(SLOT_BY_ID["slot-wine"].mount).toBe("wall");
-
-    // The wine cabinet finishes the refrigerator's leg, before the tower —
-    // rule 1 keeps the tower itself last.
-    const fridgeRun = RUNS.find((run) => run.segments.some((s) => s.slot === "slot-fridge"))!;
-    const order = fridgeRun.segments.map((s) => s.slot);
-    expect(order).toContain("slot-wine");
-    expect(order.indexOf("slot-wine")).toBeLessThan(order.indexOf("slot-fridge"));
-    expect(fridgeRun.segments[fridgeRun.segments.length - 1].slot).toBe("slot-fridge");
-
-    // The microwave drawer is beside the range, and its own counter is the
-    // landing on that side.
-    const back = RUN_BY_ID.back;
-    const rangeAt = back.segments.findIndex((s) => s.slot === "slot-range");
-    expect(back.segments[rangeAt - 1].slot).toBe("slot-microwave");
+    expect([...LAYOUT.omitted]).toEqual(["slot-microwave", "slot-wine"]);
+    // Not in the room, and so not in the list the scene and the count read.
+    expect(SLOTS.map((slot) => slot.id)).not.toContain("slot-microwave");
+    expect(SLOTS.map((slot) => slot.id)).not.toContain("slot-wine");
+    // Still a kitchen, and still a legal one.
+    expect(RUNS.flatMap((run) => run.segments).map((s) => s.slot)).toContain("slot-range");
     expect(checkLayout()).toEqual([]);
   });
 

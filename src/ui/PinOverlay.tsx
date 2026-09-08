@@ -1,5 +1,5 @@
 import { SLOT_ORDER } from "../data/catalogue";
-import { SLOT_BY_ID } from "../data/slots";
+import { SLOT_BY_ID, isOmitted } from "../data/slots";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
 import { registerPinPart } from "../three/pinRegistry";
@@ -31,7 +31,7 @@ export function PinOverlay() {
           coordinate space with the overlay rather than each being a rotated
           div with its own rounding error. */}
       <svg className="absolute inset-0 h-full w-full" aria-hidden="true">
-        {SLOT_ORDER.map((slotId) => (
+        {SLOT_ORDER.filter((slotId) => !isOmitted(slotId)).map((slotId) => (
           <line
             key={slotId}
             ref={(el) => registerPinPart(slotId, "leader", el)}
@@ -44,6 +44,9 @@ export function PinOverlay() {
       </svg>
 
       {SLOT_ORDER.map((slotId, index) => {
+        // A slot the room was built without has no pin: the projector hides
+        // one whose label never registers.
+        if (isOmitted(slotId)) return null;
         const slot = SLOT_BY_ID[slotId];
         const selected = selectedSlot === slotId;
         return (
