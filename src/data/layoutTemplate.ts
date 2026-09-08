@@ -13,6 +13,7 @@ import {
 } from "./roomShell";
 import type { FixtureId, Package, PackageSlot, SlotId } from "../types";
 import { PACKAGE, slotsOf } from "./packages";
+import { LAYOUT_POLICY, shrinkRank, type ShrinkGroup } from "./layoutPolicy";
 
 /**
  * The L-with-island template.
@@ -276,11 +277,12 @@ type Item =
       rule: string;
       labelKey: string;
       /**
-       * A stretch that is wanted but not needed: the base cabinet finishing a
-       * run at the open end of the room. It is the first thing to go when the
-       * wall is too short, which is what a designer drops first too.
+       * How readily this stretch gives up its slack, from
+       * `layout.shrinkOrder` in data/rules.json. Nothing is ever dropped: a
+       * stretch shrinks to its minimum and stops, and the wall's minimum is
+       * the sum of them all.
        */
-      optional?: boolean;
+      shrink?: ShrinkGroup;
     };
 
 const fixed = (
@@ -298,7 +300,7 @@ const gap = (
   id: string,
   minIn: number,
   rule: string,
-  extra: { optional?: boolean } = {},
+  extra: { shrink?: ShrinkGroup } = {},
 ): Item => ({ kind: "gap", id, minIn, rule, labelKey: `requirement.${id}`, ...extra });
 
 /**
@@ -315,11 +317,11 @@ function mergeGaps(items: Item[]): Item[] {
     const last = merged[merged.length - 1];
     if (item.kind === "gap" && last?.kind === "gap") {
       const wider = item.minIn > last.minIn ? item : last;
-      merged[merged.length - 1] = {
-        ...wider,
-        id: last.id,
-        optional: Boolean(last.optional && item.optional),
-      };
+      // One stretch, with the stricter minimum and the readier shrink: what has
+      // to be protected is protected by the minimum, and the slack above it is
+      // free to go first.
+      const readier = shrinkRank(item.shrink) < shrinkRank(last.shrink) ? item : last;
+      merged[merged.length - 1] = { ...wider, id: last.id, shrink: readier.shrink };
       continue;
     }
     merged.push(item);
@@ -330,44 +332,59 @@ function mergeGaps(items: Item[]): Item[] {
 /**
  * Fit a leg's items into the wall it has.
  *
- * The fixed items are what they are; the stretches of counter between them
- * take the remainder, each at least its minimum. Sharing what is left in 3"
- * steps rather than giving it all to one is what a designer does with the same
- * problem — the landings either side of a range want to look like a pair.
+ * The fixed items are what they are; the stretches of counter between them take
+ * the remainder, each at least its minimum. Nothing is ever dropped to make a
+ * wall fit — a wall that will not take every element at its minimum is refused
+ * with the bill, because the alternative is what used to happen: the cabinet
+ * after the dishwasher was deleted and the dishwasher finished hard against the
+ * wall with nothing for its door to swing past.
+ *
+ * The surplus goes out in the reverse of `layout.shrinkOrder`, so a stretch
+ * that gives up its slack first is the last to be handed any. Within one rank
+ * it is shared 3" at a time, which is what keeps the landings either side of a
+ * range looking like a pair.
  */
 function packLeg(availableIn: number, items: Item[]): { widths: number[] } | { shortIn: number } {
   const fixedIn = items.reduce((sum, item) => sum + (item.kind === "fixed" ? item.widthIn : 0), 0);
   const gaps = items.filter((item) => item.kind === "gap") as Extract<Item, { kind: "gap" }>[];
 
-  // Everything at its minimum; if that will not fit, drop the stretches that
-  // were only wanted and try again.
-  for (const keepOptional of [true, false]) {
-    const minimums = gaps.map((item) => (item.optional && !keepOptional ? 0 : item.minIn));
-    const minimum = minimums.reduce((sum, value) => sum + value, 0);
-    let spare = availableIn - fixedIn - minimum;
+  const minimums = gaps.map((item) => item.minIn);
+  const minimum = minimums.reduce((sum, value) => sum + value, 0);
+  let spare = availableIn - fixedIn - minimum;
 
-    if (spare < 0) {
-      if (keepOptional && gaps.some((item) => item.optional)) continue;
-      return { shortIn: -spare };
-    }
-    if (gaps.length === 0) return spare === 0 ? { widths: [] } : { shortIn: 0 };
+  if (spare < 0) return { shortIn: -spare };
+  if (gaps.length === 0) return spare === 0 ? { widths: [] } : { shortIn: 0 };
 
-    const widths = [...minimums];
-    // Share the remainder round the stretches that are actually there, so the
-    // landings either side of a range come out as a pair. A stretch that was
-    // dropped stays dropped rather than reappearing as the leftover.
-    const kept = minimums.map((value, i) => (value > 0 ? i : -1)).filter((i) => i >= 0);
-    const spread = kept.length > 0 ? kept : minimums.map((_, i) => i);
-    for (let n = 0; spare >= 3; n += 1) {
-      widths[spread[n % spread.length]] += 3;
-      spare -= 3;
+  const widths = [...minimums];
+  // Last to give, first to receive. Stable, so equal ranks keep run order and
+  // the pair either side of a range stays a pair.
+  const order = gaps
+    .map((_, i) => i)
+    .sort((a, b) => shrinkRank(gaps[b].shrink) - shrinkRank(gaps[a].shrink));
+
+  // A stretch is a cabinet or it is nothing. Some have a minimum of zero — the
+  // landing beside a range that a microwave drawer's own counter already
+  // supplies — and handing one of those three inches of surplus orders a 6"
+  // base nobody stocks. So a stretch at zero is opened at a whole cabinet or
+  // left closed.
+  const minBox = CABINET_STANDARDS.widthIn.min;
+  for (const i of order) {
+    if (widths[i] === 0 && spare >= minBox) {
+      widths[i] += minBox;
+      spare -= minBox;
     }
-    // Wall lengths and cabinet widths are both multiples of 3, so there is
-    // never a remainder; if one appears it belongs to the first stretch.
-    widths[spread[0]] += spare;
-    return { widths };
   }
-  return { shortIn: 0 };
+
+  const growable = order.filter((i) => widths[i] > 0);
+  for (let n = 0; spare >= 3 && growable.length > 0; n += 1) {
+    widths[growable[n % growable.length]] += 3;
+    spare -= 3;
+  }
+  // Wall lengths and cabinet widths are both multiples of 3, so there is
+  // rarely a remainder; when one appears it belongs to the stretch that gives
+  // its slack up last.
+  widths[growable[0] ?? order[0]] += spare;
+  return { widths };
 }
 
 /**
@@ -394,6 +411,23 @@ function counterWidths(totalIn: number): { widths: number[]; scribeIn: number } 
   // wider box: adding half an inch to a 35" cabinet orders a 35-1/2" cabinet,
   // which nobody stocks. A strip of finished panel is what actually goes there.
   return { widths, scribeIn: spare > 1e-6 ? spare : 0 };
+}
+
+/**
+ * What a stretch of counter is built from.
+ *
+ * A cabinet and, where the run did not divide, a scribe beside it. Below the
+ * smallest stock box the whole stretch is filler: a nine-inch base is not
+ * something a supplier lists, and a strip of finished panel is what actually
+ * goes in a gap that size.
+ */
+function counterModules(widthIn: number, scribeIn: number): CabinetModule[] {
+  if (widthIn < CABINET_STANDARDS.widthIn.min) {
+    return fillWidth(widthIn + scribeIn, (w) => M(`BF${round8(w)}`, "filler", w));
+  }
+  return scribeIn
+    ? [baseModule(widthIn), M(`BF${round8(scribeIn)}`, "filler", scribeIn)]
+    : [baseModule(widthIn)];
 }
 
 /** A base cabinet: drawers at the sizes a drawer base is actually made in. */
@@ -440,9 +474,7 @@ function layOut(runId: string, start: number, items: Item[], gapWidths: number[]
         kind: "counter",
         from: cursor,
         to,
-        modules: scribe
-          ? [baseModule(widthIn), M(`BF${round8(scribe)}`, "filler", scribe)]
-          : [baseModule(widthIn)],
+        modules: counterModules(widthIn, scribe),
       });
       cursor = to;
     }
@@ -779,6 +811,34 @@ function planLegs(params: LayoutParams, pkg: Package) {
   const dishwasher = opening("slot-dishwasher", "dishwasher");
 
   /**
+   * What finishes a run the refrigerator does not.
+   *
+   * Never the appliance itself. Against a wall it is a filler: a dishwasher
+   * finishing hard against the plaster has nowhere for its door to swing, which
+   * is the same thing the refrigerator's own filler is for on the other leg —
+   * one rule, applied to both machines rather than to one of them. In the open
+   * it is a cabinet, because a run that stops at a carcass edge wants a box.
+   *
+   * The filler is fixed: it is the one element that must not shrink, so it is
+   * not a stretch that can be squeezed to zero.
+   */
+  const terminal = (id: string, at: "wall" | "open"): Item[] => {
+    if (at === "open") {
+      return [gap(id, LAYOUT_POLICY.terminalIn.open, "d13-terminal", { shrink: "landing" })];
+    }
+    const widthIn = LAYOUT_POLICY.terminalIn.atWall;
+    return [
+      {
+        kind: "fixed",
+        id,
+        widthIn,
+        segmentKind: "counter",
+        modules: [M(`BF${widthIn}`, "filler", widthIn)],
+      },
+    ];
+  };
+
+  /**
    * The refrigerator, which finishes a leg either way.
    *
    * Built in, it is a tower: two finished panels that wrap its doors, the
@@ -860,7 +920,9 @@ function planLegs(params: LayoutParams, pkg: Package) {
     // its own landing, and a drawer base beside a lazy susan is ordinary.
     params.sinkLeg === "left"
       ? gap("corner-landing", sinkRule.fromCornerIn, "d11-10")
-      : gap("corner-landing", LAYOUT_LIMITS.cornerLandingIn, "d11-1", { optional: true }),
+      : gap("corner-landing", LAYOUT_LIMITS.cornerLandingIn, "d11-1", {
+          shrink: "corner-to-range",
+        }),
   ];
   if (params.sinkLeg === "left") left.push(...sinkGroup());
 
@@ -884,13 +946,18 @@ function planLegs(params: LayoutParams, pkg: Package) {
    */
   const fallback = !params.hasIsland;
   const microwaveIn = fallback ? openingIn(spec["slot-microwave"]) : 0;
-  const landingLeftIn = Math.max(0, LAYOUT_LIMITS.rangeLandingIn - microwaveIn);
+  // The narrow landing goes on the corner side, where a corner already eats
+  // into what you can reach; the wide one goes toward the sink, which is where
+  // a pan actually lands. The microwave drawer's own counter is part of the
+  // corner-side landing, so it comes off that minimum rather than adding to it.
+  const landing = LAYOUT_LIMITS.rangeLanding;
+  const landingLeftIn = Math.max(0, landing.narrowIn - microwaveIn);
 
   const back: Item[] = [
-    gap("range-landing-left", landingLeftIn, "d11-4"),
+    gap("range-landing-left", landingLeftIn, "d11-4", { shrink: "corner-to-range" }),
     ...(fallback ? [opening("slot-microwave", "microwave")] : []),
     opening("slot-range", "range"),
-    gap("range-landing-right", LAYOUT_LIMITS.rangeLandingIn, "d11-4"),
+    gap("range-landing-right", landing.wideIn, "d11-4", { shrink: "range-to-sink" }),
   ];
   if (params.sinkLeg === "back") back.push(...sinkGroup());
 
@@ -899,10 +966,10 @@ function planLegs(params: LayoutParams, pkg: Package) {
   const wine = fallback ? [opening("slot-wine", "wine")] : [];
   if (params.fridgeEnd === "left") {
     left.push(...wine, gap("fridge-landing", LAYOUT_LIMITS.fridgeLandingIn, "d11-6"), tower);
-    back.push(gap("back-end", LAYOUT_LIMITS.cornerLandingIn, "d13-modules", { optional: true }));
+    back.push(...terminal("back-end", "wall"));
   } else {
     back.push(...wine, gap("fridge-landing", LAYOUT_LIMITS.fridgeLandingIn, "d11-6"), tower);
-    left.push(gap("left-end", LAYOUT_LIMITS.cornerLandingIn, "d13-modules", { optional: true }));
+    left.push(...terminal("left-end", "open"));
   }
 
   return {
@@ -950,7 +1017,10 @@ export function wallRequirement(
         code: item.modules.map((module) => module.code).join(" + "),
         labelKey: `requirement.${item.id}`,
       });
-    } else if (!item.optional) {
+    } else {
+      // Every stretch, at its minimum. Nothing is optional any more, so the
+      // bill under a refusal is the whole wall rather than the part of it that
+      // happened to survive.
       items.push({ widthIn: item.minIn, rule: item.rule, labelKey: item.labelKey });
     }
   }

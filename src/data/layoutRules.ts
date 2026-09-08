@@ -170,6 +170,16 @@ export function checkLayout(
         fail("d11-2", `${segment.id} puts ${segment.slot ?? segment.fixture} in the corner`);
       }
 
+      // An appliance is never what finishes a run. Something has to give its
+      // door somewhere to swing and close the carcass off — a filler against a
+      // wall, a cabinet in the open, a finished panel beside a tower.
+      if (i === run.segments.length - 1) {
+        const last = segment.modules[segment.modules.length - 1];
+        if (last && (last.kind === "opening" || last.kind === "tall-open")) {
+          fail("d13-terminal", `${run.id} run finishes on ${segment.slot ?? segment.id}`);
+        }
+      }
+
       if (segment.kind !== "tall") continue;
 
       // D11 rule 1: a tall cabinet goes at the end of a run, never at a corner.
@@ -249,6 +259,11 @@ export function checkLayout(
       const boxes = segment.modules
         .filter((module) => module.kind !== "filler")
         .reduce((sum, module) => sum + module.widthIn, 0);
+      // A stretch that is only filler is not a cabinet and has no size list to
+      // come off: the strip that finishes a run against a wall, so a door has
+      // somewhere to swing, is three inches on purpose. `isOrderable` already
+      // holds it to the filler maximum.
+      if (boxes === 0) continue;
       if (w < min || w > max) {
         fail("d13-width", `${segment.id} is ${w}", outside the ${min}-${max}" range`);
       } else if (Math.abs(boxes / step - Math.round(boxes / step)) > 1e-6) {
@@ -277,16 +292,20 @@ export function checkLayout(
   if (!range) {
     fail("d11-4", "no range on any run");
   } else {
-    for (const [side, value] of [
-      ["left", landing(range.run, range.index, -1)],
-      ["right", landing(range.run, range.index, 1)],
-    ] as const) {
-      if (value < LAYOUT_LIMITS.rangeLandingIn - 1e-6) {
-        fail(
-          "d11-4",
-          `range has ${value.toFixed(1)}" of counter to its ${side}, needs ${LAYOUT_LIMITS.rangeLandingIn}"`,
-        );
-      }
+    // A cooking surface wants landing on both sides and they are not equal:
+    // one wide, one narrow. Which side is which is the generator's business —
+    // the check is that the pair is there, so it takes the better of the two
+    // as the wide one.
+    const sides = [landing(range.run, range.index, -1), landing(range.run, range.index, 1)];
+    const wide = Math.max(...sides);
+    const narrow = Math.min(...sides);
+    const wanted = LAYOUT_LIMITS.rangeLanding;
+    if (wide < wanted.wideIn - 1e-6 || narrow < wanted.narrowIn - 1e-6) {
+      fail(
+        "d11-4",
+        `range has ${narrow.toFixed(1)}" and ${wide.toFixed(1)}" of counter beside it, ` +
+          `needs ${wanted.narrowIn}" and ${wanted.wideIn}"`,
+      );
     }
     const rangeW = SLOT_BY_ID["slot-range"].cutout.w;
     const hoodW = SLOT_BY_ID["slot-hood"].cutout.w;

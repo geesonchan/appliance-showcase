@@ -125,12 +125,15 @@ describe("D11 rule 3 · the counter runs unbroken", () => {
 describe("D11 rule 4 · the range sits with landing either side, hood over it", () => {
   const range = () => back().segments.find((s) => s.slot === "slot-range")!;
 
-  it("keeps at least 12 inches of counter on both sides", () => {
+  it("keeps landing on both sides, the wider one away from the corner", () => {
     const i = back().segments.indexOf(range());
-    for (const neighbour of [back().segments[i - 1], back().segments[i + 1]]) {
-      expect(neighbour.kind).toBe("counter");
-      expect(widthIn(neighbour)).toBeGreaterThanOrEqual(LAYOUT_LIMITS.rangeLandingIn);
-    }
+    const [before, after] = [back().segments[i - 1], back().segments[i + 1]];
+    for (const neighbour of [before, after]) expect(neighbour.kind).toBe("counter");
+    // A cooking surface wants a wide side and a narrow one, not two equal
+    // ones. The corner side takes the narrow: a corner already eats into what
+    // you can reach across it.
+    expect(widthIn(before)).toBeGreaterThanOrEqual(LAYOUT_LIMITS.rangeLanding.narrowIn);
+    expect(widthIn(after)).toBeGreaterThanOrEqual(LAYOUT_LIMITS.rangeLanding.wideIn);
   });
 
   it("puts a hood at least as wide as the range, centred over it", () => {
@@ -272,6 +275,10 @@ describe("D13 · base cabinets", () => {
     for (const run of RUNS) {
       for (const segment of run.segments) {
         if (segment.kind === "corner" || segment.kind === "tall") continue;
+        // A stretch that is only filler has no size list to come off: the strip
+        // finishing a run against a wall, so a door has somewhere to swing, is
+        // three inches on purpose.
+        if (segment.modules.every((module) => module.kind === "filler")) continue;
         const w = widthIn(segment);
         expect(w, segment.id).toBeGreaterThanOrEqual(min);
         expect(w, segment.id).toBeLessThanOrEqual(max);

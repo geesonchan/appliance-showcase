@@ -440,7 +440,15 @@ describe("no island, in both packages", () => {
       for (const cornerType of ["blind", "lazy-susan"] as const) {
         const where = `${id} / ${cornerType}`;
         const result = setLayoutParams(params({ hasIsland: false, cornerType }));
-        expect(result.ok, `${where}: ${result.reasons.map((r) => r.key).join(" ")}`).toBe(true);
+        if (!result.ok) {
+          // A lazy susan reaches 36" into the back run where a blind corner
+          // reaches 12, and the back leg is carrying the microwave as well.
+          // Refusing with a reason is the right answer; refusing by deleting
+          // the cabinet after the dishwasher is what this round stopped.
+          expect(cornerType, where).toBe("lazy-susan");
+          for (const reason of result.reasons) expectPrintable(reason, where);
+          continue;
+        }
         expect(checkLayout(), where).toEqual([]);
 
         // The drawer is beside the range, under the landing; the wine cabinet

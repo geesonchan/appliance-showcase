@@ -979,10 +979,14 @@ function Hood({
       <mesh geometry={canopy} castShadow>
         <Mat s={body} />
       </mesh>
-      {/* The intake: baffle filters set into the underside. */}
+      {/* The intake: baffle filters set into the underside.
+          They are the hood's own steel, not a black panel screwed under it —
+          a baffle filter is pressed from the same sheet as the canopy and
+          reads as part of it. Drawing them in a separate dark material made
+          every hood look like it had a hole in the bottom. */}
       <mesh position={[0, ft(0.7), 0]}>
         <boxGeometry args={[w * 0.88, ft(1), d * 0.6]} />
-        <Mat s={glass} />
+        <Mat s={body} />
       </mesh>
       {/* The duct opening, set into the flat top rather than standing proud
           of it: it is a hole, and the canopy is 18" to the top of that top. */}

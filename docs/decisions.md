@@ -472,6 +472,27 @@ height, returning 30" into the room. Three and a half inches of empty run at the
 end of a leg reads as a cabinet somebody forgot; the same three and a half
 inches against a wall reads as a door that has to open.
 
+**A wall that will not fit shrinks; it never drops an element.** Every element
+on a run has a hard minimum — the appliances and the corner box are fixed, the
+landings have theirs, and what finishes a run has its own — and the wall's
+minimum is their sum. Below that the slider clamps and the bill is printed;
+below what the package itself needs, the layout is refused. Nothing is ever
+removed to make a wall add up.
+
+That is not a style point. The back wall's minimum used to be reached by
+deleting the cabinet after the dishwasher, which left the dishwasher hard
+against the right wall with nothing for its door to swing past — while the
+refrigerator on the other leg kept a filler for exactly that. One rule, applied
+to one machine and not the other. So a run now always finishes on something
+that is not an appliance: a filler against a wall, a cabinet in the open, a
+finished panel beside a tower.
+
+The figures are in `data/rules.json` under `layout`, beside the install rules,
+because a merchant changes a landing and a programmer does not. `shrinkOrder`
+says which stretch gives up its slack first as a wall gets shorter, and surplus
+is handed out in the reverse of it — so a stretch early in that order never
+carries more slack than one late in it.
+
 **One datum for what sticks out.** A protrusion is measured from the cabinet
 face, everywhere a customer can see it — the front of the run is the line their
 eye follows along a kitchen and the thing a machine visibly stands out from. The

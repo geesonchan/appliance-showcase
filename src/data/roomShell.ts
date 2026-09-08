@@ -13,6 +13,8 @@ import type { FixtureId, SlotId } from "../types";
  * Scene units are feet. Appliance and cabinet dimensions in the brief are
  * inches, so everything crossing that boundary goes through `ft()`.
  */
+import { LAYOUT_POLICY } from "./layoutPolicy";
+
 export const ft = (inches: number) => inches / 12;
 
 /**
@@ -103,21 +105,29 @@ export const CABINET_STANDARDS = {
 export const LAYOUT_LIMITS = {
   /** D11 rule 1: a tower is never hard against the corner cabinet. */
   cornerLandingIn: 12,
-  /** D11 rule 4: counter each side of the range. */
-  rangeLandingIn: 12,
+  /**
+   * D11 rule 4: counter each side of the range, and the two are not equal.
+   * From `layout.rangeLandingIn` in data/rules.json.
+   */
+  rangeLanding: LAYOUT_POLICY.rangeLandingIn,
   /** D11 rule 5: how far the dishwasher may sit from the sink. */
-  dishwasherToSinkIn: 36,
+  dishwasherToSinkIn: LAYOUT_POLICY.dishwasherToSinkIn,
   /** D11 rule 6: counter on the refrigerator's door side. */
   fridgeLandingIn: 15,
   /** D11 rule 7: the aisle a working kitchen needs, for the island. */
   aisleIn: 42,
+  /**
+   * What finishes a run, which is never the appliance itself. Against a wall a
+   * filler, so a door has somewhere to swing; in the open a cabinet.
+   */
+  terminalIn: LAYOUT_POLICY.terminalIn,
   /**
    * D11 rule 10: the sink has counter on both sides — one of them a working
    * side, the other somewhere to stack — and stands clear of the corner
    * cabinet so its door still opens. The dishwasher counts as the wide side:
    * it is 24" of surface at counter height, which is what the rule is for.
    */
-  sink: { wideIn: 24, narrowIn: 18, fromCornerIn: 15 },
+  sink: { ...LAYOUT_POLICY.sinkLandingIn, fromCornerIn: 15 },
 
   /**
    * D11 rule 11: what a refrigerator needs beside it.

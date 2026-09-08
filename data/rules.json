@@ -5,6 +5,26 @@
     "provenance": "Install rules and sizing thresholds. Maintained here rather than in code so Leo can change a threshold without a release. Every rule has a positive and a negative sample in src/data/rules.test.ts, keyed to real models in data/appliances.json."
   },
   "protrusionDatum": "cabinetFace",
+  "layout": {
+    "rangeLandingIn": {
+      "wideIn": 15,
+      "narrowIn": 12
+    },
+    "sinkLandingIn": {
+      "wideIn": 24,
+      "narrowIn": 18
+    },
+    "dishwasherToSinkIn": 36,
+    "terminalIn": {
+      "atWall": 3,
+      "open": 12
+    },
+    "shrinkOrder": [
+      "range-to-sink",
+      "corner-to-range",
+      "landing"
+    ]
+  },
   "rules": [
     {
       "id": "power-upgrade",

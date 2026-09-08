@@ -470,8 +470,14 @@ describe("the greyed-out half of a slider", () => {
       ["backWallIn", "back"],
       ["leftWallIn", "left"],
     ] as const) {
-      const range = feasibleRange(params(), key);
-      expect(range?.minIn).toBe(wallRequirement(params(), leg).minimumIn);
+      const range = feasibleRange(params(), key)!;
+      const wanted = wallRequirement(params(), leg).minimumIn;
+      // The printed figure is what the elements add up to; the slider moves in
+      // 6" steps, so what it can actually reach is the first step at or above
+      // it. They agree to within one step, and the slider is never below the
+      // figure printed under it.
+      expect(range.minIn, leg).toBeGreaterThanOrEqual(wanted);
+      expect(range.minIn - wanted, leg).toBeLessThan(PARAM_LIMITS[key].step);
     }
   });
 });
