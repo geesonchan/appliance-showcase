@@ -1,3 +1,4 @@
+import { isRangetop } from "./applianceBox";
 import { CABINET_STANDARDS } from "./roomShell";
 import { PROTRUSION_DATUM } from "./rules";
 import type { Appliance, Slot } from "../types";
@@ -53,16 +54,19 @@ export function fitCheck(slot: Slot, appliance: Appliance): FitResult {
     fits: widthOverIn <= 0,
     widthOverIn,
     // What is left over each side of a machine is filler — unless the machine
-    // is a liner, which does not stand in the opening at all: it hangs on the
-    // ledge of a hole cut in the underside of a housing, and the housing is
-    // wider than it on purpose. Calling that 4-1/2" of filler would be
-    // quoting two strips of panel nobody orders.
-    fillerEachSideIn:
-      widthOverIn < 0 && !appliance.installType.includes("insert")
-        ? -widthOverIn / 2
-        : null,
+    // is not standing in the opening at all. A liner hangs on the ledge of a
+    // hole cut in the underside of a housing that is wider than it on purpose;
+    // a rangetop drops through the stone, and what closes round it is the
+    // stone. Calling either one two strips of panel would be quoting parts
+    // nobody orders.
+    fillerEachSideIn: widthOverIn < 0 && !dropsIntoSomething(appliance) ? -widthOverIn / 2 : null,
     heightOverIn: height === null ? null : height - slot.cutout.h,
-    depthOverIn: depth === null ? null : depth - protrusionDatumIn(slot),
+    // How far it stands proud of the cabinet face, which is a warning about a
+    // machine built into cabinetry and a fact about one that is not. A rangetop
+    // is *meant* to stand 1-1/2" out: that is where its controls are, and it is
+    // on the install list as a clearance rather than here as an overrun.
+    depthOverIn:
+      depth === null || isRangetop(appliance) ? null : depth - protrusionDatumIn(slot),
   };
 }
 
@@ -98,6 +102,10 @@ export function protrusionDatumIn(slot: Slot): number {
   if (PROTRUSION_DATUM === "cutout" || slot.id === "slot-hood") return slot.cutout.d;
   return CABINET_STANDARDS.base.depthIn;
 }
+
+/** Whether the opening closes round the machine rather than being filled. */
+const dropsIntoSomething = (appliance: Appliance) =>
+  isRangetop(appliance) || appliance.installType.includes("insert");
 
 /** Inches to one decimal, without a trailing ".0" on whole numbers. */
 export const formatInches = (value: number) =>

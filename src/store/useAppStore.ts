@@ -362,8 +362,11 @@ export const useAppStore = create<AppState>((set, get) => ({
               key: "toast.roomGrew",
               vars: {
                 package: entry.name[s.lang] ?? entry.name.en,
-                backIn: REQUESTED_PARAMS.backWallIn,
-                leftIn: REQUESTED_PARAMS.leftWallIn,
+                // To the tenth, the way every other figure on screen is
+                // printed: the wall is 147-5/8" and nobody wants three
+                // decimal places of it in a message.
+                backIn: Number(REQUESTED_PARAMS.backWallIn.toFixed(1)),
+                leftIn: Number(REQUESTED_PARAMS.leftWallIn.toFixed(1)),
               },
             }
           : s.toast,

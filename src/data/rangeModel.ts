@@ -246,10 +246,13 @@ export function rangeParts(
     toe: band(toe),
     plinth: band(plinth),
     door: band(door),
-    // A rangetop's deck is everything under the grates: most of it is inside
-    // the counter, and the last 7/16" of it is what stands above the stone.
     control: band(control),
-    deck: band(rangetop ? Math.max(0, box.h - grate) : deck),
+    // A rangetop's chassis is the whole published height: 8-1/8" of machine,
+    // 7-11/16" of it below the stone. The cast iron stands *on* that deck
+    // rather than inside it — the same way a range's back rail stands above
+    // the height it is sold at — because a grate laid inside the envelope
+    // leaves 7/16" of it showing and a rangetop is not a hotplate.
+    deck: band(rangetop ? box.h : deck),
     grate: band(grate),
   };
 

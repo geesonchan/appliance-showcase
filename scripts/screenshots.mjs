@@ -494,6 +494,54 @@ async function captureRound14(page) {
  * into its flue on all three sides, the reordered panel that no longer scrolls
  * sideways, and the corner susan's diagonal door.
  */
+/**
+ * Round 20: package B.
+ *
+ * A 36" gas rangetop in the stone under a housing built round an insert
+ * liner, and three tall units standing together at the end of the left run.
+ * The four shots are the room it makes, the cooking wall close up — which is
+ * where the housing and the steel band under it are the point — the tall bank,
+ * and the switch from B to C, which is the same room rebuilt round a different
+ * kitchen.
+ */
+async function captureRound20(page) {
+  const toPackage = async (code) => {
+    await page.locator(`[data-segment="package"] button`, { hasText: code }).first().click();
+    await settle(page, 2200);
+  };
+
+  await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await settle(page, 2400);
+  await toPackage("B");
+  await page.screenshot({ path: `${outDir}/mobile-b-overview.png` });
+
+  for (const [name, match] of [
+    ["rangetop", /Range/],
+    ["bank", /Wine cabinet/],
+    ["oven", /Microwave/],
+  ]) {
+    await flyTo(page, match);
+    await settle(page, 1500);
+    await page.screenshot({ path: `${outDir}/mobile-b-${name}.png` });
+    await click(page, "Reset view");
+    await settle(page, 1200);
+  }
+
+  // The install list, which is where the liner's ducting, the oven's circuit
+  // and the kit between the two columns are written down.
+  await click(page, "Configure");
+  await page.waitForTimeout(800);
+  await page.getByText("Install checklist").first().scrollIntoViewIfNeeded();
+  await page.waitForTimeout(500);
+  await page.screenshot({ path: `${outDir}/mobile-b-checklist.png` });
+  await page.getByRole("button", { name: "Close" }).click();
+  await settle(page, 900);
+
+  // And the switch, which rebuilds the room round the other package.
+  await toPackage("C");
+  await page.screenshot({ path: `${outDir}/mobile-c-after-b.png` });
+}
+
 async function captureRound18(page) {
   const toPackage = async (code) => {
     await page.locator(`[data-segment="package"] button`, { hasText: code }).first().click();
@@ -648,6 +696,21 @@ async function captureRound15(page) {
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round20") {
+    const ctx = await browser.newContext({
+      viewport: MOBILE,
+      deviceScaleFactor: 2,
+      isMobile: true,
+      hasTouch: true,
+    });
+    const page = await ctx.newPage();
+    await captureRound20(page);
+    await ctx.close();
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round18") {
     const ctx = await browser.newContext({
