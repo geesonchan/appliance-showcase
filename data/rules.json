@@ -17,12 +17,12 @@
     "dishwasherToSinkIn": 36,
     "terminalIn": {
       "atWall": 3,
-      "open": 12
+      "open": "cabinet"
     },
     "shrinkOrder": [
-      "range-to-sink",
       "corner-to-range",
-      "landing"
+      "landing",
+      "range-to-sink"
     ]
   },
   "rules": [

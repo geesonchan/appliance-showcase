@@ -255,14 +255,16 @@ export function checkLayout(
       // divide by the module step — a refrigerator door's clearance against a
       // wall is three and a half inches — and what goes in the remainder is a
       // scribe. The cabinets still have to come off the size list; the strip
-      // of panel beside them does not.
+      // of panel beside them does not, and neither does a finished end panel,
+      // which is cut to the job.
       const boxes = segment.modules
-        .filter((module) => module.kind !== "filler")
+        .filter((module) => module.kind !== "filler" && module.kind !== "panel")
         .reduce((sum, module) => sum + module.widthIn, 0);
-      // A stretch that is only filler is not a cabinet and has no size list to
+      // A stretch with no box in it is not a cabinet and has no size list to
       // come off: the strip that finishes a run against a wall, so a door has
-      // somewhere to swing, is three inches on purpose. `isOrderable` already
-      // holds it to the filler maximum.
+      // somewhere to swing, is three inches on purpose, and the end panel that
+      // closes an open run's last carcass is three inches because that is what
+      // a finished panel is. `isOrderable` already holds each to its own.
       if (boxes === 0) continue;
       if (w < min || w > max) {
         fail("d13-width", `${segment.id} is ${w}", outside the ${min}-${max}" range`);

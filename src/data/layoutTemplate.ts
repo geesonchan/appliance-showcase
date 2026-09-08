@@ -841,15 +841,23 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
    * Never the appliance itself. Against a wall it is a filler: a dishwasher
    * finishing hard against the plaster has nowhere for its door to swing, which
    * is the same thing the refrigerator's own filler is for on the other leg —
-   * one rule, applied to both machines rather than to one of them. In the open
-   * it is a cabinet, because a run that stops at a carcass edge wants a box.
+   * one rule, applied to both machines rather than to one of them.
    *
-   * The filler is fixed: it is the one element that must not shrink, so it is
-   * not a stretch that can be squeezed to zero.
+   * In the open it is a whole cabinet with an end panel: a run that stops at a
+   * carcass edge wants a box, and the exposed side of that box wants finishing
+   * the way a tower's does. Neither has a policy figure — the cabinet is a
+   * cabinet, so its minimum is the narrowest box anybody stocks, and the panel
+   * is the panel. What the wall has to find for it is those two added up.
+   *
+   * The filler and the panel are fixed: they are the elements that must not
+   * shrink, so they are not stretches that can be squeezed to zero.
    */
   const terminal = (id: string, at: "wall" | "open"): Item[] => {
     if (at === "open") {
-      return [gap(id, LAYOUT_POLICY.terminalIn.open, "d13-terminal", { shrink: "landing" })];
+      return [
+        gap(id, CABINET_STANDARDS.widthIn.min, "d13-terminal", { shrink: "landing" }),
+        fixed(`${id}-panel`, PANEL_IN, "counter", M(`PNL${PANEL_IN}`, "panel", PANEL_IN)),
+      ];
     }
     const widthIn = LAYOUT_POLICY.terminalIn.atWall;
     return [

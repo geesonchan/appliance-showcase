@@ -113,7 +113,7 @@ describe("a wall at its minimum still has everything on it", () => {
  * slack first never carries more of it than one that gives up last.
  */
 describe("which stretch gives up its slack first", () => {
-  it("never leaves the range-to-sink stretch with more slack than a landing", () => {
+  it("never leaves the stretch that gives first with more slack than the one that gives last", () => {
     setLayoutParams(DEFAULT_PARAMS);
     setActivePackage(DEFAULT_PACKAGE.id);
     const range = feasibleRange(params(), "backWallIn")!;
@@ -121,17 +121,30 @@ describe("which stretch gives up its slack first", () => {
     for (let value = range.minIn; value <= range.maxIn; value += PARAM_LIMITS.backWallIn.step) {
       expect(setLayoutParams(params({ backWallIn: value })).ok, `${value}"`).toBe(true);
       const back = RUN_BY_ID.back.segments;
-      const at = (id: string) => back.find((segment) => segment.id.startsWith(id));
+      // Summed, not found: a stretch wider than a cabinet is cut into two or
+      // three boxes, and measuring only the first of them reads a 39" landing
+      // as a 21" one.
+      const widthOf = (id: string) =>
+        back
+          .filter((segment) => segment.id.startsWith(id))
+          .reduce((sum, segment) => sum + inches(segment.to - segment.from), 0);
 
-      const toSink = at("back-range-landing-right");
-      const cornerSide = at("back-range-landing-left");
-      if (!toSink || !cornerSide) continue;
+      const toSink = widthOf("back-range-landing-right");
+      const cornerSide = widthOf("back-range-landing-left");
+      if (toSink === 0 || cornerSide === 0) continue;
 
-      const slack = (segment: typeof toSink, minIn: number) => inches(segment.to - segment.from) - minIn;
+      const slack = (widthIn: number, minIn: number) => widthIn - minIn;
+      // Leo's order: the corner side gives first, so it is the one that is
+      // never carrying slack the range-to-sink stretch has gone without. The
+      // three inches are the module grid — a stretch is cut to whole cabinets
+      // and cannot hand over the last inch of a box.
+      expect(LAYOUT_POLICY.shrinkOrder.indexOf("corner-to-range")).toBeLessThan(
+        LAYOUT_POLICY.shrinkOrder.indexOf("range-to-sink"),
+      );
       expect(
-        slack(toSink, LAYOUT_POLICY.rangeLandingIn.wideIn),
-        `${value}": range-to-sink is fatter than the corner side`,
-      ).toBeLessThanOrEqual(slack(cornerSide, LAYOUT_POLICY.rangeLandingIn.narrowIn) + 3);
+        slack(cornerSide, LAYOUT_POLICY.rangeLandingIn.narrowIn),
+        `${value}": the corner side is fatter than the stretch toward the sink`,
+      ).toBeLessThanOrEqual(slack(toSink, LAYOUT_POLICY.rangeLandingIn.wideIn) + 3);
     }
   });
 

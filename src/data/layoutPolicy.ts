@@ -30,12 +30,14 @@ const layoutSchema = z.object({
   /**
    * What finishes a run, and it is never an appliance.
    *
-   * Against a wall it is a filler: something has to give a door somewhere to
-   * swing past, which is the whole of the bug this exists to stop. In the open
-   * it is a cabinet, because a run that stops at a carcass edge wants a box
-   * rather than a strip of panel.
+   * Against a wall it is a scribe: a filler wide enough to give a door
+   * somewhere to swing past, which is the whole of the bug this exists to
+   * stop. In the open it is a whole cabinet with an end panel closing its
+   * carcass off — a construction rather than a figure, which is why it is the
+   * word rather than a number. Its minimum is the box's own minimum width and
+   * the panel's own thickness; there is no policy figure to set.
    */
-  terminalIn: z.object({ atWall: z.number().positive(), open: z.number().positive() }),
+  terminalIn: z.object({ atWall: z.number().positive(), open: z.literal("cabinet") }),
   /**
    * Which stretch gives up its slack first as a wall gets shorter, first to
    * last. Surplus is handed out in the reverse of it, so a stretch early in
