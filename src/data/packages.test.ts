@@ -147,6 +147,40 @@ describe("changing package", () => {
     expect(backToA["slot-microwave"]).toBe(intoC["slot-microwave"]);
   });
 
+  /**
+   * A tower is not a drawer, and a column is not a cooler.
+   *
+   * Package B stands a 30" combination oven and an 84" wine column in the tall
+   * bank, where A and C put a 24" microwave drawer under the counter and a 24"
+   * cooler in the island. They are the same two slot ids and nothing else: a
+   * machine that cannot be built into the other package's cabinetry falls back
+   * to that package's own default rather than being carried into a hole it
+   * does not fit.
+   */
+  it("never carries B's tower and column into A's drawer and cooler, or back", () => {
+    const b = PACKAGE_BY_ID["package-b"];
+    const inB = migrateSelection(b);
+    expect(inB["slot-microwave"]).toBe(b.defaultSelection["slot-microwave"]);
+    expect(inB["slot-wine"]).toBe(b.defaultSelection["slot-wine"]);
+
+    const intoA = migrateSelection(a, inB);
+    expect(intoA["slot-microwave"]).toBe(a.defaultSelection["slot-microwave"]);
+    expect(intoA["slot-wine"]).toBe(a.defaultSelection["slot-wine"]);
+
+    const backToB = migrateSelection(b, intoA);
+    expect(backToB["slot-microwave"]).toBe(b.defaultSelection["slot-microwave"]);
+    expect(backToB["slot-wine"]).toBe(b.defaultSelection["slot-wine"]);
+
+    // Nor does the rangetop go where a range goes, or the liner where a canopy
+    // does: same slot, different machine.
+    expect(migrateSelection(a, inB)["slot-range"]).toBe(a.defaultSelection["slot-range"]);
+    expect(migrateSelection(a, inB)["slot-hood"]).toBe(a.defaultSelection["slot-hood"]);
+
+    // What does come across is what is the same in both: a 24" panel-ready
+    // dishwasher is a 24" panel-ready dishwasher.
+    expect(migrateSelection(a, inB)["slot-dishwasher"]).toBe(inB["slot-dishwasher"]);
+  });
+
   it("carries a deliberate swap across, when the new package can take it", () => {
     // A dishwasher chosen by hand rather than by default: the panel-ready
     // Bosch is 24" and freestanding, which is what C asks for too.

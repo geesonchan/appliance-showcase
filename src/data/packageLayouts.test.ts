@@ -8,11 +8,12 @@ import { setActivePackage, setLayoutParams } from "./layoutState";
 import {
   DEFAULT_PARAMS,
   PARAM_LIMITS,
+  feasibleRange,
   type LayoutParams,
   type Refusal,
 } from "./layoutTemplate";
 import { BUILDABLE_PACKAGES, DEFAULT_PACKAGE, PACKAGE_BY_ID, slotsOf } from "./packages";
-import { LAYOUT, LAYOUT_LIMITS, ROOM, RUNS, ft } from "./room";
+import { LAYOUT, LAYOUT_LIMITS, ROOM, RUNS, ft, hingeAwayFrom } from "./room";
 import { SLOT_BY_ID } from "./slots";
 
 /**
@@ -479,6 +480,38 @@ describe("a bank of tall units", () => {
     const order = modules.map((module) => module.slot ?? module.kind);
     expect(order.indexOf("spacer")).toBe(order.indexOf("slot-wine") + 1);
     expect(order.indexOf("slot-fridge")).toBe(order.indexOf("spacer") + 1);
+  });
+
+  /**
+   * The wine column's door opens away from the refrigerator.
+   *
+   * Two doors hinged on the same side is two doors that foul each other: the
+   * column's is hung on the side away from the machine beside it, whichever
+   * leg the bank stands on. `hingeAwayFrom` reads the run rather than assuming
+   * a side, because a run along z is drawn a quarter turn round.
+   */
+  it("hangs the column's door away from the refrigerator, on either leg", () => {
+    for (const fridgeEnd of ["left", "back"] as const) {
+      const sinkLeg = fridgeEnd === "left" ? ("back" as const) : ("left" as const);
+      activate("package-b");
+      const where = `fridge ${fridgeEnd}`;
+      // The wall the bank stands on, at whatever length takes it.
+      const key = fridgeEnd === "left" ? ("leftWallIn" as const) : ("backWallIn" as const);
+      const at = params({ fridgeEnd, sinkLeg });
+      const room = feasibleRange(at, key)!;
+      expect(room, where).toBeTruthy();
+      expect(setLayoutParams({ ...at, [key]: room.minIn }).ok, where).toBe(true);
+
+      const run = RUNS.find((r) => r.segments.some((s) => s.slot === "slot-fridge"))!;
+      const wine = run.segments.find((s) => s.slot === "slot-wine")!;
+      const fridge = run.segments.find((s) => s.slot === "slot-fridge")!;
+      const hinge = hingeAwayFrom("slot-wine", "slot-fridge");
+
+      // The refrigerator is further along the run than the wine column in this
+      // template, so which side that is on the drawing depends on the leg.
+      expect(fridge.from, where).toBeGreaterThan(wine.from);
+      expect(hinge, where).toBe(run.axis === "x" ? -1 : 1);
+    }
   });
 
   it("comes to 84-5/8 inches of machine, panels aside", () => {
