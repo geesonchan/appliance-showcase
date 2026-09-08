@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { APPLIANCES_BY_SLOT } from "./catalogue";
-import { applianceBox } from "./applianceBox";
+import { applianceBox, flushOffset } from "./applianceBox";
 import { burnerCount, knobCount, rangeParts, RANGE_PROPORTIONS } from "./rangeModel";
 import { ROOM, SLOT_BY_ID, ft } from "./slots";
 import { FIXTURES } from "./testFixtures";
@@ -180,5 +180,106 @@ describe("the front reads like the drawing", () => {
     for (const knob of knobs) {
       expect(Math.abs(knob.x) - knob.r).toBeGreaterThan(display.w / 2);
     }
+  });
+});
+
+/**
+ * A freestanding range is a different machine, not a variant of a pro one.
+ *
+ * Sold at its full height with the backguard on and cooking at 36"; its
+ * controls on the front rather than on a fascia under the deck; a storage
+ * drawer at the bottom rather than a toe kick; painted flanks. From Leo's
+ * round-17 note against the Maytag MFES4030RS.
+ */
+const freestanding = (over: Partial<Appliance> = {}) =>
+  ({
+    ...FIXTURES.gasRange36,
+    installType: ["freestanding"],
+    widthIn: 29.875,
+    heightIn: 47.875,
+    depthIn: 28,
+    cooktopIn: 36,
+    backguardIn: 11.875,
+    burners: 5,
+    ...over,
+  }) as Appliance;
+
+describe("a freestanding range with a backguard", () => {
+  it("draws to the envelope the model publishes, backguard included", () => {
+    const measured = box(freestanding());
+    expect(inches(measured.w)).toBeCloseTo(29.875, 4);
+    expect(inches(measured.h)).toBeCloseTo(47.875, 4);
+    expect(inches(measured.d)).toBeCloseTo(28, 4);
+  });
+
+  it("stands its backguard above the cooking surface", () => {
+    const p = parts(freestanding());
+    expect(p.style).toBe("backguard");
+    expect(p.backguard).toBeTruthy();
+    expect(inches(p.cooktop)).toBeCloseTo(36, 4);
+    // The panel is above the cooktop, and the two together are the machine.
+    expect(inches(p.backguard!.h)).toBeCloseTo(11.875, 4);
+    expect(inches(p.cooktop + p.backguard!.h)).toBeCloseTo(47.875, 4);
+    // Nothing on the front reaches past the cooking surface.
+    expect(p.bands.grate[1]).toBeCloseTo(p.cooktop, 6);
+  });
+
+  it("puts one knob on the front per burner, and none on the backguard", () => {
+    const p = parts(freestanding());
+    expect(p.knobs).toHaveLength(p.burners);
+    expect(p.burners).toBe(5);
+    // Every knob is on the control strip, which is above the oven door.
+    for (const knob of p.knobs) {
+      expect(knob.y).toBeGreaterThan(p.bands.door[1]);
+      expect(knob.y).toBeLessThan(p.cooktop);
+      expect(Math.abs(knob.x) + knob.r).toBeLessThanOrEqual(box(freestanding()).w / 2);
+    }
+    // The display is up on the backguard, not between two banks of knobs.
+    expect(p.display.y).toBeGreaterThan(p.cooktop);
+  });
+
+  it("lays the cast iron straight across, one grate per burner", () => {
+    const p = parts(freestanding());
+    expect(p.grates).toHaveLength(5);
+    const rows = new Set(p.grates.map((grate) => grate.z.toFixed(6)));
+    expect(rows.size, "grates are laid in one row").toBe(1);
+  });
+
+  it("stands on a storage drawer rather than a toe kick", () => {
+    const p = parts(freestanding());
+    expect(p.bands.toe[0]).toBe(0);
+    expect(p.bands.toe[1]).toBe(0);
+    expect(inches(p.bands.plinth[1] - p.bands.plinth[0])).toBeCloseTo(7, 4);
+    expect(p.bands.plinth[0]).toBe(0);
+    // The oven door is about half the front, as the note says.
+    expect((p.bands.door[1] - p.bands.door[0]) / p.cooktop).toBeCloseTo(0.5, 2);
+  });
+
+  it("leaves a pro range exactly as it was", () => {
+    const p = parts(proRange());
+    expect(p.style).toBe("pro");
+    expect(p.backguard).toBe(null);
+    expect(p.vent).toBe(null);
+    expect(p.knobs).toHaveLength(knobCount(6));
+    expect(inches(p.cooktop)).toBeCloseTo(36.75, 4);
+    expect(inches(p.islandTrim.h)).toBe(RANGE_PROPORTIONS.islandTrimIn);
+  });
+
+  it("stands against the wall rather than inside it when it is deeper than the run", () => {
+    const deep = freestanding();
+    const shallow = proRange();
+    // 28" of range in a 24" run: it projects into the room, it does not sink
+    // into the wall.
+    expect(flushOffset(SLOT_BY_ID["slot-range"], box(deep).d)).toBeGreaterThan(0);
+    expect(inches(flushOffset(SLOT_BY_ID["slot-range"], box(deep).d))).toBeCloseTo(2, 4);
+    // A pro range is 24-3/4" in a 24" run: it stands against the wall too, by
+    // three eighths of an inch, rather than a quarter inch inside it.
+    expect(inches(flushOffset(SLOT_BY_ID["slot-range"], box(shallow).d))).toBeCloseTo(0.375, 4);
+    // Anything shallower than the run is still flush with the cabinet face.
+    const shallowBox = box(proRange({ depthIn: 20 }));
+    expect(flushOffset(SLOT_BY_ID["slot-range"], shallowBox.d)).toBeCloseTo(
+      (ROOM.counterDepth - shallowBox.d) / 2 + ft(0.5),
+      6,
+    );
   });
 });

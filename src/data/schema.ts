@@ -147,6 +147,36 @@ export const applianceSchema = z.object({
   widthIn: inches.nullable(),
   heightIn: inches.nullable(),
   depthIn: inches.nullable(),
+  /**
+   * Ranges: the height of the cooking surface, where that is not the machine's
+   * overall height.
+   *
+   * A range with a backguard is sold at its full height — 47-7/8" on a
+   * MFES4030RS — and cooks at 36". Two different numbers doing two different
+   * jobs: the first is the envelope, the second is what a hood's clearance and
+   * the counter beside it are measured from. Null on a machine whose top *is*
+   * its cooking surface, which is every pro-style range.
+   */
+  cooktopIn: inches.nullable().default(null),
+  /** Ranges: the raised panel at the back, above the cooking surface. */
+  backguardIn: inches.nullable().default(null),
+  /**
+   * Refrigerators: how far the machine stands out from the wall with its doors
+   * shut, and again with the handles on.
+   *
+   * The figure that separates a counter-depth freestanding machine from a
+   * built-in one by eye. A built-in finishes flush with 24" of cabinet; this
+   * one is a 24" body with a whole door thickness in front of it and a handle
+   * in front of that, and drawing it flush is drawing the wrong machine. See
+   * docs/decisions.md D11 rule 11.
+   */
+  depthWithDoorsIn: inches.nullable().default(null),
+  depthWithHandleIn: inches.nullable().default(null),
+  /**
+   * How far the back of the machine is held off the wall by its own spacers.
+   * A freestanding refrigerator carries them; a built-in does not.
+   */
+  rearSpacerIn: inches.nullable().default(null),
   cutoutWidthIn: inches.nullable(),
   cutoutHeightIn: inches.nullable(),
   cutoutDepthIn: inches.nullable(),

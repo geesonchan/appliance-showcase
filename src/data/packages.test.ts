@@ -61,9 +61,17 @@ describe("the packages on offer", () => {
         expect(chosen.category, `${entry.id}: ${slotId} default is the wrong category`).toBe(
           slot.category,
         );
-        expect(chosen.widthIn, `${entry.id}: ${slotId} default is the wrong width`).toBe(
+        // A "36-inch" refrigerator measures 35-5/8" and a "30-inch" range
+        // 29-7/8": the nominal is the opening, the published figure is the
+        // machine, and the difference is the filler. More than an inch of it
+        // is a different cabinet, not a scribe.
+        expect(chosen.widthIn, `${entry.id}: ${slotId} default is too wide`).toBeLessThanOrEqual(
           slot.widthIn,
         );
+        expect(
+          chosen.widthIn,
+          `${entry.id}: ${slotId} default is more than an inch under its opening`,
+        ).toBeGreaterThanOrEqual(slot.widthIn - 1);
         // And it installs the way the package installs it, so a package's own
         // default is one the migration would keep rather than replace.
         expect(

@@ -478,15 +478,49 @@ const FREEDOM_SPLIT: DoorSplit = {
 export const PUBLISHED_SPECS: Record<
   string,
   {
+    widthIn?: number;
     heightIn?: number;
     depthIn?: number;
     burners?: number;
+    /** Ranges with a backguard: where the cooking surface is, and how tall the
+     *  panel above it stands. */
+    cooktopIn?: number;
+    backguardIn?: number;
+    /** Refrigerators: the two depths that separate freestanding from built-in. */
+    depthWithDoorsIn?: number;
+    depthWithHandleIn?: number;
+    rearSpacerIn?: number;
     doorConfig?: DoorConfig;
     doorSplit?: DoorSplit;
   }
 > = {
   PRG366WH: { heightIn: 36.75, depthIn: 24.75, burners: 6 },
   PRG304WH: { heightIn: 36.75, depthIn: 24.75, burners: 4 },
+  // Maytag MFES4030RS, from Leo's round-17 note. A freestanding range is a
+  // different machine from a pro-style one: it is sold at its full height with
+  // the backguard on, cooks at 36", and carries its controls on the front
+  // rather than on a fascia under the deck.
+  MFES4030RS: {
+    widthIn: 29.875,
+    heightIn: 47.875,
+    depthIn: 28,
+    cooktopIn: 36,
+    backguardIn: 11.875,
+    burners: 5,
+  },
+  // Thermador HMCB30WS. The canopy only; the chimney above it is sized to the
+  // room, from the canopy's top to the ceiling.
+  HMCB30WS: { widthIn: 29.9375, heightIn: 8.5625, depthIn: 23.1875 },
+  // Thermador T36FT820NS. A 24" body held 1" off the wall by its own spacers,
+  // with the doors and then the handles standing in front of it.
+  T36FT820NS: {
+    widthIn: 35.625,
+    heightIn: 72,
+    depthIn: 24,
+    rearSpacerIn: 1,
+    depthWithDoorsIn: 28.75,
+    depthWithHandleIn: 31.4375,
+  },
   // Thermador Freedom: two doors over a refrigerator drawer and a freezer
   // drawer. Sold as a four-door, which is what the Feature column tends to say.
   T36BT120NS: { doorConfig: "french-door-2-drawer", doorSplit: FREEDOM_SPLIT },

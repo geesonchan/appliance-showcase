@@ -68,6 +68,10 @@ async function openPage(viewport: typeof DESKTOP, isMobile = false, query = "") 
 async function settled(page: Page, ms = 500, limit = 12_000) {
   const read = () =>
     page.evaluate(() => ((window as unknown as { __faded?: string[] }).__faded ?? []).join("|"));
+  // The fly-in is an 800ms tween and the fade is recalculated every fourth
+  // frame, so for the first moment after a click nothing has moved yet and two
+  // equal readings mean "not started", not "arrived".
+  await page.waitForTimeout(1200);
   const deadline = Date.now() + limit;
   let last = await read();
   while (Date.now() < deadline) {

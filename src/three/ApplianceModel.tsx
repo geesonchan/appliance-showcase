@@ -4,7 +4,11 @@ import type { ThreeEvent } from "@react-three/fiber";
 import { applianceBox, flushOffset } from "../data/applianceBox";
 import { hoodProfile, hoodTopDepthIn } from "../data/hood";
 import { FRIDGE_PROPORTIONS, fridgeParts } from "../data/fridgeModel";
-import { RANGE_PROPORTIONS, rangeParts } from "../data/rangeModel";
+import {
+  FREESTANDING_PROPORTIONS,
+  RANGE_PROPORTIONS,
+  rangeParts,
+} from "../data/rangeModel";
 import { Surface } from "./Surface";
 import { CABINET_STANDARDS, ROOM, SLOT_BY_ID, ft } from "../data/slots";
 import { runForSlot } from "../data/room";
@@ -546,6 +550,12 @@ function Range({
   // a dark cavity. The rest of the machine is the steel it is sold as.
   const iron = tint(glass, "#1C1E1C", { metalness: 0.2, roughness: 0.7 });
   const dark = tint(glass, "#151715", { metalness: 0.1, roughness: 0.8 });
+  // The painted flanks of an ordinary freestanding range: dark grey, and matte
+  // rather than the near-mirror of the steel front.
+  const painted = tint(glass, FREESTANDING_PROPORTIONS.sideColor, {
+    metalness: 0.05,
+    roughness: 0.75,
+  });
 
   /** A panel on the front face, given a band and an inset from the sides. */
   const front = (band: readonly [number, number], inset: number) => ({
@@ -585,11 +595,14 @@ function Range({
         <Mat s={trim} />
       </mesh>
 
-      {/* Toe kick, set back so the machine reads as standing on legs. */}
-      <mesh position={[0, (bands.toe[0] + bands.toe[1]) / 2, carcassZ - ft(0.5)]}>
-        <boxGeometry args={[w - ft(0.5), bands.toe[1] - bands.toe[0], carcassD - ft(1)]} />
-        <Mat s={dark} />
-      </mesh>
+      {/* Toe kick, set back so the machine reads as standing on legs. A
+          freestanding range has none: its storage drawer goes to the floor. */}
+      {bands.toe[1] > bands.toe[0] && (
+        <mesh position={[0, (bands.toe[0] + bands.toe[1]) / 2, carcassZ - ft(0.5)]}>
+          <boxGeometry args={[w - ft(0.5), bands.toe[1] - bands.toe[0], carcassD - ft(1)]} />
+          <Mat s={dark} />
+        </mesh>
+      )}
 
       {/* The drawer front between the toe kick and the oven door. */}
       {plinth.height > ft(1) && (
@@ -607,8 +620,11 @@ function Range({
       <mesh position={[0, door.y - door.height * 0.04, face + ft(0.2)]}>
         <boxGeometry
           args={[
-            door.width * 0.78,
-            door.height * RANGE_PROPORTIONS.windowFraction,
+            door.width * (parts.style === "backguard" ? 0.86 : 0.78),
+            door.height *
+              (parts.style === "backguard"
+                ? FREESTANDING_PROPORTIONS.windowFraction
+                : RANGE_PROPORTIONS.windowFraction),
             ft(0.1),
           ]}
         />
@@ -640,21 +656,69 @@ function Range({
       })()}
 
       {/* The band between the fascia and the door, which is what stops the
-          front of a pro range reading as one flat sheet. */}
-      <mesh position={[0, bands.door[1] + ft(RANGE_PROPORTIONS.bandIn) / 2, face + ft(0.15)]}>
-        <boxGeometry args={[w, ft(RANGE_PROPORTIONS.bandIn), ft(0.3)]} />
-        <Mat s={trim} />
-      </mesh>
+          front of a pro range reading as one flat sheet. A freestanding range
+          has no such band: the control strip meets the door directly. */}
+      {parts.style === "pro" && (
+        <mesh position={[0, bands.door[1] + ft(RANGE_PROPORTIONS.bandIn) / 2, face + ft(0.15)]}>
+          <boxGeometry args={[w, ft(RANGE_PROPORTIONS.bandIn), ft(0.3)]} />
+          <Mat s={trim} />
+        </mesh>
+      )}
 
-      {/* Control fascia: two banks of knobs with the display between them. */}
+      {/* The control strip. On a pro range it is a fascia under the deck with
+          two banks of knobs and the display between them; on a freestanding
+          one it is the band above the oven door, with the exhaust grille along
+          the bottom of it and the display up on the backguard instead. */}
       <mesh position={[0, control.y, face]}>
         <boxGeometry args={[control.width, control.height - reveal, ft(0.25)]} />
         <Mat s={body} />
       </mesh>
-      <mesh position={[parts.display.x, parts.display.y, face + ft(0.3)]}>
-        <boxGeometry args={[parts.display.w, parts.display.h, ft(0.1)]} />
-        <Mat s={dark} />
-      </mesh>
+      {parts.vent && (
+        <group name="range-vent">
+          {[0, 1, 2, 3].map((i) => (
+            <mesh
+              key={i}
+              position={[
+                0,
+                parts.vent![0] + ((i + 1) * (parts.vent![1] - parts.vent![0])) / 5,
+                face + ft(0.12),
+              ]}
+            >
+              <boxGeometry args={[control.width * 0.82, ft(0.22), ft(0.12)]} />
+              <Mat s={dark} />
+            </mesh>
+          ))}
+        </group>
+      )}
+      {parts.style === "pro" && (
+        <mesh position={[parts.display.x, parts.display.y, face + ft(0.3)]}>
+          <boxGeometry args={[parts.display.w, parts.display.h, ft(0.1)]} />
+          <Mat s={dark} />
+        </mesh>
+      )}
+
+      {/* The backguard: a raised panel at the back, standing above the cooking
+          surface, with the digital display across the front of it and no knobs
+          on it at all. Inside the envelope, because the height this machine is
+          sold at is the height with the backguard on. */}
+      {parts.backguard && (
+        <group name="range-backguard" position={[0, parts.cooktop, -(d - parts.backguard.d) / 2]}>
+          <mesh position={[0, parts.backguard.h / 2, 0]} castShadow receiveShadow>
+            <boxGeometry args={[w, parts.backguard.h, parts.backguard.d]} />
+            <Mat s={body} />
+          </mesh>
+          <mesh
+            position={[
+              parts.display.x,
+              parts.display.y - parts.cooktop,
+              parts.backguard.d / 2 + ft(0.06),
+            ]}
+          >
+            <boxGeometry args={[parts.display.w, parts.display.h, ft(0.12)]} />
+            <Mat s={dark} />
+          </mesh>
+        </group>
+      )}
       <group name="range-knobs">
         {parts.knobs.map((knob, i) => (
           <mesh
@@ -695,7 +759,12 @@ function Range({
 
       {/* Finished sides on a freestanding machine; a counter lap on a slide-in.
           The side panels sit inside the envelope, because the width a range is
-          sold at is the width with its sides on. */}
+          sold at is the width with its sides on.
+
+          On a pro range they are steel. On an ordinary freestanding one they
+          are painted — only the front and the top of that machine are
+          stainless, and drawing the flanks in steel is drawing a more expensive
+          appliance than the one on the quote. */}
       {parts.sides === "finished" &&
         [-1, 1].map((side) => (
           <mesh
@@ -704,7 +773,7 @@ function Range({
             castShadow
           >
             <boxGeometry args={[reveal, bands.deck[0], carcassD - ft(0.5)]} />
-            <Mat s={trim} />
+            <Mat s={parts.style === "backguard" ? painted : trim} />
           </mesh>
         ))}
       {/* A slide-in laps its cooktop over the counter beside it. That lap is

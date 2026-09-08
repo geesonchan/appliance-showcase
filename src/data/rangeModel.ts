@@ -47,11 +47,56 @@ export const RANGE_PROPORTIONS = {
   grateGapIn: 0.25,
 };
 
+/**
+ * Proportions of a freestanding range with a backguard, in inches.
+ *
+ * A different machine from a pro range, not a variant of one. It is sold at its
+ * full height with the backguard on and cooks at 36"; its controls are on the
+ * front rather than on a fascia under the deck; the bottom of it is a storage
+ * drawer rather than a toe kick, so it reaches the floor; and its sides are
+ * painted rather than steel, because only the front and the top are finished.
+ * From Leo's round-17 note against MFES4030RS.
+ */
+export const FREESTANDING_PROPORTIONS = {
+  /** A drawer you keep pans in. Not a toe kick — there is nothing recessed. */
+  drawerIn: 7,
+  /** The oven door, as a fraction of the cooking-surface height. */
+  doorFraction: 0.5,
+  /** The exhaust grille along the bottom of the control strip. */
+  ventIn: 2.5,
+  grateIn: 1.5,
+  deckIn: 0.5,
+  /** Knobs on the front are smaller than a pro range's fascia knobs. */
+  knobDiameterIn: 1.75,
+  handleDiameterIn: 1.25,
+  handleFractionOfDoor: 0.92,
+  /** "A large window": most of the door, which is what the class is known for. */
+  windowFraction: 0.55,
+  /** How far the backguard stands forward of the machine's back. */
+  backguardDepthIn: 3,
+  /** The display across the top of the backguard's face. */
+  displayWidthFraction: 0.42,
+  displayHeightFraction: 0.3,
+  /** Painted, not stainless: dark grey, as the sides of one are. */
+  sideColor: "#3A3D3F",
+};
+
 /** A band of the front, in feet above the floor. */
 export type Band = readonly [number, number];
 
 export interface RangeParts {
+  /**
+   * Which machine this is.
+   *
+   * Not read off `installType`: a Thermador Pro Harmony is a freestanding range
+   * too, and drawing a backguard on one would be wrong. What separates them is
+   * whether the model publishes a backguard, which is a figure off the drawing
+   * rather than a word off the feature list.
+   */
+  style: "pro" | "backguard";
   burners: number;
+  /** The cooking surface, in feet: the machine's top unless it has a backguard. */
+  cooktop: number;
   /** Bands of the front, bottom to top. They tile the height exactly. */
   bands: {
     toe: Band;
@@ -71,6 +116,13 @@ export interface RangeParts {
   display: { x: number; y: number; w: number; h: number };
   /** The low back rail: above the published height, as it is on the drawing. */
   islandTrim: { h: number; d: number };
+  /**
+   * The raised panel at the back, on a machine that has one. Inside the
+   * envelope, because the height such a range is sold at includes it.
+   */
+  backguard: { h: number; d: number; display: { w: number; h: number } } | null;
+  /** The grille along the bottom of the control strip, on a backguard machine. */
+  vent: Band | null;
   /**
    * A freestanding range has finished sides and stands on its own; a slide-in
    * has unfinished sides and laps its cooktop over the counter beside it.
@@ -96,6 +148,23 @@ export function burnerCount(appliance: Appliance): number {
 export const knobCount = (burners: number) => burners + 2;
 
 /**
+ * The height of the cooking surface, in feet.
+ *
+ * The published height for a pro range, whose top *is* its cooktop. The
+ * published cooktop figure for one with a backguard, because that machine is
+ * sold at 47-7/8" and cooks at 36" — and it is the second number a hood's
+ * clearance and the counter beside it are measured from.
+ */
+export const cooktopHeight = (appliance: Appliance, box: { h: number }) =>
+  appliance.cooktopIn !== null && appliance.cooktopIn !== undefined
+    ? ft(appliance.cooktopIn)
+    : box.h;
+
+/** True when the model publishes a raised panel above its cooking surface. */
+export const hasBackguard = (appliance: Appliance) =>
+  appliance.backguardIn !== null && appliance.backguardIn !== undefined;
+
+/**
  * Lay a range out inside the envelope it publishes.
  *
  * The bands stack to the full height and the grates reach the top of it,
@@ -108,15 +177,27 @@ export function rangeParts(
   box: { w: number; h: number; d: number },
 ): RangeParts {
   const P = RANGE_PROPORTIONS;
+  const F = FREESTANDING_PROPORTIONS;
   const burners = burnerCount(appliance);
+  const backguarded = hasBackguard(appliance);
+  const cooktop = cooktopHeight(appliance, box);
 
-  const grate = ft(P.grateIn);
-  const deck = ft(P.deckIn);
-  const control = ft(P.controlIn);
-  const toe = ft(P.toeKickIn);
-  const door = box.h * P.doorFraction;
-  // Whatever is left between the toe kick and the oven door is a drawer front.
-  const plinth = Math.max(0, box.h - toe - door - control - deck - grate);
+  const grate = ft(backguarded ? F.grateIn : P.grateIn);
+  const deck = ft(backguarded ? F.deckIn : P.deckIn);
+  const toe = backguarded ? 0 : ft(P.toeKickIn);
+  const door = cooktop * (backguarded ? F.doorFraction : P.doorFraction);
+  // A freestanding range's bottom is a storage drawer standing on the floor;
+  // a pro range's is a toe kick with a drawer front above it. Either way the
+  // bands tile the cooking surface exactly.
+  const plinth = backguarded
+    ? ft(F.drawerIn)
+    : Math.max(0, cooktop - toe - door - ft(P.controlIn) - deck - grate);
+  // The control strip takes what is left. On a pro range that is the 3" fascia
+  // under the deck; on a freestanding one it is the band above the oven door
+  // carrying the knobs and the exhaust grille.
+  const control = backguarded
+    ? Math.max(0, cooktop - plinth - door - deck - grate)
+    : ft(P.controlIn);
 
   let y = 0;
   const band = (height: number): Band => {
@@ -124,6 +205,9 @@ export function rangeParts(
     y += height;
     return [start, y] as const;
   };
+  // Bottom to top. The order is the machine's: a pro range carries its knobs
+  // on a fascia under the deck, a freestanding one carries them on the front
+  // above the oven door. Both stacks reach the cooking surface exactly.
   const bands = {
     toe: band(toe),
     plinth: band(plinth),
@@ -133,14 +217,17 @@ export function rangeParts(
     grate: band(grate),
   };
 
-  // Grates tile the deck two deep with nothing between them: on a pro range
-  // the cast iron is continuous, so a pan slides from one burner to the next.
-  const columns = Math.ceil(burners / P.grateRows);
-  const margin = ft(P.deckMarginIn);
+  // Grates tile the deck with nothing between them: the cast iron is
+  // continuous, so a pan slides from one burner to the next. A pro range lays
+  // them two deep in pairs; a freestanding one lays them straight across, one
+  // per burner, the full depth of the deck.
+  const rows = backguarded ? 1 : P.grateRows;
+  const columns = Math.ceil(burners / rows);
+  const margin = ft(backguarded ? 1 : P.deckMarginIn);
   const fieldW = box.w - margin * 2;
   const fieldD = box.d - margin * 2;
   const grateW = fieldW / columns;
-  const grateD = fieldD / P.grateRows;
+  const grateD = fieldD / rows;
   const grates: RangeParts["grates"] = [];
   for (let i = 0; i < burners; i += 1) {
     const column = i % columns;
@@ -154,16 +241,62 @@ export function rangeParts(
     });
   }
 
+  const knobs: RangeParts["knobs"] = [];
+  // The exhaust grille runs along the bottom of a freestanding range's control
+  // strip; the knobs sit above it.
+  const vent: Band | null = backguarded
+    ? ([bands.control[0], Math.min(bands.control[1], bands.control[0] + ft(F.ventIn))] as const)
+    : null;
+  const knobBand: Band = vent ? ([vent[1], bands.control[1]] as const) : bands.control;
+  const centreY = (knobBand[0] + knobBand[1]) / 2;
+  const displayW = box.w * 0.16;
+
+  if (backguarded) {
+    // One knob per burner, straight across the strip, and nothing else on it:
+    // the display is on the backguard, where that machine puts it.
+    const r = Math.min(ft(F.knobDiameterIn / 2), (knobBand[1] - knobBand[0]) / 2.4);
+    const edge = box.w / 2 - ft(1) - r;
+    for (let i = 0; i < burners; i += 1) {
+      const t = burners === 1 ? 0.5 : i / (burners - 1);
+      knobs.push({ x: -edge + 2 * edge * t, y: centreY, r });
+    }
+    return {
+      style: "backguard",
+      burners,
+      cooktop,
+      bands,
+      grates,
+      knobs,
+      // On the backguard, not on the fascia: this is where the machine's own
+      // drawing puts the clock and the oven readout.
+      display: {
+        x: 0,
+        y: cooktop + ft(appliance.backguardIn!) * (1 - F.displayHeightFraction / 2 - 0.18),
+        w: box.w * F.displayWidthFraction,
+        h: ft(appliance.backguardIn!) * F.displayHeightFraction,
+      },
+      islandTrim: { h: 0, d: 0 },
+      backguard: {
+        h: ft(appliance.backguardIn!),
+        d: ft(F.backguardDepthIn),
+        display: {
+          w: box.w * F.displayWidthFraction,
+          h: ft(appliance.backguardIn!) * F.displayHeightFraction,
+        },
+      },
+      vent,
+      sides: "finished",
+      counterLip: null,
+    };
+  }
+
   // Knobs in two banks with the display between them, so the fascia reads the
   // way the front of the machine does.
-  const knobs: RangeParts["knobs"] = [];
   const count = knobCount(burners);
   const perSide = count / 2;
   // A knob is the size the drawing says, unless the fascia is too shallow to
   // take one — a 30" range has the same 2-1/4" knobs as a 36".
   const r = Math.min(ft(P.knobDiameterIn / 2), control / 2.4);
-  const centreY = (bands.control[0] + bands.control[1]) / 2;
-  const displayW = box.w * 0.16;
   for (const side of [-1, 1]) {
     // Three quarters of an inch of steel between the display and the first
     // knob, measured to the knob's edge.
@@ -178,12 +311,16 @@ export function rangeParts(
   }
 
   return {
+    style: "pro",
     burners,
+    cooktop,
     bands,
     grates,
     knobs,
     display: { x: 0, y: centreY, w: displayW, h: control * 0.45 },
     islandTrim: { h: ft(P.islandTrimIn), d: ft(2) },
+    backguard: null,
+    vent: null,
     sides: appliance.installType.some((type) => /freestanding/i.test(type))
       ? "finished"
       : "unfinished",

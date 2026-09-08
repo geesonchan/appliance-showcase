@@ -85,5 +85,12 @@ export function applianceBox(slot: Slot, appliance: Appliance): ApplianceBox {
  */
 export function flushOffset(slot: Slot, depth: number): number {
   if (slot.id === "slot-hood") return -(ROOM.counterDepth - depth) / 2;
-  return (ROOM.counterDepth - depth) / 2 + ft(0.5);
+  // Flush with the cabinet face, but never with its back inside the wall.
+  // Aligning the fronts of a 28" range in a 24" run puts four inches of the
+  // machine into the plaster; what actually happens is that it stands against
+  // the wall and projects into the room, which is most of what a freestanding
+  // appliance looks like from the side.
+  const flushWithTheFace = (ROOM.counterDepth - depth) / 2 + ft(0.5);
+  const backAgainstTheWall = (depth - ROOM.counterDepth) / 2;
+  return Math.max(flushWithTheFace, backAgainstTheWall);
 }

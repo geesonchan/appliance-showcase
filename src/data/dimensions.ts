@@ -1,4 +1,5 @@
 import { applianceBox } from "./applianceBox";
+import { cooktopHeight } from "./rangeModel";
 import { CABINET_STANDARDS, ISLAND, ROOM, RUNS, RUN_BY_ID, ft } from "./room";
 import { SLOT_BY_ID } from "./slots";
 import type { Appliance, SlotId } from "../types";
@@ -56,8 +57,10 @@ export function dimensionsFor(
   const at = (step: number) => rangeSegment.from - 0.5 - step * 1.5;
 
   const rangeAppliance = selection["slot-range"];
+  // The cooking surface, not the machine's top: a range with a backguard is
+  // sold at 47-7/8" and cooks at 36", and this line is the counter height.
   const cooktop = rangeAppliance
-    ? applianceBox(range, rangeAppliance).h
+    ? cooktopHeight(rangeAppliance, applianceBox(range, rangeAppliance))
     : ft(range.cutout.h);
   const hoodBottom = hood.position[1];
   const hoodAppliance = selection["slot-hood"];
