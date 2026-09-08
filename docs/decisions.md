@@ -553,9 +553,24 @@ Both are checked by `checkLayout`, and the M3-3 generator has to satisfy both.
   underside.
 - Tall: 24" deep, 84 / 90 / 96".
 - Corner: a 36" lazy susan, or a 42" blind corner.
-- An L wants a short leg of at least 8ft and a long leg of 10–12ft, each
+- An L wants a short leg of at least 8ft and a long leg of 10–14ft, each
   measured from the inside corner outward. A tall cabinet is finished off with a
   24–48" return rather than left as a cliff at the end of a wall.
+  **Amended 2026-09-07 (round 19), Leo: the long leg's cap is 14ft, not 12.**
+  Twelve feet was what stopped a kitchen with no island from ever carrying the
+  microwave drawer and the wine cabinet on the refrigerator's leg — the pair
+  costs 60" of run, since each is an enclosure with a finished panel each side.
+- **What finishes a run.** Against a wall, a filler at least 3" wide: a door
+  needs somewhere to swing past, and the refrigerator's own clearance is the
+  same rule. In the open, a whole cabinet with a finished end panel closing its
+  carcass off — a construction rather than a figure, so its minimum is the
+  narrowest box anybody stocks plus the panel's own thickness. Never an
+  appliance, either way.
+- **The order a wall gives ground in** as it gets shorter, first to last:
+  the corner-to-range stretch, then the landings to their own minimums, then
+  the range-to-sink stretch. Surplus is handed out in the reverse. Nothing is
+  ever deleted to make a wall fit; a wall too short for every element at its
+  minimum is refused with the bill.
 
 **Ventilation**, from the clearance sheet.
 

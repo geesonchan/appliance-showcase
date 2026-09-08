@@ -73,8 +73,15 @@ export const CABINET_STANDARDS = {
    * reading as a scribe and starts reading as a mistake.
    */
   closingGapIn: { min: 0, max: 6 },
-  /** An L needs a short leg of at least 8ft and a long leg of 10-12ft. */
-  legIn: { shortMin: 96, longMin: 120, longMax: 144 },
+  /**
+   * An L needs a short leg of at least 8ft and a long leg of 10-14ft.
+   *
+   * Fourteen, not twelve: Leo raised the cap for round 19. A single run of
+   * 168" is a long wall but it is one somebody builds, and the twelve-foot
+   * figure was what stopped a no-island kitchen from ever carrying the
+   * microwave drawer and the wine cabinet on the refrigerator's leg.
+   */
+  legIn: { shortMin: 96, longMin: 120, longMax: 168 },
   /**
    * Ventilation, from the Thermador clearance sheet
    * (docs/reference/thermador-hood-clearance.png).

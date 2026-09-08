@@ -253,27 +253,45 @@ describe("the island", () => {
    * landing: that is the leg not already carrying the range and the sink, and
    * 48" of opening is not coming from anywhere else.
    *
-   * Except that it does not fit, and cannot: the leg needs 147" to carry them
-   * and D13 stops a single run at 144". So in this template the answer is
-   * always the same one — build without them — and this is the test that says
-   * why, and that would start failing the day the cap, the package or the
-   * template moves enough to make room.
+   * It takes a long wall. Each of them is an enclosure — a finished panel
+   * each side — so the pair costs 60" of run, and under D13's old 144" cap no
+   * legal wall was long enough. At 168" most of the combinations reach it; the
+   * two with a lazy susan on the refrigerator's own leg still do not, because
+   * the susan eats 36" of that run before anything else stands on it.
    */
-  it("finds no legal wall long enough for both machines on one leg", () => {
+  it("carries both once the leg is long enough, and leaves them out below that", () => {
     for (const fridgeEnd of ["left", "back"] as const) {
       const sinkLeg = fridgeEnd === "left" ? ("back" as const) : ("left" as const);
       const key = fridgeEnd === "left" ? ("leftWallIn" as const) : ("backWallIn" as const);
+      const at = (value: number) => params({ hasIsland: false, fridgeEnd, sinkLeg, [key]: value });
+
+      // Once they are on they stay on: there is one threshold, not a band of
+      // lengths that happen to work.
+      let carried: number | null = null;
       for (const value of values(PARAM_LIMITS[key])) {
-        const at = params({ hasIsland: false, fridgeEnd, sinkLeg, [key]: value });
-        // A wall long enough to carry them is a wall D13 has already refused
-        // for being longer than a run may be, so it never becomes a room.
-        const built = generateLayout(at);
+        const built = generateLayout(at(value));
         if (!built.ok) continue;
-        expect([...built.layout.omitted], `${fridgeEnd} leg at ${value}"`).toEqual([
-          "slot-microwave",
-          "slot-wine",
-        ]);
+        const both = built.layout.omitted.length === 0;
+        if (both && carried === null) carried = value;
+        expect(both, `${fridgeEnd} leg at ${value}"`).toBe(carried !== null);
+        if (!both) {
+          expect([...built.layout.omitted], `${fridgeEnd} leg at ${value}"`).toEqual([
+            "slot-microwave",
+            "slot-wine",
+          ]);
+        }
       }
+
+      // And where they are on, the room is a legal one with both in the run.
+      if (carried === null) continue;
+      expect(setLayoutParams(at(carried)).ok).toBe(true);
+      const fridgeRun = RUNS.find((run) => run.segments.some((s) => s.slot === "slot-fridge"))!;
+      const order = fridgeRun.segments.map((s) => s.slot);
+      expect(order, `${fridgeEnd} leg at ${carried}"`).toContain("slot-microwave");
+      expect(order, `${fridgeEnd} leg at ${carried}"`).toContain("slot-wine");
+      expect(order.indexOf("slot-wine")).toBeLessThan(order.indexOf("slot-fridge"));
+      expect(fridgeRun.segments[fridgeRun.segments.length - 1].slot).toBe("slot-fridge");
+      expect(checkLayout(), `${fridgeEnd} leg at ${carried}"`).toEqual([]);
     }
   });
 
