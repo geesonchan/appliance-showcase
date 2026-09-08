@@ -3,10 +3,23 @@
 Where every field in `data/appliances.json` comes from, and what happens to it
 on the way.
 
-**Source:** the `showcase_export` tab of *2026 AA Inventory Manager*. It is a
-read-only derived tab: a `QUERY` pulls eight raw columns from `Stock current`
-for the models listed in `showcase_picks`, and the rest are filled in by hand to
-its right.
+**Source:** two tabs of *2026 AA Inventory Manager*.
+
+- **`showcase_specs`** is the hand-filled one, **keyed by Model**: cutouts,
+  services, price, the document each row was checked against and the date it
+  was checked. One row per SKU, in whatever order they were added.
+- **`showcase_export`** is read-only and derived. A `QUERY` pulls eight raw
+  columns from `Stock current` for the models listed in `showcase_picks`, and
+  everything to its right is an `XLOOKUP` into `showcase_specs` on Model.
+
+**Keyed, not positional.** The hand-filled columns used to sit beside the
+`QUERY` in the same tab, which meant they were aligned by row position: a sort,
+an insert or a deletion on either side slid one column against the other and
+every row after it carried its neighbour's figures. Round 20 caught a block of
+nine rows where the `sourceUrl` was one row out — a wine column citing a
+refrigerator's sheet, an insert liner citing a blower's — with `verifiedAt`
+dates against documents that were not theirs. Looking the values up by Model
+is what makes that impossible rather than unlikely.
 
 **Route:** download the tab as CSV, then
 
@@ -41,7 +54,7 @@ docs/decisions.md D4.
 | `heightIn` | Height | Blank → `null`. |
 | `slot` | *derived* | From `category`, via each slot's `compatibleCategories` in `data/slots.json`, so the two cannot drift. A category no slot accepts is skipped and counted. |
 
-## Filled in by hand, to the right of the QUERY
+## Filled in by hand in `showcase_specs`, looked up by Model
 
 | App field | Sheet column | Rule |
 | --- | --- | --- |
@@ -66,6 +79,34 @@ docs/decisions.md D4.
 | `series` | `null` on import. Hand-added afterwards if a row needs it. |
 | `imageUrl` | `null`. Reserved for M3. |
 | `highlights.zh` | `[]`. The translation pass fills it. |
+| `burners`, `cooktopIn`, `backguardIn` | `PUBLISHED_SPECS`, below. |
+| `depthWithDoorsIn`, `depthWithHandleIn`, `rearSpacerIn` | Likewise. |
+| `frontLipIn`, `topDepthIn`, `doorConfig`, `doorSplit` | Likewise. |
+
+## What a drawing overrides: `PUBLISHED_SPECS`
+
+A sheet carries what a shop stocks — brand, model, width, price. It does not
+carry how many burners are on a range, where that range cooks as against how
+tall it is, or how far a refrigerator's doors stand off its carcass, because no
+buyer needs any of that to order one. This app draws the machine, so it does.
+
+Those figures live in `PUBLISHED_SPECS` in `scripts/normalise.ts`, keyed by
+model, each with the drawing it was read from named in a comment above it. The
+import applies them **over** the sheet's own cells. Three things follow:
+
+- **A figure the sheet has no column for** is simply added — a cooktop height,
+  a front lip, a door split.
+- **A nominal is refined to the published one.** The sheet's Width is what the
+  model is called: a "36-inch" rangetop measures 35-15/16", and the fit check
+  wants the machine rather than its name.
+- **A cell the drawing contradicts is replaced, and the row is marked
+  `unverified`** — which sets `verifiedAt` to null however recently the sheet
+  says the row was checked. That mark is for a live disagreement between the
+  drawing and a cell the sheet actually carries, not for the two cases above:
+  a combination oven whose sheet row gives the flush cutout where the tower is
+  built to the standard one, or a wine column whose cutout cells read 24" x 84"
+  x 24" where the drawing says 18" x 84" x 25". Fix the cell in
+  `showcase_specs` and the mark comes off.
 
 ## Numbers
 

@@ -528,9 +528,19 @@ export const PUBLISHED_SPECS: Record<
      */
     sourceUrl?: string;
     /**
-     * True when the drawing overrode the sheet and nobody has checked the row
-     * against it since. `verifiedAt` goes null: a row is verified when a person
-     * has read it against its source, and re-typing a figure is not that.
+     * True when the drawing *contradicts* a cell the sheet carries.
+     *
+     * `verifiedAt` goes null on such a row however recently the sheet says it
+     * was checked, because the two sources disagree and only one of them can
+     * be what somebody read. Fix the cell in `showcase_specs` and the mark
+     * comes off.
+     *
+     * Not for the ordinary cases. A figure the sheet has no column for — a
+     * cooktop height, a front lip, a door split — is added rather than
+     * disputed; and a nominal refined to the published one, a "36-inch"
+     * rangetop measuring 35-15/16", is the same fact at two precisions. Marking
+     * either of those unverified would throw away a real check against the
+     * right drawing, which is what it used to do.
      */
     unverified?: true;
     doorConfig?: DoorConfig;
@@ -558,9 +568,6 @@ export const PUBLISHED_SPECS: Record<
   // from the canopy's *underside* to the top of the chimney, which is where the
   // section height in `CHIMNEY` comes from.
   HMCB30WS: {
-    sourceUrl:
-      "https://media3.bsh-group.com/Documents/MCDOC02731214_HMCB30WS-30-INCH-CHIMNEY-WALL-HOOD-WITH-BLOWER-Specifications.pdf",
-    unverified: true,
     widthIn: 29.9375,
     heightIn: 8.5625,
     depthIn: 23.1875,
@@ -571,9 +578,6 @@ export const PUBLISHED_SPECS: Record<
   // held 1" off the wall by its own spacers, with the doors and then the handles
   // standing in front of it: 25", 28-3/4" and 31-7/16" to the wall.
   T36FT820NS: {
-    sourceUrl:
-      "https://media3.bsh-group.com/Documents/16934582_T36FT820NS-36-INCH-STAINLESS-STEEL-FREESTANDING-FRENCH-DOOR-BOTTOM-FREEZER-PROFESSIONAL-HANDLES.pdf",
-    unverified: true,
     widthIn: 35.625,
     heightIn: 72,
     depthIn: 24,
@@ -593,7 +597,6 @@ export const PUBLISHED_SPECS: Record<
     cooktopIn: 36.4375,
     burners: 6,
     installType: ["rangetop"],
-    unverified: true,
   },
   // Thermador MEM301WS, from docs/reference/mem301ws-spec.pdf. A 49" machine in
   // a 48-1/2" cutout: the trim overlaps 1/2" at the top and 9/16" each side.
@@ -634,15 +637,12 @@ export const PUBLISHED_SPECS: Record<
   // an integral VTN2FZ or VTN2DA bolted inside the liner, so one has to be
   // ordered — the sheet has no column that says so.
   VCIN36GWS: {
-    sourceUrl:
-      "https://media3.bsh-group.com/Documents/MCDOC02811699_VCIN36GWS-36-INCH-CUSTOM-INSERT-Specifications.pdf",
     widthIn: 33.75,
     heightIn: 12.8125,
     depthIn: 22,
     frontLipIn: 7.6875,
     installType: ["insert"],
     blower: "required",
-    unverified: true,
   },
   // Thermador Freedom: two doors over a refrigerator drawer and a freezer
   // drawer. Sold as a four-door, which is what the Feature column tends to say.

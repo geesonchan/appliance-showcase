@@ -158,7 +158,7 @@
             "gas": null,
             "power": {
               "voltage": 120,
-              "amps": 10,
+              "amps": 15,
               "dedicated": true
             }
           }

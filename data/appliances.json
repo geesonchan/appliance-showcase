@@ -12,9 +12,9 @@
       "brand": "Bosch",
       "model": "HIS8055U",
       "series": null,
-      "msrpUSD": null,
-      "sourceUrl": null,
-      "verifiedAt": null,
+      "msrpUSD": 5399,
+      "sourceUrl": "https://media3.bsh-group.com/Documents/19837387_HIS8055U%20Spec%20Sheet.pdf",
+      "verifiedAt": "2026-09-08",
       "installType": [
         "slide-in"
       ],
@@ -34,9 +34,9 @@
       "rearSpacerIn": null,
       "doorConfig": null,
       "doorSplit": null,
-      "cutoutWidthIn": null,
-      "cutoutHeightIn": null,
-      "cutoutDepthIn": null,
+      "cutoutWidthIn": 30,
+      "cutoutHeightIn": 36,
+      "cutoutDepthIn": 25,
       "finish": [
         "stainless"
       ],
@@ -47,8 +47,8 @@
       },
       "imageUrl": null,
       "requires": {
-        "voltage": 120,
-        "amps": null,
+        "voltage": 240,
+        "amps": 50,
         "gasBTU": null,
         "water": false,
         "cfm": null,
@@ -112,9 +112,9 @@
       "brand": "Bosch",
       "model": "SHX78CM5N",
       "series": null,
-      "msrpUSD": null,
-      "sourceUrl": null,
-      "verifiedAt": null,
+      "msrpUSD": 1549,
+      "sourceUrl": "https://media3.bsh-group.com/Documents/20595224_SHX78CM5N%20Spec%20Sheet.pdf",
+      "verifiedAt": "2026-09-08",
       "installType": [
         "freestanding"
       ],
@@ -134,9 +134,9 @@
       "rearSpacerIn": null,
       "doorConfig": null,
       "doorSplit": null,
-      "cutoutWidthIn": null,
-      "cutoutHeightIn": null,
-      "cutoutDepthIn": null,
+      "cutoutWidthIn": 24,
+      "cutoutHeightIn": 33.875,
+      "cutoutDepthIn": 24,
       "finish": [
         "stainless"
       ],
@@ -150,9 +150,9 @@
       "imageUrl": null,
       "requires": {
         "voltage": 120,
-        "amps": null,
+        "amps": 12,
         "gasBTU": null,
-        "water": false,
+        "water": true,
         "cfm": null,
         "makeupAirRequired": false
       }
@@ -164,7 +164,7 @@
       "brand": "GE",
       "model": "JVM3160RFSS",
       "series": null,
-      "msrpUSD": null,
+      "msrpUSD": 249,
       "sourceUrl": "https://www.geappliances.com/appliance/GE-1-6-Cu-Ft-Over-the-Range-Microwave-Oven-JVM3160RFSS",
       "verifiedAt": "2026-09-07",
       "installType": [
@@ -264,9 +264,9 @@
       "brand": "Thermador",
       "model": "HMCB30WS",
       "series": null,
-      "msrpUSD": null,
-      "sourceUrl": "https://media3.bsh-group.com/Documents/MCDOC02731214_HMCB30WS-30-INCH-CHIMNEY-WALL-HOOD-WITH-BLOWER-Specifications.pdf",
-      "verifiedAt": null,
+      "msrpUSD": 2749,
+      "sourceUrl": "https://media3.bsh-group.com/Documents/specsheet/en-US/HMCB30WS.pdf",
+      "verifiedAt": "2026-09-08",
       "installType": [
         "wall-mount",
         "chimney"
@@ -287,7 +287,7 @@
       "rearSpacerIn": null,
       "doorConfig": null,
       "doorSplit": null,
-      "cutoutWidthIn": null,
+      "cutoutWidthIn": 30,
       "cutoutHeightIn": null,
       "cutoutDepthIn": null,
       "finish": [
@@ -301,11 +301,11 @@
       "imageUrl": null,
       "requires": {
         "voltage": 120,
-        "amps": null,
+        "amps": 15,
         "gasBTU": null,
         "water": false,
-        "cfm": null,
-        "makeupAirRequired": false
+        "cfm": 600,
+        "makeupAirRequired": true
       }
     },
     {
@@ -315,9 +315,9 @@
       "brand": "Thermador",
       "model": "HMWB361WS",
       "series": null,
-      "msrpUSD": null,
-      "sourceUrl": null,
-      "verifiedAt": null,
+      "msrpUSD": 2449,
+      "sourceUrl": "https://media3.bsh-group.com/Documents/MCDOC02731222_HMWB361WS-36-INCH-LOW-PROFILE-WALL-HOOD-WITH-BLOWER-Specifications.pdf",
+      "verifiedAt": "2026-09-08",
       "installType": [
         "under-cabinet"
       ],
@@ -337,9 +337,9 @@
       "rearSpacerIn": null,
       "doorConfig": null,
       "doorSplit": null,
-      "cutoutWidthIn": null,
-      "cutoutHeightIn": null,
-      "cutoutDepthIn": null,
+      "cutoutWidthIn": 36,
+      "cutoutHeightIn": 11,
+      "cutoutDepthIn": 24,
       "finish": [
         "stainless"
       ],
@@ -351,11 +351,11 @@
       "imageUrl": null,
       "requires": {
         "voltage": 120,
-        "amps": null,
+        "amps": 15,
         "gasBTU": null,
         "water": false,
-        "cfm": null,
-        "makeupAirRequired": false
+        "cfm": 1000,
+        "makeupAirRequired": true
       }
     },
     {
@@ -415,9 +415,9 @@
       "brand": "Thermador",
       "model": "ME301YP",
       "series": null,
-      "msrpUSD": null,
-      "sourceUrl": null,
-      "verifiedAt": null,
+      "msrpUSD": 3099,
+      "sourceUrl": "https://media3.bsh-group.com/Documents/16072803_ME301YP-30-INCH-SINGLE-BUILT-IN-OVEN-Specifications.pdf",
+      "verifiedAt": "2026-09-08",
       "installType": [
         "single"
       ],
@@ -437,9 +437,9 @@
       "rearSpacerIn": null,
       "doorConfig": null,
       "doorSplit": null,
-      "cutoutWidthIn": null,
-      "cutoutHeightIn": null,
-      "cutoutDepthIn": null,
+      "cutoutWidthIn": 30,
+      "cutoutHeightIn": 29.125,
+      "cutoutDepthIn": 24.5,
       "finish": [
         "stainless"
       ],
@@ -450,8 +450,8 @@
       },
       "imageUrl": null,
       "requires": {
-        "voltage": 120,
-        "amps": 50,
+        "voltage": 240,
+        "amps": 30,
         "gasBTU": null,
         "water": false,
         "cfm": null,
@@ -501,7 +501,7 @@
       "imageUrl": null,
       "requires": {
         "voltage": 240,
-        "amps": null,
+        "amps": 50,
         "gasBTU": null,
         "water": false,
         "cfm": null,
@@ -517,7 +517,7 @@
       "series": null,
       "msrpUSD": 4999,
       "sourceUrl": "https://media3.bsh-group.com/Documents/MCDOC02690628_PCG366W-36-INCH-GAS-RANGETOP-Specifications.pdf",
-      "verifiedAt": null,
+      "verifiedAt": "2026-09-08",
       "installType": [
         "rangetop"
       ],
@@ -552,7 +552,7 @@
       "requires": {
         "voltage": 120,
         "amps": 15,
-        "gasBTU": null,
+        "gasBTU": 99000,
         "water": false,
         "cfm": null,
         "makeupAirRequired": false
@@ -622,9 +622,9 @@
       "brand": "Thermador",
       "model": "PO302W",
       "series": null,
-      "msrpUSD": null,
-      "sourceUrl": null,
-      "verifiedAt": null,
+      "msrpUSD": 8949,
+      "sourceUrl": "https://media3.bsh-group.com/Documents/MCDOC02802515_PO302W-30-INCH-DOUBLE-BUILT-IN-OVEN-Specifications.pdf",
+      "verifiedAt": "2026-09-08",
       "installType": [
         "double"
       ],
@@ -644,9 +644,9 @@
       "rearSpacerIn": null,
       "doorConfig": null,
       "doorSplit": null,
-      "cutoutWidthIn": null,
-      "cutoutHeightIn": null,
-      "cutoutDepthIn": null,
+      "cutoutWidthIn": 30,
+      "cutoutHeightIn": 52.1875,
+      "cutoutDepthIn": 24.5,
       "finish": [
         "stainless"
       ],
@@ -657,8 +657,8 @@
       },
       "imageUrl": null,
       "requires": {
-        "voltage": 120,
-        "amps": null,
+        "voltage": 240,
+        "amps": 40,
         "gasBTU": null,
         "water": false,
         "cfm": null,
@@ -672,7 +672,7 @@
       "brand": "Thermador",
       "model": "PRG304WH",
       "series": null,
-      "msrpUSD": 7749,
+      "msrpUSD": 5799,
       "sourceUrl": "https://media3.bsh-group.com/Documents/MCDOC02915552_PRG366WH-36-INCH-GAS-PRO-HARMONY-RANGE-Specifications.pdf",
       "verifiedAt": "2026-09-05",
       "installType": [
@@ -687,6 +687,56 @@
       "heightIn": 36.75,
       "depthIn": 24.75,
       "burners": 4,
+      "cooktopIn": null,
+      "backguardIn": null,
+      "depthWithDoorsIn": null,
+      "depthWithHandleIn": null,
+      "rearSpacerIn": null,
+      "doorConfig": null,
+      "doorSplit": null,
+      "cutoutWidthIn": 30,
+      "cutoutHeightIn": 36.75,
+      "cutoutDepthIn": 24,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": null,
+      "highlights": {
+        "en": [],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
+        "gasBTU": 86500,
+        "water": false,
+        "cfm": null,
+        "makeupAirRequired": false
+      }
+    },
+    {
+      "id": "thermador-prg366wh",
+      "slot": "slot-range",
+      "category": "range",
+      "brand": "Thermador",
+      "model": "PRG366WH",
+      "series": null,
+      "msrpUSD": 7749,
+      "sourceUrl": "https://media3.bsh-group.com/Documents/MCDOC02915552_PRG366WH-36-INCH-GAS-PRO-HARMONY-RANGE-Specifications.pdf",
+      "verifiedAt": "2026-09-05",
+      "installType": [
+        "freestanding"
+      ],
+      "fuel": "gas",
+      "blower": null,
+      "compatibleBlowers": [],
+      "topDepthIn": null,
+      "frontLipIn": null,
+      "widthIn": 36,
+      "heightIn": 36.75,
+      "depthIn": 24.75,
+      "burners": 6,
       "cooktopIn": null,
       "backguardIn": null,
       "depthWithDoorsIn": null,
@@ -710,56 +760,6 @@
         "voltage": 120,
         "amps": 15,
         "gasBTU": 119500,
-        "water": false,
-        "cfm": null,
-        "makeupAirRequired": false
-      }
-    },
-    {
-      "id": "thermador-prg366wh",
-      "slot": "slot-range",
-      "category": "range",
-      "brand": "Thermador",
-      "model": "PRG366WH",
-      "series": null,
-      "msrpUSD": 13199,
-      "sourceUrl": "https://media3.bsh-group.com/Documents/25548995_T36BT120NS-36-INCH-PRE-ASSEMBLED-FRENCH-DOOR_REFRIGERATOR-2_DRAWER-PROFESSIONAL_HANDLES-Specifications.pdf",
-      "verifiedAt": "2026-09-05",
-      "installType": [
-        "freestanding"
-      ],
-      "fuel": "gas",
-      "blower": null,
-      "compatibleBlowers": [],
-      "topDepthIn": null,
-      "frontLipIn": null,
-      "widthIn": 36,
-      "heightIn": 36.75,
-      "depthIn": 24.75,
-      "burners": 6,
-      "cooktopIn": null,
-      "backguardIn": null,
-      "depthWithDoorsIn": null,
-      "depthWithHandleIn": null,
-      "rearSpacerIn": null,
-      "doorConfig": null,
-      "doorSplit": null,
-      "cutoutWidthIn": 36,
-      "cutoutHeightIn": 84,
-      "cutoutDepthIn": 25,
-      "finish": [
-        "stainless"
-      ],
-      "leadTimeWeeks": null,
-      "highlights": {
-        "en": [],
-        "zh": []
-      },
-      "imageUrl": null,
-      "requires": {
-        "voltage": 120,
-        "amps": 15,
-        "gasBTU": null,
         "water": true,
         "cfm": null,
         "makeupAirRequired": false
@@ -772,9 +772,9 @@
       "brand": "Thermador",
       "model": "T36BT120NS",
       "series": null,
-      "msrpUSD": null,
-      "sourceUrl": null,
-      "verifiedAt": null,
+      "msrpUSD": 13199,
+      "sourceUrl": "https://media3.bsh-group.com/Documents/25548995_T36BT120NS-36-INCH-PRE-ASSEMBLED-FRENCH-DOOR_REFRIGERATOR-2_DRAWER-PROFESSIONAL_HANDLES-Specifications.pdf",
+      "verifiedAt": "2026-09-05",
       "installType": [
         "built-in"
       ],
@@ -799,9 +799,9 @@
         "drawerHighIn": 10.5,
         "doorIn": 49.4375
       },
-      "cutoutWidthIn": null,
-      "cutoutHeightIn": null,
-      "cutoutDepthIn": null,
+      "cutoutWidthIn": 36,
+      "cutoutHeightIn": 84,
+      "cutoutDepthIn": 25,
       "finish": [
         "stainless"
       ],
@@ -813,9 +813,9 @@
       "imageUrl": null,
       "requires": {
         "voltage": 120,
-        "amps": null,
+        "amps": 15,
         "gasBTU": null,
-        "water": false,
+        "water": true,
         "cfm": null,
         "makeupAirRequired": false
       }
@@ -829,7 +829,7 @@
       "series": null,
       "msrpUSD": 5299,
       "sourceUrl": "https://media3.bsh-group.com/Documents/16934582_T36FT820NS-36-INCH-STAINLESS-STEEL-FREESTANDING-FRENCH-DOOR-BOTTOM-FREEZER-PROFESSIONAL-HANDLES.pdf",
-      "verifiedAt": null,
+      "verifiedAt": "2026-09-08",
       "installType": [
         "counter-depth"
       ],
@@ -867,7 +867,7 @@
         "voltage": 120,
         "amps": 15,
         "gasBTU": null,
-        "water": false,
+        "water": true,
         "cfm": null,
         "makeupAirRequired": false
       }
@@ -880,8 +880,8 @@
       "model": "T36IT100NP",
       "series": null,
       "msrpUSD": 11599,
-      "sourceUrl": "https://media3.bsh-group.com/Documents/26300662_Thermador_Ventilation_Blowers-Specifications.pdf",
-      "verifiedAt": "2026-09-05",
+      "sourceUrl": "https://media3.bsh-group.com/Documents/25549011_T36IT100NP-36-INCH-BUILT-IN-FRENCH-DOOR_REFRIGERATOR-2-DRAWER-PANEL-READY-Specifications.pdf",
+      "verifiedAt": "2026-09-08",
       "installType": [
         "built-in"
       ],
@@ -924,7 +924,7 @@
         "voltage": 120,
         "amps": 15,
         "gasBTU": null,
-        "water": false,
+        "water": true,
         "cfm": null,
         "makeupAirRequired": false
       }
@@ -938,7 +938,7 @@
       "series": null,
       "msrpUSD": 2299,
       "sourceUrl": "https://media3.bsh-group.com/Documents/MCDOC02811699_VCIN36GWS-36-INCH-CUSTOM-INSERT-Specifications.pdf",
-      "verifiedAt": null,
+      "verifiedAt": "2026-09-05",
       "installType": [
         "insert"
       ],
@@ -990,8 +990,8 @@
       "model": "VTI2FZ",
       "series": null,
       "msrpUSD": 1049,
-      "sourceUrl": "https://media3.bsh-group.com/Documents/MCDOC02811699_VCIN36GWS-36-INCH-CUSTOM-INSERT-Specifications.pdf",
-      "verifiedAt": "2026-09-05",
+      "sourceUrl": "https://media3.bsh-group.com/Documents/26300662_Thermador_Ventilation_Blowers-Specifications.pdf",
+      "verifiedAt": "2026-09-08",
       "installType": [
         "inline"
       ],
@@ -1011,8 +1011,8 @@
       "rearSpacerIn": null,
       "doorConfig": null,
       "doorSplit": null,
-      "cutoutWidthIn": 20,
-      "cutoutHeightIn": 21,
+      "cutoutWidthIn": 12,
+      "cutoutHeightIn": 19.125,
       "cutoutDepthIn": 13.625,
       "finish": [
         "stainless"
@@ -1041,9 +1041,9 @@
       "brand": "Thermador",
       "model": "VTN2FZ",
       "series": null,
-      "msrpUSD": null,
-      "sourceUrl": null,
-      "verifiedAt": null,
+      "msrpUSD": 1049,
+      "sourceUrl": "https://media3.bsh-group.com/Documents/26300662_Thermador_Ventilation_Blowers-Specifications.pdf",
+      "verifiedAt": "2026-09-08",
       "installType": [
         "internal"
       ],
@@ -1063,9 +1063,9 @@
       "rearSpacerIn": null,
       "doorConfig": null,
       "doorSplit": null,
-      "cutoutWidthIn": null,
-      "cutoutHeightIn": null,
-      "cutoutDepthIn": null,
+      "cutoutWidthIn": 20,
+      "cutoutHeightIn": 21,
+      "cutoutDepthIn": 14.375,
       "finish": [
         "stainless"
       ],
@@ -1079,11 +1079,11 @@
       "imageUrl": null,
       "requires": {
         "voltage": 120,
-        "amps": null,
+        "amps": 15,
         "gasBTU": null,
         "water": false,
-        "cfm": null,
-        "makeupAirRequired": false
+        "cfm": 1000,
+        "makeupAirRequired": true
       }
     },
     {
@@ -1093,9 +1093,9 @@
       "brand": "Thermador",
       "model": "VTR2FZ",
       "series": null,
-      "msrpUSD": 1799,
-      "sourceUrl": "https://docs.zephyronline.com/docs/specs/Presrv_PRW24C01CG_spec.pdf",
-      "verifiedAt": "2026-09-05",
+      "msrpUSD": 1049,
+      "sourceUrl": "https://media3.bsh-group.com/Documents/26300662_Thermador_Ventilation_Blowers-Specifications.pdf",
+      "verifiedAt": "2026-09-08",
       "installType": [
         "external"
       ],
@@ -1115,9 +1115,9 @@
       "rearSpacerIn": null,
       "doorConfig": null,
       "doorSplit": null,
-      "cutoutWidthIn": 24,
-      "cutoutHeightIn": 34,
-      "cutoutDepthIn": 24,
+      "cutoutWidthIn": 19.875,
+      "cutoutHeightIn": 20.75,
+      "cutoutDepthIn": 12.125,
       "finish": [
         "stainless"
       ],
@@ -1131,7 +1131,7 @@
       "imageUrl": null,
       "requires": {
         "voltage": 120,
-        "amps": 1,
+        "amps": 15,
         "gasBTU": null,
         "water": false,
         "cfm": null,
@@ -1145,9 +1145,9 @@
       "brand": "Zephyr",
       "model": "AK7136AS-BF",
       "series": null,
-      "msrpUSD": null,
-      "sourceUrl": null,
-      "verifiedAt": null,
+      "msrpUSD": 799,
+      "sourceUrl": "https://docs.zephyronline.com/docs/specs/gustb_spec.pdf",
+      "verifiedAt": "2026-09-08",
       "installType": [
         "under-cabinet"
       ],
@@ -1167,9 +1167,9 @@
       "rearSpacerIn": null,
       "doorConfig": null,
       "doorSplit": null,
-      "cutoutWidthIn": null,
-      "cutoutHeightIn": null,
-      "cutoutDepthIn": null,
+      "cutoutWidthIn": 36,
+      "cutoutHeightIn": 7.375,
+      "cutoutDepthIn": 21,
       "finish": [
         "stainless"
       ],
@@ -1181,11 +1181,11 @@
       "imageUrl": null,
       "requires": {
         "voltage": 120,
-        "amps": null,
+        "amps": 15,
         "gasBTU": null,
         "water": false,
-        "cfm": null,
-        "makeupAirRequired": false
+        "cfm": 400,
+        "makeupAirRequired": true
       }
     },
     {
@@ -1195,9 +1195,9 @@
       "brand": "Zephyr",
       "model": "PRW24C01CG",
       "series": null,
-      "msrpUSD": null,
-      "sourceUrl": null,
-      "verifiedAt": null,
+      "msrpUSD": 1799,
+      "sourceUrl": "https://docs.zephyronline.com/docs/specs/Presrv_PRW24C01CG_spec.pdf",
+      "verifiedAt": "2026-09-05",
       "installType": [
         "freestanding"
       ],
@@ -1217,9 +1217,9 @@
       "rearSpacerIn": null,
       "doorConfig": null,
       "doorSplit": null,
-      "cutoutWidthIn": null,
-      "cutoutHeightIn": null,
-      "cutoutDepthIn": null,
+      "cutoutWidthIn": 24,
+      "cutoutHeightIn": 34,
+      "cutoutDepthIn": 24,
       "finish": [
         "stainless"
       ],
@@ -1231,7 +1231,7 @@
       "imageUrl": null,
       "requires": {
         "voltage": 120,
-        "amps": null,
+        "amps": 15,
         "gasBTU": null,
         "water": false,
         "cfm": null,

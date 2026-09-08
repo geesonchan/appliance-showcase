@@ -177,7 +177,7 @@
           "z": "rear",
           "size": null,
           "highLoopApexIn": null,
-          "note": "120V 10A receptacle in the neighbouring cabinet; the cord runs through the 4\" recess across the base of the opening"
+          "note": "A 15A receptacle in the neighbouring cabinet — the machine asks for 10A as a minimum and a kitchen circuit is 15; the cord runs through the 4\" recess across the base of the opening"
         },
         {
           "type": "service-channel",

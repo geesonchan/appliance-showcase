@@ -237,15 +237,41 @@ export function hoodOutlet(slot: Slot, appliance: Appliance | undefined): HoodOu
  * That is the bridge over the canopy, whose floor sits at 84" — not the 54" the
  * rest of the wall cabinets start at. Cutting the hole at the wrong height puts
  * it in mid-air.
+ *
+ * A housing built round an insert liner is not that cabinet, even though it is
+ * a module over the hood the same way. It is hollow: the duct goes up inside
+ * it, through the taper and out at the ceiling, and there is no floor in it to
+ * cut. Telling an installer to cut one is the same error as telling them to
+ * cut the bridge over a chimney hood that has no bridge.
  */
 export function hoodCabinetFloor(): number | null {
   const hood = SLOT_BY_ID["slot-hood"];
   const carries = RUNS.some((run) =>
-    run.uppers.some((bank) => bank.modules.some((module) => module.slot === "slot-hood")),
+    run.uppers.some((bank) =>
+      bank.modules.some(
+        (module) => module.slot === "slot-hood" && module.kind !== "hood-cabinet",
+      ),
+    ),
   );
   return carries ? hood.position[1] + ft(hood.cutout.h) : null;
 }
 
-/** Formatted for the install checklist and the duct's own callout. */
-export const outletSize = () =>
-  `${CABINET_STANDARDS.hood.outlet.widthIn}" × ${CABINET_STANDARDS.hood.outlet.depthIn}"`;
+/**
+ * Formatted for the install checklist and the duct's own callout.
+ *
+ * A liner's outlet is a round transition — a 10" pipe on the top of the tray —
+ * and a canopy's is the rectangular collar on its drawing. Which of the two is
+ * over the range is read off the run, the same way the cabinet floor is.
+ */
+export const outletSize = () => {
+  const duct = SLOT_BY_ID["slot-hood"].utilities.duct;
+  return housed() && duct
+    ? `${duct.diameterIn}" round`
+    : `${CABINET_STANDARDS.hood.outlet.widthIn}" × ${CABINET_STANDARDS.hood.outlet.depthIn}"`;
+};
+
+/** Whether the hood over the range is a liner inside a housing somebody built. */
+const housed = () =>
+  RUNS.some((run) =>
+    run.uppers.some((bank) => bank.modules.some((module) => module.kind === "hood-cabinet")),
+  );
