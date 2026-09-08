@@ -11,7 +11,10 @@ export default defineConfig({
     // machine was rather than on whether the app works.
     globalSetup: ["tests/globalSetup.ts"],
     testTimeout: 150_000,
-    hookTimeout: 60_000,
+    // The setup hook warms a browser against a real build before any test
+    // runs, which on a cold machine is a couple of minutes' worth of GPU
+    // process and shader cache.
+    hookTimeout: 240_000,
     include: ["src/**/*.test.ts", "scripts/**/*.test.ts", "tests/**/*.test.ts"],
   },
 });

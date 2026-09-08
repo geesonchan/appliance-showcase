@@ -9,6 +9,17 @@ let browser: Browser;
 
 beforeAll(async () => {
   browser = await chromium.launch();
+
+  // Warm the browser as well as the server. The first page in a fresh Chromium
+  // pays for the GPU process and the shader cache before a WebGL canvas
+  // appears, and whichever test happened to run first was paying it — which is
+  // a fact about the machine, not about the app.
+  const context = await browser.newContext({ viewport: DESKTOP });
+  const page = await context.newPage();
+  await page.goto(PREVIEW_URL, { waitUntil: "networkidle", timeout: 120_000 });
+  await page.waitForSelector("canvas", { timeout: 120_000 });
+  await page.waitForTimeout(1500);
+  await context.close();
 });
 
 afterAll(async () => {
@@ -55,7 +66,7 @@ async function openPage(viewport: typeof DESKTOP, isMobile = false, query = "") 
   // loaded machine "no network activity for half a second" takes longer than
   // that to arrive.
   await page.goto(PREVIEW_URL + query, { waitUntil: "networkidle", timeout: 90_000 });
-  await page.waitForSelector("canvas");
+  await page.waitForSelector("canvas", { timeout: 60_000 });
   await page.waitForTimeout(2200);
   return { page, errors };
 }
