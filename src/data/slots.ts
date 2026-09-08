@@ -58,6 +58,9 @@ function size(record: SlotRecord, spec: PackageSlot): SlotRecord {
     // which surface that is belongs to the package. See D13 and D16.
     ...(spec.builtForCooktopIn === null ? {} : { builtForCooktopIn: spec.builtForCooktopIn }),
     cutout: { ...record.cutout, ...box },
+    // Where the fly-in comes from, when this package has moved the machine to
+    // another wall. See `bestView` on the package slot.
+    bestView: spec.bestView ?? record.bestView,
     cabinetConfig: {
       ...record.cabinetConfig,
       type: spec.enclosure ? "enclosure" : spec.tallUnit ? "tall" : record.cabinetConfig.type,

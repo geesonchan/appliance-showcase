@@ -139,7 +139,11 @@
               "dedicated": true
             }
           },
-          "panelReady": false
+          "panelReady": false,
+          "bestView": {
+            "azimuth": 45,
+            "pitch": 26
+          }
         },
         {
           "slotId": "slot-wine",

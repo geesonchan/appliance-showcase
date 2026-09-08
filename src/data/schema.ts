@@ -357,6 +357,18 @@ export const packageSlotSchema = z.object({
    */
   panelReady: z.boolean().nullable().default(null),
   /**
+   * Where the camera comes in from, where this package stands the machine
+   * somewhere else entirely.
+   *
+   * The stored view is the product's: a microwave drawer sits in an island and
+   * is looked at from the seating side, which is behind the wall when the same
+   * slot is a 96" oven tower on the left run. Null keeps the slot's own.
+   */
+  bestView: z
+    .object({ azimuth: z.number(), pitch: z.number() })
+    .nullable()
+    .default(null),
+  /**
    * The services this package's machine needs, where they are not the slot's.
    *
    * The same argument. A 30" combination oven is hard-wired at 240V/50A where
