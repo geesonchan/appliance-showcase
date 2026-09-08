@@ -225,7 +225,7 @@ export function convert(
         published.installType ??
         toInstallType(row.Feature ?? "", type, row.Width ?? "", row.Depth ?? ""),
       fuel: toFuel(type),
-      blower: toBlower(category, row.blower ?? ""),
+      blower: published.blower ?? toBlower(category, row.blower ?? ""),
       compatibleBlowers: toCompatibleBlowers(category, model),
       topDepthIn: category === "hood" ? toDimension(row.topDepthIn ?? "") : null,
       frontLipIn: published.frontLipIn ?? null,
@@ -247,9 +247,9 @@ export function convert(
       // marks it a guess.
       doorConfig: published.doorConfig ?? toDoorConfig(category, row.Feature ?? ""),
       doorSplit: published.doorSplit ?? null,
-      cutoutWidthIn: numberOrNull(row.cutoutWidthIn),
-      cutoutHeightIn: numberOrNull(row.cutoutHeightIn),
-      cutoutDepthIn: numberOrNull(row.cutoutDepthIn),
+      cutoutWidthIn: published.cutoutWidthIn ?? numberOrNull(row.cutoutWidthIn),
+      cutoutHeightIn: published.cutoutHeightIn ?? numberOrNull(row.cutoutHeightIn),
+      cutoutDepthIn: published.cutoutDepthIn ?? numberOrNull(row.cutoutDepthIn),
       finish: toFinish(row.Color ?? "", row.Feature ?? ""),
       leadTimeWeeks: numberOrNull(row.leadTimeWeeks),
       highlights: { en: toHighlights(row.Feature ?? ""), zh: [] },

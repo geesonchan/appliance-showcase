@@ -22,12 +22,16 @@ The three PDFs are the manufacturer's own specification sheets, committed whole
 rather than as figures pulled out of them: a sheet is one file and a round of
 questions about it is answered by opening the file.
 
-**Package B's insert hood is the one gap.** The VCIN36WS installation manual —
-liner 12-13/16" x 33-3/4" x 22", 32-15/16" x 21-1/4" housing opening, 12-11/16"
-crossbar, 5/8" ledge, 0-3" behind, 10" round transition 8-3/8" tall and
-6-5/8"-9-5/8" off the back wall, vent-to-outside only — reached this repository
-as images in a conversation rather than as a file, so its figures are recorded
-in `PUBLISHED_SPECS` and here, and the manual itself is still to be dropped in.
+**The insert hood's manual is the one gap.** It covers two SKUs — VCIN36WS for
+the liner and VCIN36GWS for the housing framing — and the sheet stocks the
+GWS, which is what package B specifies. Its figures: liner 12-13/16" x 33-3/4"
+x 22" with a 7-11/16" front face, a 32-15/16" x 21-1/4" opening in the
+underside of the housing with a 12-11/16" crossbar and a 5/8" ledge, 0-3"
+behind, a 10" round transition 8-3/8" tall and 6-5/8"-9-5/8" off the back wall,
+an integral VTN2FZ or VTN2DA blower, and vent-to-outside only. They are
+recorded in `PUBLISHED_SPECS` and here; the manual itself reached this
+repository as images in a conversation rather than as a file, and is still to
+be dropped in.
 
 Positions taken from these are in `data/rough-in.json`, keyed by model, with the
 sheet each came from recorded against it. A model with no entry falls back to

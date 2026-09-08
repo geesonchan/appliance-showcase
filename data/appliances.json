@@ -2,7 +2,7 @@
   "_meta": {
     "generatedBy": "scripts/csv-to-json.ts from C:/Users/leoch/Downloads/showcase_export.csv",
     "updatedAt": "2026-09-08",
-    "provenance": "Derived from the showcase_export tab of the 2026 AA Inventory Manager. Brand, Model, Appliance Type, Feature, Width, Depth, Height and Color come from Stock current; everything else is hand entered. Normalisation lives in scripts/normalise.ts, not in the sheet. verifiedAt is null until a row has been checked against its sourceUrl. Four models are hand written rather than imported: MEM301WS, PCG366W, T18IW100SP and VCIN36WS, which package B is built from. The export carries none of them as such — the combination oven was dropped for having no slot, the rangetop is not in it, and the wine column and the insert hood appear under neighbouring SKUs whose figures belong to other rows. Their figures are the manufacturer's sheets in docs/reference/, and PUBLISHED_SPECS carries the same figures so a corrected export lands on them rather than over them."
+    "provenance": "Derived from the showcase_export tab of the 2026 AA Inventory Manager. Brand, Model, Appliance Type, Feature, Width, Depth, Height and Color come from Stock current; everything else is hand entered. Normalisation lives in scripts/normalise.ts, not in the sheet. verifiedAt is null until a row has been checked against its sourceUrl."
   },
   "appliances": [
     {
@@ -409,6 +409,56 @@
       }
     },
     {
+      "id": "thermador-me301yp",
+      "slot": "slot-microwave",
+      "category": "wall-oven",
+      "brand": "Thermador",
+      "model": "ME301YP",
+      "series": null,
+      "msrpUSD": null,
+      "sourceUrl": null,
+      "verifiedAt": null,
+      "installType": [
+        "single"
+      ],
+      "fuel": null,
+      "blower": null,
+      "compatibleBlowers": [],
+      "topDepthIn": null,
+      "frontLipIn": null,
+      "widthIn": 30,
+      "heightIn": null,
+      "depthIn": null,
+      "burners": null,
+      "cooktopIn": null,
+      "backguardIn": null,
+      "depthWithDoorsIn": null,
+      "depthWithHandleIn": null,
+      "rearSpacerIn": null,
+      "doorConfig": null,
+      "doorSplit": null,
+      "cutoutWidthIn": null,
+      "cutoutHeightIn": null,
+      "cutoutDepthIn": null,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": null,
+      "highlights": {
+        "en": [],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 50,
+        "gasBTU": null,
+        "water": false,
+        "cfm": null,
+        "makeupAirRequired": false
+      }
+    },
+    {
       "id": "thermador-mem301ws",
       "slot": "slot-microwave",
       "category": "wall-oven",
@@ -451,7 +501,7 @@
       "imageUrl": null,
       "requires": {
         "voltage": 240,
-        "amps": 50,
+        "amps": null,
         "gasBTU": null,
         "water": false,
         "cfm": null,
@@ -464,9 +514,9 @@
       "category": "range",
       "brand": "Thermador",
       "model": "PCG366W",
-      "series": "Professional",
-      "msrpUSD": null,
-      "sourceUrl": null,
+      "series": null,
+      "msrpUSD": 4999,
+      "sourceUrl": "https://media3.bsh-group.com/Documents/MCDOC02690628_PCG366W-36-INCH-GAS-RANGETOP-Specifications.pdf",
       "verifiedAt": null,
       "installType": [
         "rangetop"
@@ -502,7 +552,7 @@
       "requires": {
         "voltage": 120,
         "amps": 15,
-        "gasBTU": 99000,
+        "gasBTU": null,
         "water": false,
         "cfm": null,
         "makeupAirRequired": false
@@ -566,27 +616,27 @@
       }
     },
     {
-      "id": "thermador-prg304wh",
-      "slot": "slot-range",
-      "category": "range",
+      "id": "thermador-po302w",
+      "slot": "slot-microwave",
+      "category": "wall-oven",
       "brand": "Thermador",
-      "model": "PRG304WH",
+      "model": "PO302W",
       "series": null,
       "msrpUSD": null,
       "sourceUrl": null,
       "verifiedAt": null,
       "installType": [
-        "freestanding"
+        "double"
       ],
-      "fuel": "gas",
+      "fuel": null,
       "blower": null,
       "compatibleBlowers": [],
       "topDepthIn": null,
       "frontLipIn": null,
       "widthIn": 30,
-      "heightIn": 36.75,
-      "depthIn": 24.75,
-      "burners": 4,
+      "heightIn": null,
+      "depthIn": null,
+      "burners": null,
       "cooktopIn": null,
       "backguardIn": null,
       "depthWithDoorsIn": null,
@@ -616,11 +666,11 @@
       }
     },
     {
-      "id": "thermador-prg366wh",
+      "id": "thermador-prg304wh",
       "slot": "slot-range",
       "category": "range",
       "brand": "Thermador",
-      "model": "PRG366WH",
+      "model": "PRG304WH",
       "series": null,
       "msrpUSD": 7749,
       "sourceUrl": "https://media3.bsh-group.com/Documents/MCDOC02915552_PRG366WH-36-INCH-GAS-PRO-HARMONY-RANGE-Specifications.pdf",
@@ -633,10 +683,10 @@
       "compatibleBlowers": [],
       "topDepthIn": null,
       "frontLipIn": null,
-      "widthIn": 36,
+      "widthIn": 30,
       "heightIn": 36.75,
       "depthIn": 24.75,
-      "burners": 6,
+      "burners": 4,
       "cooktopIn": null,
       "backguardIn": null,
       "depthWithDoorsIn": null,
@@ -666,78 +716,27 @@
       }
     },
     {
-      "id": "thermador-t18iw100sp",
-      "slot": "slot-wine",
-      "category": "wine",
+      "id": "thermador-prg366wh",
+      "slot": "slot-range",
+      "category": "range",
       "brand": "Thermador",
-      "model": "T18IW100SP",
-      "series": "Freedom",
-      "msrpUSD": null,
-      "sourceUrl": null,
-      "verifiedAt": null,
-      "installType": [
-        "column",
-        "built-in"
-      ],
-      "fuel": null,
-      "blower": null,
-      "compatibleBlowers": [],
-      "topDepthIn": null,
-      "frontLipIn": null,
-      "widthIn": 17.75,
-      "heightIn": 83.875,
-      "depthIn": 24,
-      "burners": null,
-      "cooktopIn": null,
-      "backguardIn": null,
-      "depthWithDoorsIn": null,
-      "depthWithHandleIn": null,
-      "rearSpacerIn": null,
-      "doorConfig": null,
-      "doorSplit": null,
-      "cutoutWidthIn": 18,
-      "cutoutHeightIn": 84,
-      "cutoutDepthIn": 25,
-      "finish": [
-        "panel-ready"
-      ],
-      "leadTimeWeeks": null,
-      "highlights": {
-        "en": [],
-        "zh": []
-      },
-      "imageUrl": null,
-      "requires": {
-        "voltage": 120,
-        "amps": 10,
-        "gasBTU": null,
-        "water": false,
-        "cfm": null,
-        "makeupAirRequired": false
-      }
-    },
-    {
-      "id": "thermador-t18iw905sp",
-      "slot": "slot-wine",
-      "category": "wine",
-      "brand": "Thermador",
-      "model": "T18IW905SP",
+      "model": "PRG366WH",
       "series": null,
       "msrpUSD": 13199,
       "sourceUrl": "https://media3.bsh-group.com/Documents/25548995_T36BT120NS-36-INCH-PRE-ASSEMBLED-FRENCH-DOOR_REFRIGERATOR-2_DRAWER-PROFESSIONAL_HANDLES-Specifications.pdf",
       "verifiedAt": "2026-09-05",
       "installType": [
-        "column"
+        "freestanding"
       ],
-      "fuel": null,
+      "fuel": "gas",
       "blower": null,
       "compatibleBlowers": [],
       "topDepthIn": null,
       "frontLipIn": null,
-      "widthIn": 18,
-      "heightIn": null,
-      "depthIn": null,
-      "burners": null,
+      "widthIn": 36,
+      "heightIn": 36.75,
+      "depthIn": 24.75,
+      "burners": 6,
       "cooktopIn": null,
       "backguardIn": null,
       "depthWithDoorsIn": null,
@@ -880,7 +879,7 @@
       "brand": "Thermador",
       "model": "T36IT100NP",
       "series": null,
-      "msrpUSD": 1049,
+      "msrpUSD": 11599,
       "sourceUrl": "https://media3.bsh-group.com/Documents/26300662_Thermador_Ventilation_Blowers-Specifications.pdf",
       "verifiedAt": "2026-09-05",
       "installType": [
@@ -907,9 +906,9 @@
         "drawerHighIn": 10.5,
         "doorIn": 49.4375
       },
-      "cutoutWidthIn": 12,
-      "cutoutHeightIn": 19.125,
-      "cutoutDepthIn": 13,
+      "cutoutWidthIn": 36,
+      "cutoutHeightIn": 84,
+      "cutoutDepthIn": 24,
       "finish": [
         "panel-ready"
       ],
@@ -926,8 +925,8 @@
         "amps": 15,
         "gasBTU": null,
         "water": false,
-        "cfm": 1000,
-        "makeupAirRequired": true
+        "cfm": null,
+        "makeupAirRequired": false
       }
     },
     {
@@ -937,58 +936,8 @@
       "brand": "Thermador",
       "model": "VCIN36GWS",
       "series": null,
-      "msrpUSD": 1049,
-      "sourceUrl": "https://media3.bsh-group.com/Documents/26300662_Thermador_Ventilation_Blowers-Specifications.pdf",
-      "verifiedAt": "2026-09-05",
-      "installType": [
-        "insert"
-      ],
-      "fuel": null,
-      "blower": "integrated",
-      "compatibleBlowers": [],
-      "topDepthIn": null,
-      "frontLipIn": null,
-      "widthIn": 36,
-      "heightIn": null,
-      "depthIn": null,
-      "burners": null,
-      "cooktopIn": null,
-      "backguardIn": null,
-      "depthWithDoorsIn": null,
-      "depthWithHandleIn": null,
-      "rearSpacerIn": null,
-      "doorConfig": null,
-      "doorSplit": null,
-      "cutoutWidthIn": null,
-      "cutoutHeightIn": null,
-      "cutoutDepthIn": null,
-      "finish": [
-        "stainless"
-      ],
-      "leadTimeWeeks": null,
-      "highlights": {
-        "en": [],
-        "zh": []
-      },
-      "imageUrl": null,
-      "requires": {
-        "voltage": 120,
-        "amps": 15,
-        "gasBTU": null,
-        "water": false,
-        "cfm": 1000,
-        "makeupAirRequired": true
-      }
-    },
-    {
-      "id": "thermador-vcin36ws",
-      "slot": "slot-hood",
-      "category": "hood",
-      "brand": "Thermador",
-      "model": "VCIN36WS",
-      "series": null,
-      "msrpUSD": null,
-      "sourceUrl": null,
+      "msrpUSD": 2299,
+      "sourceUrl": "https://media3.bsh-group.com/Documents/MCDOC02811699_VCIN36GWS-36-INCH-CUSTOM-INSERT-Specifications.pdf",
       "verifiedAt": null,
       "installType": [
         "insert"
@@ -1012,9 +961,9 @@
       "rearSpacerIn": null,
       "doorConfig": null,
       "doorSplit": null,
-      "cutoutWidthIn": 32.9375,
-      "cutoutHeightIn": 12.6875,
-      "cutoutDepthIn": 21.25,
+      "cutoutWidthIn": 33.75,
+      "cutoutHeightIn": 12.8125,
+      "cutoutDepthIn": 22,
       "finish": [
         "stainless"
       ],
@@ -1041,7 +990,7 @@
       "model": "VTI2FZ",
       "series": null,
       "msrpUSD": 1049,
-      "sourceUrl": "https://media3.bsh-group.com/Documents/26300662_Thermador_Ventilation_Blowers-Specifications.pdf",
+      "sourceUrl": "https://media3.bsh-group.com/Documents/MCDOC02811699_VCIN36GWS-36-INCH-CUSTOM-INSERT-Specifications.pdf",
       "verifiedAt": "2026-09-05",
       "installType": [
         "inline"
@@ -1283,6 +1232,57 @@
       "requires": {
         "voltage": 120,
         "amps": null,
+        "gasBTU": null,
+        "water": false,
+        "cfm": null,
+        "makeupAirRequired": false
+      }
+    },
+    {
+      "id": "thermador-t18iw100sp",
+      "slot": "slot-wine",
+      "category": "wine",
+      "brand": "Thermador",
+      "model": "T18IW100SP",
+      "series": null,
+      "msrpUSD": 7799,
+      "sourceUrl": "https://media3.bsh-group.com/Documents/28068604_T18IW100SP-18-INCH-BUILT-IN-WINE-PRESERVATION-COLUMN-WITH-PRESENTER-Specifications.pdf",
+      "verifiedAt": null,
+      "installType": [
+        "column",
+        "built-in"
+      ],
+      "fuel": null,
+      "blower": null,
+      "compatibleBlowers": [],
+      "topDepthIn": null,
+      "frontLipIn": null,
+      "widthIn": 17.75,
+      "heightIn": 83.875,
+      "depthIn": 24,
+      "burners": null,
+      "cooktopIn": null,
+      "backguardIn": null,
+      "depthWithDoorsIn": null,
+      "depthWithHandleIn": null,
+      "rearSpacerIn": null,
+      "doorConfig": null,
+      "doorSplit": null,
+      "cutoutWidthIn": 18,
+      "cutoutHeightIn": 84,
+      "cutoutDepthIn": 25,
+      "finish": [
+        "panel-ready"
+      ],
+      "leadTimeWeeks": null,
+      "highlights": {
+        "en": [],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
         "gasBTU": null,
         "water": false,
         "cfm": null,

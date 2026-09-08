@@ -434,7 +434,7 @@ export const COMPATIBLE_BLOWERS: Record<string, string[]> = {
   // An insert liner takes an integral blower and nothing else: it is mounted
   // inside the liner, behind the filters, so a remote or inline blower has
   // nowhere to go. From the VCIN36WS manual, section 5.3.
-  VCIN36WS: ["VTN2FZ", "VTN2DA"],
+  VCIN36GWS: ["VTN2FZ", "VTN2DA"],
 };
 
 /**
@@ -502,6 +502,25 @@ export const PUBLISHED_SPECS: Record<
      * a cabinet goes above it.
      */
     installType?: string[];
+    /**
+     * The hole, where the sheet's own columns carry a different one.
+     *
+     * A sheet row has one set of cutout cells and a machine can publish two —
+     * a standard opening and a flush one — so which pair a row happens to
+     * carry is not always the pair this kitchen is built to. The drawing
+     * decides, the same as every other figure here.
+     */
+    cutoutWidthIn?: number;
+    cutoutHeightIn?: number;
+    cutoutDepthIn?: number;
+    /**
+     * Whether the hood ships with a blower or takes one.
+     *
+     * No sheet column says. A custom insert liner is a tray with a hole in the
+     * top of it: the blower is a separate model that bolts inside, which is
+     * exactly what `required` means.
+     */
+    blower?: "integrated" | "required";
     /**
      * Where the figures came from, when the drawing rather than the sheet is
      * the authority. It replaces whatever the sheet's own column said, because
@@ -579,11 +598,19 @@ export const PUBLISHED_SPECS: Record<
   // Thermador MEM301WS, from docs/reference/mem301ws-spec.pdf. A 49" machine in
   // a 48-1/2" cutout: the trim overlaps 1/2" at the top and 9/16" each side.
   // The handle stands 2-3/8" off the door skin.
+  //
+  // The standard cutout rather than the flush one the sheet's row carries.
+  // The tower this goes in is a 30" cabinet, which is a 28-1/2" hole with
+  // three quarters of an inch of cabinet each side of it; a flush install is
+  // a 30" hole and a different tower.
   MEM301WS: {
     heightIn: 49,
     widthIn: 29.75,
     depthIn: 24.5,
     depthWithHandleIn: 26.875,
+    cutoutWidthIn: 28.5,
+    cutoutHeightIn: 48.5,
+    cutoutDepthIn: 23.5,
     installType: ["combo"],
     unverified: true,
   },
@@ -594,19 +621,27 @@ export const PUBLISHED_SPECS: Record<
     heightIn: 83.875,
     widthIn: 17.75,
     depthIn: 24,
+    cutoutWidthIn: 18,
+    cutoutHeightIn: 84,
+    cutoutDepthIn: 25,
     installType: ["column", "built-in"],
     unverified: true,
   },
-  // Thermador VCIN36WS, from the installation manual. The liner only: the hood
-  // over it is cabinetry somebody builds, and its shape is in `insertHood.ts`.
-  // 33-3/4" across the side trims, which rest on the housing's 5/8" ledge, and
-  // a 7-11/16" front face below it.
-  VCIN36WS: {
+  // Thermador VCIN36GWS, from the installation manual. The liner only: the
+  // hood over it is cabinetry somebody builds, and its shape is in
+  // `insertHood.ts`. 33-3/4" across the side trims, which rest on the
+  // housing's 5/8" ledge, and a 7-11/16" front face below it. The blower is
+  // an integral VTN2FZ or VTN2DA bolted inside the liner, so one has to be
+  // ordered — the sheet has no column that says so.
+  VCIN36GWS: {
+    sourceUrl:
+      "https://media3.bsh-group.com/Documents/MCDOC02811699_VCIN36GWS-36-INCH-CUSTOM-INSERT-Specifications.pdf",
     widthIn: 33.75,
     heightIn: 12.8125,
     depthIn: 22,
     frontLipIn: 7.6875,
     installType: ["insert"],
+    blower: "required",
     unverified: true,
   },
   // Thermador Freedom: two doors over a refrigerator drawer and a freezer
