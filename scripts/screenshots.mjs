@@ -479,6 +479,58 @@ async function captureRound14(page) {
  * round it — so the two shots are the room as a whole and the refrigerator up
  * close, which is where the missing joinery is the point.
  */
+/**
+ * Round 17: the three installation corrections to package C.
+ *
+ * The freestanding range with its backguard and its controls on the front, the
+ * telescopic chimney running to the ceiling, and the refrigerator surround —
+ * once against cabinets and once against a return wall, where the door
+ * clearance is a figure on the drawing rather than a gap.
+ */
+async function captureRound17(page) {
+  const toPackage = async (code) => {
+    await page.locator(`[data-segment="package"] button`, { hasText: code }).first().click();
+    await settle(page, 2000);
+  };
+  const setAbuts = async (label) => {
+    await click(page, "Configure");
+    await page.waitForTimeout(500);
+    await page.getByRole("button", { name: label, exact: true }).first().click();
+    await page.waitForTimeout(700);
+    await page.getByRole("button", { name: "Close" }).click();
+    await settle(page, 1600);
+  };
+
+  await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await settle(page, 2400);
+  await toPackage("C");
+  await page.screenshot({ path: `${outDir}/mobile-c-overview.png` });
+
+  for (const [name, match] of [
+    ["range", /Range/],
+    ["hood", /Ventilation hood/],
+    ["fridge", /Refrigerator/],
+  ]) {
+    await page.goto(baseUrl, { waitUntil: "networkidle" });
+    await settle(page, 2400);
+    await toPackage("C");
+    await flyTo(page, match);
+    await settle(page, 1500);
+    await page.screenshot({ path: `${outDir}/mobile-c-${name}.png` });
+  }
+
+  // The refrigerator against a return wall: the clearance is drawn whatever
+  // the render mode, which is the point of it.
+  await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await settle(page, 2400);
+  await toPackage("C");
+  await setAbuts("Wall");
+  await page.screenshot({ path: `${outDir}/mobile-c-fridge-wall.png` });
+  await flyTo(page, /Refrigerator/);
+  await settle(page, 1500);
+  await page.screenshot({ path: `${outDir}/mobile-c-fridge-wall-close.png` });
+}
+
 async function captureRound16(page) {
   const toPackage = async (code) => {
     await page.locator(`[data-segment="package"] button`, { hasText: code }).first().click();
@@ -535,6 +587,21 @@ async function captureRound15(page) {
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round17") {
+    const ctx = await browser.newContext({
+      viewport: MOBILE,
+      deviceScaleFactor: 2,
+      isMobile: true,
+      hasTouch: true,
+    });
+    const page = await ctx.newPage();
+    await captureRound17(page);
+    await ctx.close();
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round16") {
     const ctx = await browser.newContext({
