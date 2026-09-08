@@ -19,6 +19,25 @@ async function waitForServer(url: string, timeoutMs = 30_000) {
 }
 
 /**
+ * Fetch the page and everything it pulls, once, before any test runs.
+ *
+ * The first navigation otherwise pays for the server's first serve of a
+ * megabyte and a half of JavaScript, and Playwright's `networkidle` gives it
+ * thirty seconds to go quiet. On a busy machine that is not always enough, and
+ * the suite fails on whichever test happened to be first rather than on
+ * anything about the app.
+ */
+async function warm(url: string) {
+  const html = await (await fetch(url)).text();
+  const assets = [...html.matchAll(/(?:src|href)="([^"]+)"/g)]
+    .map((match) => match[1])
+    .filter((href) => href.startsWith("/") || href.startsWith("./"));
+  await Promise.all(
+    assets.map((href) => fetch(new URL(href, url)).then((r) => r.arrayBuffer()).catch(() => {})),
+  );
+}
+
+/**
  * Serves the production build for the smoke suite.
  *
  * Run `npm run build` first, or use `npm test`, which does it for you. Testing
@@ -36,6 +55,7 @@ export default async function setup() {
   );
 
   await waitForServer(PREVIEW_URL);
+  await warm(PREVIEW_URL);
 
   return async () => {
     server?.kill();

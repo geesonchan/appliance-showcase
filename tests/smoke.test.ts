@@ -50,7 +50,11 @@ async function openPage(viewport: typeof DESKTOP, isMobile = false, query = "") 
     if (window.WebGLRenderingContext) patch(WebGLRenderingContext.prototype);
   });
 
-  await page.goto(PREVIEW_URL + query, { waitUntil: "networkidle" });
+  // Navigation gets its own budget rather than Playwright's 30s default: the
+  // scene is a megabyte and a half of JavaScript and a WebGL context, and on a
+  // loaded machine "no network activity for half a second" takes longer than
+  // that to arrive.
+  await page.goto(PREVIEW_URL + query, { waitUntil: "networkidle", timeout: 90_000 });
   await page.waitForSelector("canvas");
   await page.waitForTimeout(2200);
   return { page, errors };
