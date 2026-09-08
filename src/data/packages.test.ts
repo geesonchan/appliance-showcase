@@ -68,10 +68,17 @@ describe("the packages on offer", () => {
         expect(chosen.widthIn, `${entry.id}: ${slotId} default is too wide`).toBeLessThanOrEqual(
           slot.widthIn,
         );
-        expect(
-          chosen.widthIn,
-          `${entry.id}: ${slotId} default is more than an inch under its opening`,
-        ).toBeGreaterThanOrEqual(slot.widthIn - 1);
+        // An insert liner is the exception, and it is not a filler question:
+        // it is not standing in an opening at all. It drops through a hole in
+        // the underside of a hood cabinet and hangs on the ledge around it, so
+        // a "36-inch" liner measures 33-3/4" across its side trims and the
+        // cabinet it hangs in is wider than either figure.
+        if (slot.installType !== "insert") {
+          expect(
+            chosen.widthIn,
+            `${entry.id}: ${slotId} default is more than an inch under its opening`,
+          ).toBeGreaterThanOrEqual(slot.widthIn - 1);
+        }
         // And it installs the way the package installs it, so a package's own
         // default is one the migration would keep rather than replace.
         expect(

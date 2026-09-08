@@ -2,7 +2,7 @@
   "_meta": {
     "generatedBy": "scripts/csv-to-json.ts from C:/Users/leoch/Downloads/showcase_export.csv",
     "updatedAt": "2026-09-08",
-    "provenance": "Derived from the showcase_export tab of the 2026 AA Inventory Manager. Brand, Model, Appliance Type, Feature, Width, Depth, Height and Color come from Stock current; everything else is hand entered. Normalisation lives in scripts/normalise.ts, not in the sheet. verifiedAt is null until a row has been checked against its sourceUrl."
+    "provenance": "Derived from the showcase_export tab of the 2026 AA Inventory Manager. Brand, Model, Appliance Type, Feature, Width, Depth, Height and Color come from Stock current; everything else is hand entered. Normalisation lives in scripts/normalise.ts, not in the sheet. verifiedAt is null until a row has been checked against its sourceUrl. Four models are hand written rather than imported: MEM301WS, PCG366W, T18IW100SP and VCIN36WS, which package B is built from. The export carries none of them as such — the combination oven was dropped for having no slot, the rangetop is not in it, and the wine column and the insert hood appear under neighbouring SKUs whose figures belong to other rows. Their figures are the manufacturer's sheets in docs/reference/, and PUBLISHED_SPECS carries the same figures so a corrected export lands on them rather than over them."
   },
   "appliances": [
     {
@@ -409,6 +409,106 @@
       }
     },
     {
+      "id": "thermador-mem301ws",
+      "slot": "slot-microwave",
+      "category": "wall-oven",
+      "brand": "Thermador",
+      "model": "MEM301WS",
+      "series": null,
+      "msrpUSD": 6899,
+      "sourceUrl": "https://media3.bsh-group.com/Documents/MCDOC02802506_MEM301WS-30-INCH-DOUBLE-COMBINATION-BUILT-IN-OVEN-WITH-MICROWAVE-Specifications.pdf",
+      "verifiedAt": null,
+      "installType": [
+        "combo"
+      ],
+      "fuel": null,
+      "blower": null,
+      "compatibleBlowers": [],
+      "topDepthIn": null,
+      "frontLipIn": null,
+      "widthIn": 29.75,
+      "heightIn": 49,
+      "depthIn": 24.5,
+      "burners": null,
+      "cooktopIn": null,
+      "backguardIn": null,
+      "depthWithDoorsIn": null,
+      "depthWithHandleIn": 26.875,
+      "rearSpacerIn": null,
+      "doorConfig": null,
+      "doorSplit": null,
+      "cutoutWidthIn": 28.5,
+      "cutoutHeightIn": 48.5,
+      "cutoutDepthIn": 23.5,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": null,
+      "highlights": {
+        "en": [],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 240,
+        "amps": 50,
+        "gasBTU": null,
+        "water": false,
+        "cfm": null,
+        "makeupAirRequired": false
+      }
+    },
+    {
+      "id": "thermador-pcg366w",
+      "slot": "slot-range",
+      "category": "range",
+      "brand": "Thermador",
+      "model": "PCG366W",
+      "series": "Professional",
+      "msrpUSD": null,
+      "sourceUrl": null,
+      "verifiedAt": null,
+      "installType": [
+        "rangetop"
+      ],
+      "fuel": "gas",
+      "blower": null,
+      "compatibleBlowers": [],
+      "topDepthIn": null,
+      "frontLipIn": null,
+      "widthIn": 35.9375,
+      "heightIn": 8.125,
+      "depthIn": 25.8125,
+      "burners": 6,
+      "cooktopIn": 36.4375,
+      "backguardIn": null,
+      "depthWithDoorsIn": null,
+      "depthWithHandleIn": null,
+      "rearSpacerIn": null,
+      "doorConfig": null,
+      "doorSplit": null,
+      "cutoutWidthIn": 35.125,
+      "cutoutHeightIn": 7.6875,
+      "cutoutDepthIn": 22.8125,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": null,
+      "highlights": {
+        "en": [],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
+        "gasBTU": 99000,
+        "water": false,
+        "cfm": null,
+        "makeupAirRequired": false
+      }
+    },
+    {
       "id": "thermador-ph36hws",
       "slot": "slot-hood",
       "category": "hood",
@@ -560,6 +660,57 @@
         "voltage": 120,
         "amps": 15,
         "gasBTU": 119500,
+        "water": false,
+        "cfm": null,
+        "makeupAirRequired": false
+      }
+    },
+    {
+      "id": "thermador-t18iw100sp",
+      "slot": "slot-wine",
+      "category": "wine",
+      "brand": "Thermador",
+      "model": "T18IW100SP",
+      "series": "Freedom",
+      "msrpUSD": null,
+      "sourceUrl": null,
+      "verifiedAt": null,
+      "installType": [
+        "column",
+        "built-in"
+      ],
+      "fuel": null,
+      "blower": null,
+      "compatibleBlowers": [],
+      "topDepthIn": null,
+      "frontLipIn": null,
+      "widthIn": 17.75,
+      "heightIn": 83.875,
+      "depthIn": 24,
+      "burners": null,
+      "cooktopIn": null,
+      "backguardIn": null,
+      "depthWithDoorsIn": null,
+      "depthWithHandleIn": null,
+      "rearSpacerIn": null,
+      "doorConfig": null,
+      "doorSplit": null,
+      "cutoutWidthIn": 18,
+      "cutoutHeightIn": 84,
+      "cutoutDepthIn": 25,
+      "finish": [
+        "panel-ready"
+      ],
+      "leadTimeWeeks": null,
+      "highlights": {
+        "en": [],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 10,
+        "gasBTU": null,
         "water": false,
         "cfm": null,
         "makeupAirRequired": false
@@ -827,6 +978,59 @@
         "water": false,
         "cfm": 1000,
         "makeupAirRequired": true
+      }
+    },
+    {
+      "id": "thermador-vcin36ws",
+      "slot": "slot-hood",
+      "category": "hood",
+      "brand": "Thermador",
+      "model": "VCIN36WS",
+      "series": null,
+      "msrpUSD": null,
+      "sourceUrl": null,
+      "verifiedAt": null,
+      "installType": [
+        "insert"
+      ],
+      "fuel": null,
+      "blower": "required",
+      "compatibleBlowers": [
+        "VTN2FZ",
+        "VTN2DA"
+      ],
+      "topDepthIn": null,
+      "frontLipIn": 7.6875,
+      "widthIn": 33.75,
+      "heightIn": 12.8125,
+      "depthIn": 22,
+      "burners": null,
+      "cooktopIn": null,
+      "backguardIn": null,
+      "depthWithDoorsIn": null,
+      "depthWithHandleIn": null,
+      "rearSpacerIn": null,
+      "doorConfig": null,
+      "doorSplit": null,
+      "cutoutWidthIn": 32.9375,
+      "cutoutHeightIn": 12.6875,
+      "cutoutDepthIn": 21.25,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": null,
+      "highlights": {
+        "en": [],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
+        "gasBTU": null,
+        "water": false,
+        "cfm": null,
+        "makeupAirRequired": false
       }
     },
     {

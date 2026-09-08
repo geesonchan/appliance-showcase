@@ -188,7 +188,8 @@
         "d": 24
       },
       "compatibleCategories": [
-        "microwave"
+        "microwave",
+        "wall-oven"
       ],
       "cabinetConfig": {
         "type": "base",

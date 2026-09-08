@@ -431,6 +431,10 @@ export const COMPATIBLE_BLOWERS: Record<string, string[]> = {
   PH36HWS: ["VTR1FZ", "VTR2FZ", "VTI1FZ", "VTI2FZ", "VTN2FZ", "VTN2DA"],
   // VTN1DZ is the 30" hood's blower and does not fit the 36".
   PH30HWS: ["VTR1FZ", "VTR2FZ", "VTI1FZ", "VTI2FZ", "VTN1DZ", "VTN2DA"],
+  // An insert liner takes an integral blower and nothing else: it is mounted
+  // inside the liner, behind the filters, so a remote or inline blower has
+  // nowhere to go. From the VCIN36WS manual, section 5.3.
+  VCIN36WS: ["VTN2FZ", "VTN2DA"],
 };
 
 /**
@@ -557,6 +561,53 @@ export const PUBLISHED_SPECS: Record<
     rearSpacerIn: 1,
     depthWithDoorsIn: 28.75,
     depthWithHandleIn: 31.4375,
+  },
+  // Thermador PCG366W, from docs/reference/pcg366w-spec.pdf. A rangetop is a
+  // cooking surface and nothing under it: the body is 8-1/8" tall and 7-11/16"
+  // of that drops through the counter, so 7/16" of it stands above a 36" top
+  // and the burner grates — what a hood's clearance is measured from — are at
+  // 36-7/16". Six burners: 18, 15, 15, 18, 15 and 18 thousand BTU.
+  PCG366W: {
+    widthIn: 35.9375,
+    heightIn: 8.125,
+    depthIn: 25.8125,
+    cooktopIn: 36.4375,
+    burners: 6,
+    installType: ["rangetop"],
+    unverified: true,
+  },
+  // Thermador MEM301WS, from docs/reference/mem301ws-spec.pdf. A 49" machine in
+  // a 48-1/2" cutout: the trim overlaps 1/2" at the top and 9/16" each side.
+  // The handle stands 2-3/8" off the door skin.
+  MEM301WS: {
+    heightIn: 49,
+    widthIn: 29.75,
+    depthIn: 24.5,
+    depthWithHandleIn: 26.875,
+    installType: ["combo"],
+    unverified: true,
+  },
+  // Thermador T18IW100SP, from docs/reference/t18iw100sp-spec.pdf. 83-7/8" on
+  // its legs retracted, 85-1/2" fully extended, in an 84" x 18" x 25" cutout.
+  // Panel-ready: what is seen is the door panel, not the machine.
+  T18IW100SP: {
+    heightIn: 83.875,
+    widthIn: 17.75,
+    depthIn: 24,
+    installType: ["column", "built-in"],
+    unverified: true,
+  },
+  // Thermador VCIN36WS, from the installation manual. The liner only: the hood
+  // over it is cabinetry somebody builds, and its shape is in `insertHood.ts`.
+  // 33-3/4" across the side trims, which rest on the housing's 5/8" ledge, and
+  // a 7-11/16" front face below it.
+  VCIN36WS: {
+    widthIn: 33.75,
+    heightIn: 12.8125,
+    depthIn: 22,
+    frontLipIn: 7.6875,
+    installType: ["insert"],
+    unverified: true,
   },
   // Thermador Freedom: two doors over a refrigerator drawer and a freezer
   // drawer. Sold as a four-door, which is what the Feature column tends to say.
