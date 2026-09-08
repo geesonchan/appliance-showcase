@@ -13,7 +13,21 @@ Manufacturer drawings the geometry is built from. Two are referred to by name in
 | `t36ft820ns-spec.png` | Freestanding counter-depth refrigerator: 35-5/8" x 72" x 24" body, 1" fixed spacers on the back, 28-3/4" with the doors and 31-7/16" with the handles, 1/8" clearance each side, 44-9/16" with a door open. The two depths are what separate it from a built-in by eye. |
 | `hmcb30ws-spec.png` | Chimney wall hood: 29-15/16" x 23-3/16" canopy, 8-9/16" tall with a 5" front face; chimney 13-3/16" x 10-3/4" with a 5-1/2" grille at the top of each side; 30-42" from the canopy's **underside** to the top of the chimney. |
 | `mfgs4030rs-front.png` | Freestanding gas range: 29-7/8" x 47-7/8" x 28", five burners, backguard with a digital display, five knobs and a vent strip on the front, storage drawer at the bottom. |
+| `pcg366w-spec.pdf` | 36" gas rangetop: 8-1/8" x 35-15/16" x 25-13/16" overall, 7-11/16" x 35-1/8" x 22-13/16" cutout, six burners to 99,000 BTU, 1/2" NPT inlet on the left rear underside, NEMA 5-15 within 3ft, 6" to a combustible surface behind and 36" to an unprotected cabinet above. |
+| `mem301ws-spec.pdf` | 30" combination oven with microwave: 49" x 29-3/4" x 24-1/2" overall, 48-1/2" x 28-1/2" x 23-1/2" standard cutout (49-1/8" x 30" x 24-1/2" flush), 240V 50A fixed connection, 267 lbs. |
+| `t18iw100sp-spec.pdf` | 18" panel-ready wine column: 83-7/8" to 85-1/2" x 17-3/4" x 24" body in an 84" x 18" x 25" cutout, 120V 10A, reversible door, 115 degrees open and 90 degrees to reach the shelves, COMBIKIT10 to stand it beside a refrigerator column. |
 | `lazy-susan-corner.svg` | Corner lazy susan: 36" along each wall, 24" deep, 34-1/2" high, and one 24" door set at 45 degrees across the corner. **Drawn here from published dimensions rather than traced from a photograph** — see below for where the figures come from. |
+
+The three PDFs are the manufacturer's own specification sheets, committed whole
+rather than as figures pulled out of them: a sheet is one file and a round of
+questions about it is answered by opening the file.
+
+**Package B's insert hood is the one gap.** The VCIN36WS installation manual —
+liner 12-13/16" x 33-3/4" x 22", 32-15/16" x 21-1/4" housing opening, 12-11/16"
+crossbar, 5/8" ledge, 0-3" behind, 10" round transition 8-3/8" tall and
+6-5/8"-9-5/8" off the back wall, vent-to-outside only — reached this repository
+as images in a conversation rather than as a file, so its figures are recorded
+in `PUBLISHED_SPECS` and here, and the manual itself is still to be dropped in.
 
 Positions taken from these are in `data/rough-in.json`, keyed by model, with the
 sheet each came from recorded against it. A model with no entry falls back to
