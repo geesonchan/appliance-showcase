@@ -66,6 +66,9 @@ function isOrderable(module: CabinetModule): boolean {
       // A finished panel is cut to the job. Three inches is the standard, and
       // anything from an inch and a half up is a panel somebody can order.
       return module.widthIn >= 1.5;
+    case "spacer":
+      // A kit with a part number, so its width is the kit's and not a choice.
+      return module.widthIn > 0 && module.code.length > 0;
     case "opening":
     case "tall-open":
       // A rough opening is dimensioned to the appliance, not off a size list —
@@ -182,11 +185,17 @@ export function checkLayout(
 
       if (segment.kind !== "tall") continue;
 
-      // D11 rule 1: a tall cabinet goes at the end of a run, never at a corner.
-      // A tower in the middle cuts the countertop in two; one at a corner
-      // blocks the corner cabinet's door.
-      if (i !== run.segments.length - 1) {
-        fail("d11-1", `${segment.id} is a tall cabinet with ${run.segments.length - 1 - i} more segment(s) after it`);
+      // D11 rule 1, as rule 12 amends it: a tall cabinet goes at the end of a
+      // run, never at a corner — and a bank of them is one tall cabinet for
+      // this purpose. What the rule is against is counter *after* a tower,
+      // which cuts the worktop in two; three columns standing together are one
+      // wall of joinery and cut nothing.
+      const after = run.segments.slice(i + 1).filter((s) => s.kind !== "tall");
+      if (after.length > 0) {
+        fail(
+          "d11-1",
+          `${segment.id} is a tall cabinet with ${after.length} segment(s) of counter after it`,
+        );
       }
       if (run.segments[i - 1]?.kind === "corner" || run.segments[i + 1]?.kind === "corner") {
         fail("d11-1", `${segment.id} is a tall cabinet hard against the corner`);
@@ -408,8 +417,17 @@ export function checkLayout(
   if (!fridge) {
     fail("d11-6", "no refrigerator on any run");
   } else {
+    // Measured at the bank rather than at the machine. Where three columns
+    // stand together the refrigerator's own neighbours are the other two, and
+    // the counter the rule is about is the one before the whole wall of them.
+    const bank = fridge.run.segments.findIndex(
+      (segment, i) =>
+        segment.kind === "tall" &&
+        fridge.run.segments.slice(i).every((later) => later.kind === "tall"),
+    );
+    const at = bank >= 0 ? bank : fridge.index;
     const best = Math.max(
-      landing(fridge.run, fridge.index, -1),
+      landing(fridge.run, at, -1),
       landing(fridge.run, fridge.index, 1),
     );
     if (best < LAYOUT_LIMITS.fridgeLandingIn - 1e-6) {
@@ -425,7 +443,13 @@ export function checkLayout(
   // seating side nor an aisle, and its microwave and wine cabinet are two base
   // cabinets in a run — there is nothing here to check rather than a rule to
   // fail.
-  if (island.present) {
+  // And only when they are actually on it: a package whose wine is an 84"
+  // column stands it in the tall bank, and the island is then a prep island
+  // with nothing to face either way.
+  const islandCarries = (["slot-microwave", "slot-wine"] as const).every(
+    (slotId) => SLOT_BY_ID[slotId]?.mount === "island",
+  );
+  if (island.present && islandCarries) {
     const microwave = SLOT_BY_ID["slot-microwave"];
     const wine = SLOT_BY_ID["slot-wine"];
     if (Math.abs(Math.cos(microwave.rotationY) - Math.cos(wine.rotationY)) < 1e-6) {

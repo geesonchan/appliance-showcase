@@ -249,12 +249,53 @@ export const insetOf = (slot: PackageSlot) => (slot.enclosure ? PANEL : 0);
  */
 const ROLES = {
   refrigerator: "tower",
+  "wall-oven": "tower",
   range: "range",
   hood: "over-range",
   dishwasher: "sink-group",
   microwave: "island-or-perimeter",
   wine: "island-or-perimeter",
 } as const;
+
+/**
+ * The bank of full-height units at the end of a run, inner end first.
+ *
+ * D11 rule 12. The refrigerator is outermost because it is the widest and the
+ * one people walk to from the room rather than along the counter; the wine
+ * column stands beside it, hinged away from it so the two doors open back to
+ * back; the oven tower is innermost, nearest the counter it loads onto.
+ *
+ * A package with one tall unit builds the tower it always built. This is the
+ * order the rest of them stand in when there is more than one.
+ */
+const TALL_ORDER: readonly SlotId[] = ["slot-microwave", "slot-wine", "slot-fridge"];
+
+/**
+ * What goes between two refrigeration columns standing side by side.
+ *
+ * Thermador's own kit rather than a piece of panel: two columns share a
+ * 5/8" divider that carries the trim and keeps the doors from fouling each
+ * other. Ovens and joinery do not take one — a tall oven cabinet already has
+ * its own sides inside its 30".
+ */
+const COLUMN_SPACER = { code: "COMBIKIT10", widthIn: 0.625 } as const;
+
+/**
+ * Whether a slot is one of the two an island carries.
+ *
+ * The island's machines are the ones that are neither on the perimeter by
+ * rule nor standing in the tall bank. A package whose wine is an 84" column
+ * has no island machine in it, and its island — if the room has one — is a
+ * prep island, which is what an island is when nobody puts an appliance in it.
+ */
+const isSpare = (slot: PackageSlot | undefined) => !!slot && !slot.tallUnit;
+
+/** Whether two adjacent tall slots are the pair that kit is for. */
+const takesSpacer = (a: PackageSlot | undefined, b: PackageSlot | undefined) =>
+  !!a &&
+  !!b &&
+  ["refrigerator", "wine"].includes(a.category) &&
+  ["refrigerator", "wine"].includes(b.category);
 
 // --- packing a leg --------------------------------------------------------
 
@@ -772,8 +813,11 @@ function islandFor(
   const x = [centre - length / 2, centre + length / 2] as const;
   const z = [backFace + ft(params.aisleIn), backFace + ft(params.aisleIn) + depth] as const;
 
-  const microwave = ft(openingIn(spec["slot-microwave"]));
-  const wine = ft(openingIn(spec["slot-wine"]));
+  // Zero for a machine that stands in the tall bank instead: the island is
+  // then a prep island, and an extent for something that is not on it would be
+  // a place for the scene to put a machine that is somewhere else.
+  const microwave = isSpare(spec["slot-microwave"]) ? ft(openingIn(spec["slot-microwave"])) : 0;
+  const wine = isSpare(spec["slot-wine"]) ? ft(openingIn(spec["slot-wine"])) : 0;
   // Flush to the ends on a short island, inset on a long one.
   const inset = Math.min(ft(6), Math.max(0, (length - microwave - wine) / 2));
 
@@ -888,7 +932,7 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
    * degrees. See docs/decisions.md D11 rule 11.
    */
   const fridge = spec["slot-fridge"];
-  const tower = fridge.enclosure
+  const single = fridge.enclosure
     ? (() => {
         const widthIn = openingIn(fridge);
         return fixed(
@@ -923,6 +967,56 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
           ],
         };
       })();
+
+  /**
+   * The full-height units at the end of the run, as one bank.
+   *
+   * D11 rule 12. One tall unit is the tower this template has always built and
+   * is left exactly as it was. Two or more are a bank: a finished panel where
+   * it meets the counter, then the columns in `TALL_ORDER`, then whatever the
+   * far end wants — a panel against cabinetry, three and a half inches of
+   * filler against a wall so the refrigerator door still opens.
+   *
+   * Each column is its own segment because each holds its own machine, and
+   * every one of them is `tall`: they are one carcass to look at and one run
+   * of 96" boxes to order.
+   */
+  const tallSlots = TALL_ORDER.filter((slotId) => spec[slotId]?.tallUnit);
+  const bank = (): Item[] => {
+    const outerIn = params.fridgeEndAbuts === "wall" ? LAYOUT_LIMITS.fridge.fromWallIn : PANEL_IN;
+    const items: Item[] = [
+      fixed("tall-inner", PANEL_IN, "tall", M(`PNL${PANEL_IN}`, "panel", PANEL_IN)),
+    ];
+    tallSlots.forEach((slotId, index) => {
+      const slot = spec[slotId];
+      if (takesSpacer(spec[tallSlots[index - 1]], slot)) {
+        items.push(
+          fixed(
+            `tall-spacer-${index}`,
+            COLUMN_SPACER.widthIn,
+            "tall",
+            M(COLUMN_SPACER.code, "spacer", COLUMN_SPACER.widthIn),
+          ),
+        );
+      }
+      items.push(
+        fixed(
+          slotId.replace("slot-", ""),
+          slot.widthIn,
+          "tall",
+          M(`T${slot.widthIn}96`, "tall", slot.widthIn, { heightIn: 96, slot: slotId }),
+          { slot: slotId },
+        ),
+      );
+    });
+    items.push(
+      params.fridgeEndAbuts === "wall"
+        ? fixed("tall-outer", outerIn, "tall", M(`BF${round8(outerIn)}`, "filler", outerIn))
+        : fixed("tall-outer", outerIn, "tall", M(`PNL${outerIn}`, "panel", outerIn)),
+    );
+    return items;
+  };
+  const tower: Item[] = tallSlots.length > 1 ? bank() : [single];
 
   /**
    * The sink group, laid out to D11 rule 10.
@@ -989,15 +1083,15 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
    */
   const spare = params.hasIsland
     ? []
-    : (["slot-microwave", "slot-wine"] as const)
-        .filter((slot) => !omitted.includes(slot))
-        .map((slot) => opening(slot, slot.replace("slot-", "")));
+    : SPARE_SLOTS.filter((slot) => isSpare(spec[slot]) && !omitted.includes(slot)).map((slot) =>
+        opening(slot, slot.replace("slot-", "")),
+      );
 
   if (params.fridgeEnd === "left") {
-    left.push(...spare, gap("fridge-landing", LAYOUT_LIMITS.fridgeLandingIn, "d11-6"), tower);
+    left.push(...spare, gap("fridge-landing", LAYOUT_LIMITS.fridgeLandingIn, "d11-6"), ...tower);
     back.push(...terminal("back-end", "wall"));
   } else {
-    back.push(...spare, gap("fridge-landing", LAYOUT_LIMITS.fridgeLandingIn, "d11-6"), tower);
+    back.push(...spare, gap("fridge-landing", LAYOUT_LIMITS.fridgeLandingIn, "d11-6"), ...tower);
     left.push(...terminal("left-end", "open"));
   }
 
@@ -1109,7 +1203,10 @@ export const SPARE_SLOTS = ["slot-microwave", "slot-wine"] as const;
  */
 export function omittedSlots(params: LayoutParams, pkg: Package = PACKAGE): readonly SlotId[] {
   if (params.hasIsland) return [];
-  const spare = SPARE_SLOTS.filter((slotId) => pkg.slots.some((slot) => slot.slotId === slotId));
+  const spec = slotsOf(pkg);
+  const spare = SPARE_SLOTS.filter(
+    (slotId) => pkg.slots.some((slot) => slot.slotId === slotId) && isSpare(spec[slotId]),
+  );
   if (spare.length === 0) return [];
   // Only the leg they would stand on is asked. A room refused over the *other*
   // wall is a room that is too small for a kitchen, and leaving the wine
@@ -1323,6 +1420,14 @@ function placements(
   const spare = (slot: SlotId, placed: () => SlotPlacement): SlotPlacement =>
     omitted.includes(slot) ? { position: [0, 0, 0], rotationY: 0, mount: "wall" } : placed();
 
+  /**
+   * Whether the run carries this machine, which is the question rather than
+   * whether the room has an island. A package whose wine is a column stands it
+   * in the tall bank whether or not there is an island to put it on.
+   */
+  const onARun = (slot: SlotId) =>
+    runs.some((run) => run.segments.some((segment) => segment.slot === slot));
+
   return {
     slots: {
       // Inset by a panel inside its enclosure; hard against the run's own line
@@ -1336,10 +1441,12 @@ function placements(
       },
       "slot-dishwasher": wall("slot-dishwasher"),
       "slot-microwave": spare("slot-microwave", () =>
-        island.present ? islandSlot(island.microwave, "working") : wall("slot-microwave"),
+        onARun("slot-microwave")
+          ? wall("slot-microwave")
+          : islandSlot(island.microwave, "working"),
       ),
       "slot-wine": spare("slot-wine", () =>
-        island.present ? islandSlot(island.wine, "seating") : wall("slot-wine"),
+        onARun("slot-wine") ? wall("slot-wine") : islandSlot(island.wine, "seating"),
       ),
     },
     fixtures: {

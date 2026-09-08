@@ -49,19 +49,24 @@ describe("a wall at its minimum still has everything on it", () => {
   it("carries every element it carries at its maximum, plus the terminal filler", () => {
     for (const entry of BUILDABLE_PACKAGES) {
       setLayoutParams(DEFAULT_PARAMS);
-      expect(setActivePackage(entry.id).ok, entry.id).toBe(true);
+      const switched = setActivePackage(entry.id);
+      expect(switched.ok, entry.id).toBe(true);
+      // The room the package landed in: a package with three tall units in one
+      // run grows the wall it stands on, and sweeping from the default room
+      // would be sweeping a room this package was never in.
+      const base = params(switched.adjusted ?? {});
 
       for (const [key, runId] of [
         ["backWallIn", "back"],
         ["leftWallIn", "left"],
       ] as const) {
-        const range = feasibleRange(params(), key);
+        const range = feasibleRange(base, key);
         expect(range, `${entry.id} ${key}`).toBeTruthy();
 
-        expect(setLayoutParams(params({ [key]: range!.maxIn })).ok).toBe(true);
+        expect(setLayoutParams({ ...base, [key]: range!.maxIn }).ok).toBe(true);
         const atMax = elements(runId);
 
-        expect(setLayoutParams(params({ [key]: range!.minIn })).ok).toBe(true);
+        expect(setLayoutParams({ ...base, [key]: range!.minIn }).ok).toBe(true);
         const atMin = elements(runId);
 
         for (const element of atMax) {

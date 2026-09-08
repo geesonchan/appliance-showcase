@@ -202,6 +202,13 @@ export type ModuleKind =
    * part with a width somebody chose.
    */
   | "panel"
+  /**
+   * The manufacturer's kit between two refrigeration columns standing side by
+   * side: a 5/8" divider that carries the trim and keeps the two doors off
+   * each other. Ordered by part number rather than cut to a width, which is
+   * why it is not a panel — a 5/8" panel is not a part anybody stocks.
+   */
+  | "spacer"
   | "corner"
   | "filler"
   | "opening";

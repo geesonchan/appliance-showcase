@@ -100,19 +100,24 @@ afterAll(() => {
  * is the right behaviour in the app and a trap in a test that has just finished
  * sweeping to the end of a slider.
  */
-function activate(id: string) {
+function activate(id: string): LayoutParams {
   setLayoutParams(DEFAULT_PARAMS);
-  expect(setActivePackage(id).ok, `${id} will not build the default room`).toBe(true);
+  const result = setActivePackage(id);
+  expect(result.ok, `${id} will not build the default room`).toBe(true);
+  // The room the package landed in, which is not always the one it was offered:
+  // three tall units in a run need a longer wall than one, and choosing the
+  // package grows the room to the shortest wall that takes it.
+  return { ...DEFAULT_PARAMS, ...(result.adjusted ?? {}) };
 }
 
 /** How many of the combinations a package builds, checking each one it does. */
 function sweep(id: string): number {
-  activate(id);
+  const base = activate(id);
 
   let built = 0;
   for (const over of COMBINATIONS) {
     const where = `${id} ${JSON.stringify(over)}`;
-    const result = setLayoutParams(params(over));
+    const result = setLayoutParams({ ...base, ...over });
     if (!result.ok) {
       expect(result.reasons.length, `${where}: refused with no reason`).toBeGreaterThan(0);
       for (const reason of result.reasons) expectPrintable(reason, where);
@@ -422,6 +427,81 @@ describe("the door clearance is said out loud", () => {
 });
 
 /**
+ * Three tall units in one run: D11 rule 12.
+ *
+ * The refrigerator outermost, the wine column beside it, the oven tower
+ * inside them, and the manufacturer's 5/8" kit between the two refrigeration
+ * columns. 36 + 5/8 + 18 + 30 comes to 84-5/8" of machine; the panel each end
+ * is the run's, not the bank's.
+ */
+describe("a bank of tall units", () => {
+  afterAll(() => {
+    setActivePackage(DEFAULT_PACKAGE.id);
+    setLayoutParams(DEFAULT_PARAMS);
+  });
+
+  const bankOf = (id: string) => {
+    activate(id);
+    const run = RUNS.find((r) => r.segments.some((s) => s.slot === "slot-fridge"))!;
+    const first = run.segments.findIndex(
+      (segment, i) =>
+        segment.kind === "tall" && run.segments.slice(i).every((later) => later.kind === "tall"),
+    );
+    return run.segments.slice(first);
+  };
+
+  it("stands them in one block at the end of the run, in order", () => {
+    const bank = bankOf("package-b");
+    expect(bank.map((segment) => segment.slot)).toEqual([
+      undefined,
+      "slot-microwave",
+      "slot-wine",
+      undefined,
+      "slot-fridge",
+      undefined,
+    ]);
+    // Nothing but tall units after the first of them, which is what rule 12
+    // amends rule 1 to allow.
+    for (const segment of bank) expect(segment.kind, segment.id).toBe("tall");
+    expect(checkLayout()).toEqual([]);
+  });
+
+  it("puts the manufacturer's kit between the two refrigeration columns", () => {
+    const bank = bankOf("package-b");
+    const modules = bank.flatMap((segment) => segment.modules);
+    const spacer = modules.find((module) => module.kind === "spacer");
+    expect(spacer, "no spacer between the columns").toBeTruthy();
+    expect(spacer!.code).toBe("COMBIKIT10");
+    expect(spacer!.widthIn).toBeCloseTo(0.625, 6);
+
+    // Between the wine column and the refrigerator, not anywhere else: an oven
+    // tower is joinery and has its own sides inside its 30".
+    const order = modules.map((module) => module.slot ?? module.kind);
+    expect(order.indexOf("spacer")).toBe(order.indexOf("slot-wine") + 1);
+    expect(order.indexOf("slot-fridge")).toBe(order.indexOf("spacer") + 1);
+  });
+
+  it("comes to 84-5/8 inches of machine, panels aside", () => {
+    const bank = bankOf("package-b");
+    const machines = bank
+      .flatMap((segment) => segment.modules)
+      .filter((module) => module.slot || module.kind === "spacer")
+      .reduce((sum, module) => sum + module.widthIn, 0);
+    expect(machines).toBeCloseTo(84.625, 6);
+  });
+
+  it("keeps every one of them 96 inches tall", () => {
+    const bank = bankOf("package-b");
+    for (const segment of bank) {
+      for (const module of segment.modules) {
+        if (!module.slot) continue;
+        expect(module.heightIn, `${segment.id} is not a full-height unit`).toBe(96);
+      }
+    }
+  });
+});
+
+/**
  * The island's two machines, when there is no island.
  *
  * They belong on the refrigerator's leg, and no leg D13 allows is long enough
@@ -429,22 +509,35 @@ describe("the door clearance is said out loud", () => {
  * refusal: they are the two things a kitchen can do without, and what is left
  * out is a line on the install list and two fewer on the appliance count.
  */
-describe("no island, in both packages", () => {
+describe("no island, in every package", () => {
   afterAll(() => {
     setActivePackage(DEFAULT_PACKAGE.id);
     setLayoutParams(DEFAULT_PARAMS);
   });
 
   it("builds without them rather than refusing, and passes every rule doing it", () => {
-    for (const id of BUILDABLE_PACKAGES.map((entry) => entry.id)) {
-      activate(id);
+    for (const entry of BUILDABLE_PACKAGES) {
+      const id = entry.id;
+      const base = activate(id);
+      // A package whose two island machines are an 84" column and a tall oven
+      // has nothing to leave out: they stand in the run whether or not there
+      // is an island, and the island is a prep island. Only the packages that
+      // put a machine *on* the island can lose one.
+      const byId = slotsOf(entry);
+      const island = (["slot-microwave", "slot-wine"] as const).filter(
+        (slotId) => !byId[slotId].tallUnit,
+      );
       for (const cornerType of ["blind", "lazy-susan"] as const) {
         for (const fridgeEnd of ["left", "back"] as const) {
           const sinkLeg = fridgeEnd === "left" ? ("back" as const) : ("left" as const);
           const where = `${id} / ${cornerType} / fridge ${fridgeEnd}`;
-          const result = setLayoutParams(
-            params({ hasIsland: false, cornerType, fridgeEnd, sinkLeg }),
-          );
+          const result = setLayoutParams({
+            ...base,
+            hasIsland: false,
+            cornerType,
+            fridgeEnd,
+            sinkLeg,
+          });
           // Never a refusal over these two. A no-island room that will not
           // build is one whose walls are wrong, and that is a different
           // sentence with a different way out.
@@ -457,11 +550,14 @@ describe("no island, in both packages", () => {
           }
           expect(checkLayout(), where).toEqual([]);
 
-          expect([...LAYOUT.omitted], where).toEqual(["slot-microwave", "slot-wine"]);
-          // Left out of the room, not stranded in it.
+          expect([...LAYOUT.omitted], where).toEqual(island);
+          // Left out of the room, not stranded in it — and what was never the
+          // island's is still standing in the run.
           const slots = RUNS.flatMap((run) => run.segments).map((s) => s.slot);
-          expect(slots, where).not.toContain("slot-microwave");
-          expect(slots, where).not.toContain("slot-wine");
+          for (const slotId of ["slot-microwave", "slot-wine"] as const) {
+            if (island.includes(slotId)) expect(slots, where).not.toContain(slotId);
+            else expect(slots, where).toContain(slotId);
+          }
           // And the kitchen is still a kitchen.
           for (const slot of ["slot-range", "slot-fridge", "slot-dishwasher"] as const) {
             expect(slots, where).toContain(slot);

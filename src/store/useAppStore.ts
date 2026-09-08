@@ -354,6 +354,19 @@ export const useAppStore = create<AppState>((set, get) => ({
         layoutIssues: [],
         layoutVersion: s.layoutVersion + 1,
         selectedSlot: null,
+        // A package that needed a longer wall got one. The room is the
+        // customer's, so the change is announced rather than slipped in.
+        toast: result.adjusted
+          ? {
+              id: ++toastId,
+              key: "toast.roomGrew",
+              vars: {
+                package: entry.name[s.lang] ?? entry.name.en,
+                backIn: REQUESTED_PARAMS.backWallIn,
+                leftIn: REQUESTED_PARAMS.leftWallIn,
+              },
+            }
+          : s.toast,
       };
     });
   },

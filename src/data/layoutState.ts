@@ -42,21 +42,55 @@ export function setLayoutParams(params: LayoutParams): { ok: boolean; reasons: R
  * opening is, so it has to move before the layout is generated rather than
  * after.
  *
- * A package that will not fit the walls as they stand is rolled back. The room
- * on screen is still the old package's, and leaving the data saying otherwise
- * would draw a 30" range in a 36" hole — so the refusal comes back to be
- * printed, and what is standing stays standing and stays consistent. That is
- * the same bargain a refused slider makes, applied to a bigger change.
+ * A package that needs more wall than the room has gets it. Three tall units
+ * in one run are 90-5/8" of cabinetry, and a room that was drawn for one
+ * refrigerator is a foot short of them — but "no" is the wrong answer to
+ * picking a package. A slider is the customer moving one wall and is refused
+ * on its own terms; choosing the package is choosing the kitchen, and the room
+ * grows to the shortest wall that will take it. What changed is said out loud
+ * rather than happening quietly: `adjusted` is what the caller announces.
+ *
+ * Only the two wall lengths move, and only up to the minimum the refusal
+ * itself prints. The rearrangements a refusal also offers are left alone:
+ * moving the sink to the other leg to make a package fit would be answering a
+ * question nobody asked.
+ *
+ * A package that still will not fit is rolled back. The room on screen is
+ * still the old package's, and leaving the data saying otherwise would draw a
+ * 30" range in a 36" hole — so the refusal comes back to be printed, and what
+ * is standing stays standing and stays consistent.
  */
-export function setActivePackage(id: string): { ok: boolean; reasons: Refusal[] } {
+export function setActivePackage(id: string): {
+  ok: boolean;
+  reasons: Refusal[];
+  adjusted?: Partial<LayoutParams>;
+} {
   const previous = PACKAGE.id;
   if (previous === id) return { ok: true, reasons: [] };
 
+  const asked = REQUESTED_PARAMS;
   setPackage(id);
-  const result = setLayoutParams(REQUESTED_PARAMS);
+  const result = setLayoutParams(asked);
   if (result.ok) return result;
 
+  // Taken from the refusal's own figures rather than from the change it
+  // offers: a wall that is short says how short, where the suggestion beside
+  // it may be to move the sink instead, which is not this function's business.
+  const walls: Partial<LayoutParams> = {};
+  for (const reason of result.reasons) {
+    if (reason.key !== "refusal.wallShort") continue;
+    const key = String(reason.vars.paramKey).replace("param.", "");
+    const minimumIn = Number(reason.vars.minimumIn);
+    if ((key === "backWallIn" || key === "leftWallIn") && Number.isFinite(minimumIn)) {
+      walls[key] = minimumIn;
+    }
+  }
+  if (Object.keys(walls).length > 0) {
+    const grown = setLayoutParams({ ...asked, ...walls });
+    if (grown.ok) return { ok: true, reasons: [], adjusted: walls };
+  }
+
   setPackage(previous);
-  setLayoutParams(REQUESTED_PARAMS);
+  setLayoutParams(asked);
   return { ok: false, reasons: result.reasons };
 }

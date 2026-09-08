@@ -1,8 +1,8 @@
 {
   "_meta": {
     "generatedBy": "seed data, hand written",
-    "updatedAt": "2026-09-07",
-    "provenance": "Package A is the six slots the app has always had, written down. Package C is Leo's round-16 note: 30\" freestanding range, 30\" chimney hood, 36\" freestanding counter-depth refrigerator standing at the end of a run, 24\" dishwasher, microwave drawer and wine cabinet. Package B is registered so its id and its place in the tier order are fixed; its slots are Leo's to write. The defaultSelection for C is picked from the catalogue by category, width and install type and is a stand-in until Leo supplies the models — every one of them is a real record in data/appliances.json, none is invented."
+    "updatedAt": "2026-09-08",
+    "provenance": "Package A is the six slots the app has always had, written down. Package C is Leo's round-16 note: 30\" freestanding range, 30\" chimney hood, 36\" freestanding counter-depth refrigerator standing at the end of a run, 24\" dishwasher, microwave drawer and wine cabinet. Package B is registered so its id and its place in the tier order are fixed; its slots are Leo's to write. The defaultSelection for C is picked from the catalogue by category, width and install type and is a stand-in until Leo supplies the models — every one of them is a real record in data/appliances.json, none is invented. Package B is Leo's round-20 note: a 36\" gas rangetop under a custom hood cabinet with a VCIN36WS insert liner in it, and three tall units in one run — the built-in refrigerator outermost, an 18\" wine column beside it and a 30\" combination oven inside them. Its microwave slot carries a wall oven and its wine slot a column, so neither migrates to or from A and C's drawer and cooler; the island, if there is one, is a prep island with no appliance in it."
   },
   "packages": [
     {
@@ -74,10 +74,64 @@
       },
       "code": "B",
       "tier": 2,
-      "available": false,
-      "slots": [],
-      "defaultSelection": {},
-      "defaultBlower": null
+      "available": true,
+      "slots": [
+        {
+          "slotId": "slot-fridge",
+          "category": "refrigerator",
+          "widthIn": 36,
+          "installType": "built-in",
+          "tallUnit": true,
+          "enclosure": true,
+          "heightIn": 84
+        },
+        {
+          "slotId": "slot-range",
+          "category": "range",
+          "widthIn": 36,
+          "installType": "rangetop"
+        },
+        {
+          "slotId": "slot-hood",
+          "category": "hood",
+          "widthIn": 36,
+          "installType": "insert",
+          "builtForCooktopIn": 36.4375
+        },
+        {
+          "slotId": "slot-dishwasher",
+          "category": "dishwasher",
+          "widthIn": 24,
+          "installType": "freestanding"
+        },
+        {
+          "slotId": "slot-microwave",
+          "category": "wall-oven",
+          "widthIn": 30,
+          "installType": "combo",
+          "tallUnit": true,
+          "enclosure": true,
+          "heightIn": 96
+        },
+        {
+          "slotId": "slot-wine",
+          "category": "wine",
+          "widthIn": 18,
+          "installType": "column",
+          "tallUnit": true,
+          "enclosure": true,
+          "heightIn": 84
+        }
+      ],
+      "defaultSelection": {
+        "slot-fridge": "thermador-t36bt120ns",
+        "slot-range": "thermador-pcg366w",
+        "slot-hood": "thermador-vcin36ws",
+        "slot-dishwasher": "bosch-shv78cm3n",
+        "slot-microwave": "thermador-mem301ws",
+        "slot-wine": "thermador-t18iw100sp"
+      },
+      "defaultBlower": "thermador-vtn2fz"
     },
     {
       "id": "package-c",
