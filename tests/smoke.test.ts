@@ -98,6 +98,28 @@ const pinPositions = (page: Page) =>
     els.map((el) => (el as HTMLElement).style.transform).join("|"),
   );
 
+/**
+ * Wait for the pins to stop moving.
+ *
+ * The camera flies in over 800ms and the pins are re-projected every frame, so
+ * a fixed delay is a bet on how fast the machine is: the same click that has
+ * finished in a second on a quiet box is still in the air three seconds later
+ * on a loaded one. Waiting for the projection to settle asserts about the
+ * arrival rather than about the clock.
+ */
+async function pinsSettled(page: Page, ms = 400, limit = 12_000) {
+  const deadline = Date.now() + limit;
+  await page.waitForTimeout(ms);
+  let last = await pinPositions(page);
+  while (Date.now() < deadline) {
+    await page.waitForTimeout(ms);
+    const now = await pinPositions(page);
+    if (now === last) return last;
+    last = now;
+  }
+  return last;
+}
+
 const setMode = (page: Page, label: string) =>
   page.getByRole("button", { name: label, exact: true }).first().click();
 
@@ -169,10 +191,9 @@ describe("desktop", () => {
 
   it("flies the camera in and offers the selected appliance", async () => {
     const { page } = await openPage(DESKTOP);
-    const before = await pinPositions(page);
+    const before = await pinsSettled(page);
     await page.getByRole("button", { name: /Range/ }).first().click();
-    await page.waitForTimeout(1400);
-    expect(await pinPositions(page)).not.toBe(before);
+    expect(await pinsSettled(page)).not.toBe(before);
     expect(await page.getByText("View specs").isVisible()).toBe(true);
 
     // Clicking past the appliances clears the selection again.

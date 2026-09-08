@@ -487,6 +487,67 @@ async function captureRound14(page) {
  * once against cabinets and once against a return wall, where the door
  * clearance is a figure on the drawing rather than a gap.
  */
+/**
+ * Round 18: four things drawn the way they are built.
+ *
+ * The refrigerator as one box with its doors part of it, the canopy gathering
+ * into its flue on all three sides, the reordered panel that no longer scrolls
+ * sideways, and the corner susan's diagonal door.
+ */
+async function captureRound18(page) {
+  const toPackage = async (code) => {
+    await page.locator(`[data-segment="package"] button`, { hasText: code }).first().click();
+    await settle(page, 2000);
+  };
+  const configure = async (label) => {
+    await click(page, "Configure");
+    await page.waitForTimeout(600);
+    await page.getByRole("button", { name: label, exact: true }).first().click();
+    await page.waitForTimeout(900);
+  };
+
+  // The panel itself, open, so the grouping and the wrapped controls show.
+  await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await settle(page, 2400);
+  await click(page, "Configure");
+  await page.waitForTimeout(900);
+  await page.screenshot({ path: `${outDir}/mobile-panel.png` });
+  await page.getByRole("button", { name: "Close" }).click();
+  await settle(page, 900);
+
+  // The default room, which is now a blind corner.
+  await page.screenshot({ path: `${outDir}/mobile-a-blind-corner.png` });
+
+  // And with a susan, which wears one diagonal door across the corner.
+  await configure("Lazy susan");
+  await page.getByRole("button", { name: "Close" }).click();
+  await settle(page, 1400);
+  await page.screenshot({ path: `${outDir}/mobile-a-lazy-susan.png` });
+
+  for (const [name, match] of [
+    ["fridge", /Refrigerator/],
+    ["hood", /Ventilation hood/],
+  ]) {
+    await page.goto(baseUrl, { waitUntil: "networkidle" });
+    await settle(page, 2400);
+    await toPackage("C");
+    await flyTo(page, match);
+    await settle(page, 1500);
+    await page.screenshot({ path: `${outDir}/mobile-c-${name}.png` });
+  }
+
+  // The refrigerator against a return wall, with the clearance closed.
+  await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await settle(page, 2400);
+  await toPackage("C");
+  await configure("Wall");
+  await page.getByRole("button", { name: "Close" }).click();
+  await settle(page, 1600);
+  await flyTo(page, /Refrigerator/);
+  await settle(page, 1500);
+  await page.screenshot({ path: `${outDir}/mobile-c-fridge-wall.png` });
+}
+
 async function captureRound17(page) {
   const toPackage = async (code) => {
     await page.locator(`[data-segment="package"] button`, { hasText: code }).first().click();
@@ -587,6 +648,21 @@ async function captureRound15(page) {
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round18") {
+    const ctx = await browser.newContext({
+      viewport: MOBILE,
+      deviceScaleFactor: 2,
+      isMobile: true,
+      hasTouch: true,
+    });
+    const page = await ctx.newPage();
+    await captureRound18(page);
+    await ctx.close();
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round17") {
     const ctx = await browser.newContext({
