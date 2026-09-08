@@ -336,8 +336,28 @@ export const packageSlotSchema = z.object({
    * that does not. Null leaves the slot's own published figure alone.
    */
   builtForCooktopIn: inches.nullable().default(null),
-  /** Full height, so it finishes a run rather than sitting under a counter. */
+  /** Full height, so it interrupts the wall cabinets rather than sitting under a counter. */
   tallUnit: z.boolean().default(false),
+  /**
+   * What this tall unit stands beside, when it is not at the end of a run.
+   *
+   * D11 rule 12 as round 21 amends it. A refrigerator and a wine column finish
+   * a run; an oven tower does not — it goes beside the cooking surface, where
+   * a dish comes out of it and onto the counter without crossing the kitchen,
+   * and that is worth the exception to rule 1 that a tall unit mid-run needs.
+   * Null means the end of a run, which is where every other tall unit goes.
+   */
+  beside: z.enum(["range"]).nullable().default(null),
+  /**
+   * How far off the floor the opening starts, where it is not on the floor.
+   *
+   * A refrigerator stands on the floor of its opening; a wall oven hangs in a
+   * hole with a drawer base under it. The MEM301WS drawing allows 4-3/4" to
+   * 18" and this kitchen takes the top of that range, which puts the lower
+   * oven's handle at about 40" and the microwave's door at about 44" — the two
+   * heights a person actually reaches for.
+   */
+  sillIn: inches.default(0),
   /**
    * Whether the cabinetmaker builds around it.
    *

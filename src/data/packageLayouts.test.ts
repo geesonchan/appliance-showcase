@@ -103,6 +103,11 @@ afterAll(() => {
  * sweeping to the end of a slider.
  */
 function activate(id: string): LayoutParams {
+  // Away first, so this is a real switch even when the package is already on.
+  // A switch that is already made returns without building, and the room it
+  // leaves behind is the default room — which for a package that needs a
+  // longer wall is a room it was refused.
+  setActivePackage(DEFAULT_PACKAGE.id);
   setLayoutParams(DEFAULT_PARAMS);
   const result = setActivePackage(id);
   expect(result.ok, `${id} will not build the default room`).toBe(true);
@@ -495,12 +500,14 @@ describe("what is over the cooking surface", () => {
 });
 
 /**
- * Three tall units in one run: D11 rule 12.
+ * The tall units, where D11 rule 12 puts them after round 21.
  *
- * The refrigerator outermost, the wine column beside it, the oven tower
- * inside them, and the manufacturer's 5/8" kit between the two refrigeration
- * columns. 36 + 5/8 + 18 + 30 comes to 84-5/8" of machine; the panel each end
- * is the run's, not the bank's.
+ * Two of them finish a run — the refrigerator outermost with the wine column
+ * beside it and the manufacturer's 5/8" kit between, 36 + 5/8 + 18 = 54-5/8"
+ * of machine with a panel each end. The oven tower is not one of them: it
+ * stands beside the cooking surface, which is the exception to rule 1, with a
+ * cabinet between the two of them because the rangetop's own sheet asks for 5"
+ * to anything combustible.
  */
 describe("a bank of tall units", () => {
   afterAll(() => {
@@ -522,7 +529,6 @@ describe("a bank of tall units", () => {
     const bank = bankOf("package-b");
     expect(bank.map((segment) => segment.slot)).toEqual([
       undefined,
-      "slot-microwave",
       "slot-wine",
       undefined,
       "slot-fridge",
@@ -560,11 +566,13 @@ describe("a bank of tall units", () => {
   it("hangs the column's door away from the refrigerator, on either leg", () => {
     for (const fridgeEnd of ["left", "back"] as const) {
       const sinkLeg = fridgeEnd === "left" ? ("back" as const) : ("left" as const);
-      activate("package-b");
+      const base = activate("package-b");
       const where = `fridge ${fridgeEnd}`;
-      // The wall the bank stands on, at whatever length takes it.
+      // The wall the bank stands on, at whatever length takes it — measured
+      // from the room the package landed in, since the other wall has to be
+      // long enough for the cooking run and the tower on it.
       const key = fridgeEnd === "left" ? ("leftWallIn" as const) : ("backWallIn" as const);
-      const at = params({ fridgeEnd, sinkLeg });
+      const at = { ...base, fridgeEnd, sinkLeg };
       const room = feasibleRange(at, key)!;
       expect(room, where).toBeTruthy();
       expect(setLayoutParams({ ...at, [key]: room.minIn }).ok, where).toBe(true);
@@ -581,13 +589,62 @@ describe("a bank of tall units", () => {
     }
   });
 
-  it("comes to 84-5/8 inches of machine, panels aside", () => {
+  it("comes to 54-5/8 inches of machine, panels aside", () => {
     const bank = bankOf("package-b");
     const machines = bank
       .flatMap((segment) => segment.modules)
       .filter((module) => module.slot || module.kind === "spacer")
       .reduce((sum, module) => sum + module.widthIn, 0);
-    expect(machines).toBeCloseTo(84.625, 6);
+    expect(machines).toBeCloseTo(54.625, 6);
+  });
+
+  /**
+   * The oven tower, beside the cooking surface: D11 rule 12 as round 21
+   * amends it.
+   *
+   * Six inches of cabinet between them at least, because PCG366W wants five to
+   * a combustible surface, and twelve at most before it stops being a cabinet
+   * and starts being a gap. The far side of the machine keeps the wide
+   * landing. And the tower's opening starts 18" off the floor with a drawer
+   * base under it, which is the top of the 4-3/4"-18" the oven's own drawing
+   * allows and puts its handles where a person reaches.
+   */
+  it("stands the oven tower beside the cooking surface, on either side", () => {
+    for (const towerSide of ["left", "right"] as const) {
+      activate("package-b");
+      const where = `tower ${towerSide}`;
+      const at = params({ towerSide });
+      const room = feasibleRange(at, "backWallIn")!;
+      expect(room, where).toBeTruthy();
+      expect(setLayoutParams({ ...at, backWallIn: room.minIn }).ok, where).toBe(true);
+      expect(checkLayout(), where).toEqual([]);
+
+      const run = RUNS.find((r) => r.segments.some((s) => s.slot === "slot-range"))!;
+      const rangeAt = run.segments.findIndex((s) => s.slot === "slot-range");
+      const towerAt = run.segments.findIndex((s) => s.slot === "slot-microwave");
+      expect(Math.abs(towerAt - rangeAt), where).toBe(2);
+      expect(towerAt < rangeAt, where).toBe(towerSide === "left");
+
+      const between = run.segments[(towerAt + rangeAt) / 2];
+      expect(inches(between.to - between.from), `${where}: spacer`).toBeGreaterThanOrEqual(6);
+      expect(inches(between.to - between.from), `${where}: spacer`).toBeLessThanOrEqual(12);
+
+      // The far side of the machine, which is the landing a pan comes off on.
+      const away = run.segments[towerAt < rangeAt ? rangeAt + 1 : rangeAt - 1];
+      expect(inches(away.to - away.from), `${where}: landing`).toBeGreaterThanOrEqual(15);
+    }
+  });
+
+  it("hangs the tower's opening at the sill the package asks for", () => {
+    activate("package-b");
+    const spec = slotsOf(PACKAGE_BY_ID["package-b"])["slot-microwave"];
+    expect(spec.sillIn).toBe(18);
+
+    const tower = RUNS.flatMap((run) => run.segments).find((s) => s.slot === "slot-microwave")!;
+    const module = tower.modules.find((m) => m.kind === "tall")!;
+    expect(module.sillIn).toBe(spec.sillIn);
+    // And the machine stands on it rather than on the floor.
+    expect(inches(SLOT_BY_ID["slot-microwave"].position[1])).toBeCloseTo(spec.sillIn, 6);
   });
 
   it("keeps every one of them 96 inches tall", () => {

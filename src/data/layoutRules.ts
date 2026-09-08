@@ -12,6 +12,7 @@ import {
   type IslandLayout,
   type RunSegment,
 } from "./room";
+import { PACKAGE_SLOTS } from "./packages";
 import { SLOT_BY_ID } from "./slots";
 import type { Appliance, SlotId } from "../types";
 
@@ -104,6 +105,21 @@ function locate(runs: CabinetRun[], slotId: SlotId): { run: CabinetRun; index: n
 }
 
 /**
+ * Whether this tall segment is the oven tower, standing where rule 12 puts it.
+ *
+ * Two things have to hold. The package has to call it a tower — `beside` on
+ * its slot — because the exception is for that one unit and not for whatever
+ * else somebody stands mid-run. And the cooking surface has to be its
+ * neighbour but one: the cabinet between them is the 6" the rangetop's own
+ * sheet asks for, and a tower three cabinets away is not beside anything.
+ */
+function besideTheRange(run: CabinetRun, index: number): boolean {
+  const segment = run.segments[index];
+  if (!segment.slot || PACKAGE_SLOTS[segment.slot]?.beside !== "range") return false;
+  return [index - 2, index + 2].some((at) => run.segments[at]?.slot === "slot-range");
+}
+
+/**
  * Counter available beside a segment, walking outward until something that is
  * not plain counter stops it.
  */
@@ -190,8 +206,14 @@ export function checkLayout(
       // this purpose. What the rule is against is counter *after* a tower,
       // which cuts the worktop in two; three columns standing together are one
       // wall of joinery and cut nothing.
+      //
+      // The oven tower is the exception, and only it: it stands beside the
+      // cooking surface on purpose, so a dish comes out of it and onto the
+      // counter without crossing the kitchen. `beside` on the package slot is
+      // what says a unit is that one, and it has to actually be there — one
+      // cabinet from the machine, no further.
       const after = run.segments.slice(i + 1).filter((s) => s.kind !== "tall");
-      if (after.length > 0) {
+      if (after.length > 0 && !besideTheRange(run, i)) {
         fail(
           "d11-1",
           `${segment.id} is a tall cabinet with ${after.length} segment(s) of counter after it`,
@@ -311,12 +333,49 @@ export function checkLayout(
     const wide = Math.max(...sides);
     const narrow = Math.min(...sides);
     const wanted = LAYOUT_LIMITS.rangeLanding;
-    if (wide < wanted.wideIn - 1e-6 || narrow < wanted.narrowIn - 1e-6) {
+
+    /**
+     * Rule 12 again: an oven tower takes one side of the cooking surface, and
+     * what is between them is a cabinet rather than a landing. So that side is
+     * not asked for the narrow figure — d11-12 below asks it for the six
+     * inches the machine's sheet wants — and the other side has to be the wide
+     * one on its own, which is where a pan actually comes off the burner.
+     */
+    const towerAt = [range.index - 2, range.index + 2].find(
+      (at) =>
+        range.run.segments[at]?.slot &&
+        PACKAGE_SLOTS[range.run.segments[at]!.slot!]?.beside === "range",
+    );
+    const towered = towerAt !== undefined;
+    const towerSide = towered ? (towerAt! < range.index ? -1 : 1) : 0;
+    const away = towered ? landing(range.run, range.index, towerSide === -1 ? 1 : -1) : wide;
+
+    if (towered ? away < wanted.wideIn - 1e-6 : wide < wanted.wideIn - 1e-6 || narrow < wanted.narrowIn - 1e-6) {
       fail(
         "d11-4",
-        `range has ${narrow.toFixed(1)}" and ${wide.toFixed(1)}" of counter beside it, ` +
-          `needs ${wanted.narrowIn}" and ${wanted.wideIn}"`,
+        towered
+          ? `range has ${away.toFixed(1)}" of counter on the side away from the tower, ` +
+            `needs ${wanted.wideIn}"`
+          : `range has ${narrow.toFixed(1)}" and ${wide.toFixed(1)}" of counter beside it, ` +
+            `needs ${wanted.narrowIn}" and ${wanted.wideIn}"`,
       );
+    }
+
+    // D11 rule 12: what stands between the two of them. Six inches because the
+    // rangetop's sheet asks for five to a combustible surface; a foot because
+    // past that it is a gap in the run rather than a cabinet in it.
+    if (towered) {
+      const between = widthIn(
+        range.run.segments[towerAt! < range.index ? range.index - 1 : range.index + 1],
+      );
+      const { minIn, maxIn } = LAYOUT_LIMITS.towerSpacer;
+      if (between < minIn - 1e-6 || between > maxIn + 1e-6) {
+        fail(
+          "d11-12",
+          `${between.toFixed(1)}" of cabinet between the cooking surface and the oven tower, ` +
+            `wants ${minIn}-${maxIn}"`,
+        );
+      }
     }
     const rangeW = SLOT_BY_ID["slot-range"].cutout.w;
     const hoodW = SLOT_BY_ID["slot-hood"].cutout.w;

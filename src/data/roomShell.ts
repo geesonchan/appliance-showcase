@@ -121,6 +121,16 @@ export const LAYOUT_LIMITS = {
   dishwasherToSinkIn: LAYOUT_POLICY.dishwasherToSinkIn,
   /** D11 rule 6: counter on the refrigerator's door side. */
   fridgeLandingIn: 15,
+  /**
+   * D11 rule 12: what goes between a cooking surface and the oven tower
+   * beside it.
+   *
+   * PCG366W asks for 5" from the burners to a combustible surface, so a tower
+   * hard against the machine is not an option; six inches of joinery is the
+   * least that may be there. Twelve is the most: past that it stops being a
+   * spice pull-out beside the burners and becomes a gap in the run.
+   */
+  towerSpacer: { minIn: 6, maxIn: 12 },
   /** D11 rule 7: the aisle a working kitchen needs, for the island. */
   aisleIn: 42,
   /**
@@ -234,6 +244,14 @@ export interface CabinetModule {
    * cabinet out into the floor.
    */
   depthIn?: number;
+  /**
+   * How far off the floor a tall unit's opening starts.
+   *
+   * Zero for a refrigerator, which stands on the floor of its opening; 18" for
+   * an oven tower, which hangs in a hole with a drawer base under it. What is
+   * below the sill and above the opening is cabinetry either way.
+   */
+  sillIn?: number;
   /** The appliance or fixture this module houses. */
   slot?: SlotId;
   fixture?: FixtureId;

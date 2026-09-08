@@ -5,7 +5,7 @@ import { evaluateSlot, packageContext, type Finding } from "./rules";
 import { resolveRoughIn, roughInSentence } from "./roughIn";
 import { useSelection, useSelectedBlower } from "../store/useSelection";
 import { applianceBox } from "./applianceBox";
-import { COLUMN_DOOR_PANELS, isColumn } from "./columnModel";
+import { COLUMN_DOOR_PANELS, COMBO_OVEN, isColumn, isCombo } from "./columnModel";
 import { CHIMNEY, chimneyParts, isChimney } from "./hood";
 import { ISLAND, LAYOUT_LIMITS, OMITTED_SLOTS, RUNS } from "./room";
 import type { Appliance, SlotId } from "../types";
@@ -79,6 +79,7 @@ function installParts(selection: Record<SlotId, Appliance>): Finding[] {
     ...chimneyExtension(selection),
     ...columnKit(),
     ...columnDoorPanel(selection),
+    ...ovenDoorSwing(selection),
   ];
 }
 
@@ -124,6 +125,30 @@ function noIslandFallback(): Finding[] {
       messageKey: "rule.noIslandFallback",
       slot: "slot-microwave",
       params: { wineLegKey: `leg.${wineRun}`, microwaveLegKey: `leg.${microwaveRun}` },
+    },
+  ];
+}
+
+/**
+ * How far an oven door reaches into the room when it is open.
+ *
+ * D11 rule 7's 42" aisle already covers it — 26-5/8" of door in a 42" walkway
+ * leaves room to stand — but nobody reading a plan can see a door that is
+ * shut, and a tower beside the cooking surface puts that door where the cook
+ * is standing. So the figure is on the list rather than implied by another
+ * one. From docs/reference/mem301ws-manual.png.
+ */
+function ovenDoorSwing(selection: Record<SlotId, Appliance>): Finding[] {
+  const oven = selection["slot-microwave"];
+  if (!oven || !isCombo(oven)) return [];
+
+  return [
+    {
+      ruleId: "oven-door-swing",
+      severity: "info",
+      messageKey: "rule.ovenDoorSwing",
+      slot: "slot-microwave",
+      params: { reachIn: COMBO_OVEN.doorReachIn },
     },
   ];
 }

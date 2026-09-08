@@ -44,6 +44,11 @@ export interface LayoutParams {
   /** Which leg of the L the refrigerator tower finishes. */
   fridgeEnd: "left" | "back";
   /**
+   * Which side of the cooking surface an oven tower stands, in packages that
+   * have one. See D11 rule 12.
+   */
+  towerSide: "left" | "right";
+  /**
    * What is at the far end of that leg, past the refrigerator.
    *
    * A refrigerator door opens through more than the machine's own width. Beside
@@ -86,6 +91,9 @@ export const DEFAULT_PARAMS: LayoutParams = {
   // and the one a cabinetmaker reaches for unless somebody asks for a susan.
   cornerType: "blind",
   fridgeEnd: "left",
+  // Right, because a right-handed cook turns from the burners to the oven and
+  // the sink is the other way. It is a parameter because kitchens are not.
+  towerSide: "right",
   fridgeEndAbuts: "cabinet",
   sinkLeg: "back",
   hasIsland: true,
@@ -323,6 +331,16 @@ type Item =
       kind: "gap";
       id: string;
       minIn: number;
+      /**
+       * What it may not exceed, where something says so.
+       *
+       * Most stretches take whatever the wall has left; a few are a part
+       * rather than a remainder. The cabinet between a rangetop and the oven
+       * tower beside it is six inches because the machine's sheet asks for
+       * five to a combustible surface, and a foot of it is a spice pull-out —
+       * wider than that and it is a gap somebody forgot to fill.
+       */
+      maxIn?: number;
       /** The rule that asks for it, for the breakdown under the slider. */
       rule: string;
       labelKey: string;
@@ -350,7 +368,7 @@ const gap = (
   id: string,
   minIn: number,
   rule: string,
-  extra: { shrink?: ShrinkGroup } = {},
+  extra: { shrink?: ShrinkGroup; maxIn?: number } = {},
 ): Item => ({ kind: "gap", id, minIn, rule, labelKey: `requirement.${id}`, ...extra });
 
 /**
@@ -425,15 +443,20 @@ function packLeg(availableIn: number, items: Item[]): { widths: number[] } | { s
     }
   }
 
+  // A stretch that has taken all it may is done: the rest goes to the others.
+  const room = (i: number) => gaps[i].maxIn === undefined || widths[i] + 3 <= gaps[i].maxIn!;
   const growable = order.filter((i) => widths[i] > 0);
-  for (let n = 0; spare >= 3 && growable.length > 0; n += 1) {
-    widths[growable[n % growable.length]] += 3;
+  for (let n = 0; spare >= 3 && growable.some(room); n += 1) {
+    const i = growable[n % growable.length];
+    if (!room(i)) continue;
+    widths[i] += 3;
     spare -= 3;
   }
   // Wall lengths and cabinet widths are both multiples of 3, so there is
   // rarely a remainder; when one appears it belongs to the stretch that gives
-  // its slack up last.
-  widths[growable[0] ?? order[0]] += spare;
+  // its slack up last — and never to one that is already at its ceiling.
+  const last = growable.find((i) => gaps[i].maxIn === undefined) ?? order[0];
+  widths[last] += spare;
   return { widths };
 }
 
@@ -1003,7 +1026,35 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
    * every one of them is `tall`: they are one carcass to look at and one run
    * of 96" boxes to order.
    */
-  const tallSlots = TALL_ORDER.filter((slotId) => spec[slotId]?.tallUnit);
+  // The bank at the end of the run. A tall unit that stands beside the range
+  // is not part of it — it is built into the middle of the back leg, which is
+  // the exception rule 12 makes to rule 1.
+  const tallSlots = TALL_ORDER.filter(
+    (slotId) => spec[slotId]?.tallUnit && !spec[slotId]?.beside,
+  );
+
+  /**
+   * One full-height unit: the machine's own opening in a 96" carcass.
+   *
+   * The sill is the package's — a refrigerator stands on the floor of its
+   * opening and an oven hangs in a hole with a drawer base under it — and
+   * `cabinets.ts` builds the base, the opening and the door above it from the
+   * one module.
+   */
+  const column = (slotId: SlotId): Item => {
+    const slot = spec[slotId];
+    return fixed(
+      slotId.replace("slot-", ""),
+      slot.widthIn,
+      "tall",
+      M(`T${slot.widthIn}96`, "tall", slot.widthIn, {
+        heightIn: 96,
+        slot: slotId,
+        sillIn: slot.sillIn,
+      }),
+      { slot: slotId },
+    );
+  };
   const bank = (): Item[] => {
     const outerIn = params.fridgeEndAbuts === "wall" ? LAYOUT_LIMITS.fridge.fromWallIn : PANEL_IN;
     const items: Item[] = [
@@ -1021,15 +1072,7 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
           ),
         );
       }
-      items.push(
-        fixed(
-          slotId.replace("slot-", ""),
-          slot.widthIn,
-          "tall",
-          M(`T${slot.widthIn}96`, "tall", slot.widthIn, { heightIn: 96, slot: slotId }),
-          { slot: slotId },
-        ),
-      );
+      items.push(column(slotId));
     });
     items.push(
       params.fridgeEndAbuts === "wall"
@@ -1080,12 +1123,63 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
   // a pan actually lands.
   const landing = LAYOUT_LIMITS.rangeLanding;
 
-  const back: Item[] = [
-    gap("range-landing-left", landing.narrowIn, "d11-4", { shrink: "corner-to-range" }),
-    cooking(),
-    gap("range-landing-right", landing.wideIn, "d11-4", { shrink: "range-to-sink" }),
-  ];
-  if (params.sinkLeg === "back") back.push(...sinkGroup());
+  /**
+   * The cooking surface, and whatever stands beside it.
+   *
+   * Without an oven tower it is a landing each side, and the run reads
+   * corner, range, sink. With one — D11 rule 12 — the tower goes on the side
+   * the parameter picks and there is a cabinet between the two of them:
+   * PCG366W wants 5" to a combustible surface, so six inches of joinery is the
+   * least that may be there and a foot of it is a spice pull-out. The other
+   * side keeps the wide landing, which is where a pan comes off the burner.
+   */
+  const besideRange = TALL_ORDER.filter((slotId) => spec[slotId]?.beside === "range");
+  const cookingBlock = (): Item[] => {
+    if (besideRange.length === 0) {
+      return [
+        gap("range-landing-left", landing.narrowIn, "d11-4", { shrink: "corner-to-range" }),
+        cooking(),
+        gap("range-landing-right", landing.wideIn, "d11-4", { shrink: "range-to-sink" }),
+      ];
+    }
+    const beside = besideRange.map(column);
+    const spacer = gap("tower-spacer", LAYOUT_LIMITS.towerSpacer.minIn, "d11-12", {
+      shrink: "corner-to-range",
+      maxIn: LAYOUT_LIMITS.towerSpacer.maxIn,
+    });
+    const away = gap("range-landing", landing.wideIn, "d11-4", { shrink: "range-to-sink" });
+    return params.towerSide === "left"
+      ? [...beside, spacer, cooking(), away]
+      : [away, cooking(), spacer, ...beside];
+  };
+
+  /**
+   * The back leg, read from the corner outward.
+   *
+   * Without a tower it is what it always was: the range with a landing each
+   * side, then the sink group if this is the sink's leg.
+   *
+   * With one, the run has an end that is not the corner's, and the tower takes
+   * it. `towerSide: "right"` means the far end — corner, sink, landing, range,
+   * spacer, tower — which is the order Leo laid out: you come round the corner
+   * to the sink, work along the counter, and the oven is at the end of it.
+   * `"left"` puts the tower nearest the corner instead, and everything else
+   * follows it.
+   */
+  const hasTower = besideRange.length > 0;
+  const sinkFirst = hasTower && params.towerSide === "right";
+  const back: Item[] = [];
+  if (params.sinkLeg === "back" && sinkFirst) {
+    // The sink stands clear of the corner cabinet so its door still opens,
+    // which is the same 15" rule 10 asks for on the other leg.
+    back.push(gap("back-corner-landing", sinkRule.fromCornerIn, "d11-10"));
+    back.push(...sinkGroup());
+  } else if (hasTower && !sinkFirst) {
+    // A tower hard against the corner blocks the corner cabinet's door.
+    back.push(gap("back-corner-landing", LAYOUT_LIMITS.cornerLandingIn, "d11-1"));
+  }
+  back.push(...cookingBlock());
+  if (params.sinkLeg === "back" && !sinkFirst) back.push(...sinkGroup());
 
   // The tower finishes its leg, with a landing before it (D11 rule 6) — and,
   // with no island, the wine cabinet past it at the very end of the run.
@@ -1326,10 +1420,18 @@ function bankFor(
   };
 }
 
-/** Where a leg's wall cabinets stop: at its tower, or at the end of the run. */
+/**
+ * Where a leg's wall cabinets stop: at the tall units that finish it, or at
+ * the end of the run.
+ *
+ * The *trailing* block of them, not the first one on the leg. A tower standing
+ * beside the cooking surface has counter and cabinets after it, and stopping
+ * the bank at it would leave the rest of the wall bare.
+ */
 function bankStop(segments: RunSegment[]): number {
-  const tower = segments.find((segment) => segment.kind === "tall");
-  return tower ? tower.from : segments[segments.length - 1].to;
+  let at = segments.length;
+  while (at > 0 && segments[at - 1].kind === "tall") at -= 1;
+  return at === segments.length ? segments[segments.length - 1].to : segments[at].from;
 }
 
 /**
@@ -1356,8 +1458,8 @@ function banksAroundHood(
   const stop = bankStop(segments);
   if (!range) return [bankFor(`upper-${runId}`, start, stop, corner)];
 
-  // The bank each side stops exactly at the hood's flank. A gap there is one
-  // you cannot get a cloth into and a foot of shelf nobody has.
+  // The bank stops exactly at the hood's flank. A gap there is one you cannot
+  // get a cloth into and a foot of shelf nobody has.
   //
   // Which flank that is depends on the hood: a canopy is as wide as the range
   // under it, and a housing built round an insert liner is wider than both —
@@ -1377,30 +1479,59 @@ function banksAroundHood(
   const mountY = ft(
     (spec["slot-hood"].builtForCooktopIn ?? 36) + CABINET_STANDARDS.hood.aboveCooktopMinIn,
   );
-  return [
-    bankFor(`upper-${runId}-left`, start, hood[0], corner, "start"),
-    ...(bridged || housed
-      ? [
-          {
-            id: `upper-${runId}-hood`,
-            from: hood[0],
-            to: hood[1],
-            ...(housed ? { band: hoodCabinetBand(mountY) } : {}),
-            modules: [
-              housed
-                ? M(`HC${hoodIn}`, "hood-cabinet", hoodIn, {
-                    slot: "slot-hood",
-                    // As deep as the base run below it: a chimney breast is
-                    // built off the wall, not hung like a 12" wall cabinet.
-                    depthIn: CABINET_STANDARDS.base.depthIn,
-                  })
-                : M(`W${hoodIn}`, "bridge", hoodIn, { slot: "slot-hood" }),
-            ],
-          },
-        ]
-      : []),
-    bankFor(`upper-${runId}-right`, hood[1], stop, null, "end"),
-  ];
+
+  const hoodBank: UpperBank = {
+    id: `upper-${runId}-hood`,
+    from: hood[0],
+    to: hood[1],
+    ...(housed ? { band: hoodCabinetBand(mountY) } : {}),
+    modules: [
+      housed
+        ? M(`HC${hoodIn}`, "hood-cabinet", hoodIn, {
+            slot: "slot-hood",
+            // As deep as the base run below it: a chimney breast is built off
+            // the wall, not hung like a 12" wall cabinet.
+            depthIn: CABINET_STANDARDS.base.depthIn,
+          })
+        : M(`W${hoodIn}`, "bridge", hoodIn, { slot: "slot-hood" }),
+    ],
+  };
+
+  /**
+   * What breaks the run of wall cabinets, in order along the wall.
+   *
+   * The hood, and any tall unit standing in the middle of the leg — an oven
+   * tower is 96" of carcass and there is no shelf over it. The tall units that
+   * *finish* the leg are not in this list: they are where the bank stops.
+   */
+  const cuts = [
+    ...segments
+      .filter((segment) => segment.kind === "tall" && segment.from < stop - 1e-9)
+      .map((segment) => ({ from: segment.from, to: segment.to, hood: false })),
+    // Always the hood, whatever hangs there: a chimney carries its own cover
+    // to the ceiling and takes no cabinet, and the bank still stops at it.
+    { from: hood[0], to: hood[1], hood: true },
+  ]
+    .filter((cut) => cut.to > start && cut.from < stop)
+    .sort((a, b) => a.from - b.from);
+
+  if (cuts.length === 0) return [bankFor(`upper-${runId}`, start, stop, corner, "end")];
+
+  const banks: UpperBank[] = [];
+  let cursor = start;
+  for (const [i, cut] of cuts.entries()) {
+    // The scribe goes away from what it abuts: at the corner end of the first
+    // bank, at the far end of the rest.
+    if (cut.from > cursor) {
+      banks.push(
+        bankFor(`upper-${runId}-${i}`, cursor, cut.from, i === 0 ? corner : null, i === 0 ? "start" : "end"),
+      );
+    }
+    if (cut.hood && (bridged || housed)) banks.push(hoodBank);
+    cursor = Math.max(cursor, cut.to);
+  }
+  if (stop > cursor) banks.push(bankFor(`upper-${runId}-end`, cursor, stop, null, "end"));
+  return banks;
 }
 
 /** Where each appliance and fixture ends up, given the runs and the island. */
@@ -1422,11 +1553,18 @@ function placements(
     throw new Error("layoutTemplate: the template left something off the runs");
   };
 
-  /** An opening on a perimeter run, optionally inset by a finished panel. */
+  /**
+   * An opening on a perimeter run, optionally inset by a finished panel.
+   *
+   * On the floor of its opening unless the package hangs it higher: an oven
+   * tower's hole starts 18" up with a drawer base under it, and the machine
+   * stands on that sill rather than on the floor.
+   */
   const wall = (slot: SlotId, inset = 0): SlotPlacement => {
     const { run, segment } = find((s) => s.slot === slot);
+    const at = onRun(run, mid([segment.from + inset, segment.to - inset]));
     return {
-      position: onRun(run, mid([segment.from + inset, segment.to - inset])),
+      position: [at[0], ft(spec[slot].sillIn), at[2]],
       rotationY: facing(run),
       mount: "wall",
     };

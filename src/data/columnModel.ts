@@ -33,6 +33,14 @@ export const COMBO_OVEN = {
   handleFraction: 0.9,
   /** The glass field inside the stainless frame of each door. */
   glassInsetIn: 2,
+  /**
+   * How far the lower oven's door reaches into the room, fully open.
+   *
+   * From the elevation in docs/reference/mem301ws-manual.png. The aisle rule
+   * covers it and the install list says it anyway: a plan cannot show a door
+   * that is shut, and this one opens where the cook stands.
+   */
+  doorReachIn: 26.625,
 };
 
 /**

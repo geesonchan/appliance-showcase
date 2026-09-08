@@ -53,6 +53,9 @@ const BASE_BOX = [0, ROOM.counterHeight - ROOM.counterThickness] as const;
 /** The refrigerator opening's height, in feet, as the slot actually declares it. */
 const fridgeOpeningH = () => ft(SLOT_BY_ID["slot-fridge"].cutout.h);
 
+/** A tall unit's opening, in feet: what the slot it houses declares. */
+const openingH = (slot?: SlotId) => (slot ? ft(SLOT_BY_ID[slot].cutout.h) : fridgeOpeningH());
+
 const span = ([a, b]: readonly [number, number]) => b - a;
 const mid = ([a, b]: readonly [number, number]) => (a + b) / 2;
 
@@ -170,17 +173,33 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
 
     if (module.kind === "tall") {
       // A finished panel each side, the appliance opening between them, and a
-      // bridging cabinet over the top. The bridge starts where the opening
-      // stops, so raising the opening shortens the cabinet above it rather
-      // than leaving the appliance poking through.
+      // cabinet over the top. That cabinet starts where the opening stops, so
+      // raising the opening shortens it rather than leaving the appliance
+      // poking through.
+      //
+      // And under the opening, where the opening does not start at the floor:
+      // an oven tower's hole is 18" up and what is below it is a drawer base,
+      // which is where the trays go. A refrigerator's sill is zero and this
+      // draws what it always drew.
       const opening = [along[0] + PANEL, along[1] - PANEL] as const;
       const outline = segment.id;
       const tall = [0, ft(module.heightIn ?? 96)] as const;
+      const sill = ft(module.sillIn ?? 0);
+      const head = Math.min(sill + openingH(module.slot), tall[1]);
       boxes.push(
         onRun(run, `${segment.id}-panel-a`, "surround", [along[0], opening[0]], tall, ROOM.counterDepth, 0, { outline, slot: module.slot, module }),
         onRun(run, `${segment.id}-panel-b`, "surround", [opening[1], along[1]], tall, ROOM.counterDepth, 0, { outline, slot: module.slot, module }),
-        onRun(run, `${segment.id}-bridge`, "upper", opening, [fridgeOpeningH(), tall[1]], ROOM.counterDepth, 0, { outline, slot: module.slot, module }),
+        onRun(run, `${segment.id}-bridge`, "upper", opening, [head, tall[1]], ROOM.counterDepth, 0, { outline, slot: module.slot, module }),
       );
+      if (sill > 0) {
+        boxes.push(
+          onRun(run, `${segment.id}-base`, "base", opening, [0, sill], ROOM.counterDepth, 0, {
+            outline,
+            slot: module.slot,
+            module,
+          }),
+        );
+      }
       return;
     }
 
