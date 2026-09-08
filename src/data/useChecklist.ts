@@ -83,6 +83,21 @@ function chimneyExtension(selection: Record<SlotId, Appliance>): Finding[] {
   const slot = SLOT_BY_ID["slot-hood"];
   const canopyTop = slot.position[1] + applianceBox(slot, hood).h;
   const chimney = chimneyParts(canopyTop);
+  const riseIn = Math.round(chimney.rise * 120) / 10;
+
+  // Below one section the chimney will not shorten: it is not a cut-to-fit
+  // part, and the canopy or the ceiling has to move instead.
+  if (chimney.tooLow) {
+    return [
+      {
+        ruleId: "chimney-too-low",
+        severity: "warning",
+        messageKey: "rule.chimneyTooLow",
+        slot: "slot-hood",
+        params: { riseIn, sectionIn: CHIMNEY.sectionIn },
+      },
+    ];
+  }
   if (!chimney.needsExtension) return [];
 
   return [
@@ -94,7 +109,7 @@ function chimneyExtension(selection: Record<SlotId, Appliance>): Finding[] {
       params: {
         model: CHIMNEY.extension,
         overIn: Math.round(chimney.shortIn * 10) / 10,
-        riseIn: Math.round(chimney.rise * 120) / 10,
+        riseIn,
       },
     },
   ];

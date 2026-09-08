@@ -62,27 +62,51 @@ export function hoodProfile(
 export const CHIMNEY = {
   widthIn: 13.1875,
   depthIn: 10.75,
-  /** How much wider and deeper the lower section is, all round. */
-  stepIn: 0.5,
-  /** What the assembly covers on its own, canopy top to ceiling. */
-  minIn: 30,
-  maxIn: 42,
+  /**
+   * How much bigger the outer section is than the inner, all round.
+   *
+   * Nearly nothing: the two read as one flue with a joint in it, not as a
+   * stepped stack. The drawing gives one cross-section for both.
+   */
+  stepIn: 0.25,
+  /**
+   * One section's height, and therefore the whole assembly collapsed.
+   *
+   * Read off docs/reference/hmcb30ws-spec.png: its 30-42" is measured from the
+   * canopy's *underside* to the top of the chimney, and the canopy is 8-9/16"
+   * of that. So collapsed the chimney shows 30 - 8-9/16 = 21-7/16", which is
+   * the outer section with the inner entirely inside it.
+   *
+   * What the assembly can cover is therefore one section at the bottom and two
+   * nearly fully drawn apart at the top — not the sheet's 30-42, which is the
+   * rated installation range for an 8' to 9' ceiling rather than the travel of
+   * the part.
+   */
+  sectionIn: 30 - 8.5625,
   /** The extension a taller room needs. */
   extension: "CHXTHMCB",
-  /** The grille across the top of each side. */
-  vent: { heightIn: 3, fromTopIn: 1.5 },
+  /** The grille across the top of each side, from the drawing's 5-1/2". */
+  vent: { heightIn: 5.5, fromTopIn: 1 },
 };
 
 export interface ChimneyParts {
-  /** Canopy top to ceiling, in feet. The two sections tile it exactly. */
+  /** Canopy top to ceiling, in feet. What the assembly has to cover. */
   rise: number;
-  /** Bottom of each section above the canopy top, in feet. */
-  lower: { h: number; w: number; d: number };
-  upper: { h: number; w: number; d: number };
-  /** True when the room is taller than the assembly covers on its own. */
+  /**
+   * The two sections. Both are one section tall — they telescope, so they
+   * overlap rather than tile: the outer one hangs from the canopy's top and the
+   * inner one from the ceiling, and how far apart they are drawn is the rise.
+   */
+  lower: { from: number; h: number; w: number; d: number };
+  upper: { from: number; h: number; w: number; d: number };
+  /** How much of the outer section the inner is still inside, in feet. */
+  overlap: number;
+  /** True when the room is taller than the two sections reach. */
   needsExtension: boolean;
   /** How much taller, in inches. Zero when it fits. */
   shortIn: number;
+  /** True when the ceiling is too low for even one section. */
+  tooLow: boolean;
 }
 
 /**
@@ -94,18 +118,25 @@ export interface ChimneyParts {
  */
 export function chimneyParts(canopyTop: number, ceiling = ROOM.wallHeight): ChimneyParts {
   const rise = Math.max(0, ceiling - canopyTop);
+  const section = ft(CHIMNEY.sectionIn);
   const step = ft(CHIMNEY.stepIn);
   const w = ft(CHIMNEY.widthIn);
   const d = ft(CHIMNEY.depthIn);
-  const half = rise / 2;
-  const overIn = rise * 12 - CHIMNEY.maxIn;
+
+  // Both sections are the same length and they slide on each other. The outer
+  // hangs off the canopy, the inner off the ceiling, and what changes with the
+  // room is how much of the inner is still inside the outer. Collapsed they
+  // are one section tall; drawn nearly apart they are two.
+  const overlap = 2 * section - rise;
+  const overIn = -overlap * 12;
   return {
     rise,
-    // The lower section slides over the upper, so it is the wider of the two.
-    lower: { h: half, w, d },
-    upper: { h: rise - half, w: w - step, d: d - step },
+    lower: { from: 0, h: section, w, d },
+    upper: { from: rise - section, h: section, w: w - step, d: d - step },
+    overlap: Math.max(0, overlap),
     needsExtension: overIn > 1e-6,
     shortIn: overIn > 1e-6 ? overIn : 0,
+    tooLow: rise < section - 1e-6,
   };
 }
 

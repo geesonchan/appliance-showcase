@@ -34,7 +34,8 @@
           "slotId": "slot-hood",
           "category": "hood",
           "widthIn": 36,
-          "installType": "under-cabinet"
+          "installType": "under-cabinet",
+          "builtForCooktopIn": 36.75
         },
         {
           "slotId": "slot-dishwasher",
@@ -107,7 +108,8 @@
           "slotId": "slot-hood",
           "category": "hood",
           "widthIn": 30,
-          "installType": "chimney"
+          "installType": "chimney",
+          "builtForCooktopIn": 36
         },
         {
           "slotId": "slot-dishwasher",
@@ -130,7 +132,7 @@
       ],
       "defaultSelection": {
         "slot-fridge": "thermador-t36ft820ns",
-        "slot-range": "maytag-mfes4030rs",
+        "slot-range": "maytag-mfgs4030rs",
         "slot-hood": "thermador-hmcb30ws",
         "slot-dishwasher": "bosch-shx78cm5n",
         "slot-microwave": "thermador-md24bs",

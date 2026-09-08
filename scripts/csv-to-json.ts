@@ -181,7 +181,11 @@ export function convert(
       return;
     }
 
-    const widthIn = toWidthIn(row.Width ?? "");
+    // The manufacturer's drawing where one has been read, then the sheet. A
+    // shop records what it sells — a "30-inch range" — and the drawing records
+    // what it measures, 29-7/8". Both are true and only one of them fits a
+    // cabinet, so where they disagree the drawing wins. See PUBLISHED_SPECS.
+    const widthIn = toPublished((row.Model ?? "").trim()).widthIn ?? toWidthIn(row.Width ?? "");
     // A blower is an accessory bolted to a hood, not something that goes in an
     // opening, so it has no width in the sheet and does not need one. Every
     // other category is checked against a cutout, so a missing width means the
@@ -214,17 +218,27 @@ export function convert(
       msrpUSD: priceOrNull(row.msrpUSD),
       sourceUrl: textOrNull(row.sourceUrl),
       verifiedAt: textOrNull(row.verifiedAt),
-      installType: toInstallType(row.Feature ?? "", type, row.Width ?? "", row.Depth ?? ""),
+      installType:
+        published.installType ??
+        toInstallType(row.Feature ?? "", type, row.Width ?? "", row.Depth ?? ""),
       fuel: toFuel(type),
       blower: toBlower(category, row.blower ?? ""),
       compatibleBlowers: toCompatibleBlowers(category, model),
       topDepthIn: category === "hood" ? toDimension(row.topDepthIn ?? "") : null,
+      frontLipIn: published.frontLipIn ?? null,
       widthIn,
-      // The sheet first, then the manufacturer's drawing where one has been
-      // read: a shop records what it stocks, not what the machine looks like.
-      heightIn: numberOrNull(row.Height) ?? published.heightIn ?? null,
-      depthIn: numberOrNull(row.Depth) ?? published.depthIn ?? null,
+      // The drawing first, then the sheet — same reason as the width.
+      heightIn: published.heightIn ?? numberOrNull(row.Height) ?? null,
+      depthIn: published.depthIn ?? numberOrNull(row.Depth) ?? null,
       burners: published.burners ?? null,
+      // Figures that only a drawing carries: where a range cooks as against how
+      // tall it is, and how far a refrigerator's doors and handles stand out
+      // from its carcass. No sheet has a column for any of them.
+      cooktopIn: published.cooktopIn ?? null,
+      backguardIn: published.backguardIn ?? null,
+      depthWithDoorsIn: published.depthWithDoorsIn ?? null,
+      depthWithHandleIn: published.depthWithHandleIn ?? null,
+      rearSpacerIn: published.rearSpacerIn ?? null,
       // The drawing first where one has been read, then the sheet's own words.
       // Null means nobody has said, and the app draws the commonest front and
       // marks it a guess.

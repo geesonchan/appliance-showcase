@@ -30,24 +30,34 @@ describe("a chimney reaches the ceiling", () => {
     }
   });
 
-  it("splits that rise between two sections that tile it exactly", () => {
+  it("keeps both sections one section long and slides them, canopy to ceiling", () => {
     for (const canopyTopIn of [60, 74.5625, 84.75]) {
       const chimney = chimneyParts(ft(canopyTopIn));
-      expect(chimney.lower.h + chimney.upper.h, `canopy top ${canopyTopIn}"`).toBeCloseTo(
-        chimney.rise,
-        9,
-      );
-      expect(chimney.lower.h).toBeGreaterThan(0);
-      expect(chimney.upper.h).toBeGreaterThan(0);
+      const where = `canopy top ${canopyTopIn}"`;
+
+      // Neither section changes length: what changes is how much of the inner
+      // one is still inside the outer.
+      expect(inches(chimney.lower.h), where).toBeCloseTo(CHIMNEY.sectionIn, 6);
+      expect(inches(chimney.upper.h), where).toBeCloseTo(CHIMNEY.sectionIn, 6);
+
+      // The outer hangs off the canopy's top; the inner finishes at the ceiling.
+      expect(chimney.lower.from, where).toBe(0);
+      expect(chimney.upper.from + chimney.upper.h, where).toBeCloseTo(chimney.rise, 9);
+
+      // And they still touch: the overlap is what the two lengths have left.
+      expect(inches(chimney.overlap), where).toBeCloseTo(2 * CHIMNEY.sectionIn - inches(chimney.rise), 6);
+      expect(chimney.overlap, where).toBeGreaterThanOrEqual(0);
     }
   });
 
-  it("steps the upper section in, because the lower one slides over it", () => {
+  it("keeps the two sections the same size to within half an inch", () => {
     const chimney = chimneyParts(ft(74.5625));
     expect(inches(chimney.lower.w)).toBeCloseTo(CHIMNEY.widthIn, 6);
     expect(inches(chimney.lower.d)).toBeCloseTo(CHIMNEY.depthIn, 6);
-    expect(inches(chimney.lower.w - chimney.upper.w)).toBeCloseTo(CHIMNEY.stepIn, 6);
-    expect(inches(chimney.lower.d - chimney.upper.d)).toBeCloseTo(CHIMNEY.stepIn, 6);
+    // A telescope, not a stepped stack: the joint should barely read.
+    expect(inches(chimney.lower.w - chimney.upper.w)).toBeLessThanOrEqual(0.5);
+    expect(inches(chimney.lower.d - chimney.upper.d)).toBeLessThanOrEqual(0.5);
+    expect(chimney.lower.w).toBeGreaterThan(chimney.upper.w);
   });
 
   it("moves with the canopy, which moves with the range under it", () => {
@@ -57,17 +67,32 @@ describe("a chimney reaches the ceiling", () => {
     expect(inches(low.rise - high.rise)).toBeCloseTo(10, 6);
   });
 
-  // 30-42" is what the assembly covers on its own. A taller room needs the
-  // manufacturer's extension, and saying nothing would be drawing a chimney
-  // that does not exist.
-  it("asks for an extension only when the room is taller than it covers", () => {
-    const fits = chimneyParts(ft(ROOM.wallHeight * 12 - CHIMNEY.maxIn));
-    expect(fits.needsExtension).toBe(false);
-    expect(fits.shortIn).toBe(0);
+  /**
+   * What the part can do, rather than what the sheet rates it for.
+   *
+   * One section collapsed at the bottom, two nearly drawn apart at the top. A
+   * room outside that is a room this chimney does not fit: below, it will not
+   * shorten; above, it takes the extension, and saying nothing would be drawing
+   * a chimney that does not exist.
+   */
+  it("covers one section at the shortest and two at the longest", () => {
+    const ceilingIn = ROOM.wallHeight * 12;
 
-    const tall = chimneyParts(ft(ROOM.wallHeight * 12 - CHIMNEY.maxIn - 8));
+    const collapsed = chimneyParts(ft(ceilingIn - CHIMNEY.sectionIn));
+    expect(collapsed.needsExtension).toBe(false);
+    expect(collapsed.tooLow).toBe(false);
+    expect(inches(collapsed.overlap)).toBeCloseTo(CHIMNEY.sectionIn, 6);
+
+    const extended = chimneyParts(ft(ceilingIn - CHIMNEY.sectionIn * 2));
+    expect(extended.needsExtension).toBe(false);
+    expect(inches(extended.overlap)).toBeCloseTo(0, 6);
+
+    const tall = chimneyParts(ft(ceilingIn - CHIMNEY.sectionIn * 2 - 8));
     expect(tall.needsExtension).toBe(true);
     expect(tall.shortIn).toBeCloseTo(8, 6);
+
+    const low = chimneyParts(ft(ceilingIn - CHIMNEY.sectionIn + 4));
+    expect(low.tooLow).toBe(true);
   });
 
   it("is the room the app actually builds, in package C", () => {
@@ -82,9 +107,11 @@ describe("a chimney reaches the ceiling", () => {
       const chimney = chimneyParts(canopyTop);
 
       expect(canopyTop + chimney.rise).toBeCloseTo(ROOM.wallHeight, 9);
-      expect(chimney.lower.h + chimney.upper.h).toBeCloseTo(chimney.rise, 9);
-      // An eight-foot ceiling is inside the assembly's own travel.
+      expect(chimney.upper.from + chimney.upper.h).toBeCloseTo(chimney.rise, 9);
+      // An eight-foot ceiling is inside the assembly's own travel, at the
+      // collapsed end of it: this is the room the sheet's 30" is drawn for.
       expect(chimney.needsExtension).toBe(false);
+      expect(chimney.tooLow).toBe(false);
     } finally {
       setActivePackage(DEFAULT_PACKAGE.id);
       setLayoutParams(DEFAULT_PARAMS);

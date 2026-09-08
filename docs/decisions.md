@@ -452,11 +452,18 @@ rules are checked on a segment's boxes rather than on the stretch, and a bank of
 wall cabinets is as long as it is rather than as long as it rounds to. Rounding
 it away is how a bank came out half an inch longer than the wall it was on.
 
+**And a wall is drawn as a wall.** Where the layout says there is a return wall
+past the refrigerator, one is built — in the wall's own colour, at the wall's own
+height, returning 30" into the room. Three and a half inches of empty run at the
+end of a leg reads as a cabinet somebody forgot; the same three and a half
+inches against a wall reads as a door that has to open.
+
 **What this forbids:** placing an appliance by eye; a layout template that
 "mostly" follows the rules; hard-coded cabinet boxes that no rule can be run
 against; adding the sink, the pot filler or the ice-maker line to
 `appliances.json`; a refusal that says no without saying what is in the way;
-drawing a freestanding machine flush with the cabinets beside it.
+drawing a freestanding machine flush with the cabinets beside it; leaving a
+clearance against a wall that is not there.
 
 
 ---
@@ -632,6 +639,13 @@ inside it, so that box is structural. A chimney hood carries its own flue to
 the ceiling, and a cabinet over it would be a cabinet with a stainless duct
 through the middle of it. The D13 addendum still holds either way: the banks
 each side sit hard against the canopy's flanks.
+
+**What the wall was drilled for is the package's.** D13 says a hood is hung once,
+off the cooking surface the installer set it from, not off whichever range is
+swapped in later. But which surface *that* is belongs to the package: A is a pro
+range cooking at 36-3/4", C is a freestanding one cooking at 36". Three quarters
+of an inch is the difference between a chimney that collapses to fit an 8'
+ceiling and one that will not.
 
 **Switching packages.** The room is regenerated first, and a package that will
 not fit the walls as they stand is refused and does not take — the same bargain

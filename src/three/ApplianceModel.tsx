@@ -925,11 +925,10 @@ function Hood({
     const backOf = (depth: number) => -d / 2 + depth / 2;
     const section = (
       name: string,
-      from: number,
-      size: { h: number; w: number; d: number },
+      size: { from: number; h: number; w: number; d: number },
       vents: boolean,
     ) => (
-      <group key={name} name={name} position={[0, h + from + size.h / 2, backOf(size.d)]}>
+      <group key={name} name={name} position={[0, h + size.from + size.h / 2, backOf(size.d)]}>
         <mesh castShadow>
           <boxGeometry args={[size.w, size.h, size.d]} />
           <Mat s={body} />
@@ -955,8 +954,10 @@ function Hood({
         {body_}
         {chimney.rise > 0 && (
           <group name="hood-chimney">
-            {section("chimney-lower", 0, chimney.lower, false)}
-            {section("chimney-upper", chimney.lower.h, chimney.upper, true)}
+            {/* The inner section first, so the outer one sliding over it hides
+                the overlap the way the part does. */}
+            {section("chimney-upper", chimney.upper, true)}
+            {section("chimney-lower", chimney.lower, false)}
           </group>
         )}
       </group>

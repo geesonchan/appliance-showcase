@@ -1,4 +1,5 @@
-import { HOOD_OPENING, ROOM, RUN, ft } from "../data/room";
+import { useMemo } from "react";
+import { HOOD_OPENING, ROOM, RUN, ft, fridgeReturnWall } from "../data/room";
 import { useAppStore } from "../store/useAppStore";
 import { finish, floorColor, wallColor } from "./materials";
 import { Surface } from "./Surface";
@@ -62,6 +63,8 @@ export function KitchenShell() {
         />
       </mesh>
 
+      <ReturnWall colour={wall} opacity={wallOpacity} />
+
       {/* left wall (-X), faces +X */}
       <mesh
         name="wall-left"
@@ -80,6 +83,34 @@ export function KitchenShell() {
         />
       </mesh>
     </group>
+  );
+}
+
+/**
+ * The wall past the refrigerator, when the layout says one is there.
+ *
+ * In the wall's own colour and at the wall's own height, because the three and
+ * a half inches beside the machine only make sense if you can see what they are
+ * against — an empty gap at the end of a run reads as a cabinet somebody forgot
+ * rather than as a door that has to open. See docs/decisions.md D11 rule 11.
+ */
+function ReturnWall({ colour, opacity }: { colour: string; opacity: number }) {
+  const layoutVersion = useAppStore((s) => s.layoutVersion);
+  const wall = useMemo(() => fridgeReturnWall(), [layoutVersion]);
+  if (!wall) return null;
+
+  return (
+    <mesh name="wall-return" position={wall.position} receiveShadow castShadow>
+      <boxGeometry args={wall.size} />
+      <meshStandardMaterial
+        key={opacity < 1 ? "ghost" : "solid"}
+        color={colour}
+        roughness={0.95}
+        metalness={0}
+        transparent={opacity < 1}
+        opacity={opacity}
+      />
+    </mesh>
   );
 }
 

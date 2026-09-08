@@ -325,6 +325,17 @@ export const packageSlotSchema = z.object({
    */
   heightIn: inches.nullable().default(null),
   installType: z.string().min(1),
+  /**
+   * Hoods: the cooking surface the wall is drilled for, in this package.
+   *
+   * D13 says a hood is hung once, off the surface the installer set it from —
+   * not off whichever range is swapped in later. But which surface *that* is
+   * belongs to the package: A is a pro range cooking at 36-3/4", C is a
+   * freestanding one cooking at 36", and three quarters of an inch is the
+   * difference between a chimney that collapses to fit an 8' ceiling and one
+   * that does not. Null leaves the slot's own published figure alone.
+   */
+  builtForCooktopIn: inches.nullable().default(null),
   /** Full height, so it finishes a run rather than sitting under a counter. */
   tallUnit: z.boolean().default(false),
   /**

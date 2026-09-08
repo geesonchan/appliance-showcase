@@ -491,17 +491,26 @@ export const PUBLISHED_SPECS: Record<
     depthWithHandleIn?: number;
     rearSpacerIn?: number;
     frontLipIn?: number;
+    /**
+     * How the machine installs, where the sheet's Feature column does not say.
+     * A Masterpiece chimney wall hood reads as "wall-mount" from the words and
+     * is a chimney hood on the drawing — and whether it is one decides whether
+     * a cabinet goes above it.
+     */
+    installType?: string[];
     doorConfig?: DoorConfig;
     doorSplit?: DoorSplit;
   }
 > = {
   PRG366WH: { heightIn: 36.75, depthIn: 24.75, burners: 6 },
   PRG304WH: { heightIn: 36.75, depthIn: 24.75, burners: 4 },
-  // Maytag MFES4030RS, from Leo's round-17 note. A freestanding range is a
-  // different machine from a pro-style one: it is sold at its full height with
-  // the backguard on, cooks at 36", and carries its controls on the front
-  // rather than on a fascia under the deck.
-  MFES4030RS: {
+  // Maytag MFGS4030RS, from docs/reference/mfgs4030rs-front.png. A freestanding
+  // range is a different machine from a pro-style one: it is sold at its full
+  // height with the backguard on, cooks at 36", and carries its controls on the
+  // front rather than on a fascia under the deck. The elevation gives the
+  // envelope and the five burners; where it cooks and how tall the backguard is
+  // are Leo's round-17 figures, and the two add up to the published 47-7/8".
+  MFGS4030RS: {
     widthIn: 29.875,
     heightIn: 47.875,
     depthIn: 28,
@@ -509,11 +518,20 @@ export const PUBLISHED_SPECS: Record<
     backguardIn: 11.875,
     burners: 5,
   },
-  // Thermador HMCB30WS. The canopy only; the chimney above it is sized to the
-  // room, from the canopy's top to the ceiling.
-  HMCB30WS: { widthIn: 29.9375, heightIn: 8.5625, depthIn: 23.1875, frontLipIn: 5 },
-  // Thermador T36FT820NS. A 24" body held 1" off the wall by its own spacers,
-  // with the doors and then the handles standing in front of it.
+  // Thermador HMCB30WS, from docs/reference/hmcb30ws-spec.png. The canopy only;
+  // the chimney above it is sized to the room. The drawing's 30-42" is measured
+  // from the canopy's *underside* to the top of the chimney, which is where the
+  // section height in `CHIMNEY` comes from.
+  HMCB30WS: {
+    widthIn: 29.9375,
+    heightIn: 8.5625,
+    depthIn: 23.1875,
+    frontLipIn: 5,
+    installType: ["wall-mount", "chimney"],
+  },
+  // Thermador T36FT820NS, from docs/reference/t36ft820ns-spec.png. A 24" body
+  // held 1" off the wall by its own spacers, with the doors and then the handles
+  // standing in front of it: 25", 28-3/4" and 31-7/16" to the wall.
   T36FT820NS: {
     widthIn: 35.625,
     heightIn: 72,

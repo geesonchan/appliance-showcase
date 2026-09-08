@@ -7,7 +7,14 @@ import {
   type Refusal,
   type SlotPlacement,
 } from "./layoutTemplate";
-import { setRoomSize, type CabinetRun, type RunSegment } from "./roomShell";
+import {
+  LAYOUT_LIMITS,
+  ROOM,
+  ft,
+  setRoomSize,
+  type CabinetRun,
+  type RunSegment,
+} from "./roomShell";
 import type { FixtureId, SlotId } from "../types";
 
 export * from "./roomShell";
@@ -129,6 +136,50 @@ export function runForSlot(slotId: SlotId): "left" | "back" | "island" {
     if (run.segments.some((segment) => segment.slot === slotId)) return run.id;
   }
   return "back";
+}
+
+/**
+ * The return wall past the refrigerator, when the layout says there is one.
+ *
+ * A room with a wall at the end of a run is a different room from one that just
+ * stops, and the three and a half inches of clearance only make sense if you
+ * can see what they are against. So the wall is drawn — in the wall's own
+ * colour and material, at the wall's own height — rather than left as an empty
+ * gap that reads as a mistake. Its return is D11 rule 11's 30": past that a
+ * reveal is a wall to a door swinging into it.
+ *
+ * Null when the far end is cabinetry, or when there is no freestanding
+ * refrigerator to be beside.
+ */
+export function fridgeReturnWall(): {
+  /** Centre of the wall, in feet. */
+  position: [number, number, number];
+  /** Extent along x, y, z. */
+  size: [number, number, number];
+} | null {
+  if (LAYOUT_PARAMS?.fridgeEndAbuts !== "wall") return null;
+  for (const run of RUNS) {
+    const segment = run.segments.find((s) => s.slot === "slot-fridge");
+    if (!segment) continue;
+
+    const thickness = ft(4.5);
+    const depth = ft(LAYOUT_LIMITS.fridge.wallReturnIn);
+    // Face on the segment's far end, returning into the room from the wall the
+    // run stands against.
+    const face = segment.to + thickness / 2;
+    const back = run.centre - ROOM.counterDepth / 2;
+    const mid = back + depth / 2;
+    return run.axis === "x"
+      ? {
+          position: [face, ROOM.wallHeight / 2, mid],
+          size: [thickness, ROOM.wallHeight, depth],
+        }
+      : {
+          position: [mid, ROOM.wallHeight / 2, face],
+          size: [depth, ROOM.wallHeight, thickness],
+        };
+  }
+  return null;
 }
 
 export const extent = (s: RunSegment) => [s.from, s.to] as const;

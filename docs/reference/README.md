@@ -10,6 +10,9 @@ Manufacturer drawings the geometry is built from. Two are referred to by name in
 | `thermador-t36bt120ns.png` | Refrigerator: receptacle and water in the neighbouring cabinet, the 7-1/4" service channel across the back of the opening. **Not in the repository yet.** |
 | `thermador-md24bs.png` | Microwave drawer: outlet on the rear wall of the opening 4" in and 14-5/8" up, anti-tip bracket top rear. **Not in the repository yet.** |
 | `bosch-dishwasher-install.png` | Dishwasher: power, hot water and drain all in the sink base, drain run as a high loop peaking 33-43" off the floor. **Not in the repository yet.** |
+| `t36ft820ns-spec.png` | Freestanding counter-depth refrigerator: 35-5/8" x 72" x 24" body, 1" fixed spacers on the back, 28-3/4" with the doors and 31-7/16" with the handles, 1/8" clearance each side, 44-9/16" with a door open. The two depths are what separate it from a built-in by eye. |
+| `hmcb30ws-spec.png` | Chimney wall hood: 29-15/16" x 23-3/16" canopy, 8-9/16" tall with a 5" front face; chimney 13-3/16" x 10-3/4" with a 5-1/2" grille at the top of each side; 30-42" from the canopy's **underside** to the top of the chimney. |
+| `mfgs4030rs-front.png` | Freestanding gas range: 29-7/8" x 47-7/8" x 28", five burners, backguard with a digital display, five knobs and a vent strip on the front, storage drawer at the bottom. |
 
 Positions taken from these are in `data/rough-in.json`, keyed by model, with the
 sheet each came from recorded against it. A model with no entry falls back to
@@ -29,6 +32,20 @@ They live in `CABINET_STANDARDS.hood` in `src/data/room.ts`, so the drawings
 arriving later can be checked against the code rather than the other way round.
 If a figure here turns out to disagree with the sheet, change the constant and
 the room rebuilds around it.
+
+## Reading the hood's 30-42"
+
+It is measured from the canopy's underside to the top of the chimney, not from
+the canopy's top. The canopy is 8-9/16" of it, so the chimney alone shows
+21-7/16" collapsed — which is one section, with the other entirely inside it.
+That is where `CHIMNEY.sectionIn` comes from, and it is why an 8' ceiling over a
+36" cooking surface uses the assembly at exactly its shortest: 36 + 30 + 8-9/16
+puts the canopy's top at 74-9/16", and 96 - 74-9/16 is 21-7/16".
+
+What the part can cover is therefore one section at the bottom and two nearly
+drawn apart at the top, rather than the sheet's 30-42, which is the rated
+installation range for an 8' to 9' ceiling rather than the travel of the tube.
+See docs/decisions.md D13.
 
 ## prg366wh-spec.pdf — not in the repository yet
 

@@ -172,6 +172,7 @@
   "layout.refused": "这个布局生成不了：",
   "layout.showing": "仍在显示：{island}\" 岛台，冰箱在{fridge}段。",
   "roughIn.callout": "{type}：{where}，{at}",
+  "rule.chimneyTooLow": "罩顶到天花仅 {riseIn}\"，烟囱罩收拢后为 {sectionIn}\"，无法再缩短",
   "rule.chimneyExtension": "烟囱延长件 {model} —— 此处需 {riseIn}\"，超出标准伸缩范围 {overIn}\"",
   "rule.fridgeDoorClearance": "冰箱与墙身之间需留 {gapIn}\" 开门空隙，保证门开 90°。可选门挡 {doorStop}。",
   "rule.roughIn": "{type} — {where}，{at}",

@@ -45,6 +45,9 @@ function size(record: SlotRecord, spec: PackageSlot): SlotRecord {
   const box = { w: spec.widthIn, ...(spec.heightIn === null ? {} : { h: spec.heightIn }) };
   return {
     ...record,
+    // The hood is hung off the cooking surface the wall was drilled for, and
+    // which surface that is belongs to the package. See D13 and D16.
+    ...(spec.builtForCooktopIn === null ? {} : { builtForCooktopIn: spec.builtForCooktopIn }),
     cutout: { ...record.cutout, ...box },
     cabinetConfig: {
       ...record.cabinetConfig,
