@@ -101,10 +101,13 @@ export function applianceBox(slot: Slot, appliance: Appliance): ApplianceBox {
     rearSpacerIn: appliance.rearSpacerIn ?? 0,
     y: rangetop ? openingH - dropsIn(appliance) : fromTop && !hung ? spareH : 0,
     filler: {
-      // Nothing below a rangetop: what is under it is the drawer base the run
-      // orders, not a panel this fills the leftover with.
+      // Nothing above or below a rangetop. What is under it is the drawer base
+      // the run orders, and what is over it is the wall: from the cooking
+      // surface up to the hood there is tile and nothing else, which is what
+      // the clearance over a cooking surface *is*. A panel there was a cabinet
+      // hung in the one place a cabinet may not go.
       below: hung || standsAlone || rangetop ? 0 : fromTop ? spareH : 0,
-      above: hung || standsAlone ? 0 : fromTop ? 0 : spareH,
+      above: hung || standsAlone || rangetop ? 0 : fromTop ? 0 : spareH,
       eachSide: standsAlone ? 0 : spareW / 2,
     },
   };

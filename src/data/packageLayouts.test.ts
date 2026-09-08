@@ -1,5 +1,6 @@
 import { afterAll, describe, expect, it } from "vitest";
 import { applianceBox } from "./applianceBox";
+import { cooktopHeight } from "./rangeModel";
 import { CABINETS } from "./cabinets";
 import { APPLIANCE_BY_ID } from "./catalogue";
 import { dimensionsFor } from "./dimensions";
@@ -424,6 +425,72 @@ describe("the door clearance is said out loud", () => {
     // Not hidden behind the dimension layer: it is the reason the gap is there.
     expect(dimension!.always).toBe(true);
     expect(dimension!.noteKey).toBeTruthy();
+  });
+});
+
+/**
+ * The wall between a cooking surface and the hood over it.
+ *
+ * Backsplash and nothing else. The clearance over a cooking surface is the
+ * whole point of the figure — 36" to an unprotected cabinet on the rangetop's
+ * own sheet — so a cabinet hung in it is the one cabinet that may not be
+ * there. The app drew one for a while: the leftover height of the range slot's
+ * opening was being filled with a panel in the door finish, 27" of it, which
+ * is a green box standing on the counter behind the burners.
+ */
+describe("what is over the cooking surface", () => {
+  afterAll(() => {
+    setActivePackage(DEFAULT_PACKAGE.id);
+    setLayoutParams(DEFAULT_PARAMS);
+  });
+
+  it("is the wall, in every package", () => {
+    for (const entry of BUILDABLE_PACKAGES) {
+      activate(entry.id);
+      const slot = SLOT_BY_ID["slot-range"];
+      const range = APPLIANCE_BY_ID[entry.defaultSelection["slot-range"]!];
+      const hood = SLOT_BY_ID["slot-hood"];
+
+      // The band: from the cooking surface to the underside of the hood. The
+      // cooking surface is the machine's own — a rangetop's deck at 36-7/16",
+      // a backguard range's 36" cooktop, a pro range's top — not the top of
+      // whatever it is sold as.
+      const cooktop =
+        slot.position[1] + cooktopHeight(range, applianceBox(slot, range));
+      const under = hood.position[1];
+      expect(under, entry.id).toBeGreaterThan(cooktop);
+
+      const segment = RUNS.flatMap((run) => run.segments).find((s) => s.slot === "slot-range")!;
+      for (const box of CABINETS) {
+        const [w, h, d] = box.size;
+        const [x, y, z] = box.position;
+        // Anything whose body is inside the band, over the machine.
+        const low = y - h / 2;
+        const high = y + h / 2;
+        const overlapsBand = high > cooktop + 1e-6 && low < under - 1e-6;
+        const overlapsRange = x + w / 2 > segment.from + 1e-6 && x - w / 2 < segment.to - 1e-6;
+        expect(
+          overlapsBand && overlapsRange,
+          `${entry.id}: ${box.id} stands between the cooking surface and the hood`,
+        ).toBe(false);
+        expect(d).toBeGreaterThan(0);
+        expect(z).toBeDefined();
+      }
+    }
+  });
+
+  it("draws no panel of its own above the machine either", () => {
+    for (const entry of BUILDABLE_PACKAGES) {
+      activate(entry.id);
+      const slot = SLOT_BY_ID["slot-range"];
+      const range = APPLIANCE_BY_ID[entry.defaultSelection["slot-range"]!];
+      // A freestanding range fills its opening; a rangetop's opening is a hole
+      // in the stone and the cabinetry above it is nothing at all.
+      if (!range.installType.includes("rangetop")) continue;
+      const box = applianceBox(slot, range);
+      expect(box.filler.above, entry.id).toBe(0);
+      expect(box.filler.below, entry.id).toBe(0);
+    }
   });
 });
 
