@@ -77,11 +77,13 @@ describe("skipping rows the scene has no place for", () => {
     expect(summary.skipped.Dryer).toBe(1);
     expect(summary.skipped.Backguard).toBe(1);
     expect(summary.skipped.Filter).toBe(1);
-    // Cooktops, wall ovens and the "other" family are real appliances with no
-    // slot in this kitchen.
+    // Cooktops and the "other" family are real appliances with no slot in this
+    // kitchen. Wall ovens had none either until package B stood a combination
+    // oven in a tall tower: `slot-microwave` takes the category now, so those
+    // rows are exported rather than counted here.
     expect(summary.skipped["no slot: cooktop"]).toBe(1);
     expect(summary.skipped["no slot: other"]).toBe(3);
-    expect(summary.skipped["no slot: wall-oven"]).toBeGreaterThan(0);
+    expect(summary.skipped["no slot: wall-oven"]).toBeUndefined();
   });
 
   it("accounts for every row it read", () => {
@@ -169,10 +171,27 @@ describe("the new families, end to end", () => {
   it("keeps appliances with no slot out, and counts them by category", () => {
     const { summary } = run();
     // Coffee machine, ice-maker and warming drawer. The wine cooler has a slot
-    // of its own now, and the wall ovens are counted separately.
+    // of its own, and so do the wall ovens now.
     expect(summary.skipped["no slot: other"]).toBe(3);
-    expect(summary.skipped["no slot: wall-oven"]).toBeGreaterThan(0);
     expect(byModel("CVA7440")).toBeUndefined();
+  });
+
+  /**
+   * A wall oven is not homeless any more.
+   *
+   * Package B stands a 30" combination oven in a tall tower where A and C put
+   * a 24" microwave drawer, so `slot-microwave` accepts the category — and the
+   * importer, which reads the slots file rather than a list of its own, stops
+   * dropping every wall oven in the sheet. Which of them a package will
+   * actually take is a separate question, and `suitsPackageSlot` answers it.
+   */
+  it("gives a wall oven the slot that takes one", () => {
+    const { summary } = run();
+    expect(summary.skipped["no slot: wall-oven"]).toBeUndefined();
+    for (const model of ["POD301W", "HSLP451UC", "H7880BP", "MEDMCW31JS", "HBL8753UC"]) {
+      expect(byModel(model)?.slot, model).toBe("slot-microwave");
+    }
+    expect(byModel("MEDMCW31JS")?.installType).toContain("combo");
   });
 });
 
