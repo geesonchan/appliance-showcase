@@ -126,6 +126,26 @@ export function applyLayout(layout: GeneratedLayout, requested: LayoutParams, is
   FIXTURE_PLACEMENT = layout.fixtures;
 }
 
+/**
+ * Which side a column's hinge goes, in the appliance's own frame.
+ *
+ * Away from the machine named: two refrigeration columns standing side by side
+ * are hung so their doors open back to back, or the one in front stops the one
+ * behind it from opening at all. -1 is the appliance's own left.
+ *
+ * The run's direction is not the appliance's: a run along z is drawn turned a
+ * quarter turn, so what is further along that run is to the machine's left.
+ */
+export function hingeAwayFrom(slotId: SlotId, neighbour: SlotId): -1 | 1 {
+  const run = RUNS.find((r) => r.segments.some((s) => s.slot === slotId));
+  const mine = run?.segments.find((s) => s.slot === slotId);
+  const other = run?.segments.find((s) => s.slot === neighbour);
+  if (!run || !mine || !other) return 1;
+  const furtherAlong = other.from > mine.from;
+  const alongIsToTheRight = run.axis === "x";
+  return furtherAlong === alongIsToTheRight ? -1 : 1;
+}
+
 /** The segment carrying a slot, wherever it is. */
 export function segmentForSlot(slotId: SlotId): RunSegment | undefined {
   for (const run of RUNS) {

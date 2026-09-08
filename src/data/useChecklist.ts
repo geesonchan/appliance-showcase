@@ -72,7 +72,12 @@ export function useChecklist(): Checklist {
  * has to order.
  */
 function installParts(selection: Record<SlotId, Appliance>): Finding[] {
-  return [...noIslandFallback(), ...fridgeDoorClearance(), ...chimneyExtension(selection)];
+  return [
+    ...noIslandFallback(),
+    ...fridgeDoorClearance(),
+    ...chimneyExtension(selection),
+    ...columnKit(),
+  ];
 }
 
 /**
@@ -117,6 +122,31 @@ function noIslandFallback(): Finding[] {
       messageKey: "rule.noIslandFallback",
       slot: "slot-microwave",
       params: { wineLegKey: `leg.${wineRun}`, microwaveLegKey: `leg.${microwaveRun}` },
+    },
+  ];
+}
+
+/**
+ * The kit that joins two refrigeration columns standing side by side.
+ *
+ * Not a rule anybody can fail — the generator already left the 5/8" for it —
+ * but a part somebody has to order, and one that is easy to miss because it is
+ * five eighths of an inch wide and holds up two machines. The line names it
+ * and says which two it is between.
+ */
+function columnKit(): Finding[] {
+  const spacer = RUNS.flatMap((run) => run.segments)
+    .flatMap((segment) => segment.modules)
+    .find((module) => module.kind === "spacer");
+  if (!spacer) return [];
+
+  return [
+    {
+      ruleId: "column-kit",
+      severity: "info",
+      messageKey: "rule.columnKit",
+      slot: "slot-wine",
+      params: { model: spacer.code, gapIn: spacer.widthIn },
     },
   ];
 }

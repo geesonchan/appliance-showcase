@@ -45,6 +45,15 @@ function size(record: SlotRecord, spec: PackageSlot): SlotRecord {
   const box = { w: spec.widthIn, ...(spec.heightIn === null ? {} : { h: spec.heightIn }) };
   return {
     ...record,
+    // What this package's machine actually needs, where it differs from what
+    // the slot was drawn for: a 240V oven where a 120V drawer stood, a 3/4"
+    // gas line for 99,000 BTU. Anything the package leaves out is the slot's.
+    utilities: {
+      ...record.utilities,
+      ...(spec.utilities?.gas ? { gas: spec.utilities.gas } : {}),
+      ...(spec.utilities?.power ? { power: spec.utilities.power } : {}),
+      ...(spec.utilities?.duct ? { duct: spec.utilities.duct } : {}),
+    },
     // The hood is hung off the cooking surface the wall was drilled for, and
     // which surface that is belongs to the package. See D13 and D16.
     ...(spec.builtForCooktopIn === null ? {} : { builtForCooktopIn: spec.builtForCooktopIn }),
@@ -56,6 +65,7 @@ function size(record: SlotRecord, spec: PackageSlot): SlotRecord {
       // A freestanding machine still gets a panel each side — they are just 24"
       // deep and do not wrap its doors. See docs/decisions.md D11 rule 11.
       finishedSides: record.cabinetConfig.finishedSides,
+      panelReady: spec.panelReady ?? record.cabinetConfig.panelReady,
     },
   };
 }

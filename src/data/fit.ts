@@ -52,7 +52,15 @@ export function fitCheck(slot: Slot, appliance: Appliance): FitResult {
   return {
     fits: widthOverIn <= 0,
     widthOverIn,
-    fillerEachSideIn: widthOverIn < 0 ? -widthOverIn / 2 : null,
+    // What is left over each side of a machine is filler — unless the machine
+    // is a liner, which does not stand in the opening at all: it hangs on the
+    // ledge of a hole cut in the underside of a housing, and the housing is
+    // wider than it on purpose. Calling that 4-1/2" of filler would be
+    // quoting two strips of panel nobody orders.
+    fillerEachSideIn:
+      widthOverIn < 0 && !appliance.installType.includes("insert")
+        ? -widthOverIn / 2
+        : null,
     heightOverIn: height === null ? null : height - slot.cutout.h,
     depthOverIn: depth === null ? null : depth - protrusionDatumIn(slot),
   };

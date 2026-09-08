@@ -347,6 +347,44 @@ export const packageSlotSchema = z.object({
    * drawing a kitchen nobody ordered.
    */
   enclosure: z.boolean().default(false),
+  /**
+   * What the joiner hangs on it, where the package differs from the slot.
+   *
+   * A slot that took a microwave drawer takes a combination oven in package B,
+   * and the wine cabinet is a panel-ready column rather than a machine with a
+   * front of its own. Those are decisions about this package's cabinetry, so
+   * they are the package's to make; null leaves the slot's own answer alone.
+   */
+  panelReady: z.boolean().nullable().default(null),
+  /**
+   * The services this package's machine needs, where they are not the slot's.
+   *
+   * The same argument. A 30" combination oven is hard-wired at 240V/50A where
+   * the drawer under a counter was a 120V receptacle, and a rangetop burning
+   * 99,000 BTU wants a 3/4" line where a 30" range wanted a 1/2" one. Writing
+   * that here rather than in `slots.json` keeps one slot able to carry either,
+   * and keeps the rough-in and the rules reading the same figure.
+   */
+  utilities: z
+    .object({
+      gas: z
+        .object({ pipeSize: z.enum(['1/2"', '3/4"']), shutoff: z.boolean() })
+        .nullable()
+        .default(null),
+      power: z
+        .object({ voltage: voltageSchema, amps: z.number().positive(), dedicated: z.boolean() })
+        .nullable()
+        .default(null),
+      duct: z
+        .object({
+          diameterIn: z.union([z.literal(6), z.literal(8), z.literal(10)]),
+          route: z.enum(["up-through-cabinet", "back-wall", "recirc"]),
+        })
+        .nullable()
+        .default(null),
+    })
+    .nullable()
+    .default(null),
 });
 
 export const packageSchema = z

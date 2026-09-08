@@ -89,14 +89,33 @@
           "slotId": "slot-range",
           "category": "range",
           "widthIn": 36,
-          "installType": "rangetop"
+          "installType": "rangetop",
+          "utilities": {
+            "gas": {
+              "pipeSize": "3/4\"",
+              "shutoff": true
+            },
+            "power": null
+          }
         },
         {
           "slotId": "slot-hood",
           "category": "hood",
           "widthIn": 42,
           "installType": "insert",
-          "builtForCooktopIn": 36.4375
+          "builtForCooktopIn": 36.4375,
+          "utilities": {
+            "gas": null,
+            "power": {
+              "voltage": 120,
+              "amps": 15,
+              "dedicated": true
+            },
+            "duct": {
+              "diameterIn": 10,
+              "route": "up-through-cabinet"
+            }
+          }
         },
         {
           "slotId": "slot-dishwasher",
@@ -111,7 +130,16 @@
           "installType": "combo",
           "tallUnit": true,
           "enclosure": true,
-          "heightIn": 96
+          "heightIn": 96,
+          "utilities": {
+            "gas": null,
+            "power": {
+              "voltage": 240,
+              "amps": 50,
+              "dedicated": true
+            }
+          },
+          "panelReady": false
         },
         {
           "slotId": "slot-wine",
@@ -120,7 +148,16 @@
           "installType": "column",
           "tallUnit": true,
           "enclosure": true,
-          "heightIn": 84
+          "heightIn": 84,
+          "panelReady": true,
+          "utilities": {
+            "gas": null,
+            "power": {
+              "voltage": 120,
+              "amps": 10,
+              "dedicated": true
+            }
+          }
         }
       ],
       "defaultSelection": {

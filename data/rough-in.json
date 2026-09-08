@@ -14,7 +14,11 @@
           "x": "center",
           "y": "bottom",
           "z": "rear",
-          "size": [8, 5, 3],
+          "size": [
+            8,
+            5,
+            3
+          ],
           "note": "Electrical zone behind the canopy's top, against the wall"
         }
       ]
@@ -44,7 +48,11 @@
           "x": "center",
           "y": "bottom",
           "z": "rear",
-          "size": [36, 7.25, 2],
+          "size": [
+            36,
+            7.25,
+            2
+          ],
           "note": "Service channel across the back of the opening, 7-1/4\" tall"
         }
       ]
@@ -66,7 +74,11 @@
           "x": "center",
           "y": "top",
           "z": "rear",
-          "size": [6, 3.5, 1.5],
+          "size": [
+            6,
+            3.5,
+            1.5
+          ],
           "note": "Anti-tip bracket, top rear of the opening"
         }
       ]
@@ -105,8 +117,114 @@
           "x": 24,
           "y": "top",
           "z": "rear",
-          "size": [2, 3, 2],
+          "size": [
+            2,
+            3,
+            2
+          ],
           "note": "Air gap at the counter, above the sink base"
+        }
+      ]
+    },
+    "thermador-pcg366w": {
+      "sourceUrl": "docs/reference/pcg366w-spec.pdf",
+      "points": [
+        {
+          "type": "gas",
+          "location": "in-cutout",
+          "x": 11,
+          "y": 2,
+          "z": "rear",
+          "size": null,
+          "highLoopApexIn": null,
+          "note": "1/2\" NPT inlet on the left rear underside, 11\" in from the left and 2\" off the wall; the 3/4\" manual shut-off goes where a hand can reach it from the front"
+        },
+        {
+          "type": "power",
+          "location": "adjacent-cabinet-right",
+          "x": 6,
+          "y": "bottom",
+          "z": "rear",
+          "size": null,
+          "highLoopApexIn": null,
+          "note": "NEMA 5-15 within 3ft of the connection, out of the way of the rangetop itself"
+        }
+      ]
+    },
+    "thermador-mem301ws": {
+      "sourceUrl": "docs/reference/mem301ws-spec.pdf",
+      "points": [
+        {
+          "type": "power",
+          "location": "in-cutout",
+          "x": "center",
+          "y": "top",
+          "z": "rear",
+          "size": null,
+          "highLoopApexIn": null,
+          "note": "240V 50A hard wired: junction box above the cutout or beside it, inside the reach of the 60\" conduit"
+        }
+      ]
+    },
+    "thermador-t18iw100sp": {
+      "sourceUrl": "docs/reference/t18iw100sp-spec.pdf",
+      "points": [
+        {
+          "type": "power",
+          "location": "adjacent-cabinet-left",
+          "x": 6,
+          "y": "bottom",
+          "z": "rear",
+          "size": null,
+          "highLoopApexIn": null,
+          "note": "120V 10A receptacle in the neighbouring cabinet; the cord runs through the 4\" recess across the base of the opening"
+        },
+        {
+          "type": "service-channel",
+          "location": "in-cutout",
+          "x": "center",
+          "y": "bottom",
+          "z": "rear",
+          "size": [
+            18,
+            4,
+            4
+          ],
+          "highLoopApexIn": null,
+          "note": "The recess at the base the supply lines run in"
+        }
+      ]
+    },
+    "thermador-vcin36ws": {
+      "sourceUrl": "docs/reference/README.md",
+      "points": [
+        {
+          "type": "duct",
+          "location": "in-cutout",
+          "x": "center",
+          "y": "top",
+          "z": "rear",
+          "size": [
+            10,
+            10,
+            8.375
+          ],
+          "highLoopApexIn": null,
+          "note": "10\" round transition on the liner's top, 8-3/8\" tall, 6-5/8\" to 9-5/8\" off the back wall"
+        },
+        {
+          "type": "power",
+          "location": "above-cabinet",
+          "x": "center",
+          "y": "top",
+          "z": "rear",
+          "size": [
+            8,
+            5,
+            3
+          ],
+          "highLoopApexIn": null,
+          "note": "120V 15A dedicated circuit; the electrical zone is behind the liner's top, inside the housing"
         }
       ]
     }

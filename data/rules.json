@@ -297,6 +297,34 @@
       "params": {
         "size": "package.hoodOutletSize"
       }
+    },
+    {
+      "id": "insert-vent-outside",
+      "severity": "info",
+      "messageKey": "rule.ventOutside",
+      "when": [
+        {
+          "fact": "appliance.installType",
+          "op": "includes",
+          "value": "insert"
+        }
+      ],
+      "params": {},
+      "scope": "slot"
+    },
+    {
+      "id": "rangetop-clearance",
+      "severity": "info",
+      "messageKey": "rule.rangetopClearance",
+      "when": [
+        {
+          "fact": "appliance.installType",
+          "op": "includes",
+          "value": "rangetop"
+        }
+      ],
+      "params": {},
+      "scope": "slot"
     }
   ],
   "thresholds": {

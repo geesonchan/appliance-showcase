@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import type { ThreeEvent } from "@react-three/fiber";
 import { applianceBox, flushOffset, isRangetop } from "../data/applianceBox";
+import { comboOvenParts, isCombo, isColumn, wineColumnParts } from "../data/columnModel";
 import {
   CHIMNEY,
   HOOD_PROFILE,
@@ -18,6 +19,7 @@ import {
 } from "../data/rangeModel";
 import { Surface } from "./Surface";
 import { CABINET_STANDARDS, ROOM, SLOT_BY_ID, ft } from "../data/slots";
+import { hingeAwayFrom } from "../data/room";
 import { runForSlot } from "../data/room";
 import { cabinetPaint, useAppStore } from "../store/useAppStore";
 import { useSelection } from "../store/useSelection";
@@ -350,7 +352,12 @@ function Body({
       );
 
     case "wall-oven":
-      return (
+      // A combination oven is two machines in one carcass, and that is what is
+      // on its face: a microwave door over an oven door, each with its own
+      // handle. A single oven keeps the one door it always had.
+      return isCombo(appliance) ? (
+        <ComboOven w={w} h={h} d={d} body={body} trim={trim} glass={glass} />
+      ) : (
         <group>
           <mesh position={[0, h / 2, cz]} castShadow>
             <boxGeometry args={[w, h, cd]} />
@@ -368,6 +375,20 @@ function Body({
       );
 
     case "wine":
+      // A column is a door, not a box: 84" of cabinet-finish panel with a
+      // glass field in the middle of it and a fixed panel top and bottom.
+      if (isColumn(appliance)) {
+        return (
+          <WineColumn
+            w={w}
+            h={h}
+            d={d}
+            body={body}
+            trim={trim}
+            glass={glass}
+          />
+        );
+      }
       return (
         <group>
           <mesh position={[0, h / 2, cz]} castShadow>
@@ -631,6 +652,162 @@ function Fridge({
  * neither: its sides are unfinished because cabinets close them in, and its
  * cooktop laps an inch over the counter each side of the front.
  */
+/**
+ * A combination oven: a microwave door over an oven door.
+ *
+ * Grey glass in a stainless frame, which is what the Masterpiece collection
+ * is, and a full-width bar handle across the top of each door. The two doors
+ * divide the front between them — there is no plinth and no toe kick, because
+ * the machine is built into a tower and the cabinet is what reaches the floor.
+ */
+function ComboOven({
+  w,
+  h,
+  d,
+  body,
+  trim,
+  glass,
+}: {
+  w: number;
+  h: number;
+  d: number;
+  body: SurfaceProps;
+  trim: SurfaceProps;
+  glass: SurfaceProps;
+}) {
+  const parts = useMemo(() => comboOvenParts({ w, h }), [w, h]);
+  // The carcass is set back by what the handle reaches, so the machine stays
+  // inside the depth it is sold at.
+  const cd = Math.max(d - parts.handle.proud, d * 0.5);
+  const cz = -(d - cd) / 2;
+  const face = cz + cd / 2;
+
+  return (
+    <group name="combo-oven">
+      <mesh position={[0, h / 2, cz]} castShadow receiveShadow>
+        <boxGeometry args={[w, h, cd]} />
+        <Mat s={body} />
+      </mesh>
+      {parts.doors.map((door) => {
+        const height = door.band[1] - door.band[0];
+        const middle = (door.band[0] + door.band[1]) / 2;
+        return (
+          <group key={door.kind} name={`combo-${door.kind}`}>
+            {/* The door: a stainless frame with a glass field in it. */}
+            <mesh position={[0, middle, face + ft(0.25)]} castShadow>
+              <boxGeometry args={[w, height, ft(0.5)]} />
+              <Mat s={body} size={[w, height]} />
+            </mesh>
+            <mesh position={[0, middle - ft(0.5), face + ft(0.55)]}>
+              <boxGeometry args={[
+                w - parts.glassInset * 2,
+                Math.max(0, height - parts.glassInset * 2),
+                ft(0.1),
+              ]} />
+              <Mat s={glass} />
+            </mesh>
+            {/* One bar across the top of each door. */}
+            <mesh
+              position={[0, door.band[1] - ft(1.6), d / 2 - parts.handle.r]}
+              rotation={[0, 0, Math.PI / 2]}
+            >
+              <cylinderGeometry args={[parts.handle.r, parts.handle.r, parts.handle.width, 12]} />
+              <Mat s={trim} />
+            </mesh>
+          </group>
+        );
+      })}
+    </group>
+  );
+}
+
+/**
+ * A wine column: a door panel with a glass field in it.
+ *
+ * Panel-ready, so the frame is the kitchen's own door finish and changes with
+ * it — what is bought is the machine behind it, and what is seen is joinery
+ * with a window. The fixed panels top and bottom are the drawing's, the
+ * shelves show through the glass, and the handle is the refrigerator's, hung
+ * on the side away from it so the two doors open back to back.
+ */
+function WineColumn({
+  w,
+  h,
+  d,
+  body,
+  trim,
+  glass,
+}: {
+  w: number;
+  h: number;
+  d: number;
+  body: SurfaceProps;
+  trim: SurfaceProps;
+  glass: SurfaceProps;
+}) {
+  const hinge = hingeAwayFrom("slot-wine", "slot-fridge");
+  const parts = useMemo(() => wineColumnParts({ w, h, d }, hinge), [w, h, d, hinge]);
+  const cd = Math.max(d - parts.handle.proud, d * 0.5);
+  const cz = -(d - cd) / 2;
+  const face = cz + cd / 2;
+
+  return (
+    <group name="wine-column">
+      <mesh position={[0, h / 2, cz]} castShadow receiveShadow>
+        <boxGeometry args={[w, h, cd]} />
+        <Mat s={glass} />
+      </mesh>
+      {parts.parts.map((part) => {
+        const height = part.band[1] - part.band[0];
+        const middle = (part.band[0] + part.band[1]) / 2;
+        return part.kind === "panel" ? (
+          <mesh key={part.band[0]} position={[0, middle, face + ft(0.4)]} castShadow>
+            <boxGeometry args={[parts.door.w, height, ft(0.75)]} />
+            <Mat s={body} size={[parts.door.w, height]} />
+          </mesh>
+        ) : (
+          <group key={part.band[0]}>
+            {/* The glass, and the frame round it: the door is one panel with a
+                window cut in it, not a sheet of glass in a hole. */}
+            <mesh position={[0, middle, face + ft(0.55)]}>
+              <boxGeometry args={[parts.door.w - ft(2), height - ft(1), ft(0.1)]} />
+              <Mat s={glass} />
+            </mesh>
+            {[-1, 1].map((side) => (
+              <mesh
+                key={side}
+                position={[(side * (parts.door.w - ft(1))) / 2, middle, face + ft(0.4)]}
+                castShadow
+              >
+                <boxGeometry args={[ft(1), height, ft(0.75)]} />
+                <Mat s={body} size={[ft(1), height]} />
+              </mesh>
+            ))}
+          </group>
+        );
+      })}
+      {/* The bottles, as shelves showing through the glass. */}
+      {parts.shelves.map((y) => (
+        <mesh key={y} position={[0, y, face - ft(1.5)]}>
+          <boxGeometry args={[parts.door.w - ft(4), ft(0.4), ft(0.1)]} />
+          <Mat s={trim} />
+        </mesh>
+      ))}
+      {/* The handle, on the side away from the refrigerator. */}
+      <mesh
+        position={[
+          -hinge * (parts.door.w / 2 - ft(1.6)),
+          parts.door.y + parts.door.h / 2,
+          d / 2 - parts.handle.r,
+        ]}
+      >
+        <cylinderGeometry args={[parts.handle.r, parts.handle.r, parts.handle.h, 12]} />
+        <Mat s={trim} />
+      </mesh>
+    </group>
+  );
+}
+
 /**
  * A rangetop: a cooking surface in the stone, and its controls under it.
  *
