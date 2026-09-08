@@ -41,6 +41,21 @@ function hangsFromTheTop(appliance: Appliance): boolean {
   );
 }
 
+/** A cooking surface with nothing under it but a cabinet. */
+export const isRangetop = (appliance: Appliance) =>
+  appliance.installType.includes("rangetop");
+
+/**
+ * How far a rangetop drops into the counter, in feet.
+ *
+ * Its cutout depth: the sheet gives a body 8-1/8" tall and a 7-11/16" hole for
+ * it, and the difference is what stands above the stone. So the box's floor is
+ * the counter less the hole, and the burner grates — what a hood's clearance is
+ * measured from — end up 7/16" over the top.
+ */
+const dropsIn = (appliance: Appliance) =>
+  ft(appliance.cutoutHeightIn ?? appliance.heightIn ?? 0);
+
 export function applianceBox(slot: Slot, appliance: Appliance): ApplianceBox {
   const w = pick(appliance.widthIn, appliance.cutoutWidthIn, slot.cutout.w);
   const h = pick(appliance.heightIn, appliance.cutoutHeightIn, slot.cutout.h);
@@ -65,6 +80,10 @@ export function applianceBox(slot: Slot, appliance: Appliance): ApplianceBox {
   // the canopy, so there is nothing below it to fill.
   const hung = slot.id === "slot-hood";
   const fromTop = hung || hangsFromTheTop(appliance);
+  // A rangetop sits in the stone rather than on the floor of its opening: what
+  // is under it is a cabinet, and the machine is the last 8" of the opening
+  // plus whatever stands proud of the counter.
+  const rangetop = isRangetop(appliance);
 
   // The leftover is only cabinetry where there is cabinetry. A full-height
   // appliance the joiner does not build round — a refrigerator standing at the
@@ -80,9 +99,11 @@ export function applianceBox(slot: Slot, appliance: Appliance): ApplianceBox {
     // with its doors shut, measured on the machine; the spacers behind it are
     // a separate inch, and the two add up to where the doors actually end up.
     rearSpacerIn: appliance.rearSpacerIn ?? 0,
-    y: fromTop && !hung ? spareH : 0,
+    y: rangetop ? openingH - dropsIn(appliance) : fromTop && !hung ? spareH : 0,
     filler: {
-      below: hung || standsAlone ? 0 : fromTop ? spareH : 0,
+      // Nothing below a rangetop: what is under it is the drawer base the run
+      // orders, not a panel this fills the leftover with.
+      below: hung || standsAlone || rangetop ? 0 : fromTop ? spareH : 0,
       above: hung || standsAlone ? 0 : fromTop ? 0 : spareH,
       eachSide: standsAlone ? 0 : spareW / 2,
     },

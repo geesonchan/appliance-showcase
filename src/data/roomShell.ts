@@ -209,6 +209,13 @@ export type ModuleKind =
    * why it is not a panel — a 5/8" panel is not a part anybody stocks.
    */
   | "spacer"
+  /**
+   * The housing built round an insert liner: a chimney breast in the door
+   * finish, from where the liner hangs to the ceiling. Not a wall cabinet —
+   * nothing is stored in it, and its shape is three sections rather than a box.
+   * See `insertHood.ts`.
+   */
+  | "hood-cabinet"
   | "corner"
   | "filler"
   | "opening";

@@ -135,8 +135,12 @@ function lShape(
 }
 
 /**
- * A slide-in range drops into the top, so its cutout is a hole with an inch of
- * stone left at the front for the cooktop to lap over.
+ * A slide-in range and a rangetop both drop into the top, so the cutout is a
+ * hole with an inch of stone left at the front for the deck to lap over.
+ *
+ * The hole is the drawing's where the machine publishes one — a 36" rangetop
+ * asks for 35-1/8" x 22-13/16", not for the whole 36" of cabinet under it —
+ * and the segment's own extent only when it does not.
  */
 function rangeHoles(runs: CabinetRun[], appliance?: Appliance): Point2[][] {
   if (standsOnTheFloor(appliance)) return [];
@@ -145,9 +149,18 @@ function rangeHoles(runs: CabinetRun[], appliance?: Appliance): Point2[][] {
   for (const run of runs) {
     const range = run.segments.find((segment) => segment.slot === "slot-range");
     if (!range) continue;
-    const back = -ROOM.counterDepth / 2 + ft(0.5);
     const front = ROOM.counterDepth / 2 + ROOM.counterOverhang - ft(RANGE_LIP_IN);
-    holes.push(rect([range.from, range.to], [run.centre + back, run.centre + front], run.axis));
+    const published = appliance?.cutoutDepthIn ? ft(appliance.cutoutDepthIn) : null;
+    const back = published
+      ? front - published
+      : -ROOM.counterDepth / 2 + ft(0.5);
+    const centre = (range.from + range.to) / 2;
+    const half = appliance?.cutoutWidthIn
+      ? ft(appliance.cutoutWidthIn) / 2
+      : (range.to - range.from) / 2;
+    holes.push(
+      rect([centre - half, centre + half], [run.centre + back, run.centre + front], run.axis),
+    );
   }
   return holes;
 }

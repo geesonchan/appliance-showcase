@@ -14,6 +14,7 @@ import {
 import type { FixtureId, Package, PackageSlot, SlotId } from "../types";
 import { PACKAGE, slotsOf } from "./packages";
 import { LAYOUT_POLICY, shrinkRank, type ShrinkGroup } from "./layoutPolicy";
+import { hoodCabinetBand } from "./insertHood";
 
 /**
  * The L-with-island template.
@@ -880,6 +881,27 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
   const dishwasher = opening("slot-dishwasher", "dishwasher");
 
   /**
+   * The cooking slot, which is a hole in the counter or a hole in the run.
+   *
+   * A range is a machine standing on the floor between two cabinets: the run
+   * leaves it an opening. A rangetop is a cooking surface dropped into the
+   * stone with a cabinet under it — Thermador's own drawing shows a drawer
+   * base — so the run orders that cabinet and the counter is what is cut.
+   */
+  const cooking = (): Item => {
+    const slot = spec["slot-range"];
+    const widthIn = openingIn(slot);
+    if (slot.installType !== "rangetop") return opening("slot-range", "range");
+    return fixed(
+      "range",
+      widthIn,
+      "appliance",
+      M(`DB${widthIn}`, "drawer-base", widthIn, { slot: "slot-range" }),
+      { slot: "slot-range" },
+    );
+  };
+
+  /**
    * What finishes a run the refrigerator does not.
    *
    * Never the appliance itself. Against a wall it is a filler: a dishwasher
@@ -1060,7 +1082,7 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
 
   const back: Item[] = [
     gap("range-landing-left", landing.narrowIn, "d11-4", { shrink: "corner-to-range" }),
-    opening("slot-range", "range"),
+    cooking(),
     gap("range-landing-right", landing.wideIn, "d11-4", { shrink: "range-to-sink" }),
   ];
   if (params.sinkLeg === "back") back.push(...sinkGroup());
@@ -1334,22 +1356,46 @@ function banksAroundHood(
   const stop = bankStop(segments);
   if (!range) return [bankFor(`upper-${runId}`, start, stop, corner)];
 
-  // The canopy is as wide as the range under it — a hood narrower than its
-  // cooktop is a rule violation, and a wider one is not in the catalogue — so
-  // the bank each side stops exactly at the canopy's flank. A gap there is one
+  // The bank each side stops exactly at the hood's flank. A gap there is one
   // you cannot get a cloth into and a foot of shelf nobody has.
-  const hood = [range.from, range.to] as const;
-  const bridgeIn = Math.round((hood[1] - hood[0]) * 12);
-  const bridged = spec["slot-hood"].installType === "under-cabinet";
+  //
+  // Which flank that is depends on the hood: a canopy is as wide as the range
+  // under it, and a housing built round an insert liner is wider than both —
+  // 42" over a 36" rangetop is what a chimney breast looks like. So the span
+  // is the hood's own width where that is the greater, centred on the range,
+  // because the hood is centred on the range by rule.
+  const centre = (range.from + range.to) / 2;
+  const half = Math.max((range.to - range.from) / 2, ft(spec["slot-hood"].widthIn) / 2);
+  const hood = [centre - half, centre + half] as const;
+  const hoodIn = Math.round((hood[1] - hood[0]) * 12);
+  const install = spec["slot-hood"].installType;
+  const bridged = install === "under-cabinet";
+  // A housing is cabinetry, and it is the cabinetry over this stretch of wall:
+  // from where the liner hangs to the ceiling, in one piece, in the door
+  // finish. `hoodCabinetParts` gives it its shape.
+  const housed = install === "insert";
+  const mountY = ft(
+    (spec["slot-hood"].builtForCooktopIn ?? 36) + CABINET_STANDARDS.hood.aboveCooktopMinIn,
+  );
   return [
     bankFor(`upper-${runId}-left`, start, hood[0], corner, "start"),
-    ...(bridged
+    ...(bridged || housed
       ? [
           {
             id: `upper-${runId}-hood`,
             from: hood[0],
             to: hood[1],
-            modules: [M(`W${bridgeIn}`, "bridge", bridgeIn, { slot: "slot-hood" })],
+            ...(housed ? { band: hoodCabinetBand(mountY) } : {}),
+            modules: [
+              housed
+                ? M(`HC${hoodIn}`, "hood-cabinet", hoodIn, {
+                    slot: "slot-hood",
+                    // As deep as the base run below it: a chimney breast is
+                    // built off the wall, not hung like a 12" wall cabinet.
+                    depthIn: CABINET_STANDARDS.base.depthIn,
+                  })
+                : M(`W${hoodIn}`, "bridge", hoodIn, { slot: "slot-hood" }),
+            ],
           },
         ]
       : []),

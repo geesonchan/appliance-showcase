@@ -81,6 +81,28 @@ export const FREESTANDING_PROPORTIONS = {
   sideColor: "#3A3D3F",
 };
 
+/**
+ * Proportions of a rangetop, in inches.
+ *
+ * A third machine again: a cooking surface with a cabinet under it and no oven
+ * anywhere. Its whole front is the control panel, and that panel hangs *below*
+ * the counter the deck drops into — which is why the cabinet under a rangetop
+ * has a false drawer front at the top. From Leo's round-20 note against
+ * PCG366W and docs/reference/pcg366w-spec.pdf.
+ */
+export const RANGETOP_PROPORTIONS = {
+  /** The control panel under the deck, carrying the knobs. */
+  fasciaIn: 7.625,
+  /** How far that panel stands proud of the cabinet face below it. */
+  proudIn: 1.5,
+  grateIn: 1.5,
+  deckIn: 0.5,
+  knobDiameterIn: 2.25,
+  grateRows: 2,
+  /** Stainless left showing round the edge of the deck. */
+  deckMarginIn: 1.5,
+};
+
 /** A band of the front, in feet above the floor. */
 export type Band = readonly [number, number];
 
@@ -93,7 +115,7 @@ export interface RangeParts {
    * whether the model publishes a backguard, which is a figure off the drawing
    * rather than a word off the feature list.
    */
-  style: "pro" | "backguard";
+  style: "pro" | "backguard" | "rangetop";
   burners: number;
   /** The cooking surface, in feet: the machine's top unless it has a backguard. */
   cooktop: number;
@@ -129,6 +151,12 @@ export interface RangeParts {
    */
   sides: "finished" | "unfinished";
   counterLip: { h: number; d: number } | null;
+  /**
+   * The control panel of a rangetop, which hangs under the counter rather than
+   * standing inside the machine's own height. `h` down from the deck's
+   * underside, and `proud` forward of the cabinet face below it.
+   */
+  fascia: { h: number; proud: number } | null;
 }
 
 /**
@@ -180,24 +208,30 @@ export function rangeParts(
   const F = FREESTANDING_PROPORTIONS;
   const burners = burnerCount(appliance);
   const backguarded = hasBackguard(appliance);
+  const rangetop = appliance.installType.includes("rangetop");
   const cooktop = cooktopHeight(appliance, box);
 
-  const grate = ft(backguarded ? F.grateIn : P.grateIn);
-  const deck = ft(backguarded ? F.deckIn : P.deckIn);
-  const toe = backguarded ? 0 : ft(P.toeKickIn);
-  const door = cooktop * (backguarded ? F.doorFraction : P.doorFraction);
+  const R = RANGETOP_PROPORTIONS;
+  const grate = ft(rangetop ? R.grateIn : backguarded ? F.grateIn : P.grateIn);
+  const deck = ft(rangetop ? R.deckIn : backguarded ? F.deckIn : P.deckIn);
+  const toe = backguarded || rangetop ? 0 : ft(P.toeKickIn);
+  const door = rangetop ? 0 : cooktop * (backguarded ? F.doorFraction : P.doorFraction);
   // A freestanding range's bottom is a storage drawer standing on the floor;
   // a pro range's is a toe kick with a drawer front above it. Either way the
   // bands tile the cooking surface exactly.
-  const plinth = backguarded
-    ? ft(F.drawerIn)
-    : Math.max(0, cooktop - toe - door - ft(P.controlIn) - deck - grate);
+  const plinth = rangetop
+    ? 0
+    : backguarded
+      ? ft(F.drawerIn)
+      : Math.max(0, cooktop - toe - door - ft(P.controlIn) - deck - grate);
   // The control strip takes what is left. On a pro range that is the 3" fascia
   // under the deck; on a freestanding one it is the band above the oven door
   // carrying the knobs and the exhaust grille.
-  const control = backguarded
-    ? Math.max(0, cooktop - plinth - door - deck - grate)
-    : ft(P.controlIn);
+  const control = rangetop
+    ? 0
+    : backguarded
+      ? Math.max(0, cooktop - plinth - door - deck - grate)
+      : ft(P.controlIn);
 
   let y = 0;
   const band = (height: number): Band => {
@@ -212,8 +246,10 @@ export function rangeParts(
     toe: band(toe),
     plinth: band(plinth),
     door: band(door),
+    // A rangetop's deck is everything under the grates: most of it is inside
+    // the counter, and the last 7/16" of it is what stands above the stone.
     control: band(control),
-    deck: band(deck),
+    deck: band(rangetop ? Math.max(0, box.h - grate) : deck),
     grate: band(grate),
   };
 
@@ -221,9 +257,9 @@ export function rangeParts(
   // continuous, so a pan slides from one burner to the next. A pro range lays
   // them two deep in pairs; a freestanding one lays them straight across, one
   // per burner, the full depth of the deck.
-  const rows = backguarded ? 1 : P.grateRows;
+  const rows = backguarded ? 1 : rangetop ? R.grateRows : P.grateRows;
   const columns = Math.ceil(burners / rows);
-  const margin = ft(backguarded ? 1 : P.deckMarginIn);
+  const margin = ft(backguarded ? 1 : rangetop ? R.deckMarginIn : P.deckMarginIn);
   const fieldW = box.w - margin * 2;
   const fieldD = box.d - margin * 2;
   const grateW = fieldW / columns;
@@ -287,6 +323,36 @@ export function rangeParts(
       vent,
       sides: "finished",
       counterLip: null,
+      fascia: null,
+    };
+  }
+
+  if (rangetop) {
+    // One knob per burner across the panel, and nothing else on it: there is
+    // no oven to have a readout, and the panel is under the counter where a
+    // display would be looking at the floor.
+    const r = ft(R.knobDiameterIn / 2);
+    const edge = box.w / 2 - ft(2) - r;
+    for (let i = 0; i < burners; i += 1) {
+      const t = burners === 1 ? 0.5 : i / (burners - 1);
+      // Below the machine: the panel hangs under the deck, and its knobs with
+      // it. Measured from the underside of the body, which is the counter.
+      knobs.push({ x: -edge + 2 * edge * t, y: -ft(R.fasciaIn) / 2, r });
+    }
+    return {
+      style: "rangetop",
+      burners,
+      cooktop,
+      bands,
+      grates,
+      knobs,
+      display: { x: 0, y: 0, w: 0, h: 0 },
+      islandTrim: { h: 0, d: 0 },
+      backguard: null,
+      vent: null,
+      sides: "unfinished",
+      counterLip: null,
+      fascia: { h: ft(R.fasciaIn), proud: ft(R.proudIn) },
     };
   }
 
@@ -327,5 +393,6 @@ export function rangeParts(
     counterLip: appliance.installType.some((type) => /slide.?in/i.test(type))
       ? { h: ft(0.75), d: ft(P.counterLipIn) }
       : null,
+    fascia: null,
   };
 }

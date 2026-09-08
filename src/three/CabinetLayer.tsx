@@ -15,6 +15,7 @@ import { cabinetPaint, useAppStore } from "../store/useAppStore";
 import { ft } from "../data/room";
 import { SCENE_COLORS, finish, type SurfaceProps } from "./materials";
 import { Surface } from "./Surface";
+import { HoodCabinet } from "./HoodCabinet";
 import { texture } from "./textures";
 
 /**
@@ -213,6 +214,23 @@ function CabinetSolid({ box }: { box: CabinetBox }) {
   // A corner susan wears one door across the corner rather than a flat front
   // on each leg. See docs/reference/lazy-susan-corner.svg.
   const corner = useMemo(() => diagonalDoor(box), [box]);
+
+  // The housing round an insert liner is cabinetry with a shape of its own:
+  // three sections rather than a box, and no door on any of them. It is
+  // painted with the run like everything else here.
+  if (box.module?.kind === "hood-cabinet") {
+    return (
+      <group
+        userData={{ slot: box.slot, boxId: box.id, cabinetRole: true }}
+        visible={!hidden}
+      >
+        <HoodCabinet
+          box={box}
+          s={{ ...props, transparent: install, opacity: install ? GHOST_OPACITY : 1 }}
+        />
+      </group>
+    );
+  }
 
   return (
     <>

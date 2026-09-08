@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import * as THREE from "three";
 import type { ThreeEvent } from "@react-three/fiber";
-import { applianceBox, flushOffset } from "../data/applianceBox";
+import { applianceBox, flushOffset, isRangetop } from "../data/applianceBox";
 import {
   CHIMNEY,
   HOOD_PROFILE,
@@ -112,6 +112,7 @@ export function ApplianceModel({ slot, appliance }: ApplianceModelProps) {
           installType={appliance.installType}
           topDepthIn={hoodTopDepthIn(appliance, box.d * 12)}
           baseY={def.position[1] + box.y}
+          faceZ={ROOM.counterDepth / 2 - dz}
           w={box.w}
           h={box.h}
           d={box.d}
@@ -240,6 +241,13 @@ interface BodyProps {
   topDepthIn: number;
   /** Where the appliance's own bottom sits above the floor, in feet. */
   baseY: number;
+  /**
+   * The cabinet face, in the body's own coordinates.
+   *
+   * Only a rangetop needs it: its control panel is dimensioned from the front
+   * of the cabinetry under it rather than from anything on the machine.
+   */
+  faceZ: number;
   w: number;
   h: number;
   d: number;
@@ -263,6 +271,7 @@ function Body({
   installType,
   topDepthIn,
   baseY,
+  faceZ,
   w,
   h,
   d,
@@ -286,9 +295,21 @@ function Body({
       return <Fridge appliance={appliance} w={w} h={h} d={d} body={body} trim={trim} />;
 
     case "range":
-      // A cooktop is a plate in a counter and stays one; a range is a machine
+      // Three machines wear this category. A rangetop is a cooking surface
+      // dropped into the stone with a cabinet under it; a range is a machine
       // with a front, and a customer reads that front.
-      return (
+      return isRangetop(appliance) ? (
+        <Rangetop
+          appliance={appliance}
+          faceZ={faceZ}
+          w={w}
+          h={h}
+          d={d}
+          body={body}
+          trim={trim}
+          glass={glass}
+        />
+      ) : (
         <Range appliance={appliance} w={w} h={h} d={d} body={body} trim={trim} glass={glass} />
       );
 
@@ -610,6 +631,102 @@ function Fridge({
  * neither: its sides are unfinished because cabinets close them in, and its
  * cooktop laps an inch over the counter each side of the front.
  */
+/**
+ * A rangetop: a cooking surface in the stone, and its controls under it.
+ *
+ * There is no oven and no front — the front of this machine is the cabinet
+ * below it, which is why the drawer base under a rangetop has a false top
+ * drawer. What shows above the counter is 7/16" of steel deck and the cast
+ * iron on it; what shows below is the control panel, 7-5/8" deep down from the
+ * counter and standing 1-1/2" proud of the cabinet face, with one knob per
+ * burner across it.
+ *
+ * The chassis under the deck is drawn because it is really there, inside the
+ * cabinet: the machine is 8-1/8" tall and drops 7-11/16" through the top.
+ */
+function Rangetop({
+  appliance,
+  faceZ,
+  w,
+  h,
+  d,
+  body,
+  trim,
+  glass,
+}: {
+  appliance: Appliance;
+  faceZ: number;
+  w: number;
+  h: number;
+  d: number;
+  body: SurfaceProps;
+  trim: SurfaceProps;
+  glass: SurfaceProps;
+}) {
+  const parts = useMemo(() => rangeParts(appliance, { w, h, d }), [appliance, w, h, d]);
+  const { bands, fascia } = parts;
+  const iron = tint(glass, "#1C1E1C", { metalness: 0.2, roughness: 0.7 });
+  const gap = ft(RANGE_PROPORTIONS.grateGapIn);
+  const panelD = ft(0.75);
+
+  return (
+    <group name="rangetop">
+      {/* The chassis, most of which is inside the counter. */}
+      <mesh position={[0, (bands.deck[0] + bands.deck[1]) / 2, 0]} castShadow receiveShadow>
+        <boxGeometry args={[w, bands.deck[1] - bands.deck[0], d]} />
+        <Mat s={trim} />
+      </mesh>
+
+      {/* Cast iron over the burners, laid two deep, continuous so a pan slides
+          from one to the next. */}
+      <group name="rangetop-grates">
+        {parts.grates.map((grate, i) => (
+          <group
+            key={i}
+            name={`rangetop-grate-${i}`}
+            position={[grate.x, (bands.grate[0] + bands.grate[1]) / 2, grate.z]}
+          >
+            <mesh castShadow>
+              <boxGeometry args={[grate.w - gap, grate.h * 0.45, grate.d - gap]} />
+              <Mat s={iron} />
+            </mesh>
+            {[-0.28, 0, 0.28].map((t) => (
+              <mesh key={t} position={[0, grate.h * 0.225, grate.d * t]}>
+                <boxGeometry args={[grate.w - gap, grate.h * 0.55, ft(0.6)]} />
+                <Mat s={iron} />
+              </mesh>
+            ))}
+          </group>
+        ))}
+      </group>
+
+      {/* The control panel, hanging below the counter in front of the cabinet,
+          and the knobs across it. */}
+      {fascia && (
+        <group name="rangetop-controls">
+          <mesh
+            position={[0, -fascia.h / 2, faceZ + fascia.proud - panelD / 2]}
+            castShadow
+          >
+            <boxGeometry args={[w, fascia.h, panelD]} />
+            <Mat s={body} size={[w, fascia.h]} />
+          </mesh>
+          {parts.knobs.map((knob, i) => (
+            <mesh
+              key={i}
+              position={[knob.x, knob.y, faceZ + fascia.proud + knob.r * 0.4]}
+              rotation={[Math.PI / 2, 0, 0]}
+            >
+              <cylinderGeometry args={[knob.r, knob.r * 0.86, knob.r * 0.9, 16]} />
+              <Mat s={trim} />
+            </mesh>
+          ))}
+        </group>
+      )}
+    </group>
+  );
+}
+
 function Range({
   appliance,
   w,
@@ -943,6 +1060,55 @@ function Hood({
   const kind = installType.find((type) =>
     ["under-cabinet", "wall-mount", "chimney", "island", "insert"].includes(type),
   );
+
+  /**
+   * An insert liner: a stainless tray of filters, lights and a control strip
+   * that goes up inside a housing somebody else builds.
+   *
+   * There is no canopy to draw and no flue to draw it into — the housing is
+   * cabinetry and `HoodCabinet` draws it. What is drawn here is what is
+   * actually visible from the room: the band of steel under the housing, the
+   * baffles set into it, the four lights and the strip of controls at the
+   * front edge.
+   */
+  if (kind === "insert") {
+    const lip = Math.min(ft(frontLipIn ?? 7.6875), h);
+    const face = d / 2;
+    return (
+      <group name="hood-liner">
+        {/* The liner itself. Most of it is up inside the housing; the last
+            couple of inches of it are the band you see. */}
+        <mesh position={[0, h / 2, 0]} castShadow receiveShadow>
+          <boxGeometry args={[w, h, d]} />
+          <Mat s={body} />
+        </mesh>
+        {/* Baffle filters across the underside, pressed from the same sheet as
+            the liner: they are part of it rather than a black panel under it. */}
+        <mesh position={[0, ft(0.6), -ft(1)]}>
+          <boxGeometry args={[w * 0.9, ft(1.2), d * 0.62]} />
+          <Mat s={body} />
+        </mesh>
+        {/* Four lights along the front edge, and the control strip beside them,
+            which is what tells you which way round the liner is. */}
+        {[-0.34, -0.12, 0.12, 0.34].map((t) => (
+          <mesh key={t} position={[w * t, ft(0.35), face - ft(2.5)]}>
+            <boxGeometry args={[ft(2.2), ft(0.3), ft(1.6)]} />
+            <Mat s={glass} />
+          </mesh>
+        ))}
+        <mesh position={[-w * 0.36, ft(0.4), face - ft(0.9)]}>
+          <boxGeometry args={[w * 0.2, ft(0.5), ft(1.4)]} />
+          <Mat s={glass} />
+        </mesh>
+        {/* The front edge of the tray, which is the 7-11/16" face on the
+            drawing: it is what the housing's opening is scribed to. */}
+        <mesh position={[0, lip / 2, face - ft(0.35)]}>
+          <boxGeometry args={[w, lip, ft(0.7)]} />
+          <Mat s={body} size={[w, lip]} />
+        </mesh>
+      </group>
+    );
+  }
 
   // A chimney hood draws in on all three open sides, to the section of the flue
   // it feeds. An under-cabinet hood has no flue of its own and keeps the wedge
