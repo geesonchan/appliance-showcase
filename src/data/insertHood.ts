@@ -16,9 +16,9 @@ import type { Appliance } from "../types";
  * and the top are fixed heights; the taper takes whatever the room leaves,
  * so a taller ceiling makes a longer slope rather than a stretched box.
  *
- * The liner's own figures are the VCIN36WS manual: a 32-15/16" x 21-1/4"
- * opening in the underside with a 5/8" ledge round it, and a 33-3/4" x 22"
- * liner that hangs on that ledge.
+ * The liner's own figures are docs/reference/vcin36gws-manual.pdf: a
+ * 32-15/16" x 21-1/4" opening in the underside with a 5/8" ledge round it, and
+ * a 33-3/4" x 22" liner that hangs on that ledge.
  */
 export const HOOD_CABINET = {
   /**

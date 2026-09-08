@@ -101,12 +101,15 @@ import applies them **over** the sheet's own cells. Three things follow:
   wants the machine rather than its name.
 - **A cell the drawing contradicts is replaced, and the row is marked
   `unverified`** — which sets `verifiedAt` to null however recently the sheet
-  says the row was checked. That mark is for a live disagreement between the
-  drawing and a cell the sheet actually carries, not for the two cases above:
-  a combination oven whose sheet row gives the flush cutout where the tower is
-  built to the standard one, or a wine column whose cutout cells read 24" x 84"
-  x 24" where the drawing says 18" x 84" x 25". Fix the cell in
-  `showcase_specs` and the mark comes off.
+  says the row was checked, because the two sources disagree and only one of
+  them can be what somebody read. Fix the cell in `showcase_specs` and the mark
+  comes off; as of round 20 no row carries it.
+
+  It is for a disagreement nobody has reconciled, not for a decision. Where a
+  machine publishes two ways of fitting it and this kitchen is built to the
+  other one — the combination oven's sheet row gives the flush cutout where its
+  tower is built to the standard one — neither the row nor the code is wrong,
+  and the reason is written in the comment above the entry.
 
 ## Numbers
 

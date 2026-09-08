@@ -15,6 +15,7 @@ Manufacturer drawings the geometry is built from. Two are referred to by name in
 | `mfgs4030rs-front.png` | Freestanding gas range: 29-7/8" x 47-7/8" x 28", five burners, backguard with a digital display, five knobs and a vent strip on the front, storage drawer at the bottom. |
 | `pcg366w-spec.pdf` | 36" gas rangetop: 8-1/8" x 35-15/16" x 25-13/16" overall, 7-11/16" x 35-1/8" x 22-13/16" cutout, six burners to 99,000 BTU, 1/2" NPT inlet on the left rear underside, NEMA 5-15 within 3ft, 6" to a combustible surface behind and 36" to an unprotected cabinet above. |
 | `mem301ws-spec.pdf` | 30" combination oven with microwave: 49" x 29-3/4" x 24-1/2" overall, 48-1/2" x 28-1/2" x 23-1/2" standard cutout (49-1/8" x 30" x 24-1/2" flush), 240V 50A fixed connection, 267 lbs. |
+| `vcin36gws-manual.pdf` | 36" custom insert hood, the whole installation guide: liner 12-13/16" x 33-3/4" (across the side trims) x 22" with a 32-3/8" body and a 7-11/16" front face, the 10" round transition 6-5/8"-9-5/8" off the back wall without the rear trim piece, a 32-15/16" x 21-1/4" housing opening with a 12-11/16" crossbar and a 5/8" ledge, mounted flush to the wall or up to 3" off it with the trim, an integral VTN2FZ or VTN2DA blower, 120V 15A, and ducted outside only. |
 | `t18iw100sp-spec.pdf` | 18" panel-ready wine column: 83-7/8" to 85-1/2" x 17-3/4" x 24" body in an 84" x 18" x 25" cutout, 120V 10A, reversible door, 115 degrees open and 90 degrees to reach the shelves, COMBIKIT10 to stand it beside a refrigerator column. |
 | `lazy-susan-corner.svg` | Corner lazy susan: 36" along each wall, 24" deep, 34-1/2" high, and one 24" door set at 45 degrees across the corner. **Drawn here from published dimensions rather than traced from a photograph** — see below for where the figures come from. |
 
@@ -22,16 +23,13 @@ The three PDFs are the manufacturer's own specification sheets, committed whole
 rather than as figures pulled out of them: a sheet is one file and a round of
 questions about it is answered by opening the file.
 
-**The insert hood's manual is the one gap.** It covers two SKUs — VCIN36WS for
-the liner and VCIN36GWS for the housing framing — and the sheet stocks the
-GWS, which is what package B specifies. Its figures: liner 12-13/16" x 33-3/4"
-x 22" with a 7-11/16" front face, a 32-15/16" x 21-1/4" opening in the
-underside of the housing with a 12-11/16" crossbar and a 5/8" ledge, 0-3"
-behind, a 10" round transition 8-3/8" tall and 6-5/8"-9-5/8" off the back wall,
-an integral VTN2FZ or VTN2DA blower, and vent-to-outside only. They are
-recorded in `PUBLISHED_SPECS` and here; the manual itself reached this
-repository as images in a conversation rather than as a file, and is still to
-be dropped in.
+**The insert hood's manual carries two model names**, and both are in it: the
+appliance table on page 7 lists the liner as VCIN36WS while the housing table
+on page 14 lists the framing as VCIN36GWS. The sheet stocks the GWS and that is
+what package B specifies. The four figures the app is built on — the 33-3/4"
+liner across its side trims, the 32-15/16" x 21-1/4" opening it hangs in, the
+12-11/16" crossbar with a 5/8" ledge under it, and the 10" round transition —
+are checked against those two pages.
 
 Positions taken from these are in `data/rough-in.json`, keyed by model, with the
 sheet each came from recorded against it. A model with no entry falls back to

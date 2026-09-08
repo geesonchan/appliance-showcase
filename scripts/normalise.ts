@@ -528,19 +528,22 @@ export const PUBLISHED_SPECS: Record<
      */
     sourceUrl?: string;
     /**
-     * True when the drawing *contradicts* a cell the sheet carries.
+     * True when the drawing contradicts a cell the sheet carries and nobody
+     * has reconciled the two.
      *
      * `verifiedAt` goes null on such a row however recently the sheet says it
      * was checked, because the two sources disagree and only one of them can
      * be what somebody read. Fix the cell in `showcase_specs` and the mark
      * comes off.
      *
-     * Not for the ordinary cases. A figure the sheet has no column for — a
+     * Three things it is not for. A figure the sheet has no column for — a
      * cooktop height, a front lip, a door split — is added rather than
-     * disputed; and a nominal refined to the published one, a "36-inch"
-     * rangetop measuring 35-15/16", is the same fact at two precisions. Marking
-     * either of those unverified would throw away a real check against the
-     * right drawing, which is what it used to do.
+     * disputed. A nominal refined to the published one, a "36-inch" rangetop
+     * measuring 35-15/16", is the same fact at two precisions. And where a
+     * machine publishes two ways of fitting it and this kitchen is built to
+     * the other one, the row is not wrong and neither is the code: that is a
+     * decision, it is written in the comment above the entry, and marking it
+     * unverified would throw away a real check against the right drawing.
      */
     unverified?: true;
     doorConfig?: DoorConfig;
@@ -603,9 +606,11 @@ export const PUBLISHED_SPECS: Record<
   // The handle stands 2-3/8" off the door skin.
   //
   // The standard cutout rather than the flush one the sheet's row carries.
-  // The tower this goes in is a 30" cabinet, which is a 28-1/2" hole with
-  // three quarters of an inch of cabinet each side of it; a flush install is
-  // a 30" hole and a different tower.
+  // Both are the machine's own published figures and the sheet is not wrong:
+  // Leo confirmed the standard install in round 20, and the tower it goes in
+  // is a 30" cabinet, which is a 28-1/2" hole with three quarters of an inch
+  // of cabinet each side of it. A flush install is a 30" hole and a different
+  // tower.
   MEM301WS: {
     heightIn: 49,
     widthIn: 29.75,
@@ -615,23 +620,19 @@ export const PUBLISHED_SPECS: Record<
     cutoutHeightIn: 48.5,
     cutoutDepthIn: 23.5,
     installType: ["combo"],
-    unverified: true,
   },
   // Thermador T18IW100SP, from docs/reference/t18iw100sp-spec.pdf. 83-7/8" on
-  // its legs retracted, 85-1/2" fully extended, in an 84" x 18" x 25" cutout.
-  // Panel-ready: what is seen is the door panel, not the machine.
+  // its legs retracted, 85-1/2" fully extended. Panel-ready: what is seen is
+  // the door panel, not the machine. The cutout is the sheet's own now that
+  // it reads 18" x 84" x 25", so nothing here disputes it.
   T18IW100SP: {
     heightIn: 83.875,
     widthIn: 17.75,
     depthIn: 24,
-    cutoutWidthIn: 18,
-    cutoutHeightIn: 84,
-    cutoutDepthIn: 25,
     installType: ["column", "built-in"],
-    unverified: true,
   },
-  // Thermador VCIN36GWS, from the installation manual. The liner only: the
-  // hood over it is cabinetry somebody builds, and its shape is in
+  // Thermador VCIN36GWS, from docs/reference/vcin36gws-manual.pdf. The liner
+  // only: the hood over it is cabinetry somebody builds, and its shape is in
   // `insertHood.ts`. 33-3/4" across the side trims, which rest on the
   // housing's 5/8" ledge, and a 7-11/16" front face below it. The blower is
   // an integral VTN2FZ or VTN2DA bolted inside the liner, so one has to be
