@@ -37,6 +37,9 @@ function Compass() {
   );
 }
 
+/** The build this page was served from; see the `define` in vite.config.ts. */
+const COMMIT = __COMMIT__;
+
 export function BottomBar() {
   const t = useT();
   const resetView = useAppStore((s) => s.resetView);
@@ -53,7 +56,15 @@ export function BottomBar() {
         sheetOpen ? "hidden md:flex" : "flex",
       ].join(" ")}
     >
-      <p className="hidden text-[11px] text-ink-muted sm:block">{t("scene.hint")}</p>
+      <p className="hidden text-[11px] text-ink-muted sm:block">
+        {t("scene.hint")}
+        {/* The build this page was served from. It is here rather than in a
+            panel because the question it answers — "am I looking at the
+            version that was just pushed?" — is asked from outside the app. */}
+        <span className="ml-2 tabular-nums opacity-45" data-commit={COMMIT}>
+          {COMMIT}
+        </span>
+      </p>
       {/* Nothing here sells anything any more; it is the view controls and the
           plan toggle, so the bar shrinks to fit them. */}
       <div className="pointer-events-auto flex items-center justify-center gap-4 rounded-full border border-line bg-surface/95 px-3 py-2 backdrop-blur-sm">
