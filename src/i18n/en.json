@@ -179,6 +179,7 @@
   "rule.noIslandOmitted": "No island: wine cooler and microwave drawer omitted; add an island or lengthen the left wall to include them.",
   "rule.ventOutside": "Ducted to the outside only — this liner cannot be recirculated",
   "rule.columnKit": "COMBIKIT10 side-by-side kit between the wine column and the refrigerator, {gapIn}\" of divider",
+  "rule.columnDoorPanel": "Stainless door panel: {handleless} handleless, or {handleReady} handle-ready",
   "rule.rangetopClearance": "36\" from the cooking surface to an unprotected cabinet, 30\" with a flame-retardant liner; 5\" to a combustible side wall and 6\" behind, or 0\" with the 10\" backguard",
   "toast.roomGrew": "{package} needs a longer run: the room is now {backIn}″ across the back and {leftIn}″ down the left.",
   "rule.roughIn": "{type} — {where}, {at}",

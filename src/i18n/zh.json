@@ -180,6 +180,7 @@
   "rule.noIslandOmitted": "无岛台：已省略酒柜与微波抽屉；增设岛台或加长左墙即可纳入。",
   "rule.ventOutside": "必须排到室外——此内嵌机芯不可内循环",
   "rule.columnKit": "酒柱与冰箱并排需 COMBIKIT10 连接件，中间 {gapIn}″ 隔板",
+  "rule.columnDoorPanel": "不锈钢门板：{handleless}（无把手）或 {handleReady}（预留把手）",
   "rule.rangetopClearance": "炉面到上方不防火柜体 36″，加防火衬板可 30″；两侧到可燃墙 ≥5″，后方 6″，装 10″ 低背板可 0″",
   "toast.roomGrew": "{package} 需要更长的柜列：房间已调整为后墙 {backIn}″、左墙 {leftIn}″。",
   "rule.roughIn": "{type} — {where}，{at}",

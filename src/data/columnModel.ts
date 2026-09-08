@@ -36,6 +36,20 @@ export const COMBO_OVEN = {
 };
 
 /**
+ * The stainless door panels Thermador sells for an 18" column.
+ *
+ * A column is sold panel-ready: what goes on the front is somebody's decision,
+ * and it is either a door the joiner makes or one of these two. Which of them
+ * is on this kitchen is the row's own finish — a panel-ready row wears the
+ * cabinet's door, a stainless one wears the manufacturer's — so nothing here
+ * decides it; this is only what to order when it is the second.
+ */
+export const COLUMN_DOOR_PANELS = {
+  handleless: "TFL18IW105",
+  handleReady: "TFL18IW10R",
+} as const;
+
+/**
  * How an 18" wine column divides, in inches.
  *
  * From the T18IW100SP drawing: a 79-7/8" door panel with a fixed panel at each

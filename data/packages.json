@@ -153,7 +153,7 @@
           "tallUnit": true,
           "enclosure": true,
           "heightIn": 84,
-          "panelReady": true,
+          "panelReady": false,
           "utilities": {
             "gas": null,
             "power": {

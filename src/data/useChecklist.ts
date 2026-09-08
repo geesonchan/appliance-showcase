@@ -5,6 +5,7 @@ import { evaluateSlot, packageContext, type Finding } from "./rules";
 import { resolveRoughIn, roughInSentence } from "./roughIn";
 import { useSelection, useSelectedBlower } from "../store/useSelection";
 import { applianceBox } from "./applianceBox";
+import { COLUMN_DOOR_PANELS, isColumn } from "./columnModel";
 import { CHIMNEY, chimneyParts, isChimney } from "./hood";
 import { ISLAND, LAYOUT_LIMITS, OMITTED_SLOTS, RUNS } from "./room";
 import type { Appliance, SlotId } from "../types";
@@ -77,6 +78,7 @@ function installParts(selection: Record<SlotId, Appliance>): Finding[] {
     ...fridgeDoorClearance(),
     ...chimneyExtension(selection),
     ...columnKit(),
+    ...columnDoorPanel(selection),
   ];
 }
 
@@ -122,6 +124,33 @@ function noIslandFallback(): Finding[] {
       messageKey: "rule.noIslandFallback",
       slot: "slot-microwave",
       params: { wineLegKey: `leg.${wineRun}`, microwaveLegKey: `leg.${microwaveRun}` },
+    },
+  ];
+}
+
+/**
+ * The door a column wears, when it is not the cabinetmaker's.
+ *
+ * A column is sold panel-ready and the front is a decision: the joiner's door,
+ * or one of the manufacturer's two stainless panels. Which one this kitchen
+ * has is the row's own finish, so this line follows the catalogue rather than
+ * deciding anything — a panel-ready row says nothing here and wears the
+ * kitchen's door instead.
+ */
+function columnDoorPanel(selection: Record<SlotId, Appliance>): Finding[] {
+  const wine = selection["slot-wine"];
+  if (!wine || !isColumn(wine) || wine.finish.includes("panel-ready")) return [];
+
+  return [
+    {
+      ruleId: "column-door-panel",
+      severity: "info",
+      messageKey: "rule.columnDoorPanel",
+      slot: "slot-wine",
+      params: {
+        handleless: COLUMN_DOOR_PANELS.handleless,
+        handleReady: COLUMN_DOOR_PANELS.handleReady,
+      },
     },
   ];
 }
