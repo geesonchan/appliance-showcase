@@ -498,11 +498,18 @@ face, everywhere a customer can see it — the front of the run is the line thei
 eye follows along a kitchen and the thing a machine visibly stands out from. The
 carcass front and the published cutout are draughtsman's datums an inch apart,
 and printing whichever the calling code had to hand is how one refrigerator got
-two figures for the same fact: 4-3/4" past the cabinets, 3-3/4" past the carcass
-line. `protrusionDatum` in `data/rules.json` names it. And what is measured is
-the machine rather than the hole it needs — a cutout depth includes service
-space behind, so measuring against it reported a built-in as standing proud of
-cabinets it is defined by finishing flush with.
+three figures for the same fact: 5-3/4" past the cabinets, 4-3/4" from its own
+back, 3-3/4" past the carcass line. `protrusionDatum` in `data/rules.json`
+names it. And what is measured is the machine rather than the hole it needs — a
+cutout depth includes service space behind, so measuring against it reported a
+built-in as standing proud of cabinets it is defined by finishing flush with.
+
+**Amended 2026-09-08 (round 19), Leo: the datum includes the rear spacers.**
+A freestanding refrigerator is held off the plaster by an inch of its own
+spacers, so its 28-3/4" of machine puts the door face 29-3/4" from the wall and
+5-3/4" proud of a 24" panel. The spacers are behind the machine and they are
+what decides where its doors end up; the drawing is built on where the machine
+has to stand, not on where its back is.
 
 **What this forbids:** placing an appliance by eye; a layout template that
 "mostly" follows the rules; hard-coded cabinet boxes that no rule can be run

@@ -219,10 +219,12 @@ describe("what a machine sticks out of", () => {
     expect(protrusionDatumIn(fridge)).not.toBe(fridge.cutout.d);
   });
 
-  it("gives the freestanding refrigerator its 4-3/4 inches", () => {
-    // 28-3/4" to the door face against a 24" run. The 3-3/4" figure is the same
-    // machine measured from the carcass line, which is a drawing's datum and
-    // stays in docs/reference rather than on a customer's screen.
+  it("gives the freestanding refrigerator its 5-3/4 inches", () => {
+    // 28-3/4" of machine plus the inch of spacer that holds it off the wall,
+    // against a 24" run: the doors end up 29-3/4" from the plaster. The 3-3/4"
+    // and 4-3/4" figures are the same machine measured from the carcass line
+    // and from its own back — drawings' datums, which stay in docs/reference
+    // rather than on a customer's screen.
     const t36ft820ns = {
       ...FIXTURES.fridgeCounterDepth,
       depthIn: 24,
@@ -231,7 +233,7 @@ describe("what a machine sticks out of", () => {
       depthWithDoorsIn: 28.75,
       depthWithHandleIn: 31.4375,
     } as Appliance;
-    expect(fitCheck(SLOT_BY_ID["slot-fridge"], t36ft820ns).depthOverIn).toBe(4.75);
+    expect(fitCheck(SLOT_BY_ID["slot-fridge"], t36ft820ns).depthOverIn).toBe(5.75);
   });
 
   it("leaves a hood alone: it hangs off a wall and has no run to be proud of", () => {

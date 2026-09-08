@@ -76,9 +76,10 @@ export function applianceBox(slot: Slot, appliance: Appliance): ApplianceBox {
     w,
     h,
     d,
-    // Zero once the depth already includes the stand-off, which is how a
-    // depth-with-doors figure is quoted.
-    rearSpacerIn: appliance.depthWithDoorsIn !== null ? 0 : (appliance.rearSpacerIn ?? 0),
+    // Counted whatever the depth figure is. A depth-with-doors is the machine
+    // with its doors shut, measured on the machine; the spacers behind it are
+    // a separate inch, and the two add up to where the doors actually end up.
+    rearSpacerIn: appliance.rearSpacerIn ?? 0,
     y: fromTop && !hung ? spareH : 0,
     filler: {
       below: hung || standsAlone ? 0 : fromTop ? spareH : 0,

@@ -285,9 +285,9 @@ describe("a freestanding refrigerator is a solid", () => {
     expect(box.w * 12).toBeCloseTo(35.625, 6);
     expect(box.h * 12).toBeCloseTo(72, 6);
     expect(box.d * 12).toBeCloseTo(28.75, 6);
-    // The published figure is measured from the wall with the spacers in it,
-    // so nothing further holds the box off.
-    expect(box.rearSpacerIn).toBe(0);
+    // And it stands an inch off the wall on its own spacers, which is not in
+    // the envelope: the depth is the machine, the inch is where it stands.
+    expect(box.rearSpacerIn).toBe(1);
   });
 
   it("puts the door face at the front of the box and the handles outside it", () => {
@@ -300,8 +300,8 @@ describe("a freestanding refrigerator is a solid", () => {
     expect(stance.doorZ).toBeCloseTo(box.d / 2, 9);
     // 31-7/16" to the handle against 28-3/4" to the door: 2-11/16" proud.
     expect((stance.handleZ + stance.handleR - box.d / 2) * 12).toBeCloseTo(2.6875, 6);
-    // And 4-3/4" proud of a 24" panel — 3-3/4" of it past the 25" carcass line.
-    expect(stance.proudIn).toBeCloseTo(4.75, 6);
+    // And 5-3/4" proud of a 24" panel: 28-3/4" of machine an inch off the wall.
+    expect(stance.proudIn).toBeCloseTo(5.75, 6);
   });
 
   it("draws the fronts as reveals across the machine, not as slabs", () => {

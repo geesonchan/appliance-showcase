@@ -47,13 +47,7 @@ export function fitCheck(slot: Slot, appliance: Appliance): FitResult {
   const width = required(appliance.cutoutWidthIn, appliance.widthIn);
   const widthOverIn = width === null ? 0 : width - slot.cutout.w;
   const height = required(appliance.cutoutHeightIn, appliance.heightIn);
-  // What sticks out is the machine, not the hole it needs. A cutout depth is a
-  // rough opening — an inch of it is service space behind the machine — so
-  // measuring a protrusion against it reports a built-in as standing an inch
-  // proud of cabinets it finishes flush with. The doors where the model
-  // publishes them, then the body, and the cutout only when there is nothing
-  // else to go on.
-  const depth = appliance.depthWithDoorsIn ?? appliance.depthIn ?? appliance.cutoutDepthIn;
+  const depth = depthFromWallIn(appliance);
 
   return {
     fits: widthOverIn <= 0,
@@ -62,6 +56,27 @@ export function fitCheck(slot: Slot, appliance: Appliance): FitResult {
     heightOverIn: height === null ? null : height - slot.cutout.h,
     depthOverIn: depth === null ? null : depth - protrusionDatumIn(slot),
   };
+}
+
+/**
+ * How far a machine's face stands from the wall behind it, in inches.
+ *
+ * What sticks out is the machine, not the hole it needs. A cutout depth is a
+ * rough opening — an inch of it is service space behind the machine — so
+ * measuring a protrusion against it reports a built-in as standing an inch
+ * proud of cabinets it finishes flush with. The doors where the model
+ * publishes them, then the body, and the cutout only when there is nothing
+ * else to go on.
+ *
+ * Plus whatever holds the machine off the plaster. A freestanding
+ * refrigerator carries spacers on its back, and they are as real as the doors:
+ * the sheet's 28-3/4" is the machine, the inch behind it is where the machine
+ * has to stand, and 29-3/4" from the wall is what the customer sees — 5-3/4"
+ * proud of a 24" panel.
+ */
+export function depthFromWallIn(appliance: Appliance): number | null {
+  const depth = appliance.depthWithDoorsIn ?? appliance.depthIn ?? appliance.cutoutDepthIn;
+  return depth === null ? null : depth + (appliance.rearSpacerIn ?? 0);
 }
 
 /**

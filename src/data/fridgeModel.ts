@@ -1,4 +1,4 @@
-import { ft } from "./roomShell";
+import { CABINET_STANDARDS, ft } from "./roomShell";
 import type { Appliance } from "../types";
 
 /**
@@ -127,6 +127,9 @@ export function fridgeStance(appliance: Appliance, d: number) {
   const handleR = ft(P.handleDiameterIn) / 2;
   const doorThickness = ft(0.75);
   const { depthIn, depthWithDoorsIn, depthWithHandleIn } = appliance;
+  // The spacers on its back stand it off the wall, so they are part of how far
+  // it reaches into the room even though they are behind it.
+  const spacerIn = appliance.rearSpacerIn ?? 0;
 
   if (depthIn !== null && depthWithDoorsIn !== null) {
     // A freestanding machine is one box, doors and all: `d` is the envelope
@@ -143,7 +146,7 @@ export function fridgeStance(appliance: Appliance, d: number) {
       handleR,
       handleZ: fromWall(depthWithHandleIn ?? depthWithDoorsIn + P.handleDiameterIn) - handleR,
       /** How far the box stands proud of a counter-deep panel, in inches. */
-      proudIn: depthWithDoorsIn - 24,
+      proudIn: depthWithDoorsIn + spacerIn - CABINET_STANDARDS.base.depthIn,
     };
   }
 

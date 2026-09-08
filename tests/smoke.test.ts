@@ -432,8 +432,22 @@ describe("mobile", () => {
     }
 
     await page.getByRole("button", { name: "Close" }).click();
-    await page.waitForTimeout(700);
-    expect(await pinPositions(page)).toBe(before);
+    // Settled rather than a fixed wait, and to the pixel rather than to the
+    // string. The pins are re-projected every frame off a camera that eases
+    // back, and the last frame of an ease can round one label a pixel either
+    // way; a framing that had not been put back would move all six of them.
+    const after = await pinsSettled(page);
+    const coords = (positions: string) =>
+      positions.split("|").flatMap((transform) => {
+        const match = /translate3d\((-?\d+)px, (-?\d+)px/.exec(transform);
+        return match ? [Number(match[1]), Number(match[2])] : [];
+      });
+    const back = coords(after);
+    const start = coords(before);
+    expect(back.length).toBe(start.length);
+    for (const [index, value] of start.entries()) {
+      expect(Math.abs(back[index] - value), `pin coordinate ${index}`).toBeLessThanOrEqual(1);
+    }
     await page.close();
   });
 });

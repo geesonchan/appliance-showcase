@@ -48,9 +48,14 @@ const rulesFileSchema = z.object({
    * along a kitchen, and the thing a machine visibly stands proud of. The
    * alternatives are draughtsman's datums: the carcass front is a foot inside
    * the doors, and the slot's published cutout is a hole nobody looks at. A
-   * freestanding refrigerator is 4-3/4" past the cabinet face and 3-3/4" past
-   * the carcass line, and printing whichever the calling code happened to have
-   * to hand is how the same machine got two figures.
+   * freestanding refrigerator is 5-3/4" past the cabinet face — 28-3/4" of
+   * machine standing an inch off the wall on its own spacers — where the same
+   * machine is 4-3/4" measured from its own back and 3-3/4" from the carcass
+   * line. Printing whichever the calling code happened to have to hand is how
+   * one machine got three figures.
+   *
+   * The datum includes the spacers: they are behind the machine but they are
+   * what decides where its doors end up, which is the only part anyone sees.
    */
   protrusionDatum: z.enum(["cabinetFace", "cutout"]).default("cabinetFace"),
   rules: z.array(ruleSchema).min(1),
