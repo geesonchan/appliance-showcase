@@ -93,6 +93,12 @@ export function Slider({
    * The stretch of the range this configuration can actually be built at. The
    * slider keeps its whole travel — shortening it would hide the constraint
    * instead of teaching it — and greys out the rest.
+   *
+   * The floor is a stop rather than a boundary to cross: dragging past it
+   * lands on the minimum itself, to the inch, and the caption under the track
+   * says what the minimum is made of. The ceiling is not a stop, because what
+   * is above it is a different template rather than a shorter wall, and the
+   * refusal beside the slider is what says so.
    */
   feasible?: { minIn: number; maxIn: number } | null;
   /** What the limit is made of, printed under the track. */
@@ -125,7 +131,10 @@ export function Slider({
         max={max}
         step={step}
         value={value}
-        onChange={(event) => onChange(Number(event.target.value))}
+        onChange={(event) => {
+          const next = Number(event.target.value);
+          onChange(feasible && next < feasible.minIn ? feasible.minIn : next);
+        }}
         style={band ? { background: band, backgroundSize: "100% 4px" } : undefined}
         className="mt-1.5 h-1 w-full cursor-pointer appearance-none rounded-full bg-line bg-center bg-no-repeat accent-accent"
       />

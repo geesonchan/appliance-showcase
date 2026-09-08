@@ -552,10 +552,27 @@ function fillWidth(
 
 // --- validation -----------------------------------------------------------
 
-function step(name: keyof typeof PARAM_LIMITS, value: number): Refusal | null {
+/** Inside the parameter's own range, whatever the slider's step is. */
+function within(name: keyof typeof PARAM_LIMITS, value: number): Refusal | null {
   const { min, max, step: increment } = PARAM_LIMITS[name];
   const vars = { paramKey: `param.${name}`, min, max, step: increment, value };
-  if (value < min || value > max) return { key: "refusal.outOfRange", vars };
+  return value < min || value > max ? { key: "refusal.outOfRange", vars } : null;
+}
+
+/**
+ * On the step as well, which is a fact about the control and not about the
+ * room — so it is asked of the island's dimensions and not of the walls.
+ *
+ * A wall is whatever length it is. What the slider will land on is the wall's
+ * own minimum and then the step above it, and pinning a room to a grid
+ * anchored somewhere else was what stopped a 147" wall from ever being drawn
+ * at 147".
+ */
+function step(name: keyof typeof PARAM_LIMITS, value: number): Refusal | null {
+  const { min, step: increment } = PARAM_LIMITS[name];
+  const outside = within(name, value);
+  if (outside) return outside;
+  const vars = { paramKey: `param.${name}`, min, max: PARAM_LIMITS[name].max, step: increment, value };
   if ((value - min) % increment !== 0) {
     const below = Math.floor((value - min) / increment) * increment + min;
     return {
@@ -584,8 +601,8 @@ function validate(params: LayoutParams): Refusal[] {
     if (reason) reasons.push(reason);
   };
 
-  push(step("backWallIn", params.backWallIn));
-  push(step("leftWallIn", params.leftWallIn));
+  push(within("backWallIn", params.backWallIn));
+  push(within("leftWallIn", params.leftWallIn));
 
   // The tower and the sink base both need a run's worth of wall behind them,
   // and D13 caps a leg at 144". One leg will not carry a range, a sink, a
@@ -1125,14 +1142,22 @@ export function feasibleRange(
   pkg: Package = PACKAGE,
 ): { minIn: number; maxIn: number } | null {
   const { min, max, step } = PARAM_LIMITS[key];
-  let minIn: number | null = null;
+  let onStep: number | null = null;
   let maxIn = min;
   for (let value = min; value <= max; value += step) {
     if (!generateLayout({ ...params, [key]: value }, pkg).ok) continue;
-    if (minIn === null) minIn = value;
+    if (onStep === null) onStep = value;
     maxIn = value;
   }
-  return minIn === null ? null : { minIn, maxIn };
+  if (onStep === null) return null;
+
+  // The floor is the wall's own minimum, to the inch — not the first step
+  // above it. A room that builds at 147" says 147", and the slider stops
+  // there; the step is how the control moves between the floor and the
+  // ceiling, which is no reason to print a figure the room does not believe.
+  let minIn = onStep;
+  while (minIn - 1 >= min && generateLayout({ ...params, [key]: minIn - 1 }, pkg).ok) minIn -= 1;
+  return { minIn, maxIn };
 }
 
 /**

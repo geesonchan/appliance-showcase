@@ -119,11 +119,26 @@ describe("the wall lengths", () => {
     }
   });
 
-  it("refuses a wall off the step, and names the two lengths that would work", () => {
+  /**
+   * A wall is whatever length it is.
+   *
+   * The 6" step is the slider's, not the room's: it is how the control moves
+   * between the wall's own minimum and its ceiling. Refusing 155" because it
+   * falls between two of the control's stops was a rule about the interface
+   * dressed up as a rule about the kitchen — and it was what kept a wall whose
+   * minimum is 147" from ever being drawn at 147".
+   */
+  it("builds a wall that falls between two of the slider's steps", () => {
     const result = setLayoutParams(params({ backWallIn: 155 }));
+    expect(result.ok, result.reasons.map((r) => r.key).join(" ")).toBe(true);
+    expect(inches(ROOM.halfX * 2)).toBe(155);
+    expect(checkLayout()).toEqual([]);
+  });
+
+  it("still refuses a wall outside the range altogether", () => {
+    const result = setLayoutParams(params({ backWallIn: 240 }));
     expect(result.ok).toBe(false);
-    expect(result.reasons[0].key).toBe("refusal.offStep");
-    expect(result.reasons[0].vars).toMatchObject({ value: 155, below: 150, above: 156 });
+    expect(result.reasons[0].key).toBe("refusal.outOfRange");
   });
 });
 
@@ -491,12 +506,9 @@ describe("the greyed-out half of a slider", () => {
     ] as const) {
       const range = feasibleRange(params(), key)!;
       const wanted = wallRequirement(params(), leg).minimumIn;
-      // The printed figure is what the elements add up to; the slider moves in
-      // 6" steps, so what it can actually reach is the first step at or above
-      // it. They agree to within one step, and the slider is never below the
-      // figure printed under it.
-      expect(range.minIn, leg).toBeGreaterThanOrEqual(wanted);
-      expect(range.minIn - wanted, leg).toBeLessThan(PARAM_LIMITS[key].step);
+      // Exactly, not to within a step. The floor of the slider is the figure
+      // printed under it: a room that builds at 147" says 147".
+      expect(range.minIn, leg).toBe(wanted);
     }
   });
 });
