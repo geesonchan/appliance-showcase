@@ -1,7 +1,6 @@
 import type { SlotId } from "../types";
 import { SLOT_BY_ID } from "./slots";
 import {
-  CABINET_STANDARDS,
   LAYOUT_LIMITS,
   ISLAND,
   PANEL,
@@ -401,12 +400,18 @@ export function diagonalDoor(box: CabinetBox): {
   // The square one. A blind corner is 42" of run only 24" deep.
   if (module.depthIn === undefined || module.depthIn !== module.widthIn) return null;
 
-  const side = ft(module.widthIn);
-  const width = side * CABINET_STANDARDS.corner.diagonalFraction;
-  // The chord cuts this much off each edge, measured back from the corner.
-  const cut = width / Math.SQRT2;
-  const corner = side / 2;
-  const mid = (corner - cut + corner) / 2;
+  // The face is not a figure anybody stores: it is what is left when the two
+  // adjacent runs meet the corner box. Their fronts land on it at (leg, depth)
+  // and (depth, leg), so the door spans (leg - depth) on each axis, and the
+  // chord across is that times root two. A 36" susan between 24" runs makes a
+  // 17" door, not the 24" a first reading of the note assumed.
+  const leg = ft(module.widthIn);
+  const adjacent = box.kind === "upper" ? ROOM.upperDepth : ROOM.counterDepth;
+  const cut = leg - adjacent;
+  if (cut <= 0) return null;
+  const width = cut * Math.SQRT2;
+  // The chord's midpoint, measured from the box's own centre toward the room.
+  const mid = leg / 2 - cut / 2;
   return { x: mid, z: mid, width, rotationY: Math.PI / 4 };
 }
 

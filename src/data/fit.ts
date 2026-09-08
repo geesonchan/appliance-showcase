@@ -1,3 +1,5 @@
+import { CABINET_STANDARDS } from "./roomShell";
+import { PROTRUSION_DATUM } from "./rules";
 import type { Appliance, Slot } from "../types";
 
 export interface FitResult {
@@ -13,6 +15,16 @@ export interface FitResult {
   fillerEachSideIn: number | null;
   /** Reported but not gating; null when the appliance has no figure for it. */
   heightOverIn: number | null;
+  /**
+   * How far the machine stands proud, measured from the cabinet face.
+   *
+   * One datum, everywhere a customer can see it: the front of the run is the
+   * line their eye follows along a kitchen, and it is what a machine visibly
+   * stands out from. The carcass front and the slot's published cutout are
+   * draughtsman's datums a foot apart, and printing whichever the calling code
+   * had to hand is how one refrigerator got two figures for the same fact.
+   * See `protrusionDatum` in data/rules.json.
+   */
   depthOverIn: number | null;
 }
 
@@ -35,15 +47,33 @@ export function fitCheck(slot: Slot, appliance: Appliance): FitResult {
   const width = required(appliance.cutoutWidthIn, appliance.widthIn);
   const widthOverIn = width === null ? 0 : width - slot.cutout.w;
   const height = required(appliance.cutoutHeightIn, appliance.heightIn);
-  const depth = required(appliance.cutoutDepthIn, appliance.depthIn);
+  // What sticks out is the machine, not the hole it needs. A cutout depth is a
+  // rough opening — an inch of it is service space behind the machine — so
+  // measuring a protrusion against it reports a built-in as standing an inch
+  // proud of cabinets it finishes flush with. The doors where the model
+  // publishes them, then the body, and the cutout only when there is nothing
+  // else to go on.
+  const depth = appliance.depthWithDoorsIn ?? appliance.depthIn ?? appliance.cutoutDepthIn;
 
   return {
     fits: widthOverIn <= 0,
     widthOverIn,
     fillerEachSideIn: widthOverIn < 0 ? -widthOverIn / 2 : null,
     heightOverIn: height === null ? null : height - slot.cutout.h,
-    depthOverIn: depth === null ? null : depth - slot.cutout.d,
+    depthOverIn: depth === null ? null : depth - protrusionDatumIn(slot),
   };
+}
+
+/**
+ * The line a protrusion is measured from, in inches.
+ *
+ * The cabinet face for everything that stands in a run, which is the datum the
+ * whole app prints; a hood is the exception, because it hangs off the wall and
+ * has no run to be proud of.
+ */
+export function protrusionDatumIn(slot: Slot): number {
+  if (PROTRUSION_DATUM === "cutout" || slot.id === "slot-hood") return slot.cutout.d;
+  return CABINET_STANDARDS.base.depthIn;
 }
 
 /** Inches to one decimal, without a trailing ".0" on whole numbers. */

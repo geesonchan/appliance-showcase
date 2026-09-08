@@ -231,36 +231,56 @@ describe("the island", () => {
     expect(deep.reasons.map((r) => r.key)).toContain("refusal.islandDeep");
   });
 
-  it("takes the island out of the room when it is switched off", () => {
-    // With the shorter corner. Without an island the microwave and the wine
-    // cabinet need 48" of the perimeter, and a leg is capped at 144": a 36"
-    // lazy susan leaves room for them and a 42" blind corner is three inches
-    // too many. That is a real constraint rather than a quirk of this test —
-    // the sweep refuses the blind version with a reason.
-    const result = setLayoutParams(
-      params({ hasIsland: false, cornerType: "lazy-susan" }),
-    );
+  /**
+   * Where the island's two machines go when there is no island.
+   *
+   * Not both onto whichever leg is quieter: 48" of opening in one place is what
+   * made a blind corner refuse a room that is otherwise fine. They are split,
+   * and each goes somewhere it costs almost nothing — the wine cabinet at the
+   * far end of the refrigerator's leg, and the microwave drawer in the base
+   * beside the range, where the counter over it is the landing D11 rule 4 asks
+   * for anyway.
+   */
+  it("takes the island out of the room and splits its two machines", () => {
+    const result = setLayoutParams(params({ hasIsland: false }));
     expect(result.ok, result.reasons.map((r) => r.key).join(" ")).toBe(true);
 
     expect(ISLAND.present).toBe(false);
     expect(CABINETS.filter((box) => box.id.startsWith("island"))).toEqual([]);
-    // Both openings go on the leg the sink is not on: the other one is already
-    // carrying the range, the sink base and the dishwasher, and 48" more of
-    // opening is exactly what it does not have.
-    expect(segmentForSlot("slot-microwave")!.id.startsWith("left")).toBe(true);
-    expect(segmentForSlot("slot-wine")!.id.startsWith("left")).toBe(true);
     expect(SLOT_BY_ID["slot-microwave"].mount).toBe("wall");
     expect(SLOT_BY_ID["slot-wine"].mount).toBe("wall");
+
+    // The wine cabinet finishes the refrigerator's leg, before the tower —
+    // rule 1 keeps the tower itself last.
+    const fridgeRun = RUNS.find((run) => run.segments.some((s) => s.slot === "slot-fridge"))!;
+    const order = fridgeRun.segments.map((s) => s.slot);
+    expect(order).toContain("slot-wine");
+    expect(order.indexOf("slot-wine")).toBeLessThan(order.indexOf("slot-fridge"));
+    expect(fridgeRun.segments[fridgeRun.segments.length - 1].slot).toBe("slot-fridge");
+
+    // The microwave drawer is beside the range, and its own counter is the
+    // landing on that side.
+    const back = RUN_BY_ID.back;
+    const rangeAt = back.segments.findIndex((s) => s.slot === "slot-range");
+    expect(back.segments[rangeAt - 1].slot).toBe("slot-microwave");
+    expect(checkLayout()).toEqual([]);
   });
 
-  it("says what is short when there is nowhere to put them", () => {
-    // A blind corner takes 6" more of its own leg than a lazy susan, and with
-    // two extra openings already on that leg those 6" are what runs out.
+  it("does that with a blind corner too, which it used to refuse", () => {
+    // A blind corner takes 6" more of its own leg than a lazy susan. With both
+    // machines stacked on one leg those 6" were what ran out; split, they are
+    // not.
     const result = setLayoutParams(params({ hasIsland: false, cornerType: "blind" }));
+    expect(result.ok, result.reasons.map((r) => r.key).join(" ")).toBe(true);
+    expect(checkLayout()).toEqual([]);
+  });
+
+  it("still says what is short when even the fallback will not fit", () => {
+    const result = setLayoutParams(params({ hasIsland: false, backWallIn: 96 }));
     expect(result.ok).toBe(false);
-    expectSentences(result.reasons, "no island, blind corner");
+    expectSentences(result.reasons, "no island, short back wall");
     expect(result.reasons[0].key).toBe("refusal.wallShort");
-    expect(result.reasons[0].occupancy?.map((item) => item.code)).toContain("BBC42");
+    expect(result.reasons[0].occupancy?.length).toBeGreaterThan(0);
   });
 });
 

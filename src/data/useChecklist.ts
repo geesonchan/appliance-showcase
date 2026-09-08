@@ -6,7 +6,7 @@ import { resolveRoughIn, roughInSentence } from "./roughIn";
 import { useSelection, useSelectedBlower } from "../store/useSelection";
 import { applianceBox } from "./applianceBox";
 import { CHIMNEY, chimneyParts, isChimney } from "./hood";
-import { LAYOUT_LIMITS, RUNS } from "./room";
+import { ISLAND, LAYOUT_LIMITS, RUNS } from "./room";
 import type { Appliance, SlotId } from "../types";
 
 export interface Checklist {
@@ -72,7 +72,36 @@ export function useChecklist(): Checklist {
  * has to order.
  */
 function installParts(selection: Record<SlotId, Appliance>): Finding[] {
-  return [...fridgeDoorClearance(), ...chimneyExtension(selection)];
+  return [...noIslandFallback(), ...fridgeDoorClearance(), ...chimneyExtension(selection)];
+}
+
+/**
+ * Where the island's two machines went, when there is no island.
+ *
+ * A room without one still has to put the microwave drawer and the wine cabinet
+ * somewhere, and where they end up is not obvious from looking: the drawer is
+ * in the base beside the range, under the landing, and the wine cabinet is at
+ * the far end of the refrigerator's leg. Somebody pricing the run needs to know
+ * that before they read the drawing, so it is a line rather than a discovery.
+ */
+function noIslandFallback(): Finding[] {
+  if (ISLAND.present) return [];
+
+  const runOf = (slot: SlotId) =>
+    RUNS.find((run) => run.segments.some((segment) => segment.slot === slot))?.id;
+  const wineRun = runOf("slot-wine");
+  const microwaveRun = runOf("slot-microwave");
+  if (!wineRun || !microwaveRun) return [];
+
+  return [
+    {
+      ruleId: "no-island-fallback",
+      severity: "info",
+      messageKey: "rule.noIslandFallback",
+      slot: "slot-microwave",
+      params: { wineLegKey: `leg.${wineRun}`, microwaveLegKey: `leg.${microwaveRun}` },
+    },
+  ];
 }
 
 /** The extension a room taller than the chimney's own travel needs. */

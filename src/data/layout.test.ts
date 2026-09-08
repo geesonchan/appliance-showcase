@@ -217,7 +217,9 @@ describe("D11 rule 6 · the refrigerator has 15 inches of landing", () => {
     const leftRun = runs.find((r) => r.id === "left")!;
     const landing = leftRun.segments[leftRun.segments.length - 2];
     const tower = leftRun.segments[leftRun.segments.length - 1];
-    // Break the run of counter, then trim what is left beside the tower.
+    // Break the run of counter, then trim what is left beside the tower. An
+    // appliance segment with no slot is not worktop: the rule vouches for a
+    // named under-counter machine, not for anything that is not a range.
     leftRun.segments[leftRun.segments.length - 3].kind = "appliance";
     landing.to = landing.from + 0.5;
     tower.from = landing.to;
@@ -579,11 +581,17 @@ describe("D11 rule 2 · a corner susan wears a diagonal door", () => {
     return CABINETS.find((b) => b.id.startsWith(segment.id) && b.module?.kind === "corner")!;
   };
 
-  it("cuts a 24 inch face across a 36 inch box, at forty-five degrees", () => {
+  it("derives the face from the carcass rather than storing it", () => {
     setLayoutParams({ ...DEFAULT_PARAMS, cornerType: "lazy-susan" });
     const door = diagonalDoor(cornerBox())!;
     expect(door, "no diagonal door on a lazy susan").toBeTruthy();
-    expect(inches(door.width)).toBeCloseTo(24, 6);
+    // The two adjacent runs meet the box at (leg, depth) and (depth, leg), so
+    // the door spans (leg - depth) on each axis. A 36" susan between 24" runs
+    // makes a 17" face, not a 24" one.
+    const expected = (CABINET_STANDARDS.corner.lazySusanIn - CABINET_STANDARDS.base.depthIn) *
+      Math.SQRT2;
+    expect(inches(door.width)).toBeCloseTo(expected, 6);
+    expect(inches(door.width)).toBeCloseTo(16.97, 1);
     expect(door.rotationY).toBeCloseTo(Math.PI / 4, 9);
 
     // It faces the room, which is the inside of the L: +x and +z of the box.
@@ -598,15 +606,31 @@ describe("D11 rule 2 · a corner susan wears a diagonal door", () => {
     expect(inches(door.x)).toBeGreaterThan(0);
   });
 
-  it("gives the wall cabinet over it the same face, to its own size", () => {
+  it("derives the wall cabinet's face against the shallower run above", () => {
     setLayoutParams({ ...DEFAULT_PARAMS, cornerType: "lazy-susan" });
     const upper = CABINETS.find((b) => b.module?.kind === "corner" && b.kind === "upper")!;
     const door = diagonalDoor(upper)!;
     expect(door).toBeTruthy();
+    // Wall cabinets are 12" deep, so the same arithmetic runs against 12
+    // rather than against 24.
     expect(inches(door.width)).toBeCloseTo(
-      upper.module!.widthIn * CABINET_STANDARDS.corner.diagonalFraction,
+      (upper.module!.widthIn - CABINET_STANDARDS.upper.depthIn) * Math.SQRT2,
       6,
     );
+  });
+
+  it("has no face at all when the box is no deeper than the run beside it", () => {
+    // A corner box the same size as the run's depth has nothing to cut off:
+    // the two fronts already meet, and a diagonal would be a door across a
+    // corner that is not there.
+    const square = CABINETS.find((b) => b.module?.kind === "corner")!;
+    expect(
+      diagonalDoor({
+        ...square,
+        kind: "base",
+        module: { ...square.module!, widthIn: CABINET_STANDARDS.base.depthIn },
+      }),
+    ).toBe(null);
   });
 
   it("leaves a blind corner with an ordinary front", () => {

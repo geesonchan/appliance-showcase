@@ -3,6 +3,7 @@ import { useChecklist } from "../data/useChecklist";
 import { SLOT_BY_ID } from "../data/slots";
 import { DEBUG } from "../debug";
 import { useT } from "../i18n/useT";
+import { useRefusalText } from "./RefusalNote";
 import type { Severity } from "../data/rules";
 
 const DOT: Record<Severity, string> = {
@@ -20,6 +21,10 @@ const DOT: Record<Severity, string> = {
  */
 export function InstallChecklist() {
   const t = useT();
+  // One convention, both renderers: a param whose name ends in `Key` is itself
+  // a key. Rules have no language — they name the string rather than writing
+  // it — and a checklist that substituted the key raw printed "leg.left".
+  const say = useRefusalText();
   const { findings, blockers, warnings } = useChecklist();
   const [open, setOpen] = useState(true);
 
@@ -80,7 +85,7 @@ export function InstallChecklist() {
                       title={t(`checklist.${finding.severity}`)}
                     />
                     <span>
-                      {t(finding.messageKey, finding.params)}
+                      {say(finding.messageKey, finding.params ?? {})}
                       {DEBUG && (
                         <span className="ml-1.5 font-mono text-[9px] text-ink-muted/60">
                           {finding.ruleId}

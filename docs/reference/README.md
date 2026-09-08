@@ -47,10 +47,12 @@ The figures, and where each comes from:
 - **36" along each wall, 24" deep, 34-1/2" high.** cabinets.com's DCLS36-L gives
   "36 3/16" wide, 34.5" high, 24" deep"; Lanae and Nelson list the same class at
   33-36" wide, 24" deep, 34.5" high.
-- **A 24" door face at 45 degrees.** Leo's round-18 figure. None of the vendor
-  pages publishes the door width, so it is his rather than theirs — and it is
-  consistent with the box: a 24" chord cuts 16-15/16" off each 18" half-edge,
-  which leaves the returns a susan needs to hinge against.
+- **The 45-degree face, which is derived rather than published.** None of the
+  vendor pages gives a door width, and it does not need one: the two adjacent
+  runs meet the corner box at (36, 24) and (24, 36), so the face spans
+  `(36 - 24)` on each axis and `12 x root two` — about 16-15/16" — across it.
+  A round-18 note put 24" here, which is what a 41" unit between 24" runs would
+  give; a standard 36" one gives 17".
 - **Two revolving shelves.** What makes it a susan rather than a diagonal corner
   sink base, which is the same shape with a different inside.
 
@@ -64,8 +66,9 @@ Sources:
 - [Highlands Designs BSS36, the bi-fold alternative](https://www.highlandsdesigns.com/item.php?item_id=5449&category_id=148)
 - [Lanae, corner cabinet dimensions](https://lanaehome.com/blogs/news/corner-cabinet-dimensions-lazy-susan-and-alternatives)
 
-`CABINET_STANDARDS.corner.diagonalFraction` is 2/3, which is the 24" on a 36"
-box, and gives the wall cabinet over it its own face to the same proportion.
+`diagonalDoor` in `src/data/cabinets.ts` computes it, against the run beside the
+box: 24" for a base cabinet and 12" for a wall one, so the cabinet over a susan
+gets its own face from the same arithmetic rather than a second constant.
 
 ## Reading the hood's 30-42"
 

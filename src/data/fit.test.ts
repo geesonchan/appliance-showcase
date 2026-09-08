@@ -7,7 +7,9 @@ import {
 } from "./catalogue";
 import { COMPATIBLE_BLOWERS } from "../../scripts/normalise";
 import { FIXTURES } from "./testFixtures";
-import { fitCheck, formatInches } from "./fit";
+import { fitCheck, formatInches, protrusionDatumIn } from "./fit";
+import { PROTRUSION_DATUM } from "./rules";
+import { CABINET_STANDARDS } from "./roomShell";
 import { SLOT_BY_ID } from "./slots";
 import { deriveUtilities } from "./utilities";
 import { effectiveCfm, needsMakeupAir } from "./ventilation";
@@ -46,12 +48,22 @@ describe("fit check", () => {
     expect(fitCheck(range, noCutout).widthOverIn).toBeCloseTo(-0.25);
   });
 
-  it("reports depth without gating on it", () => {
+  it("reports depth without gating on it, from the cabinet face", () => {
     const fridge = SLOT_BY_ID["slot-fridge"];
     const deep = FIXTURES.fridgeCounterDepth;
     const result = fitCheck(fridge, deep);
     expect(result.fits).toBe(true);
-    expect(result.depthOverIn).toBe(4);
+    // 28-1/2" of machine past a 24" run. One datum everywhere a customer can
+    // see it: not the carcass line, and not the rough opening.
+    expect(result.depthOverIn).toBe(4.5);
+  });
+
+  it("says a built-in stands proud of nothing, because it finishes flush", () => {
+    // Its cutout is 25" — an inch of service space behind it — and measuring
+    // the protrusion against that reported it as sticking out of the cabinets
+    // it is defined by finishing flush with.
+    const result = fitCheck(SLOT_BY_ID["slot-fridge"], FIXTURES.fridgeBuiltIn);
+    expect(result.depthOverIn).toBe(0);
   });
 
   it("leaves an unknown dimension null rather than guessing", () => {
@@ -187,5 +199,43 @@ describe("blower compatibility comes from the chart, not the badge", () => {
       // Not every listed model is stocked, but at least one must be.
       expect(blowersFor(item).length, `${item.model} has no stocked blower`).toBeGreaterThan(0);
     }
+  });
+});
+
+/**
+ * One datum, everywhere a customer can see a protrusion.
+ *
+ * The cabinet face is the line their eye follows along a kitchen and the thing
+ * a machine visibly stands out from. The carcass front and the published cutout
+ * are draughtsman's datums an inch apart, and printing whichever the calling
+ * code had to hand is how one refrigerator got two figures for the same fact.
+ * See `protrusionDatum` in data/rules.json.
+ */
+describe("what a machine sticks out of", () => {
+  it("measures from the cabinet face, not the slot's rough opening", () => {
+    const fridge = SLOT_BY_ID["slot-fridge"];
+    expect(PROTRUSION_DATUM).toBe("cabinetFace");
+    expect(protrusionDatumIn(fridge)).toBe(CABINET_STANDARDS.base.depthIn);
+    expect(protrusionDatumIn(fridge)).not.toBe(fridge.cutout.d);
+  });
+
+  it("gives the freestanding refrigerator its 4-3/4 inches", () => {
+    // 28-3/4" to the door face against a 24" run. The 3-3/4" figure is the same
+    // machine measured from the carcass line, which is a drawing's datum and
+    // stays in docs/reference rather than on a customer's screen.
+    const t36ft820ns = {
+      ...FIXTURES.fridgeCounterDepth,
+      depthIn: 24,
+      cutoutDepthIn: 25,
+      rearSpacerIn: 1,
+      depthWithDoorsIn: 28.75,
+      depthWithHandleIn: 31.4375,
+    } as Appliance;
+    expect(fitCheck(SLOT_BY_ID["slot-fridge"], t36ft820ns).depthOverIn).toBe(4.75);
+  });
+
+  it("leaves a hood alone: it hangs off a wall and has no run to be proud of", () => {
+    const hood = SLOT_BY_ID["slot-hood"];
+    expect(protrusionDatumIn(hood)).toBe(hood.cutout.d);
   });
 });

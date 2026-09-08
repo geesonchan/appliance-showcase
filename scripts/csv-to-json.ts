@@ -216,8 +216,11 @@ export function convert(
       model,
       series: null,
       msrpUSD: priceOrNull(row.msrpUSD),
-      sourceUrl: textOrNull(row.sourceUrl),
-      verifiedAt: textOrNull(row.verifiedAt),
+      // The drawing's own page where one has been read, then the sheet's
+      // column. And a row the drawing overrode is unverified until somebody
+      // checks it against that drawing: re-typing a figure is not checking it.
+      sourceUrl: published.sourceUrl ?? textOrNull(row.sourceUrl),
+      verifiedAt: published.unverified ? null : textOrNull(row.verifiedAt),
       installType:
         published.installType ??
         toInstallType(row.Feature ?? "", type, row.Width ?? "", row.Depth ?? ""),

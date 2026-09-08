@@ -863,36 +863,45 @@ function planLegs(params: LayoutParams, pkg: Package) {
       : gap("corner-landing", LAYOUT_LIMITS.cornerLandingIn, "d11-1", { optional: true }),
   ];
   if (params.sinkLeg === "left") left.push(...sinkGroup());
-  // With no island the microwave drawer and the wine cabinet have to stand in
-  // the perimeter run, and they go on the leg the sink is not on: that leg is
-  // already carrying the range, the sink base and the dishwasher, and 48" more
-  // of opening is exactly what it does not have.
-  if (!params.hasIsland && params.sinkLeg === "back") {
-    left.push(
-      opening("slot-microwave", "microwave"),
-      opening("slot-wine", "wine"),
-    );
-  }
+
+  /**
+   * Where the island's two machines go when there is no island.
+   *
+   * Not both onto whichever leg is quieter: 48" of opening in one place is what
+   * made a blind corner refuse a room that is otherwise fine. They are split,
+   * and each goes somewhere it costs almost nothing.
+   *
+   * The microwave drawer goes in the base beside the range, on the landing
+   * side. It is a drawer: there is a countertop over it, so the landing D11
+   * rule 4 asks for is still there — the same argument rule 10 already makes
+   * about the dishwasher counting as the sink's wide side. So it costs the run
+   * only what the landing was going to take anyway.
+   *
+   * The wine cabinet goes at the far end of the refrigerator's leg — the last
+   * base cabinet before the tower's landing, because D11 rule 1 keeps the tower
+   * itself last and a run of counter cut in two by a tall unit is what that
+   * rule exists to stop.
+   */
+  const fallback = !params.hasIsland;
+  const microwaveIn = fallback ? openingIn(spec["slot-microwave"]) : 0;
+  const landingLeftIn = Math.max(0, LAYOUT_LIMITS.rangeLandingIn - microwaveIn);
 
   const back: Item[] = [
-    gap("range-landing-left", LAYOUT_LIMITS.rangeLandingIn, "d11-4"),
+    gap("range-landing-left", landingLeftIn, "d11-4"),
+    ...(fallback ? [opening("slot-microwave", "microwave")] : []),
     opening("slot-range", "range"),
     gap("range-landing-right", LAYOUT_LIMITS.rangeLandingIn, "d11-4"),
   ];
   if (params.sinkLeg === "back") back.push(...sinkGroup());
-  if (!params.hasIsland && params.sinkLeg === "left") {
-    back.push(
-      opening("slot-microwave", "microwave"),
-      opening("slot-wine", "wine"),
-    );
-  }
 
-  // The tower finishes its leg, with a landing before it (D11 rule 6).
+  // The tower finishes its leg, with a landing before it (D11 rule 6) — and,
+  // with no island, the wine cabinet past it at the very end of the run.
+  const wine = fallback ? [opening("slot-wine", "wine")] : [];
   if (params.fridgeEnd === "left") {
-    left.push(gap("fridge-landing", LAYOUT_LIMITS.fridgeLandingIn, "d11-6"), tower);
+    left.push(...wine, gap("fridge-landing", LAYOUT_LIMITS.fridgeLandingIn, "d11-6"), tower);
     back.push(gap("back-end", LAYOUT_LIMITS.cornerLandingIn, "d13-modules", { optional: true }));
   } else {
-    back.push(gap("fridge-landing", LAYOUT_LIMITS.fridgeLandingIn, "d11-6"), tower);
+    back.push(...wine, gap("fridge-landing", LAYOUT_LIMITS.fridgeLandingIn, "d11-6"), tower);
     left.push(gap("left-end", LAYOUT_LIMITS.cornerLandingIn, "d13-modules", { optional: true }));
   }
 

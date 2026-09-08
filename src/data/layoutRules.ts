@@ -104,11 +104,31 @@ function locate(runs: CabinetRun[], slotId: SlotId): { run: CabinetRun; index: n
  * Counter available beside a segment, walking outward until something that is
  * not plain counter stops it.
  */
+/**
+ * Whether a segment puts worktop at counter height.
+ *
+ * Base cabinetry does. So does an under-counter appliance: a dishwasher or a
+ * microwave drawer has a countertop over it, and 24" of surface at counter
+ * height is 24" of surface at counter height — which is the argument D11 rule
+ * 10 already makes about the dishwasher beside a sink. What does not is a
+ * freestanding range, whose top is the cooking surface, and a tall unit, which
+ * has no counter at all.
+ */
+function hasWorktop(segment: RunSegment): boolean {
+  if (segment.kind === "counter" || segment.kind === "fixture") return true;
+  if (segment.kind !== "appliance" || !segment.slot) return false;
+  // Named, and base height. Anything else is a segment this cannot vouch for.
+  return (
+    segment.slot !== "slot-range" &&
+    SLOT_BY_ID[segment.slot]?.cabinetConfig.type === "base"
+  );
+}
+
 function landing(run: CabinetRun, index: number, direction: -1 | 1): number {
   let total = 0;
   for (let i = index + direction; i >= 0 && i < run.segments.length; i += direction) {
     const segment = run.segments[i];
-    if (segment.kind !== "counter") break;
+    if (!hasWorktop(segment)) break;
     total += spanOf(segment);
   }
   return inches(total);

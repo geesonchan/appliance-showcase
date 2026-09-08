@@ -498,6 +498,18 @@ export const PUBLISHED_SPECS: Record<
      * a cabinet goes above it.
      */
     installType?: string[];
+    /**
+     * Where the figures came from, when the drawing rather than the sheet is
+     * the authority. It replaces whatever the sheet's own column said, because
+     * that column points at a page that does not carry these numbers.
+     */
+    sourceUrl?: string;
+    /**
+     * True when the drawing overrode the sheet and nobody has checked the row
+     * against it since. `verifiedAt` goes null: a row is verified when a person
+     * has read it against its source, and re-typing a figure is not that.
+     */
+    unverified?: true;
     doorConfig?: DoorConfig;
     doorSplit?: DoorSplit;
   }
@@ -523,6 +535,9 @@ export const PUBLISHED_SPECS: Record<
   // from the canopy's *underside* to the top of the chimney, which is where the
   // section height in `CHIMNEY` comes from.
   HMCB30WS: {
+    sourceUrl:
+      "https://media3.bsh-group.com/Documents/MCDOC02731214_HMCB30WS-30-INCH-CHIMNEY-WALL-HOOD-WITH-BLOWER-Specifications.pdf",
+    unverified: true,
     widthIn: 29.9375,
     heightIn: 8.5625,
     depthIn: 23.1875,
@@ -533,6 +548,9 @@ export const PUBLISHED_SPECS: Record<
   // held 1" off the wall by its own spacers, with the doors and then the handles
   // standing in front of it: 25", 28-3/4" and 31-7/16" to the wall.
   T36FT820NS: {
+    sourceUrl:
+      "https://media3.bsh-group.com/Documents/16934582_T36FT820NS-36-INCH-STAINLESS-STEEL-FREESTANDING-FRENCH-DOOR-BOTTOM-FREEZER-PROFESSIONAL-HANDLES.pdf",
+    unverified: true,
     widthIn: 35.625,
     heightIn: 72,
     depthIn: 24,

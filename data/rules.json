@@ -4,6 +4,7 @@
     "updatedAt": "2026-09-05",
     "provenance": "Install rules and sizing thresholds. Maintained here rather than in code so Leo can change a threshold without a release. Every rule has a positive and a negative sample in src/data/rules.test.ts, keyed to real models in data/appliances.json."
   },
+  "protrusionDatum": "cabinetFace",
   "rules": [
     {
       "id": "power-upgrade",

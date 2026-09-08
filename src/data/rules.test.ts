@@ -221,7 +221,7 @@ describe("message numbers", () => {
 
   it("keeps inches to one decimal, unseparated", () => {
     const deep = { ...FIXTURES.fridgeCounterDepth } as Appliance;
-    expect(paramsOf("slot-fridge", deep, "deeper-than-opening")?.depth).toBe(4);
+    expect(paramsOf("slot-fridge", deep, "deeper-than-opening")?.depth).toBe(4.5);
   });
 });
 

@@ -420,3 +420,42 @@ describe("the door clearance is said out loud", () => {
     expect(dimension!.noteKey).toBeTruthy();
   });
 });
+
+/**
+ * The island's two machines, when there is no island.
+ *
+ * They are split rather than stacked: 48" of opening in one place is what made
+ * a blind corner refuse a room that is otherwise fine. And where they went is a
+ * line on the install list, because it is not obvious from looking.
+ */
+describe("no island, in both packages", () => {
+  afterAll(() => {
+    setActivePackage(DEFAULT_PACKAGE.id);
+    setLayoutParams(DEFAULT_PARAMS);
+  });
+
+  it("splits them across the legs, and passes every rule doing it", () => {
+    for (const id of BUILDABLE_PACKAGES.map((entry) => entry.id)) {
+      activate(id);
+      for (const cornerType of ["blind", "lazy-susan"] as const) {
+        const where = `${id} / ${cornerType}`;
+        const result = setLayoutParams(params({ hasIsland: false, cornerType }));
+        expect(result.ok, `${where}: ${result.reasons.map((r) => r.key).join(" ")}`).toBe(true);
+        expect(checkLayout(), where).toEqual([]);
+
+        // The drawer is beside the range, under the landing; the wine cabinet
+        // finishes the refrigerator's leg, before the tower.
+        const back = RUNS.find((run) => run.segments.some((s) => s.slot === "slot-range"))!;
+        const rangeAt = back.segments.findIndex((s) => s.slot === "slot-range");
+        expect(back.segments[rangeAt - 1].slot, where).toBe("slot-microwave");
+
+        const fridgeRun = RUNS.find((run) =>
+          run.segments.some((s) => s.slot === "slot-fridge"),
+        )!;
+        const order = fridgeRun.segments.map((s) => s.slot);
+        expect(order.indexOf("slot-wine"), where).toBeLessThan(order.indexOf("slot-fridge"));
+        expect(fridgeRun.segments[fridgeRun.segments.length - 1].slot, where).toBe("slot-fridge");
+      }
+    }
+  });
+});

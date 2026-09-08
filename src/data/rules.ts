@@ -41,6 +41,18 @@ const ruleSchema = z.object({
 
 const rulesFileSchema = z.object({
   _meta: metaSchema,
+  /**
+   * What "sticks out" is measured from, everywhere a customer can see it.
+   *
+   * `cabinetFace` is the front of the run — the line a customer's eye follows
+   * along a kitchen, and the thing a machine visibly stands proud of. The
+   * alternatives are draughtsman's datums: the carcass front is a foot inside
+   * the doors, and the slot's published cutout is a hole nobody looks at. A
+   * freestanding refrigerator is 4-3/4" past the cabinet face and 3-3/4" past
+   * the carcass line, and printing whichever the calling code happened to have
+   * to hand is how the same machine got two figures.
+   */
+  protrusionDatum: z.enum(["cabinetFace", "cutout"]).default("cabinetFace"),
   rules: z.array(ruleSchema).min(1),
   thresholds: z.object({
     gasPipeUpsizeBTU: z.number().positive(),
@@ -60,6 +72,7 @@ const parsed = parseDataFile(rulesFileSchema, rulesFile, "data/rules.json");
 
 export const RULES = parsed.rules;
 export const THRESHOLDS = parsed.thresholds;
+export const PROTRUSION_DATUM = parsed.protrusionDatum;
 
 export type Severity = z.infer<typeof ruleSchema>["severity"];
 

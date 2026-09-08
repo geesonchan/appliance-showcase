@@ -414,6 +414,20 @@ ask for none has neither a seating side nor an aisle, and its microwave drawer
 and wine cabinet are two base cabinets in a run. The checker skips the rule
 rather than failing it.
 
+**And when there is no island, those two are split rather than stacked.** Both
+onto whichever leg is quieter is 48" of opening in one place, which is what made
+a blind corner refuse a room that is otherwise fine. The microwave drawer goes
+in the base beside the range on the landing side: it is a drawer, so there is
+countertop over it, and 24" of surface at counter height is the landing rule 4
+asks for — the same argument rule 10 already makes about the dishwasher counting
+as the sink's wide side. So it costs the run only what the landing was taking
+anyway. The wine cabinet finishes the refrigerator's leg, the last base cabinet
+before the tower's landing, because rule 1 keeps the tower itself last.
+
+A refusal is what happens when *that* will not fit, not before it is tried. And
+where the two went goes on the install list: it is not obvious from the drawing,
+and somebody pricing the run needs to know.
+
 **The wall cabinets meet the canopy.** The bank each side of a hood stops
 exactly at its flank, and the cabinet against it is a cabinet rather than a
 filler. A gap beside a canopy is one nobody can get a cloth into and a foot of
@@ -457,6 +471,17 @@ past the refrigerator, one is built — in the wall's own colour, at the wall's 
 height, returning 30" into the room. Three and a half inches of empty run at the
 end of a leg reads as a cabinet somebody forgot; the same three and a half
 inches against a wall reads as a door that has to open.
+
+**One datum for what sticks out.** A protrusion is measured from the cabinet
+face, everywhere a customer can see it — the front of the run is the line their
+eye follows along a kitchen and the thing a machine visibly stands out from. The
+carcass front and the published cutout are draughtsman's datums an inch apart,
+and printing whichever the calling code had to hand is how one refrigerator got
+two figures for the same fact: 4-3/4" past the cabinets, 3-3/4" past the carcass
+line. `protrusionDatum` in `data/rules.json` names it. And what is measured is
+the machine rather than the hole it needs — a cutout depth includes service
+space behind, so measuring against it reported a built-in as standing proud of
+cabinets it is defined by finishing flush with.
 
 **What this forbids:** placing an appliance by eye; a layout template that
 "mostly" follows the rules; hard-coded cabinet boxes that no rule can be run
