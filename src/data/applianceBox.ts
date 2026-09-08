@@ -21,6 +21,8 @@ export interface ApplianceBox {
   d: number;
   /** Bottom of the body, above the slot's own origin. */
   y: number;
+  /** How far its own spacers hold it off the wall, where `d` does not include them. */
+  rearSpacerIn: number;
   /** Cabinetry filling the rest of the opening. */
   filler: { below: number; above: number; eachSide: number };
 }
@@ -42,7 +44,14 @@ function hangsFromTheTop(appliance: Appliance): boolean {
 export function applianceBox(slot: Slot, appliance: Appliance): ApplianceBox {
   const w = pick(appliance.widthIn, appliance.cutoutWidthIn, slot.cutout.w);
   const h = pick(appliance.heightIn, appliance.cutoutHeightIn, slot.cutout.h);
-  const d = pick(appliance.depthIn, appliance.cutoutDepthIn, slot.cutout.d);
+  // The envelope, which for a freestanding machine is the depth with its doors
+  // shut: the doors are part of the box rather than panels hung off a carcass,
+  // and the published figure is measured from the wall with its rear spacers
+  // included. Only the handles stand outside it.
+  const d =
+    appliance.depthWithDoorsIn !== null
+      ? ft(appliance.depthWithDoorsIn)
+      : pick(appliance.depthIn, appliance.cutoutDepthIn, slot.cutout.d);
 
   const openingH = ft(slot.cutout.h);
   const openingW = ft(slot.cutout.w);
@@ -67,6 +76,9 @@ export function applianceBox(slot: Slot, appliance: Appliance): ApplianceBox {
     w,
     h,
     d,
+    // Zero once the depth already includes the stand-off, which is how a
+    // depth-with-doors figure is quoted.
+    rearSpacerIn: appliance.depthWithDoorsIn !== null ? 0 : (appliance.rearSpacerIn ?? 0),
     y: fromTop && !hung ? spareH : 0,
     filler: {
       below: hung || standsAlone ? 0 : fromTop ? spareH : 0,

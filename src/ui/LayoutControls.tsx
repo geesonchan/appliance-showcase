@@ -87,34 +87,8 @@ export function LayoutControls() {
 
   return (
     <>
-      <PanelSection title={t("panel.room")}>
-        <Slider
-          label={t("panel.room.backWall")}
-          value={params.backWallIn}
-          {...PARAM_LIMITS.backWallIn}
-          feasible={feasible.backWallIn}
-          caption={<WallMinimum params={params} leg="back" />}
-          onChange={(backWallIn) => setLayout({ backWallIn })}
-        />
-        <Slider
-          label={t("panel.room.leftWall")}
-          value={params.leftWallIn}
-          {...PARAM_LIMITS.leftWallIn}
-          feasible={feasible.leftWallIn}
-          caption={<WallMinimum params={params} leg="left" />}
-          onChange={(leftWallIn) => setLayout({ leftWallIn })}
-        />
-        <Choice
-          label={t("panel.room.corner")}
-          value={params.cornerType}
-          onChange={(cornerType) => setLayout({ cornerType })}
-          options={[
-            { value: "lazy-susan" as const, label: t("panel.room.corner.lazySusan") },
-            { value: "blind" as const, label: t("panel.room.corner.blind") },
-          ]}
-        />
-      </PanelSection>
-
+      {/* What is where. These are the decisions a designer makes first and
+          changes most, so they sit above the dimensions they are made in. */}
       <PanelSection title={t("panel.layout")}>
         <Choice
           label={t("panel.layout.fridge")}
@@ -141,36 +115,22 @@ export function LayoutControls() {
           options={legs}
         />
 
+        <Choice
+          label={t("panel.room.corner")}
+          value={params.cornerType}
+          onChange={(cornerType) => setLayout({ cornerType })}
+          options={[
+            { value: "blind" as const, label: t("panel.room.corner.blind") },
+            { value: "lazy-susan" as const, label: t("panel.room.corner.lazySusan") },
+          ]}
+        />
+
         <div className="mt-1 border-t border-line pt-1">
           <Toggle
             label={t("panel.layout.island")}
             checked={params.hasIsland}
             onChange={(hasIsland) => setLayout({ hasIsland })}
           />
-          {/* The island's own dimensions are meaningless without one, so they
-              go rather than sitting there greyed out. */}
-          {params.hasIsland && (
-            <>
-              <Slider
-                label={t("panel.layout.islandLength")}
-                value={params.islandLengthIn}
-                {...PARAM_LIMITS.islandLengthIn}
-                onChange={(islandLengthIn) => setLayout({ islandLengthIn })}
-              />
-              <Slider
-                label={t("panel.layout.islandDepth")}
-                value={params.islandDepthIn}
-                {...PARAM_LIMITS.islandDepthIn}
-                onChange={(islandDepthIn) => setLayout({ islandDepthIn })}
-              />
-              <Slider
-                label={t("panel.layout.aisle")}
-                value={params.aisleIn}
-                {...PARAM_LIMITS.aisleIn}
-                onChange={(aisleIn) => setLayout({ aisleIn })}
-              />
-            </>
-          )}
         </div>
 
         {issues.length > 0 && (
@@ -179,6 +139,50 @@ export function LayoutControls() {
               <RefusalNote key={`${refusal.key}-${index}`} refusal={refusal} />
             ))}
           </ul>
+        )}
+      </PanelSection>
+
+      {/* And the dimensions those decisions are made in. The island's own are
+          here rather than beside its switch: they are sizes, and they are
+          meaningless without one, so they go rather than sit there greyed out. */}
+      <PanelSection title={t("panel.room")}>
+        <Slider
+          label={t("panel.room.backWall")}
+          value={params.backWallIn}
+          {...PARAM_LIMITS.backWallIn}
+          feasible={feasible.backWallIn}
+          caption={<WallMinimum params={params} leg="back" />}
+          onChange={(backWallIn) => setLayout({ backWallIn })}
+        />
+        <Slider
+          label={t("panel.room.leftWall")}
+          value={params.leftWallIn}
+          {...PARAM_LIMITS.leftWallIn}
+          feasible={feasible.leftWallIn}
+          caption={<WallMinimum params={params} leg="left" />}
+          onChange={(leftWallIn) => setLayout({ leftWallIn })}
+        />
+        {params.hasIsland && (
+          <>
+            <Slider
+              label={t("panel.layout.islandLength")}
+              value={params.islandLengthIn}
+              {...PARAM_LIMITS.islandLengthIn}
+              onChange={(islandLengthIn) => setLayout({ islandLengthIn })}
+            />
+            <Slider
+              label={t("panel.layout.islandDepth")}
+              value={params.islandDepthIn}
+              {...PARAM_LIMITS.islandDepthIn}
+              onChange={(islandDepthIn) => setLayout({ islandDepthIn })}
+            />
+            <Slider
+              label={t("panel.layout.aisle")}
+              value={params.aisleIn}
+              {...PARAM_LIMITS.aisleIn}
+              onChange={(aisleIn) => setLayout({ aisleIn })}
+            />
+          </>
         )}
       </PanelSection>
     </>

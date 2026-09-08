@@ -1,6 +1,12 @@
 import { useMemo } from "react";
 import * as THREE from "three";
-import { CABINETS, CABINET_OUTLINES, type CabinetBox, wearsDoorFinish } from "../data/cabinets";
+import {
+  CABINETS,
+  CABINET_OUTLINES,
+  type CabinetBox,
+  diagonalDoor,
+  wearsDoorFinish,
+} from "../data/cabinets";
 import { counterOutline } from "../data/counter";
 import { RUNS } from "../data/room";
 import { useSelection } from "../store/useSelection";
@@ -123,6 +129,59 @@ function Door({ box, s }: { box: CabinetBox; s: SurfaceProps }) {
   );
 }
 
+/**
+ * The door across a corner susan, set diagonally.
+ *
+ * Same two layers as any other door — a frame and a recessed panel — turned
+ * forty-five degrees and cut to the chord. What is behind it is the square
+ * carcass, which is what a corner susan actually is: drawing two flat fronts
+ * meeting at a right angle draws a box nobody sells.
+ */
+function CornerDoor({
+  box,
+  door,
+  s,
+}: {
+  box: CabinetBox;
+  door: NonNullable<ReturnType<typeof diagonalDoor>>;
+  s: SurfaceProps;
+}) {
+  const w = door.width - DOOR.reveal;
+  const h = box.size[1] - DOOR.reveal;
+  const panel: [number, number] = [
+    Math.max(0, w - DOOR.rail * 2),
+    Math.max(0, h - DOOR.rail * 2),
+  ];
+
+  return (
+    <group
+      name={"corner-door-" + box.id}
+      position={[door.x, 0, door.z]}
+      rotation={[0, door.rotationY, 0]}
+    >
+      <mesh
+        position={[0, 0, DOOR.thickness / 2]}
+        castShadow
+        receiveShadow
+        userData={{ cabinetRole: true }}
+      >
+        <boxGeometry args={[w, h, DOOR.thickness]} />
+        <Surface s={s} size={[w, h]} rotate={0} />
+      </mesh>
+      {panel[0] > 0 && panel[1] > 0 && (
+        <mesh
+          position={[0, 0, DOOR.thickness - DOOR.recess]}
+          receiveShadow
+          userData={{ cabinetRole: true }}
+        >
+          <boxGeometry args={[panel[0], panel[1], DOOR.thickness / 2]} />
+          <Surface s={s} size={[panel[0], panel[1]]} rotate={Math.PI / 2} />
+        </mesh>
+      )}
+    </group>
+  );
+}
+
 /** The solid carcass, ghosted rather than hidden in install mode. */
 function CabinetSolid({ box }: { box: CabinetBox }) {
   const renderMode = useAppStore((s) => s.renderMode);
@@ -151,6 +210,9 @@ function CabinetSolid({ box }: { box: CabinetBox }) {
   // and not the countertop, which is a slab.
   const hasDoor =
     !install && box.kind !== "toe" && box.kind !== "counter" && box.size[1] > ft(6);
+  // A corner susan wears one door across the corner rather than a flat front
+  // on each leg. See docs/reference/lazy-susan-corner.svg.
+  const corner = useMemo(() => diagonalDoor(box), [box]);
 
   return (
     <>
@@ -166,7 +228,7 @@ function CabinetSolid({ box }: { box: CabinetBox }) {
           size={[box.size[0], box.size[1]]}
         />
       </mesh>
-      {hasDoor && <Door box={box} s={props} />}
+      {hasDoor && (corner ? <CornerDoor box={box} door={corner} s={props} /> : <Door box={box} s={props} />)}
     </>
   );
 }

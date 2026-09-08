@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { applianceBox } from "./applianceBox";
 import { APPLIANCE_BY_ID } from "./catalogue";
-import { CHIMNEY, chimneyParts, hoodCabinetFloor, isChimney } from "./hood";
+import { CHIMNEY, canopySolid, chimneyParts, hoodCabinetFloor, isChimney } from "./hood";
 import { packageContext } from "./rules";
 import { setActivePackage, setLayoutParams } from "./layoutState";
 import { DEFAULT_PARAMS } from "./layoutTemplate";
@@ -156,5 +156,64 @@ describe("the install list follows the hood that is actually specified", () => {
       APPLIANCE_BY_ID["thermador-prg366wh"],
     );
     expect(context.hoodHasCabinetAbove).toBe(true);
+  });
+});
+
+/**
+ * The canopy is a frustum, not a wedge.
+ *
+ * A wall canopy collects on all three open sides and gathers into the flue, so
+ * it draws in on the front and on both flanks. Seen from the front it is an
+ * isosceles trapezoid whose sloping edges land on the chimney's own width;
+ * extruding one section across the machine only ever tapered front to back.
+ * From docs/reference/hmcb30ws-spec.png.
+ */
+describe("the canopy gathers into the flue", () => {
+  const canopy = () =>
+    canopySolid({
+      widthIn: 29.9375,
+      depthIn: 23.1875,
+      heightIn: 8.5625,
+      frontLipIn: 5,
+      topWidthIn: CHIMNEY.widthIn,
+      topDepthIn: CHIMNEY.depthIn,
+    });
+
+  it("lands on exactly the chimney's own section", () => {
+    const c = canopy();
+    expect(c.top.w).toBeCloseTo(CHIMNEY.widthIn, 6);
+    expect(c.top.d).toBeCloseTo(CHIMNEY.depthIn, 6);
+  });
+
+  it("draws in the same amount on each flank", () => {
+    const c = canopy();
+    // Symmetric by construction, and the figure is worth stating: 29-15/16"
+    // gathering to 13-3/16" is 8-3/8" off each side.
+    expect(c.insetX).toBeCloseTo((29.9375 - CHIMNEY.widthIn) / 2, 6);
+    expect(c.insetX).toBeGreaterThan(0);
+    // And back on the front, with the wall side staying flat.
+    expect(c.insetZ).toBeCloseTo(23.1875 - CHIMNEY.depthIn, 6);
+    expect(c.backZ).toBe(0);
+  });
+
+  it("stands the front face up before the slope starts", () => {
+    const c = canopy();
+    expect(c.lip).toBe(5);
+    expect(c.height).toBe(8.5625);
+    expect(c.lip).toBeLessThan(c.height);
+  });
+
+  it("never gathers outward, whatever it is handed", () => {
+    const c = canopySolid({
+      widthIn: 12,
+      depthIn: 8,
+      heightIn: 6,
+      frontLipIn: 9,
+      topWidthIn: CHIMNEY.widthIn,
+      topDepthIn: CHIMNEY.depthIn,
+    });
+    expect(c.top.w).toBeLessThanOrEqual(12);
+    expect(c.top.d).toBeLessThanOrEqual(8);
+    expect(c.lip).toBeLessThanOrEqual(c.height);
   });
 });

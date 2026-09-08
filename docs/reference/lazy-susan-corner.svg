@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 420" width="760" height="420" font-family="Helvetica, Arial, sans-serif">
+  <title>Diagonal corner lazy susan base cabinet — plan and elevation</title>
+  <desc>
+    Drawn from published dimensions, not traced from a photograph. Sources are
+    listed in docs/reference/README.md. Figures: 36" along each wall, 24" deep,
+    34-1/2" high, with a 24" door set at 45 degrees across the corner.
+  </desc>
+
+  <style>
+    .wall { stroke: #2B3A2F; stroke-width: 6; fill: none; }
+    .box { stroke: #2B3A2F; stroke-width: 2; fill: #EFEDE6; }
+    .door { stroke: #2E5C45; stroke-width: 3.5; fill: #CFE0D4; }
+    .dim { stroke: #8A8F86; stroke-width: 1; fill: none; }
+    .tick { stroke: #8A8F86; stroke-width: 1; }
+    .hidden { stroke: #8A8F86; stroke-width: 1; stroke-dasharray: 5 4; fill: none; }
+    text { fill: #2B3A2F; font-size: 13px; }
+    .small { font-size: 11px; fill: #6B7168; }
+    .title { font-size: 15px; font-weight: 600; }
+  </style>
+
+  <text class="title" x="24" y="28">Diagonal corner lazy susan — plan</text>
+  <text class="title" x="470" y="28">Elevation</text>
+
+  <!-- ============================ PLAN ============================ -->
+  <!-- 1" = 6px. The corner of the room is at (60, 60); walls run right and down. -->
+  <g transform="translate(60,60)">
+    <!-- the two walls -->
+    <path class="wall" d="M -18 0 L 260 0" />
+    <path class="wall" d="M 0 -18 L 0 260" />
+    <text class="small" x="200" y="-10">wall</text>
+    <text class="small" x="8" y="250">wall</text>
+
+    <!-- the carcass: 36" along each wall, 24" deep, with the corner cut off -->
+    <!-- 36" = 216px, 24" = 144px, the 24" chord cuts 16.97" = 102px off each -->
+    <path class="box" d="M 0 0 L 216 0 L 216 144 L 144 216 L 0 216 Z" />
+
+    <!-- the diagonal door across the cut corner -->
+    <path class="door" d="M 216 144 L 144 216" />
+    <circle cx="205" cy="160" r="4" fill="#2E5C45" />
+    <text class="small" x="222" y="196">door</text>
+
+    <!-- the two revolving shelves -->
+    <circle class="hidden" cx="108" cy="108" r="78" />
+    <text class="small" x="72" y="112">revolving shelf</text>
+
+    <!-- 36" along the top wall -->
+    <path class="dim" d="M 0 -34 L 216 -34" />
+    <path class="tick" d="M 0 -40 L 0 -28 M 216 -40 L 216 -28" />
+    <text x="88" y="-40">36&quot;</text>
+
+    <!-- 36" down the left wall -->
+    <path class="dim" d="M -34 0 L -34 216" />
+    <path class="tick" d="M -40 0 L -28 0 M -40 216 L -28 216" />
+    <text x="-62" y="112">36&quot;</text>
+
+    <!-- 24" depth on the right -->
+    <path class="dim" d="M 244 0 L 244 144" />
+    <path class="tick" d="M 238 0 L 250 0 M 238 144 L 250 144" />
+    <text x="252" y="76">24&quot;</text>
+
+    <!-- the 24" chord itself -->
+    <path class="dim" d="M 232 158 L 160 230" />
+    <path class="tick" d="M 227 153 L 237 163 M 155 225 L 165 235" />
+    <text x="212" y="228">24&quot;</text>
+    <text class="small" x="196" y="244">at 45°</text>
+
+    <!-- what the chord cuts off each edge -->
+    <text class="small" x="120" y="136">cuts 16-15/16&quot; off each edge</text>
+  </g>
+
+  <!-- ========================== ELEVATION ========================== -->
+  <g transform="translate(500,60)">
+    <!-- 34-1/2" high, the 24" door face -->
+    <rect class="box" x="0" y="0" width="144" height="207" />
+    <rect class="door" x="6" y="6" width="132" height="195" />
+    <rect x="24" y="24" width="96" height="159" fill="#EFEDE6" stroke="#2E5C45" stroke-width="1.5" />
+    <circle cx="128" cy="104" r="4" fill="#6B7168" />
+
+    <path class="dim" d="M -34 0 L -34 207" />
+    <path class="tick" d="M -40 0 L -28 0 M -40 207 L -28 207" />
+    <text x="-76" y="108">34½&quot;</text>
+
+    <path class="dim" d="M 0 235 L 144 235" />
+    <path class="tick" d="M 0 229 L 0 241 M 144 229 L 144 241" />
+    <text x="58" y="255">24&quot;</text>
+    <text class="small" x="14" y="275">the door face, seen square on</text>
+  </g>
+
+  <text class="small" x="24" y="404">
+    Drawn from published dimensions rather than traced. Sources in docs/reference/README.md.
+  </text>
+</svg>

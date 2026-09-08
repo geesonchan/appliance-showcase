@@ -1,6 +1,7 @@
 import type { SlotId } from "../types";
 import { SLOT_BY_ID } from "./slots";
 import {
+  CABINET_STANDARDS,
   LAYOUT_LIMITS,
   ISLAND,
   PANEL,
@@ -146,7 +147,13 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
     // Only counter deep, so a freestanding machine's doors and handles stand
     // proud of it rather than being buried in it — which is most of what tells
     // one apart from a built-in at a glance.
-    if (module.kind === "panel") {
+    //
+    // A filler in a tall segment is the same board. The gap a refrigerator door
+    // needs against a wall is not left open: it is closed floor to ceiling in
+    // the door finish, flush with the panel on the other side, so the run reads
+    // as finished cabinetry rather than as a cabinet somebody left out. See
+    // docs/decisions.md D11 rule 11.
+    if (module.kind === "panel" || (module.kind === "filler" && segment.kind === "tall")) {
       boxes.push(
         onRun(
           run,
@@ -368,6 +375,40 @@ function islandBoxes(): Omit<CabinetBox, "run">[] {
 
 /** Trim pieces that only add line noise at phone scale. */
 const OUTLINE_SKIP: CabinetKind[] = ["counter", "toe"];
+
+/**
+ * The 45-degree door across a corner susan, or null for anything else.
+ *
+ * A corner lazy susan reads from the room as one diagonal door, not as two flat
+ * fronts meeting at a right angle — the door is what you see and the square
+ * carcass is what is behind it. A blind corner is a long shallow box with an
+ * ordinary front, and gets one.
+ *
+ * Everything is in the box's own frame, centred on it, with the room at +x and
+ * +z: that is the inside corner of the L, and it is where the door faces.
+ */
+export function diagonalDoor(box: CabinetBox): {
+  /** Centre of the door on the floor plan, in feet from the box's centre. */
+  x: number;
+  z: number;
+  /** The chord it spans, in feet. */
+  width: number;
+  /** A quarter turn, so the door faces the corner it cuts across. */
+  rotationY: number;
+} | null {
+  const module = box.module;
+  if (!module || module.kind !== "corner") return null;
+  // The square one. A blind corner is 42" of run only 24" deep.
+  if (module.depthIn === undefined || module.depthIn !== module.widthIn) return null;
+
+  const side = ft(module.widthIn);
+  const width = side * CABINET_STANDARDS.corner.diagonalFraction;
+  // The chord cuts this much off each edge, measured back from the corner.
+  const cut = width / Math.SQRT2;
+  const corner = side / 2;
+  const mid = (corner - cut + corner) / 2;
+  return { x: mid, z: mid, width, rotationY: Math.PI / 4 };
+}
 
 /**
  * Whether a box is finished in the door colour.

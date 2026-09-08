@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { CABINETS, hoodBridgeBand } from "./cabinets";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { CABINETS, diagonalDoor, hoodBridgeBand } from "./cabinets";
 import { counterOutline, isRectilinearL } from "./counter";
 import { FIXTURES as TEST_APPLIANCES } from "./testFixtures";
 import type { Appliance } from "../types";
@@ -14,6 +14,8 @@ import {
   type CabinetRun,
 } from "./room";
 import { SLOT_BY_ID } from "./slots";
+import { setLayoutParams } from "./layoutState";
+import { DEFAULT_PARAMS } from "./layoutTemplate";
 
 const inches = (feet: number) => feet * 12;
 const clone = (): CabinetRun[] => structuredClone(RUNS);
@@ -83,10 +85,12 @@ describe("D11 rule 2 · the corner is a corner cabinet", () => {
     }
   });
 
-  it("has exactly one, a 36 inch lazy susan where the runs meet", () => {
+  it("has exactly one, where the runs meet, of the kind that was asked for", () => {
     const corners = RUNS.flatMap((r) => r.segments).filter((s) => s.kind === "corner");
     expect(corners).toHaveLength(1);
-    expect(widthIn(corners[0])).toBe(CABINET_STANDARDS.corner.lazySusanIn);
+    // The default is a blind corner: it is the cheaper box and the one most
+    // kitchens actually have.
+    expect(widthIn(corners[0])).toBe(CABINET_STANDARDS.corner.blindIn);
     expect(corners[0].from).toBe(-ROOM.halfZ);
   });
 
@@ -482,19 +486,25 @@ describe("the countertop is one slab that turns the corner", () => {
 });
 
 describe("D11 rule 2 · the corner is continuous", () => {
-  const cornerSegment = RUNS.flatMap((run) =>
-    run.segments.filter((s) => s.kind === "corner").map((s) => ({ run, segment: s })),
-  )[0];
+  // A lazy susan is the square one, and the square is what this is about: the
+  // box reaches into both legs, so the other leg has to start where it stops.
+  // The default corner is blind, which is a long shallow box and a different
+  // shape, so the susan is asked for here rather than assumed.
+  beforeAll(() => setLayoutParams({ ...DEFAULT_PARAMS, cornerType: "lazy-susan" }));
+  afterAll(() => setLayoutParams(DEFAULT_PARAMS));
+
+  const corner = () =>
+    RUNS.flatMap((run) => run.segments).find((s) => s.kind === "corner")!;
 
   it("gives the lazy susan a square footprint", () => {
-    const box = CABINETS.find((b) => b.id.startsWith(cornerSegment.segment.id))!;
+    const box = CABINETS.find((b) => b.id.startsWith(corner().id))!;
     expect(inches(box.size[0])).toBeCloseTo(inches(box.size[2]), 6);
     expect(inches(box.size[0])).toBeCloseTo(CABINET_STANDARDS.corner.lazySusanIn, 6);
   });
 
   it("starts the other leg exactly where the corner square stops", () => {
-    const corner = CABINETS.find((b) => b.id.startsWith(cornerSegment.segment.id))!;
-    const cornerEnd = corner.position[0] + corner.size[0] / 2;
+    const box = CABINETS.find((b) => b.id.startsWith(corner().id))!;
+    const cornerEnd = box.position[0] + box.size[0] / 2;
     const back = RUN_BY_ID.back;
     expect(back.segments[0].from).toBeCloseTo(cornerEnd, 6);
   });
@@ -505,6 +515,16 @@ describe("D11 rule 2 · the corner is continuous", () => {
     const end = cornerUpper.position[0] + cornerUpper.size[0] / 2;
     const backBank = RUN_BY_ID.back.uppers[0];
     expect(backBank.from).toBeCloseTo(end, 6);
+  });
+
+  it("does not claim a blind corner is square: it is a long shallow box", () => {
+    setLayoutParams({ ...DEFAULT_PARAMS, cornerType: "blind" });
+    const box = CABINETS.find((b) => b.id.startsWith(corner().id))!;
+    // The corner is on the left leg, which runs along z, so z is its length
+    // and x its depth. A blind corner is 42" of run only 24" deep.
+    expect(inches(box.size[2])).toBeCloseTo(CABINET_STANDARDS.corner.blindIn, 6);
+    expect(inches(box.size[0])).toBeLessThan(inches(box.size[2]));
+    setLayoutParams({ ...DEFAULT_PARAMS, cornerType: "lazy-susan" });
   });
 
   it("hangs both legs' wall cabinets at the same height", () => {
@@ -542,3 +562,62 @@ describe("D11 rule 2 · the corner is continuous", () => {
 
 // The countertop's cutout at the range is checked across every layout the
 // generator will build, in counter.test.ts.
+
+/**
+ * What a corner susan looks like from the room.
+ *
+ * One door set diagonally across the corner, with the square carcass behind
+ * it — not two flat fronts meeting at a right angle. A blind corner is a long
+ * shallow box and wears an ordinary front. Figures and sources in
+ * docs/reference/lazy-susan-corner.svg.
+ */
+describe("D11 rule 2 · a corner susan wears a diagonal door", () => {
+  afterAll(() => setLayoutParams(DEFAULT_PARAMS));
+
+  const cornerBox = () => {
+    const segment = RUNS.flatMap((run) => run.segments).find((s) => s.kind === "corner")!;
+    return CABINETS.find((b) => b.id.startsWith(segment.id) && b.module?.kind === "corner")!;
+  };
+
+  it("cuts a 24 inch face across a 36 inch box, at forty-five degrees", () => {
+    setLayoutParams({ ...DEFAULT_PARAMS, cornerType: "lazy-susan" });
+    const door = diagonalDoor(cornerBox())!;
+    expect(door, "no diagonal door on a lazy susan").toBeTruthy();
+    expect(inches(door.width)).toBeCloseTo(24, 6);
+    expect(door.rotationY).toBeCloseTo(Math.PI / 4, 9);
+
+    // It faces the room, which is the inside of the L: +x and +z of the box.
+    expect(door.x).toBeGreaterThan(0);
+    expect(door.z).toBeGreaterThan(0);
+    expect(door.x).toBeCloseTo(door.z, 9);
+
+    // And it lands on the box: the chord cuts 17" off each 18" half-edge, so
+    // its midpoint sits well inside the corner rather than out in the room.
+    const half = inches(Math.max(cornerBox().size[0], cornerBox().size[2])) / 2;
+    expect(inches(door.x)).toBeLessThan(half);
+    expect(inches(door.x)).toBeGreaterThan(0);
+  });
+
+  it("gives the wall cabinet over it the same face, to its own size", () => {
+    setLayoutParams({ ...DEFAULT_PARAMS, cornerType: "lazy-susan" });
+    const upper = CABINETS.find((b) => b.module?.kind === "corner" && b.kind === "upper")!;
+    const door = diagonalDoor(upper)!;
+    expect(door).toBeTruthy();
+    expect(inches(door.width)).toBeCloseTo(
+      upper.module!.widthIn * CABINET_STANDARDS.corner.diagonalFraction,
+      6,
+    );
+  });
+
+  it("leaves a blind corner with an ordinary front", () => {
+    setLayoutParams({ ...DEFAULT_PARAMS, cornerType: "blind" });
+    expect(diagonalDoor(cornerBox())).toBe(null);
+  });
+
+  it("puts no diagonal on anything that is not a corner", () => {
+    setLayoutParams(DEFAULT_PARAMS);
+    for (const box of CABINETS.filter((b) => b.module?.kind !== "corner")) {
+      expect(diagonalDoor(box), box.id).toBe(null);
+    }
+  });
+});

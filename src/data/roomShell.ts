@@ -62,7 +62,20 @@ export const CABINET_STANDARDS = {
   upper: { depthIn: 12, heightsIn: [30, 36, 42], bottomAboveCounterIn: 18 },
   tall: { depthIn: 24, heightsIn: [84, 90, 96] },
   /** A lazy susan is a 36" square; a blind corner is 42" along one run. */
-  corner: { lazySusanIn: 36, blindIn: 42 },
+  corner: {
+    lazySusanIn: 36,
+    blindIn: 42,
+    /**
+     * The 45-degree face across a lazy susan, as a fraction of the box.
+     *
+     * A corner susan is not two flat fronts meeting at a right angle: from the
+     * room it is one door set diagonally across the corner, and the carcass
+     * behind it is the square. Two thirds of a 36" box is the 24" face these
+     * are sold with, and the same fraction gives the wall cabinet its own.
+     * See docs/reference/lazy-susan-corner.svg.
+     */
+    diagonalFraction: 2 / 3,
+  },
   /**
    * A run may finish short of the ceiling. Six inches is where a gap stops
    * reading as a scribe and starts reading as a mistake.

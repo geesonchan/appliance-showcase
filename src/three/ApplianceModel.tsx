@@ -2,8 +2,15 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import type { ThreeEvent } from "@react-three/fiber";
 import { applianceBox, flushOffset } from "../data/applianceBox";
-import { CHIMNEY, chimneyParts, hoodProfile, hoodTopDepthIn } from "../data/hood";
-import { fridgeParts, fridgeStance } from "../data/fridgeModel";
+import {
+  CHIMNEY,
+  HOOD_PROFILE,
+  canopySolid,
+  chimneyParts,
+  hoodProfile,
+  hoodTopDepthIn,
+} from "../data/hood";
+import { fridgeParts, fridgeSeams, fridgeStance } from "../data/fridgeModel";
 import {
   FREESTANDING_PROPORTIONS,
   RANGE_PROPORTIONS,
@@ -68,7 +75,7 @@ export function ApplianceModel({ slot, appliance }: ApplianceModelProps) {
   const glass = { ...surface(renderMode, "#2B322D", { metalness: 0.3, roughness: 0.1 }), hardware: true };
 
   const box = applianceBox(def, appliance);
-  const dz = flushOffset(def, box.d, appliance.rearSpacerIn ?? 0);
+  const dz = flushOffset(def, box.d, box.rearSpacerIn);
 
   const outline = useMemo(
     () => new THREE.EdgesGeometry(new THREE.BoxGeometry(box.w, box.h, box.d)),
@@ -427,16 +434,93 @@ function Fridge({
   // Where the fronts stand relative to the carcass — which is the difference
   // between a built-in and a freestanding machine, and the one you can see
   // from across the room. See `fridgeStance`.
-  const { carcassD, carcassZ, doorThickness, doorZ, handleR, handleZ } = useMemo(
+  const { solid, carcassD, carcassZ, doorThickness, doorZ, handleR, handleZ } = useMemo(
     () => fridgeStance(appliance, d),
     [appliance, d],
   );
+  const seams = useMemo(() => fridgeSeams(panels, { w, h }), [panels, w, h]);
   // The grille is the band the split gives it, scaled to this machine.
   // The slots in the grille are a shade of the panel they are cut into, not a
   // colour of their own: what you see through a vent is the dark inside it.
   // Hardware, not a finish: it is the shadow inside a vent, so it does not
   // count as a colour the cabinetmaker chose even on a panel-ready machine.
   const slot = { ...tint(body, "#2A2E2C", { metalness: 0.3, roughness: 0.85 }), hardware: true };
+
+  // A freestanding machine is one box. Its doors are part of the body, hung to
+  // finish flush with the sides, so what is between them is a reveal drawn on
+  // the face rather than a gap between slabs — and only the handles stand
+  // outside the envelope. See docs/decisions.md D11 rule 11.
+  if (solid) {
+    const face = d / 2 + ft(0.02);
+    return (
+      <group name="fridge">
+        <mesh name="fridge-body" position={[0, h / 2, 0]} castShadow receiveShadow>
+          <boxGeometry args={[w, h, d]} />
+          <Mat s={body} size={[w, h]} />
+        </mesh>
+
+        {/* The reveals between the fronts: a knife's width of shadow. */}
+        <group name="fridge-seams">
+          {seams.map((seam, i) => (
+            <mesh key={i} position={[seam.x, seam.y, face]}>
+              <boxGeometry args={[seam.w, seam.h, ft(0.05)]} />
+              <Mat s={slot} />
+            </mesh>
+          ))}
+        </group>
+
+        {/* And the air through the grille at the bottom, on the same face. */}
+        <group name="fridge-vents">
+          {panels
+            .filter((panel) => panel.vents)
+            .flatMap((panel) =>
+              Array.from({ length: panel.vents!.count }, (_, i) => {
+                const step = panel.h / (panel.vents!.count + 1);
+                return (
+                  <mesh
+                    key={`${panel.id}-${i}`}
+                    position={[panel.x, panel.y - panel.h / 2 + step * (i + 1), face]}
+                  >
+                    <boxGeometry args={[panel.w * 0.9, panel.vents!.heightFt, ft(0.05)]} />
+                    <Mat s={slot} />
+                  </mesh>
+                );
+              }),
+            )}
+        </group>
+
+        {panels
+          .filter((panel) => panel.handle)
+          .map((panel) => (
+            <group key={panel.id} name={`fridge-handle-${panel.id}`}>
+              <mesh
+                position={[panel.handle!.x, panel.handle!.y, handleZ]}
+                rotation={panel.handle!.along === "x" ? [0, 0, Math.PI / 2] : [0, 0, 0]}
+              >
+                <cylinderGeometry args={[handleR, handleR, panel.handle!.length, 14]} />
+                <Mat s={trim} />
+              </mesh>
+              {[-1, 1].map((end) => {
+                const along = (end * panel.handle!.length) / 2;
+                return (
+                  <mesh
+                    key={end}
+                    position={[
+                      panel.handle!.x + (panel.handle!.along === "x" ? along : 0),
+                      panel.handle!.y + (panel.handle!.along === "y" ? along : 0),
+                      (d / 2 + handleZ) / 2,
+                    ]}
+                  >
+                    <boxGeometry args={[handleR * 1.6, handleR * 1.6, handleZ - d / 2 + handleR]} />
+                    <Mat s={trim} />
+                  </mesh>
+                );
+              })}
+            </group>
+          ))}
+      </group>
+    );
+  }
 
   return (
     <group name="fridge">
@@ -860,9 +944,23 @@ function Hood({
     ["under-cabinet", "wall-mount", "chimney", "island", "insert"].includes(type),
   );
 
+  // A chimney hood draws in on all three open sides, to the section of the flue
+  // it feeds. An under-cabinet hood has no flue of its own and keeps the wedge
+  // it always had — the cabinet above it is where the duct goes.
+  const chimneyed = kind === "wall-mount" || kind === "chimney";
   const canopy = useMemo(
-    () => wedgeGeometry(w, h, d, topDepthIn, frontLipIn ?? undefined),
-    [w, h, d, topDepthIn, frontLipIn],
+    () =>
+      chimneyed
+        ? canopyGeometry(
+            w,
+            h,
+            d,
+            CHIMNEY.widthIn,
+            topDepthIn,
+            frontLipIn ?? HOOD_PROFILE.frontLipIn,
+          )
+        : wedgeGeometry(w, h, d, topDepthIn, frontLipIn ?? undefined),
+    [chimneyed, w, h, d, topDepthIn, frontLipIn],
   );
 
   if (kind === "insert") {
@@ -977,6 +1075,85 @@ function Hood({
  * the extrusion comes out lying on its side and has to be turned a quarter turn
  * to face the room.
  */
+/**
+ * A wall canopy as a solid: the rim, the vertical front face, and the four
+ * faces drawing in to the collar the chimney lands on.
+ *
+ * Three rings of four corners, quads between them. Built by hand rather than
+ * extruded because an extrusion can only taper in one direction, which is the
+ * whole of what was wrong with drawing this as a wedge.
+ */
+function canopyGeometry(
+  w: number,
+  h: number,
+  d: number,
+  topWidthIn: number,
+  topDepthIn: number,
+  frontLipIn: number,
+): THREE.BufferGeometry {
+  const c = canopySolid({
+    widthIn: w * 12,
+    depthIn: d * 12,
+    heightIn: h * 12,
+    frontLipIn,
+    topWidthIn,
+    topDepthIn,
+  });
+
+  const halfW = ft(c.bottom.w) / 2;
+  const halfTop = ft(c.top.w) / 2;
+  const backZ = -ft(c.bottom.d) / 2;
+  const frontZ = backZ + ft(c.bottom.d);
+  const topFrontZ = backZ + ft(c.top.d);
+  const ring = (y: number, hw: number, front: number) =>
+    [
+      [-hw, y, backZ],
+      [hw, y, backZ],
+      [hw, y, front],
+      [-hw, y, front],
+    ] as [number, number, number][];
+
+  const rings = [
+    ring(0, halfW, frontZ),
+    ring(ft(c.lip), halfW, frontZ),
+    ring(ft(c.height), halfTop, topFrontZ),
+  ];
+
+  const positions: number[] = [];
+  const push = (p: [number, number, number]) => positions.push(p[0], p[1], p[2]);
+  const quad = (
+    a: [number, number, number],
+    b: [number, number, number],
+    c2: [number, number, number],
+    d2: [number, number, number],
+  ) => {
+    push(a);
+    push(b);
+    push(c2);
+    push(a);
+    push(c2);
+    push(d2);
+  };
+
+  for (let level = 0; level < rings.length - 1; level += 1) {
+    const low = rings[level];
+    const high = rings[level + 1];
+    for (let i = 0; i < 4; i += 1) {
+      const j = (i + 1) % 4;
+      quad(low[i], low[j], high[j], high[i]);
+    }
+  }
+  // The rim underneath and the collar on top.
+  quad(rings[0][3], rings[0][2], rings[0][1], rings[0][0]);
+  const top = rings[rings.length - 1];
+  quad(top[0], top[1], top[2], top[3]);
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
 function wedgeGeometry(
   w: number,
   h: number,

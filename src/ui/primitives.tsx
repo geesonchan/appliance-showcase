@@ -157,9 +157,12 @@ export function Segmented<T extends string>({
 }) {
   const pad = size === "sm" ? "px-3 py-1 text-[11px]" : "px-4 py-1.5 text-[12px]";
   return (
+    // Wraps rather than overflowing. A four-option control does not fit a
+    // 240px panel at any font size worth reading, and a panel that scrolls
+    // sideways is a panel whose right-hand options nobody finds.
     <div
       data-segment={name}
-      className="inline-flex rounded-full border border-line bg-surface p-[3px]"
+      className="flex flex-wrap gap-y-[3px] rounded-2xl border border-line bg-surface p-[3px]"
     >
       {options.map((option) => {
         const active = option.value === value;

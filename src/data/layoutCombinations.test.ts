@@ -5,6 +5,7 @@ import { counterOutline, isRectilinearL } from "./counter";
 import { setLayoutParams } from "./layoutState";
 import { checkLayout } from "./layoutRules";
 import {
+  CORNERS,
   DEFAULT_PARAMS,
   PARAM_LIMITS,
   feasibleRange,
@@ -231,7 +232,14 @@ describe("the island", () => {
   });
 
   it("takes the island out of the room when it is switched off", () => {
-    const result = setLayoutParams(params({ hasIsland: false }));
+    // With the shorter corner. Without an island the microwave and the wine
+    // cabinet need 48" of the perimeter, and a leg is capped at 144": a 36"
+    // lazy susan leaves room for them and a 42" blind corner is three inches
+    // too many. That is a real constraint rather than a quirk of this test —
+    // the sweep refuses the blind version with a reason.
+    const result = setLayoutParams(
+      params({ hasIsland: false, cornerType: "lazy-susan" }),
+    );
     expect(result.ok, result.reasons.map((r) => r.key).join(" ")).toBe(true);
 
     expect(ISLAND.present).toBe(false);
@@ -410,7 +418,10 @@ describe("what the shortest wall is made of", () => {
   it("never claims a leg shorter than D13 allows", () => {
     for (const leg of ["left", "back"] as const) {
       const requirement = wallRequirement(params(), leg);
-      const across = leg === "back" ? 36 : 0;
+      // The back leg's wall is measured past whatever the corner takes out of
+      // it, which is the corner's own figure rather than a constant: a lazy
+      // susan reaches 36" into the back run and a blind corner 12".
+      const across = leg === "back" ? CORNERS[params().cornerType].acrossIn : 0;
       expect(requirement.minimumIn - across).toBeGreaterThanOrEqual(
         CABINET_STANDARDS.legIn.shortMin,
       );
@@ -446,6 +457,19 @@ describe("the greyed-out half of a slider", () => {
 });
 
 describe("a refusal comes with a way out", () => {
+  /**
+   * The figures below are wall lengths that will not build against a lazy
+   * susan, which reaches 36" into the back run where a blind corner reaches
+   * 12". What is under test — that a refusal carries a change which actually
+   * builds — is the same either way, so the corner is pinned rather than the
+   * numbers re-chosen every time the default moves.
+   */
+  const params = (over: Partial<LayoutParams> = {}): LayoutParams => ({
+    ...DEFAULT_PARAMS,
+    cornerType: "lazy-susan",
+    ...over,
+  });
+
   const shortWall = (over: Partial<LayoutParams>) => {
     const result = generateLayout(params(over));
     expect(result.ok).toBe(false);

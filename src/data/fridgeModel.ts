@@ -87,27 +87,63 @@ export const FRIDGE_PROPORTIONS = {
  * The local frame is the body box: z runs from -d/2 at the back to +d/2 at the
  * front, and the wall is a rear spacer behind that.
  */
+/**
+ * The seams between the fronts, as lines on a face rather than gaps between
+ * slabs.
+ *
+ * A freestanding machine is one box: its doors are part of the body, hung so
+ * they finish flush with the sides, and what you see between them is a reveal —
+ * a dark line a knife's width wide. Drawing them as separate panels standing
+ * off a carcass is drawing a built-in.
+ */
+export function fridgeSeams(panels: Panel[], box: { w: number; h: number }): {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}[] {
+  const gap = ft(FRIDGE_PROPORTIONS.gapIn);
+  const centre = ft(FRIDGE_PROPORTIONS.centreGapIn);
+  const seams: { x: number; y: number; w: number; h: number }[] = [];
+
+  // A line across the machine at every band boundary. The bands tile the front,
+  // so the top of one is the bottom of the next.
+  const tops = [...new Set(panels.map((panel) => +(panel.y + panel.h / 2).toFixed(6)))]
+    .sort((a, b) => a - b)
+    .filter((y) => y < box.h - 1e-6);
+  for (const y of tops) seams.push({ x: 0, y, w: box.w, h: gap });
+
+  // And one down the middle of a pair of doors, which is the edge they open on.
+  for (const panel of panels) {
+    if (panel.x <= 1e-6) continue;
+    const twin = panels.find((other) => Math.abs(other.x + panel.x) < 1e-6 && other.h === panel.h);
+    if (twin) seams.push({ x: 0, y: panel.y, w: centre, h: panel.h });
+  }
+  return seams;
+}
+
 export function fridgeStance(appliance: Appliance, d: number) {
   const P = FRIDGE_PROPORTIONS;
   const handleR = ft(P.handleDiameterIn) / 2;
   const doorThickness = ft(0.75);
   const { depthIn, depthWithDoorsIn, depthWithHandleIn } = appliance;
-  const spacer = ft(appliance.rearSpacerIn ?? 0);
 
   if (depthIn !== null && depthWithDoorsIn !== null) {
-    // Published: the box is the carcass, and the fronts are in front of it.
-    const fromWall = (inches: number) => -d / 2 - spacer + ft(inches);
-    const doorFront = fromWall(depthWithDoorsIn);
-    const handleFront = fromWall(depthWithHandleIn ?? depthWithDoorsIn + P.handleDiameterIn);
+    // A freestanding machine is one box, doors and all: `d` is the envelope
+    // with the doors shut, measured from the wall the way the drawing measures
+    // it, and only the handles stand outside it. The seams are lines on its
+    // face; there is nothing hung off a carcass.
+    const fromWall = (inches: number) => -d / 2 + ft(inches);
     return {
+      solid: true as const,
       carcassD: d,
       carcassZ: 0,
       doorThickness,
-      doorZ: doorFront - doorThickness / 2,
+      doorZ: d / 2,
       handleR,
-      handleZ: handleFront - handleR,
-      /** How far the doors stand proud of the cabinet line, in inches. */
-      proudIn: depthWithDoorsIn - (appliance.rearSpacerIn ?? 0) - depthIn,
+      handleZ: fromWall(depthWithHandleIn ?? depthWithDoorsIn + P.handleDiameterIn) - handleR,
+      /** How far the box stands proud of a counter-deep panel, in inches. */
+      proudIn: depthWithDoorsIn - 24,
     };
   }
 
@@ -117,6 +153,7 @@ export function fridgeStance(appliance: Appliance, d: number) {
   const carcassD = d - proud - doorThickness - handleR * 2;
   const carcassZ = -(d - carcassD) / 2;
   return {
+    solid: false as const,
     carcassD,
     carcassZ,
     doorThickness,

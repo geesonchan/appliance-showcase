@@ -46,7 +46,14 @@ export function RightPanel() {
   const layoutVersion = useAppStore((s) => s.layoutVersion);
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto">
+    <div className="flex h-full min-w-0 flex-col overflow-y-auto overflow-x-hidden">
+      {/* Ordered by how often a hand reaches for it: the finishes a customer
+          plays with, then the layout a designer argues about, then the room's
+          dimensions, then the things you set once. */}
+      <FinishPicker />
+
+      <LayoutControls />
+
       <PanelSection title={t("panel.atmosphere")}>
         <Segmented
           size="sm"
@@ -71,8 +78,6 @@ export function RightPanel() {
         </div>
       </PanelSection>
 
-      <FinishPicker />
-
       {/* Utility layers are only meaningful in install mode, so the section
           stays visible but goes quiet outside it. */}
       <PanelSection title={t("panel.utilities")}>
@@ -86,17 +91,18 @@ export function RightPanel() {
               onChange={() => toggleUtility(type)}
             />
           ))}
-          {/* Not a service, but it belongs with them: another thing the
-              install view draws over the room. */}
-          <Toggle
-            label={t("panel.dimensions")}
-            checked={showDimensions}
-            onChange={toggleDimensions}
-          />
         </div>
       </PanelSection>
 
-      <LayoutControls />
+      {/* Its own group: a dimension is drawn over the room rather than run
+          through it, and it is the last thing anybody turns on. */}
+      <PanelSection title={t("panel.dimensions")}>
+        <Toggle
+          label={t("panel.dimensions.show")}
+          checked={showDimensions}
+          onChange={toggleDimensions}
+        />
+      </PanelSection>
 
       <PanelSection title={t("panel.package")}>
         {/* No total here: money lives on the quote page. See D12. */}

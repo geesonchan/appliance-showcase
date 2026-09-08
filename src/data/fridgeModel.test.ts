@@ -6,8 +6,12 @@ import {
   doorConfigOf,
   doorSplitOf,
   fridgeParts,
+  fridgeSeams,
+  fridgeStance,
   hasGenericDoors,
 } from "./fridgeModel";
+import { applianceBox } from "./applianceBox";
+import { SLOT_BY_ID } from "./slots";
 import { FIXTURES } from "./testFixtures";
 import type { Appliance } from "../types";
 
@@ -246,5 +250,85 @@ describe("a built-in refrigerator is one piece of steel", () => {
     expect(grille.w).toBeCloseTo(drawer.w, 9);
     expect(grille.y - grille.h / 2).toBeCloseTo(0, 9);
     expect(grille.y + grille.h / 2).toBeCloseTo(drawer.y - drawer.h / 2, 9);
+  });
+});
+
+/**
+ * A freestanding machine is one box.
+ *
+ * Its doors are part of the body, hung to finish flush with the sides: the
+ * envelope is the depth with the doors shut and only the handles stand outside
+ * it. What is between the fronts is a reveal drawn on the face, not a gap
+ * between slabs — a slab standing off a carcass is what a built-in looks like,
+ * and drawing one here draws the wrong machine.
+ */
+describe("a freestanding refrigerator is a solid", () => {
+  const freestanding = (over: Partial<Appliance> = {}) =>
+    ({
+      ...FIXTURES.fridgeCounterDepth,
+      installType: ["counter-depth"],
+      doorConfig: "french-door-1-drawer",
+      widthIn: 35.625,
+      heightIn: 72,
+      depthIn: 24,
+      rearSpacerIn: 1,
+      depthWithDoorsIn: 28.75,
+      depthWithHandleIn: 31.4375,
+      ...over,
+    }) as Appliance;
+
+  const boxOf = (appliance: Appliance) =>
+    applianceBox(SLOT_BY_ID["slot-fridge"], appliance);
+
+  it("takes the depth with its doors shut as its envelope", () => {
+    const box = boxOf(freestanding());
+    expect(box.w * 12).toBeCloseTo(35.625, 6);
+    expect(box.h * 12).toBeCloseTo(72, 6);
+    expect(box.d * 12).toBeCloseTo(28.75, 6);
+    // The published figure is measured from the wall with the spacers in it,
+    // so nothing further holds the box off.
+    expect(box.rearSpacerIn).toBe(0);
+  });
+
+  it("puts the door face at the front of the box and the handles outside it", () => {
+    const box = boxOf(freestanding());
+    const stance = fridgeStance(freestanding(), box.d);
+    expect(stance.solid).toBe(true);
+    // No carcass set back behind anything: the box is the machine.
+    expect(stance.carcassD).toBeCloseTo(box.d, 9);
+    expect(stance.carcassZ).toBe(0);
+    expect(stance.doorZ).toBeCloseTo(box.d / 2, 9);
+    // 31-7/16" to the handle against 28-3/4" to the door: 2-11/16" proud.
+    expect((stance.handleZ + stance.handleR - box.d / 2) * 12).toBeCloseTo(2.6875, 6);
+    // And 4-3/4" proud of a 24" panel — 3-3/4" of it past the 25" carcass line.
+    expect(stance.proudIn).toBeCloseTo(4.75, 6);
+  });
+
+  it("draws the fronts as reveals across the machine, not as slabs", () => {
+    const appliance = freestanding();
+    const box = boxOf(appliance);
+    const panels = fridgeParts(appliance, { w: box.w, h: box.h });
+    const seams = fridgeSeams(panels, { w: box.w, h: box.h });
+
+    expect(seams.length).toBeGreaterThan(0);
+    for (const seam of seams) {
+      // Every reveal is inside the front face and thinner than a finger.
+      expect(Math.abs(seam.x) + seam.w / 2).toBeLessThanOrEqual(box.w / 2 + 1e-9);
+      expect(seam.y - seam.h / 2).toBeGreaterThanOrEqual(-1e-9);
+      expect(seam.y + seam.h / 2).toBeLessThanOrEqual(box.h + 1e-9);
+      expect(Math.min(seam.w, seam.h) * 12).toBeLessThanOrEqual(0.25);
+    }
+    // A french door has a seam down the middle as well as across.
+    expect(seams.some((seam) => seam.h > seam.w)).toBe(true);
+    expect(seams.some((seam) => seam.w > seam.h)).toBe(true);
+  });
+
+  it("leaves a built-in exactly as it was: a carcass with fronts on it", () => {
+    const builtIn = { ...freestanding(), depthWithDoorsIn: null, depthWithHandleIn: null } as Appliance;
+    const box = boxOf(builtIn);
+    const stance = fridgeStance(builtIn, box.d);
+    expect(stance.solid).toBe(false);
+    expect(stance.carcassD).toBeLessThan(box.d);
+    expect(stance.doorZ).toBeLessThan(box.d / 2);
   });
 });

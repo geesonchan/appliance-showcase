@@ -13,6 +13,7 @@ Manufacturer drawings the geometry is built from. Two are referred to by name in
 | `t36ft820ns-spec.png` | Freestanding counter-depth refrigerator: 35-5/8" x 72" x 24" body, 1" fixed spacers on the back, 28-3/4" with the doors and 31-7/16" with the handles, 1/8" clearance each side, 44-9/16" with a door open. The two depths are what separate it from a built-in by eye. |
 | `hmcb30ws-spec.png` | Chimney wall hood: 29-15/16" x 23-3/16" canopy, 8-9/16" tall with a 5" front face; chimney 13-3/16" x 10-3/4" with a 5-1/2" grille at the top of each side; 30-42" from the canopy's **underside** to the top of the chimney. |
 | `mfgs4030rs-front.png` | Freestanding gas range: 29-7/8" x 47-7/8" x 28", five burners, backguard with a digital display, five knobs and a vent strip on the front, storage drawer at the bottom. |
+| `lazy-susan-corner.svg` | Corner lazy susan: 36" along each wall, 24" deep, 34-1/2" high, and one 24" door set at 45 degrees across the corner. **Drawn here from published dimensions rather than traced from a photograph** — see below for where the figures come from. |
 
 Positions taken from these are in `data/rough-in.json`, keyed by model, with the
 sheet each came from recorded against it. A model with no entry falls back to
@@ -32,6 +33,39 @@ They live in `CABINET_STANDARDS.hood` in `src/data/room.ts`, so the drawings
 arriving later can be checked against the code rather than the other way round.
 If a figure here turns out to disagree with the sheet, change the constant and
 the room rebuilds around it.
+
+## What a corner lazy susan looks like from the room
+
+One door set diagonally across the corner, with the square carcass behind it.
+Not two flat fronts meeting at a right angle, which is what this app drew until
+round 18 and is a box nobody sells. The trade calls the diagonal one a *diagonal
+corner* susan; the other common answer is a bi-fold pair of doors on one leg,
+which is a different cabinet and not what is drawn here.
+
+The figures, and where each comes from:
+
+- **36" along each wall, 24" deep, 34-1/2" high.** cabinets.com's DCLS36-L gives
+  "36 3/16" wide, 34.5" high, 24" deep"; Lanae and Nelson list the same class at
+  33-36" wide, 24" deep, 34.5" high.
+- **A 24" door face at 45 degrees.** Leo's round-18 figure. None of the vendor
+  pages publishes the door width, so it is his rather than theirs — and it is
+  consistent with the box: a 24" chord cuts 16-15/16" off each 18" half-edge,
+  which leaves the returns a susan needs to hinge against.
+- **Two revolving shelves.** What makes it a susan rather than a diagonal corner
+  sink base, which is the same shape with a different inside.
+
+The drawing is `lazy-susan-corner.svg`, made here from those numbers. No product
+photograph is in this repository: the vendor pages below are where to look at a
+real one.
+
+Sources:
+
+- [cabinets.com DCLS36-L, diagonal corner lazy susan base](https://www.cabinets.com/dcls36-l-shaker-maple-painted-bright-white-diagonal-corner-lazy-susan-base-cabinet-1-door-assembled-kitchen-cabinet.html)
+- [Highlands Designs BSS36, the bi-fold alternative](https://www.highlandsdesigns.com/item.php?item_id=5449&category_id=148)
+- [Lanae, corner cabinet dimensions](https://lanaehome.com/blogs/news/corner-cabinet-dimensions-lazy-susan-and-alternatives)
+
+`CABINET_STANDARDS.corner.diagonalFraction` is 2/3, which is the 24" on a 36"
+box, and gives the wall cabinet over it its own face to the same proportion.
 
 ## Reading the hood's 30-42"
 

@@ -194,11 +194,12 @@ describe("a freestanding refrigerator is surrounded differently", () => {
       const where = `package-c ${JSON.stringify(over)}`;
       const boxes = fridgeBoxes();
 
-      // A panel on the run side always; a panel on the far side too unless a
-      // return wall is there, where the clearance filler takes its place.
-      const panels = params(over).fridgeEndAbuts === "wall" ? 1 : 2;
+      // A board each side either way: a finished panel where cabinetry
+      // continues, and the door clearance closed floor to ceiling in the same
+      // finish where a wall is there.
       expect(boxes.map((box) => box.kind).sort(), where).toEqual([
-        ...Array.from({ length: panels }, () => "surround"),
+        "surround",
+        "surround",
         "upper",
       ]);
 
@@ -225,6 +226,47 @@ describe("a freestanding refrigerator is surrounded differently", () => {
       expect(top, where).toBeCloseTo(ROOM.wallHeight, 6);
       expect(over_.id.endsWith("-bridge"), `${where}: that is a bridge`).toBe(false);
     }
+  });
+
+  /**
+   * D11 rule 11, revised. The clearance is not left open: leaving three and a
+   * half inches of nothing at the end of a run reads as a cabinet somebody
+   * forgot, and it is dust nobody can reach. It is closed with a board in the
+   * door finish, floor to the top of the surround, flush with the panel on the
+   * other side.
+   */
+  it("closes the clearance with a board the full height of the surround", () => {
+    activate("package-c");
+    expect(setLayoutParams(params({ fridgeEndAbuts: "wall" })).ok).toBe(true);
+
+    const boards = fridgeBoxes().filter((box) => box.kind === "surround");
+    expect(boards).toHaveLength(2);
+
+    const upper = fridgeBoxes().find((box) => box.kind === "upper")!;
+    const surroundTop = upper.position[1] + upper.size[1] / 2;
+    for (const board of boards) {
+      expect(board.position[1] - board.size[1] / 2, "starts at the floor").toBeCloseTo(0, 9);
+      expect(board.position[1] + board.size[1] / 2, "runs to the top").toBeCloseTo(
+        surroundTop,
+        9,
+      );
+    }
+
+    // And the one against the wall is the width the door needs.
+    const filler = RUNS.flatMap((run) => run.segments)
+      .find((s) => s.slot === "slot-fridge")!
+      .modules.find((module) => module.kind === "filler")!;
+    expect(filler.widthIn).toBeCloseTo(LAYOUT_LIMITS.fridge.fromWallIn, 6);
+    // Sizes are in room axes, so which of x and z runs along the leg follows
+    // the run.
+    const along = RUNS.find((run) => run.segments.some((s) => s.slot === "slot-fridge"))!
+      .axis === "x" ? 0 : 2;
+    const board = boards.find(
+      (box) => Math.abs(box.size[along] * 12 - filler.widthIn) < 1e-6,
+    );
+    expect(board, "no board the width of the clearance").toBeTruthy();
+
+    setLayoutParams(DEFAULT_PARAMS);
   });
 
   it("keeps a return wall three and a half inches off the machine", () => {

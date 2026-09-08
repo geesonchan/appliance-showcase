@@ -80,7 +80,9 @@ export const PARAM_LIMITS = {
 export const DEFAULT_PARAMS: LayoutParams = {
   backWallIn: 168,
   leftWallIn: 144,
-  cornerType: "lazy-susan",
+  // A blind corner is what most kitchens actually have: it is the cheaper box
+  // and the one a cabinetmaker reaches for unless somebody asks for a susan.
+  cornerType: "blind",
   fridgeEnd: "left",
   fridgeEndAbuts: "cabinet",
   sinkLeg: "back",
@@ -184,7 +186,7 @@ const mid = ([a, b]: readonly [number, number]) => (a + b) / 2;
  * inches of extra wall, which is often the difference between a layout that
  * builds and one that does not.
  */
-const CORNERS = {
+export const CORNERS = {
   "lazy-susan": {
     alongIn: CABINET_STANDARDS.corner.lazySusanIn,
     acrossIn: CABINET_STANDARDS.corner.lazySusanIn,

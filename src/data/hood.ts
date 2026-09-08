@@ -21,11 +21,57 @@ export const HOOD_PROFILE = {
 };
 
 /**
- * The canopy's section, in inches, as a closed polygon.
+ * The canopy as a solid, in inches.
+ *
+ * It is not a wedge. A wall canopy collects on all three open sides and
+ * gathers into the flue, so it draws in on the front *and* both flanks: a
+ * vertical face at the front, then four faces sloping up and inward to a top
+ * the size of the chimney's own section, with the back staying flat against the
+ * wall. Seen from the front it is an isosceles trapezoid; seen from the side it
+ * is a wedge, which is the half of it the old geometry drew.
+ *
+ * Everything is in inches, from the canopy's underside (y = 0) upward, with x
+ * across the run and z from the wall (0) into the room. See
+ * docs/reference/hmcb30ws-spec.png.
+ */
+export function canopySolid(canopy: {
+  widthIn: number;
+  depthIn: number;
+  heightIn: number;
+  frontLipIn: number;
+  topWidthIn: number;
+  topDepthIn: number;
+}) {
+  const { widthIn, depthIn, heightIn } = canopy;
+  const lip = Math.min(canopy.frontLipIn, heightIn);
+  // The top can only draw in, never out: a canopy narrower than its own flue
+  // would be a funnel the wrong way round.
+  const topW = Math.min(canopy.topWidthIn, widthIn);
+  const topD = Math.min(canopy.topDepthIn, depthIn);
+
+  return {
+    /** The rim, at the cooking surface end. */
+    bottom: { w: widthIn, d: depthIn },
+    /** Where the chimney lands. The same section, or the canopy does not meet it. */
+    top: { w: topW, d: topD },
+    /** How high the vertical front face runs before the slope starts. */
+    lip,
+    height: heightIn,
+    /** Both back faces sit here: the canopy is flat against the wall. */
+    backZ: 0,
+    /** How far each flank draws in, which is the same on both sides. */
+    insetX: (widthIn - topW) / 2,
+    /** And how far the front draws back. */
+    insetZ: depthIn - topD,
+  };
+}
+
+/**
+ * The canopy's section through the middle, in inches, as a closed polygon.
  *
  * Measured from the wall (x = 0) outward and from the canopy's underside
- * (y = 0) upward, so it can be extruded along the run without any further
- * arithmetic.
+ * (y = 0) upward. Kept for the side elevation and the clearance drawing; the
+ * solid itself is `canopySolid`.
  */
 export function hoodProfile(
   depthIn: number,
