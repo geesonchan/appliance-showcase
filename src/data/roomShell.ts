@@ -115,6 +115,28 @@ export const LAYOUT_LIMITS = {
    * it is 24" of surface at counter height, which is what the rule is for.
    */
   sink: { wideIn: 24, narrowIn: 18, fromCornerIn: 15 },
+
+  /**
+   * D11 rule 11: what a refrigerator needs beside it.
+   *
+   * A door opens through more than the machine's own width. Against a standard
+   * 24" cabinet the door sweeps past its front and the manufacturer's eighth of
+   * an inch is the whole of it. Against a return wall the door fouls the wall
+   * before it is open ninety degrees, and the drawers will not come out — so
+   * three and a half inches of filler go in, and the install list says so.
+   */
+  fridge: {
+    /** The manufacturer's minimum, either side. */
+    sideGapIn: 0.125,
+    /** Between the machine and a return wall, so the door opens 90 degrees. */
+    fromWallIn: 3.5,
+    /** A return this deep or more is a wall to a door, not a reveal. */
+    wallReturnIn: 30,
+    /** The optional stop that holds the door at ninety degrees. */
+    doorStop: "10012733",
+    /** The gap between the top of the machine and the cabinet over it. */
+    aboveIn: 1,
+  },
 };
 
 /** Thickness of a finished panel or a tower side. */
@@ -154,6 +176,12 @@ export type ModuleKind =
    * at all rather than a gap.
    */
   | "tall-open"
+  /**
+   * A finished end panel: the piece of cabinetry that closes the side of a
+   * tall opening. Not a filler — a filler absorbs a remainder, and this is a
+   * part with a width somebody chose.
+   */
+  | "panel"
   | "corner"
   | "filler"
   | "opening";

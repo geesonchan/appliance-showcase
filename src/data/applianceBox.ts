@@ -83,8 +83,11 @@ export function applianceBox(slot: Slot, appliance: Appliance): ApplianceBox {
  * the cabinet face, so a shallower body moves toward the room. A hood is the
  * exception: it hangs off the wall behind it.
  */
-export function flushOffset(slot: Slot, depth: number): number {
+export function flushOffset(slot: Slot, depth: number, rearSpacerIn = 0): number {
   if (slot.id === "slot-hood") return -(ROOM.counterDepth - depth) / 2;
+  // A machine that carries its own spacers stands exactly that far off the
+  // wall — which is the figure its published depth-to-wall is measured over.
+  if (rearSpacerIn > 0) return (depth - ROOM.counterDepth) / 2 + ft(rearSpacerIn);
   // Flush with the cabinet face, but never with its back inside the wall.
   // Aligning the fronts of a 28" range in a 24" run puts four inches of the
   // machine into the plaster; what actually happens is that it stands against

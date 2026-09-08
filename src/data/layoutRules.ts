@@ -42,7 +42,8 @@ export { LAYOUT_LIMITS } from "./room";
  * or 6" strip scribed to the wall.
  */
 const STOCK_WIDTHS = [6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48];
-const FILLER_WIDTHS = [3, 6];
+/** Past this a strip of panel is a cabinet somebody forgot to order. */
+const FILLER_MAX_IN = 6;
 const SINK_BASE_WIDTHS = [30, 33, 36, 42];
 const CORNER_WIDTHS = [24, 33, 36, 39, 42, 45, 48];
 /** Wall heights: the three standard ones plus the bridge sizes. */
@@ -51,11 +52,20 @@ const UPPER_HEIGHTS = [12, 15, 18, 21, 24, 30, 36, 42];
 function isOrderable(module: CabinetModule): boolean {
   switch (module.kind) {
     case "filler":
-      return FILLER_WIDTHS.includes(module.widthIn);
+      // A strip of finished panel cut on site. It is the part that absorbs
+      // whatever the boxes do not divide into — a scribe against a wall, the
+      // half inch a run does not divide by, the gap a refrigerator door needs
+      // — so it has a maximum rather than a size list. Past that it is a
+      // cabinet somebody forgot to order.
+      return module.widthIn > 0 && module.widthIn <= FILLER_MAX_IN;
     case "sink-base":
       return SINK_BASE_WIDTHS.includes(module.widthIn);
     case "corner":
       return CORNER_WIDTHS.includes(module.widthIn);
+    case "panel":
+      // A finished panel is cut to the job. Three inches is the standard, and
+      // anything from an inch and a half up is a panel somebody can order.
+      return module.widthIn >= 1.5;
     case "opening":
     case "tall-open":
       // A rough opening is dimensioned to the appliance, not off a size list —
@@ -211,10 +221,18 @@ export function checkLayout(
         continue;
       }
       if (segment.kind === "tall") continue;
+      // Measured on the boxes, not on the stretch. A run does not always
+      // divide by the module step — a refrigerator door's clearance against a
+      // wall is three and a half inches — and what goes in the remainder is a
+      // scribe. The cabinets still have to come off the size list; the strip
+      // of panel beside them does not.
+      const boxes = segment.modules
+        .filter((module) => module.kind !== "filler")
+        .reduce((sum, module) => sum + module.widthIn, 0);
       if (w < min || w > max) {
         fail("d13-width", `${segment.id} is ${w}", outside the ${min}-${max}" range`);
-      } else if (Math.abs(w / step - Math.round(w / step)) > 1e-6) {
-        fail("d13-width", `${segment.id} is ${w}", not a ${step}" increment`);
+      } else if (Math.abs(boxes / step - Math.round(boxes / step)) > 1e-6) {
+        fail("d13-width", `${segment.id} makes ${boxes}" of box, not a ${step}" increment`);
       }
     }
 

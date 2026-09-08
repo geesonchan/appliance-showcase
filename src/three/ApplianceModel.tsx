@@ -3,7 +3,7 @@ import * as THREE from "three";
 import type { ThreeEvent } from "@react-three/fiber";
 import { applianceBox, flushOffset } from "../data/applianceBox";
 import { CHIMNEY, chimneyParts, hoodProfile, hoodTopDepthIn } from "../data/hood";
-import { FRIDGE_PROPORTIONS, fridgeParts } from "../data/fridgeModel";
+import { fridgeParts, fridgeStance } from "../data/fridgeModel";
 import {
   FREESTANDING_PROPORTIONS,
   RANGE_PROPORTIONS,
@@ -68,7 +68,7 @@ export function ApplianceModel({ slot, appliance }: ApplianceModelProps) {
   const glass = { ...surface(renderMode, "#2B322D", { metalness: 0.3, roughness: 0.1 }), hardware: true };
 
   const box = applianceBox(def, appliance);
-  const dz = flushOffset(def, box.d);
+  const dz = flushOffset(def, box.d, appliance.rearSpacerIn ?? 0);
 
   const outline = useMemo(
     () => new THREE.EdgesGeometry(new THREE.BoxGeometry(box.w, box.h, box.d)),
@@ -423,16 +423,14 @@ function Fridge({
   trim: SurfaceProps;
 }) {
   const panels = useMemo(() => fridgeParts(appliance, { w, h }), [appliance, w, h]);
-  const P = FRIDGE_PROPORTIONS;
 
-  const handleR = ft(P.handleDiameterIn) / 2;
-  const proud = ft(P.proudIn);
-  const doorThickness = ft(0.75);
-  /** Everything in front of the carcass: the door, its stand-off, the handle. */
-  const carcassD = d - proud - doorThickness - handleR * 2;
-  const carcassZ = -(d - carcassD) / 2;
-  const doorZ = carcassZ + carcassD / 2 + proud + doorThickness / 2;
-  const handleZ = d / 2 - handleR;
+  // Where the fronts stand relative to the carcass — which is the difference
+  // between a built-in and a freestanding machine, and the one you can see
+  // from across the room. See `fridgeStance`.
+  const { carcassD, carcassZ, doorThickness, doorZ, handleR, handleZ } = useMemo(
+    () => fridgeStance(appliance, d),
+    [appliance, d],
+  );
   // The grille is the band the split gives it, scaled to this machine.
   // The slots in the grille are a shade of the panel they are cut into, not a
   // colour of their own: what you see through a vent is the dark inside it.

@@ -1,3 +1,4 @@
+import { ft } from "./roomShell";
 import type { Appliance } from "../types";
 
 /**
@@ -70,6 +71,61 @@ export const FRIDGE_PROPORTIONS = {
   doorHandleFraction: 0.8,
   drawerHandleFraction: 0.9,
 };
+
+/**
+ * How far the fronts stand out from the carcass, in feet.
+ *
+ * This is the difference between a built-in and a freestanding machine, and it
+ * is the one you can see from across a room. A built-in is quoted with its
+ * handle on and finishes flush with 24" of cabinet: everything is inside the
+ * published depth, and a quarter-inch reveal is the whole of it. A freestanding
+ * counter-depth machine is a 24" body held an inch off the wall, with the whole
+ * thickness of a door in front of that and a handle in front of the door — on a
+ * T36FT820NS, 3-3/4" of door and 2-3/4" of handle proud of the cabinet line.
+ * Drawing it flush is drawing the other machine.
+ *
+ * The local frame is the body box: z runs from -d/2 at the back to +d/2 at the
+ * front, and the wall is a rear spacer behind that.
+ */
+export function fridgeStance(appliance: Appliance, d: number) {
+  const P = FRIDGE_PROPORTIONS;
+  const handleR = ft(P.handleDiameterIn) / 2;
+  const doorThickness = ft(0.75);
+  const { depthIn, depthWithDoorsIn, depthWithHandleIn } = appliance;
+  const spacer = ft(appliance.rearSpacerIn ?? 0);
+
+  if (depthIn !== null && depthWithDoorsIn !== null) {
+    // Published: the box is the carcass, and the fronts are in front of it.
+    const fromWall = (inches: number) => -d / 2 - spacer + ft(inches);
+    const doorFront = fromWall(depthWithDoorsIn);
+    const handleFront = fromWall(depthWithHandleIn ?? depthWithDoorsIn + P.handleDiameterIn);
+    return {
+      carcassD: d,
+      carcassZ: 0,
+      doorThickness,
+      doorZ: doorFront - doorThickness / 2,
+      handleR,
+      handleZ: handleFront - handleR,
+      /** How far the doors stand proud of the cabinet line, in inches. */
+      proudIn: depthWithDoorsIn - (appliance.rearSpacerIn ?? 0) - depthIn,
+    };
+  }
+
+  // Built in: the quoted depth is the whole machine, handle included, so the
+  // carcass is set back to make room for what is in front of it.
+  const proud = ft(P.proudIn);
+  const carcassD = d - proud - doorThickness - handleR * 2;
+  const carcassZ = -(d - carcassD) / 2;
+  return {
+    carcassD,
+    carcassZ,
+    doorThickness,
+    doorZ: carcassZ + carcassD / 2 + proud + doorThickness / 2,
+    handleR,
+    handleZ: d / 2 - handleR,
+    proudIn: P.proudIn,
+  };
+}
 
 /**
  * What the front divides into when nobody has read the drawing.

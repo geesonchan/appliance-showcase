@@ -42,15 +42,17 @@ const parsed = parseDataFile(slotsFileSchema, slotsFile, "data/slots.json");
  * appliance with finished sides, or a full-height unit standing on its own.
  */
 function size(record: SlotRecord, spec: PackageSlot): SlotRecord {
-  const width = { w: spec.widthIn };
+  const box = { w: spec.widthIn, ...(spec.heightIn === null ? {} : { h: spec.heightIn }) };
   return {
     ...record,
-    cutout: { ...record.cutout, ...width },
+    cutout: { ...record.cutout, ...box },
     cabinetConfig: {
       ...record.cabinetConfig,
       type: spec.enclosure ? "enclosure" : spec.tallUnit ? "tall" : record.cabinetConfig.type,
-      openingIn: { ...record.cabinetConfig.openingIn, ...width },
-      finishedSides: spec.enclosure ? record.cabinetConfig.finishedSides : 0,
+      openingIn: { ...record.cabinetConfig.openingIn, ...box },
+      // A freestanding machine still gets a panel each side — they are just 24"
+      // deep and do not wrap its doors. See docs/decisions.md D11 rule 11.
+      finishedSides: record.cabinetConfig.finishedSides,
     },
   };
 }

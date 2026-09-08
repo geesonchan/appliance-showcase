@@ -2,7 +2,7 @@ import rulesFile from "../../data/rules.json";
 import { z } from "zod";
 import type { Appliance, Slot, SlotId } from "../types";
 import { fitCheck, type FitResult } from "./fit";
-import { outletSize } from "./hood";
+import { outletSize, hoodCabinetFloor } from "./hood";
 import { SLOT_BY_ID } from "./slots";
 import { parseDataFile, metaSchema } from "./schema";
 import { effectiveCfm } from "./ventilation";
@@ -97,6 +97,15 @@ interface Context {
     canopyClearanceIn: number | null;
     /** The opening the duct comes off the canopy through, as a size to quote. */
     hoodOutletSize: string;
+    /**
+     * Whether there is a cabinet over the hood at all.
+     *
+     * An under-cabinet hood's duct goes up through the box above it, and that
+     * box has to be cut for it. A chimney hood carries its own cover to the
+     * ceiling and has nothing above it — telling an installer to cut a cabinet
+     * that is not there is worse than saying nothing.
+     */
+    hoodHasCabinetAbove: boolean;
   };
 }
 
@@ -209,6 +218,7 @@ export function packageContext(
     ductDiameterIn: ductDiameterFor(cfm),
     canopyClearanceIn: canopyClearance(range),
     hoodOutletSize: outletSize(),
+    hoodHasCabinetAbove: hoodCabinetFloor() !== null,
   };
 }
 
@@ -223,6 +233,10 @@ export function packageContext(
 export function canopyClearance(range: Appliance | undefined): number | null {
   if (!range) return null;
   const hood = SLOT_BY_ID["slot-hood"];
-  const cooktopIn = range.heightIn ?? range.cutoutHeightIn ?? SLOT_BY_ID["slot-range"].cutout.h;
+  // The cooking surface, not the machine's top. A range with a backguard is
+  // sold at 47-7/8" and cooks at 36": measuring to the top of it reported a
+  // canopy eighteen inches over a cooktop that is thirty inches under it.
+  const cooktopIn =
+    range.cooktopIn ?? range.heightIn ?? range.cutoutHeightIn ?? SLOT_BY_ID["slot-range"].cutout.h;
   return Number((hood.position[1] * 12 - cooktopIn).toFixed(3));
 }

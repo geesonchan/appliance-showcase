@@ -1,6 +1,7 @@
 import type { SlotId } from "../types";
 import { SLOT_BY_ID } from "./slots";
 import {
+  LAYOUT_LIMITS,
   ISLAND,
   PANEL,
   ROOM,
@@ -120,10 +121,46 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
   eachModule(segment.from, segment.modules, (module, along, index) => {
     if (module.kind === "opening") return;
 
-    // A freestanding full-height appliance is not joinery. It reserves its
-    // width and it stops the wall cabinets, and that is the whole of the
-    // cabinetmaker's involvement: no side panels, no bridge over the top.
-    if (module.kind === "tall-open") return;
+    // The opening a freestanding full-height appliance stands in. The machine
+    // is not joinery; what is beside it and above it is, and those are modules
+    // of their own.
+    if (module.kind === "tall-open") {
+      const top = ft(module.heightIn ?? 96);
+      // The cabinet over it, starting an inch above the machine and running to
+      // the ceiling. Not a bridge: a bridge spans an opening between two towers
+      // from the head of that opening, and this sits on the machine's own top.
+      // See docs/decisions.md D11 rule 11.
+      const floor = fridgeOpeningH() + ft(LAYOUT_LIMITS.fridge.aboveIn);
+      if (top - floor > ft(3)) {
+        boxes.push(
+          onRun(run, `${segment.id}-over`, "upper", along, [floor, top], ROOM.counterDepth, 0, {
+            slot: module.slot,
+            module,
+          }),
+        );
+      }
+      return;
+    }
+
+    // A finished end panel: the piece that closes the side of a tall opening.
+    // Only counter deep, so a freestanding machine's doors and handles stand
+    // proud of it rather than being buried in it — which is most of what tells
+    // one apart from a built-in at a glance.
+    if (module.kind === "panel") {
+      boxes.push(
+        onRun(
+          run,
+          `${segment.id}-${module.code}-${index}`,
+          "surround",
+          along,
+          [0, ft(module.heightIn ?? 96)],
+          ROOM.counterDepth,
+          0,
+          { outline: segment.id, slot: module.slot, module },
+        ),
+      );
+      return;
+    }
 
     if (module.kind === "tall") {
       // A finished panel each side, the appliance opening between them, and a

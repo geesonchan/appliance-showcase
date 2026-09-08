@@ -21,7 +21,8 @@
           "widthIn": 36,
           "installType": "built-in",
           "tallUnit": true,
-          "enclosure": true
+          "enclosure": true,
+          "heightIn": 84
         },
         {
           "slotId": "slot-range",
@@ -93,7 +94,8 @@
           "widthIn": 36,
           "installType": "counter-depth",
           "tallUnit": true,
-          "enclosure": false
+          "enclosure": false,
+          "heightIn": 72
         },
         {
           "slotId": "slot-range",

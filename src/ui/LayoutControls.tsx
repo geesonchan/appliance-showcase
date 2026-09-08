@@ -122,6 +122,18 @@ export function LayoutControls() {
           onChange={(fridgeEnd) => setLayout({ fridgeEnd })}
           options={legs}
         />
+        {/* What is past the refrigerator. A door opens through more than the
+            machine's own width, and against a wall that costs three and a half
+            inches of the run. See docs/decisions.md D11 rule 11. */}
+        <Choice
+          label={t("panel.layout.fridgeAbuts")}
+          value={params.fridgeEndAbuts}
+          onChange={(fridgeEndAbuts) => setLayout({ fridgeEndAbuts })}
+          options={[
+            { value: "cabinet" as const, label: t("panel.layout.abuts.cabinet") },
+            { value: "wall" as const, label: t("panel.layout.abuts.wall") },
+          ]}
+        />
         <Choice
           label={t("panel.layout.sink")}
           value={params.sinkLeg}

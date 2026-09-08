@@ -421,10 +421,42 @@ shelf nobody has, and the scribe a run needs belongs against a wall, where
 nothing has to reach past it. The bridge over the canopy is the canopy's own
 width.
 
+**Rule 11: a freestanding refrigerator is surrounded, differently.** The
+enclosure round a built-in wraps its doors: panels as deep as the machine, and a
+bridge over the top from the head of the opening. A freestanding counter-depth
+machine gets a panel each side that is only counter deep, so its doors and their
+handles stand proud of the cabinet line rather than being buried in it, and a
+cabinet over it that starts an inch above its own top rather than at the head of
+an opening. No bridge, and no panel wrapping a door.
+
+The depths are the point, and they are what tells the two apart from across the
+room. A T36FT820NS is a 24" body held 1" off the wall by its own spacers, 28-3/4"
+with the doors shut and 31-7/16" with the handles on: 3-3/4" of door and 2-3/4"
+of handle in front of a 24" run. Drawing it flush is drawing the other machine.
+
+And a door opens through more than the machine's own width. Beside a standard
+24" cabinet that costs nothing — the door sweeps past the cabinet's front, and
+the manufacturer's eighth of an inch is the whole of it. Beside a return wall it
+costs three and a half inches, or the door fouls the wall before ninety degrees
+and the drawers will not come out. `fridgeEndAbuts` says which is there; the
+wall case puts a filler in the run, prints the figure on the drawing whatever the
+render mode, and puts a line on the install list. It is not an annotation about
+the room: it is the reason three and a half inches of that wall have no cabinet
+on them, and a reader who cannot see it is looking at a gap somebody forgot to
+fill.
+
+**A run does not always divide by the module step.** Three and a half inches of
+door clearance is not a multiple of three, and what goes in the remainder is a
+scribe: a strip of finished panel, cut on site, against the wall. So the width
+rules are checked on a segment's boxes rather than on the stretch, and a bank of
+wall cabinets is as long as it is rather than as long as it rounds to. Rounding
+it away is how a bank came out half an inch longer than the wall it was on.
+
 **What this forbids:** placing an appliance by eye; a layout template that
 "mostly" follows the rules; hard-coded cabinet boxes that no rule can be run
 against; adding the sink, the pot filler or the ice-maker line to
-`appliances.json`; a refusal that says no without saying what is in the way.
+`appliances.json`; a refusal that says no without saying what is in the way;
+drawing a freestanding machine flush with the cabinets beside it.
 
 
 ---

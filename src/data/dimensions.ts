@@ -22,6 +22,16 @@ export interface Dimension {
    * other — the same reason a draughtsman staggers them.
    */
   labelAt: number;
+  /**
+   * Drawn whatever the render mode, and whether or not the dimension layer is
+   * on.
+   *
+   * Almost nothing qualifies. A clearance that has to be left empty is not an
+   * annotation about the room — it is the reason three and a half inches of the
+   * wall have no cabinet on them, and a reader who cannot see it is looking at
+   * a gap somebody forgot to fill. See docs/decisions.md D11 rule 11.
+   */
+  always?: boolean;
   /** A note printed under the figure, e.g. the range a clearance may fall in. */
   noteKey?: string;
   noteVars?: Record<string, string | number>;
@@ -101,6 +111,10 @@ export function dimensionsFor(
       noteKey: "dimension.standard",
       noteVars: { value: upper.bottomAboveCounterIn },
     }),
+    // The gap a refrigerator door needs against a return wall. Drawn whatever
+    // the mode: it is not an annotation about the room, it is the reason three
+    // and a half inches of that wall have no cabinet on them. D11 rule 11.
+    ...fridgeClearance(),
     // The aisle, measured on the floor between the run and the island. A room
     // with no island has no aisle to dimension, so the figure is absent rather
     // than zero.
@@ -128,7 +142,9 @@ export function dimensionsFor(
   // figures about it, because flying in to read one clearance and getting
   // seven numbers is worse than getting none.
   if (!selectedSlot) return all;
-  return all.filter((dimension) => dimension.slots.includes(selectedSlot));
+  return all.filter(
+    (dimension) => dimension.always || dimension.slots.includes(selectedSlot),
+  );
 }
 
 /** Inches as a builder writes them: 36¾ rather than 36.75. */
@@ -145,4 +161,38 @@ export function formatDimension(valueIn: number): string {
     denominator /= 2;
   }
   return `${whole}-${numerator}/${denominator}"`;
+}
+
+/**
+ * The clearance between a freestanding refrigerator and the wall beside it.
+ *
+ * Only when there is a wall there: against cabinetry the door sweeps past the
+ * cabinet's front and there is nothing to dimension. Measured on the floor,
+ * across the filler that holds the gap open.
+ */
+function fridgeClearance(): Dimension[] {
+  const segment = RUNS.flatMap((run) => run.segments).find((s) => s.slot === "slot-fridge");
+  const filler = segment?.modules.find((module) => module.kind === "filler");
+  if (!segment || !filler) return [];
+
+  const run = RUNS.find((r) => r.segments.includes(segment))!;
+  // The filler is the last module on the segment, at its far end.
+  const to = segment.to;
+  const from = to - ft(filler.widthIn);
+  const across = run.centre + ROOM.counterDepth / 2 + 0.2;
+  const at = (along: number): [number, number, number] =>
+    run.axis === "x" ? [along, 0.03, across] : [across, 0.03, along];
+
+  return [
+    {
+      id: "fridge-door-clearance",
+      from: at(from),
+      to: at(to),
+      valueIn: Number((filler.widthIn).toFixed(3)),
+      slots: ["slot-fridge"],
+      labelAt: 0.5,
+      always: true,
+      noteKey: "dimension.fridgeDoorClearance",
+    },
+  ];
 }

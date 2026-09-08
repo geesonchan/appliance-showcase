@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { applianceBox } from "./applianceBox";
 import { APPLIANCE_BY_ID } from "./catalogue";
-import { CHIMNEY, chimneyParts, isChimney } from "./hood";
+import { CHIMNEY, chimneyParts, hoodCabinetFloor, isChimney } from "./hood";
+import { packageContext } from "./rules";
 import { setActivePackage, setLayoutParams } from "./layoutState";
 import { DEFAULT_PARAMS } from "./layoutTemplate";
 import { DEFAULT_PACKAGE } from "./packages";
@@ -92,5 +93,41 @@ describe("a chimney reaches the ceiling", () => {
 
   it("does not hang one on an under-cabinet hood", () => {
     expect(isChimney(APPLIANCE_BY_ID["thermador-ph36hws"])).toBe(false);
+  });
+});
+
+/**
+ * What the install list says about a chimney hood, and what it must not say.
+ */
+describe("the install list follows the hood that is actually specified", () => {
+  it("does not ask for a cutout in a cabinet that is not there", () => {
+    setLayoutParams(DEFAULT_PARAMS);
+    expect(setActivePackage("package-c").ok).toBe(true);
+    try {
+      // Nothing is built over a chimney hood, so there is no cabinet floor to
+      // cut. Telling an installer to cut one is worse than saying nothing.
+      expect(hoodCabinetFloor()).toBe(null);
+      const context = packageContext(
+        APPLIANCE_BY_ID["thermador-hmcb30ws"],
+        null,
+        APPLIANCE_BY_ID["maytag-mfes4030rs"],
+      );
+      expect(context.hoodHasCabinetAbove).toBe(false);
+    } finally {
+      setActivePackage(DEFAULT_PACKAGE.id);
+      setLayoutParams(DEFAULT_PARAMS);
+    }
+  });
+
+  it("does ask for one under an under-cabinet hood, which has a box over it", () => {
+    setLayoutParams(DEFAULT_PARAMS);
+    setActivePackage(DEFAULT_PACKAGE.id);
+    expect(hoodCabinetFloor()).not.toBe(null);
+    const context = packageContext(
+      APPLIANCE_BY_ID["thermador-ph36hws"],
+      null,
+      APPLIANCE_BY_ID["thermador-prg366wh"],
+    );
+    expect(context.hoodHasCabinetAbove).toBe(true);
   });
 });

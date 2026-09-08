@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { APPLIANCES_BY_SLOT } from "./catalogue";
 import { applianceBox, flushOffset } from "./applianceBox";
-import { burnerCount, knobCount, rangeParts, RANGE_PROPORTIONS } from "./rangeModel";
+import {
+  burnerCount,
+  cooktopHeight,
+  knobCount,
+  rangeParts,
+  RANGE_PROPORTIONS,
+} from "./rangeModel";
+import { canopyClearance } from "./rules";
 import { ROOM, SLOT_BY_ID, ft } from "./slots";
 import { FIXTURES } from "./testFixtures";
 import type { Appliance } from "../types";
@@ -281,5 +288,25 @@ describe("a freestanding range with a backguard", () => {
       (ROOM.counterDepth - shallowBox.d) / 2 + ft(0.5),
       6,
     );
+  });
+});
+
+/**
+ * The one number a hood's clearance is measured from.
+ *
+ * A range with a backguard is sold at its full height and cooks well below it,
+ * so anything that treats the published height as the cooking surface reports
+ * a canopy eighteen inches over a cooktop that is thirty inches under it.
+ */
+describe("the cooking surface is not the machine's top", () => {
+  it("measures the canopy's clearance from the cooktop, backguard or not", () => {
+    const hoodY = SLOT_BY_ID["slot-hood"].position[1] * 12;
+    expect(canopyClearance(freestanding())).toBeCloseTo(hoodY - 36, 3);
+    expect(canopyClearance(proRange())).toBeCloseTo(hoodY - 36.75, 3);
+  });
+
+  it("measures the dimension chain's counter line the same way", () => {
+    expect(inches(cooktopHeight(freestanding(), box(freestanding())))).toBeCloseTo(36, 6);
+    expect(inches(cooktopHeight(proRange(), box(proRange())))).toBeCloseTo(36.75, 6);
   });
 });

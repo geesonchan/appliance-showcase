@@ -266,6 +266,11 @@
           "fact": "slot.utilities.duct.route",
           "op": "eq",
           "value": "up-through-cabinet"
+        },
+        {
+          "fact": "package.hoodHasCabinetAbove",
+          "op": "eq",
+          "value": true
         }
       ],
       "params": {

@@ -2,6 +2,7 @@ import { afterAll, describe, expect, it } from "vitest";
 import { applianceBox } from "./applianceBox";
 import { CABINETS } from "./cabinets";
 import { APPLIANCE_BY_ID } from "./catalogue";
+import { dimensionsFor } from "./dimensions";
 import { checkLayout } from "./layoutRules";
 import { setActivePackage, setLayoutParams } from "./layoutState";
 import {
@@ -11,7 +12,7 @@ import {
   type Refusal,
 } from "./layoutTemplate";
 import { BUILDABLE_PACKAGES, DEFAULT_PACKAGE, PACKAGE_BY_ID, slotsOf } from "./packages";
-import { RUNS, ft } from "./room";
+import { LAYOUT_LIMITS, ROOM, RUNS, ft } from "./room";
 import { SLOT_BY_ID } from "./slots";
 
 /**
@@ -25,6 +26,7 @@ import { SLOT_BY_ID } from "./slots";
  * from a data file can be right for the file it was written against and wrong
  * for the next one, and that is exactly what this is for.
  */
+const inches = (feet: number) => feet * 12;
 const params = (over: Partial<LayoutParams> = {}): LayoutParams => ({ ...DEFAULT_PARAMS, ...over });
 const values = (limit: { min: number; max: number; step: number }) => {
   const all: number[] = [];
@@ -54,11 +56,27 @@ function combinations(): Partial<LayoutParams>[] {
         ["left", "back"],
         ["back", "left"],
       ] as const) {
-        out.push({ cornerType, hasIsland, fridgeEnd, sinkLeg });
-        // ...and against the ends of both walls, where the room is tightest.
-        for (const backWallIn of [PARAM_LIMITS.backWallIn.min, 144, PARAM_LIMITS.backWallIn.max]) {
-          for (const leftWallIn of [PARAM_LIMITS.leftWallIn.min, 144, PARAM_LIMITS.leftWallIn.max]) {
-            out.push({ cornerType, hasIsland, fridgeEnd, sinkLeg, backWallIn, leftWallIn });
+        // A return wall past the refrigerator costs three and a half inches of
+        // the leg, so it belongs in the sweep rather than beside it.
+        for (const fridgeEndAbuts of ["cabinet", "wall"] as const) {
+          out.push({ cornerType, hasIsland, fridgeEnd, sinkLeg, fridgeEndAbuts });
+          // ...and against the ends of both walls, where the room is tightest.
+          for (const backWallIn of [PARAM_LIMITS.backWallIn.min, 144, PARAM_LIMITS.backWallIn.max]) {
+            for (const leftWallIn of [
+              PARAM_LIMITS.leftWallIn.min,
+              144,
+              PARAM_LIMITS.leftWallIn.max,
+            ]) {
+              out.push({
+                cornerType,
+                hasIsland,
+                fridgeEnd,
+                sinkLeg,
+                fridgeEndAbuts,
+                backWallIn,
+                leftWallIn,
+              });
+            }
           }
         }
       }
@@ -146,7 +164,7 @@ function expectPrintable(reason: Refusal, where: string) {
  * there is no panel standing next to the refrigerator, not that a boolean is
  * false somewhere.
  */
-describe("a freestanding refrigerator stands on its own", () => {
+describe("a freestanding refrigerator is surrounded differently", () => {
   afterAll(() => {
     setActivePackage(DEFAULT_PACKAGE.id);
     setLayoutParams(DEFAULT_PARAMS);
@@ -161,24 +179,80 @@ describe("a freestanding refrigerator stands on its own", () => {
     expect(kinds).toEqual(["surround", "surround", "upper"]);
   });
 
-  it("builds nothing at all round a freestanding one", () => {
+  /**
+   * D11 rule 11. A freestanding machine is surrounded too — by different parts.
+   * A panel each side that is only counter deep, so the doors and their handles
+   * stand proud of it rather than being buried in it, and a cabinet over the
+   * machine starting an inch above its top. No bridge: a bridge spans an
+   * opening between two towers from the head of that opening, which is a
+   * different box in a different place.
+   */
+  it("builds counter-deep panels and a cabinet over it, never a bridge", () => {
     activate("package-c");
     for (const over of COMBINATIONS) {
       if (!setLayoutParams(params(over)).ok) continue;
-      expect(fridgeBoxes(), `package-c ${JSON.stringify(over)}`).toEqual([]);
+      const where = `package-c ${JSON.stringify(over)}`;
+      const boxes = fridgeBoxes();
+
+      // A panel on the run side always; a panel on the far side too unless a
+      // return wall is there, where the clearance filler takes its place.
+      const panels = params(over).fridgeEndAbuts === "wall" ? 1 : 2;
+      expect(boxes.map((box) => box.kind).sort(), where).toEqual([
+        ...Array.from({ length: panels }, () => "surround"),
+        "upper",
+      ]);
+
+      // The panels are counter deep, not enclosure deep. A box's size is in
+      // room axes, so which of x and z is the depth follows the run.
+      const depthAxis = RUNS.find((run) => run.segments.some((s) => s.slot === "slot-fridge"))!
+        .axis === "x" ? 2 : 0;
+      for (const panel of boxes.filter((box) => box.kind === "surround")) {
+        expect(panel.size[depthAxis], `${where}: panel is not counter deep`).toBeCloseTo(
+          ROOM.counterDepth,
+          9,
+        );
+      }
+
+      // The cabinet over it starts an inch above the machine, not at the head
+      // of an opening, and runs to the ceiling.
+      const over_ = boxes.find((box) => box.kind === "upper")!;
+      const floor = over_.position[1] - over_.size[1] / 2;
+      const top = over_.position[1] + over_.size[1] / 2;
+      expect(inches(floor), `${where}: cabinet over the refrigerator`).toBeCloseTo(
+        SLOT_BY_ID["slot-fridge"].cutout.h + LAYOUT_LIMITS.fridge.aboveIn,
+        6,
+      );
+      expect(top, where).toBeCloseTo(ROOM.wallHeight, 6);
+      expect(over_.id.endsWith("-bridge"), `${where}: that is a bridge`).toBe(false);
     }
   });
 
-  it("fills no leftover round it, because there is no opening to fill", () => {
+  it("keeps a return wall three and a half inches off the machine", () => {
+    activate("package-c");
+    for (const abuts of ["cabinet", "wall"] as const) {
+      expect(setLayoutParams(params({ fridgeEndAbuts: abuts })).ok, abuts).toBe(true);
+      const segment = RUNS.flatMap((run) => run.segments).find((s) => s.slot === "slot-fridge")!;
+      const outer = segment.modules[segment.modules.length - 1];
+      if (abuts === "wall") {
+        expect(outer.kind).toBe("filler");
+        expect(outer.widthIn).toBeCloseTo(LAYOUT_LIMITS.fridge.fromWallIn, 6);
+      } else {
+        expect(outer.kind).toBe("panel");
+      }
+    }
+    setLayoutParams(DEFAULT_PARAMS);
+  });
+
+  it("fills no leftover with appliance panels: what is round it is cabinetry", () => {
     activate("package-c");
     const slot = SLOT_BY_ID["slot-fridge"];
     const appliance = APPLIANCE_BY_ID[PACKAGE_BY_ID["package-c"].defaultSelection["slot-fridge"]!];
 
-    // 84" of space and a 72" refrigerator: the twelve inches above it are the
-    // room, not a panel the cabinetmaker makes.
-    expect(slot.cutout.h).toBeGreaterThan(appliance.heightIn!);
-    const box = applianceBox(slot, appliance);
-    expect(box.filler).toEqual({ below: 0, above: 0, eachSide: 0 });
+    // The joiner builds a 72" opening and the machine is 72": nothing is left
+    // over, and anything above or beside it is a cabinet from the run rather
+    // than a panel ApplianceModel invents.
+    expect(slot.cutout.h).toBe(appliance.heightIn);
+    expect(applianceBox(slot, appliance).filler).toEqual({ below: 0, above: 0, eachSide: 0 });
   });
 
   it("stops the wall cabinets at it and carries the toe kick past it, either way", () => {
@@ -266,5 +340,41 @@ describe("a chimney hood keeps the wall above it clear", () => {
         }
       }
     }
+  });
+});
+
+/**
+ * The line the install list has to carry when a return wall is there.
+ *
+ * Three and a half inches of empty wall looks like a mistake until somebody
+ * says what it is for, so the clearance is both a figure on the drawing and a
+ * sentence on the list. See docs/decisions.md D11 rule 11.
+ */
+describe("the door clearance is said out loud", () => {
+  afterAll(() => {
+    setActivePackage(DEFAULT_PACKAGE.id);
+    setLayoutParams(DEFAULT_PARAMS);
+  });
+
+  const clearance = () =>
+    dimensionsFor(
+      Object.fromEntries(
+        BUILDABLE_PACKAGES[0].slots.map((slot) => [slot.slotId, undefined]),
+      ) as never,
+    ).find((d) => d.id === "fridge-door-clearance");
+
+  it("prints the figure whatever the render mode, and only against a wall", () => {
+    activate("package-c");
+
+    expect(setLayoutParams(params({ fridgeEndAbuts: "cabinet" })).ok).toBe(true);
+    expect(clearance(), "a cabinet needs no clearance dimension").toBeUndefined();
+
+    expect(setLayoutParams(params({ fridgeEndAbuts: "wall" })).ok).toBe(true);
+    const dimension = clearance();
+    expect(dimension, "no clearance dimension against a wall").toBeTruthy();
+    expect(dimension!.valueIn).toBeCloseTo(LAYOUT_LIMITS.fridge.fromWallIn, 6);
+    // Not hidden behind the dimension layer: it is the reason the gap is there.
+    expect(dimension!.always).toBe(true);
+    expect(dimension!.noteKey).toBeTruthy();
   });
 });

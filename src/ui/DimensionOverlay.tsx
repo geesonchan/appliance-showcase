@@ -20,12 +20,13 @@ export function DimensionOverlay() {
   const renderMode = useAppStore((s) => s.renderMode);
   const showDimensions = useAppStore((s) => s.showDimensions);
   const selectedSlot = useAppStore((s) => s.selectedSlot);
+  const layerOn = showDimensions && renderMode === "install";
   const dimensions = useMemo(
-    () => dimensionsFor(selection, selectedSlot),
-    [selection, selectedSlot],
+    () => dimensionsFor(selection, selectedSlot).filter((d) => layerOn || d.always),
+    [selection, selectedSlot, layerOn],
   );
 
-  if (!showDimensions || renderMode !== "install") return null;
+  if (dimensions.length === 0) return null;
 
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">

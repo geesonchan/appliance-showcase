@@ -34,9 +34,13 @@ export function DimensionProjector() {
   const showDimensions = useAppStore((s) => s.showDimensions);
 
   const selectedSlot = useAppStore((s) => s.selectedSlot);
+  // The overlay draws the same list, and the two have to agree about which
+  // figures exist or the projector moves the wrong spans. Outside the
+  // dimension layer that list is only the figures marked `always`.
+  const layerOn = showDimensions && renderMode === "install";
   const dimensions = useMemo(
-    () => dimensionsFor(selection, selectedSlot),
-    [selection, selectedSlot],
+    () => dimensionsFor(selection, selectedSlot).filter((d) => layerOn || d.always),
+    [selection, selectedSlot, layerOn],
   );
   const corners = useApplianceCorners(selection);
   const a = useMemo(() => new THREE.Vector3(), []);
@@ -52,7 +56,7 @@ export function DimensionProjector() {
   const frame = useRef(0);
 
   useFrame(() => {
-    if (!showDimensions || renderMode !== "install") {
+    if (dimensions.length === 0) {
       if (dimensionRects.length > 0) dimensionRects.length = 0;
       return;
     }
@@ -79,7 +83,12 @@ export function DimensionProjector() {
       const t = dimension.labelAt;
       box.x = box.x1 + (box.x2 - box.x1) * t;
       box.y = box.y1 + (box.y2 - box.y1) * t;
-      box.hidden = Math.hypot(box.x2 - box.x1, box.y2 - box.y1) < 14;
+      // A span too short to read as a line is dropped, so a chain does not
+      // fill up with ticks. Not one that is always drawn: three and a half
+      // inches is a small line and the whole reason the gap is there, and its
+      // figure has to be legible at any zoom.
+      box.hidden =
+        !dimension.always && Math.hypot(box.x2 - box.x1, box.y2 - box.y1) < 14;
       if (parts.label) {
         box.w = parts.label.offsetWidth;
         box.h = parts.label.offsetHeight;

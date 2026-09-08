@@ -41,6 +41,16 @@ export interface LayoutParams {
   cornerType: "lazy-susan" | "blind";
   /** Which leg of the L the refrigerator tower finishes. */
   fridgeEnd: "left" | "back";
+  /**
+   * What is at the far end of that leg, past the refrigerator.
+   *
+   * A refrigerator door opens through more than the machine's own width. Beside
+   * a standard 24" cabinet that costs nothing: the door sweeps past its front
+   * and the manufacturer asks for an eighth of an inch. Beside a return wall it
+   * costs three and a half inches, or the door will not open far enough to pull
+   * the drawers out. See docs/decisions.md D11 rule 11.
+   */
+  fridgeEndAbuts: "cabinet" | "wall";
   /** Which leg carries the sink, and therefore the dishwasher beside it. */
   sinkLeg: "left" | "back";
   hasIsland: boolean;
@@ -72,6 +82,7 @@ export const DEFAULT_PARAMS: LayoutParams = {
   leftWallIn: 144,
   cornerType: "lazy-susan",
   fridgeEnd: "left",
+  fridgeEndAbuts: "cabinet",
   sinkLeg: "back",
   hasIsland: true,
   islandLengthIn: 72,
@@ -246,7 +257,12 @@ type Item =
       id: string;
       widthIn: number;
       segmentKind: RunSegment["kind"];
-      module: CabinetModule;
+      /**
+       * The cabinets it is built from, in order along the run. Usually one; a
+       * refrigerator surround is a panel, the opening and whatever closes the
+       * far end, which is three.
+       */
+      modules: CabinetModule[];
       slot?: SlotId;
       fixture?: FixtureId;
     }
@@ -271,7 +287,10 @@ const fixed = (
   segmentKind: RunSegment["kind"],
   module: CabinetModule,
   extra: { slot?: SlotId; fixture?: FixtureId } = {},
-): Item => ({ kind: "fixed", id, widthIn, segmentKind, module, ...extra });
+): Item => ({ kind: "fixed", id, widthIn, segmentKind, modules: [module], ...extra });
+
+/** Eighths of an inch, which is how a cabinetmaker writes a part width. */
+const round8 = (value: number) => Math.round(value * 8) / 8;
 
 const gap = (
   id: string,
@@ -356,7 +375,7 @@ function packLeg(availableIn: number, items: Item[]): { widths: number[] } | { s
  * 66" segment that no supplier would quote. Splitting so the remainder is never
  * under 12" keeps both halves orderable.
  */
-function counterWidths(totalIn: number): number[] {
+function counterWidths(totalIn: number): { widths: number[]; scribeIn: number } {
   const { max, step } = CABINET_STANDARDS.widthIn;
   const count = Math.max(1, Math.ceil(totalIn / max));
   const each = Math.floor(totalIn / count / step) * step;
@@ -365,12 +384,14 @@ function counterWidths(totalIn: number): number[] {
   // 66" comes out 33 + 33 rather than 36 + 30. A run of matched cabinets is
   // what a kitchen looks like; a big one with an offcut beside it is not.
   let spare = totalIn - each * count;
-  for (let i = 0; spare >= step; i = (i + 1) % count) {
+  for (let i = 0; spare >= step - 1e-6; i = (i + 1) % count) {
     widths[i] += step;
     spare -= step;
   }
-  widths[0] += spare;
-  return widths;
+  // What is left is less than a module step, and it is a scribe rather than a
+  // wider box: adding half an inch to a 35" cabinet orders a 35-1/2" cabinet,
+  // which nobody stocks. A strip of finished panel is what actually goes there.
+  return { widths, scribeIn: spare > 1e-6 ? spare : 0 };
 }
 
 /** A base cabinet: drawers at the sizes a drawer base is actually made in. */
@@ -395,7 +416,7 @@ function layOut(runId: string, start: number, items: Item[], gapWidths: number[]
         kind: item.segmentKind,
         from: cursor,
         to,
-        modules: [item.module],
+        modules: item.modules,
         ...(item.slot ? { slot: item.slot } : {}),
         ...(item.fixture ? { fixture: item.fixture } : {}),
       });
@@ -405,14 +426,21 @@ function layOut(runId: string, start: number, items: Item[], gapWidths: number[]
 
     const total = gapWidths[g++];
     if (total <= 0) continue;
-    for (const [i, widthIn] of counterWidths(total).entries()) {
-      const to = cursor + ft(widthIn);
+    const counter = counterWidths(total);
+    for (const [i, widthIn] of counter.widths.entries()) {
+      // The scribe goes on the last box of the stretch, where the run meets
+      // whatever is next to it.
+      const last = i === counter.widths.length - 1;
+      const scribe = last ? counter.scribeIn : 0;
+      const to = cursor + ft(widthIn + scribe);
       segments.push({
         id: `${runId}-${item.id}-${i}`,
         kind: "counter",
         from: cursor,
         to,
-        modules: [baseModule(widthIn)],
+        modules: scribe
+          ? [baseModule(widthIn), M(`BF${round8(scribe)}`, "filler", scribe)]
+          : [baseModule(widthIn)],
       });
       cursor = to;
     }
@@ -443,7 +471,13 @@ function fillWidth(
   const stock = [36, 33, 30, 27, 24, 21, 18, 15, 12];
   const boxes: CabinetModule[] = [];
   const fillers: CabinetModule[] = [];
-  let left = Math.round(totalIn);
+  // Wall cabinets come off a list of 3" steps, so whatever the bank is not a
+  // multiple of three is a scribe — the fraction included. Taking it off first
+  // leaves the search below on the grid it assumes; leaving it in sent the
+  // search past the end of the bank an inch at a time.
+  const { step } = CABINET_STANDARDS.widthIn;
+  let left = Math.floor(totalIn / step + 1e-6) * step;
+  const scribeIn = totalIn - left;
   while (left > 0) {
     const next = stock.find((width) => {
       if (width > left) return false;
@@ -458,6 +492,18 @@ function fillWidth(
     }
     boxes.push(make(next));
     left -= next;
+  }
+  // The sub-inch remainder joins the filler, or becomes one if the boxes
+  // happened to divide the bank exactly.
+  if (scribeIn > 1e-6) {
+    if (fillers.length > 0) {
+      const last = fillers[fillers.length - 1];
+      const widthIn = round8(last.widthIn + scribeIn);
+      fillers[fillers.length - 1] = M(`BF${widthIn}`, "filler", widthIn);
+    } else {
+      const widthIn = round8(scribeIn);
+      fillers.push(M(`BF${widthIn}`, "filler", widthIn));
+    }
   }
   return fillerAt === "start" ? [...fillers, ...boxes] : [...boxes, ...fillers];
 }
@@ -733,23 +779,55 @@ function planLegs(params: LayoutParams, pkg: Package) {
   /**
    * The refrigerator, which finishes a leg either way.
    *
-   * Built in, it is a tower: two finished panels, the opening between them and
-   * a cabinet bridging over. Freestanding, it is the appliance and nothing
-   * else — no panels, no bridge — so it is the same segment carrying a
-   * different module, and the joinery falls away with the flag rather than
-   * with a branch in every file that draws a run.
+   * Built in, it is a tower: two finished panels that wrap its doors, the
+   * opening between them, and a cabinet bridging over from the head of that
+   * opening.
+   *
+   * Freestanding, it is still surrounded — but by a different set of parts.
+   * The panels are 24" deep, so the doors and their handles stand proud of them
+   * rather than being buried in them; there is a wall cabinet over the machine
+   * starting an inch above its top rather than a bridge over the opening; and
+   * what goes at the far end depends on what is there. Against cabinetry, a
+   * panel and the manufacturer's eighth of an inch. Against a return wall,
+   * three and a half inches of filler, or the door will not open ninety
+   * degrees. See docs/decisions.md D11 rule 11.
    */
   const fridge = spec["slot-fridge"];
-  const fridgeIn = openingIn(fridge);
-  const tower = fixed(
-    "fridge",
-    fridgeIn,
-    fridge.tallUnit ? "tall" : "appliance",
-    fridge.enclosure
-      ? M(`T${fridgeIn}96`, "tall", fridgeIn, { heightIn: 96, slot: "slot-fridge" })
-      : M(`RO${fridgeIn}`, "tall-open", fridgeIn, { heightIn: 96, slot: "slot-fridge" }),
-    { slot: "slot-fridge" },
-  );
+  const tower = fridge.enclosure
+    ? (() => {
+        const widthIn = openingIn(fridge);
+        return fixed(
+          "fridge",
+          widthIn,
+          fridge.tallUnit ? "tall" : "appliance",
+          M(`T${widthIn}96`, "tall", widthIn, { heightIn: 96, slot: "slot-fridge" }),
+          { slot: "slot-fridge" },
+        );
+      })()
+    : (() => {
+        const rule = LAYOUT_LIMITS.fridge;
+        // The opening is the package's own: a 36" opening round a 35-5/8"
+        // machine is already three sixteenths a side, which clears the
+        // manufacturer's eighth. Adding the eighth on top would be counting
+        // the same gap twice and asking the wall for it.
+        const openIn = fridge.widthIn;
+        const outerIn = params.fridgeEndAbuts === "wall" ? rule.fromWallIn : PANEL_IN;
+        const widthIn = PANEL_IN + openIn + outerIn;
+        return {
+          kind: "fixed" as const,
+          id: "fridge",
+          widthIn,
+          segmentKind: (fridge.tallUnit ? "tall" : "appliance") as RunSegment["kind"],
+          slot: "slot-fridge" as SlotId,
+          modules: [
+            M(`PNL${PANEL_IN}`, "panel", PANEL_IN, { slot: "slot-fridge" }),
+            M(`RO${round8(openIn)}`, "tall-open", openIn, { slot: "slot-fridge" }),
+            params.fridgeEndAbuts === "wall"
+              ? M(`BF${round8(outerIn)}`, "filler", outerIn, { slot: "slot-fridge" })
+              : M(`PNL${outerIn}`, "panel", outerIn, { slot: "slot-fridge" }),
+          ],
+        };
+      })();
 
   /**
    * The sink group, laid out to D11 rule 10.
@@ -855,7 +933,10 @@ export function wallRequirement(
     if (item.kind === "fixed") {
       items.push({
         widthIn: item.widthIn,
-        code: item.module.code,
+        // The cabinet it is, or the pieces it is made of: a refrigerator
+        // surround is a panel, an opening and whatever closes the far end, and
+        // the bill under a refusal should say so rather than name one of them.
+        code: item.modules.map((module) => module.code).join(" + "),
         labelKey: `requirement.${item.id}`,
       });
     } else if (!item.optional) {
@@ -932,7 +1013,10 @@ function bankFor(
   /** Which end of this bank the scribe goes. Away from the hood, always. */
   fillerAt: "start" | "end" = "end",
 ): UpperBank {
-  const totalIn = Math.round((to - from) * 12);
+  // Not rounded: a bank over a leg carrying a half-inch clearance is half an
+  // inch shorter than a whole number of inches, and rounding it up made the
+  // cabinets longer than the wall they are on.
+  const totalIn = (to - from) * 12;
   const rest = corner ? totalIn - corner.upper.alongIn : totalIn;
   return {
     id,

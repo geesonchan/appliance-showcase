@@ -314,6 +314,16 @@ export const packageSlotSchema = z.object({
   category: categorySchema,
   /** The appliance's own width. What the opening becomes is `enclosure`'s job. */
   widthIn: inches,
+  /**
+   * The opening's height, where the package sets one.
+   *
+   * The joiner builds a hole, not a hole per model: an 84" column opening takes
+   * any 84" column, and a 73" freestanding opening takes any refrigerator up to
+   * 72". So this is the cabinetry's figure rather than the appliance's, and the
+   * surround above a freestanding machine is set out from it. Null leaves the
+   * slot's own published opening alone.
+   */
+  heightIn: inches.nullable().default(null),
   installType: z.string().min(1),
   /** Full height, so it finishes a run rather than sitting under a counter. */
   tallUnit: z.boolean().default(false),

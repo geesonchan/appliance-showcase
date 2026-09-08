@@ -6,6 +6,7 @@ import { resolveRoughIn, roughInSentence } from "./roughIn";
 import { useSelection, useSelectedBlower } from "../store/useSelection";
 import { applianceBox } from "./applianceBox";
 import { CHIMNEY, chimneyParts, isChimney } from "./hood";
+import { LAYOUT_LIMITS, RUNS } from "./room";
 import type { Appliance, SlotId } from "../types";
 
 export interface Checklist {
@@ -71,6 +72,11 @@ export function useChecklist(): Checklist {
  * has to order.
  */
 function installParts(selection: Record<SlotId, Appliance>): Finding[] {
+  return [...fridgeDoorClearance(), ...chimneyExtension(selection)];
+}
+
+/** The extension a room taller than the chimney's own travel needs. */
+function chimneyExtension(selection: Record<SlotId, Appliance>): Finding[] {
   const hood = selection["slot-hood"];
   if (!hood || !isChimney(hood)) return [];
 
@@ -89,6 +95,34 @@ function installParts(selection: Record<SlotId, Appliance>): Finding[] {
         model: CHIMNEY.extension,
         overIn: Math.round(chimney.shortIn * 10) / 10,
         riseIn: Math.round(chimney.rise * 120) / 10,
+      },
+    },
+  ];
+}
+
+/**
+ * The gap a freestanding refrigerator's door needs against a return wall.
+ *
+ * Not a rule anybody can fail — the generator already left the space — but a
+ * line the installer has to read, because three and a half inches of empty
+ * wall looks like a mistake until somebody says what it is for. The 90-degree
+ * stop is the manufacturer's answer to the same problem, and is offered rather
+ * than specified. See docs/decisions.md D11 rule 11.
+ */
+function fridgeDoorClearance(): Finding[] {
+  const segment = RUNS.flatMap((run) => run.segments).find((s) => s.slot === "slot-fridge");
+  const filler = segment?.modules.find((module) => module.kind === "filler");
+  if (!filler) return [];
+
+  return [
+    {
+      ruleId: "fridge-door-clearance",
+      severity: "info",
+      messageKey: "rule.fridgeDoorClearance",
+      slot: "slot-fridge",
+      params: {
+        gapIn: filler.widthIn,
+        doorStop: LAYOUT_LIMITS.fridge.doorStop,
       },
     },
   ];
