@@ -170,6 +170,7 @@
   "layout.refused": "That layout cannot be built:",
   "layout.showing": "Still showing: {island}\" island, refrigerator on the {fridge} leg.",
   "roughIn.callout": "{type}: {where}, {at}",
+  "rule.chimneyExtension": "Chimney extension {model} — the duct cover reaches {riseIn}\" here, {overIn}\" past what it covers on its own",
   "rule.roughIn": "{type} — {where}, {at}",
   "debug.genericRoughIn": "generic rough-in",
   "rule.dishwasherServices": "Power, water and drain all land in the sink base — which is why the dishwasher goes beside it",

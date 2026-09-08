@@ -490,6 +490,7 @@ export const PUBLISHED_SPECS: Record<
     depthWithDoorsIn?: number;
     depthWithHandleIn?: number;
     rearSpacerIn?: number;
+    frontLipIn?: number;
     doorConfig?: DoorConfig;
     doorSplit?: DoorSplit;
   }
@@ -510,7 +511,7 @@ export const PUBLISHED_SPECS: Record<
   },
   // Thermador HMCB30WS. The canopy only; the chimney above it is sized to the
   // room, from the canopy's top to the ceiling.
-  HMCB30WS: { widthIn: 29.9375, heightIn: 8.5625, depthIn: 23.1875 },
+  HMCB30WS: { widthIn: 29.9375, heightIn: 8.5625, depthIn: 23.1875, frontLipIn: 5 },
   // Thermador T36FT820NS. A 24" body held 1" off the wall by its own spacers,
   // with the doors and then the handles standing in front of it.
   T36FT820NS: {

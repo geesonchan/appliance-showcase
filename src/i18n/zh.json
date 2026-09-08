@@ -171,6 +171,7 @@
   "layout.refused": "这个布局生成不了：",
   "layout.showing": "仍在显示：{island}\" 岛台，冰箱在{fridge}段。",
   "roughIn.callout": "{type}：{where}，{at}",
+  "rule.chimneyExtension": "烟囱延长件 {model} —— 此处需 {riseIn}\"，超出标准伸缩范围 {overIn}\"",
   "rule.roughIn": "{type} — {where}，{at}",
   "debug.genericRoughIn": "通用管线位置",
   "rule.dishwasherServices": "电、水、排水三条都落在水槽柜里——这就是洗碗机必须紧邻水槽的原因",

@@ -4,6 +4,9 @@ import { SLOT_BY_ID } from "./slots";
 import { evaluateSlot, packageContext, type Finding } from "./rules";
 import { resolveRoughIn, roughInSentence } from "./roughIn";
 import { useSelection, useSelectedBlower } from "../store/useSelection";
+import { applianceBox } from "./applianceBox";
+import { CHIMNEY, chimneyParts, isChimney } from "./hood";
+import type { Appliance, SlotId } from "../types";
 
 export interface Checklist {
   findings: Finding[];
@@ -46,6 +49,10 @@ export function useChecklist(): Checklist {
       // Package-wide findings are attributed to the hood, which is what they
       // are actually about.
       ...evaluateSlot(SLOT_BY_ID["slot-hood"], selection["slot-hood"], context, "package"),
+      // Parts the room needs that no rule decides: a chimney that will not
+      // reach this ceiling on its own takes an extension, and the number is
+      // the room's rather than the model's.
+      ...installParts(selection),
     ];
     return {
       findings,
@@ -53,4 +60,36 @@ export function useChecklist(): Checklist {
       warnings: findings.filter((f) => f.severity === "warning").length,
     };
   }, [selection, blower]);
+}
+
+/**
+ * Accessories this room needs, as against this package.
+ *
+ * A chimney hood's duct cover covers a range of ceiling heights and no more.
+ * A taller room needs the manufacturer's extension, and the install list is
+ * where that belongs: it is not a rule anybody can fail, it is a part somebody
+ * has to order.
+ */
+function installParts(selection: Record<SlotId, Appliance>): Finding[] {
+  const hood = selection["slot-hood"];
+  if (!hood || !isChimney(hood)) return [];
+
+  const slot = SLOT_BY_ID["slot-hood"];
+  const canopyTop = slot.position[1] + applianceBox(slot, hood).h;
+  const chimney = chimneyParts(canopyTop);
+  if (!chimney.needsExtension) return [];
+
+  return [
+    {
+      ruleId: "chimney-extension",
+      severity: "info",
+      messageKey: "rule.chimneyExtension",
+      slot: "slot-hood",
+      params: {
+        model: CHIMNEY.extension,
+        overIn: Math.round(chimney.shortIn * 10) / 10,
+        riseIn: Math.round(chimney.rise * 120) / 10,
+      },
+    },
+  ];
 }

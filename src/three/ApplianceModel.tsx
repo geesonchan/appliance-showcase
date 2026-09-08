@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import type { ThreeEvent } from "@react-three/fiber";
 import { applianceBox, flushOffset } from "../data/applianceBox";
-import { hoodProfile, hoodTopDepthIn } from "../data/hood";
+import { CHIMNEY, chimneyParts, hoodProfile, hoodTopDepthIn } from "../data/hood";
 import { FRIDGE_PROPORTIONS, fridgeParts } from "../data/fridgeModel";
 import {
   FREESTANDING_PROPORTIONS,
@@ -289,6 +289,7 @@ function Body({
       return (
         <Hood
           installType={installType}
+          frontLipIn={appliance.frontLipIn}
           baseY={baseY}
           topDepthIn={topDepthIn}
           w={w}
@@ -839,6 +840,7 @@ function IslandTrim({
 function Hood({
   installType,
   topDepthIn,
+  frontLipIn,
   baseY,
   w,
   h,
@@ -848,6 +850,7 @@ function Hood({
 }: {
   installType: string[];
   topDepthIn: number;
+  frontLipIn: number | null;
   baseY: number;
   w: number;
   h: number;
@@ -860,8 +863,8 @@ function Hood({
   );
 
   const canopy = useMemo(
-    () => wedgeGeometry(w, h, d, topDepthIn),
-    [w, h, d, topDepthIn],
+    () => wedgeGeometry(w, h, d, topDepthIn, frontLipIn ?? undefined),
+    [w, h, d, topDepthIn, frontLipIn],
   );
 
   if (kind === "insert") {
@@ -913,14 +916,51 @@ function Hood({
     // from where the canopy actually is, which moves with the range under it.
     // Assuming a 30" clearance over a 36" counter put it three quarters of an
     // inch through the ceiling on a range whose cooking surface is higher.
-    const riser = Math.max(0, ROOM.wallHeight - baseY - h);
+    //
+    // Two telescoping sections with a half-inch step where they meet, the
+    // lower sliding over the upper, and a grille across the top of each side:
+    // that is the part, and drawing it as one tapered box was drawing a
+    // chimney nobody sells.
+    const chimney = chimneyParts(baseY + h);
+    // Against the wall, like the canopy under it: a duct cover centred on the
+    // canopy's flat top stands half a foot out into the room for no reason.
+    const backOf = (depth: number) => -d / 2 + depth / 2;
+    const section = (
+      name: string,
+      from: number,
+      size: { h: number; w: number; d: number },
+      vents: boolean,
+    ) => (
+      <group key={name} name={name} position={[0, h + from + size.h / 2, backOf(size.d)]}>
+        <mesh castShadow>
+          <boxGeometry args={[size.w, size.h, size.d]} />
+          <Mat s={body} />
+        </mesh>
+        {vents &&
+          [-1, 1].map((side) => (
+            <mesh
+              key={side}
+              position={[
+                (side * size.w) / 2,
+                size.h / 2 - ft(CHIMNEY.vent.fromTopIn + CHIMNEY.vent.heightIn / 2),
+                0,
+              ]}
+            >
+              <boxGeometry args={[ft(0.2), ft(CHIMNEY.vent.heightIn), size.d * 0.7]} />
+              <Mat s={glass} />
+            </mesh>
+          ))}
+      </group>
+    );
     return (
       <group>
         {body_}
-        <mesh position={[0, h + riser / 2, -d / 2 + topDepthFt(topDepthIn, d) / 2]} castShadow>
-          <boxGeometry args={[w * 0.36, riser, topDepthFt(topDepthIn, d) * 0.8]} />
-          <Mat s={body} />
-        </mesh>
+        {chimney.rise > 0 && (
+          <group name="hood-chimney">
+            {section("chimney-lower", 0, chimney.lower, false)}
+            {section("chimney-upper", chimney.lower.h, chimney.upper, true)}
+          </group>
+        )}
       </group>
     );
   }
@@ -930,7 +970,6 @@ function Hood({
   return <group>{body_}</group>;
 }
 
-const topDepthFt = (topDepthIn: number, d: number) => Math.min(ft(topDepthIn), d);
 
 /**
  * The canopy as a solid: the section extruded across the width.
@@ -939,9 +978,15 @@ const topDepthFt = (topDepthIn: number, d: number) => Math.min(ft(topDepthIn), d
  * the extrusion comes out lying on its side and has to be turned a quarter turn
  * to face the room.
  */
-function wedgeGeometry(w: number, h: number, d: number, topDepthIn: number): THREE.BufferGeometry {
+function wedgeGeometry(
+  w: number,
+  h: number,
+  d: number,
+  topDepthIn: number,
+  frontLipIn?: number,
+): THREE.BufferGeometry {
   const shape = new THREE.Shape();
-  const profile = hoodProfile(d * 12, topDepthIn, h * 12);
+  const profile = hoodProfile(d * 12, topDepthIn, h * 12, frontLipIn);
   shape.moveTo(ft(profile[0][0]), ft(profile[0][1]));
   for (const [x, y] of profile.slice(1)) shape.lineTo(ft(x), ft(y));
   shape.closePath();

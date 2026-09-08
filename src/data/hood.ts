@@ -1,4 +1,4 @@
-import { CABINET_STANDARDS, RUNS, ft } from "./room";
+import { CABINET_STANDARDS, ROOM, RUNS, ft } from "./room";
 import { SLOT_BY_ID } from "./slots";
 import type { Appliance, Slot } from "../types";
 
@@ -27,9 +27,15 @@ export const HOOD_PROFILE = {
  * (y = 0) upward, so it can be extruded along the run without any further
  * arithmetic.
  */
-export function hoodProfile(depthIn: number, topDepthIn: number, heightIn: number) {
+export function hoodProfile(
+  depthIn: number,
+  topDepthIn: number,
+  heightIn: number,
+  /** The model's own front face, where it publishes one. */
+  frontLipIn = HOOD_PROFILE.frontLipIn,
+) {
   const top = Math.min(Math.max(topDepthIn, 1), depthIn);
-  const lip = Math.min(HOOD_PROFILE.frontLipIn, heightIn);
+  const lip = Math.min(frontLipIn, heightIn);
   return [
     [0, 0],
     [depthIn, 0],
@@ -38,6 +44,74 @@ export function hoodProfile(depthIn: number, topDepthIn: number, heightIn: numbe
     [0, heightIn],
   ] as [number, number][];
 }
+
+/**
+ * The telescopic duct cover above a chimney hood.
+ *
+ * Not decoration and not a cabinet: it is the part that carries the duct from
+ * the canopy to the ceiling, and it is sized to the room rather than to the
+ * hood. Two sections, the lower sliding over the upper with a half-inch step
+ * where they meet, and it always finishes at the ceiling — that is what makes a
+ * chimney hood a chimney hood, and it is why nothing is built above one.
+ *
+ * The assembly has its own travel. Past the top of it the manufacturer sells an
+ * extension, and a room that needs one has to say so on the install list rather
+ * than draw a chimney that does not exist. Figures from Leo's round-17 note
+ * against HMCB30WS.
+ */
+export const CHIMNEY = {
+  widthIn: 13.1875,
+  depthIn: 10.75,
+  /** How much wider and deeper the lower section is, all round. */
+  stepIn: 0.5,
+  /** What the assembly covers on its own, canopy top to ceiling. */
+  minIn: 30,
+  maxIn: 42,
+  /** The extension a taller room needs. */
+  extension: "CHXTHMCB",
+  /** The grille across the top of each side. */
+  vent: { heightIn: 3, fromTopIn: 1.5 },
+};
+
+export interface ChimneyParts {
+  /** Canopy top to ceiling, in feet. The two sections tile it exactly. */
+  rise: number;
+  /** Bottom of each section above the canopy top, in feet. */
+  lower: { h: number; w: number; d: number };
+  upper: { h: number; w: number; d: number };
+  /** True when the room is taller than the assembly covers on its own. */
+  needsExtension: boolean;
+  /** How much taller, in inches. Zero when it fits. */
+  shortIn: number;
+}
+
+/**
+ * The chimney for a canopy whose top is at `canopyTop` feet above the floor.
+ *
+ * Measured, not assumed. The canopy hangs its clearance above the cooking
+ * surface the wall was drilled for, so where its top lands moves with the range
+ * — and the chimney is whatever is left between there and the ceiling.
+ */
+export function chimneyParts(canopyTop: number, ceiling = ROOM.wallHeight): ChimneyParts {
+  const rise = Math.max(0, ceiling - canopyTop);
+  const step = ft(CHIMNEY.stepIn);
+  const w = ft(CHIMNEY.widthIn);
+  const d = ft(CHIMNEY.depthIn);
+  const half = rise / 2;
+  const overIn = rise * 12 - CHIMNEY.maxIn;
+  return {
+    rise,
+    // The lower section slides over the upper, so it is the wider of the two.
+    lower: { h: half, w, d },
+    upper: { h: rise - half, w: w - step, d: d - step },
+    needsExtension: overIn > 1e-6,
+    shortIn: overIn > 1e-6 ? overIn : 0,
+  };
+}
+
+/** True when this model hangs its own duct cover rather than living under a box. */
+export const isChimney = (appliance: Appliance | undefined) =>
+  !!appliance?.installType.some((type) => type === "chimney" || type === "wall-mount");
 
 /** How deep the flat top is, in inches. */
 export const hoodTopDepthIn = (appliance: Appliance | undefined, depthIn: number) =>

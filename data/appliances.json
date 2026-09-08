@@ -51,7 +51,8 @@
       "backguardIn": null,
       "depthWithDoorsIn": null,
       "depthWithHandleIn": null,
-      "rearSpacerIn": null
+      "rearSpacerIn": null,
+      "frontLipIn": null
     },
     {
       "id": "bosch-shv78cm3n",
@@ -99,7 +100,8 @@
       "backguardIn": null,
       "depthWithDoorsIn": null,
       "depthWithHandleIn": null,
-      "rearSpacerIn": null
+      "rearSpacerIn": null,
+      "frontLipIn": null
     },
     {
       "id": "bosch-shx78cm5n",
@@ -149,7 +151,8 @@
       "backguardIn": null,
       "depthWithDoorsIn": null,
       "depthWithHandleIn": null,
-      "rearSpacerIn": null
+      "rearSpacerIn": null,
+      "frontLipIn": null
     },
     {
       "id": "ge-jvm3160rfss",
@@ -197,7 +200,8 @@
       "backguardIn": null,
       "depthWithDoorsIn": null,
       "depthWithHandleIn": null,
-      "rearSpacerIn": null
+      "rearSpacerIn": null,
+      "frontLipIn": null
     },
     {
       "id": "maytag-mfes4030rs",
@@ -247,7 +251,8 @@
       "backguardIn": 11.875,
       "depthWithDoorsIn": null,
       "depthWithHandleIn": null,
-      "rearSpacerIn": null
+      "rearSpacerIn": null,
+      "frontLipIn": null
     },
     {
       "id": "thermador-hmcb30ws",
@@ -296,7 +301,8 @@
       "backguardIn": null,
       "depthWithDoorsIn": null,
       "depthWithHandleIn": null,
-      "rearSpacerIn": null
+      "rearSpacerIn": null,
+      "frontLipIn": 5
     },
     {
       "id": "thermador-hmwb361ws",
@@ -344,7 +350,8 @@
       "backguardIn": null,
       "depthWithDoorsIn": null,
       "depthWithHandleIn": null,
-      "rearSpacerIn": null
+      "rearSpacerIn": null,
+      "frontLipIn": null
     },
     {
       "id": "thermador-md24bs",
@@ -392,7 +399,8 @@
       "backguardIn": null,
       "depthWithDoorsIn": null,
       "depthWithHandleIn": null,
-      "rearSpacerIn": null
+      "rearSpacerIn": null,
+      "frontLipIn": null
     },
     {
       "id": "thermador-ph36hws",
@@ -447,7 +455,8 @@
       "backguardIn": null,
       "depthWithDoorsIn": null,
       "depthWithHandleIn": null,
-      "rearSpacerIn": null
+      "rearSpacerIn": null,
+      "frontLipIn": null
     },
     {
       "id": "thermador-prg304wh",
@@ -495,7 +504,8 @@
       "backguardIn": null,
       "depthWithDoorsIn": null,
       "depthWithHandleIn": null,
-      "rearSpacerIn": null
+      "rearSpacerIn": null,
+      "frontLipIn": null
     },
     {
       "id": "thermador-prg366wh",
@@ -543,7 +553,8 @@
       "backguardIn": null,
       "depthWithDoorsIn": null,
       "depthWithHandleIn": null,
-      "rearSpacerIn": null
+      "rearSpacerIn": null,
+      "frontLipIn": null
     },
     {
       "id": "thermador-t36bt120ns",
@@ -596,7 +607,8 @@
       "backguardIn": null,
       "depthWithDoorsIn": null,
       "depthWithHandleIn": null,
-      "rearSpacerIn": null
+      "rearSpacerIn": null,
+      "frontLipIn": null
     },
     {
       "id": "thermador-t36ft820ns",
@@ -646,7 +658,8 @@
       "backguardIn": null,
       "depthWithDoorsIn": 28.75,
       "depthWithHandleIn": 31.4375,
-      "rearSpacerIn": 1
+      "rearSpacerIn": 1,
+      "frontLipIn": null
     },
     {
       "id": "thermador-t36it100np",
@@ -701,7 +714,8 @@
       "backguardIn": null,
       "depthWithDoorsIn": null,
       "depthWithHandleIn": null,
-      "rearSpacerIn": null
+      "rearSpacerIn": null,
+      "frontLipIn": null
     },
     {
       "id": "thermador-vti2fz",
@@ -751,7 +765,8 @@
       "backguardIn": null,
       "depthWithDoorsIn": null,
       "depthWithHandleIn": null,
-      "rearSpacerIn": null
+      "rearSpacerIn": null,
+      "frontLipIn": null
     },
     {
       "id": "thermador-vtn2fz",
@@ -801,7 +816,8 @@
       "backguardIn": null,
       "depthWithDoorsIn": null,
       "depthWithHandleIn": null,
-      "rearSpacerIn": null
+      "rearSpacerIn": null,
+      "frontLipIn": null
     },
     {
       "id": "thermador-vtr2fz",
@@ -851,7 +867,8 @@
       "backguardIn": null,
       "depthWithDoorsIn": null,
       "depthWithHandleIn": null,
-      "rearSpacerIn": null
+      "rearSpacerIn": null,
+      "frontLipIn": null
     },
     {
       "id": "zephyr-ak7136as-bf",
@@ -899,7 +916,8 @@
       "backguardIn": null,
       "depthWithDoorsIn": null,
       "depthWithHandleIn": null,
-      "rearSpacerIn": null
+      "rearSpacerIn": null,
+      "frontLipIn": null
     },
     {
       "id": "zephyr-prw24c01cg",
@@ -947,7 +965,8 @@
       "backguardIn": null,
       "depthWithDoorsIn": null,
       "depthWithHandleIn": null,
-      "rearSpacerIn": null
+      "rearSpacerIn": null,
+      "frontLipIn": null
     }
   ]
 }

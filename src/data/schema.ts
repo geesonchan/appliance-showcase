@@ -100,6 +100,11 @@ export const applianceSchema = z.object({
    */
   topDepthIn: inches.nullable().default(null),
   /**
+   * Hoods only: the vertical face at the front of the canopy, before the slope
+   * starts. Null falls back to the figure on the clearance drawing.
+   */
+  frontLipIn: inches.nullable().default(null),
+  /**
    * Ranges and cooktops: how many burners the machine has. What is on the
    * front of a range is not decoration — a customer counts the knobs — so the
    * number comes from the manufacturer's drawing rather than from the width.
