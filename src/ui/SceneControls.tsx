@@ -13,10 +13,15 @@ export function ModeSwitch() {
   const setRenderMode = useAppStore((s) => s.setRenderMode);
 
   return (
-    <div className="pointer-events-auto absolute left-1/2 top-4 z-10 -translate-x-1/2">
+    // `w-max`, because `left-1/2` alone leaves the box half the screen to lay
+    // itself out in: on a phone that was 195px, and the third mode dropped
+    // onto a second line inside a control that is meant to read as one.
+    <div className="pointer-events-auto absolute left-1/2 top-4 z-10 w-max -translate-x-1/2">
       <Segmented<RenderMode>
         value={renderMode}
         onChange={setRenderMode}
+        wrap={false}
+        name="mode"
         options={[
           { value: "realistic", label: t("mode.realistic") },
           { value: "white", label: t("mode.white") },

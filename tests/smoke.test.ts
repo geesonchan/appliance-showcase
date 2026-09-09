@@ -356,6 +356,39 @@ describe("mobile", () => {
         Math.round((el.getBoundingClientRect().height / window.innerHeight) * 100),
       );
 
+  /**
+   * The three render modes stay on one line.
+   *
+   * The control is one control: Materials, White model and Install are three
+   * ways of looking at the same room, and the third dropping onto a second
+   * line reads as something broken rather than as a layout. It happened
+   * because the box is centred with `left-1/2`, which leaves it half the
+   * screen — 195px on a phone — to lay three words out in.
+   */
+  it("keeps the three render modes on one line", async () => {
+    const { page } = await openPage(MOBILE, true);
+    const control = page.locator('[data-segment="mode"]');
+    const buttons = control.locator("button");
+    expect(await buttons.count()).toBe(3);
+
+    const box = await control.boundingBox();
+    const rows = await buttons.evaluateAll((all) =>
+      all.map((el) => Math.round(el.getBoundingClientRect().top)),
+    );
+    const heights = await buttons.evaluateAll((all) =>
+      all.map((el) => el.getBoundingClientRect().height),
+    );
+
+    // One row: every option starts at the same height, and the box is one
+    // option tall plus its own padding.
+    expect(new Set(rows).size, `modes on ${new Set(rows).size} lines`).toBe(1);
+    expect(box!.height).toBeLessThanOrEqual(Math.max(...heights) + 8);
+    // And it fits the phone it is centred on.
+    expect(box!.width).toBeLessThanOrEqual(MOBILE.width);
+
+    await page.close();
+  });
+
   it("opens the sheet at half height and keeps it open while you work", async () => {
     const { page, errors } = await openPage(MOBILE, true);
     await page.getByRole("button", { name: "Appliances" }).click();

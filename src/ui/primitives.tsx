@@ -155,23 +155,40 @@ export function Segmented<T extends string>({
   value,
   onChange,
   size = "md",
+  wrap = true,
   name,
 }: {
   options: SegmentOption<T>[];
   value: T;
   onChange: (next: T) => void;
   size?: "sm" | "md";
+  /**
+   * Whether the options may fall onto a second line.
+   *
+   * They may in a panel, where a four-option control does not fit 240px at any
+   * font size worth reading. They may not where the control is the thing
+   * itself rather than an answer to a labelled question — the three render
+   * modes floating over the scene are one control, and one of them dropping
+   * underneath the other two reads as a mistake. A control that may not wrap
+   * takes the tighter padding on a phone, which is what keeps it on one line.
+   */
+  wrap?: boolean;
   /** Names the control in the DOM, so a test can reach it without its label. */
   name?: string;
 }) {
-  const pad = size === "sm" ? "px-3 py-1 text-[11px]" : "px-4 py-1.5 text-[12px]";
+  const pad =
+    size === "sm"
+      ? "px-3 py-1 text-[11px]"
+      : wrap
+        ? "px-4 py-1.5 text-[12px]"
+        : "px-2.5 py-1 text-[11px] sm:px-4 sm:py-1.5 sm:text-[12px]";
   return (
-    // Wraps rather than overflowing. A four-option control does not fit a
-    // 240px panel at any font size worth reading, and a panel that scrolls
-    // sideways is a panel whose right-hand options nobody finds.
     <div
       data-segment={name}
-      className="flex flex-wrap gap-y-[3px] rounded-2xl border border-line bg-surface p-[3px]"
+      className={[
+        "flex rounded-2xl border border-line bg-surface p-[3px]",
+        wrap ? "flex-wrap gap-y-[3px]" : "w-max flex-nowrap",
+      ].join(" ")}
     >
       {options.map((option) => {
         const active = option.value === value;
