@@ -446,6 +446,24 @@ export const packageSchema = z
      */
     defaultSelection: z.partialRecord(slotIdSchema, z.string().min(1)),
     defaultBlower: z.string().min(1).nullable().default(null),
+    /**
+     * How this package's kitchen is arranged, where that is the package's
+     * decision rather than the room's.
+     *
+     * Most of the layout is the customer's: which wall is longer, whether
+     * there is an island. Which leg carries the sink is usually theirs too —
+     * but not in a package whose cooking wall also carries an oven tower.
+     * There the sink has to go on the other leg, or the leg that carries the
+     * cooking surface, the tower and the sink has no room left for the
+     * landings each side of the burners. So a package may say where it starts,
+     * and choosing it moves those.
+     */
+    defaultLayout: z
+      .object({
+        sinkLeg: z.enum(["left", "back"]).optional(),
+        fridgeEnd: z.enum(["left", "back"]).optional(),
+      })
+      .default({}),
   })
   .refine((p) => !p.available || p.slots.length === 6, {
     message: "an available package has to fill all six slots",

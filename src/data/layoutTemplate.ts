@@ -101,8 +101,10 @@ export interface LayoutParams {
  * what it cannot do, with the arithmetic underneath, teaches the constraint.
  */
 export const PARAM_LIMITS = {
-  backWallIn: { min: 96, max: 192, step: 6 },
-  leftWallIn: { min: 96, max: 192, step: 6 },
+  // Two hundred and four: a 180" run plus the corner cabinet's own depth at
+  // the end of it, which is the longest wall the leg rule allows.
+  backWallIn: { min: 96, max: 204, step: 6 },
+  leftWallIn: { min: 96, max: 204, step: 6 },
   islandLengthIn: { min: 48, max: 96, step: 6 },
   islandDepthIn: { min: 24, max: 42, step: 6 },
   aisleIn: { min: 42, max: 60, step: 3 },
@@ -221,7 +223,17 @@ export interface WallRequirement {
   items: RequirementItem[];
   /** Including whatever the corner takes out of this leg's wall. */
   minimumIn: number;
-  /** D13 caps a leg at 144"; past that it is two runs, not one. */
+  /**
+   * The wall this leg would be built to if nothing were tight.
+   *
+   * The minimum plus what its stretches ask for over it: eighteen inches of
+   * landing each side of a cooking surface rather than the six a rule will
+   * accept. It is not a constraint — a shorter wall builds, and says what it
+   * gave up — it is the wall a package is put into when the package is chosen
+   * and the room has to be sized for it.
+   */
+  wantedIn: number;
+  /** D13 caps a leg at 180"; past that it is two runs, not one. */
   maximumIn: number;
 }
 
@@ -543,17 +555,24 @@ export function packLeg(
   //
   // A minimum is what a rule forbids going under, and sharing the surplus
   // evenly over stretches that are all at their minimum treats them as equally
-  // deserving. They are not: the counter beside a cooking surface is where the
-  // pan lands, and it is built at what it asks for while there is wall to pay
-  // for it. What is left after that goes round the rest as before, so a long
-  // wall still spreads.
-  for (const i of order) {
-    const want = gaps[i].wantIn;
-    if (want === undefined) continue;
-    while (spare >= 3 && widths[i] + 3 <= want) {
-      widths[i] += 3;
-      spare -= 3;
-    }
+  // deserving. They are not: the counter each side of a cooking surface is
+  // where the pan lands, and it is built at what it asks for while there is
+  // wall to pay for it. What is left after that goes round the rest as before,
+  // so a long wall still spreads.
+  //
+  // Three inches at a time to whichever is furthest from what it asked for, so
+  // that a wall which cannot pay for both leaves them level rather than
+  // finishing one and starving the other. The landings either side of a range
+  // are a pair, and they come down as a pair.
+  const wanting = order.filter((i) => gaps[i].wantIn !== undefined);
+  while (spare >= 3) {
+    const short = (i: number) => gaps[i].wantIn! - widths[i];
+    const next = wanting
+      .filter((i) => short(i) >= 3)
+      .sort((a, b) => short(b) - short(a))[0];
+    if (next === undefined) break;
+    widths[next] += 3;
+    spare -= 3;
   }
 
   // A stretch that has taken all it may is done: the rest goes to the others.
@@ -1333,7 +1352,16 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
       wantIn,
       maxIn: wantIn,
     });
-    const away = gap("range-landing", landing.wideIn, "d11-4", { shrink: "range-to-sink" });
+    // The other side of the burners, which asks for the same eighteen inches:
+    // a landing is a landing whichever side of the machine it is on, and a
+    // cooking surface with a pan's worth of counter on one side and a foot on
+    // the other is the arrangement rule 4's two figures were meant to avoid,
+    // not the one it wants. No ceiling on it, though — it is the general
+    // landing, and a long wall may as well spend itself here.
+    const away = gap("range-landing", landing.wideIn, "d11-4", {
+      shrink: "range-to-sink",
+      wantIn,
+    });
     return params.towerSide === "left"
       ? [...beside, side, clearance, cooking(), away]
       : [away, cooking(), clearance, side, ...beside];
@@ -1478,7 +1506,21 @@ function requirementFor(
     }
   }
 
-  return { leg, items, minimumIn, maximumIn: CABINET_STANDARDS.legIn.longMax + across };
+  // What the stretches on this leg ask for over their minimums, which is what
+  // the room grows by when a package is chosen rather than dragged into.
+  const maximumIn = CABINET_STANDARDS.legIn.longMax + across;
+  const wanted = plan.items.reduce(
+    (sum, item) =>
+      sum + (item.kind === "gap" ? Math.max(0, (item.wantIn ?? 0) - item.minIn) : 0),
+    0,
+  );
+  return {
+    leg,
+    items,
+    minimumIn,
+    wantedIn: Math.min(maximumIn, minimumIn + wanted),
+    maximumIn,
+  };
 }
 
 /**
@@ -1921,6 +1963,7 @@ export function generateLayout(
       paramKey: `param.${key}`,
       wallIn: params[key],
       minimumIn: requirement.minimumIn,
+      wantedIn: requirement.wantedIn,
       maximumIn: requirement.maximumIn,
     };
     if (params[key] < requirement.minimumIn) {

@@ -1150,53 +1150,68 @@ describe("a bank of tall units", () => {
   });
 
   /**
-   * Where the wall's spare inches go.
+   * A package may say how its kitchen is arranged.
    *
-   * Into the counter between the cooking surface and the oven tower, before
-   * anywhere else: eighteen inches is what that stretch is built at, because
-   * it is the landing a pan comes off the burner onto and because five inches
-   * of gap makes the tower crowd the cooking. A wall that will not pay for
-   * eighteen builds it narrower, three inches at a time, and never under six.
-   *
-   * The room package B lands in is its own minimum, and on that wall the back
-   * leg is already at D13's cap — so what this asserts on the default room is
-   * the shrink, and what it asserts on a longer wall is where the extra goes.
-   * The arithmetic itself is `layoutTemplate.test.ts`, against a leg made up
-   * for the purpose.
+   * Which leg carries the sink is usually the customer's decision, and it
+   * stays theirs. It is not B's: that package's cooking wall carries an oven
+   * tower as well as the cooking surface, and a leg with the sink on it too
+   * has nothing left for the landings each side of the burners. So B is drawn
+   * with the sink on the other leg — which puts the refrigerator on the
+   * cooking wall, because one leg will not carry both.
    */
-  it("gives the counter beside the cooking surface the wall's spare inches", () => {
+  it("arranges package B around the wall its tower stands on", () => {
+    const base = activate("package-b");
+    expect(base.sinkLeg).toBe("left");
+    expect(base.fridgeEnd).toBe("back");
+
+    // And the sink is actually there, not just asked for.
+    const sink = RUNS.find((run) => run.segments.some((s) => s.fixture))!;
+    expect(sink.id).toBe("left");
+    const range = RUNS.find((run) => run.segments.some((s) => s.slot === "slot-range"))!;
+    expect(range.id).toBe("back");
+  });
+
+  /**
+   * Eighteen inches of counter each side of the burners.
+   *
+   * That is what a landing is built at: wide enough to put a pan down on, and
+   * enough open counter that the tower beside the cooking surface does not
+   * crowd it. Both sides ask for it, the wall's spare inches go there before
+   * anywhere else, and the room a package is put into is sized for it — which
+   * is the whole reason B moves the sink to the other leg.
+   *
+   * A wall that cannot pay comes down in three-inch steps and takes both sides
+   * down together, never under six on the tower side and never under rule 4's
+   * own minimum on the other.
+   */
+  it("puts eighteen inches of counter each side of the cooking surface", () => {
     const base = activate("package-b");
     const { counterIn, wantIn } = LAYOUT_LIMITS.towerSpacer;
 
-    /** Every stretch of the back leg, by name, in inches. */
-    const widths = () => {
+    /** The two stretches beside the machine, in inches. */
+    const landings = () => {
       const run = RUNS.find((r) => r.segments.some((s) => s.slot === "slot-range"))!;
-      const out: Record<string, number> = {};
-      for (const segment of run.segments) out[segment.id] = inches(segment.to - segment.from);
-      return out;
+      const at = run.segments.findIndex((segment) => segment.slot === "slot-range");
+      const width = (segment: (typeof run.segments)[number] | undefined) =>
+        segment && segment.kind === "counter" ? inches(segment.to - segment.from) : 0;
+      return [width(run.segments[at - 1]), width(run.segments[at + 1])];
     };
-    const landing = (all: Record<string, number>) =>
-      all[Object.keys(all).find((id) => id.includes("tower-clearance"))!];
 
-    const atMinimum = widths();
-    // Never under six, always a whole cabinet step, never over what it asked
-    // for — and always over the five the machine's sheet asks for.
-    expect(landing(atMinimum)).toBeGreaterThanOrEqual(6);
-    expect(landing(atMinimum)).toBeGreaterThan(counterIn);
-    expect(landing(atMinimum) % 3).toBeCloseTo(0, 6);
-    expect(landing(atMinimum)).toBeLessThanOrEqual(wantIn);
+    // The room the package landed in: both sides at what they asked for.
+    for (const side of landings()) expect(side).toBe(wantIn);
 
-    // Now the longest wall this room may have. The first three inches of it go
-    // to that stretch, and nothing else takes a whole step until it has all it
-    // asked for.
-    const longer = setLayoutParams({ ...base, backWallIn: PARAM_LIMITS.backWallIn.max });
-    expect(longer.ok, "the longest back wall").toBe(true);
-    const grown = widths();
-    expect(landing(grown), "the landing took none of it").toBeGreaterThan(landing(atMinimum));
-    if (landing(grown) < wantIn) {
-      for (const [id, width] of Object.entries(grown)) {
-        if (id.includes("tower-clearance") || atMinimum[id] === undefined) continue;
-        expect(width - atMinimum[id], `${id} grew before the landing was served`).toBeLessThan(3);
+    // A shorter wall builds rather than refusing, in whole cabinet steps,
+    // both sides coming down together and neither under its own floor.
+    for (const less of [6, 12]) {
+      const backWallIn = base.backWallIn - less;
+      const where = `${backWallIn}" of back wall`;
+      expect(setLayoutParams({ ...base, backWallIn }).ok, where).toBe(true);
+      const [near, far] = landings();
+      expect(near + far, where).toBe(wantIn * 2 - less);
+      for (const side of [near, far]) {
+        expect(side, where).toBeGreaterThan(counterIn);
+        expect(side % 3, where).toBeCloseTo(0, 6);
+        expect(side, where).toBeLessThanOrEqual(wantIn);
       }
     }
   });

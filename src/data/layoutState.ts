@@ -50,10 +50,18 @@ export function setLayoutParams(params: LayoutParams): { ok: boolean; reasons: R
  * grows to the shortest wall that will take it. What changed is said out loud
  * rather than happening quietly: `adjusted` is what the caller announces.
  *
- * Only the two wall lengths move, and only up to the minimum the refusal
- * itself prints. The rearrangements a refusal also offers are left alone:
- * moving the sink to the other leg to make a package fit would be answering a
- * question nobody asked.
+ * Only the two wall lengths move, and they move to the wall the package asks
+ * for rather than to the shortest one that will take it: a room grown to the
+ * inch leaves every stretch of counter at the minimum a rule will accept,
+ * which is not a kitchen anybody would draw. The rearrangements a refusal
+ * offers are still left alone — moving the sink to the other leg to make a
+ * package fit is not this function's decision.
+ *
+ * Where a package has made that decision itself, it says so: `defaultLayout`
+ * is the arrangement the package is designed around, and choosing the package
+ * applies it. Package B's cooking wall carries an oven tower, and a leg with
+ * the tower, the cooking surface and the sink on it has no room left for the
+ * landings each side of the burners — so B puts the sink on the other leg.
  *
  * A package that still will not fit is rolled back. The room on screen is
  * still the old package's, and leaving the data saying otherwise would draw a
@@ -70,24 +78,42 @@ export function setActivePackage(id: string): {
 
   const asked = REQUESTED_PARAMS;
   setPackage(id);
-  const result = setLayoutParams(asked);
-  if (result.ok) return result;
+  // The arrangement the package is designed around, where it names one.
+  const arranged = { ...asked, ...PACKAGE.defaultLayout };
+  const moved: Partial<LayoutParams> = {};
+  for (const [key, value] of Object.entries(PACKAGE.defaultLayout)) {
+    if (asked[key as keyof LayoutParams] !== value) {
+      (moved as Record<string, unknown>)[key] = value;
+    }
+  }
+
+  const result = setLayoutParams(arranged);
+  if (result.ok) {
+    return Object.keys(moved).length > 0
+      ? { ok: true, reasons: [], adjusted: moved }
+      : result;
+  }
 
   // Taken from the refusal's own figures rather than from the change it
   // offers: a wall that is short says how short, where the suggestion beside
   // it may be to move the sink instead, which is not this function's business.
+  //
+  // The figure taken is the wall the package asks for, not the shortest one
+  // that will take it. They are the same wall wherever nothing on the leg
+  // wants more than its rule requires; where something does — eighteen inches
+  // of landing each side of a cooking surface — this is where it gets it.
   const walls: Partial<LayoutParams> = {};
   for (const reason of result.reasons) {
     if (reason.key !== "refusal.wallShort") continue;
     const key = String(reason.vars.paramKey).replace("param.", "");
-    const minimumIn = Number(reason.vars.minimumIn);
-    if ((key === "backWallIn" || key === "leftWallIn") && Number.isFinite(minimumIn)) {
-      walls[key] = minimumIn;
+    const wantedIn = Number(reason.vars.wantedIn ?? reason.vars.minimumIn);
+    if ((key === "backWallIn" || key === "leftWallIn") && Number.isFinite(wantedIn)) {
+      walls[key] = wantedIn;
     }
   }
   if (Object.keys(walls).length > 0) {
-    const grown = setLayoutParams({ ...asked, ...walls });
-    if (grown.ok) return { ok: true, reasons: [], adjusted: walls };
+    const grown = setLayoutParams({ ...arranged, ...walls });
+    if (grown.ok) return { ok: true, reasons: [], adjusted: { ...moved, ...walls } };
   }
 
   setPackage(previous);

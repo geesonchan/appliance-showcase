@@ -173,7 +173,11 @@
         "slot-microwave": "thermador-mem301ws",
         "slot-wine": "thermador-t18iw100sp"
       },
-      "defaultBlower": "thermador-vtn2fz"
+      "defaultBlower": "thermador-vtn2fz",
+      "defaultLayout": {
+        "sinkLeg": "left",
+        "fridgeEnd": "back"
+      }
     },
     {
       "id": "package-c",
