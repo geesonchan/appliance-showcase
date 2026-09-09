@@ -1,4 +1,4 @@
-import { ROOM, ft } from "./room";
+import { LAYOUT_LIMITS, ROOM, ft } from "./room";
 import type { Appliance, Slot } from "../types";
 
 /**
@@ -120,6 +120,29 @@ export function applianceBox(slot: Slot, appliance: Appliance): ApplianceBox {
  * the cabinet face, so a shallower body moves toward the room. A hood is the
  * exception: it hangs off the wall behind it.
  */
+/**
+ * How far a door reaches past its own case, toward the kit beside it.
+ *
+ * A column and the refrigerator next to it are joined by a 5/8" kit between
+ * their cases, and their doors close over it: what is left between the two
+ * fronts is the eighth of an inch the sheets call for, not the kit. Each door
+ * therefore reaches to the middle of the kit less half that reveal — over its
+ * own reveal in the opening as well, since the case is the narrower of the two.
+ *
+ * Null where there is no kit, which is every other machine in the room.
+ */
+export function doorOverhang(
+  slot: Slot,
+  bodyW: number,
+  kit: { side: -1 | 1; widthIn: number } | null,
+): { side: -1 | 1; overIn: number } | null {
+  if (!kit) return null;
+  const revealIn = LAYOUT_LIMITS.fridge.sideGapIn;
+  const inTheOpening = (slot.cutout.w - bodyW * 12) / 2;
+  const overIn = Math.max(0, inTheOpening + kit.widthIn / 2 - revealIn / 2);
+  return { side: kit.side, overIn };
+}
+
 export function flushOffset(slot: Slot, depth: number, rearSpacerIn = 0): number {
   if (slot.id === "slot-hood") return -(ROOM.counterDepth - depth) / 2;
   // A machine that carries its own spacers stands exactly that far off the

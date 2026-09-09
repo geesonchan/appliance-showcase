@@ -1,4 +1,4 @@
-import { CABINET_STANDARDS, ft } from "./roomShell";
+import { CABINET_STANDARDS, ROOM, ft } from "./roomShell";
 import type { Appliance } from "../types";
 
 /**
@@ -192,16 +192,24 @@ export type DoorSplit = typeof GENERIC_SPLIT;
  * because one of them is measured to somewhere this app cannot see. Scaling
  * them to the opening keeps every ratio between them — which is what the eye
  * reads — and makes the stack come out at the height the machine actually is.
+ *
+ * The grille is the exception, and it is not scaled at all: it is the four
+ * inches the whole room stands on. Everything at floor level in a kitchen
+ * lines up — the cabinets' kick, the column's grille, this one — and a
+ * refrigerator whose grille is an inch taller than the column beside it
+ * because of an arithmetic ratio is a machine sitting a step up from its own
+ * pair. So the four inches come off the front first, and the three bands above
+ * it divide what is left.
  */
 export function doorSplitOf(appliance: Appliance, heightFt: number) {
   const published: DoorSplit = appliance.doorSplit ?? GENERIC_SPLIT;
   const gaps = (FRIDGE_PROPORTIONS.gapIn * 3) / 12;
-  const raw =
-    (published.toeIn + published.drawerLowIn + published.drawerHighIn + published.doorIn) / 12;
-  const scale = (heightFt - gaps) / raw;
+  const toe = Math.min(ROOM.toeKick, heightFt);
+  const raw = (published.drawerLowIn + published.drawerHighIn + published.doorIn) / 12;
+  const scale = Math.max(0, heightFt - gaps - toe) / raw;
 
   return {
-    toe: (published.toeIn / 12) * scale,
+    toe,
     drawerLow: (published.drawerLowIn / 12) * scale,
     drawerHigh: (published.drawerHighIn / 12) * scale,
     door: (published.doorIn / 12) * scale,

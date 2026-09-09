@@ -216,7 +216,10 @@ function CabinetSolid({ box }: { box: CabinetBox }) {
 
   const install = renderMode === "install";
   // On a phone the install view is outline-only; the ghost fill just muddies it.
-  const hidden = install && isMobile;
+  // A part that is behind something else is drawn only where the parts are
+  // listed: in the finished room it is not visible, and drawing it there puts
+  // cabinet colour where the machines' own fronts are.
+  const hidden = (install && isMobile) || (box.installOnly === true && !install);
   // A door goes on anything with a front: not the toe kick, which is recessed,
   // and not the countertop, which is a slab.
   const hasDoor =
@@ -251,7 +254,11 @@ function CabinetSolid({ box }: { box: CabinetBox }) {
         visible={!hidden}
         castShadow
         receiveShadow
-        userData={{ slot: box.slot, boxId: box.id, cabinetRole: wearsDoorFinish(box.kind) }}
+        userData={{
+          slot: box.slot,
+          boxId: box.id,
+          cabinetRole: wearsDoorFinish(box.kind) && box.installOnly !== true,
+        }}
       >
         <Surface
           s={{ ...props, transparent: install, opacity: install ? GHOST_OPACITY : 1 }}

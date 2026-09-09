@@ -1,5 +1,5 @@
 import { afterAll, describe, expect, it } from "vitest";
-import { applianceBox } from "./applianceBox";
+import { applianceBox, doorOverhang } from "./applianceBox";
 import {
   COMBO_OVEN,
   WINE_COLUMN,
@@ -10,6 +10,7 @@ import {
 } from "./columnModel";
 import { cooktopHeight } from "./rangeModel";
 import { CABINETS } from "./cabinets";
+import { doorSplitOf, fridgeParts } from "./fridgeModel";
 import { hoodCabinetParts } from "./insertHood";
 import { APPLIANCE_BY_ID } from "./catalogue";
 import { dimensionsFor } from "./dimensions";
@@ -25,7 +26,7 @@ import {
   type Refusal,
 } from "./layoutTemplate";
 import { BUILDABLE_PACKAGES, DEFAULT_PACKAGE, PACKAGE_BY_ID, slotsOf } from "./packages";
-import { LAYOUT, LAYOUT_LIMITS, ROOM, RUNS, ft, hingeAwayFrom } from "./room";
+import { LAYOUT, LAYOUT_LIMITS, ROOM, RUNS, ft, hingeAwayFrom, trimKitBeside } from "./room";
 import { SLOT_BY_ID } from "./slots";
 
 /**
@@ -957,6 +958,99 @@ describe("a bank of tall units", () => {
   });
 
   /**
+   * The kit between two columns is behind their doors.
+   *
+   * A refrigerator and a wine column standing side by side are joined by a
+   * 5/8" kit between their cases. It is a part somebody orders and it is on
+   * the install list — and in the finished room you cannot see it, because
+   * both doors are wider than their cases and close over it. What shows
+   * between the two fronts is the eighth of an inch their sheets call for.
+   *
+   * It was being drawn as a knee-high box in the cabinet colour between two
+   * steel machines, which is neither the part nor anything anybody builds.
+   */
+  it("keeps the kit between the columns behind the doors", () => {
+    activate("package-b");
+    const kit = CABINETS.find((box) => box.module?.kind === "spacer");
+    expect(kit, "no trim kit between the two machines").toBeDefined();
+    // A part, drawn where the parts are listed and nowhere else.
+    expect(kit!.installOnly, "the kit is drawn in the finished room").toBe(true);
+    // And set back behind the face the doors are hung on.
+    const run = RUNS.find((r) => r.id === kit!.run)!;
+    const across = run.axis === "x" ? 2 : 0;
+    const face = kit!.position[across] + kit!.size[across] / 2;
+    expect(inches(run.centre + ROOM.counterDepth / 2 - face)).toBeGreaterThanOrEqual(0.75);
+
+    // Nothing else stands in that gap either.
+    const along = run.axis === "x" ? 0 : 2;
+    const span = [
+      kit!.position[along] - kit!.size[along] / 2,
+      kit!.position[along] + kit!.size[along] / 2,
+    ] as const;
+    for (const box of CABINETS) {
+      if (box === kit || box.run !== kit!.run) continue;
+      if (box.installOnly || box.kind === "toe" || box.kind === "counter") continue;
+      const overlap =
+        Math.min(box.position[along] + box.size[along] / 2, span[1]) -
+        Math.max(box.position[along] - box.size[along] / 2, span[0]);
+      expect(overlap, `${box.id} stands between the two machines`).toBeLessThanOrEqual(1e-6);
+    }
+
+    // What is left between the two doors is the reveal, not the kit: each
+    // door reaches to the middle of it, less half of that reveal.
+    const reach = (slotId: "slot-fridge" | "slot-wine") => {
+      const appliance = APPLIANCE_BY_ID[PACKAGE_BY_ID["package-b"].defaultSelection[slotId]!];
+      const slot = SLOT_BY_ID[slotId];
+      const machine = applianceBox(slot, appliance);
+      const over = doorOverhang(slot, machine.w, trimKitBeside(slotId));
+      expect(over, `no kit beside ${slotId}`).not.toBeNull();
+      // How far past its own opening the door reaches.
+      return over!.overIn - (slot.cutout.w - inches(machine.w)) / 2;
+    };
+    const gap = kit!.module!.widthIn - reach("slot-fridge") - reach("slot-wine");
+    expect(gap).toBeCloseTo(LAYOUT_LIMITS.fridge.sideGapIn, 6);
+    expect(gap).toBeLessThanOrEqual(0.125 + 1e-6);
+  });
+
+  /**
+   * Both machines stand on the same four inches.
+   *
+   * Everything at floor level in a kitchen lines up: the cabinets' kick, the
+   * refrigerator's grille, the column's. The refrigerator's was a proportion
+   * of its own elevation and came out an inch taller than the column's, which
+   * put the two doors beside it on two different lines.
+   */
+  it("lines the two grilles and the two doors up with each other", () => {
+    activate("package-b");
+    const fridge = APPLIANCE_BY_ID[PACKAGE_BY_ID["package-b"].defaultSelection["slot-fridge"]!];
+    const wine = APPLIANCE_BY_ID[PACKAGE_BY_ID["package-b"].defaultSelection["slot-wine"]!];
+    const fridgeBox = applianceBox(SLOT_BY_ID["slot-fridge"], fridge);
+    const wineBox = applianceBox(SLOT_BY_ID["slot-wine"], wine);
+
+    // Both machines stand on the floor of their own opening, at the same
+    // height off the room's floor.
+    const floorOf = (slotId: "slot-fridge" | "slot-wine", box: { y: number }) =>
+      SLOT_BY_ID[slotId].position[1] + box.y;
+    expect(floorOf("slot-fridge", fridgeBox)).toBeCloseTo(floorOf("slot-wine", wineBox), 9);
+
+    // The same four inches of grille, the room's own.
+    const split = doorSplitOf(fridge, fridgeBox.h);
+    const grille = wineColumnParts(wineBox).parts[0];
+    expect(inches(split.toe)).toBeCloseTo(inches(ROOM.toeKick), 6);
+    expect(inches(grille.band[0])).toBeCloseTo(0, 6);
+    expect(inches(grille.band[1])).toBeCloseTo(inches(split.toe), 6);
+
+    // And the doors start on one line: the grille, the same reveal over it,
+    // then the front.
+    const lowestFront = Math.min(
+      ...fridgeParts(fridge, { w: fridgeBox.w, h: fridgeBox.h })
+        .filter((panel) => panel.id !== "grille")
+        .map((panel) => panel.y - panel.h / 2),
+    );
+    expect(inches(lowestFront)).toBeCloseTo(inches(wineColumnParts(wineBox).door.y), 6);
+  });
+
+  /**
    * The column stands on its own grille, not on the joiner's plinth.
    *
    * A built-in refrigerator is one piece of steel from the floor to the top of
@@ -978,11 +1072,14 @@ describe("a bank of tall units", () => {
     expect(inches(grille.band[1])).toBeCloseTo(WINE_COLUMN.toeIn, 6);
     expect(grille.vents?.count ?? 0, "no air through it").toBeGreaterThan(0);
 
-    // The front is continuous from the floor to the top of the door: no band
-    // is left for somebody else to fill.
+    // The front is continuous from the floor to the top of the door: nothing
+    // is left for somebody else to fill, and the only break in it is the
+    // machine's own reveal over the grille.
     let at = 0;
     for (const part of parts.parts) {
-      expect(inches(part.band[0]), part.kind).toBeCloseTo(inches(at), 6);
+      expect(inches(part.band[0] - at), part.kind).toBeLessThanOrEqual(
+        WINE_COLUMN.revealIn + 1e-6,
+      );
       at = part.band[1];
     }
     expect(inches(at)).toBeCloseTo(inches(parts.door.y + parts.door.h), 6);

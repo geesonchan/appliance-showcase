@@ -44,6 +44,16 @@ export interface CabinetBox {
    * about runs rather than about heights. See docs/decisions.md D15.
    */
   run: "left" | "back" | "island";
+  /**
+   * Drawn only in the install view.
+   *
+   * For a part that is really there and is really not visible: the 5/8" kit
+   * between two refrigeration columns is behind their doors, and drawing it in
+   * the finished room puts a strip of cabinet colour between two steel fronts
+   * that in the room itself you cannot see. The install view is where the
+   * parts are, so that is where it is drawn.
+   */
+  installOnly?: boolean;
   /** Centre of the box, in feet. */
   position: [number, number, number];
   /** Full extents, in feet. */
@@ -102,6 +112,16 @@ function volumeOf(run: CabinetRun, segment: RunSegment): string {
   }
   return segment.id;
 }
+
+/**
+ * The kit between two columns, as a thing to draw.
+ *
+ * How far behind the run's face it sits: enough that the doors either side,
+ * which stand proud of their cases, close over it completely. An inch is more
+ * than the three quarters a door stands proud by, which is the figure this has
+ * to clear.
+ */
+export const TRIM_KIT = { setBackIn: 1 };
 
 /** A tall unit's opening, in feet: what the slot it houses declares. */
 const openingH = (slot?: SlotId) => (slot ? ft(SLOT_BY_ID[slot].cutout.h) : fridgeOpeningH());
@@ -216,6 +236,27 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
           ROOM.counterDepth,
           0,
           { outline: volumeOf(run, segment), slot: module.slot, module },
+        ),
+      );
+      return;
+    }
+
+    // The manufacturer's kit between two columns standing side by side: 5/8"
+    // of divider that carries the trim and keeps the two doors off each other.
+    // It is behind them — their doors are wider than their cases and close
+    // over it — so it is drawn set back and only where the parts are listed.
+    if (module.kind === "spacer") {
+      const back = ft(TRIM_KIT.setBackIn);
+      boxes.push(
+        onRun(
+          run,
+          `${segment.id}-${module.code}-${index}`,
+          "surround",
+          along,
+          [0, ft(module.heightIn ?? 96)],
+          ROOM.counterDepth - back,
+          -back / 2,
+          { outline: segment.id, module, installOnly: true },
         ),
       );
       return;

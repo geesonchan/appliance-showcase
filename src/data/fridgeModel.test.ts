@@ -193,10 +193,23 @@ describe("the front divides the way the elevation does", () => {
     const split = doorSplitOf(specified(), opening);
     // Every ratio survives the fit; only the scale changes.
     expect(split.door / split.drawerLow).toBeCloseTo(published.doorIn / published.drawerLowIn, 9);
-    expect(split.drawerHigh / split.toe).toBeCloseTo(
-      published.drawerHighIn / published.toeIn,
+    expect(split.drawerHigh / split.drawerLow).toBeCloseTo(
+      published.drawerHighIn / published.drawerLowIn,
       9,
     );
+  });
+
+  /**
+   * The grille is not one of the proportions. It is the four inches everything
+   * in the room stands on — the cabinets' kick, the column's own grille, this
+   * one — so it is taken off the front before the rest is fitted, rather than
+   * scaled with it into a band an inch taller than the machine beside it.
+   */
+  it("stands on the same four inches as everything else in the room", () => {
+    const split = doorSplitOf(specified(), opening);
+    expect(inches(split.toe)).toBeCloseTo(4, 6);
+    // And on a machine of another height, still four.
+    expect(inches(doorSplitOf(specified(), 72 / 12).toe)).toBeCloseTo(4, 6);
   });
 
   it("draws the panels in the order the elevation has them", () => {

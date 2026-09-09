@@ -146,6 +146,36 @@ export function hingeAwayFrom(slotId: SlotId, neighbour: SlotId): -1 | 1 {
   return furtherAlong === alongIsToTheRight ? -1 : 1;
 }
 
+/**
+ * The manufacturer's kit beside a machine, in the machine's own frame.
+ *
+ * Two refrigeration columns standing side by side are joined by one: 5/8" of
+ * divider between their cases. What shows in the room is not that 5/8", it is
+ * the eighth of an inch between their doors — the doors are wider than the
+ * cases and close over the kit. So the machine has to know the kit is there
+ * and which side it is on, or it draws its door to its own case and leaves the
+ * kit showing between two steel fronts.
+ *
+ * Same frame as `hingeAwayFrom`: -1 is the appliance's own left, and a run
+ * along z is drawn turned a quarter turn.
+ */
+export function trimKitBeside(slotId: SlotId): { side: -1 | 1; widthIn: number } | null {
+  const run = RUNS.find((r) => r.segments.some((s) => s.slot === slotId));
+  const mine = run?.segments.find((s) => s.slot === slotId);
+  if (!run || !mine) return null;
+
+  const at = run.segments.indexOf(mine);
+  for (const step of [-1, 1] as const) {
+    const neighbour = run.segments[at + step];
+    const kit = neighbour?.modules.find((module) => module.kind === "spacer");
+    if (!kit) continue;
+    const alongIsToTheRight = run.axis === "x";
+    const side = (step > 0) === alongIsToTheRight ? 1 : -1;
+    return { side, widthIn: kit.widthIn };
+  }
+  return null;
+}
+
 /** The segment carrying a slot, wherever it is. */
 export function segmentForSlot(slotId: SlotId): RunSegment | undefined {
   for (const run of RUNS) {

@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import * as THREE from "three";
 import type { ThreeEvent } from "@react-three/fiber";
-import { applianceBox, flushOffset, isRangetop } from "../data/applianceBox";
+import { applianceBox, doorOverhang, flushOffset, isRangetop } from "../data/applianceBox";
 import { comboOvenParts, isCombo, isColumn, wineColumnParts } from "../data/columnModel";
 import {
   CHIMNEY,
@@ -19,7 +19,7 @@ import {
 } from "../data/rangeModel";
 import { Surface } from "./Surface";
 import { CABINET_STANDARDS, ROOM, SLOT_BY_ID, ft } from "../data/slots";
-import { hingeAwayFrom } from "../data/room";
+import { hingeAwayFrom, trimKitBeside } from "../data/room";
 import { runForSlot } from "../data/room";
 import { cabinetPaint, useAppStore } from "../store/useAppStore";
 import { useSelection } from "../store/useSelection";
@@ -456,6 +456,31 @@ function Body({
  * back by the door thickness and the handle's reach, so a 36 x 84 x 25 opening
  * gets a 36 x 84 x 25 machine.
  */
+/**
+ * Widen the panels that meet a trim kit, so the doors close over it.
+ *
+ * Only the ones whose edge is the machine's edge on that side: a french door's
+ * far leaf, the drawers under it and the grille below them all reach the kit;
+ * its near leaf does not, and neither does anything on the other machine's
+ * side. Everything else is left exactly as the drawing has it.
+ */
+function reachOverTheKit(
+  panels: ReturnType<typeof fridgeParts>,
+  w: number,
+  over: { side: -1 | 1; overIn: number } | null,
+): ReturnType<typeof fridgeParts> {
+  if (!over || over.overIn <= 0) return panels;
+  const reach = ft(over.overIn);
+  const edge = (over.side * w) / 2;
+  return panels.map((panel) => {
+    const meets = Math.abs(panel.x + (over.side * panel.w) / 2 - edge) < 1e-6;
+    if (!meets) return panel;
+    // The handle stays where it is: it is fixed to the edge the door opens
+    // from, and that is the other one.
+    return { ...panel, w: panel.w + reach, x: panel.x + (over.side * reach) / 2 };
+  });
+}
+
 function Fridge({
   appliance,
   w,
@@ -471,7 +496,18 @@ function Fridge({
   body: SurfaceProps;
   trim: SurfaceProps;
 }) {
-  const panels = useMemo(() => fridgeParts(appliance, { w, h }), [appliance, w, h]);
+  // The doors, and how far they reach past the case. A built-in beside a
+  // column is joined to it by a 5/8" kit, and its door closes over that kit —
+  // so the panel on that side is wider than the machine by what it covers.
+  const panels = useMemo(
+    () =>
+      reachOverTheKit(
+        fridgeParts(appliance, { w, h }),
+        w,
+        doorOverhang(SLOT_BY_ID["slot-fridge"], w, trimKitBeside("slot-fridge")),
+      ),
+    [appliance, w, h],
+  );
 
   // Where the fronts stand relative to the carcass — which is the difference
   // between a built-in and a freestanding machine, and the one you can see
@@ -760,7 +796,16 @@ function WineColumn({
   glass: SurfaceProps;
 }) {
   const hinge = hingeAwayFrom("slot-wine", "slot-fridge");
+  // The door reaches over the kit between this machine and the one beside it,
+  // so what shows between the two fronts is the reveal rather than the kit.
+  // The handle goes with it: it is on the edge the door opens from, which is
+  // the edge that moved.
+  const over = doorOverhang(SLOT_BY_ID["slot-wine"], w, trimKitBeside("slot-wine"));
+  const reach = over ? ft(over.overIn) : 0;
+  const shift = over ? (over.side * reach) / 2 : 0;
   const parts = useMemo(() => wineColumnParts({ w, h, d }, hinge), [w, h, d, hinge]);
+  /** The door as it is actually hung: the drawing's, plus what it covers. */
+  const doorW = parts.door.w + reach;
   const cd = Math.max(d - parts.handle.proud, d * 0.5);
   const cz = -(d - cd) / 2;
   const face = cz + cd / 2;
@@ -781,16 +826,16 @@ function WineColumn({
         // The door is one panel with a window cut in it: solid across the top
         // and the bottom, solid down each side of the glass, and the glass
         // itself set back in the middle of it.
-        const stile = (parts.door.w - parts.glass.w) / 2;
+        const stile = (doorW - parts.glass.w) / 2;
 
         // The grille the machine stands on: the door's own steel, full width,
         // with the lines of air across it.
         if (part.kind === "grille") {
           return (
             <group key={part.band[0]} name="wine-grille">
-              <mesh position={[0, middle, face + ft(0.4)]} castShadow>
-                <boxGeometry args={[parts.door.w, height, ft(0.75)]} />
-                <Mat s={body} size={[parts.door.w, height]} />
+              <mesh position={[shift, middle, face + ft(0.4)]} castShadow>
+                <boxGeometry args={[doorW, height, ft(0.75)]} />
+                <Mat s={body} size={[doorW, height]} />
               </mesh>
               {part.vents &&
                 Array.from({ length: part.vents.count }, (_, i) => {
@@ -798,9 +843,9 @@ function WineColumn({
                   return (
                     <mesh
                       key={i}
-                      position={[0, part.band[0] + step * (i + 1), face + ft(0.8)]}
+                      position={[shift, part.band[0] + step * (i + 1), face + ft(0.8)]}
                     >
-                      <boxGeometry args={[parts.door.w * 0.9, part.vents!.heightFt, ft(0.05)]} />
+                      <boxGeometry args={[doorW * 0.9, part.vents!.heightFt, ft(0.05)]} />
                       <Mat s={slot} />
                     </mesh>
                   );
@@ -810,20 +855,20 @@ function WineColumn({
         }
 
         return part.kind === "panel" ? (
-          <mesh key={part.band[0]} position={[0, middle, face + ft(0.4)]} castShadow>
-            <boxGeometry args={[parts.door.w, height, ft(0.75)]} />
-            <Mat s={body} size={[parts.door.w, height]} />
+          <mesh key={part.band[0]} position={[shift, middle, face + ft(0.4)]} castShadow>
+            <boxGeometry args={[doorW, height, ft(0.75)]} />
+            <Mat s={body} size={[doorW, height]} />
           </mesh>
         ) : (
           <group key={part.band[0]}>
-            <mesh position={[0, middle, face + ft(0.3)]}>
+            <mesh position={[shift, middle, face + ft(0.3)]}>
               <boxGeometry args={[parts.glass.w, height, ft(0.1)]} />
               <Mat s={glass} />
             </mesh>
             {[-1, 1].map((side) => (
               <mesh
                 key={side}
-                position={[(side * (parts.door.w - stile)) / 2, middle, face + ft(0.4)]}
+                position={[shift + (side * (doorW - stile)) / 2, middle, face + ft(0.4)]}
                 castShadow
               >
                 <boxGeometry args={[stile, height, ft(0.75)]} />
@@ -835,15 +880,15 @@ function WineColumn({
       })}
       {/* The bottles, as shelves showing through the glass. */}
       {parts.shelves.map((y) => (
-        <mesh key={y} position={[0, y, face - ft(1.5)]}>
-          <boxGeometry args={[parts.door.w - ft(4), ft(0.4), ft(0.1)]} />
+        <mesh key={y} position={[shift, y, face - ft(1.5)]}>
+          <boxGeometry args={[doorW - ft(4), ft(0.4), ft(0.1)]} />
           <Mat s={trim} />
         </mesh>
       ))}
       {/* The handle, on the side away from the refrigerator. */}
       <mesh
         position={[
-          -hinge * (parts.door.w / 2 - ft(1.6)),
+          shift - hinge * (doorW / 2 - ft(1.6)),
           parts.door.y + parts.door.h / 2,
           d / 2 - parts.handle.r,
         ]}
