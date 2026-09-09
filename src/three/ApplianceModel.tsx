@@ -1498,12 +1498,15 @@ function canopyGeometry(
     push(d2);
   };
 
+  // Wound so the outside of the canopy is the front face. The other way round
+  // culls the faces nearest the viewer and leaves the inside of the hood
+  // showing through them, which is what this was doing.
   for (let level = 0; level < rings.length - 1; level += 1) {
     const low = rings[level];
     const high = rings[level + 1];
     for (let i = 0; i < 4; i += 1) {
       const j = (i + 1) % 4;
-      quad(low[i], low[j], high[j], high[i]);
+      quad(low[j], low[i], high[i], high[j]);
     }
   }
   // The rim underneath and the collar on top.
