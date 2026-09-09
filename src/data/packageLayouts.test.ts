@@ -223,7 +223,6 @@ function expectStoneOverEveryCabinet(id: string, where: string) {
   }
 }
 
-
 describe("every package over the whole parameter space", () => {
   it("either builds a room that passes every rule, or refuses with a reason", () => {
     const built: Record<string, number> = {};
@@ -922,9 +921,11 @@ describe("a bank of tall units", () => {
     }
 
     // And one crown: every bank that reaches the ceiling carries the same
-    // moulding at the same height, and together they cover the whole stretch.
+    // moulding at the same height, and together they cover the whole of that
+    // wall except the breast itself, which carries its own round its top
+    // section because that one steps forward with it.
     const crowns = CABINETS.filter(
-      (box) => box.id.endsWith("-crown") && box.id.startsWith(`upper-${run.id}`),
+      (box) => /-crown-\d+$/.test(box.id) && box.id.startsWith(`upper-${run.id}`),
     );
     expect(crowns.length, "no crown along the banks").toBeGreaterThan(0);
     const ceiling = inches(ROOM.wallHeight);
@@ -933,8 +934,102 @@ describe("a bank of tall units", () => {
     }
     const along = (box: (typeof crowns)[number]) => box.size[0];
     const covered = crowns.reduce((sum, crown) => sum + along(crown), 0);
-    const banks = beside.reduce((sum, bank) => sum + (bank.to - bank.from), 0);
-    expect(inches(covered), "crown does not cover the banks").toBeCloseTo(inches(banks), 6);
+    const wall = run.uppers.reduce((sum, bank) => sum + (bank.to - bank.from), 0);
+    const breast = ft(
+      housing.modules.find((module) => module.kind === "hood-cabinet")!.widthIn,
+    );
+    expect(inches(covered), "crown does not cover the banks").toBeCloseTo(
+      inches(wall - breast),
+      6,
+    );
+  });
+
+  /**
+   * Nothing hung on its own beside the breast or the tower.
+   *
+   * A 42" housing over a 36" rangetop overhangs the machine by three inches
+   * each side, so six inches of clearance counter beside it leaves three
+   * inches of wall between the housing and the oven tower's end panel. Three
+   * inches is not a wall cabinet, and hung as one between two things that are
+   * 24" deep it read from the room as a narrow board standing by itself,
+   * twelve inches behind both of them.
+   *
+   * So the housing takes that stretch, in its own depth, and its flank meets
+   * the tower. What is left of the rule is stated twice over: every bank on
+   * that wall is wide enough to be a bank, and anything narrow in front of
+   * that stretch belongs to the volume beside it rather than standing alone —
+   * the tower's own three-quarter-inch end panel included, which is the side
+   * of the tower and is drawn as part of it.
+   */
+  it("hangs no board on its own between the housing and the tower", () => {
+    for (const towerSide of ["left", "right"] as const) {
+      const base = activate("package-b");
+      const where = `tower ${towerSide}`;
+      expect(setLayoutParams({ ...base, towerSide }).ok, where).toBe(true);
+
+      const run = RUNS.find((r) => r.segments.some((s) => s.slot === "slot-range"))!;
+      const along = run.axis === "x" ? 0 : 2;
+      const across = run.axis === "x" ? 2 : 0;
+
+      // Every bank is a bank: no narrower than the narrowest wall cabinet
+      // anybody stocks.
+      for (const bank of run.uppers) {
+        expect(inches(bank.to - bank.from), `${where}: ${bank.id}`).toBeGreaterThanOrEqual(
+          12 - 1e-6,
+        );
+      }
+
+      // Both flanks of the housing meet something: a bank, or a tall unit.
+      const housing = run.uppers.find((bank) =>
+        bank.modules.some((module) => module.kind === "hood-cabinet"),
+      )!;
+      const edges = [
+        ...run.uppers.filter((bank) => bank !== housing).flatMap((bank) => [bank.from, bank.to]),
+        ...run.segments.filter((s) => s.kind === "tall").flatMap((s) => [s.from, s.to]),
+      ];
+      for (const flank of [housing.from, housing.to]) {
+        const meets = edges.some((edge) => Math.abs(edge - flank) < 1e-6);
+        expect(meets, `${where}: nothing meets the housing at ${inches(flank)}"`).toBe(true);
+      }
+
+      // And nothing narrow standing by itself along that stretch of wall.
+      const tower = run.segments.find((s) => s.kind === "tall" && s.slot === "slot-microwave")!;
+      const zone = [
+        Math.min(housing.from, tower.from),
+        Math.max(housing.to, tower.to),
+      ] as const;
+      const volumes = new Set(
+        run.segments.filter((segment) => segment.kind === "tall").map((segment) => segment.id),
+      );
+      for (const box of CABINETS) {
+        if (box.run !== run.id || box.kind === "toe") continue;
+        const centre = box.position[along];
+        if (centre < zone[0] || centre > zone[1]) continue;
+        if (box.size[along] >= ft(2)) continue;
+        expect(
+          box.outline !== undefined && volumes.has(box.outline),
+          `${where}: ${box.id} is ${inches(box.size[along])}" wide and stands on its own`,
+        ).toBe(true);
+      }
+
+      // The end panel is the tower's side: same depth, same face.
+      const side = CABINETS.find(
+        (box) => box.run === run.id && box.module?.kind === "panel" && box.outline === tower.id,
+      )!;
+      expect(side, `${where}: no end panel on the tower`).toBeDefined();
+      expect(inches(side.size[along]), `${where}: the end panel`).toBeCloseTo(0.75, 6);
+      const body = CABINETS.find(
+        (box) => box.outline === tower.id && box.module?.kind === "tall",
+      )!;
+      expect(inches(side.size[across]), `${where}: the panel's depth`).toBeCloseTo(
+        inches(body.size[across]),
+        6,
+      );
+      expect(inches(side.position[across]), `${where}: the panel's face`).toBeCloseTo(
+        inches(body.position[across]),
+        6,
+      );
+    }
   });
 
   /**

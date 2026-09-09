@@ -625,6 +625,17 @@ function layOut(runId: string, start: number, items: Item[], gapWidths: number[]
  * 36 + 30 + 12, which is what a supplier would quote. What no box covers
  * becomes a filler, scribed to the wall.
  */
+/**
+ * The wall cabinets a supplier lists, widest first.
+ *
+ * Twelve inches is the narrowest of them, and that figure is a rule as much as
+ * a size: a stretch of wall shorter than one cannot be a bank, only a scribe.
+ */
+const WALL_STOCK = [36, 33, 30, 27, 24, 21, 18, 15, 12];
+
+/** The narrowest wall cabinet anybody stocks, in feet. */
+const narrowestBank = () => ft(WALL_STOCK[WALL_STOCK.length - 1]);
+
 function fillWidth(
   totalIn: number,
   make: (widthIn: number) => CabinetModule,
@@ -636,7 +647,7 @@ function fillWidth(
    */
   fillerAt: "start" | "end" = "end",
 ): CabinetModule[] {
-  const stock = [36, 33, 30, 27, 24, 21, 18, 15, 12];
+  const stock = WALL_STOCK;
   const boxes: CabinetModule[] = [];
   const fillers: CabinetModule[] = [];
   // Wall cabinets come off a list of 3" steps, so whatever the bank is not a
@@ -1653,19 +1664,58 @@ function banksAroundHood(
   if (cuts.length === 0) return [bankFor(`upper-${runId}`, start, stop, corner, "end")];
 
   const banks: UpperBank[] = [];
+  /**
+   * What the housing swallows: a stretch beside it too narrow to be a bank.
+   *
+   * A 42" breast over a 36" rangetop overhangs the machine by three inches
+   * each side, so the six inches of clearance counter beside it leaves three
+   * inches of wall between the breast and the oven tower's end panel. Three
+   * inches is not a cabinet — it is a scribe — and hung on its own between two
+   * things that are 24" deep it reads as a narrow board standing by itself.
+   * So the housing takes it, in the housing's own depth, and its flank meets
+   * the tower.
+   */
+  const scribes: { from: number; to: number }[] = [];
+  const narrowest = narrowestBank();
   let cursor = start;
   for (const [i, cut] of cuts.entries()) {
     // The scribe goes away from what it abuts: at the corner end of the first
     // bank, at the far end of the rest.
     if (cut.from > cursor) {
-      banks.push(
-        bankFor(`upper-${runId}-${i}`, cursor, cut.from, i === 0 ? corner : null, i === 0 ? "start" : "end"),
-      );
+      const beside = cut.hood || (i > 0 && cuts[i - 1].hood);
+      if (housed && beside && cut.from - cursor < narrowest) {
+        scribes.push({ from: cursor, to: cut.from });
+      } else {
+        banks.push(
+          bankFor(`upper-${runId}-${i}`, cursor, cut.from, i === 0 ? corner : null, i === 0 ? "start" : "end"),
+        );
+      }
     }
     if (cut.hood && (bridged || housed)) banks.push(hoodBank);
     cursor = Math.max(cursor, cut.to);
   }
-  if (stop > cursor) banks.push(bankFor(`upper-${runId}-end`, cursor, stop, null, "end"));
+  if (stop > cursor) {
+    if (housed && cuts[cuts.length - 1].hood && stop - cursor < narrowest) {
+      scribes.push({ from: cursor, to: stop });
+    } else {
+      banks.push(bankFor(`upper-${runId}-end`, cursor, stop, null, "end"));
+    }
+  }
+
+  for (const scribe of scribes) {
+    const widthIn = round8((scribe.to - scribe.from) * 12);
+    // As deep as the housing, so the two faces are one face.
+    const module = M(`BF${widthIn}`, "filler", widthIn, {
+      depthIn: CABINET_STANDARDS.base.depthIn,
+    });
+    if (scribe.to <= hoodBank.from + 1e-9) {
+      hoodBank.from = scribe.from;
+      hoodBank.modules.unshift(module);
+    } else {
+      hoodBank.to = scribe.to;
+      hoodBank.modules.push(module);
+    }
+  }
   return banks;
 }
 

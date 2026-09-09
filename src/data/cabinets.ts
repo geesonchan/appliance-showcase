@@ -86,6 +86,23 @@ function besideTheTower(run: CabinetRun, segment: RunSegment): number | null {
   return null;
 }
 
+/**
+ * Which volume a board belongs to.
+ *
+ * A tower's end panel is a segment of its own — three quarters of an inch of
+ * the run — but it is not a piece of joinery standing on its own: it is the
+ * side of the tower beside it, the same depth and the same height, and what a
+ * customer sees is one volume. So it is grouped with the tower rather than
+ * drawn as a board next to it.
+ */
+function volumeOf(run: CabinetRun, segment: RunSegment): string {
+  const at = run.segments.indexOf(segment);
+  for (const neighbour of [run.segments[at - 1], run.segments[at + 1]]) {
+    if (neighbour?.kind === "tall" && neighbour.slot) return neighbour.id;
+  }
+  return segment.id;
+}
+
 /** A tall unit's opening, in feet: what the slot it houses declares. */
 const openingH = (slot?: SlotId) => (slot ? ft(SLOT_BY_ID[slot].cutout.h) : fridgeOpeningH());
 
@@ -198,7 +215,7 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
           [0, ft(module.heightIn ?? 96)],
           ROOM.counterDepth,
           0,
-          { outline: segment.id, slot: module.slot, module },
+          { outline: volumeOf(run, segment), slot: module.slot, module },
         ),
       );
       return;
@@ -311,36 +328,63 @@ function upperBoxes(run: CabinetRun, bank: UpperBank): CabinetBox[] {
   });
 
   /**
-   * The crown, along the top of the whole bank.
+   * The crown, along the top of the bank.
    *
-   * A hood housing carries one round its own top section, and a chimney breast
-   * with a moulding that stops at its own sides is a piece of furniture parked
-   * against the cabinets. The same moulding runs along every bank that reaches
-   * the ceiling, at the same height and standing off the face by the same
-   * amount, so what a customer sees along the top of that wall is one line
-   * that happens to step forward where the breast does.
+   * A hood housing carries its own round its own top section, because that one
+   * steps forward with the breast. Everything else on a bank that reaches the
+   * ceiling takes the line along the wall — the cabinets, and the scribe
+   * between a breast and the tower beside it — so what a customer sees along
+   * the top of that wall is a single line that steps forward where the breast
+   * does and is unbroken everywhere else.
    */
-  const housing = bank.modules.some((module) => module.kind === "hood-cabinet");
-  if (!housing && Math.abs(band[1] - ROOM.wallHeight) < 1e-6) {
+  if (Math.abs(band[1] - ROOM.wallHeight) < 1e-6) {
     const moulding = ft(HOOD_CABINET.mouldingIn);
     const proud = ft(HOOD_CABINET.mouldingProudIn);
     const depth = ROOM.upperDepth + proud;
-    boxes.push(
-      onRun(
-        run,
-        `${bank.id}-crown`,
-        "upper",
-        [bank.from, bank.to] as const,
-        [band[1] - moulding, band[1]] as const,
-        depth,
-        -(ROOM.counterDepth - depth) / 2,
-        // No module: it is a length of moulding along the bank rather than one
-        // of the boxes in it, and every rule that counts boxes should skip it.
-        {},
-      ),
-    );
+    for (const [index, along] of crownRuns(bank).entries()) {
+      boxes.push(
+        onRun(
+          run,
+          `${bank.id}-crown-${index}`,
+          "upper",
+          along,
+          [band[1] - moulding, band[1]] as const,
+          depth,
+          -(ROOM.counterDepth - depth) / 2,
+          // No module: it is a length of moulding along the bank rather than
+          // one of the boxes in it, and every rule that counts boxes skips it.
+          {},
+        ),
+      );
+    }
   }
   return boxes;
+}
+
+/**
+ * The stretches of a bank the crown runs along: all of it, less the housing.
+ *
+ * Contiguous modules make one length of moulding rather than one per cabinet,
+ * which is how it is cut and how it has to be drawn — two lengths meeting in
+ * the middle of a wall show a seam the joiner never made.
+ */
+function crownRuns(bank: UpperBank): (readonly [number, number])[] {
+  const runs: [number, number][] = [];
+  let open: [number, number] | null = null;
+  eachModule(bank.from, bank.modules, (module, along) => {
+    if (module.kind === "hood-cabinet") {
+      if (open) runs.push(open);
+      open = null;
+      return;
+    }
+    if (open && Math.abs(open[1] - along[0]) < 1e-9) open[1] = along[1];
+    else {
+      if (open) runs.push(open);
+      open = [along[0], along[1]];
+    }
+  });
+  if (open) runs.push(open);
+  return runs;
 }
 
 function runBoxes(run: CabinetRun): CabinetBox[] {
