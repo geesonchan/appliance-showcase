@@ -797,9 +797,55 @@ async function captureRound25(page) {
   await page.screenshot({ path: `${outDir}/mobile-b-tower-left.png` });
 }
 
+/**
+ * Round 26: the three corrections from the phone review.
+ *
+ * The mode switch on one line, the wine column standing on its own grille
+ * beside the refrigerator, and the counter between the cooking surface and the
+ * oven tower — which is as wide as this wall will pay for rather than the
+ * eighteen it asks for.
+ */
+async function captureRound26(page) {
+  await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await settle(page, 2400);
+  // The switch itself, on the package it is hardest to fit: English labels.
+  await page.screenshot({ path: `${outDir}/mobile-modes.png` });
+
+  await page.locator(`[data-segment="package"] button`, { hasText: "B" }).first().click();
+  await settle(page, 2400);
+  // Zoomed rather than flown: the fly-in frames the column head on, where the
+  // refrigerator beside it is in the way of the one detail worth seeing —
+  // the four inches at the bottom of both of them.
+  await click(page, "Zoom in");
+  await settle(page, 600);
+  await settle(page, 1200);
+  await page.screenshot({ path: `${outDir}/mobile-b-column.png` });
+  await click(page, "Reset view");
+  await settle(page, 1400);
+
+  await flyTo(page, /Range/);
+  await settle(page, 1500);
+  await page.screenshot({ path: `${outDir}/mobile-b-landing.png` });
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round26") {
+    const ctx = await browser.newContext({
+      viewport: MOBILE,
+      deviceScaleFactor: 2,
+      isMobile: true,
+      hasTouch: true,
+    });
+    const page = await ctx.newPage();
+    await captureRound26(page);
+    await ctx.close();
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round25") {
     const ctx = await browser.newContext({
