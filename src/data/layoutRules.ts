@@ -64,9 +64,10 @@ function isOrderable(module: CabinetModule): boolean {
     case "corner":
       return CORNER_WIDTHS.includes(module.widthIn);
     case "panel":
-      // A finished panel is cut to the job. Three inches is the standard, and
-      // anything from an inch and a half up is a panel somebody can order.
-      return module.widthIn >= 1.5;
+      // A finished panel is cut to the job. Three inches is the standard for
+      // one that fills a gap; a tall unit's own side is the board itself, and
+      // a board is 3/4" thick.
+      return module.widthIn >= 0.75;
     case "spacer":
       // A kit with a part number, so its width is the kit's and not a choice.
       return module.widthIn > 0 && module.code.length > 0;
@@ -114,9 +115,29 @@ function locate(runs: CabinetRun[], slotId: SlotId): { run: CabinetRun; index: n
  * sheet asks for, and a tower three cabinets away is not beside anything.
  */
 function besideTheRange(run: CabinetRun, index: number): boolean {
-  const segment = run.segments[index];
-  if (!segment.slot || PACKAGE_SLOTS[segment.slot]?.beside !== "range") return false;
-  return [index - 2, index + 2].some((at) => run.segments[at]?.slot === "slot-range");
+  const isTower = (at: number) => {
+    const slot = run.segments[at]?.slot;
+    return !!slot && PACKAGE_SLOTS[slot]?.beside === "range";
+  };
+  // The tower's own side panel is part of the tower: a board from the floor to
+  // its top, which is a tall segment with nothing in it.
+  if (!isTower(index)) {
+    const panel = run.segments[index].modules.every((module) => module.kind === "panel");
+    return panel && (isTower(index - 1) || isTower(index + 1));
+  }
+  // And the machine is beside it: counter and the panel are what may be
+  // between them, nothing else.
+  for (const step of [-1, 1]) {
+    for (let at = index + step; at >= 0 && at < run.segments.length; at += step) {
+      const segment = run.segments[at];
+      if (segment.slot === "slot-range") return true;
+      const passable =
+        segment.kind === "counter" ||
+        (segment.kind === "tall" && segment.modules.every((m) => m.kind === "panel"));
+      if (!passable) break;
+    }
+  }
+  return false;
 }
 
 /**
@@ -341,13 +362,11 @@ export function checkLayout(
      * inches the machine's sheet wants — and the other side has to be the wide
      * one on its own, which is where a pan actually comes off the burner.
      */
-    const towerAt = [range.index - 2, range.index + 2].find(
-      (at) =>
-        range.run.segments[at]?.slot &&
-        PACKAGE_SLOTS[range.run.segments[at]!.slot!]?.beside === "range",
+    const towerAt = range.run.segments.findIndex(
+      (segment) => segment.slot && PACKAGE_SLOTS[segment.slot]?.beside === "range",
     );
-    const towered = towerAt !== undefined;
-    const towerSide = towered ? (towerAt! < range.index ? -1 : 1) : 0;
+    const towered = towerAt >= 0;
+    const towerSide = towered ? (towerAt < range.index ? -1 : 1) : 0;
     const away = towered ? landing(range.run, range.index, towerSide === -1 ? 1 : -1) : wide;
 
     if (towered ? away < wanted.wideIn - 1e-6 : wide < wanted.wideIn - 1e-6 || narrow < wanted.narrowIn - 1e-6) {
@@ -361,19 +380,32 @@ export function checkLayout(
       );
     }
 
-    // D11 rule 12: what stands between the two of them. Six inches because the
-    // rangetop's sheet asks for five to a combustible surface; a foot because
-    // past that it is a gap in the run rather than a cabinet in it.
+    // D11 rule 12: open counter between the two of them, and the tower's own
+    // side panel at the end of it. Five inches because the rangetop's sheet
+    // asks for five to a combustible surface; more is better, and it is where
+    // the wall's slack goes.
     if (towered) {
-      const between = widthIn(
-        range.run.segments[towerAt! < range.index ? range.index - 1 : range.index + 1],
-      );
-      const { minIn, maxIn } = LAYOUT_LIMITS.towerSpacer;
-      if (between < minIn - 1e-6 || between > maxIn + 1e-6) {
+      const [from, to] = towerAt < range.index ? [towerAt + 1, range.index] : [range.index + 1, towerAt];
+      const between = range.run.segments.slice(from, to);
+      const counter = between
+        .filter((segment) => segment.kind === "counter")
+        .reduce((sum, segment) => sum + widthIn(segment), 0);
+      const { counterIn, panelIn } = LAYOUT_LIMITS.towerSpacer;
+      if (counter < counterIn - 1e-6) {
         fail(
           "d11-12",
-          `${between.toFixed(1)}" of cabinet between the cooking surface and the oven tower, ` +
-            `wants ${minIn}-${maxIn}"`,
+          `${counter.toFixed(1)}" of counter between the cooking surface and the oven tower, ` +
+            `needs ${counterIn}"`,
+        );
+      }
+      // And what closes the tower is a board, not a cabinet.
+      const side = between.find((segment) => segment.kind === "tall");
+      if (!side) {
+        fail("d11-12", "the oven tower has no finished side toward the cooking surface");
+      } else if (Math.abs(widthIn(side) - panelIn) > 1e-6) {
+        fail(
+          "d11-12",
+          `the oven tower's side is ${widthIn(side).toFixed(2)}", wants ${panelIn}"`,
         );
       }
     }

@@ -60,7 +60,11 @@ export function setRoomSize(backWallIn: number, leftWallIn: number) {
 export const CABINET_STANDARDS = {
   base: { depthIn: 24, boxHeightIn: 34.5, counterHeightIn: 36 },
   /** Cabinet widths come in 3" increments between 12" and 36". */
-  widthIn: { min: 12, max: 36, step: 3 },
+  // Nine, not twelve: a 9" base is a spice pull-out or a tray divider and
+  // every line offers one. It is what a stretch too narrow for a door and too
+  // wide for a filler actually gets built as — which is most of the counter
+  // between a cooking surface and the oven tower beside it.
+  widthIn: { min: 9, max: 36, step: 3 },
   upper: { depthIn: 12, heightsIn: [30, 36, 42], bottomAboveCounterIn: 18 },
   tall: { depthIn: 24, heightsIn: [84, 90, 96] },
   /** A lazy susan is a 36" square; a blind corner is 42" along one run. */
@@ -122,15 +126,16 @@ export const LAYOUT_LIMITS = {
   /** D11 rule 6: counter on the refrigerator's door side. */
   fridgeLandingIn: 15,
   /**
-   * D11 rule 12: what goes between a cooking surface and the oven tower
-   * beside it.
+   * D11 rule 12: what goes between a cooking surface and the oven tower.
    *
-   * PCG366W asks for 5" from the burners to a combustible surface, so a tower
-   * hard against the machine is not an option; six inches of joinery is the
-   * least that may be there. Twelve is the most: past that it stops being a
-   * spice pull-out beside the burners and becomes a gap in the run.
+   * Open counter, and the tower's own side panel at the end of it. PCG366W
+   * asks for 5" from the burners to a combustible surface, so that is the
+   * least counter that may be there — and whatever the wall has spare goes
+   * into it, because a working counter beside the burners is where you want
+   * the slack rather than a wider cabinet somewhere else. What closes the
+   * tower is a finished end panel, 3/4" of board from the floor to its top.
    */
-  towerSpacer: { minIn: 6, maxIn: 12 },
+  towerSpacer: { counterIn: 5, panelIn: 0.75 },
   /** D11 rule 7: the aisle a working kitchen needs, for the island. */
   aisleIn: 42,
   /**

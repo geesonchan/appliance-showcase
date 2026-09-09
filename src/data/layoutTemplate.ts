@@ -1247,14 +1247,24 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
       ];
     }
     const beside = besideRange.map(column);
-    const spacer = gap("tower-spacer", LAYOUT_LIMITS.towerSpacer.minIn, "d11-12", {
-      shrink: "corner-to-range",
-      maxIn: LAYOUT_LIMITS.towerSpacer.maxIn,
+    const { counterIn, panelIn } = LAYOUT_LIMITS.towerSpacer;
+    // The tower's own side, floor to top: a board rather than a cabinet.
+    const side = fixed("tower-panel", panelIn, "tall", M(`PNL${panelIn}`, "panel", panelIn));
+    // And the counter between it and the machine, which is the clearance the
+    // rangetop's sheet asks for. It takes slack readily: five inches is the
+    // least it may be, not what it wants to be.
+    //
+    // Six is the least it is *built* at, because five inches of counter is a
+    // piece nobody makes: under the cabinet minimum it is a filler, and a
+    // filler stops at six inches. Six satisfies the five the rule asks for, and the
+    // slack lands on it three inches at a time — nine, twelve, and up.
+    const clearance = gap("tower-clearance", Math.max(counterIn, 6), "d11-12", {
+      shrink: "range-to-sink",
     });
     const away = gap("range-landing", landing.wideIn, "d11-4", { shrink: "range-to-sink" });
     return params.towerSide === "left"
-      ? [...beside, spacer, cooking(), away]
-      : [away, cooking(), spacer, ...beside];
+      ? [...beside, side, clearance, cooking(), away]
+      : [away, cooking(), clearance, side, ...beside];
   };
 
   /**

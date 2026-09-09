@@ -74,16 +74,23 @@ export function HoodCabinet({ box, s }: { box: CabinetBox; s: SurfaceProps }) {
         </group>
       )}
 
-      {/* The top box, and the crown against the ceiling. */}
+      {/* The top box, and the crown against the ceiling.
+          The crown is the same moulding the banks either side carry, in the
+          same plane: it runs across the housing and out along the cabinets as
+          one line, which is what a crown is for. Its width is the housing's,
+          because the housing is what it is standing on. */}
       {parts.crown.h > 0 && (
         <>
           <mesh position={[0, y(parts.crown.y), 0]} castShadow receiveShadow>
             <boxGeometry args={[parts.crown.w, parts.crown.h, parts.crown.d]} />
             <Surface s={s} size={[parts.crown.w, parts.crown.h]} />
           </mesh>
-          <mesh position={[0, y(h - moulding / 2), 0]} castShadow>
-            <boxGeometry args={[parts.crown.w + proud, moulding, parts.crown.d + proud]} />
-            <Surface s={s} size={[parts.crown.w, moulding]} />
+          <mesh
+            position={[0, y(h - moulding / 2), (d - parts.crown.d - proud) / 2]}
+            castShadow
+          >
+            <boxGeometry args={[w, moulding, parts.crown.d + proud]} />
+            <Surface s={s} size={[w, moulding]} />
           </mesh>
         </>
       )}

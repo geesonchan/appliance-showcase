@@ -774,6 +774,10 @@ function WineColumn({
       {parts.parts.map((part) => {
         const height = part.band[1] - part.band[0];
         const middle = (part.band[0] + part.band[1]) / 2;
+        // The door is one panel with a window cut in it: solid across the top
+        // and the bottom, solid down each side of the glass, and the glass
+        // itself set back in the middle of it.
+        const stile = (parts.door.w - parts.glass.w) / 2;
         return part.kind === "panel" ? (
           <mesh key={part.band[0]} position={[0, middle, face + ft(0.4)]} castShadow>
             <boxGeometry args={[parts.door.w, height, ft(0.75)]} />
@@ -781,20 +785,18 @@ function WineColumn({
           </mesh>
         ) : (
           <group key={part.band[0]}>
-            {/* The glass, and the frame round it: the door is one panel with a
-                window cut in it, not a sheet of glass in a hole. */}
-            <mesh position={[0, middle, face + ft(0.55)]}>
-              <boxGeometry args={[parts.door.w - ft(2), height - ft(1), ft(0.1)]} />
+            <mesh position={[0, middle, face + ft(0.3)]}>
+              <boxGeometry args={[parts.glass.w, height, ft(0.1)]} />
               <Mat s={glass} />
             </mesh>
             {[-1, 1].map((side) => (
               <mesh
                 key={side}
-                position={[(side * (parts.door.w - ft(1))) / 2, middle, face + ft(0.4)]}
+                position={[(side * (parts.door.w - stile)) / 2, middle, face + ft(0.4)]}
                 castShadow
               >
-                <boxGeometry args={[ft(1), height, ft(0.75)]} />
-                <Mat s={body} size={[ft(1), height]} />
+                <boxGeometry args={[stile, height, ft(0.75)]} />
+                <Mat s={body} size={[stile, height]} />
               </mesh>
             ))}
           </group>

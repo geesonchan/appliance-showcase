@@ -1,8 +1,16 @@
 import { afterAll, describe, expect, it } from "vitest";
 import { applianceBox } from "./applianceBox";
-import { COMBO_OVEN, comboHandleAt, comboOvenParts, comboSillFor } from "./columnModel";
+import {
+  COMBO_OVEN,
+  WINE_COLUMN,
+  comboHandleAt,
+  comboOvenParts,
+  comboSillFor,
+  wineColumnParts,
+} from "./columnModel";
 import { cooktopHeight } from "./rangeModel";
 import { CABINETS } from "./cabinets";
+import { hoodCabinetParts } from "./insertHood";
 import { APPLIANCE_BY_ID } from "./catalogue";
 import { dimensionsFor } from "./dimensions";
 import { checkLayout } from "./layoutRules";
@@ -644,12 +652,21 @@ describe("a bank of tall units", () => {
       const run = RUNS.find((r) => r.segments.some((s) => s.slot === "slot-range"))!;
       const rangeAt = run.segments.findIndex((s) => s.slot === "slot-range");
       const towerAt = run.segments.findIndex((s) => s.slot === "slot-microwave");
-      expect(Math.abs(towerAt - rangeAt), where).toBe(2);
       expect(towerAt < rangeAt, where).toBe(towerSide === "left");
 
-      const between = run.segments[(towerAt + rangeAt) / 2];
-      expect(inches(between.to - between.from), `${where}: spacer`).toBeGreaterThanOrEqual(6);
-      expect(inches(between.to - between.from), `${where}: spacer`).toBeLessThanOrEqual(12);
+      // Between them: the tower's own side panel, and open counter.
+      const [from, to] =
+        towerAt < rangeAt ? [towerAt + 1, rangeAt] : [rangeAt + 1, towerAt];
+      const between = run.segments.slice(from, to);
+      const side = between.find((segment) => segment.kind === "tall")!;
+      expect(side, `${where}: no side panel`).toBeTruthy();
+      expect(inches(side.to - side.from), `${where}: side panel`).toBeCloseTo(0.75, 6);
+      expect(side.modules.every((module) => module.kind === "panel"), where).toBe(true);
+
+      const counter = between
+        .filter((segment) => segment.kind === "counter")
+        .reduce((sum, segment) => sum + inches(segment.to - segment.from), 0);
+      expect(counter, `${where}: clearance`).toBeGreaterThanOrEqual(5);
 
       // The far side of the machine, which is the landing a pan comes off on.
       const away = run.segments[towerAt < rangeAt ? rangeAt + 1 : rangeAt - 1];
@@ -739,6 +756,78 @@ describe("a bank of tall units", () => {
         box.kind === "surround",
     );
     expect(inside.map((box) => box.id), "panels inside the column").toEqual([]);
+  });
+
+  /**
+   * Nothing on that wall stands above the wall cabinets' top line.
+   *
+   * The housing is part of the wall rather than a chimney parked against it,
+   * so its top section stops where the cabinets do and is as deep as they are.
+   * Two banks level with each other and a housing half a foot nearer the eye
+   * still read as a step in an isometric view, which is what this stops.
+   */
+  it("keeps every part of the housing under the cabinets' top line", () => {
+    activate("package-b");
+    const run = RUNS.find((r) => r.segments.some((s) => s.slot === "slot-range"))!;
+    const banks = run.uppers.filter(
+      (bank) => !bank.modules.some((module) => module.kind === "hood-cabinet"),
+    );
+    const top = Math.max(...banks.map((bank) => (bank.band ?? [0, ROOM.wallHeight])[1]));
+
+    const housing = CABINETS.find((box) => box.module?.kind === "hood-cabinet")!;
+    const parts = hoodCabinetParts({
+      w: housing.size[0],
+      h: housing.size[1],
+      d: housing.size[2],
+    });
+    const floor = housing.position[1] - housing.size[1] / 2;
+
+    // Every section of it, and the crown on top of the last one.
+    for (const [name, part] of [
+      ["base", parts.base],
+      ["crown", parts.crown],
+    ] as const) {
+      expect(inches(floor + part.y + part.h / 2), name).toBeLessThanOrEqual(inches(top) + 1e-6);
+    }
+    expect(inches(floor + parts.base.h + parts.taper.h + parts.crown.h)).toBeCloseTo(
+      inches(top),
+      6,
+    );
+    // And it is no deeper than the cabinets where it meets them, or the line
+    // along the top steps forward in the drawing even though it is level.
+    expect(inches(parts.crown.d)).toBeLessThanOrEqual(inches(ROOM.upperDepth) + 1e-6);
+  });
+
+  /**
+   * The wine column's door, to the panel drawing.
+   *
+   * A window in the middle of a solid door: 10-1/8" of panel at the top and
+   * the bottom, and 3-3/4" down each side — variable to 2-1/2", which is the
+   * range a panel is cut to. What is left is the glass, about 10-1/4" wide,
+   * and the door itself starts 4" off the floor on its toe kick.
+   */
+  it("cuts the column's window where the panel drawing puts it", () => {
+    activate("package-b");
+    const wine = APPLIANCE_BY_ID[PACKAGE_BY_ID["package-b"].defaultSelection["slot-wine"]!];
+    const box = applianceBox(SLOT_BY_ID["slot-wine"], wine);
+    const parts = wineColumnParts(box);
+
+    expect(inches(parts.door.w)).toBeCloseTo(17.75, 6);
+    expect(inches(parts.door.h)).toBeCloseTo(79.875, 6);
+    expect(inches(parts.door.y)).toBeCloseTo(4, 6);
+
+    // The window: between 2-1/2" and 3-3/4" of solid each side.
+    const { min, max } = WINE_COLUMN.glassInsetRangeIn;
+    expect(inches(parts.glass.w)).toBeGreaterThanOrEqual(17.75 - max * 2 - 1e-6);
+    expect(inches(parts.glass.w)).toBeLessThanOrEqual(17.75 - min * 2 + 1e-6);
+    expect(inches(parts.glass.w)).toBeCloseTo(10.25, 6);
+
+    // And 10-1/8" of solid top and bottom, which leaves 59-5/8" of glass.
+    const [bottom, glassBand, top] = parts.parts;
+    expect(inches(bottom.band[1] - bottom.band[0])).toBeCloseTo(10.125, 6);
+    expect(inches(top.band[1] - top.band[0])).toBeCloseTo(10.125, 6);
+    expect(inches(glassBand.band[1] - glassBand.band[0])).toBeCloseTo(59.625, 6);
+    expect(glassBand.kind).toBe("glass");
   });
 
   /**

@@ -75,18 +75,30 @@ export const COLUMN_DOOR_PANELS = {
 } as const;
 
 /**
- * How an 18" wine column divides, in inches.
+ * How an 18" wine column's door divides, in inches.
  *
- * From the T18IW100SP drawing: a 79-7/8" door panel with a fixed panel at each
- * end of it — 6-1/4" at the top and 9-9/16" at the bottom — and glass between
- * them. The two fixed panels are cabinetry, in the door finish; only the field
- * between them is glass, and that is where the bottles are.
+ * From the T18IW905SP panel drawing, which is the family's: a 17-3/4" x
+ * 79-7/8" door standing 4" off the floor, with a window in the middle of it —
+ * 10-1/8" of solid at the top and the bottom, and 3-3/4" of solid down each
+ * side. What is left is about 10-1/4" x 59-5/8" of glass, and that is where
+ * the bottles show.
+ *
+ * The side inset is the one figure with any give in it: the drawing calls it
+ * variable between 2-1/2" and 3-3/4", which is the range a panel is cut to.
+ * The solid parts are the same material as the door itself — steel where the
+ * machine is sold with a steel panel, the kitchen's own door where it is
+ * panel-ready.
  */
 export const WINE_COLUMN = {
   doorHeightIn: 79.875,
   doorWidthIn: 17.75,
-  topPanelIn: 6.25,
-  bottomPanelIn: 9.5625,
+  /** Solid at the top and at the bottom of the door. */
+  panelIn: 10.125,
+  /** Solid down each side of the window; 2-1/2" to 3-3/4" on the drawing. */
+  glassInsetIn: 3.75,
+  glassInsetRangeIn: { min: 2.5, max: 3.75 },
+  /** The door's own bottom, off the floor: the toe kick under it. */
+  toeIn: 4,
   /** The handle, which is the refrigerator's: a vertical tube on two brackets. */
   handleDiameterIn: 1.25,
   handleProudIn: 2.375,
@@ -103,10 +115,12 @@ export interface ColumnDoor {
 }
 
 export interface WineColumnParts {
-  /** The door panel: the whole face, in the cabinet's finish. */
+  /** The door panel: the whole face, in the machine's own finish. */
   door: { h: number; w: number; y: number };
   /** The three bands of that face, bottom to top. */
   parts: ColumnDoor[];
+  /** The window in it, centred: half-width and the band it spans. */
+  glass: { w: number; band: readonly [number, number] };
   /** Where the shelves show through the glass, in feet. */
   shelves: number[];
   /** Which side the hinge is on: -1 for the left, 1 for the right. */
@@ -128,27 +142,28 @@ export function wineColumnParts(
   const W = WINE_COLUMN;
   const doorH = Math.min(ft(W.doorHeightIn), box.h);
   const doorW = Math.min(ft(W.doorWidthIn), box.w);
-  // Centred in the opening: what is left above and below is the reveal the
-  // machine's own drawing leaves.
-  const y = (box.h - doorH) / 2;
+  // Four inches off the floor, which is the toe kick under it — not centred in
+  // the opening. What is above the door is the machine's own top rail.
+  const y = Math.min(ft(W.toeIn), Math.max(0, box.h - doorH));
 
-  const bottom = ft(W.bottomPanelIn);
-  const top = ft(W.topPanelIn);
-  const glass: readonly [number, number] = [y + bottom, y + doorH - top];
+  const band = ft(W.panelIn);
+  const glassBand: readonly [number, number] = [y + band, y + doorH - band];
+  const glassW = Math.max(0, doorW - ft(W.glassInsetIn) * 2);
 
   const shelves: number[] = [];
-  const span = glass[1] - glass[0];
+  const span = glassBand[1] - glassBand[0];
   for (let i = 1; i <= W.shelves; i += 1) {
-    shelves.push(glass[0] + (span * i) / (W.shelves + 1));
+    shelves.push(glassBand[0] + (span * i) / (W.shelves + 1));
   }
 
   return {
     door: { h: doorH, w: doorW, y },
     parts: [
-      { band: [y, y + bottom] as const, kind: "panel" },
-      { band: glass, kind: "glass" },
-      { band: [y + doorH - top, y + doorH] as const, kind: "panel" },
+      { band: [y, y + band] as const, kind: "panel" },
+      { band: glassBand, kind: "glass" },
+      { band: [y + doorH - band, y + doorH] as const, kind: "panel" },
     ],
+    glass: { w: glassW, band: glassBand },
     shelves,
     hinge,
     handle: {

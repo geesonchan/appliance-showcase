@@ -33,9 +33,17 @@ export const HOOD_CABINET = {
   baseIn: 13.3125,
   /** The straight box at the top, which meets the ceiling. */
   crownIn: 8,
-  /** What the taper gathers in to: the flue, and the box round it. */
+  /**
+   * What the taper gathers in to: the flue, and the box round it.
+   *
+   * As deep as the wall cabinets it meets, not the 14" the round-20 note
+   * estimated. The top of that wall has to read as one line, and a top section
+   * standing two inches further into the room breaks it — in an isometric view
+   * anything nearer the eye draws higher, so a housing level with the cabinets
+   * still looked taller than them.
+   */
   topWidthIn: 24,
-  topDepthIn: 14,
+  topDepthIn: 12,
   /** The ledge the liner's flange rests on, from the manual. */
   ledgeIn: 0.625,
   /** The moulding along the bottom edge and again at the ceiling. */
