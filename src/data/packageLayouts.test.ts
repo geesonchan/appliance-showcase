@@ -13,6 +13,7 @@ import { CABINETS } from "./cabinets";
 import { hoodCabinetParts } from "./insertHood";
 import { APPLIANCE_BY_ID } from "./catalogue";
 import { dimensionsFor } from "./dimensions";
+import { counterOutline } from "./counter";
 import { checkLayout } from "./layoutRules";
 import { setActivePackage, setLayoutParams } from "./layoutState";
 import {
@@ -167,9 +168,61 @@ function sweep(id: string): number {
       checkLayout().map((problem) => `${problem.code}: ${problem.message}`),
       where,
     ).toEqual([]);
+    expectStoneOverEveryCabinet(id, where);
   }
   return built;
 }
+
+/** Point in polygon, to ask whether a piece of stone reaches somewhere. */
+function inside([x, z]: readonly [number, number], outline: readonly (readonly [number, number])[]) {
+  let within = false;
+  for (let i = 0, j = outline.length - 1; i < outline.length; j = i++) {
+    const [xi, zi] = outline[i];
+    const [xj, zj] = outline[j];
+    if (zi > z !== zj > z && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) within = !within;
+  }
+  return within;
+}
+
+/**
+ * Stone over every stretch of cabinet that is not a tall unit.
+ *
+ * The countertop used to stop at the first tall unit on a leg, which was
+ * right while the only tall units were the ones that finished a run. An oven
+ * tower beside the cooking surface stands in the middle of one, and the sink
+ * and the dishwasher past it were left standing under nothing.
+ *
+ * What is allowed to have no stone over it is a tall unit, and a range that
+ * stands on the floor rather than dropping into the top. Everything else on
+ * the perimeter carries a worktop, sink cutout and all — a hole in a slab is
+ * still that slab.
+ */
+function expectStoneOverEveryCabinet(id: string, where: string) {
+  const range = APPLIANCE_BY_ID[PACKAGE_BY_ID[id].defaultSelection["slot-range"]!];
+  const standsOnTheFloor = range.installType.some((type) => /freestanding/i.test(type));
+  const { pieces } = counterOutline(RUNS, range);
+
+  for (const run of RUNS) {
+    for (const segment of run.segments) {
+      if (segment.kind === "tall") continue;
+      if (standsOnTheFloor && segment.slot === "slot-range") continue;
+      // Both ends and the middle: a slab that reaches one end of a stretch and
+      // stops halfway along it is not a worktop over that stretch.
+      const nudge = ft(0.25);
+      for (const at of [
+        segment.from + nudge,
+        (segment.from + segment.to) / 2,
+        segment.to - nudge,
+      ]) {
+        const point =
+          run.axis === "x" ? ([at, run.centre] as const) : ([run.centre, at] as const);
+        const covered = pieces.some((piece) => inside(point, piece.outline));
+        expect(covered, `${where}: no worktop over ${segment.id} at ${inches(at)}"`).toBe(true);
+      }
+    }
+  }
+}
+
 
 describe("every package over the whole parameter space", () => {
   it("either builds a room that passes every rule, or refuses with a reason", () => {

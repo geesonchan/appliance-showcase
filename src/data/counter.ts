@@ -45,8 +45,12 @@ const RANGE_LIP_IN = 1;
  * back solid, which is exactly what a freestanding range looked like here.
  *
  * What also stops the stone is a tall cabinet, which goes through to the
- * ceiling — so each leg runs from the corner to whichever comes first, its
- * tower or its end.
+ * ceiling. It stops it; it does not end the leg. A tower standing in the
+ * middle of a run — an oven tower beside the cooking surface — has counter
+ * before it and counter after it, and a leg that stopped at the first tall
+ * unit it met left the sink and the dishwasher past it standing under nothing.
+ * So a tall unit is a cut like any other, and each leg is every stretch
+ * between its cuts.
  */
 export function counterOutline(
   runs: CabinetRun[] = RUNS,
@@ -62,20 +66,34 @@ export function counterOutline(
   const zBack = back.centre - ROOM.counterDepth / 2;
   const zFront = back.centre + ROOM.counterDepth / 2 + ROOM.counterOverhang;
 
-  // Each leg as a band from the corner outward, split wherever a freestanding
-  // range cuts it through.
-  const leftSpans = spans(zBack, legEnd(left), cuts(left, range));
-  const backSpans = spans(xBack, legEnd(back), cuts(back, range));
+  // Each leg as the stretches between its cuts, from the corner outward.
+  const leftSpans = spans(zBack, runEnd(left), cuts(left, range));
+  const backSpans = spans(xBack, runEnd(back), cuts(back, range));
 
-  // The first span of each leg meets at the corner and is one piece of stone;
-  // anything past a cut is a slab of its own.
+  // The two legs are one slab where both of them reach the corner and both
+  // reach past the square where they overlap, and that is the usual case: an
+  // L needs six corners, and a leg that stops inside that square cannot make
+  // one. Where a leg is cut at the corner itself — a refrigerator standing
+  // there — there is nothing to turn, and each leg is its own piece.
+  const cornered =
+    leftSpans.length > 0 &&
+    backSpans.length > 0 &&
+    near(leftSpans[0][0], zBack) &&
+    near(backSpans[0][0], xBack) &&
+    leftSpans[0][1] > zFront &&
+    backSpans[0][1] > xFront;
+
   const outlines: Point2[][] = [
-    lShape(
-      { back: xBack, front: xFront, to: leftSpans[0][1] },
-      { back: zBack, front: zFront, to: backSpans[0][1] },
-    ),
-    ...leftSpans.slice(1).map((span) => rect(span, [xBack, xFront], "z")),
-    ...backSpans.slice(1).map((span) => rect(span, [zBack, zFront], "x")),
+    ...(cornered
+      ? [
+          lShape(
+            { back: xBack, front: xFront, to: leftSpans[0][1] },
+            { back: zBack, front: zFront, to: backSpans[0][1] },
+          ),
+        ]
+      : []),
+    ...leftSpans.slice(cornered ? 1 : 0).map((span) => rect(span, [xBack, xFront], "z")),
+    ...backSpans.slice(cornered ? 1 : 0).map((span) => rect(span, [zBack, zFront], "x")),
   ];
 
   const holes = [...rangeHoles(runs, range), ...sinkHoles(runs)];
@@ -89,21 +107,32 @@ export function counterOutline(
   };
 }
 
-/** Where a leg's counter stops: at its tower, or at the end of the run. */
-function legEnd(run: CabinetRun): number {
-  const tower = run.segments.find((segment) => segment.kind === "tall");
-  return tower ? tower.from : run.segments[run.segments.length - 1].to;
-}
+/** Where a leg's counter stops: the end of the run. */
+const runEnd = (run: CabinetRun) => run.segments[run.segments.length - 1].to;
+
+/** Same figure twice, to the tolerance a generated run is built to. */
+const near = (a: number, b: number) => Math.abs(a - b) < 1e-9;
 
 /** True when the machine specified stands on the floor rather than dropping in. */
 const standsOnTheFloor = (range?: Appliance) =>
   !range || range.installType.some((type) => /freestanding/i.test(type));
 
-/** Where a leg's stone is cut clean through, along the run. */
+/**
+ * Where a leg's stone is cut clean through, along the run.
+ *
+ * Two things do it. A tall unit goes floor to ceiling, so the stone dies into
+ * its side and starts again on the other — the tower's own end panel included,
+ * which is a tall unit three quarters of an inch wide. And a range that stands
+ * on the floor rather than dropping into the top, which is the same cut for
+ * the same reason.
+ */
 function cuts(run: CabinetRun, range?: Appliance): [number, number][] {
-  if (!standsOnTheFloor(range)) return [];
+  const floorStanding = standsOnTheFloor(range);
   return run.segments
-    .filter((segment) => segment.slot === "slot-range")
+    .filter(
+      (segment) =>
+        segment.kind === "tall" || (floorStanding && segment.slot === "slot-range"),
+    )
     .map((segment) => [segment.from, segment.to] as [number, number]);
 }
 
@@ -116,7 +145,7 @@ function spans(from: number, to: number, gaps: [number, number][]): [number, num
     cursor = Math.max(cursor, b);
   }
   if (to > cursor) out.push([cursor, to]);
-  return out.length > 0 ? out : [[from, from]];
+  return out;
 }
 
 /** The corner piece: two bands meeting, written clockwise from the inside. */
