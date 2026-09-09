@@ -128,14 +128,19 @@ export const LAYOUT_LIMITS = {
   /**
    * D11 rule 12: what goes between a cooking surface and the oven tower.
    *
-   * Open counter, and the tower's own side panel at the end of it. PCG366W
-   * asks for 5" from the burners to a combustible surface, so that is the
-   * least counter that may be there — and whatever the wall has spare goes
-   * into it, because a working counter beside the burners is where you want
-   * the slack rather than a wider cabinet somewhere else. What closes the
-   * tower is a finished end panel, 3/4" of board from the floor to its top.
+   * Open counter, and the tower's own side panel at the end of it. What closes
+   * the tower is a finished end panel, 3/4" of board from the floor to its top.
+   *
+   * Three figures, and they are three different things. Five inches is the
+   * machine's: PCG366W asks for that much from the burners to a combustible
+   * surface, and it is a clearance rather than a work surface. Eighteen is
+   * what the stretch is built at — a landing wide enough to put a pan down on
+   * and enough open counter that the tower does not crowd the cooking, which
+   * is why the wall's spare inches go here before anywhere else. Six is where
+   * it stops when the wall will not give it eighteen: five inches of counter
+   * is a piece nobody makes, and a filler stops at six.
    */
-  towerSpacer: { counterIn: 5, panelIn: 0.75 },
+  towerSpacer: { counterIn: 5, wantIn: 18, panelIn: 0.75 },
   /** D11 rule 7: the aisle a working kitchen needs, for the island. */
   aisleIn: 42,
   /**

@@ -386,7 +386,7 @@ const takesSpacer = (a: PackageSlot | undefined, b: PackageSlot | undefined) =>
  * One thing on a leg: either a fixed width, or a stretch of counter that takes
  * whatever is left over.
  */
-type Item =
+export type Item =
   | {
       kind: "fixed";
       id: string;
@@ -415,6 +415,19 @@ type Item =
        * wider than that and it is a gap somebody forgot to fill.
        */
       maxIn?: number;
+      /**
+       * What it is built at when the wall can pay for it.
+       *
+       * A minimum is what a rule forbids going under; this is what somebody
+       * would build if nothing were tight. The counter between a rangetop and
+       * the oven tower beside it is the case the distinction exists for: five
+       * inches is the machine's clearance to a combustible surface and six is
+       * the narrowest piece anybody makes, but eighteen is a landing you can
+       * put a pan down on — so the wall's spare inches go here before they go
+       * anywhere else, and a wall that cannot pay for it builds narrower and
+       * says so.
+       */
+      wantIn?: number;
       /** The rule that asks for it, for the breakdown under the slider. */
       rule: string;
       labelKey: string;
@@ -442,7 +455,7 @@ const gap = (
   id: string,
   minIn: number,
   rule: string,
-  extra: { shrink?: ShrinkGroup; maxIn?: number } = {},
+  extra: { shrink?: ShrinkGroup; maxIn?: number; wantIn?: number } = {},
 ): Item => ({ kind: "gap", id, minIn, rule, labelKey: `requirement.${id}`, ...extra });
 
 /**
@@ -484,9 +497,18 @@ function mergeGaps(items: Item[]): Item[] {
  * The surplus goes out in the reverse of `layout.shrinkOrder`, so a stretch
  * that gives up its slack first is the last to be handed any. Within one rank
  * it is shared 3" at a time, which is what keeps the landings either side of a
- * range looking like a pair.
+ * range looking like a pair. Before any of that, a stretch that asks for a
+ * width is given it: see `wantIn`.
+ *
+ * Exported for its own tests. Every dimension in the room comes out of this
+ * function, and a rule about how the slack is shared is easier to state
+ * against a leg somebody made up than against whichever leg a package happens
+ * to produce.
  */
-function packLeg(availableIn: number, items: Item[]): { widths: number[] } | { shortIn: number } {
+export function packLeg(
+  availableIn: number,
+  items: Item[],
+): { widths: number[] } | { shortIn: number } {
   const fixedIn = items.reduce((sum, item) => sum + (item.kind === "fixed" ? item.widthIn : 0), 0);
   const gaps = items.filter((item) => item.kind === "gap") as Extract<Item, { kind: "gap" }>[];
 
@@ -514,6 +536,23 @@ function packLeg(availableIn: number, items: Item[]): { widths: number[] } | { s
     if (widths[i] === 0 && spare >= minBox) {
       widths[i] += minBox;
       spare -= minBox;
+    }
+  }
+
+  // What a stretch asks for, before anything is shared out.
+  //
+  // A minimum is what a rule forbids going under, and sharing the surplus
+  // evenly over stretches that are all at their minimum treats them as equally
+  // deserving. They are not: the counter beside a cooking surface is where the
+  // pan lands, and it is built at what it asks for while there is wall to pay
+  // for it. What is left after that goes round the rest as before, so a long
+  // wall still spreads.
+  for (const i of order) {
+    const want = gaps[i].wantIn;
+    if (want === undefined) continue;
+    while (spare >= 3 && widths[i] + 3 <= want) {
+      widths[i] += 3;
+      spare -= 3;
     }
   }
 
@@ -1271,19 +1310,28 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
       ];
     }
     const beside = besideRange.map(column);
-    const { counterIn, panelIn } = LAYOUT_LIMITS.towerSpacer;
+    const { counterIn, wantIn, panelIn } = LAYOUT_LIMITS.towerSpacer;
     // The tower's own side, floor to top: a board rather than a cabinet.
     const side = fixed("tower-panel", panelIn, "tall", M(`PNL${panelIn}`, "panel", panelIn));
     // And the counter between it and the machine, which is the clearance the
     // rangetop's sheet asks for. It takes slack readily: five inches is the
     // least it may be, not what it wants to be.
     //
-    // Six is the least it is *built* at, because five inches of counter is a
-    // piece nobody makes: under the cabinet minimum it is a filler, and a
-    // filler stops at six inches. Six satisfies the five the rule asks for, and the
-    // slack lands on it three inches at a time — nine, twelve, and up.
+    // Eighteen is what it is built at: a landing wide enough to put a pan down
+    // on, and enough open counter that the tower does not crowd the cooking.
+    // Six is where it stops when the wall will not pay for eighteen — five
+    // inches of counter is a piece nobody makes, since under the cabinet
+    // minimum it is a filler and a filler stops at six — and it comes down
+    // from eighteen three inches at a time, with the install list saying where
+    // it landed.
     const clearance = gap("tower-clearance", Math.max(counterIn, 6), "d11-12", {
       shrink: "range-to-sink",
+      // What it is built at, and what it stops at. Both are `wantIn`: the
+      // stretch is served first up to it, and the round-robin that shares out
+      // what is left does not push it past what it asked for — a wall with
+      // sixty spare inches wants them at the sink, not here.
+      wantIn,
+      maxIn: wantIn,
     });
     const away = gap("range-landing", landing.wideIn, "d11-4", { shrink: "range-to-sink" });
     return params.towerSide === "left"

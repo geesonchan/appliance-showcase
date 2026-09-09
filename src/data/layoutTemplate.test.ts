@@ -4,9 +4,11 @@ import {
   DEFAULT_PARAMS,
   PARAM_LIMITS,
   generateLayout,
+  packLeg,
+  type Item,
   type LayoutParams,
 } from "./layoutTemplate";
-import { CABINET_STANDARDS, ROOM } from "./roomShell";
+import { CABINET_STANDARDS, LAYOUT_LIMITS, ROOM } from "./roomShell";
 
 const inches = (feet: number) => feet * 12;
 const build = (over: Partial<LayoutParams> = {}) =>
@@ -219,5 +221,71 @@ describe("what it returns is a list somebody can edit", () => {
     const b = built();
     a.runs[0].segments.pop();
     expect(b.runs[0].segments.length).toBeGreaterThan(a.runs[0].segments.length);
+  });
+});
+
+/**
+ * How a leg's spare inches are shared out.
+ *
+ * Stated against a leg made up for the purpose, because the rule is about the
+ * arithmetic rather than about any one kitchen: a stretch that asks for a
+ * width is given it before anything else is handed a thing, and a wall that
+ * cannot pay for it builds narrower rather than refusing.
+ */
+describe("a stretch that asks for a width is served first", () => {
+  const { wantIn } = LAYOUT_LIMITS.towerSpacer;
+
+  /** A leg: a machine, the stretch beside it, and two ordinary landings. */
+  const leg = (): Item[] => [
+    { kind: "fixed", id: "range", widthIn: 36, segmentKind: "appliance", modules: [] },
+    { kind: "gap", id: "landing", minIn: 15, rule: "d11-4", labelKey: "requirement.landing" },
+    {
+      kind: "gap",
+      id: "tower-clearance",
+      minIn: 6,
+      wantIn,
+      maxIn: wantIn,
+      rule: "d11-12",
+      labelKey: "requirement.tower-clearance",
+    },
+    { kind: "gap", id: "end", minIn: 3, rule: "d13-terminal", labelKey: "requirement.end" },
+  ];
+  const widthsFor = (availableIn: number) => {
+    const packed = packLeg(availableIn, leg());
+    if ("shortIn" in packed) throw new Error(`short by ${packed.shortIn}"`);
+    return { landing: packed.widths[0], clearance: packed.widths[1], end: packed.widths[2] };
+  };
+
+  it("gives it what it asks for before the others are given anything", () => {
+    // Sixty of leg: 36 of machine and 24 of stretches, which is their minimum
+    // plus twelve — exactly what the landing asks for on top of its six.
+    const widths = widthsFor(36 + 24 + 12);
+    expect(widths.clearance).toBe(wantIn);
+    expect(widths.landing).toBe(15);
+    expect(widths.end).toBe(3);
+  });
+
+  it("stops at what it asked for, and the rest goes round the others", () => {
+    const widths = widthsFor(36 + 24 + 12 + 24);
+    expect(widths.clearance).toBe(wantIn);
+    expect(widths.landing + widths.end).toBe(24 + 15 + 3);
+  });
+
+  it("comes down three inches at a time when the wall is short", () => {
+    for (const [spare, expected] of [
+      [0, 6],
+      [3, 9],
+      [6, 12],
+      [9, 15],
+      [12, 18],
+    ] as const) {
+      const widths = widthsFor(36 + 24 + spare);
+      expect(widths.clearance, `${spare}" spare`).toBe(expected);
+    }
+  });
+
+  it("never takes it under the width a piece can be made at", () => {
+    const packed = packLeg(36 + 24 - 3, leg());
+    expect("shortIn" in packed && packed.shortIn).toBe(3);
   });
 });

@@ -189,6 +189,7 @@
   "panel.layout": "Layout",
   "panel.layout.island": "Island",
   "rule.microwaveReach": "The microwave handle lands at {atIn}\", not the {askedIn}\" asked for: the opening cannot start outside 4-3/4\"–18\", which puts the handle between {lowIn}\" and {highIn}\"",
+  "rule.towerLanding": "Counter between the cooking surface and the oven tower is {builtIn}\", not the 18\" it is built at: this wall will not pay for the difference, and the machine's own clearance is {specIn}\"",
   "panel.layout.microwaveHandle": "Microwave handle",
   "panel.layout.microwaveHandle.sill": "Opening starts {sillIn}\" off the floor; handle at {atIn}\"",
   "panel.layout.tower": "Oven tower",

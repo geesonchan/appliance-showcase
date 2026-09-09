@@ -1105,6 +1105,58 @@ describe("a bank of tall units", () => {
   });
 
   /**
+   * Where the wall's spare inches go.
+   *
+   * Into the counter between the cooking surface and the oven tower, before
+   * anywhere else: eighteen inches is what that stretch is built at, because
+   * it is the landing a pan comes off the burner onto and because five inches
+   * of gap makes the tower crowd the cooking. A wall that will not pay for
+   * eighteen builds it narrower, three inches at a time, and never under six.
+   *
+   * The room package B lands in is its own minimum, and on that wall the back
+   * leg is already at D13's cap — so what this asserts on the default room is
+   * the shrink, and what it asserts on a longer wall is where the extra goes.
+   * The arithmetic itself is `layoutTemplate.test.ts`, against a leg made up
+   * for the purpose.
+   */
+  it("gives the counter beside the cooking surface the wall's spare inches", () => {
+    const base = activate("package-b");
+    const { counterIn, wantIn } = LAYOUT_LIMITS.towerSpacer;
+
+    /** Every stretch of the back leg, by name, in inches. */
+    const widths = () => {
+      const run = RUNS.find((r) => r.segments.some((s) => s.slot === "slot-range"))!;
+      const out: Record<string, number> = {};
+      for (const segment of run.segments) out[segment.id] = inches(segment.to - segment.from);
+      return out;
+    };
+    const landing = (all: Record<string, number>) =>
+      all[Object.keys(all).find((id) => id.includes("tower-clearance"))!];
+
+    const atMinimum = widths();
+    // Never under six, always a whole cabinet step, never over what it asked
+    // for — and always over the five the machine's sheet asks for.
+    expect(landing(atMinimum)).toBeGreaterThanOrEqual(6);
+    expect(landing(atMinimum)).toBeGreaterThan(counterIn);
+    expect(landing(atMinimum) % 3).toBeCloseTo(0, 6);
+    expect(landing(atMinimum)).toBeLessThanOrEqual(wantIn);
+
+    // Now the longest wall this room may have. The first three inches of it go
+    // to that stretch, and nothing else takes a whole step until it has all it
+    // asked for.
+    const longer = setLayoutParams({ ...base, backWallIn: PARAM_LIMITS.backWallIn.max });
+    expect(longer.ok, "the longest back wall").toBe(true);
+    const grown = widths();
+    expect(landing(grown), "the landing took none of it").toBeGreaterThan(landing(atMinimum));
+    if (landing(grown) < wantIn) {
+      for (const [id, width] of Object.entries(grown)) {
+        if (id.includes("tower-clearance") || atMinimum[id] === undefined) continue;
+        expect(width - atMinimum[id], `${id} grew before the landing was served`).toBeLessThan(3);
+      }
+    }
+  });
+
+  /**
    * Five inches of counter each side of the cooking surface.
    *
    * PCG366W's own figure — E on the drawing, 5" to a combustible surface —

@@ -88,6 +88,38 @@ function installParts(selection: Record<SlotId, Appliance>): Finding[] {
     ...columnDoorPanel(selection),
     ...ovenDoorSwing(selection),
     ...microwaveReach(selection),
+    ...towerLanding(),
+  ];
+}
+
+/**
+ * How much counter there is between the cooking surface and the oven tower.
+ *
+ * Eighteen inches is what that stretch is built at: a landing wide enough to
+ * put a pan down on, and what the wall's spare inches go into before they go
+ * anywhere else. A wall that cannot pay for it builds narrower, down to six —
+ * still over the five the machine's sheet asks for, and still counter rather
+ * than a cabinet — and that is worth a line, because standing in front of it
+ * is the only other way to find out.
+ */
+function towerLanding(): Finding[] {
+  const { counterIn, wantIn } = LAYOUT_LIMITS.towerSpacer;
+  const segment = RUNS.flatMap((run) => run.segments).find((item) =>
+    item.id.includes("tower-clearance"),
+  );
+  if (!segment) return [];
+
+  const builtIn = round8((segment.to - segment.from) * 12);
+  if (builtIn >= wantIn - 1e-6) return [];
+
+  return [
+    {
+      ruleId: "tower-landing",
+      severity: "info",
+      messageKey: "rule.towerLanding",
+      slot: "slot-range",
+      params: { builtIn, wantIn, specIn: counterIn },
+    },
   ];
 }
 

@@ -190,6 +190,7 @@
   "panel.layout": "平面布置",
   "panel.layout.island": "岛台",
   "rule.microwaveReach": "微波把手实际在 {atIn}″，非所要的 {askedIn}″：切口底只能在 4¾″–18″ 之间，把手因此落在 {lowIn}″ 至 {highIn}″",
+  "rule.towerLanding": "灶台与烤箱塔之间的台面 {builtIn}″，不是常规的 18″：这面墙给不出这段长度，机器本身只要求 {specIn}″",
   "panel.layout.microwaveHandle": "微波把手高度",
   "panel.layout.microwaveHandle.sill": "切口底离地 {sillIn}″，把手在 {atIn}″",
   "panel.layout.tower": "烤箱塔",
