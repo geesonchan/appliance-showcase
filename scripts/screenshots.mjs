@@ -495,6 +495,62 @@ async function captureRound14(page) {
  * sideways, and the corner susan's diagonal door.
  */
 /**
+ * Round 21: package B, rearranged.
+ *
+ * The wall over the cooking surface is bare tile now, the oven tower stands
+ * beside the rangetop with the cabinet the machine's clearance asks for, and
+ * the island can be turned a quarter round. The five shots are the room, the
+ * cooking wall close up — the knob strip and the housing over it — the tower,
+ * the island turned, and the install list.
+ */
+async function captureRound21(page) {
+  const toPackage = async (code) => {
+    await page.locator(`[data-segment="package"] button`, { hasText: code }).first().click();
+    await settle(page, 2200);
+  };
+  const configure = async (label) => {
+    await click(page, "Configure");
+    await page.waitForTimeout(700);
+    await page.getByRole("button", { name: label, exact: true }).first().click();
+    await page.waitForTimeout(900);
+    await page.getByRole("button", { name: "Close" }).click();
+    await settle(page, 1400);
+  };
+
+  await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await settle(page, 2400);
+  await toPackage("B");
+  await page.screenshot({ path: `${outDir}/mobile-b-overview.png` });
+
+  for (const [name, match] of [
+    ["rangetop", /Range/],
+    ["tower", /Microwave/],
+  ]) {
+    await flyTo(page, match);
+    await settle(page, 1500);
+    await page.screenshot({ path: `${outDir}/mobile-b-${name}.png` });
+    await click(page, "Reset view");
+    await settle(page, 1200);
+  }
+
+  // The tower on the other side, which is the parameter rather than the
+  // template.
+  await configure("Left of the range");
+  await page.screenshot({ path: `${outDir}/mobile-b-tower-left.png` });
+  await configure("Right of the range");
+
+  // And the island turned across the room.
+  await configure("Across the room");
+  await page.screenshot({ path: `${outDir}/mobile-b-island-across.png` });
+
+  await click(page, "Configure");
+  await page.waitForTimeout(800);
+  await page.getByText("Install checklist").first().scrollIntoViewIfNeeded();
+  await page.waitForTimeout(500);
+  await page.screenshot({ path: `${outDir}/mobile-b-checklist.png` });
+}
+
+/**
  * Round 20: package B.
  *
  * A 36" gas rangetop in the stone under a housing built round an insert
@@ -696,6 +752,21 @@ async function captureRound15(page) {
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round21") {
+    const ctx = await browser.newContext({
+      viewport: MOBILE,
+      deviceScaleFactor: 2,
+      isMobile: true,
+      hasTouch: true,
+    });
+    const page = await ctx.newPage();
+    await captureRound21(page);
+    await ctx.close();
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round20") {
     const ctx = await browser.newContext({

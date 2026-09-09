@@ -351,6 +351,13 @@ export const useAppStore = create<AppState>((set, get) => ({
         packageId,
         selection,
         blowerId: migrateBlower(entry, hood, s.blowerId),
+        // The room the package landed in, which is not always the one it was
+        // offered. Leaving the panel's own copy on the old figures meant the
+        // next thing the customer touched was judged against a room that no
+        // longer existed, and refused.
+        layoutParams: result.adjusted
+          ? { ...s.layoutParams, ...result.adjusted }
+          : s.layoutParams,
         layoutIssues: [],
         layoutVersion: s.layoutVersion + 1,
         selectedSlot: null,
