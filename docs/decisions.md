@@ -734,3 +734,32 @@ dishwasher and calls it C.
 into the generator; a package that adds an appliance the template has nowhere
 to stand (that is a loud failure, not a silent omission); a package switch that
 leaves the carcass and the data disagreeing.
+
+## D17 · A push is not a deploy
+
+**Decided:** 2026-09-08 (round 21), Leo, after four failed deploys in a row.
+
+The Pages workflow ran `npm run test:unit` and `npm run build`; the local loop
+had drifted to `npx vitest run src/`, which is the same suite minus
+`scripts/**` — 853 tests against CI's 1052. A change that gave wall ovens a
+slot broke two assertions in the importer's tests, every deploy from `d02cda9`
+to `a5750fd` failed in the test step at about 25 seconds, and the link went on
+serving the last good build. Four rounds were reported as pushed and green.
+The site was a day behind and nothing said so.
+
+**Three things follow, and they are not negotiable.**
+
+1. **Run what CI runs, before pushing.** `npm run test:unit` and `npm run
+   build` — the first covers `scripts/**` as well as `src/**`, the second
+   type-checks before it bundles. A narrower command is an inner loop, never a
+   green light.
+2. **Wait for the run.** `gh run watch <id> --exit-status` after the push, and
+   the report carries the conclusion and the link. "Pushed" is not a result.
+3. **Check the link, not the workflow.** The footer carries the build's commit
+   (`__COMMIT__`, from the runner's SHA or from git), so the live page says
+   which build it is. A deploy that reports success and a page that reports the
+   previous hash is a deploy that did not land.
+
+**What this forbids:** reporting a push as finished work; a local suite that is
+a subset of CI's without saying so; a build that cannot be identified from the
+page it serves.
