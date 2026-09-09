@@ -3,6 +3,7 @@ import { PARAM_LIMITS, feasibleRange, wallRequirement, type LayoutParams } from 
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
 import { useActivePackage } from "../store/useSelection";
+import { comboHandleAt, comboSillFor } from "../data/columnModel";
 import { RefusalNote } from "./RefusalNote";
 import { PanelSection, Segmented, Slider, Toggle } from "./primitives";
 
@@ -61,6 +62,29 @@ function WallMinimum({ params, leg }: { params: LayoutParams; leg: "left" | "bac
           <span className="opacity-65">{item.code ?? item.rule?.toUpperCase()}</span>
         </span>
       ))}
+    </>
+  );
+}
+
+/**
+ * What the tower's hole comes out as, under the slider that sets it.
+ *
+ * The figure a person cares about is where their hand goes; the figure the
+ * joiner cares about is where the hole starts. Both, so the control explains
+ * itself — and when the two disagree, because the drawing will not allow the
+ * hole that height asks for, it says where the handle actually lands.
+ */
+function MicrowaveReach({ handleIn }: { handleIn: number }) {
+  const t = useT();
+  const { sillIn, clamped } = comboSillFor(handleIn);
+  return (
+    <>
+      <span className={clamped ? "font-medium text-ink" : undefined}>
+        {t("panel.layout.microwaveHandle.sill", {
+          sillIn: Math.round(sillIn * 8) / 8,
+          atIn: Math.round(comboHandleAt(sillIn) * 8) / 8,
+        })}
+      </span>
     </>
   );
 }
@@ -191,6 +215,17 @@ export function LayoutControls() {
           caption={<WallMinimum params={params} leg="left" />}
           onChange={(leftWallIn) => setLayout({ leftWallIn })}
         />
+        {/* Where a hand reaches, which is what the oven tower is built round:
+            the hole is cut from this rather than the other way about. */}
+        {hasTower && (
+          <Slider
+            label={t("panel.layout.microwaveHandle")}
+            value={params.microwaveHandleIn}
+            {...PARAM_LIMITS.microwaveHandleIn}
+            caption={<MicrowaveReach handleIn={params.microwaveHandleIn} />}
+            onChange={(microwaveHandleIn) => setLayout({ microwaveHandleIn })}
+          />
+        )}
         {params.hasIsland && (
           <>
             <Slider

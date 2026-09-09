@@ -14,17 +14,34 @@ import type { Appliance } from "../types";
  */
 
 /**
- * How a 30" combination oven divides, as fractions of its own height.
+ * How a 30" combination oven divides, in inches up its own front.
  *
- * From the MEM301WS elevation in docs/reference/: a microwave over an oven,
- * with the microwave the shallower cavity of the two — 1.6 cubic feet against
- * 4.5 — and a full-width handle on each door. The figures are proportions of
- * the class rather than of the one model, the way the range's are: what is the
- * model's own is the 49" x 29-3/4" envelope they are applied to.
+ * From the MEM301WS elevation in docs/reference/mem301ws-manual.png: an oven
+ * door at the bottom, a microwave door over it, and the control panel across
+ * the top. Each door carries a bar handle, and where those two bars land is
+ * the whole of what makes this machine reachable or not — so they are figures
+ * off the drawing rather than fractions of the envelope, and the tower's sill
+ * is set from them rather than the other way round.
+ *
+ * They are measured from the machine's own bottom. Add the sill it hangs at to
+ * get the height a person reaches to.
  */
 export const COMBO_OVEN = {
-  /** The microwave door, from the top down. */
-  upperFraction: 0.37,
+  /** The microwave door's handle: the one a person uses most. */
+  microwaveHandleIn: 39,
+  /** The lower oven's. */
+  ovenHandleIn: 22,
+  /** Where the microwave door starts, and the oven door stops. */
+  microwaveSillIn: 26,
+  /** The control panel across the top, above both doors. */
+  controlIn: 8,
+  /**
+   * How far off the floor the opening may start, from the drawing.
+   *
+   * The tower is built to put the microwave's handle where a person's hand is,
+   * and this is the room the drawing leaves to do it in: 4-3/4" to 18".
+   */
+  sillIn: { min: 4.75, max: 18 },
   /** A reveal between the two doors, and around each of them. */
   revealIn: 0.25,
   /** The handle: a bar across the top of each door, standing 2-3/8" proud. */
@@ -143,23 +160,45 @@ export function wineColumnParts(
 }
 
 export interface ComboOvenParts {
-  /** The two doors, bottom to top: the oven, then the microwave. */
-  doors: { band: readonly [number, number]; kind: "oven" | "microwave" }[];
+  /** The two doors and the control panel, bottom to top. */
+  doors: {
+    band: readonly [number, number];
+    kind: "oven" | "microwave" | "control";
+    /** Where the bar sits on it, or null for the control panel. */
+    handleAt: number | null;
+  }[];
   handle: { r: number; proud: number; width: number };
   glassInset: number;
 }
 
-/** A combination oven's two doors, given the envelope it is drawn in. */
+/**
+ * A combination oven's front, given the envelope it is drawn in.
+ *
+ * The bands are the drawing's, scaled if the envelope is not the 49" the
+ * figures were read at — a taller machine in the same family divides the same
+ * way. The handles are where the drawing puts them, because the whole point of
+ * the tower's sill is to land the top one at a person's chest.
+ */
 export function comboOvenParts(box: { w: number; h: number }): ComboOvenParts {
   const C = COMBO_OVEN;
   const reveal = ft(C.revealIn);
-  const upper = box.h * C.upperFraction;
-  const lower = box.h - upper;
+  // The elevation the figures came off. Anything else in the family is the
+  // same front at a different size.
+  const drawn = ft(49);
+  const at = (inches: number) => (ft(inches) / drawn) * box.h;
+
+  const microwaveSill = at(C.microwaveSillIn);
+  const controlFloor = box.h - at(C.controlIn);
 
   return {
     doors: [
-      { band: [0, lower - reveal] as const, kind: "oven" },
-      { band: [lower, box.h] as const, kind: "microwave" },
+      { band: [0, microwaveSill - reveal] as const, kind: "oven", handleAt: at(C.ovenHandleIn) },
+      {
+        band: [microwaveSill, controlFloor - reveal] as const,
+        kind: "microwave",
+        handleAt: at(C.microwaveHandleIn),
+      },
+      { band: [controlFloor, box.h] as const, kind: "control", handleAt: null },
     ],
     handle: {
       r: ft(C.handleDiameterIn) / 2,
@@ -169,6 +208,24 @@ export function comboOvenParts(box: { w: number; h: number }): ComboOvenParts {
     glassInset: ft(C.glassInsetIn),
   };
 }
+
+/**
+ * Where the opening starts, to put the microwave's handle at a given height.
+ *
+ * The parameter is the height a person reaches to; this is the hole the joiner
+ * cuts to make that true, clamped to what the drawing allows. Clamped is a
+ * real answer rather than an error — the handle lands where it lands and the
+ * install list says by how much it missed.
+ */
+export function comboSillFor(handleIn: number): { sillIn: number; clamped: boolean } {
+  const wanted = handleIn - COMBO_OVEN.microwaveHandleIn;
+  const { min, max } = COMBO_OVEN.sillIn;
+  const sillIn = Math.min(max, Math.max(min, wanted));
+  return { sillIn, clamped: Math.abs(sillIn - wanted) > 1e-6 };
+}
+
+/** And back: where the handle actually lands, given the sill it is hung at. */
+export const comboHandleAt = (sillIn: number) => sillIn + COMBO_OVEN.microwaveHandleIn;
 
 /** True when this machine is a combination oven rather than a plain one. */
 export const isCombo = (appliance: Appliance) => appliance.installType.includes("combo");

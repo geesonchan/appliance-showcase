@@ -144,8 +144,7 @@
             "azimuth": 45,
             "pitch": 26
           },
-          "beside": "range",
-          "sillIn": 18
+          "beside": "range"
         },
         {
           "slotId": "slot-wine",

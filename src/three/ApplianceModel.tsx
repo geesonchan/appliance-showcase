@@ -693,27 +693,41 @@ function ComboOven({
         const middle = (door.band[0] + door.band[1]) / 2;
         return (
           <group key={door.kind} name={`combo-${door.kind}`}>
-            {/* The door: a stainless frame with a glass field in it. */}
+            {/* The door: a stainless frame with a glass field in it. The
+                control panel across the top is the same frame with no glass —
+                it is where the display and the touch keys are. */}
             <mesh position={[0, middle, face + ft(0.25)]} castShadow>
               <boxGeometry args={[w, height, ft(0.5)]} />
               <Mat s={body} size={[w, height]} />
             </mesh>
-            <mesh position={[0, middle - ft(0.5), face + ft(0.55)]}>
-              <boxGeometry args={[
-                w - parts.glassInset * 2,
-                Math.max(0, height - parts.glassInset * 2),
-                ft(0.1),
-              ]} />
-              <Mat s={glass} />
-            </mesh>
-            {/* One bar across the top of each door. */}
-            <mesh
-              position={[0, door.band[1] - ft(1.6), d / 2 - parts.handle.r]}
-              rotation={[0, 0, Math.PI / 2]}
-            >
-              <cylinderGeometry args={[parts.handle.r, parts.handle.r, parts.handle.width, 12]} />
-              <Mat s={trim} />
-            </mesh>
+            {door.kind !== "control" && (
+              <mesh position={[0, middle - ft(0.5), face + ft(0.55)]}>
+                <boxGeometry args={[
+                  w - parts.glassInset * 2,
+                  Math.max(0, height - parts.glassInset * 2),
+                  ft(0.1),
+                ]} />
+                <Mat s={glass} />
+              </mesh>
+            )}
+            {door.kind === "control" && (
+              <mesh position={[0, middle, face + ft(0.6)]}>
+                <boxGeometry args={[w * 0.42, height * 0.4, ft(0.1)]} />
+                <Mat s={glass} />
+              </mesh>
+            )}
+            {/* The bar, where the elevation puts it: the microwave's is the
+                one the tower's sill is set from, so it is drawn at the height
+                that figure names rather than at a guess off the door's top. */}
+            {door.handleAt !== null && (
+              <mesh
+                position={[0, door.handleAt, d / 2 - parts.handle.r]}
+                rotation={[0, 0, Math.PI / 2]}
+              >
+                <cylinderGeometry args={[parts.handle.r, parts.handle.r, parts.handle.width, 12]} />
+                <Mat s={trim} />
+              </mesh>
+            )}
           </group>
         );
       })}

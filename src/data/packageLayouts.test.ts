@@ -1,5 +1,6 @@
 import { afterAll, describe, expect, it } from "vitest";
 import { applianceBox } from "./applianceBox";
+import { COMBO_OVEN, comboHandleAt, comboOvenParts, comboSillFor } from "./columnModel";
 import { cooktopHeight } from "./rangeModel";
 import { CABINETS } from "./cabinets";
 import { APPLIANCE_BY_ID } from "./catalogue";
@@ -698,16 +699,63 @@ describe("a bank of tall units", () => {
     }
   });
 
-  it("hangs the tower's opening at the sill the package asks for", () => {
-    activate("package-b");
-    const spec = slotsOf(PACKAGE_BY_ID["package-b"])["slot-microwave"];
-    expect(spec.sillIn).toBe(18);
+  /**
+   * The tower is built round the microwave's handle.
+   *
+   * A person reaches to a height; the joiner cuts the hole that puts the
+   * handle there. 54" is the chest of somebody six foot, the handle is 39" up
+   * the machine's own front, and the sill is the difference — 15", inside the
+   * 4-3/4" to 18" the drawing allows. An 18" sill, which is what this was
+   * built to before, put the handle at 57" and the microwave's door at 66".
+   */
+  it("cuts the opening to land the microwave's handle where a hand is", () => {
+    const base = activate("package-b");
+    expect(base.microwaveHandleIn).toBe(54);
+
+    const sill = comboSillFor(base.microwaveHandleIn);
+    expect(sill.sillIn).toBe(15);
+    expect(sill.clamped).toBe(false);
 
     const tower = RUNS.flatMap((run) => run.segments).find((s) => s.slot === "slot-microwave")!;
     const module = tower.modules.find((m) => m.kind === "tall")!;
-    expect(module.sillIn).toBe(spec.sillIn);
+    expect(module.sillIn).toBe(sill.sillIn);
     // And the machine stands on it rather than on the floor.
-    expect(inches(SLOT_BY_ID["slot-microwave"].position[1])).toBeCloseTo(spec.sillIn, 6);
+    expect(inches(SLOT_BY_ID["slot-microwave"].position[1])).toBeCloseTo(sill.sillIn, 6);
+
+    // Which is the whole point: the handle lands at chest height.
+    const oven = APPLIANCE_BY_ID[PACKAGE_BY_ID["package-b"].defaultSelection["slot-microwave"]!];
+    const box = applianceBox(SLOT_BY_ID["slot-microwave"], oven);
+    const microwave = comboOvenParts({ w: box.w, h: box.h }).doors.find(
+      (door) => door.kind === "microwave",
+    )!;
+    const handleIn = inches(SLOT_BY_ID["slot-microwave"].position[1] + microwave.handleAt!);
+    expect(handleIn).toBeGreaterThanOrEqual(50);
+    expect(handleIn).toBeLessThanOrEqual(56);
+  });
+
+  it("clamps to what the drawing allows, and follows the parameter between", () => {
+    const base = activate("package-b");
+    for (const [asked, expected] of [
+      // Below the reachable band, inside it, and above it: 43-3/4" to 57" is
+      // what a 4-3/4"-18" sill can put the handle at.
+      [43, COMBO_OVEN.sillIn.min + COMBO_OVEN.microwaveHandleIn],
+      [44, 44],
+      [50, 50],
+      [54, 54],
+      [57, 57],
+      [60, COMBO_OVEN.sillIn.max + COMBO_OVEN.microwaveHandleIn],
+    ] as const) {
+      const { sillIn, clamped } = comboSillFor(asked);
+      expect(comboHandleAt(sillIn), `${asked}"`).toBeCloseTo(expected, 6);
+      expect(clamped, `${asked}"`).toBe(Math.abs(expected - asked) > 1e-6);
+      expect(sillIn).toBeGreaterThanOrEqual(COMBO_OVEN.sillIn.min);
+      expect(sillIn).toBeLessThanOrEqual(COMBO_OVEN.sillIn.max);
+
+      // And the room still builds at every one the slider can reach.
+      if (asked < PARAM_LIMITS.microwaveHandleIn.min) continue;
+      expect(setLayoutParams({ ...base, microwaveHandleIn: asked }).ok, `${asked}"`).toBe(true);
+      expect(checkLayout(), `${asked}"`).toEqual([]);
+    }
   });
 
   it("keeps every one of them 96 inches tall", () => {

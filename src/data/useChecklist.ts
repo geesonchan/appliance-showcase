@@ -5,9 +5,16 @@ import { evaluateSlot, packageContext, type Finding } from "./rules";
 import { resolveRoughIn, roughInSentence } from "./roughIn";
 import { useSelection, useSelectedBlower } from "../store/useSelection";
 import { applianceBox } from "./applianceBox";
-import { COLUMN_DOOR_PANELS, COMBO_OVEN, isColumn, isCombo } from "./columnModel";
+import {
+  COLUMN_DOOR_PANELS,
+  COMBO_OVEN,
+  comboHandleAt,
+  comboSillFor,
+  isColumn,
+  isCombo,
+} from "./columnModel";
 import { CHIMNEY, chimneyParts, isChimney } from "./hood";
-import { ISLAND, LAYOUT_LIMITS, OMITTED_SLOTS, RUNS } from "./room";
+import { ISLAND, LAYOUT_LIMITS, LAYOUT_PARAMS, OMITTED_SLOTS, RUNS } from "./room";
 import type { Appliance, SlotId } from "../types";
 
 export interface Checklist {
@@ -80,6 +87,7 @@ function installParts(selection: Record<SlotId, Appliance>): Finding[] {
     ...columnKit(),
     ...columnDoorPanel(selection),
     ...ovenDoorSwing(selection),
+    ...microwaveReach(selection),
   ];
 }
 
@@ -128,6 +136,44 @@ function noIslandFallback(): Finding[] {
     },
   ];
 }
+
+/**
+ * Where the microwave's handle actually landed.
+ *
+ * The tower is cut to put it at the height asked for, and when that height is
+ * outside what the machine's drawing allows the hole is clamped and the handle
+ * lands somewhere else. That is a real answer rather than an error — but it is
+ * the kind of thing nobody notices until they are standing in front of it, so
+ * it says where the handle is, what was asked for, and the figure the sill was
+ * chosen from.
+ */
+function microwaveReach(selection: Record<SlotId, Appliance>): Finding[] {
+  const oven = selection["slot-microwave"];
+  if (!oven || !isCombo(oven)) return [];
+
+  const asked = LAYOUT_PARAMS.microwaveHandleIn;
+  const { sillIn, clamped } = comboSillFor(asked);
+  if (!clamped) return [];
+
+  return [
+    {
+      ruleId: "microwave-reach",
+      severity: "warning",
+      messageKey: "rule.microwaveReach",
+      slot: "slot-microwave",
+      params: {
+        atIn: round8(comboHandleAt(sillIn)),
+        askedIn: round8(asked),
+        sillIn: round8(sillIn),
+        lowIn: round8(COMBO_OVEN.sillIn.min + COMBO_OVEN.microwaveHandleIn),
+        highIn: round8(COMBO_OVEN.sillIn.max + COMBO_OVEN.microwaveHandleIn),
+      },
+    },
+  ];
+}
+
+/** Eighths of an inch, which is how a figure like this is written down. */
+const round8 = (value: number) => Math.round(value * 8) / 8;
 
 /**
  * How far an oven door reaches into the room when it is open.

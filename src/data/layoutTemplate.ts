@@ -14,6 +14,7 @@ import {
 import type { FixtureId, Package, PackageSlot, SlotId } from "../types";
 import { PACKAGE, slotsOf } from "./packages";
 import { LAYOUT_POLICY, shrinkRank, type ShrinkGroup } from "./layoutPolicy";
+import { comboSillFor } from "./columnModel";
 import { hoodCabinetBand } from "./insertHood";
 
 /**
@@ -51,6 +52,17 @@ export interface LayoutParams {
   /** Which way the island's long side runs: along the back wall, or across it. */
   islandOrientation: "parallel" | "perpendicular";
   /**
+   * How high off the floor the microwave's handle lands, in packages with an
+   * oven tower.
+   *
+   * The tower is built round this rather than the other way round: a person
+   * reaches to a height, and the joiner cuts the hole that puts the handle
+   * there. 54" is the chest of somebody six foot. What the drawing allows is
+   * 4-3/4" to 18" of sill, so the reachable band is 43-3/4" to 57" and a
+   * figure outside it is clamped — with the install list saying by how much.
+   */
+  microwaveHandleIn: number;
+  /**
    * What is at the far end of that leg, past the refrigerator.
    *
    * A refrigerator door opens through more than the machine's own width. Beside
@@ -84,6 +96,7 @@ export const PARAM_LIMITS = {
   islandLengthIn: { min: 48, max: 96, step: 6 },
   islandDepthIn: { min: 24, max: 42, step: 6 },
   aisleIn: { min: 42, max: 60, step: 3 },
+  microwaveHandleIn: { min: 44, max: 60, step: 1 },
 };
 
 export const DEFAULT_PARAMS: LayoutParams = {
@@ -97,6 +110,7 @@ export const DEFAULT_PARAMS: LayoutParams = {
   // the sink is the other way. It is a parameter because kitchens are not.
   towerSide: "right",
   islandOrientation: "parallel",
+  microwaveHandleIn: 54,
   fridgeEndAbuts: "cabinet",
   sinkLeg: "back",
   hasIsland: true,
@@ -322,6 +336,19 @@ const TALL_ORDER: readonly SlotId[] = ["slot-microwave", "slot-wine", "slot-frid
  * its own sides inside its 30".
  */
 const COLUMN_SPACER = { code: "COMBIKIT10", widthIn: 0.625 } as const;
+
+/**
+ * How far off the floor a tall unit's opening starts.
+ *
+ * The package's own figure for anything that stands on the floor of its
+ * opening. For the oven tower it is worked backwards from where the
+ * microwave's handle should land — the parameter is the reach, and this is the
+ * hole that produces it, clamped to what the machine's drawing allows.
+ */
+export function sillFor(slot: PackageSlot, params: LayoutParams): number {
+  if (slot.beside !== "range") return slot.sillIn;
+  return comboSillFor(params.microwaveHandleIn).sillIn;
+}
 
 /**
  * Whether a slot is one of the two an island carries.
@@ -702,6 +729,8 @@ function validate(params: LayoutParams): Refusal[] {
 
   push(within("backWallIn", params.backWallIn));
   push(within("leftWallIn", params.leftWallIn));
+  // A height a hand reaches to, so it is an inch at a time rather than a step.
+  push(within("microwaveHandleIn", params.microwaveHandleIn));
 
   // The tower and the sink base both need a run's worth of wall behind them,
   // and D13 caps a leg at 144". One leg will not carry a range, a sink, a
@@ -1107,8 +1136,8 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
   /**
    * One full-height unit: the machine's own opening in a 96" carcass.
    *
-   * The sill is the package's — a refrigerator stands on the floor of its
-   * opening and an oven hangs in a hole with a drawer base under it — and
+   * A refrigerator stands on the floor of its opening; an oven hangs in a hole
+   * with a drawer base under it, and how high that hole starts is `sillFor`.
    * `cabinets.ts` builds the base, the opening and the door above it from the
    * one module.
    */
@@ -1121,7 +1150,7 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
       M(`T${slot.widthIn}96`, "tall", slot.widthIn, {
         heightIn: 96,
         slot: slotId,
-        sillIn: slot.sillIn,
+        sillIn: sillFor(slot, params),
       }),
       { slot: slotId },
     );
@@ -1623,6 +1652,7 @@ function placements(
   island: IslandLayout,
   spec: Record<SlotId, PackageSlot>,
   omitted: readonly SlotId[],
+  params: LayoutParams,
 ) {
   const onRun = (run: CabinetRun, at: number): [number, number, number] =>
     run.axis === "x" ? [at, 0, run.centre] : [run.centre, 0, at];
@@ -1647,7 +1677,7 @@ function placements(
     const { run, segment } = find((s) => s.slot === slot);
     const at = onRun(run, mid([segment.from + inset, segment.to - inset]));
     return {
-      position: [at[0], ft(spec[slot].sillIn), at[2]],
+      position: [at[0], ft(sillFor(spec[slot], params)), at[2]],
       rotationY: facing(run),
       mount: "wall",
     };
@@ -1817,7 +1847,7 @@ export function generateLayout(
     },
   ];
 
-  const placed = placements(runs, island, spec, omitted);
+  const placed = placements(runs, island, spec, omitted, params);
 
   return {
     ok: true,
