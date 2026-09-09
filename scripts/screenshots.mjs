@@ -828,9 +828,54 @@ async function captureRound26(page) {
   await page.screenshot({ path: `${outDir}/mobile-b-landing.png` });
 }
 
+/**
+ * Round 27: the wall B is drawn on, and the two columns beside each other.
+ *
+ * B's sink moves to the other leg so its cooking wall can carry eighteen
+ * inches of landing each side of the burners, which is the first shot. The
+ * other three are the two columns in the finished room — where the kit between
+ * them is behind their doors and the two grilles are one band — and the same
+ * pair in the install view, where the kit is a part again.
+ */
+async function captureRound27(page) {
+  await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await settle(page, 2400);
+  await page.locator(`[data-segment="package"] button`, { hasText: "B" }).first().click();
+  await settle(page, 2600);
+  await page.screenshot({ path: `${outDir}/mobile-b-overview.png` });
+
+  await flyTo(page, /Range/);
+  await settle(page, 1500);
+  await page.screenshot({ path: `${outDir}/mobile-b-landings.png` });
+  await click(page, "Reset view");
+  await settle(page, 1400);
+
+  await flyTo(page, /Wine cabinet/);
+  await settle(page, 1500);
+  await page.screenshot({ path: `${outDir}/mobile-b-columns.png` });
+  await click(page, "Install");
+  await settle(page, 1400);
+  await page.screenshot({ path: `${outDir}/mobile-b-columns-install.png` });
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round27") {
+    const ctx = await browser.newContext({
+      viewport: MOBILE,
+      deviceScaleFactor: 2,
+      isMobile: true,
+      hasTouch: true,
+    });
+    const page = await ctx.newPage();
+    await captureRound27(page);
+    await ctx.close();
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round26") {
     const ctx = await browser.newContext({
