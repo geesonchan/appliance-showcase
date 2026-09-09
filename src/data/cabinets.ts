@@ -1,4 +1,5 @@
 import type { SlotId } from "../types";
+import { islandAcross, islandPoint } from "./layoutTemplate";
 import { SLOT_BY_ID } from "./slots";
 import {
   LAYOUT_LIMITS,
@@ -312,81 +313,85 @@ function buildCabinets(): CabinetBox[] {
  * cabinet go on the perimeter instead.
  */
 function islandBoxes(): Omit<CabinetBox, "run">[] {
+  const along = ISLAND.axis === "x" ? ISLAND.x : ISLAND.z;
+  const across = islandAcross(ISLAND);
+
+  /**
+   * One box on the island, in the island's own terms.
+   *
+   * How far along it, how far across it, how tall — and the last step turns
+   * that into the room's axes. Written this way because everything here is a
+   * statement about the island rather than about the room: the carcass beside
+   * an opening, the carcass behind one, the top over all of it.
+   */
+  const box = (
+    id: string,
+    alongSpan: readonly [number, number],
+    acrossSpan: readonly [number, number],
+    height: number,
+    extra: Partial<Omit<CabinetBox, "run">> = {},
+  ): Omit<CabinetBox, "run"> => ({
+    id,
+    kind: "base",
+    position: islandPoint(ISLAND, mid(alongSpan), mid(acrossSpan), height / 2),
+    size:
+      ISLAND.axis === "x"
+        ? [span(alongSpan), height, span(acrossSpan)]
+        : [span(acrossSpan), height, span(alongSpan)],
+    ...extra,
+  });
+
   return [
-    {
-      id: "island-left",
+    box("island-left", [along[0], ISLAND.microwave[0]], across, BASE_BOX[1], {
       outline: "island",
-      kind: "base",
-      position: [mid([ISLAND.x[0], ISLAND.microwave[0]]), BASE_BOX[1] / 2, mid(ISLAND.z)],
-      size: [span([ISLAND.x[0], ISLAND.microwave[0]]), BASE_BOX[1], span(ISLAND.z)],
-    },
-    {
-      id: "island-middle",
+    }),
+    box("island-middle", [ISLAND.microwave[1], ISLAND.wine[0]], across, BASE_BOX[1], {
       outline: "island",
-      kind: "base",
-      position: [mid([ISLAND.microwave[1], ISLAND.wine[0]]), BASE_BOX[1] / 2, mid(ISLAND.z)],
-      size: [span([ISLAND.microwave[1], ISLAND.wine[0]]), BASE_BOX[1], span(ISLAND.z)],
-    },
+    }),
+    box("island-right", [ISLAND.wine[1], along[1]], across, BASE_BOX[1], { outline: "island" }),
+    // Behind the microwave, on the seating side.
+    //
+    // Part of that appliance's own enclosure, and it says so: an appliance's
+    // own joinery must never count as something standing in its way, or flying
+    // to the microwave fades the box the microwave is sitting in.
+    box(
+      "island-behind-microwave",
+      ISLAND.microwave,
+      [ISLAND.working + ROOM.counterDepth, across[1]],
+      BASE_BOX[1],
+      { outline: "island", slot: "slot-microwave" },
+    ),
+    // Behind the wine cabinet, on the working side. Its enclosure too.
+    box(
+      "island-behind-wine",
+      ISLAND.wine,
+      [across[0], ISLAND.seating - ROOM.counterDepth],
+      BASE_BOX[1],
+      { outline: "island", slot: "slot-wine" },
+    ),
     {
-      id: "island-right",
-      outline: "island",
-      kind: "base",
-      position: [mid([ISLAND.wine[1], ISLAND.x[1]]), BASE_BOX[1] / 2, mid(ISLAND.z)],
-      size: [span([ISLAND.wine[1], ISLAND.x[1]]), BASE_BOX[1], span(ISLAND.z)],
-    },
-    {
-      // Behind the microwave, on the seating side.
-      //
-      // Part of that appliance's own enclosure, and it says so: an appliance's
-      // own joinery must never count as something standing in its way, or
-      // flying to the microwave fades the box the microwave is sitting in.
-      id: "island-behind-microwave",
-      outline: "island",
-      kind: "base",
-      slot: "slot-microwave",
-      position: [
-        mid(ISLAND.microwave),
-        BASE_BOX[1] / 2,
-        mid([ISLAND.workingZ + ROOM.counterDepth, ISLAND.z[1]]),
-      ],
-      size: [
-        span(ISLAND.microwave),
-        BASE_BOX[1],
-        span([ISLAND.workingZ + ROOM.counterDepth, ISLAND.z[1]]),
-      ],
-    },
-    {
-      // Behind the wine cabinet, on the working side. Its enclosure too.
-      id: "island-behind-wine",
-      outline: "island",
-      kind: "base",
-      slot: "slot-wine",
-      position: [
-        mid(ISLAND.wine),
-        BASE_BOX[1] / 2,
-        mid([ISLAND.z[0], ISLAND.seatingZ - ROOM.counterDepth]),
-      ],
-      size: [
-        span(ISLAND.wine),
-        BASE_BOX[1],
-        span([ISLAND.z[0], ISLAND.seatingZ - ROOM.counterDepth]),
-      ],
-    },
-    {
-      id: "island-counter",
-      kind: "counter",
-      position: [mid(ISLAND.x), ROOM.counterHeight - ROOM.counterThickness / 2, mid(ISLAND.z)],
-      size: [
-        span(ISLAND.x) + ROOM.counterOverhang * 2,
+      ...box(
+        "island-counter",
+        [along[0] - ROOM.counterOverhang, along[1] + ROOM.counterOverhang],
+        [across[0] - ROOM.counterOverhang, across[1] + ROOM.counterOverhang],
         ROOM.counterThickness,
-        span(ISLAND.z) + ROOM.counterOverhang * 2,
-      ],
+      ),
+      kind: "counter",
+      position: islandPoint(
+        ISLAND,
+        mid(along),
+        mid(across),
+        ROOM.counterHeight - ROOM.counterThickness / 2,
+      ),
     },
     {
-      id: "island-toe",
+      ...box(
+        "island-toe",
+        [along[0] + ft(1.5), along[1] - ft(1.5)],
+        [across[0] + ft(1.5), across[1] - ft(1.5)],
+        ROOM.toeKick,
+      ),
       kind: "toe",
-      position: [mid(ISLAND.x), ROOM.toeKick / 2, mid(ISLAND.z)],
-      size: [span(ISLAND.x) - ft(3), ROOM.toeKick, span(ISLAND.z) - ft(3)],
     },
   ];
 }

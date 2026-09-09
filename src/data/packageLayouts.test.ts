@@ -50,6 +50,29 @@ function combinations(): Partial<LayoutParams>[] {
   for (const islandDepthIn of values(PARAM_LIMITS.islandDepthIn)) out.push({ islandDepthIn });
   for (const aisleIn of values(PARAM_LIMITS.aisleIn)) out.push({ aisleIn });
 
+  // Which way the island is turned, and which side of the cooking surface the
+  // oven tower stands: both change the room rather than resize it, and both
+  // have to hold over the rest of the space.
+  for (const islandOrientation of ["parallel", "perpendicular"] as const) {
+    out.push({ islandOrientation });
+    for (const islandLengthIn of values(PARAM_LIMITS.islandLengthIn)) {
+      out.push({ islandOrientation, islandLengthIn });
+    }
+    for (const islandDepthIn of values(PARAM_LIMITS.islandDepthIn)) {
+      out.push({ islandOrientation, islandDepthIn });
+    }
+    for (const aisleIn of values(PARAM_LIMITS.aisleIn)) out.push({ islandOrientation, aisleIn });
+  }
+  for (const towerSide of ["left", "right"] as const) {
+    out.push({ towerSide });
+    for (const islandOrientation of ["parallel", "perpendicular"] as const) {
+      out.push({ towerSide, islandOrientation });
+    }
+    for (const backWallIn of [PARAM_LIMITS.backWallIn.min, 168, PARAM_LIMITS.backWallIn.max]) {
+      out.push({ towerSide, backWallIn });
+    }
+  }
+
   // The four that change the kitchen rather than resize it, in full. The
   // refrigerator cannot share a leg with the sink, which is why they pair.
   for (const cornerType of ["lazy-susan", "blind"] as const) {

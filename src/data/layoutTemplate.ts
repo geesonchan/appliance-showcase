@@ -48,6 +48,8 @@ export interface LayoutParams {
    * have one. See D11 rule 12.
    */
   towerSide: "left" | "right";
+  /** Which way the island's long side runs: along the back wall, or across it. */
+  islandOrientation: "parallel" | "perpendicular";
   /**
    * What is at the far end of that leg, past the refrigerator.
    *
@@ -94,6 +96,7 @@ export const DEFAULT_PARAMS: LayoutParams = {
   // Right, because a right-handed cook turns from the burners to the oven and
   // the sink is the other way. It is a parameter because kitchens are not.
   towerSide: "right",
+  islandOrientation: "parallel",
   fridgeEndAbuts: "cabinet",
   sinkLeg: "back",
   hasIsland: true,
@@ -113,12 +116,43 @@ export interface IslandLayout {
   present: boolean;
   x: readonly [number, number];
   z: readonly [number, number];
-  workingZ: number;
-  seatingZ: number;
+  /**
+   * Which way the long side runs.
+   *
+   * `x` is parallel to the back wall, which is what an island in an L-shaped
+   * kitchen usually is. `z` turns it a quarter turn so the long side faces the
+   * left run instead — the same island, in a room that is deeper than it is
+   * wide. Everything on it is spaced along this axis.
+   */
+  axis: "x" | "z";
+  /** The face a cook works at, as a coordinate on the other axis. */
+  working: number;
+  /** And the face people sit at, which is the far side of it. */
+  seating: number;
   height: number;
+  /** The two openings, measured along `axis`. */
   microwave: readonly [number, number];
   wine: readonly [number, number];
 }
+
+/** The island's extent across its long axis: its depth, in room coordinates. */
+export const islandAcross = (island: IslandLayout) =>
+  island.axis === "x" ? island.z : island.x;
+
+/**
+ * A point on the island, from a distance along it and one across it.
+ *
+ * Everything about an island is easier to say in its own terms — this far
+ * along, this far across — and only the last step needs to know which way it
+ * is turned.
+ */
+export const islandPoint = (
+  island: IslandLayout,
+  alongAt: number,
+  acrossAt: number,
+  y = 0,
+): [number, number, number] =>
+  island.axis === "x" ? [alongAt, y, acrossAt] : [acrossAt, y, alongAt];
 
 export interface GeneratedLayout {
   params: LayoutParams;
@@ -690,9 +724,24 @@ function validate(params: LayoutParams): Refusal[] {
     push(step("islandDepthIn", params.islandDepthIn));
     push(step("aisleIn", params.aisleIn));
 
-    // The island stands clear of the left run by an aisle, and everything from
-    // there to the far side of the room is what it has to fit in.
-    const alongIn = params.backWallIn - CABINET_STANDARDS.base.depthIn - params.aisleIn;
+    /**
+     * Which wall the island's length runs along, and which its depth does.
+     *
+     * Turned parallel, its long side runs across the room and its depth runs
+     * into it; turned perpendicular, the two swap. The arithmetic is the same
+     * either way and so are the two refusals — what changes is which wall each
+     * one is measured against, so a perpendicular island in a shallow room is
+     * refused for being long rather than for being deep.
+     */
+    const turned = params.islandOrientation === "perpendicular";
+    const alongWallIn = turned ? params.leftWallIn : params.backWallIn;
+    const acrossWallIn = turned ? params.backWallIn : params.leftWallIn;
+    const alongWall = turned ? ("param.leftWallIn" as const) : ("param.backWallIn" as const);
+    const acrossWall = turned ? ("param.backWallIn" as const) : ("param.leftWallIn" as const);
+
+    // The island stands clear of the run behind it by an aisle, and everything
+    // from there to the far side of the room is what it has to fit in.
+    const alongIn = alongWallIn - CABINET_STANDARDS.base.depthIn - params.aisleIn;
     if (params.islandLengthIn > alongIn) {
       const step_ = PARAM_LIMITS.islandLengthIn.step;
       const fits = Math.floor(alongIn / step_) * step_;
@@ -702,7 +751,8 @@ function validate(params: LayoutParams): Refusal[] {
           islandIn: params.islandLengthIn,
           aisleIn: params.aisleIn,
           roomIn: alongIn,
-          wallIn: params.backWallIn,
+          wallIn: alongWallIn,
+          paramKey: alongWall,
         },
         suggestion:
           fits >= PARAM_LIMITS.islandLengthIn.min
@@ -715,19 +765,20 @@ function validate(params: LayoutParams): Refusal[] {
       });
     }
     const acrossIn = CABINET_STANDARDS.base.depthIn + params.aisleIn + params.islandDepthIn;
-    if (acrossIn > params.leftWallIn) {
+    if (acrossIn > acrossWallIn) {
       reasons.push({
         key: "refusal.islandDeep",
         vars: {
           aisleIn: params.aisleIn,
           islandIn: params.islandDepthIn,
           needIn: acrossIn,
-          wallIn: params.leftWallIn,
+          wallIn: acrossWallIn,
+          paramKey: acrossWall,
         },
         suggestion: {
           key: "suggestion.lengthen",
-          vars: { paramKey: "param.leftWallIn", value: acrossIn },
-          patch: { leftWallIn: acrossIn },
+          vars: { paramKey: acrossWall, value: acrossIn },
+          patch: turned ? { backWallIn: acrossIn } : { leftWallIn: acrossIn },
         },
       });
     }
@@ -831,11 +882,28 @@ function islandFor(
   const leftFace = -halfX + ROOM.counterDepth;
   const length = ft(params.hasIsland ? params.islandLengthIn : 0);
   const depth = ft(params.islandDepthIn);
+  const aisle = ft(params.aisleIn);
 
-  // Centred in what is left of the room once the aisle off the left run is kept.
-  const centre = (leftFace + ft(params.aisleIn) + halfX) / 2;
-  const x = [centre - length / 2, centre + length / 2] as const;
-  const z = [backFace + ft(params.aisleIn), backFace + ft(params.aisleIn) + depth] as const;
+  /**
+   * Which way it is turned, and where that puts it.
+   *
+   * Parallel: the long side runs along the back wall, the island is centred in
+   * what is left of the room past the left run's aisle, and it stands an aisle
+   * off the back run.
+   *
+   * Perpendicular: the same island a quarter turn round, its long side facing
+   * the left run. It stands an aisle off both runs and reaches into the room
+   * from there, which is the shape a deep narrow kitchen wants. Whether it
+   * fits is arithmetic either way, and `validate` refuses it with the figures
+   * when it does not.
+   */
+  const axis = params.islandOrientation === "perpendicular" ? ("z" as const) : ("x" as const);
+  const alongFrom = axis === "x" ? (leftFace + aisle + halfX) / 2 - length / 2 : backFace + aisle;
+  const acrossFrom = axis === "x" ? backFace + aisle : leftFace + aisle;
+  const along = [alongFrom, alongFrom + length] as const;
+  const across = [acrossFrom, acrossFrom + depth] as const;
+  const x = axis === "x" ? along : across;
+  const z = axis === "x" ? across : along;
 
   // Zero for a machine that stands in the tall bank instead: the island is
   // then a prep island, and an extent for something that is not on it would be
@@ -849,11 +917,14 @@ function islandFor(
     present: params.hasIsland,
     x,
     z,
-    workingZ: z[0],
-    seatingZ: z[1],
+    axis,
+    // The working side is the one facing the runs, whichever axis that is on:
+    // the cook stands between the island and the counter.
+    working: across[0],
+    seating: across[1],
     height: ROOM.counterHeight,
-    microwave: [x[0] + inset, x[0] + inset + microwave] as const,
-    wine: [x[1] - inset - wine, x[1] - inset] as const,
+    microwave: [along[0] + inset, along[0] + inset + microwave] as const,
+    wine: [along[1] - inset - wine, along[1] - inset] as const,
   };
 }
 
@@ -1579,17 +1650,21 @@ function placements(
   const islandSlot = (
     opening: readonly [number, number],
     face: "seating" | "working",
-  ): SlotPlacement => ({
-    position: [
-      mid(opening),
-      0,
+  ): SlotPlacement => {
+    // Set in from the face it opens through by half a cabinet, which is where
+    // the machine sits in the carcass — and turned to face out of it.
+    const across =
       face === "seating"
-        ? island.seatingZ - ROOM.counterDepth / 2
-        : island.workingZ + ROOM.counterDepth / 2,
-    ],
-    rotationY: face === "seating" ? 0 : Math.PI,
-    mount: "island",
-  });
+        ? island.seating - ROOM.counterDepth / 2
+        : island.working + ROOM.counterDepth / 2;
+    const outward = face === "seating" ? 0 : Math.PI;
+    return {
+      position: islandPoint(island, mid(opening), across),
+      // A quarter turn of the island is a quarter turn of everything in it.
+      rotationY: island.axis === "x" ? outward : outward + Math.PI / 2,
+      mount: "island",
+    };
+  };
 
   const sink = find((s) => s.fixture === "fixture-sink");
 

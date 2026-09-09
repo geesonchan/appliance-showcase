@@ -511,21 +511,31 @@ export function checkLayout(
   if (island.present && islandCarries) {
     const microwave = SLOT_BY_ID["slot-microwave"];
     const wine = SLOT_BY_ID["slot-wine"];
-    if (Math.abs(Math.cos(microwave.rotationY) - Math.cos(wine.rotationY)) < 1e-6) {
+    // Turned a quarter round, the two faces are on x rather than on z — so
+    // which coordinate says "toward the runs" is the island's own, not the
+    // room's. The rule is the same one either way: they face opposite ways,
+    // and the drawer faces the side the cook works from.
+    const across = island.axis === "x" ? 2 : 0;
+    const facing = island.axis === "x" ? Math.cos : Math.sin;
+    if (Math.abs(facing(microwave.rotationY) - facing(wine.rotationY)) < 1e-6) {
       fail("d11-7", "the microwave and the wine cabinet face the same way");
     }
-    if (microwave.position[2] > wine.position[2]) {
+    if (microwave.position[across] > wine.position[across]) {
       fail(
         "d11-7",
         "the microwave drawer should face the working side and the wine cabinet the seating side",
       );
     }
-    const runFront = runs.find((r) => r.id === "back")!.centre + ROOM.counterDepth / 2;
-    const aisle = inches(island.z[0] - runFront);
+    // The aisle between the island and the run it stands off: the back run for
+    // an island along the back wall, the left run for one turned across it.
+    const run = runs.find((r) => r.id === (island.axis === "x" ? "back" : "left"))!;
+    const front = run.centre + ROOM.counterDepth / 2;
+    const aisle = inches((island.axis === "x" ? island.z[0] : island.x[0]) - front);
     if (aisle < LAYOUT_LIMITS.aisleIn - 1e-6) {
       fail(
         "d11-7",
-        `${aisle.toFixed(1)}" aisle between the island and the back run, needs ${LAYOUT_LIMITS.aisleIn}"`,
+        `${aisle.toFixed(1)}" aisle between the island and the ${run.id} run, ` +
+          `needs ${LAYOUT_LIMITS.aisleIn}"`,
       );
     }
   }

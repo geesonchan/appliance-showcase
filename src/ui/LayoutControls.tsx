@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { PARAM_LIMITS, feasibleRange, wallRequirement, type LayoutParams } from "../data/room";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
+import { useActivePackage } from "../store/useSelection";
 import { RefusalNote } from "./RefusalNote";
 import { PanelSection, Segmented, Slider, Toggle } from "./primitives";
 
@@ -67,6 +68,8 @@ function WallMinimum({ params, leg }: { params: LayoutParams; leg: "left" | "bac
 export function LayoutControls() {
   const t = useT();
   const params = useAppStore((s) => s.layoutParams);
+  // Whether this package has an oven tower to stand on one side or the other.
+  const hasTower = useActivePackage().entry.slots.some((slot) => slot.beside === "range");
   const issues = useAppStore((s) => s.layoutIssues);
   const setLayout = useAppStore((s) => s.setLayout);
 
@@ -125,6 +128,20 @@ export function LayoutControls() {
           ]}
         />
 
+        {/* Only where there is a tower to put on a side. A control that does
+            nothing in two packages out of three is a question nobody asked. */}
+        {hasTower && (
+          <Choice
+            label={t("panel.layout.tower")}
+            value={params.towerSide}
+            onChange={(towerSide) => setLayout({ towerSide })}
+            options={[
+              { value: "left" as const, label: t("panel.layout.tower.left") },
+              { value: "right" as const, label: t("panel.layout.tower.right") },
+            ]}
+          />
+        )}
+
         <div className="mt-1 border-t border-line pt-1">
           <Toggle
             label={t("panel.layout.island")}
@@ -132,6 +149,18 @@ export function LayoutControls() {
             onChange={(hasIsland) => setLayout({ hasIsland })}
           />
         </div>
+
+        {params.hasIsland && (
+          <Choice
+            label={t("panel.layout.islandOrientation")}
+            value={params.islandOrientation}
+            onChange={(islandOrientation) => setLayout({ islandOrientation })}
+            options={[
+              { value: "parallel" as const, label: t("panel.layout.island.parallel") },
+              { value: "perpendicular" as const, label: t("panel.layout.island.perpendicular") },
+            ]}
+          />
+        )}
 
         {issues.length > 0 && (
           <ul className="mt-3 space-y-2.5">

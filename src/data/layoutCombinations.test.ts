@@ -15,7 +15,7 @@ import {
   type Refusal,
 } from "./layoutTemplate";
 import { CABINET_STANDARDS, ISLAND, LAYOUT, LAYOUT_LIMITS, ROOM, RUN_BY_ID, RUNS, segmentForSlot } from "./room";
-import { SLOTS } from "./slots";
+import { SLOTS, SLOT_BY_ID } from "./slots";
 
 /**
  * One set of combinations per parameter.
@@ -527,6 +527,53 @@ describe("the greyed-out half of a slider", () => {
       // Exactly, not to within a step. The floor of the slider is the figure
       // printed under it: a room that builds at 147" says 147".
       expect(range.minIn, leg).toBe(wanted);
+    }
+  });
+});
+
+/**
+ * The island, turned a quarter round.
+ *
+ * The same island in a room that is deeper than it is wide: its long side
+ * faces the left run instead of the back one, the two machines are spaced
+ * along it as before, and the aisle rule is the aisle rule. What changes is
+ * which wall each of the two refusals is measured against.
+ */
+describe("which way the island runs", () => {
+  it("stands it off the left run instead, and passes every rule", () => {
+    const result = setLayoutParams(params({ islandOrientation: "perpendicular" }));
+    expect(result.ok, result.reasons.map((r) => r.key).join(" ")).toBe(true);
+
+    expect(ISLAND.axis).toBe("z");
+    // Long along z, deep across x — the parallel island's dimensions, swapped.
+    expect(inches(ISLAND.z[1] - ISLAND.z[0])).toBeCloseTo(DEFAULT_PARAMS.islandLengthIn, 6);
+    expect(inches(ISLAND.x[1] - ISLAND.x[0])).toBeCloseTo(DEFAULT_PARAMS.islandDepthIn, 6);
+
+    // An aisle off the left run, which is the one it now stands beside.
+    const leftFront = RUN_BY_ID.left.centre + ROOM.counterDepth / 2;
+    expect(inches(ISLAND.x[0] - leftFront)).toBeGreaterThanOrEqual(DEFAULT_PARAMS.aisleIn);
+
+    // The machines are spaced along it, and still face opposite ways.
+    const microwave = SLOT_BY_ID["slot-microwave"];
+    const wine = SLOT_BY_ID["slot-wine"];
+    expect(microwave.position[2]).not.toBeCloseTo(wine.position[2], 6);
+    expect(microwave.position[0]).toBeLessThan(wine.position[0]);
+    expect(checkLayout()).toEqual([]);
+  });
+
+  it("refuses a turned island by the wall it is actually too long for", () => {
+    // 96" of island along a left wall that has a 24" run and a 42" aisle on it
+    // is 66" of room: it is refused for its length, where the same island
+    // parallel to the back wall would have fitted.
+    const result = setLayoutParams(
+      params({ islandOrientation: "perpendicular", islandLengthIn: 96, leftWallIn: 120 }),
+    );
+    expect(result.ok).toBe(false);
+    expect(result.reasons.map((r) => r.key)).toContain("refusal.islandLong");
+    for (const reason of result.reasons) {
+      if (reason.key !== "refusal.islandLong") continue;
+      expect(reason.vars.paramKey).toBe("param.leftWallIn");
+      expect(reason.vars.wallIn).toBe(120);
     }
   });
 });
