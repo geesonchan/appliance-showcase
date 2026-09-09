@@ -92,8 +92,14 @@ function MicrowaveReach({ handleIn }: { handleIn: number }) {
 export function LayoutControls() {
   const t = useT();
   const params = useAppStore((s) => s.layoutParams);
+  const specified = useActivePackage().entry.slots;
   // Whether this package has an oven tower to stand on one side or the other.
-  const hasTower = useActivePackage().entry.slots.some((slot) => slot.beside === "range");
+  const hasTower = specified.some((slot) => slot.beside === "range");
+  // And whether its hood is a liner that goes up inside joinery, which is the
+  // only kind with a shape to choose.
+  const hasHousing = specified.some(
+    (slot) => slot.slotId === "slot-hood" && slot.installType === "insert",
+  );
   const issues = useAppStore((s) => s.layoutIssues);
   const setLayout = useAppStore((s) => s.setLayout);
 
@@ -151,6 +157,20 @@ export function LayoutControls() {
             { value: "lazy-susan" as const, label: t("panel.room.corner.lazySusan") },
           ]}
         />
+
+        {/* Only where the hood is a liner in a housing somebody builds. A
+            canopy has a shape of its own and nothing to choose. */}
+        {hasHousing && (
+          <Choice
+            label={t("panel.layout.housing")}
+            value={params.housingStyle}
+            onChange={(housingStyle) => setLayout({ housingStyle })}
+            options={[
+              { value: "box" as const, label: t("panel.layout.housing.box") },
+              { value: "sweep" as const, label: t("panel.layout.housing.sweep") },
+            ]}
+          />
+        )}
 
         {/* Only where there is a tower to put on a side. A control that does
             nothing in two packages out of three is a question nobody asked. */}

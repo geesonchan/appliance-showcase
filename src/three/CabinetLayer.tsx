@@ -13,7 +13,7 @@ import { useSelection } from "../store/useSelection";
 import { useIsMobile } from "../hooks/useIsMobile";
 import { cabinetPaint, useAppStore } from "../store/useAppStore";
 import { ft } from "../data/room";
-import { SCENE_COLORS, finish, type SurfaceProps } from "./materials";
+import { SCENE_COLORS, finish, type FinishToken, type SurfaceProps } from "./materials";
 import { Surface } from "./Surface";
 import { HoodCabinet } from "./HoodCabinet";
 import { texture } from "./textures";
@@ -183,6 +183,16 @@ function CornerDoor({
   );
 }
 
+/**
+ * What the band under a hood housing is finished in.
+ *
+ * Not the door colour. A strap of oak under a painted breast is what half of
+ * these are built as, and it is the one part of that joinery somebody chooses
+ * separately — so it is named here, where the room's finishes are, rather than
+ * in the geometry that draws it.
+ */
+const HOUSING_BAND: FinishToken = "wood-oak";
+
 /** The solid carcass, ghosted rather than hidden in install mode. */
 function CabinetSolid({ box }: { box: CabinetBox }) {
   const renderMode = useAppStore((s) => s.renderMode);
@@ -219,6 +229,7 @@ function CabinetSolid({ box }: { box: CabinetBox }) {
   // three sections rather than a box, and no door on any of them. It is
   // painted with the run like everything else here.
   if (box.module?.kind === "hood-cabinet") {
+    const ghost = { transparent: install, opacity: install ? GHOST_OPACITY : 1 };
     return (
       <group
         userData={{ slot: box.slot, boxId: box.id, cabinetRole: true }}
@@ -226,7 +237,8 @@ function CabinetSolid({ box }: { box: CabinetBox }) {
       >
         <HoodCabinet
           box={box}
-          s={{ ...props, transparent: install, opacity: install ? GHOST_OPACITY : 1 }}
+          s={{ ...props, ...ghost }}
+          band={{ ...finish(renderMode, HOUSING_BAND), ...ghost }}
         />
       </group>
     );

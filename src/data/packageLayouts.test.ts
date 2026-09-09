@@ -73,6 +73,12 @@ function combinations(): Partial<LayoutParams>[] {
     }
     for (const aisleIn of values(PARAM_LIMITS.aisleIn)) out.push({ islandOrientation, aisleIn });
   }
+  // Which shape the hood housing is built in. It changes the geometry over the
+  // range rather than the run under it, but the run is what has to survive it.
+  for (const housingStyle of ["box", "sweep"] as const) {
+    out.push({ housingStyle });
+    out.push({ housingStyle, towerSide: "left" });
+  }
   for (const towerSide of ["left", "right"] as const) {
     out.push({ towerSide });
     for (const islandOrientation of ["parallel", "perpendicular"] as const) {
@@ -811,15 +817,24 @@ describe("a bank of tall units", () => {
   });
 
   /**
-   * Nothing on that wall stands above the wall cabinets' top line.
+   * Both shapes of housing, under the wall cabinets' top line.
    *
    * The housing is part of the wall rather than a chimney parked against it,
-   * so its top section stops where the cabinets do and is as deep as they are.
-   * Two banks level with each other and a housing half a foot nearer the eye
-   * still read as a step in an isometric view, which is what this stops.
+   * so whichever shape it is built in it stops where the cabinets do. Two
+   * banks level with each other and a housing half a foot nearer the eye still
+   * read as a step in an isometric view, which is why the shape that gathers
+   * in is held to the cabinets' depth at the top as well.
+   *
+   * And the liner shows under it: a housing hung level with the tray swallows
+   * it whole and reads as a box with nothing in it.
    */
-  it("keeps every part of the housing under the cabinets' top line", () => {
-    activate("package-b");
+  it.each(["box", "sweep"] as const)("keeps a %s housing under the cabinets' top line", (
+    housingStyle,
+  ) => {
+    const base = activate("package-b");
+    const where = `${housingStyle} housing`;
+    expect(setLayoutParams({ ...base, housingStyle }).ok, where).toBe(true);
+
     const run = RUNS.find((r) => r.segments.some((s) => s.slot === "slot-range"))!;
     const banks = run.uppers.filter(
       (bank) => !bank.modules.some((module) => module.kind === "hood-cabinet"),
@@ -827,27 +842,84 @@ describe("a bank of tall units", () => {
     const top = Math.max(...banks.map((bank) => (bank.band ?? [0, ROOM.wallHeight])[1]));
 
     const housing = CABINETS.find((box) => box.module?.kind === "hood-cabinet")!;
-    const parts = hoodCabinetParts({
-      w: housing.size[0],
-      h: housing.size[1],
-      d: housing.size[2],
-    });
+    expect(housing.module?.housing, where).toBe(housingStyle);
+    const parts = hoodCabinetParts(
+      { w: housing.size[0], h: housing.size[1], d: housing.size[2] },
+      housingStyle,
+    );
     const floor = housing.position[1] - housing.size[1] / 2;
 
-    // Every section of it, and the crown on top of the last one.
+    // Every section of it, the band along the bottom included.
     for (const [name, part] of [
+      ["band", parts.band],
       ["base", parts.base],
       ["crown", parts.crown],
     ] as const) {
-      expect(inches(floor + part.y + part.h / 2), name).toBeLessThanOrEqual(inches(top) + 1e-6);
+      expect(inches(floor + part.y + part.h / 2), `${where}: ${name}`).toBeLessThanOrEqual(
+        inches(top) + 1e-6,
+      );
     }
-    expect(inches(floor + parts.base.h + parts.taper.h + parts.crown.h)).toBeCloseTo(
+    // And the three sections add up to the housing exactly: nothing of it is
+    // above the line and nothing of it is missing below.
+    expect(inches(floor + parts.base.h + parts.cove.h + parts.crown.h), where).toBeCloseTo(
       inches(top),
       6,
     );
-    // And it is no deeper than the cabinets where it meets them, or the line
-    // along the top steps forward in the drawing even though it is level.
-    expect(inches(parts.crown.d)).toBeLessThanOrEqual(inches(ROOM.upperDepth) + 1e-6);
+    // The tray it is built round: where its underside is, and its top.
+    const hood = APPLIANCE_BY_ID[PACKAGE_BY_ID["package-b"].defaultSelection["slot-hood"]!];
+    const liner = applianceBox(SLOT_BY_ID["slot-hood"], hood);
+    const trayFloor = SLOT_BY_ID["slot-hood"].position[1] + liner.y;
+    const trayTop = trayFloor + liner.h;
+
+    // Where it gathers in, it gathers in to the cabinets' own depth, or the
+    // line along the top steps forward in the drawing even though it is level.
+    if (parts.cove.h > 0) {
+      expect(inches(parts.top.d), where).toBeLessThanOrEqual(inches(ROOM.upperDepth) + 1e-6);
+      expect(parts.cove.rings.length, `${where}: the curve`).toBeGreaterThanOrEqual(8);
+      // A cove leaves the band standing straight up and turns in hardest just
+      // under the flue. A taper does the same amount at every height, and this
+      // is the difference between the two.
+      const rings = parts.cove.rings;
+      const step = (i: number) => rings[i].w - rings[i + 1].w;
+      expect(step(0), `${where}: the curve is a taper`).toBeLessThan(
+        step(rings.length - 2),
+      );
+
+      // And the tray stays inside it. The straight part of a swept housing is
+      // only the band, so what keeps the liner in is that the curve has barely
+      // left the vertical by the height the liner ends at.
+      const at = trayTop - (housing.position[1] - housing.size[1] / 2) - parts.cove.y;
+      const ring = rings.reduce((worst, r) =>
+        Math.abs(r.y - at) < Math.abs(worst.y - at) ? r : worst,
+      );
+      expect(inches(ring.w), `${where}: the curve cuts the liner`).toBeGreaterThanOrEqual(
+        inches(liner.w),
+      );
+      expect(inches(ring.d), `${where}: the curve cuts the liner`).toBeGreaterThanOrEqual(
+        inches(liner.d),
+      );
+    }
+
+    // The liner shows below it, and by less than the tray is tall.
+    expect(inches(floor - trayFloor), `${where}: the liner under it`).toBeGreaterThan(0);
+    expect(inches(floor - trayFloor), `${where}: the liner under it`).toBeLessThan(
+      inches(liner.h),
+    );
+
+    // And its flanks meet what is beside them, with nothing between.
+    const bank = run.uppers.find((b) =>
+      b.modules.some((module) => module.kind === "hood-cabinet"),
+    )!;
+    const edges = [
+      ...banks.flatMap((b) => [b.from, b.to]),
+      ...run.segments.filter((segment) => segment.kind === "tall").flatMap((x) => [x.from, x.to]),
+    ];
+    for (const flank of [bank.from, bank.to]) {
+      expect(
+        edges.some((edge) => Math.abs(edge - flank) < 1e-6),
+        `${where}: nothing meets the housing at ${inches(flank)}"`,
+      ).toBe(true);
+    }
   });
 
   /**

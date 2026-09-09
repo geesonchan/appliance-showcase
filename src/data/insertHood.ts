@@ -1,4 +1,4 @@
-import { ROOM, ft } from "./roomShell";
+import { ROOM, ft, type HousingStyle } from "./roomShell";
 import type { Appliance } from "../types";
 
 /**
@@ -9,12 +9,12 @@ import type { Appliance } from "../types";
  * else builds. What the customer sees is the housing, in the same door finish
  * as the cabinets beside it, and a band of steel and baffle filters underneath.
  *
- * The shape is Leo's round-20 note, which is the shape these are built in:
- * three sections, not one taper. A straight box at the bottom with the liner
- * set into it, a four-sided frustum above that gathering in to the flue, and a
- * straight box from there to the ceiling with a crown at the top. The bottom
- * and the top are fixed heights; the taper takes whatever the room leaves,
- * so a taller ceiling makes a longer slope rather than a stretched box.
+ * There are two shapes it is built in and they are a customer's choice rather
+ * than a figure off a drawing, so they are a parameter: `box`, a straight
+ * breast whose front is one plane from the band to the top line, and `sweep`,
+ * the same band under a face that curves up and in to a narrow flue. Both are
+ * hung off the same liner, both stop at the wall cabinets' top line, and both
+ * carry the same band along the bottom.
  *
  * The liner's own figures are docs/reference/vcin36gws-manual.pdf: a
  * 32-15/16" x 21-1/4" opening in the underside with a 5/8" ledge round it, and
@@ -22,91 +22,200 @@ import type { Appliance } from "../types";
  */
 export const HOOD_CABINET = {
   /**
-   * The straight box at the bottom, which the liner hangs in.
+   * The straight box at the bottom of a breast, which the liner hangs in.
    *
    * The manual's own framing, not a proportion: a 12-11/16" crossbar with the
-   * liner hanging on the 5/8" ledge under it. The liner is 12-13/16" tall and
-   * has to be inside a section with vertical sides, or it comes out through the
-   * slope. Round-20's note said "about 6", which is what the band under the
-   * moulding reads as from the room — the box behind it is this.
+   * liner hanging on the 5/8" ledge under it.
+   *
+   * A swept housing has no such box — its straight part is the band, and what
+   * keeps the tray inside is that a cove leaves the band vertical and turns in
+   * slowly. That is a thing to check rather than to assume, and
+   * `packageLayouts.test.ts` checks it at the height the tray ends.
    */
   baseIn: 13.3125,
-  /** The straight box at the top, which meets the ceiling. */
-  crownIn: 8,
   /**
-   * What the taper gathers in to: the flue, and the box round it.
+   * The band along the bottom edge of the housing, in its own finish.
    *
-   * As deep as the wall cabinets it meets, not the 14" the round-20 note
-   * estimated. The top of that wall has to read as one line, and a top section
-   * standing two inches further into the room breaks it — in an isometric view
-   * anything nearer the eye draws higher, so a housing level with the cabinets
-   * still looked taller than them.
+   * Six inches of it, and it is the one part of a housing that is usually not
+   * the door colour — a strap of oak under a painted breast is what half of
+   * these are built as. It stands a little proud of the face above it, which
+   * is what makes it a band rather than a painted stripe.
    */
-  topWidthIn: 24,
-  topDepthIn: 12,
+  bandIn: 6,
+  bandProudIn: 0.75,
+  /** The straight box at the top, above the curve. */
+  crownIn: 8,
   /** The ledge the liner's flange rests on, from the manual. */
   ledgeIn: 0.625,
-  /** The moulding along the bottom edge and again at the ceiling. */
+  /**
+   * How much of the liner shows below the housing.
+   *
+   * The tray hangs on its ledge with its front face standing below the band,
+   * which is the band of steel a customer sees under the joinery. A housing
+   * whose underside is level with the liner's swallows it whole and reads as a
+   * box with nothing in it.
+   */
+  linerProudIn: 2.5,
+  /** The moulding at the ceiling. */
   mouldingIn: 1.5,
   /** How far the moulding stands proud of the face it runs along. */
   mouldingProudIn: 0.75,
-  /** The recessed panel on each sloping face, as a shaker door's is. */
-  panelInsetIn: 4,
-  panelDepthIn: 0.25,
+  /** How many straight lengths the curve is drawn as. */
+  coveSegments: 10,
 };
+
+/**
+ * What each shape gathers in to at the top, and what its face is made of.
+ *
+ * A box does not gather in at all: 42" wide and as deep as the base run below
+ * it, which is what a chimney breast is, with the front boarded in shiplap.
+ * A sweep draws in to a flue — 30" on the drawing, and 14" deep, except that
+ * the top of that wall has to read as one line and a section standing proud of
+ * the cabinets breaks it, so its depth is theirs where theirs is less.
+ */
+export const HOUSING_STYLES = {
+  box: { topWidthIn: 42, topDepthIn: 24, coved: false, boardIn: 6 },
+  sweep: { topWidthIn: 30, topDepthIn: 14, coved: true, boardIn: 0 },
+} as const satisfies Record<HousingStyle, unknown>;
 
 /** The liner's own opening in the underside of the housing, in inches. */
 export const LINER_OPENING = { widthIn: 32.9375, depthIn: 21.25 } as const;
 
+/**
+ * A straight section of the housing: its size and where its middle is.
+ *
+ * `z` is how far the middle sits from the housing's own, and it is not always
+ * nothing: a breast is built against a wall, so a section shallower than the
+ * housing keeps its back on that wall and gathers in at the front. A section
+ * centred instead would leave a gap behind it and lean the face in twice as
+ * fast as it should.
+ */
+export interface HoodSection {
+  h: number;
+  w: number;
+  d: number;
+  y: number;
+  z: number;
+}
+
 export interface HoodCabinetParts {
-  /** Straight box at the bottom: full width and depth. */
-  base: { h: number; w: number; d: number; y: number };
-  /** The taper, from the base's section to the crown's. */
-  taper: { h: number; y: number; bottom: { w: number; d: number }; top: { w: number; d: number } };
-  /** Straight box to the ceiling. */
-  crown: { h: number; w: number; d: number; y: number };
+  style: HousingStyle;
+  /** Straight box at the bottom, which the liner hangs in: full width and depth. */
+  base: HoodSection;
+  /** The band along its lower edge, in its own finish. Part of the base. */
+  band: HoodSection & { proud: number };
+  /**
+   * The curve, as the rings it is drawn from, bottom to top.
+   *
+   * Empty where the shape has none. Each ring is in the curve's own frame:
+   * how far up it, and the section there.
+   */
+  cove: { h: number; y: number; rings: { y: number; w: number; d: number; z: number }[] };
+  /** Straight box to the top line. */
+  crown: HoodSection;
+  /** The section at the very top, which the moulding wraps. */
+  top: { w: number; d: number; z: number };
   /** The hole in the underside the liner hangs in, and the ledge round it. */
   opening: { w: number; d: number; ledge: number };
 }
 
 /**
- * The three sections, given the housing's own envelope.
+ * The housing's sections, given its own envelope and the shape asked for.
  *
- * `h` is floor to ceiling of the housing — from where it is hung over the
- * cooking surface up to the ceiling — and the taper is what is left of it once
- * the two straight sections have taken theirs. A housing too short for all
- * three is not an error: the taper closes up and the two boxes meet, which is
- * what a low ceiling actually gets built as.
+ * `h` is the housing's own height — from where it is hung over the cooking
+ * surface up to the ceiling — and the curve is what is left of it once the two
+ * straight sections have taken theirs. A housing too short for all three is
+ * not an error: the curve closes up and the two boxes meet, which is what a
+ * low ceiling actually gets built as.
  */
-export function hoodCabinetParts(size: {
-  w: number;
-  h: number;
-  d: number;
-}): HoodCabinetParts {
-  const base = Math.min(ft(HOOD_CABINET.baseIn), size.h);
-  const crown = Math.min(ft(HOOD_CABINET.crownIn), size.h - base);
-  const taper = Math.max(0, size.h - base - crown);
+export function hoodCabinetParts(
+  size: { w: number; h: number; d: number },
+  style: HousingStyle = "box",
+): HoodCabinetParts {
+  const shape = HOUSING_STYLES[style];
+  // A breast is boxed to the manual's framing; a sweep is straight for the
+  // depth of its band and curved from there.
+  const base = Math.min(
+    ft(shape.coved ? HOOD_CABINET.bandIn : HOOD_CABINET.baseIn),
+    size.h,
+  );
+  const crown = Math.min(shape.coved ? ft(HOOD_CABINET.crownIn) : size.h - base, size.h - base);
+  const cove = Math.max(0, size.h - base - crown);
 
   // The top can only draw in, never out: a housing narrower than its own flue
-  // would be a taper the wrong way round.
-  const topW = Math.min(ft(HOOD_CABINET.topWidthIn), size.w);
-  const topD = Math.min(ft(HOOD_CABINET.topDepthIn), size.d);
+  // would be a curve the wrong way round. And no deeper than the cabinets it
+  // meets, where it is meant to meet them.
+  const topW = Math.min(ft(shape.topWidthIn), size.w);
+  const topD = Math.min(ft(shape.topDepthIn), size.d, shape.coved ? ROOM.upperDepth : size.d);
+  const band = Math.min(ft(HOOD_CABINET.bandIn), base);
+  /** Back against the wall: where the middle of a shallower section lands. */
+  const wall = (d: number) => (d - size.d) / 2;
 
   return {
-    base: { h: base, w: size.w, d: size.d, y: base / 2 },
-    taper: {
-      h: taper,
-      y: base + taper / 2,
-      bottom: { w: size.w, d: size.d },
-      top: { w: topW, d: topD },
+    style,
+    base: { h: base, w: size.w, d: size.d, y: base / 2, z: 0 },
+    // Proud of the face and not of the flanks: what is beside a housing is a
+    // cabinet or a tower, and a band that stood proud of those would be a band
+    // driven through them.
+    band: {
+      h: band,
+      w: size.w,
+      d: size.d + ft(HOOD_CABINET.bandProudIn),
+      y: band / 2,
+      z: wall(size.d + ft(HOOD_CABINET.bandProudIn)),
+      proud: ft(HOOD_CABINET.bandProudIn),
     },
-    crown: { h: crown, w: topW, d: topD, y: base + taper + crown / 2 },
+    cove: {
+      h: cove,
+      y: base,
+      rings:
+        cove > 0
+          ? coveRings(cove, { w: size.w, d: size.d }, { w: topW, d: topD }, wall)
+          : [],
+    },
+    crown: { h: crown, w: topW, d: topD, y: base + cove + crown / 2, z: wall(topD) },
+    top: { w: topW, d: topD, z: wall(topD) },
     opening: {
       w: ft(LINER_OPENING.widthIn),
       d: ft(LINER_OPENING.depthIn),
       ledge: ft(HOOD_CABINET.ledgeIn),
     },
   };
+}
+
+/**
+ * The rings a cove is drawn from, bottom to top.
+ *
+ * A cove is not a taper: it leaves the band standing straight up, turns in
+ * slowly at first and hardest just under the flue. That is a quarter cosine,
+ * and it is the whole difference between a hood that looks turned and one that
+ * looks folded. It is also what keeps the liner inside a housing whose
+ * straight part is only six inches tall — the tray ends a third of the way up
+ * the curve, where the curve has barely left the vertical.
+ *
+ * Ten straight lengths is enough that the joint between two of them stops
+ * reading as a facet at the size these are drawn.
+ */
+function coveRings(
+  h: number,
+  bottom: { w: number; d: number },
+  top: { w: number; d: number },
+  wall: (d: number) => number,
+): { y: number; w: number; d: number; z: number }[] {
+  const steps = HOOD_CABINET.coveSegments;
+  const rings: { y: number; w: number; d: number; z: number }[] = [];
+  for (let i = 0; i <= steps; i += 1) {
+    const t = i / steps;
+    const f = 1 - Math.cos((t * Math.PI) / 2);
+    const d = bottom.d + (top.d - bottom.d) * f;
+    rings.push({
+      y: h * t,
+      w: bottom.w + (top.w - bottom.w) * f,
+      d,
+      z: wall(d),
+    });
+  }
+  return rings;
 }
 
 /** True when this hood goes up inside a housing somebody else builds. */
@@ -116,7 +225,10 @@ export const isInsert = (appliance: Appliance | undefined) =>
 /**
  * Where the housing hangs, in feet above the floor.
  *
- * The liner's underside, which is the clearance over the cooking surface — the
- * same figure a canopy is hung at, and the same rule.
+ * Not at the liner's underside but a couple of inches above it: the tray hangs
+ * on its ledge with its face showing below the band, which is the band of
+ * steel you see under one of these. The figure below it is the clearance over
+ * the cooking surface — the same one a canopy is hung at, and the same rule.
  */
-export const hoodCabinetBand = (mountY: number) => [mountY, ROOM.wallHeight] as const;
+export const hoodCabinetBand = (mountY: number) =>
+  [mountY + ft(HOOD_CABINET.linerProudIn), ROOM.wallHeight] as const;

@@ -749,9 +749,72 @@ async function captureRound15(page) {
   }
 }
 
+/**
+ * Round 25: the two shapes of hood housing, and the two corrections under it.
+ *
+ * The housing is a customer's choice now — a straight breast boarded in
+ * shiplap, or a face that sweeps up to a flue — so the set is the same room
+ * twice, close enough to read the band under either. The other two shots are
+ * the oven tower on the left, where the worktop used to stop at it, and the
+ * flank between the housing and that tower, where a three-inch board used to
+ * hang on its own.
+ */
+async function captureRound25(page) {
+  const toPackage = async (code) => {
+    await page.locator(`[data-segment="package"] button`, { hasText: code }).first().click();
+    await settle(page, 2200);
+  };
+  const configure = async (label) => {
+    await click(page, "Configure");
+    await page.waitForTimeout(700);
+    await page.getByRole("button", { name: label, exact: true }).first().click();
+    await page.waitForTimeout(900);
+    await page.getByRole("button", { name: "Close" }).click();
+    await settle(page, 1400);
+  };
+
+  await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await settle(page, 2400);
+  await toPackage("B");
+
+  for (const [name, label] of [
+    ["box", "Straight breast"],
+    ["sweep", "Swept"],
+  ]) {
+    await configure(label);
+    await page.screenshot({ path: `${outDir}/mobile-b-housing-${name}.png` });
+    await flyTo(page, /Range/);
+    await settle(page, 1500);
+    await page.screenshot({ path: `${outDir}/mobile-b-housing-${name}-close.png` });
+    await click(page, "Reset view");
+    await settle(page, 1200);
+  }
+
+  // The tower on the other side of the cooking surface, which is where the
+  // worktop past it went missing: the whole back wall in one shot, because
+  // what the fix is about is the stretch from the tower to the end of the run.
+  await configure("Left of the range");
+  await page.screenshot({ path: `${outDir}/mobile-b-tower-left.png` });
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round25") {
+    const ctx = await browser.newContext({
+      viewport: MOBILE,
+      deviceScaleFactor: 2,
+      isMobile: true,
+      hasTouch: true,
+    });
+    const page = await ctx.newPage();
+    await captureRound25(page);
+    await ctx.close();
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round21") {
     const ctx = await browser.newContext({

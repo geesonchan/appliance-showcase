@@ -267,10 +267,28 @@ export interface CabinetModule {
    * below the sill and above the opening is cabinetry either way.
    */
   sillIn?: number;
+  /**
+   * Which shape a hood housing is built in, where the module is one.
+   *
+   * A parameter rather than a constant because it is a decision somebody makes
+   * about their kitchen and not a figure off a drawing: the same liner goes up
+   * inside either. See `insertHood.ts`.
+   */
+  housing?: HousingStyle;
   /** The appliance or fixture this module houses. */
   slot?: SlotId;
   fixture?: FixtureId;
 }
+
+/**
+ * The two shapes a hood housing is built in.
+ *
+ * `box` is a straight breast from the liner to the top line, its front in one
+ * plane, with a band along the bottom. `sweep` is the same band under a face
+ * that curves up and in to a narrow flue. Both are joinery in the door finish
+ * with a manufacturer's liner underneath; what differs is the face.
+ */
+export type HousingStyle = "box" | "sweep";
 
 export interface RunSegment {
   id: string;

@@ -7,6 +7,7 @@ import {
   ft,
   type CabinetModule,
   type CabinetRun,
+  type HousingStyle,
   type ModuleKind,
   type RunSegment,
   type UpperBank,
@@ -49,6 +50,15 @@ export interface LayoutParams {
    * have one. See D11 rule 12.
    */
   towerSide: "left" | "right";
+  /**
+   * Which shape the hood housing is built in, where the hood is an insert.
+   *
+   * A straight breast boarded in shiplap, or a face that sweeps up and in to a
+   * narrow flue. The liner, the clearance and the duct are the same either
+   * way: this is the joinery round them, and it is the one part of a hood a
+   * customer has an opinion about. See `insertHood.ts`.
+   */
+  housingStyle: HousingStyle;
   /** Which way the island's long side runs: along the back wall, or across it. */
   islandOrientation: "parallel" | "perpendicular";
   /**
@@ -109,6 +119,9 @@ export const DEFAULT_PARAMS: LayoutParams = {
   // Right, because a right-handed cook turns from the burners to the oven and
   // the sink is the other way. It is a parameter because kitchens are not.
   towerSide: "right",
+  // The straight breast, which is the commoner of the two and the one that
+  // takes the least explaining when it is not what somebody wanted.
+  housingStyle: "box",
   islandOrientation: "parallel",
   microwaveHandleIn: 54,
   fridgeEndAbuts: "cabinet",
@@ -1578,6 +1591,7 @@ function banksAroundHood(
   start: number,
   corner: (typeof CORNERS)[keyof typeof CORNERS] | null,
   spec: Record<SlotId, PackageSlot>,
+  housingStyle: HousingStyle,
 ): UpperBank[] {
   const range = segments.find((segment) => segment.slot === "slot-range");
   const stop = bankStop(segments);
@@ -1617,6 +1631,7 @@ function banksAroundHood(
             // As deep as the base run below it: a chimney breast is built off
             // the wall, not hung like a 12" wall cabinet.
             depthIn: CABINET_STANDARDS.base.depthIn,
+            housing: housingStyle,
           })
         : M(`W${hoodIn}`, "bridge", hoodIn, { slot: "slot-hood" }),
     ],
@@ -1916,7 +1931,14 @@ export function generateLayout(
       axis: "x",
       centre: -halfZ + ROOM.counterDepth / 2,
       segments: backSegments,
-      uppers: banksAroundHood("back", backSegments, -halfX + ft(corner.upper.acrossIn), null, spec),
+      uppers: banksAroundHood(
+        "back",
+        backSegments,
+        -halfX + ft(corner.upper.acrossIn),
+        null,
+        spec,
+        params.housingStyle,
+      ),
     },
   ];
 
