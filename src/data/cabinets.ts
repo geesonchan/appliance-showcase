@@ -1,4 +1,5 @@
 import type { SlotId } from "../types";
+import { HOOD_CABINET } from "./insertHood";
 import { islandAcross, islandPoint } from "./layoutTemplate";
 import { PACKAGE_SLOTS } from "./packages";
 import { SLOT_BY_ID } from "./slots";
@@ -56,25 +57,30 @@ const BASE_BOX = [0, ROOM.counterHeight - ROOM.counterThickness] as const;
 const fridgeOpeningH = () => ft(SLOT_BY_ID["slot-fridge"].cutout.h);
 
 /**
- * Whether this segment stands against the oven tower.
+ * Whether this stretch is filled to the top of the oven tower beside it.
  *
- * A tower in the middle of a run is 96" of joinery with counter beside it, and
- * what is over that counter has to reach the same height or the tower ends up
- * with a slot of bare wall down each side. So the stretch either side of it is
- * filled from the counter to the top of the tower — the six inches of spice
- * pull-out on one side and whatever finishes the run on the other.
+ * A tower in the middle of a run is 96" of joinery, and a strip of bare wall
+ * down the side of it is a detail nobody builds — so what finishes the run
+ * beside it is carried up to its top.
  *
- * Only the tower: the counter beside a refrigerator bank at the end of a run
- * is a landing with wall cabinets over it, and filling that would be bricking
- * up the kitchen.
+ * The side toward the cooking surface is not, and that is the whole
+ * difference: what is between the tower and the machine is the clearance the
+ * rangetop's own sheet asks for — five inches to anything beside it — and it
+ * has to read as counter, not as the tower's side carried down to the stone.
+ * So the far side is filled and the near side keeps its worktop.
  */
 function besideTheTower(run: CabinetRun, segment: RunSegment): number | null {
   const at = run.segments.indexOf(segment);
   if (segment.kind !== "counter") return null;
-  for (const neighbour of [run.segments[at - 1], run.segments[at + 1]]) {
-    if (!neighbour || neighbour.kind !== "tall" || !neighbour.slot) continue;
-    if (PACKAGE_SLOTS[neighbour.slot]?.beside !== "range") continue;
-    const module = neighbour.modules.find((m) => m.kind === "tall");
+  const rangeAt = run.segments.findIndex((s) => s.slot === "slot-range");
+
+  for (const towerAt of [at - 1, at + 1]) {
+    const tower = run.segments[towerAt];
+    if (!tower || tower.kind !== "tall" || !tower.slot) continue;
+    if (PACKAGE_SLOTS[tower.slot]?.beside !== "range") continue;
+    // Between the tower and the machine: that stretch is the clearance.
+    if (rangeAt >= 0 && Math.sign(rangeAt - towerAt) === Math.sign(at - towerAt)) continue;
+    const module = tower.modules.find((m) => m.kind === "tall");
     return ft(module?.heightIn ?? 96);
   }
   return null;
@@ -208,14 +214,19 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
       // an oven tower's hole is 18" up and what is below it is a drawer base,
       // which is where the trays go. A refrigerator's sill is zero and this
       // draws what it always drew.
-      const opening = [along[0] + PANEL, along[1] - PANEL] as const;
+      const inset = module.insetIn === undefined ? PANEL : ft(module.insetIn);
+      const opening = [along[0] + inset, along[1] - inset] as const;
       const outline = segment.id;
       const tall = [0, ft(module.heightIn ?? 96)] as const;
       const sill = ft(module.sillIn ?? 0);
       const head = Math.min(sill + openingH(module.slot), tall[1]);
+      if (inset > 0) {
+        boxes.push(
+          onRun(run, `${segment.id}-panel-a`, "surround", [along[0], opening[0]], tall, ROOM.counterDepth, 0, { outline, slot: module.slot, module }),
+          onRun(run, `${segment.id}-panel-b`, "surround", [opening[1], along[1]], tall, ROOM.counterDepth, 0, { outline, slot: module.slot, module }),
+        );
+      }
       boxes.push(
-        onRun(run, `${segment.id}-panel-a`, "surround", [along[0], opening[0]], tall, ROOM.counterDepth, 0, { outline, slot: module.slot, module }),
-        onRun(run, `${segment.id}-panel-b`, "surround", [opening[1], along[1]], tall, ROOM.counterDepth, 0, { outline, slot: module.slot, module }),
         onRun(run, `${segment.id}-bridge`, "upper", opening, [head, tall[1]], ROOM.counterDepth, 0, { outline, slot: module.slot, module }),
       );
       if (sill > 0) {
@@ -298,6 +309,37 @@ function upperBoxes(run: CabinetRun, bank: UpperBank): CabinetBox[] {
       }),
     );
   });
+
+  /**
+   * The crown, along the top of the whole bank.
+   *
+   * A hood housing carries one round its own top section, and a chimney breast
+   * with a moulding that stops at its own sides is a piece of furniture parked
+   * against the cabinets. The same moulding runs along every bank that reaches
+   * the ceiling, at the same height and standing off the face by the same
+   * amount, so what a customer sees along the top of that wall is one line
+   * that happens to step forward where the breast does.
+   */
+  const housing = bank.modules.some((module) => module.kind === "hood-cabinet");
+  if (!housing && Math.abs(band[1] - ROOM.wallHeight) < 1e-6) {
+    const moulding = ft(HOOD_CABINET.mouldingIn);
+    const proud = ft(HOOD_CABINET.mouldingProudIn);
+    const depth = ROOM.upperDepth + proud;
+    boxes.push(
+      onRun(
+        run,
+        `${bank.id}-crown`,
+        "upper",
+        [bank.from, bank.to] as const,
+        [band[1] - moulding, band[1]] as const,
+        depth,
+        -(ROOM.counterDepth - depth) / 2,
+        // No module: it is a length of moulding along the bank rather than one
+        // of the boxes in it, and every rule that counts boxes should skip it.
+        {},
+      ),
+    );
+  }
   return boxes;
 }
 

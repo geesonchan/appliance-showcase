@@ -245,6 +245,16 @@ export interface CabinetModule {
    */
   depthIn?: number;
   /**
+   * Finished panel each side of a tall unit's opening, in inches.
+   *
+   * A tower standing on its own is an opening with a panel each side of it and
+   * a cabinet over the top — three inches, which is what a finished panel is.
+   * A column in a bank has none: the bank has its own panels at its two ends
+   * and the columns butt each other, so drawing three inches of cabinet inside
+   * each one puts a green frame over the machine's own front.
+   */
+  insetIn?: number;
+  /**
    * How far off the floor a tall unit's opening starts.
    *
    * Zero for a refrigerator, which stands on the floor of its opening; 18" for

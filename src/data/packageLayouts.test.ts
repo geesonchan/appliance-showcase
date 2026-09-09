@@ -491,8 +491,8 @@ describe("what is over the cooking surface", () => {
 
       const segment = RUNS.flatMap((run) => run.segments).find((s) => s.slot === "slot-range")!;
       for (const box of CABINETS) {
-        const [w, h, d] = box.size;
-        const [x, y, z] = box.position;
+        const [w, h] = box.size;
+        const [x, y] = box.position;
         // Anything whose body is inside the band, over the machine.
         const low = y - h / 2;
         const high = y + h / 2;
@@ -502,8 +502,6 @@ describe("what is over the cooking surface", () => {
           overlapsBand && overlapsRange,
           `${entry.id}: ${box.id} stands between the cooking surface and the hood`,
         ).toBe(false);
-        expect(d).toBeGreaterThan(0);
-        expect(z).toBeDefined();
       }
     }
   });
@@ -660,42 +658,176 @@ describe("a bank of tall units", () => {
   });
 
   /**
-   * No bare wall beside a 96" tower.
+   * No bare wall on the far side of a 96" tower — and counter on the near one.
    *
-   * The stretch each side of it — the spice pull-out on one, whatever finishes
-   * the run on the other — is carried from the counter to the top of the
-   * tower in finished panel, so the three of them read as one wall of joinery
-   * rather than as a tower with a slot of tile down each side.
+   * What finishes the run beside the tower is carried up to its top, so there
+   * is no strip of tile down that side. Between the tower and the cooking
+   * surface is the other case entirely: that stretch is the clearance the
+   * rangetop's sheet asks for, and it stays worktop.
    */
-  it("fills the wall either side of the tower, counter to top", () => {
+  it("fills the far side of the tower and leaves the near side counter", () => {
     activate("package-b");
     const run = RUNS.find((r) => r.segments.some((s) => s.slot === "slot-microwave"))!;
     const at = run.segments.findIndex((s) => s.slot === "slot-microwave");
+    const rangeAt = run.segments.findIndex((s) => s.slot === "slot-range");
     const tower = run.segments[at];
     const towerTop = tower.modules.find((m) => m.kind === "tall")!.heightIn!;
 
-    for (const neighbour of [run.segments[at - 1], run.segments[at + 1]]) {
-      if (!neighbour || neighbour.kind !== "counter") continue;
-      const covering = CABINETS.filter((box) => {
+    // What stands *on* the counter over a stretch — joinery rising off the
+    // worktop rather than a wall cabinet hung eighteen inches above it.
+    const standingOn = (segment: (typeof run.segments)[number]) =>
+      CABINETS.filter((box) => {
         const low = inches(box.position[1] - box.size[1] / 2);
         const high = inches(box.position[1] + box.size[1] / 2);
         const centre = box.position[0];
+        const counter = inches(ROOM.counterHeight);
         return (
-          centre > neighbour.from - 1e-6 &&
-          centre < neighbour.to + 1e-6 &&
-          high > inches(ROOM.counterHeight) + 1e-6 &&
-          low < towerTop - 1e-6
+          centre > segment.from - 1e-6 &&
+          centre < segment.to + 1e-6 &&
+          low <= counter + 1e-6 &&
+          high > counter + 1e-6
         );
       });
-      expect(
-        covering.length,
-        `nothing over ${neighbour.id}, beside a ${towerTop}" tower`,
-      ).toBeGreaterThan(0);
-      // To the top of the tower, not to the underside of a wall cabinet.
-      const top = Math.max(
-        ...covering.map((box) => inches(box.position[1] + box.size[1] / 2)),
+
+    for (const side of [at - 1, at + 1]) {
+      const neighbour = run.segments[side];
+      if (!neighbour || neighbour.kind !== "counter") continue;
+      const toward = Math.sign(rangeAt - at) === Math.sign(side - at);
+      const covering = standingOn(neighbour);
+
+      if (toward) {
+        // The clearance: nothing standing on that counter at all.
+        expect(
+          covering.map((box) => box.id),
+          `${neighbour.id} is the machine's clearance`,
+        ).toEqual([]);
+      } else {
+        expect(covering.length, `nothing over ${neighbour.id}`).toBeGreaterThan(0);
+        const top = Math.max(
+          ...covering.map((box) => inches(box.position[1] + box.size[1] / 2)),
+        );
+        expect(top, neighbour.id).toBeCloseTo(towerTop, 6);
+      }
+    }
+  });
+
+  /**
+   * A stainless column wears its own front, not the kitchen's.
+   *
+   * The machine's finish decides it, and the sheet says stainless — so what is
+   * seen is the manufacturer's door panel and the glass in it. There is no
+   * cabinetry inside the column's own width to paint green: the bank has its
+   * panels at the two ends and the columns butt each other, which is what a
+   * bank of columns is.
+   */
+  it("draws no cabinetry inside a column's own width", () => {
+    activate("package-b");
+    const wine = APPLIANCE_BY_ID[PACKAGE_BY_ID["package-b"].defaultSelection["slot-wine"]!];
+    expect(wine.finish).toContain("stainless");
+    expect(wine.finish).not.toContain("panel-ready");
+
+    const column = RUNS.flatMap((run) => run.segments).find((s) => s.slot === "slot-wine")!;
+    const module = column.modules.find((m) => m.kind === "tall")!;
+    expect(module.insetIn, "a column in a bank frames itself in cabinetry").toBe(0);
+
+    // Nothing inside its extent but the cabinet over the opening: no panel
+    // standing across the machine's own face.
+    const inside = CABINETS.filter(
+      (box) =>
+        box.position[0] > column.from + 1e-6 &&
+        box.position[0] < column.to - 1e-6 &&
+        box.kind === "surround",
+    );
+    expect(inside.map((box) => box.id), "panels inside the column").toEqual([]);
+  });
+
+  /**
+   * The housing and the wall cabinets beside it are one wall.
+   *
+   * Same top, sides touching, and one crown along the whole of it. A chimney
+   * breast whose moulding stops at its own sides is a piece of furniture
+   * parked against the cabinets; what a customer sees along that wall should
+   * be a single line that steps forward where the breast does.
+   */
+  it("tops the housing level with the banks beside it, with one crown across", () => {
+    activate("package-b");
+    const run = RUNS.find((r) => r.segments.some((s) => s.slot === "slot-range"))!;
+    const housing = run.uppers.find((bank) =>
+      bank.modules.some((module) => module.kind === "hood-cabinet"),
+    )!;
+    const beside = run.uppers.filter((bank) => bank !== housing);
+    expect(beside.length, "no banks beside the housing").toBeGreaterThan(0);
+
+    // Same top: the ceiling, for all of them.
+    const top = (bank: (typeof run.uppers)[number]) =>
+      (bank.band ?? [0, ROOM.wallHeight])[1];
+    expect(inches(top(housing))).toBeCloseTo(inches(ROOM.wallHeight), 6);
+    for (const bank of beside) {
+      expect(inches(top(bank)), bank.id).toBeCloseTo(inches(top(housing)), 6);
+      // And the same height of box: one module height along the wall.
+      const band = bank.band ?? [0, ROOM.wallHeight];
+      expect(inches(band[1] - band[0]), bank.id).toBeCloseTo(42, 6);
+    }
+
+    // Sides touching: no gap where a bank meets the housing.
+    for (const bank of beside) {
+      const gap = Math.min(
+        Math.abs(bank.to - housing.from),
+        Math.abs(housing.to - bank.from),
       );
-      expect(top, neighbour.id).toBeCloseTo(towerTop, 6);
+      if (gap > ft(24)) continue; // a bank at the other end of the run
+      expect(inches(gap), `${bank.id} to the housing`).toBeCloseTo(0, 6);
+    }
+
+    // And one crown: every bank that reaches the ceiling carries the same
+    // moulding at the same height, and together they cover the whole stretch.
+    const crowns = CABINETS.filter(
+      (box) => box.id.endsWith("-crown") && box.id.startsWith(`upper-${run.id}`),
+    );
+    expect(crowns.length, "no crown along the banks").toBeGreaterThan(0);
+    const ceiling = inches(ROOM.wallHeight);
+    for (const crown of crowns) {
+      expect(inches(crown.position[1] + crown.size[1] / 2), crown.id).toBeCloseTo(ceiling, 6);
+    }
+    const along = (box: (typeof crowns)[number]) => box.size[0];
+    const covered = crowns.reduce((sum, crown) => sum + along(crown), 0);
+    const banks = beside.reduce((sum, bank) => sum + (bank.to - bank.from), 0);
+    expect(inches(covered), "crown does not cover the banks").toBeCloseTo(inches(banks), 6);
+  });
+
+  /**
+   * Five inches of counter each side of the cooking surface.
+   *
+   * PCG366W's own figure — E on the drawing, 5" to a combustible surface —
+   * and what it forbids is a tower, a tall filler or a panel standing on the
+   * stone within five inches of the burners. The wide landing covers one side
+   * on its own; the other is the six inches between the machine and the tower.
+   */
+  it("leaves five inches of clear counter each side of the rangetop", () => {
+    for (const towerSide of ["left", "right"] as const) {
+      const base = activate("package-b");
+      const where = `tower ${towerSide}`;
+      expect(setLayoutParams({ ...base, towerSide }).ok, where).toBe(true);
+
+      const run = RUNS.find((r) => r.segments.some((s) => s.slot === "slot-range"))!;
+      const range = run.segments.find((s) => s.slot === "slot-range")!;
+      const clear = ft(5);
+
+      for (const box of CABINETS) {
+        const [w, h] = box.size;
+        const [x, y] = box.position;
+        const low = y - h / 2;
+        const high = y + h / 2;
+        // Anything standing on the counter: a tower, a tall filler, a panel.
+        // A wall cabinet hung 18" above it is not what the clearance is about,
+        // and the hood over the machine is the clearance itself.
+        if (low > ROOM.counterHeight + 1e-6 || high <= ROOM.counterHeight + 1e-6) continue;
+        if (box.slot === "slot-hood" || box.kind === "counter") continue;
+        const left = x - w / 2;
+        const right = x + w / 2;
+        const inTheZone = right > range.from - clear + 1e-6 && left < range.to + clear - 1e-6;
+        expect(inTheZone, `${where}: ${box.id} stands within 5" of the burners`).toBe(false);
+      }
     }
   });
 

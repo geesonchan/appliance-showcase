@@ -1151,6 +1151,10 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
         heightIn: 96,
         slot: slotId,
         sillIn: sillFor(slot, params),
+        // The opening is the whole of it: the bank's panels are at its ends,
+        // and a tower beside the range has its own each side as items of the
+        // run rather than as inches taken out of the machine's hole.
+        insetIn: 0,
       }),
       { slot: slotId },
     );
@@ -1604,11 +1608,20 @@ function banksAroundHood(
    * tower is 96" of carcass and there is no shelf over it. The tall units that
    * *finish* the leg are not in this list: they are where the bank stops.
    */
-  /** The stretch either side of a mid-run tower, which is filled to its top. */
+  /**
+   * The stretch beside a mid-run tower that is filled to its top.
+   *
+   * The far side only. What is between the tower and the cooking surface is
+   * the clearance the machine's sheet asks for and stays counter, with wall
+   * cabinets over it like any other stretch. See `besideTheTower` in
+   * cabinets.ts, which draws the same distinction.
+   */
+  const rangeAt = segments.findIndex((segment) => segment.slot === "slot-range");
   const filled = (at: number) =>
-    [segments[at - 1], segments[at + 1]].filter(
-      (neighbour) => neighbour && neighbour.kind === "counter",
-    );
+    [at - 1, at + 1]
+      .filter((i) => !(rangeAt >= 0 && Math.sign(rangeAt - at) === Math.sign(i - at)))
+      .map((i) => segments[i])
+      .filter((neighbour) => neighbour && neighbour.kind === "counter");
 
   const towers = segments.filter(
     (segment) => segment.kind === "tall" && segment.from < stop - 1e-9,
