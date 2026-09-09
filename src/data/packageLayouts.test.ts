@@ -658,6 +658,46 @@ describe("a bank of tall units", () => {
     }
   });
 
+  /**
+   * No bare wall beside a 96" tower.
+   *
+   * The stretch each side of it — the spice pull-out on one, whatever finishes
+   * the run on the other — is carried from the counter to the top of the
+   * tower in finished panel, so the three of them read as one wall of joinery
+   * rather than as a tower with a slot of tile down each side.
+   */
+  it("fills the wall either side of the tower, counter to top", () => {
+    activate("package-b");
+    const run = RUNS.find((r) => r.segments.some((s) => s.slot === "slot-microwave"))!;
+    const at = run.segments.findIndex((s) => s.slot === "slot-microwave");
+    const tower = run.segments[at];
+    const towerTop = tower.modules.find((m) => m.kind === "tall")!.heightIn!;
+
+    for (const neighbour of [run.segments[at - 1], run.segments[at + 1]]) {
+      if (!neighbour || neighbour.kind !== "counter") continue;
+      const covering = CABINETS.filter((box) => {
+        const low = inches(box.position[1] - box.size[1] / 2);
+        const high = inches(box.position[1] + box.size[1] / 2);
+        const centre = box.position[0];
+        return (
+          centre > neighbour.from - 1e-6 &&
+          centre < neighbour.to + 1e-6 &&
+          high > inches(ROOM.counterHeight) + 1e-6 &&
+          low < towerTop - 1e-6
+        );
+      });
+      expect(
+        covering.length,
+        `nothing over ${neighbour.id}, beside a ${towerTop}" tower`,
+      ).toBeGreaterThan(0);
+      // To the top of the tower, not to the underside of a wall cabinet.
+      const top = Math.max(
+        ...covering.map((box) => inches(box.position[1] + box.size[1] / 2)),
+      );
+      expect(top, neighbour.id).toBeCloseTo(towerTop, 6);
+    }
+  });
+
   it("hangs the tower's opening at the sill the package asks for", () => {
     activate("package-b");
     const spec = slotsOf(PACKAGE_BY_ID["package-b"])["slot-microwave"];

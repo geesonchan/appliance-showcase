@@ -336,11 +336,15 @@ export function rangeParts(
     // display would be looking at the floor.
     const r = ft(R.knobDiameterIn / 2);
     const edge = box.w / 2 - ft(2) - r;
+    // The panel is the machine's front, and its top edge is the deck: it turns
+    // square there and runs down 7-5/8", past the stone's own front edge and
+    // over the false drawer front below. Drawing it as a band floating under
+    // the counter left eight inches of cabinet between the burners and the
+    // knobs, which is not a machine anybody sells.
+    const middle = box.h - ft(R.fasciaIn) / 2;
     for (let i = 0; i < burners; i += 1) {
       const t = burners === 1 ? 0.5 : i / (burners - 1);
-      // Below the machine: the panel hangs under the deck, and its knobs with
-      // it. Measured from the underside of the body, which is the counter.
-      knobs.push({ x: -edge + 2 * edge * t, y: -ft(R.fasciaIn) / 2, r });
+      knobs.push({ x: -edge + 2 * edge * t, y: middle, r });
     }
     return {
       style: "rangetop",

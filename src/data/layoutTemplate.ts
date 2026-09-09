@@ -1575,10 +1575,22 @@ function banksAroundHood(
    * tower is 96" of carcass and there is no shelf over it. The tall units that
    * *finish* the leg are not in this list: they are where the bank stops.
    */
+  /** The stretch either side of a mid-run tower, which is filled to its top. */
+  const filled = (at: number) =>
+    [segments[at - 1], segments[at + 1]].filter(
+      (neighbour) => neighbour && neighbour.kind === "counter",
+    );
+
+  const towers = segments.filter(
+    (segment) => segment.kind === "tall" && segment.from < stop - 1e-9,
+  );
   const cuts = [
-    ...segments
-      .filter((segment) => segment.kind === "tall" && segment.from < stop - 1e-9)
-      .map((segment) => ({ from: segment.from, to: segment.to, hood: false })),
+    ...towers.map((segment) => ({ from: segment.from, to: segment.to, hood: false })),
+    // And what is filled beside them: a wall cabinet over a stretch that is
+    // already finished panel to the ceiling is a cabinet inside a cabinet.
+    ...towers
+      .flatMap((tower) => filled(segments.indexOf(tower)))
+      .map((segment) => ({ from: segment!.from, to: segment!.to, hood: false })),
     // Always the hood, whatever hangs there: a chimney carries its own cover
     // to the ceiling and takes no cabinet, and the bank still stops at it.
     { from: hood[0], to: hood[1], hood: true },

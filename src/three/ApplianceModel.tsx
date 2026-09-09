@@ -877,12 +877,12 @@ function Rangetop({
         ))}
       </group>
 
-      {/* The control panel, hanging below the counter in front of the cabinet,
-          and the knobs across it. */}
+      {/* The control panel: the machine's front, from the deck down past the
+          counter, standing proud of the cabinet below it. */}
       {fascia && (
         <group name="rangetop-controls">
           <mesh
-            position={[0, -fascia.h / 2, faceZ + fascia.proud - panelD / 2]}
+            position={[0, h - fascia.h / 2, faceZ + fascia.proud - panelD / 2]}
             castShadow
           >
             <boxGeometry args={[w, fascia.h, panelD]} />

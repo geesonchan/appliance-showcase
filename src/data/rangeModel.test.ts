@@ -310,3 +310,55 @@ describe("the cooking surface is not the machine's top", () => {
     expect(inches(cooktopHeight(proRange(), box(proRange())))).toBeCloseTo(36.75, 6);
   });
 });
+
+/**
+ * A rangetop's front is one band of steel, and it starts at the deck.
+ *
+ * "The top edge turns square to the cooking surface": the control panel is the
+ * machine's whole front, from the deck down past the counter's own edge and
+ * over the false drawer front below it. Drawn as a band hanging under the
+ * counter, it left eight inches of cabinet between the burners and the knobs.
+ */
+describe("the front of a rangetop", () => {
+  const rangetop = () =>
+    ({
+      ...FIXTURES.gasRange36,
+      installType: ["rangetop"],
+      widthIn: 35.9375,
+      heightIn: 8.125,
+      depthIn: 25.8125,
+      cutoutHeightIn: 7.6875,
+      burners: 6,
+      cooktopIn: 36.4375,
+    }) as Appliance;
+
+  it("hangs the control panel from the cooking surface, not from under it", () => {
+    const box = { w: ft(35.9375), h: ft(8.125), d: ft(25.8125) };
+    const parts = rangeParts(rangetop(), box);
+
+    expect(parts.style).toBe("rangetop");
+    expect(parts.fascia, "no control panel on a rangetop").toBeTruthy();
+    expect(inches(parts.fascia!.h)).toBeCloseTo(7.625, 6);
+    expect(inches(parts.fascia!.proud)).toBeCloseTo(1.5, 6);
+
+    // Every knob is on the panel, and the panel's top is the deck.
+    for (const knob of parts.knobs) {
+      expect(knob.y).toBeLessThanOrEqual(box.h);
+      expect(knob.y).toBeGreaterThanOrEqual(box.h - parts.fascia!.h);
+    }
+    // Centred in it, which puts them below the counter and in reach.
+    expect(inches(parts.knobs[0].y)).toBeCloseTo(8.125 - 7.625 / 2, 6);
+    expect(parts.knobs).toHaveLength(6);
+  });
+
+  it("puts the cast iron on the deck and nothing under it", () => {
+    const box = { w: ft(35.9375), h: ft(8.125), d: ft(25.8125) };
+    const parts = rangeParts(rangetop(), box);
+    // The deck is the published height; the grates stand on it.
+    expect(inches(parts.bands.deck[1])).toBeCloseTo(8.125, 6);
+    expect(parts.bands.grate[0]).toBeCloseTo(parts.bands.deck[1], 9);
+    for (const band of [parts.bands.toe, parts.bands.plinth, parts.bands.door]) {
+      expect(band[1] - band[0]).toBe(0);
+    }
+  });
+});

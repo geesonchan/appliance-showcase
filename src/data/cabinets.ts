@@ -1,5 +1,6 @@
 import type { SlotId } from "../types";
 import { islandAcross, islandPoint } from "./layoutTemplate";
+import { PACKAGE_SLOTS } from "./packages";
 import { SLOT_BY_ID } from "./slots";
 import {
   LAYOUT_LIMITS,
@@ -53,6 +54,31 @@ const BASE_BOX = [0, ROOM.counterHeight - ROOM.counterThickness] as const;
 
 /** The refrigerator opening's height, in feet, as the slot actually declares it. */
 const fridgeOpeningH = () => ft(SLOT_BY_ID["slot-fridge"].cutout.h);
+
+/**
+ * Whether this segment stands against the oven tower.
+ *
+ * A tower in the middle of a run is 96" of joinery with counter beside it, and
+ * what is over that counter has to reach the same height or the tower ends up
+ * with a slot of bare wall down each side. So the stretch either side of it is
+ * filled from the counter to the top of the tower — the six inches of spice
+ * pull-out on one side and whatever finishes the run on the other.
+ *
+ * Only the tower: the counter beside a refrigerator bank at the end of a run
+ * is a landing with wall cabinets over it, and filling that would be bricking
+ * up the kitchen.
+ */
+function besideTheTower(run: CabinetRun, segment: RunSegment): number | null {
+  const at = run.segments.indexOf(segment);
+  if (segment.kind !== "counter") return null;
+  for (const neighbour of [run.segments[at - 1], run.segments[at + 1]]) {
+    if (!neighbour || neighbour.kind !== "tall" || !neighbour.slot) continue;
+    if (PACKAGE_SLOTS[neighbour.slot]?.beside !== "range") continue;
+    const module = neighbour.modules.find((m) => m.kind === "tall");
+    return ft(module?.heightIn ?? 96);
+  }
+  return null;
+}
 
 /** A tall unit's opening, in feet: what the slot it houses declares. */
 const openingH = (slot?: SlotId) => (slot ? ft(SLOT_BY_ID[slot].cutout.h) : fridgeOpeningH());
@@ -202,6 +228,24 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
         );
       }
       return;
+    }
+
+    // Beside the tower, the same stretch is carried on up to its top: the
+    // cabinet under the counter, and finished panel from the counter to 96".
+    const fillTo = besideTheTower(run, segment);
+    if (fillTo !== null) {
+      boxes.push(
+        onRun(
+          run,
+          `${segment.id}-fill-${index}`,
+          "surround",
+          along,
+          [ROOM.counterHeight, fillTo],
+          ROOM.counterDepth,
+          0,
+          { outline: segment.id, module },
+        ),
+      );
     }
 
     // A lazy susan is a square: it belongs to both legs, so it is as deep as

@@ -1,7 +1,7 @@
 {
   "_meta": {
-    "generatedBy": "scripts/csv-to-json.ts from C:/Users/leoch/Downloads/showcase_export.csv",
-    "updatedAt": "2026-09-08",
+    "generatedBy": "scripts/csv-to-json.ts from C:\\Users\\leoch\\Downloads\\showcase_export.csv",
+    "updatedAt": "2026-09-09",
     "provenance": "Derived from the showcase_export tab of the 2026 AA Inventory Manager. Brand, Model, Appliance Type, Feature, Width, Depth, Height and Color come from Stock current; everything else is hand entered. Normalisation lives in scripts/normalise.ts, not in the sheet. verifiedAt is null until a row has been checked against its sourceUrl."
   },
   "appliances": [
@@ -1272,7 +1272,7 @@
       "cutoutHeightIn": 84,
       "cutoutDepthIn": 25,
       "finish": [
-        "panel-ready"
+        "stainless"
       ],
       "leadTimeWeeks": null,
       "highlights": {
