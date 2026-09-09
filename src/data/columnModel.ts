@@ -97,8 +97,18 @@ export const WINE_COLUMN = {
   /** Solid down each side of the window; 2-1/2" to 3-3/4" on the drawing. */
   glassInsetIn: 3.75,
   glassInsetRangeIn: { min: 2.5, max: 3.75 },
-  /** The door's own bottom, off the floor: the toe kick under it. */
+  /**
+   * The door's own bottom, off the floor.
+   *
+   * What is under it is not the cabinetmaker's plinth: a column stands on its
+   * own grille, the same steel as the door with air getting through it, and it
+   * is the same detail as the refrigerator's four inches beside it. Drawing a
+   * dark recess there put a painted kick under one machine and a steel one
+   * under the other, on two doors hung in the same run.
+   */
   toeIn: 4,
+  /** Slots across that grille, as the refrigerator's has. */
+  vents: 4,
   /** The handle, which is the refrigerator's: a vertical tube on two brackets. */
   handleDiameterIn: 1.25,
   handleProudIn: 2.375,
@@ -111,7 +121,9 @@ export const WINE_COLUMN = {
 export interface ColumnDoor {
   /** Bottom and top of the part, in feet above the machine's own floor. */
   band: readonly [number, number];
-  kind: "glass" | "panel";
+  kind: "glass" | "panel" | "grille";
+  /** Slots across it, where it is the grille the machine stands on. */
+  vents?: { count: number; heightFt: number };
 }
 
 export interface WineColumnParts {
@@ -159,6 +171,18 @@ export function wineColumnParts(
   return {
     door: { h: doorH, w: doorW, y },
     parts: [
+      // The grille the machine stands on, where the door starts off the floor.
+      // Same steel as the door, and the front of the machine is therefore one
+      // piece from the floor to the top of it.
+      ...(y > 0
+        ? [
+            {
+              band: [0, y] as const,
+              kind: "grille" as const,
+              vents: { count: W.vents, heightFt: Math.min(ft(0.125), y / 8) },
+            },
+          ]
+        : []),
       { band: [y, y + band] as const, kind: "panel" },
       { band: glassBand, kind: "glass" },
       { band: [y + doorH - band, y + doorH] as const, kind: "panel" },

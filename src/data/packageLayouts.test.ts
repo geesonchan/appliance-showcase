@@ -15,6 +15,7 @@ import { APPLIANCE_BY_ID } from "./catalogue";
 import { dimensionsFor } from "./dimensions";
 import { counterOutline } from "./counter";
 import { checkLayout } from "./layoutRules";
+import { finishSurface } from "../three/materials";
 import { setActivePackage, setLayoutParams } from "./layoutState";
 import {
   DEFAULT_PARAMS,
@@ -946,12 +947,56 @@ describe("a bank of tall units", () => {
     expect(inches(parts.glass.w)).toBeLessThanOrEqual(17.75 - min * 2 + 1e-6);
     expect(inches(parts.glass.w)).toBeCloseTo(10.25, 6);
 
-    // And 10-1/8" of solid top and bottom, which leaves 59-5/8" of glass.
-    const [bottom, glassBand, top] = parts.parts;
+    // And 10-1/8" of solid top and bottom, which leaves 59-5/8" of glass. The
+    // grille under the door is the machine's own and is not part of it.
+    const [, bottom, glassBand, top] = parts.parts;
     expect(inches(bottom.band[1] - bottom.band[0])).toBeCloseTo(10.125, 6);
     expect(inches(top.band[1] - top.band[0])).toBeCloseTo(10.125, 6);
     expect(inches(glassBand.band[1] - glassBand.band[0])).toBeCloseTo(59.625, 6);
     expect(glassBand.kind).toBe("glass");
+  });
+
+  /**
+   * The column stands on its own grille, not on the joiner's plinth.
+   *
+   * A built-in refrigerator is one piece of steel from the floor to the top of
+   * its doors, and the four inches at the bottom are a grille with air getting
+   * through them rather than a dark recess. A wine column beside it is the same
+   * machine in a narrower box and gets the same four inches — otherwise two
+   * doors hung in one run stand on two different things.
+   */
+  it("stands the column on its own grille rather than a painted kick", () => {
+    activate("package-b");
+    const wine = APPLIANCE_BY_ID[PACKAGE_BY_ID["package-b"].defaultSelection["slot-wine"]!];
+    const parts = wineColumnParts(applianceBox(SLOT_BY_ID["slot-wine"], wine));
+
+    // The bottom band is the grille, it starts on the floor, and it is the
+    // toe kick's own four inches.
+    const [grille] = parts.parts;
+    expect(grille.kind).toBe("grille");
+    expect(inches(grille.band[0])).toBeCloseTo(0, 6);
+    expect(inches(grille.band[1])).toBeCloseTo(WINE_COLUMN.toeIn, 6);
+    expect(grille.vents?.count ?? 0, "no air through it").toBeGreaterThan(0);
+
+    // The front is continuous from the floor to the top of the door: no band
+    // is left for somebody else to fill.
+    let at = 0;
+    for (const part of parts.parts) {
+      expect(inches(part.band[0]), part.kind).toBeCloseTo(inches(at), 6);
+      at = part.band[1];
+    }
+    expect(inches(at)).toBeCloseTo(inches(parts.door.y + parts.door.h), 6);
+
+    // And every band of it is the machine's own: its steel, or the window in
+    // it. The steel is the refrigerator's steel — one token, not two greys.
+    for (const part of parts.parts) {
+      expect(["grille", "panel", "glass"], `${part.kind}`).toContain(part.kind);
+    }
+    const fridge = APPLIANCE_BY_ID[PACKAGE_BY_ID["package-b"].defaultSelection["slot-fridge"]!];
+    expect(wine.finish[0]).toBe("stainless");
+    expect(finishSurface("realistic", wine.finish[0])).toEqual(
+      finishSurface("realistic", fridge.finish[0]),
+    );
   });
 
   /**

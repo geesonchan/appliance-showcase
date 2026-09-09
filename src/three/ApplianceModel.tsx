@@ -764,6 +764,10 @@ function WineColumn({
   const cd = Math.max(d - parts.handle.proud, d * 0.5);
   const cz = -(d - cd) / 2;
   const face = cz + cd / 2;
+  // The dark inside a vent, which is a shade of the steel it is cut into
+  // rather than a colour of its own — the same slot the refrigerator's grille
+  // is drawn with. Hardware, so it is not counted as a finish somebody chose.
+  const slot = { ...tint(body, "#2A2E2C", { metalness: 0.3, roughness: 0.85 }), hardware: true };
 
   return (
     <group name="wine-column">
@@ -778,6 +782,33 @@ function WineColumn({
         // and the bottom, solid down each side of the glass, and the glass
         // itself set back in the middle of it.
         const stile = (parts.door.w - parts.glass.w) / 2;
+
+        // The grille the machine stands on: the door's own steel, full width,
+        // with the lines of air across it.
+        if (part.kind === "grille") {
+          return (
+            <group key={part.band[0]} name="wine-grille">
+              <mesh position={[0, middle, face + ft(0.4)]} castShadow>
+                <boxGeometry args={[parts.door.w, height, ft(0.75)]} />
+                <Mat s={body} size={[parts.door.w, height]} />
+              </mesh>
+              {part.vents &&
+                Array.from({ length: part.vents.count }, (_, i) => {
+                  const step = height / (part.vents!.count + 1);
+                  return (
+                    <mesh
+                      key={i}
+                      position={[0, part.band[0] + step * (i + 1), face + ft(0.8)]}
+                    >
+                      <boxGeometry args={[parts.door.w * 0.9, part.vents!.heightFt, ft(0.05)]} />
+                      <Mat s={slot} />
+                    </mesh>
+                  );
+                })}
+            </group>
+          );
+        }
+
         return part.kind === "panel" ? (
           <mesh key={part.band[0]} position={[0, middle, face + ft(0.4)]} castShadow>
             <boxGeometry args={[parts.door.w, height, ft(0.75)]} />
