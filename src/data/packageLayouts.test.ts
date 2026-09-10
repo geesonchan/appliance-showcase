@@ -1013,14 +1013,17 @@ describe("a bank of tall units", () => {
   });
 
   /**
-   * Both machines stand on the same four inches.
+   * The two doors start on one line.
    *
-   * Everything at floor level in a kitchen lines up: the cabinets' kick, the
-   * refrigerator's grille, the column's. The refrigerator's was a proportion
-   * of its own elevation and came out an inch taller than the column's, which
-   * put the two doors beside it on two different lines.
+   * Each machine keeps the grille its own drawing gives it — 7-1/4" on the
+   * refrigerator's elevation, 4" on the column's panel drawing, neither of
+   * them scaled to the machine. What lines up is the fronts above them: both
+   * start four inches off the floor, which is where the cabinets' kick is
+   * too. The refrigerator's grille is the taller part and the drawer above it
+   * laps over the difference, which is the 3-1/16" its published bands
+   * overshoot the cabinet by.
    */
-  it("lines the two grilles and the two doors up with each other", () => {
+  it("lines the two doors up with each other", () => {
     activate("package-b");
     const fridge = APPLIANCE_BY_ID[PACKAGE_BY_ID["package-b"].defaultSelection["slot-fridge"]!];
     const wine = APPLIANCE_BY_ID[PACKAGE_BY_ID["package-b"].defaultSelection["slot-wine"]!];
@@ -1033,21 +1036,23 @@ describe("a bank of tall units", () => {
       SLOT_BY_ID[slotId].position[1] + box.y;
     expect(floorOf("slot-fridge", fridgeBox)).toBeCloseTo(floorOf("slot-wine", wineBox), 9);
 
-    // The same four inches of grille, the room's own.
+    // Each grille is the figure on its own drawing, unscaled.
     const split = doorSplitOf(fridge, fridgeBox.h);
     const grille = wineColumnParts(wineBox).parts[0];
-    expect(inches(split.toe)).toBeCloseTo(inches(ROOM.toeKick), 6);
+    expect(inches(split.toe)).toBeCloseTo(fridge.doorSplit!.toeIn, 6);
+    expect(inches(split.toe)).toBeCloseTo(7.25, 6);
     expect(inches(grille.band[0])).toBeCloseTo(0, 6);
-    expect(inches(grille.band[1])).toBeCloseTo(inches(split.toe), 6);
+    expect(inches(grille.band[1])).toBeCloseTo(WINE_COLUMN.toeIn, 6);
+    expect(inches(grille.band[1])).toBeCloseTo(4, 6);
 
-    // And the doors start on one line: the grille, the same reveal over it,
-    // then the front.
+    // And the doors start on one line, four inches off the floor.
     const lowestFront = Math.min(
       ...fridgeParts(fridge, { w: fridgeBox.w, h: fridgeBox.h })
         .filter((panel) => panel.id !== "grille")
         .map((panel) => panel.y - panel.h / 2),
     );
     expect(inches(lowestFront)).toBeCloseTo(inches(wineColumnParts(wineBox).door.y), 6);
+    expect(inches(lowestFront)).toBeCloseTo(inches(ROOM.toeKick), 6);
   });
 
   /**

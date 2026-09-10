@@ -154,13 +154,12 @@ export function wineColumnParts(
   const W = WINE_COLUMN;
   const doorH = Math.min(ft(W.doorHeightIn), box.h);
   const doorW = Math.min(ft(W.doorWidthIn), box.w);
-  // The grille the machine stands on, and the reveal over it: four inches and
-  // an eighth, which is where the door starts. Not centred in the opening —
-  // and the same two figures the refrigerator beside it is built to, so the
-  // two grilles are one band and the two doors start on one line. What is
-  // above the door is the machine's own top rail.
+  // Four inches off the floor, which is the grille under it — not centred in
+  // the opening. The refrigerator beside it starts its own fronts at the same
+  // four, whatever the grille behind them is, so the two doors are on one
+  // line. What is above the door is the machine's own top rail.
   const toe = ft(W.toeIn);
-  const y = Math.min(toe + ft(W.revealIn), Math.max(0, box.h - doorH));
+  const y = Math.min(toe, Math.max(0, box.h - doorH));
 
   const band = ft(W.panelIn);
   const glassBand: readonly [number, number] = [y + band, y + doorH - band];
@@ -181,7 +180,7 @@ export function wineColumnParts(
       ...(y > 0
         ? [
             {
-              band: [0, Math.min(toe, y)] as const,
+              band: [0, y] as const,
               kind: "grille" as const,
               vents: { count: W.vents, heightFt: Math.min(ft(0.125), y / 8) },
             },

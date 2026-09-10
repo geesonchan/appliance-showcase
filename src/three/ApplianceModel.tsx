@@ -553,7 +553,8 @@ function Fridge({
             .filter((panel) => panel.vents)
             .flatMap((panel) =>
               Array.from({ length: panel.vents!.count }, (_, i) => {
-                const step = panel.h / (panel.vents!.count + 1);
+                const over = panel.vents!.overFt ?? panel.h;
+                const step = over / (panel.vents!.count + 1);
                 return (
                   <mesh
                     key={`${panel.id}-${i}`}
@@ -600,6 +601,12 @@ function Fridge({
     );
   }
 
+  // The grille is a taller part than it shows, and the drawer above laps over
+  // its top: set back a quarter inch, so the two are not two faces fighting
+  // for the same plane. A grille sits back from the fronts anyway.
+  const zOf = (panel: (typeof panels)[number]) =>
+    panel.id === "grille" ? doorZ - ft(0.25) : doorZ;
+
   return (
     <group name="fridge">
       <mesh position={[0, h / 2, carcassZ]} castShadow receiveShadow>
@@ -609,7 +616,7 @@ function Fridge({
 
       {panels.map((panel) => (
         <group key={panel.id} name={`fridge-panel-${panel.id}`}>
-          <mesh position={[panel.x, panel.y, doorZ]} castShadow receiveShadow>
+          <mesh position={[panel.x, panel.y, zOf(panel)]} castShadow receiveShadow>
             <boxGeometry args={[panel.w, panel.h, doorThickness]} />
             <Mat s={body} size={[panel.w, panel.h]} />
           </mesh>
@@ -618,14 +625,15 @@ function Fridge({
               lines of air through it. Nothing here is a different material. */}
           {panel.vents &&
             Array.from({ length: panel.vents.count }, (_, i) => {
-              const step = panel.h / (panel.vents!.count + 1);
+              const over = panel.vents!.overFt ?? panel.h;
+              const step = over / (panel.vents!.count + 1);
               return (
                 <mesh
                   key={i}
                   position={[
                     panel.x,
                     panel.y - panel.h / 2 + step * (i + 1),
-                    doorZ + doorThickness / 2,
+                    zOf(panel) + doorThickness / 2,
                   ]}
                 >
                   <boxGeometry args={[panel.w * 0.9, panel.vents!.heightFt, ft(0.05)]} />

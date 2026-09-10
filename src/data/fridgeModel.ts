@@ -49,7 +49,18 @@ export interface Panel {
    * dark plinth the machine is standing on. So it is a front like the others,
    * and what makes it a grille is the slots.
    */
-  vents?: { count: number; heightFt: number };
+  vents?: {
+    count: number;
+    heightFt: number;
+    /**
+     * The band the slots are spread across, from the panel's bottom.
+     *
+     * The grille is a taller part than it looks: the drawer above laps over
+     * its top, and the air comes through what is left showing. Absent means
+     * the whole panel.
+     */
+    overFt?: number;
+  };
 }
 
 /**
@@ -193,23 +204,28 @@ export type DoorSplit = typeof GENERIC_SPLIT;
  * them to the opening keeps every ratio between them — which is what the eye
  * reads — and makes the stack come out at the height the machine actually is.
  *
- * The grille is the exception, and it is not scaled at all: it is the four
- * inches the whole room stands on. Everything at floor level in a kitchen
- * lines up — the cabinets' kick, the column's grille, this one — and a
- * refrigerator whose grille is an inch taller than the column beside it
- * because of an arithmetic ratio is a machine sitting a step up from its own
- * pair. So the four inches come off the front first, and the three bands above
- * it divide what is left.
+ * The grille is two figures rather than one, and neither of them is a ratio.
+ * The part is 7-1/4" on the elevation and it is that whatever the machine is;
+ * what shows of it is four inches, because the drawer above laps over its top.
+ * Four is also where the fronts start — the same four the cabinets' kick and
+ * the column's own grille are — so a refrigerator and a column standing side
+ * by side have their doors on one line without either being scaled to the
+ * other. That is the 3-1/16" the published bands overshoot the cabinet by: it
+ * is the part of the grille you cannot see.
  */
 export function doorSplitOf(appliance: Appliance, heightFt: number) {
   const published: DoorSplit = appliance.doorSplit ?? GENERIC_SPLIT;
   const gaps = (FRIDGE_PROPORTIONS.gapIn * 3) / 12;
-  const toe = Math.min(ROOM.toeKick, heightFt);
+  /** The grille as a part: the drawing's own figure, unscaled. */
+  const toe = Math.min(published.toeIn / 12, heightFt);
+  /** And where the fronts start, which is what shows of it. */
+  const front = Math.min(ROOM.toeKick, toe);
   const raw = (published.drawerLowIn + published.drawerHighIn + published.doorIn) / 12;
-  const scale = Math.max(0, heightFt - gaps - toe) / raw;
+  const scale = Math.max(0, heightFt - gaps - front) / raw;
 
   return {
     toe,
+    front,
     drawerLow: (published.drawerLowIn / 12) * scale,
     drawerHigh: (published.drawerHighIn / 12) * scale,
     door: (published.doorIn / 12) * scale,
@@ -285,7 +301,13 @@ export function fridgeParts(appliance: Appliance, box: { w: number; h: number })
     },
   });
 
-  /** The toe grille: the same steel, with air getting through it. */
+  /**
+   * The toe grille: the same steel, with air getting through it.
+   *
+   * The part is the elevation's own height, from the floor up — and the drawer
+   * above starts partway up it, so what shows is the four inches the room
+   * stands on. The air comes through those four.
+   */
   const grille = (): Panel => ({
     id: "grille",
     x: 0,
@@ -293,12 +315,17 @@ export function fridgeParts(appliance: Appliance, box: { w: number; h: number })
     w,
     h: split.toe,
     handle: null,
-    vents: { count: 4, heightFt: Math.min(0.125 / 12, split.toe / 12) },
+    vents: {
+      count: 4,
+      heightFt: Math.min(0.125 / 12, split.front / 12),
+      overFt: split.front,
+    },
   });
 
   // Bottom to top: the grille, the low drawer, the high drawer, the doors,
-  // with a gap between each.
-  const lowFrom = split.toe;
+  // with a gap between each. The fronts start at what shows of the grille
+  // rather than at the top of it — the drawer laps over the rest.
+  const lowFrom = split.front;
   const lowTo = lowFrom + split.drawerLow;
   const highFrom = lowTo + split.gap;
   const highTo = highFrom + split.drawerHigh;

@@ -112,7 +112,9 @@ describe("the front matches the elevation", () => {
         .filter((p) => p.id !== "grille")
         .map((p) => p.y - p.h / 2),
     );
-    expect(lowest).toBeCloseTo(doorSplitOf(fridge(), box.h).toe, 9);
+    // On what shows of the grille: the part is taller, and the drawer laps
+    // over the rest of it.
+    expect(lowest).toBeCloseTo(doorSplitOf(fridge(), box.h).front, 9);
     expect(lowest).toBeGreaterThan(0);
   });
 
@@ -176,10 +178,12 @@ describe("the front divides the way the elevation does", () => {
   });
 
   // Leo's check: the four bands and the gaps between them fill the machine.
+  // The grille counts for what shows of it — the drawer above laps over the
+  // rest, which is why the published bands overshoot the cabinet by 3-1/16".
   it("stacks the four bands and their gaps to the full height", () => {
     const split = doorSplitOf(specified(), opening);
     const total =
-      split.toe + split.drawerLow + split.drawerHigh + split.door + split.gap * 3;
+      split.front + split.drawerLow + split.drawerHigh + split.door + split.gap * 3;
     expect(inches(total)).toBeCloseTo(84, 6);
   });
 
@@ -200,16 +204,19 @@ describe("the front divides the way the elevation does", () => {
   });
 
   /**
-   * The grille is not one of the proportions. It is the four inches everything
-   * in the room stands on — the cabinets' kick, the column's own grille, this
-   * one — so it is taken off the front before the rest is fitted, rather than
-   * scaled with it into a band an inch taller than the machine beside it.
+   * The grille is not one of the proportions. The part is the elevation's own
+   * 7-1/4" whatever the machine is, and what shows of it is the four inches
+   * everything in the room stands on — the cabinets' kick, the column's own
+   * grille, this one. The drawer above laps over the difference.
    */
-  it("stands on the same four inches as everything else in the room", () => {
+  it("keeps the grille at the figure on its drawing, unscaled", () => {
     const split = doorSplitOf(specified(), opening);
-    expect(inches(split.toe)).toBeCloseTo(4, 6);
-    // And on a machine of another height, still four.
-    expect(inches(doorSplitOf(specified(), 72 / 12).toe)).toBeCloseTo(4, 6);
+    expect(inches(split.toe)).toBeCloseTo(specified().doorSplit!.toeIn, 6);
+    expect(inches(split.front)).toBeCloseTo(4, 6);
+    // And on a machine of another height, the same part and the same four.
+    const shorter = doorSplitOf(specified(), 72 / 12);
+    expect(inches(shorter.toe)).toBeCloseTo(specified().doorSplit!.toeIn, 6);
+    expect(inches(shorter.front)).toBeCloseTo(4, 6);
   });
 
   it("draws the panels in the order the elevation has them", () => {
@@ -256,13 +263,18 @@ describe("a built-in refrigerator is one piece of steel", () => {
     expect(grille.vents!.heightFt * 12).toBeLessThanOrEqual(0.125);
   });
 
-  it("runs the grille the full width, flush with the fronts above it", () => {
+  it("runs the grille the full width, from the floor up behind the drawer", () => {
     const panels = parts({ doorConfig: "french-door-2-drawer" });
     const grille = panels.find((p) => p.id === "grille")!;
     const drawer = panels.find((p) => p.id === "drawer-freezer")!;
+    const split = doorSplitOf(fridge(), box.h);
     expect(grille.w).toBeCloseTo(drawer.w, 9);
     expect(grille.y - grille.h / 2).toBeCloseTo(0, 9);
-    expect(grille.y + grille.h / 2).toBeCloseTo(drawer.y - drawer.h / 2, 9);
+    // The part is the elevation's, and the drawer starts partway up it: what
+    // is left showing is the four inches the room stands on.
+    expect(grille.h).toBeCloseTo(split.toe, 9);
+    expect(drawer.y - drawer.h / 2).toBeCloseTo(split.front, 9);
+    expect(grille.y + grille.h / 2).toBeGreaterThan(drawer.y - drawer.h / 2);
   });
 });
 
