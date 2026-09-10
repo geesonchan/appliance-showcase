@@ -899,9 +899,51 @@ async function captureRound28(page) {
   await page.screenshot({ path: `${outDir}/mobile-window-b.png` });
 }
 
+/**
+ * Round 29: the gap each side of a window.
+ *
+ * Three inches of scribe against the casing, the same both sides, taken out of
+ * the bank rather than out of whatever the wall had spare — which means the
+ * opening itself moves to keep the two banks the same width. The shots are the
+ * wall it happens on, in daylight and in the install view where the figures
+ * are, and package B's own window in the other wall.
+ */
+async function captureRound29(page) {
+  await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await settle(page, 2600);
+  await flyTo(page, /Dishwasher/);
+  await settle(page, 1500);
+  await page.screenshot({ path: `${outDir}/mobile-window-gaps.png` });
+  await click(page, "Install");
+  await settle(page, 1800);
+  await page.screenshot({ path: `${outDir}/mobile-window-gaps-install.png` });
+  await click(page, "Materials");
+  await settle(page, 1400);
+  await click(page, "Reset view");
+  await settle(page, 1400);
+  await page.locator(`[data-segment="package"] button`, { hasText: "B" }).first().click();
+  await settle(page, 2600);
+  await page.screenshot({ path: `${outDir}/mobile-window-gaps-b.png` });
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round29") {
+    const ctx = await browser.newContext({
+      viewport: MOBILE,
+      deviceScaleFactor: 2,
+      isMobile: true,
+      hasTouch: true,
+    });
+    const page = await ctx.newPage();
+    await captureRound29(page);
+    await ctx.close();
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round28") {
     const ctx = await browser.newContext({
