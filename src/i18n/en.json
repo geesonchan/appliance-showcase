@@ -194,6 +194,8 @@
   "refusal.windowSill": "The window sill is {sillIn}\", and the lowest it may be is {lowestIn}\": the worktop plus {overIn}\" to land the backsplash on and stand a tap in front of. It is {shortIn}\" short",
   "refusal.windowHead": "The window's head is at {headIn}\" and the ceiling is at {ceilingIn}\"",
   "refusal.windowBlocked": "The window in the {wallKey} wall is behind the {whatKey}: {widthIn}\" of opening with cabinetry screwed over it",
+  "refusal.windowGap": "The window in the {wallKey} wall cannot have {gapIn}\" of scribe on both sides of its {casingIn}\" casing: what is left of that wall each side of it is not the same, and no position within six inches of the sink makes it so",
+  "suggestion.narrowWindow": "Make the window {value}\" wide",
   "refusal.sinkFromWindow": "The sink lands {offIn}\" from the middle of the {wallKey} wall's window, and the run will not move it closer than {allowedIn}\"",
   "suggestion.raiseSill": "Raise the sill to {value}\"",
   "suggestion.dropWindow": "Take the window out of the {wallKey} wall",

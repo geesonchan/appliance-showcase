@@ -64,6 +64,18 @@ export const WINDOW = {
    */
   aboveCounterIn: 2,
   /**
+   * The scribe between a window casing and the cabinet beside it.
+   *
+   * Three inches, and the same three on both sides of the opening. You do not
+   * hang a wall cabinet hard against a window case: what goes there is a strip
+   * of finished panel, so the case is cased and the cabinet's own side is not
+   * fighting it. It comes out of the bank rather than out of whatever the wall
+   * had spare — a bank is cabinets and this is one of the pieces — and where
+   * the two sides cannot both have it, the window moves rather than the gap
+   * going uneven. See D11 rule 13.
+   */
+  revealIn: 3,
+  /**
    * How far the sink's middle may sit from the window's.
    *
    * Six inches, which is one cabinet step and a half. Nobody notices that
@@ -123,6 +135,16 @@ function middleOf(segments: RunSegment[]): number {
   return (segments[0].from + segments[segments.length - 1].to) / 2;
 }
 
+/** The same window, that many inches further along its wall. */
+export function slideWindow(window: ResolvedWindow, offIn: number): ResolvedWindow {
+  const by = ft(offIn);
+  return {
+    ...window,
+    centerIn: window.centerIn === null ? null : window.centerIn + offIn,
+    along: [window.along[0] + by, window.along[1] + by] as const,
+  };
+}
+
 /**
  * What a window may not stand in front of, on its own wall.
  *
@@ -168,4 +190,24 @@ export const lowestSillIn = () => ROOM.counterHeight * 12 + WINDOW.aboveCounterI
 export const cutsFor = (windows: ResolvedWindow[], wall: "back" | "left") =>
   windows
     .filter((window) => window.wall === wall)
-    .map((window) => ({ from: window.along[0], to: window.along[1], hood: false }));
+    .map((window) => ({
+      // The casing, not the glass: what a cabinet may not be hung over is the
+      // hole and the frame round it. The three inches of scribe beyond that
+      // are part of the bank, which is `bankFor`'s business.
+      from: window.along[0] - ft(WINDOW.frameIn),
+      to: window.along[1] + ft(WINDOW.frameIn),
+      kind: "window" as const,
+      hood: false,
+    }));
+
+/**
+ * How much of a wall a window takes altogether: the opening, its casing and
+ * the scribe each side of it.
+ *
+ * What the banks have to leave clear, and the figure the window is moved by
+ * three inches at a time until both sides of it come out the same.
+ */
+export const reservedFor = (window: ResolvedWindow): readonly [number, number] => [
+  window.along[0] - ft(WINDOW.frameIn + WINDOW.revealIn),
+  window.along[1] + ft(WINDOW.frameIn + WINDOW.revealIn),
+];

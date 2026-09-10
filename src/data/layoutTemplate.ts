@@ -23,7 +23,9 @@ import {
   blockedBy,
   cutsFor,
   lowestSillIn,
+  reservedFor,
   resolveWindow,
+  slideWindow,
   wallFor,
   type ResolvedWindow,
   type WindowOpening,
@@ -745,8 +747,9 @@ function fillWidth(
   /**
    * Which end the scribe goes. A filler is a strip of finished panel with
    * nothing behind it, and it belongs where nothing has to reach past it —
-   * against a wall. Beside a hood it is a gap you cannot get a cloth into and
-   * a foot of shelf nobody has. See docs/decisions.md D13.
+   * against a wall, or against the casing of a window with the scribe that is
+   * there anyway. Beside a hood it is a gap you cannot get a cloth into and a
+   * foot of shelf nobody has. See docs/decisions.md D13.
    */
   fillerAt: "start" | "end" = "end",
 ): CabinetModule[] {
@@ -777,14 +780,18 @@ function fillWidth(
   }
   // The sub-inch remainder joins the filler, or becomes one if the boxes
   // happened to divide the bank exactly.
+  //
+  // Rounded in its name and exact in its width. A scribe is written to the
+  // nearest eighth because that is how a part is written, but the piece itself
+  // is whatever is left: rounding the width is how a bank came to be a
+  // sixteenth short of the wall it is on, which D13 counts and reports.
   if (scribeIn > 1e-6) {
     if (fillers.length > 0) {
       const last = fillers[fillers.length - 1];
-      const widthIn = round8(last.widthIn + scribeIn);
-      fillers[fillers.length - 1] = M(`BF${widthIn}`, "filler", widthIn);
+      const widthIn = last.widthIn + scribeIn;
+      fillers[fillers.length - 1] = M(`BF${round8(widthIn)}`, "filler", widthIn);
     } else {
-      const widthIn = round8(scribeIn);
-      fillers.push(M(`BF${widthIn}`, "filler", widthIn));
+      fillers.push(M(`BF${round8(scribeIn)}`, "filler", scribeIn));
     }
   }
   return fillerAt === "start" ? [...fillers, ...boxes] : [...boxes, ...fillers];
@@ -1696,20 +1703,33 @@ function bankFor(
   from: number,
   to: number,
   corner: (typeof CORNERS)[keyof typeof CORNERS] | null,
-  /** Which end of this bank the scribe goes. Away from the hood, always. */
+  /** Where this bank's own remainder goes. Away from the hood, always. */
   fillerAt: "start" | "end" = "end",
+  /**
+   * A scribe this bank has to start or finish with, in inches.
+   *
+   * Where a bank meets a window casing. You do not hang a cabinet hard against
+   * the case: what goes there is three inches of finished panel, so the
+   * casing is cased and the cabinet's own side is not fighting it. It is a
+   * part of the bank rather than a gap in the wall, and it is the same three
+   * inches on both sides of the opening — see D11 rule 13.
+   */
+  scribeIn: { start?: number; end?: number } = {},
 ): UpperBank {
   // Not rounded: a bank over a leg carrying a half-inch clearance is half an
   // inch shorter than a whole number of inches, and rounding it up made the
   // cabinets longer than the wall they are on.
   const totalIn = (to - from) * 12;
-  const rest = corner ? totalIn - corner.upper.alongIn : totalIn;
+  const scribes = (scribeIn.start ?? 0) + (scribeIn.end ?? 0);
+  const rest = (corner ? totalIn - corner.upper.alongIn : totalIn) - scribes;
+  const scribe = (widthIn: number) => M(`BF${round8(widthIn)}`, "filler", widthIn);
   return {
     id,
     from,
     to,
     band: [ROOM.upperBottom, ROOM.upperTop] as const,
     modules: [
+      ...(scribeIn.start ? [scribe(scribeIn.start)] : []),
       ...(corner
         ? [
             M(corner.upper.code, "corner", corner.upper.alongIn, {
@@ -1719,6 +1739,7 @@ function bankFor(
           ]
         : []),
       ...(rest > 0 ? fillWidth(rest, wallModule, fillerAt) : []),
+      ...(scribeIn.end ? [scribe(scribeIn.end)] : []),
     ],
   };
 }
@@ -1735,6 +1756,19 @@ function bankStop(segments: RunSegment[]): number {
   let at = segments.length;
   while (at > 0 && segments[at - 1].kind === "tall") at -= 1;
   return at === segments.length ? segments[segments.length - 1].to : segments[at].from;
+}
+
+/**
+ * Something that breaks a run of wall cabinets, and what it is.
+ *
+ * What it is matters at the edges: a bank meets a hood with no gap at all,
+ * and a window with three inches of scribe.
+ */
+export interface Cut {
+  from: number;
+  to: number;
+  kind: "hood" | "tall" | "window";
+  hood: boolean;
 }
 
 /**
@@ -1822,6 +1856,34 @@ function banksOn(
     ],
   };
 
+  const cuts = [...wallCuts(segments, spec), ...openings];
+
+  return banksBetween(runId, start, stop, corner, cuts, {
+    bank: hoodBank,
+    housed,
+    bridged,
+  });
+}
+
+/**
+ * What breaks a leg's wall cabinets, windows aside.
+ *
+ * The tall units standing in the middle of it — a tower is 96" of carcass and
+ * there is no shelf over it — what is filled to a tower's top beside it, and
+ * the hood. The tall units that *finish* a leg are not in the list: they are
+ * where the bank stops.
+ *
+ * Separate from the windows because the windows move: a window is fitted
+ * against these, three inches at a time, until the gap either side of it comes
+ * out the same. See `fitWindow`.
+ */
+export function wallCuts(
+  segments: RunSegment[],
+  spec: Record<SlotId, PackageSlot>,
+): Cut[] {
+  const stop = bankStop(segments);
+  const hood = hoodSpan(segments, spec);
+
   /**
    * The stretch beside a mid-run tower that is filled to its top.
    *
@@ -1840,25 +1902,27 @@ function banksOn(
   const towers = segments.filter(
     (segment) => segment.kind === "tall" && segment.from < stop - 1e-9,
   );
-  const cuts = [
-    ...towers.map((segment) => ({ from: segment.from, to: segment.to, hood: false })),
+  return [
+    ...towers.map((segment) => ({
+      from: segment.from,
+      to: segment.to,
+      kind: "tall" as const,
+      hood: false,
+    })),
     // And what is filled beside them: a wall cabinet over a stretch that is
     // already finished panel to the ceiling is a cabinet inside a cabinet.
     ...towers
       .flatMap((tower) => filled(segments.indexOf(tower)))
-      .map((segment) => ({ from: segment!.from, to: segment!.to, hood: false })),
+      .map((segment) => ({
+        from: segment!.from,
+        to: segment!.to,
+        kind: "tall" as const,
+        hood: false,
+      })),
     // Always the hood, whatever hangs there: a chimney carries its own cover
     // to the ceiling and takes no cabinet, and the bank still stops at it.
-    { from: hood[0], to: hood[1], hood: true },
-    // And the windows, which are the same cut for the opposite reason.
-    ...openings,
+    ...(hood ? [{ from: hood[0], to: hood[1], kind: "hood" as const, hood: true }] : []),
   ];
-
-  return banksBetween(runId, start, stop, corner, cuts, {
-    bank: hoodBank,
-    housed,
-    bridged,
-  });
 }
 
 /**
@@ -1873,7 +1937,7 @@ function banksBetween(
   start: number,
   stop: number,
   corner: (typeof CORNERS)[keyof typeof CORNERS] | null,
-  unsorted: { from: number; to: number; hood: boolean }[],
+  unsorted: Cut[],
   housing: { bank: UpperBank; housed: boolean; bridged: boolean } | null,
 ): UpperBank[] {
   const cuts = unsorted
@@ -1896,6 +1960,38 @@ function banksBetween(
   const scribes: { from: number; to: number }[] = [];
   const narrowest = narrowestBank();
   const housed = housing?.housed === true;
+  /**
+   * Three inches of finished panel where a bank meets a window casing, and the
+   * bank's own remainder pushed to the other end so that what is against the
+   * casing is that scribe and nothing else. D11 rule 13: the same three inches
+   * both sides of the opening.
+   */
+  const against = (before: Cut | undefined, after: Cut | undefined) => ({
+    start: before?.kind === "window" ? WINDOW.revealIn : 0,
+    end: after?.kind === "window" ? WINDOW.revealIn : 0,
+  });
+  /**
+   * Where this bank's own remainder goes.
+   *
+   * Against the window, with the scribe — which sounds backwards until you
+   * count what a customer sees. What is against the casing is then three
+   * inches plus the remainder on *both* sides, and two banks of the same width
+   * have the same remainder, so the two sides come out the same. Put it at the
+   * far end instead and one side is three inches while the other is five.
+   *
+   * It also keeps the older rule: a cabinet against the canopy, never a
+   * scribe. A bank between a hood and a window has both ends spoken for, and
+   * this is the end that may carry it.
+   */
+  const remainderAt = (
+    before: Cut | undefined,
+    after: Cut | undefined,
+    first: boolean,
+  ): "start" | "end" => {
+    if (after?.kind === "window") return "end";
+    if (before?.kind === "window") return "start";
+    return first ? "start" : "end";
+  };
   let cursor = start;
   for (const [i, cut] of cuts.entries()) {
     // The scribe goes away from what it abuts: at the corner end of the first
@@ -1905,8 +2001,16 @@ function banksBetween(
       if (housed && beside && cut.from - cursor < narrowest) {
         scribes.push({ from: cursor, to: cut.from });
       } else {
+        const scribe = against(cuts[i - 1], cut);
         banks.push(
-          bankFor(`upper-${runId}-${i}`, cursor, cut.from, i === 0 ? corner : null, i === 0 ? "start" : "end"),
+          bankFor(
+            `upper-${runId}-${i}`,
+            cursor,
+            cut.from,
+            i === 0 ? corner : null,
+            remainderAt(cuts[i - 1], cut, i === 0),
+            scribe,
+          ),
         );
       }
     }
@@ -1917,7 +2021,17 @@ function banksBetween(
     if (housed && cuts[cuts.length - 1].hood && stop - cursor < narrowest) {
       scribes.push({ from: cursor, to: stop });
     } else {
-      banks.push(bankFor(`upper-${runId}-end`, cursor, stop, null, "end"));
+      const last = cuts[cuts.length - 1];
+      banks.push(
+        bankFor(
+          `upper-${runId}-end`,
+          cursor,
+          stop,
+          null,
+          remainderAt(last, undefined, false),
+          against(last, undefined),
+        ),
+      );
     }
   }
 
@@ -2154,10 +2268,52 @@ export function generateLayout(
 
   // On the wall the parameter names, or the sink's own wall where it names
   // none: "the window over the sink" moves with the sink.
-  const windows = params.windows.map((window) => {
+  //
+  // Then fitted: three inches of scribe each side of the casing comes out of
+  // the bank, and a window that cannot have both slides along the wall in
+  // whole cabinet steps until it can. See D11 rule 13.
+  const bankStart = (wall: "back" | "left") =>
+    wall === "back" ? -halfX + ft(corner.upper.acrossIn) : -halfZ;
+  const unfitted: Refusal[] = [];
+  const windows: ResolvedWindow[] = [];
+  for (const window of params.windows) {
     const wall = wallFor(window, params.sinkLeg);
-    return { ...resolveWindow({ ...window, wall }, segmentsOf(wall)), wall };
-  });
+    const segments = segmentsOf(wall);
+    const placed = { ...resolveWindow({ ...window, wall }, segments), wall };
+    const fitted = fitWindow(placed, {
+      runId: wall,
+      segments,
+      start: bankStart(wall),
+      corner: wall === "left" ? corner : null,
+      spec,
+      housingStyle: params.housingStyle,
+    });
+    if (!fitted) {
+      unfitted.push({
+        key: "refusal.windowGap",
+        vars: {
+          wallKey: `leg.${wall}`,
+          widthIn: window.widthIn,
+          gapIn: WINDOW.revealIn,
+          casingIn: WINDOW.frameIn,
+        },
+        suggestion: {
+          key: "suggestion.narrowWindow",
+          vars: { value: Math.max(12, window.widthIn - 12) },
+          patch: {
+            windows: params.windows.map((other) =>
+              other === window
+                ? { ...other, widthIn: Math.max(12, other.widthIn - 12) }
+                : other,
+            ),
+          },
+        },
+      });
+      continue;
+    }
+    windows.push(fitted);
+  }
+  if (unfitted.length > 0) return { ok: false, reasons: unfitted };
 
   // What a window may not be behind, and how far the sink ended up from it.
   const blocked = windowRefusals(
@@ -2276,6 +2432,164 @@ function slideToWindow(
   moved[gapAt[grow]] += stepsIn;
   moved[gapAt[give]] -= stepsIn;
   return moved;
+}
+
+/**
+ * Slide a window along its wall until the cabinets either side of it match.
+ *
+ * Three inches of scribe against the casing is the rule, and it comes out of
+ * the bank rather than out of whatever the wall had spare. What makes the two
+ * sides come out the same is the window sitting in the middle of the stretch
+ * it is in: two banks of the same width are made of the same boxes and finish
+ * with the same scribe, and two banks of different widths need not.
+ *
+ * So the first thing tried is the middle of that stretch, as near it as the
+ * six inches the sink may be from the glass allow. Then the sink's own centre,
+ * then three inches either way, then six — Leo's steps, in the order that
+ * gives up the least. What none of them fixes is a refusal with the
+ * arithmetic: the answer is a narrower window or a longer wall, not an uneven
+ * one.
+ */
+function fitWindow(
+  window: ResolvedWindow,
+  leg: {
+    runId: "back" | "left";
+    segments: RunSegment[];
+    start: number;
+    corner: (typeof CORNERS)[keyof typeof CORNERS] | null;
+    spec: Record<SlotId, PackageSlot>;
+    housingStyle: HousingStyle;
+  },
+): ResolvedWindow | null {
+  const centre = (span: readonly [number, number]) => (span[0] + span[1]) / 2;
+  const sink = leg.segments.find((segment) => segment.fixture === "fixture-sink");
+  const sinkAt = sink ? centre([sink.from, sink.to]) : null;
+
+  // The middle of the stretch this window is in, which is where two equal
+  // banks come from.
+  const stop = bankStop(leg.segments);
+  const cuts = wallCuts(leg.segments, leg.spec);
+  const reserved = reservedFor(window);
+  const edges = [leg.start, stop, ...cuts.flatMap((cut) => [cut.from, cut.to])];
+  const before = Math.max(...edges.filter((edge) => edge <= reserved[0] + 1e-6), leg.start);
+  const after = Math.min(...edges.filter((edge) => edge >= reserved[1] - 1e-6), stop);
+  const middle = ((before + after) / 2 - centre(window.along)) * 12;
+
+  // Six inches either way of where it started, quarter inch at a time,
+  // nearest the middle of the stretch first. A quarter inch because that is
+  // the resolution the rest of the run is drawn to, and because the difference
+  // between the two banks either side is what has to come out even — the
+  // window's own position to the nearest three inches is not the point, it is
+  // only the usual way of getting there.
+  const limit = WINDOW.sinkOffsetIn;
+  const ideal = Math.max(-limit, Math.min(limit, Number.isFinite(middle) ? middle : 0));
+  const offsets: number[] = [ideal];
+  for (let step = 0.25; step <= limit * 2; step += 0.25) {
+    for (const offIn of [ideal + step, ideal - step]) {
+      if (offIn >= -limit - 1e-6 && offIn <= limit + 1e-6) offsets.push(offIn);
+    }
+  }
+
+  for (const offIn of offsets) {
+    // Not rounded to an eighth: the midpoint of a stretch is wherever the
+    // stretch's own arithmetic put it, and rounding it is what makes the two
+    // banks either side come out a sixteenth different and the gaps uneven.
+    const moved = Math.abs(offIn) < 1e-6 ? window : slideWindow(window, offIn);
+    if (sinkAt !== null) {
+      const off = Math.abs((centre(moved.along) - sinkAt) * 12);
+      if (off > WINDOW.sinkOffsetIn + 1e-6) continue;
+    }
+    if (evenBeside(moved, leg)) return moved;
+  }
+  return null;
+}
+
+/**
+ * Whether the cabinets stand the same distance from both sides of a casing.
+ *
+ * Measured off the banks that would actually be built rather than worked out
+ * from the wall's length: what a customer sees is the first cabinet door each
+ * side of the window, and how far that is from the case depends on where the
+ * bank's own remainder ended up. A side with no cabinet on it at all — the
+ * window at the end of a run, or hard against a tower — has nothing to be
+ * uneven with.
+ */
+function evenBeside(
+  window: ResolvedWindow,
+  leg: {
+    runId: "back" | "left";
+    segments: RunSegment[];
+    start: number;
+    corner: (typeof CORNERS)[keyof typeof CORNERS] | null;
+    spec: Record<SlotId, PackageSlot>;
+    housingStyle: HousingStyle;
+  },
+): boolean {
+  const banks = banksOn(
+    leg.runId,
+    leg.segments,
+    leg.start,
+    leg.corner,
+    leg.spec,
+    leg.housingStyle,
+    [window],
+  );
+  // A bank beside a window has to be a bank: a stretch of nothing but fillers
+  // is the board-on-its-own problem again, and the window should move rather
+  // than leave one hanging.
+  const casing = cutsFor([window], window.wall)[0];
+  for (const bank of banks) {
+    const touches =
+      Math.abs(bank.to - casing.from) < 1e-6 || Math.abs(bank.from - casing.to) < 1e-6;
+    if (!touches) continue;
+    if (!bank.modules.some((module) => module.kind !== "filler")) return false;
+  }
+
+  const gaps = gapsBeside(window, banks);
+  if (gaps.before === null && gaps.after === null) return true;
+  for (const gap of [gaps.before, gaps.after]) {
+    if (gap !== null && gap < WINDOW.revealIn - 1e-6) return false;
+  }
+  if (gaps.before === null || gaps.after === null) return true;
+  // To the eighth a cabinetmaker works to. Two banks of the same width are
+  // built of the same boxes and finish with the same scribe; what is left is
+  // the sixteenth a filler's width rounds by, and nobody has ever seen one.
+  return Math.abs(gaps.before - gaps.after) <= 0.125 + 1e-6;
+}
+
+/**
+ * How far the nearest cabinet stands from each side of a window's casing, in
+ * inches. Null where that side has no cabinet at all.
+ *
+ * A filler is not a cabinet: the scribe against the case is a filler, and so
+ * is whatever remainder the bank could not put anywhere else, and the figure
+ * this returns is the distance to the first box with a door on it.
+ */
+function gapsBeside(
+  window: ResolvedWindow,
+  banks: UpperBank[],
+): { before: number | null; after: number | null } {
+  const casing = cutsFor([window], window.wall)[0];
+  let before: number | null = null;
+  let after: number | null = null;
+
+  for (const bank of banks) {
+    let cursor = bank.from;
+    for (const module of bank.modules) {
+      const from = cursor;
+      const to = cursor + ft(module.widthIn);
+      cursor = to;
+      if (module.kind === "filler") continue;
+      if (to <= casing.from + 1e-6) {
+        const gap = (casing.from - to) * 12;
+        before = before === null ? gap : Math.min(before, gap);
+      } else if (from >= casing.to - 1e-6) {
+        const gap = (from - casing.to) * 12;
+        after = after === null ? gap : Math.min(after, gap);
+      }
+    }
+  }
+  return { before, after };
 }
 
 /**

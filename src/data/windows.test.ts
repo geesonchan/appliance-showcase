@@ -3,7 +3,7 @@ import { CABINETS } from "./cabinets";
 import { setActivePackage, setLayoutParams } from "./layoutState";
 import { DEFAULT_PARAMS, type LayoutParams } from "./layoutTemplate";
 import { BUILDABLE_PACKAGES, DEFAULT_PACKAGE } from "./packages";
-import { ROOM, RUNS, WINDOWS } from "./room";
+import { ROOM, RUNS, WINDOWS, ft } from "./room";
 import { WINDOW, lowestSillIn } from "./windows";
 
 /**
@@ -80,6 +80,44 @@ function expectNothingInFrontOfTheWindows(where: string) {
   }
 }
 
+/**
+ * How far the nearest cabinet stands from each side of every window's casing.
+ *
+ * Measured off the room rather than worked out from the wall's length: what a
+ * customer sees is the first cabinet door each side of the opening. A filler
+ * is not a cabinet — the scribe against the casing is one, and so is whatever
+ * remainder the bank could not put anywhere else.
+ */
+function casingGaps() {
+  return WINDOWS.map((window) => {
+    const run = RUNS.find((item) => item.id === window.wall)!;
+    const casing = [
+      window.along[0] - ft(WINDOW.frameIn),
+      window.along[1] + ft(WINDOW.frameIn),
+    ] as const;
+    let before: number | null = null;
+    let after: number | null = null;
+
+    for (const bank of run.uppers) {
+      let cursor = bank.from;
+      for (const module of bank.modules) {
+        const from = cursor;
+        const to = cursor + ft(module.widthIn);
+        cursor = to;
+        if (module.kind === "filler") continue;
+        if (to <= casing[0] + 1e-6) {
+          const gap = inches(casing[0] - to);
+          before = before === null ? gap : Math.min(before, gap);
+        } else if (from >= casing[1] - 1e-6) {
+          const gap = inches(from - casing[1]);
+          after = after === null ? gap : Math.min(after, gap);
+        }
+      }
+    }
+    return { wall: window.wall, before, after };
+  });
+}
+
 /** And the sink under whichever window is on its own leg. */
 function expectTheSinkUnderTheWindow(where: string) {
   for (const window of WINDOWS) {
@@ -138,6 +176,58 @@ describe("a window is a hole nothing hangs in front of", () => {
     }
   });
 
+  /**
+   * The same gap each side of the casing, and never less than three inches.
+   *
+   * A cabinet hung hard against a window case is a cabinet nobody can trim
+   * out, and one side three inches clear with the other five is what a
+   * customer sees before they see anything else. Both come out of the bank
+   * rather than out of whatever the wall had spare, which is why the window
+   * itself slides along the wall until the two sides match. D11 rule 13.
+   */
+  it("leaves the same gap each side of every window", () => {
+    for (const entry of BUILDABLE_PACKAGES) {
+      const base = activate(entry.id);
+      for (const over of ARRANGEMENTS) {
+        const where = `${entry.id} ${JSON.stringify(over)}`;
+        if (!setLayoutParams({ ...base, ...over }).ok) continue;
+        for (const gaps of casingGaps()) {
+          for (const gap of [gaps.before, gaps.after]) {
+            if (gap === null) continue;
+            expect(gap, `${where}: ${gaps.wall} window`).toBeGreaterThanOrEqual(
+              WINDOW.revealIn - 1e-6,
+            );
+          }
+          if (gaps.before === null || gaps.after === null) continue;
+          // To the eighth a cabinetmaker works to.
+          expect(
+            Math.abs(gaps.before - gaps.after),
+            `${where}: ${gaps.wall} window, ${gaps.before}" one side and ${gaps.after}" the other`,
+          ).toBeLessThanOrEqual(0.125 + 1e-6);
+        }
+      }
+    }
+  });
+
+  /**
+   * And nothing over the head of one either: the wall carries on to the top
+   * line, and no bank is hung in the strip between the window and the ceiling.
+   */
+  it("leaves the wall above a window bare", () => {
+    for (const entry of BUILDABLE_PACKAGES) {
+      const base = activate(entry.id);
+      expect(setLayoutParams(base).ok).toBe(true);
+      for (const window of WINDOWS) {
+        const run = RUNS.find((item) => item.id === window.wall)!;
+        for (const bank of run.uppers) {
+          const over =
+            Math.min(window.along[1], bank.to) - Math.max(window.along[0], bank.from);
+          expect(inches(over), `${entry.id}: ${bank.id}`).toBeLessThanOrEqual(1e-6);
+        }
+      }
+    }
+  });
+
   it("builds a room with no window at all", () => {
     for (const entry of BUILDABLE_PACKAGES) {
       const base = activate(entry.id);
@@ -190,10 +280,15 @@ describe("a window is a hole nothing hangs in front of", () => {
     const window = { ...DEFAULT_PARAMS.windows[0], wall: "back" as const, centerIn: wanted };
     const result = setLayoutParams({ ...base, windows: [window] });
     if (result.ok) {
+      // Against the window as built rather than as asked for: the opening
+      // slides along the wall as well, to keep the gap either side of it even.
       const after = sinkRun().segments.find((segment) => segment.fixture === "fixture-sink")!;
-      expect(Math.abs(inches((after.from + after.to) / 2) - wanted)).toBeLessThanOrEqual(
+      const glass = inches((WINDOWS[0].along[0] + WINDOWS[0].along[1]) / 2);
+      expect(Math.abs(inches((after.from + after.to) / 2) - glass)).toBeLessThanOrEqual(
         WINDOW.sinkOffsetIn,
       );
+      // And it did move toward where it was asked for.
+      expect(Math.abs(glass - wanted)).toBeLessThanOrEqual(WINDOW.sinkOffsetIn);
     } else {
       expect(result.reasons.map((reason) => reason.key)).toContain("refusal.sinkFromWindow");
     }

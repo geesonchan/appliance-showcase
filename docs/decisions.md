@@ -405,7 +405,11 @@ each one has a test with a case that breaks it.
     where a photograph of a kitchen shows it — within six inches of its middle,
     which is a cabinet step and a half. The sill clears the worktop by at least
     two inches, so the backsplash has somewhere to land and a tap has somewhere
-    to stand.
+    to stand. Between the casing and the cabinet beside it there are three
+    inches of finished panel, the same on both sides, and they come out of the
+    bank rather than out of whatever the wall had spare. The wall above the
+    opening carries on bare to the top line: no cabinet is hung in the strip
+    between a window's head and the ceiling.
 
 **A window is a fact of the building, not a fitting.** It is a layout
 parameter — which wall, where along it, how wide, how high, how far off the
@@ -417,6 +421,17 @@ it rather than leaving a hole behind a run of cabinets. A window that does name
 a place pulls the sink toward it instead, three inches at a time, off one
 landing and onto the other; what the run will not move that far is a refusal
 with the arithmetic.
+
+**And the window itself moves, to keep the two sides even.** Three inches of
+scribe each side of the casing is easy to state and impossible to guarantee by
+arithmetic alone: the wall each side of an opening is whatever the run leaves,
+and two banks of different widths finish with different scribes — three inches
+on one side and five on the other, which is the first thing anybody sees. So
+the opening is centred in the stretch of wall it is in, as near that centre as
+the six inches the sink may be from the glass allow, and two banks of the same
+width are then built of the same boxes and finish the same way. Where no
+position within those six inches does it, the room is refused with the
+arithmetic and the way out is a narrower window.
 
 **Scheme 01 as laid out.** Left wall, from the far end back to the corner:
 refrigerator tower, 15" landing, corner cabinet. Back wall, from the corner
