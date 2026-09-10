@@ -858,9 +858,65 @@ async function captureRound27(page) {
   await page.screenshot({ path: `${outDir}/mobile-b-columns-install.png` });
 }
 
+/**
+ * Round 28: the window.
+ *
+ * Four shots, because a window is four different things: the room it warms in
+ * daylight, the same room after dark where it goes to a dark pane and the
+ * under-cabinet strips take over, the install view with the two figures
+ * somebody sets out before a cabinet is hung, and package B — whose sink is on
+ * the other leg, so the window is in the other wall.
+ */
+async function captureRound28(page) {
+  await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await settle(page, 2600);
+  await flyTo(page, /Dishwasher/);
+  await settle(page, 1500);
+  await page.screenshot({ path: `${outDir}/mobile-window-day.png` });
+
+  const configure = async (label) => {
+    await click(page, "Configure");
+    await page.waitForTimeout(700);
+    await page.getByRole("button", { name: label, exact: true }).first().click();
+    await page.waitForTimeout(900);
+    await page.getByRole("button", { name: "Close" }).click();
+    await settle(page, 1600);
+  };
+  await configure("Night");
+  await page.screenshot({ path: `${outDir}/mobile-window-night.png` });
+  await configure("Day");
+
+  await click(page, "Install");
+  await settle(page, 1800);
+  await page.screenshot({ path: `${outDir}/mobile-window-install.png` });
+  await click(page, "Materials");
+  await settle(page, 1400);
+  await click(page, "Reset view");
+  await settle(page, 1400);
+
+  await page.locator(`[data-segment="package"] button`, { hasText: "B" }).first().click();
+  await settle(page, 2600);
+  await page.screenshot({ path: `${outDir}/mobile-window-b.png` });
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round28") {
+    const ctx = await browser.newContext({
+      viewport: MOBILE,
+      deviceScaleFactor: 2,
+      isMobile: true,
+      hasTouch: true,
+    });
+    const page = await ctx.newPage();
+    await captureRound28(page);
+    await ctx.close();
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round27") {
     const ctx = await browser.newContext({
