@@ -15,6 +15,7 @@ import {
   type CabinetRun,
   type RunSegment,
 } from "./roomShell";
+import type { ResolvedWindow } from "./windows";
 import type { FixtureId, SlotId } from "../types";
 
 export * from "./roomShell";
@@ -28,6 +29,7 @@ export type {
   WallRequirement,
 } from "./layoutTemplate";
 export { feasibleRange, wallRequirement, generateLayout } from "./layoutTemplate";
+export { WINDOW, type ResolvedWindow, type WindowOpening } from "./windows";
 
 /**
  * The room this page is showing.
@@ -99,6 +101,14 @@ export let OMITTED_SLOTS: readonly SlotId[] = [];
 export const isOmitted = (slotId: SlotId) => OMITTED_SLOTS.includes(slotId);
 export let FIXTURE_PLACEMENT: Record<FixtureId, SlotPlacement>;
 
+/**
+ * The windows, with their place on the wall worked out.
+ *
+ * The scene draws them, the shell cuts its walls to them and the checklist
+ * quotes their figures. See `windows.ts` and docs/decisions.md D11 rule 13.
+ */
+export let WINDOWS: ResolvedWindow[] = [];
+
 /** Install a generated layout as the room. Everything derived follows. */
 export function applyLayout(layout: GeneratedLayout, requested: LayoutParams, issues: Refusal[]) {
   LAYOUT = layout;
@@ -124,6 +134,7 @@ export function applyLayout(layout: GeneratedLayout, requested: LayoutParams, is
   SLOT_PLACEMENT = layout.slots;
   OMITTED_SLOTS = layout.omitted;
   FIXTURE_PLACEMENT = layout.fixtures;
+  WINDOWS = layout.windows;
 }
 
 /**

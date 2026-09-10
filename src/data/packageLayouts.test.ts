@@ -75,6 +75,12 @@ function combinations(): Partial<LayoutParams>[] {
     }
     for (const aisleIn of values(PARAM_LIMITS.aisleIn)) out.push({ islandOrientation, aisleIn });
   }
+  // With a window and without: every other combination in this list carries
+  // the default one, so what is added here is the room that has none and the
+  // room whose sink is left where the run puts it.
+  out.push({ windows: [] });
+  out.push({ sinkUnderWindow: false });
+
   // Which shape the hood housing is built in. It changes the geometry over the
   // range rather than the run under it, but the run is what has to survive it.
   for (const housingStyle of ["box", "sweep"] as const) {

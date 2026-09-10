@@ -17,6 +17,17 @@ import { PACKAGE, slotsOf } from "./packages";
 import { LAYOUT_POLICY, shrinkRank, type ShrinkGroup } from "./layoutPolicy";
 import { comboSillFor } from "./columnModel";
 import { hoodCabinetBand } from "./insertHood";
+import {
+  DEFAULT_WINDOW,
+  WINDOW,
+  blockedBy,
+  cutsFor,
+  lowestSillIn,
+  resolveWindow,
+  wallFor,
+  type ResolvedWindow,
+  type WindowOpening,
+} from "./windows";
 
 /**
  * The L-with-island template.
@@ -84,6 +95,23 @@ export interface LayoutParams {
   fridgeEndAbuts: "cabinet" | "wall";
   /** Which leg carries the sink, and therefore the dishwasher beside it. */
   sinkLeg: "left" | "back";
+  /**
+   * The windows in the room's two walls.
+   *
+   * A constraint before it is a mood: nothing hangs in front of one, and where
+   * one is the run underneath it is where the sink goes. See D11 rule 13 and
+   * `windows.ts`. An empty list is a room with no window, which builds.
+   */
+  windows: WindowOpening[];
+  /**
+   * Whether the sink is put under the window on its own leg.
+   *
+   * True, because that is where people put it and where a photograph of a
+   * kitchen shows it. False leaves the sink where the run's arithmetic puts
+   * it, which is what you want when the window is over the run rather than
+   * over the sink.
+   */
+  sinkUnderWindow: boolean;
   hasIsland: boolean;
   islandLengthIn: number;
   islandDepthIn: number;
@@ -128,6 +156,8 @@ export const DEFAULT_PARAMS: LayoutParams = {
   microwaveHandleIn: 54,
   fridgeEndAbuts: "cabinet",
   sinkLeg: "back",
+  windows: [DEFAULT_WINDOW],
+  sinkUnderWindow: true,
   hasIsland: true,
   islandLengthIn: 72,
   islandDepthIn: 36,
@@ -197,6 +227,8 @@ export interface GeneratedLayout {
    * checklist says it out loud.
    */
   omitted: readonly SlotId[];
+  /** The windows, with their place on the wall worked out. */
+  windows: ResolvedWindow[];
 }
 
 /**
@@ -828,6 +860,49 @@ function validate(params: LayoutParams): Refusal[] {
         patch: { sinkLeg: other },
       },
     });
+  }
+
+  // A window's own figures, before anything is laid out against them. The
+  // sill is the one worth stating: level with the stone there is nowhere to
+  // land a backsplash and nowhere for a tap to stand.
+  for (const window of params.windows) {
+    if (window.widthIn <= 0 || window.heightIn <= 0) {
+      reasons.push({
+        key: "refusal.windowSize",
+        vars: { widthIn: window.widthIn, heightIn: window.heightIn },
+      });
+      continue;
+    }
+    const lowest = lowestSillIn();
+    if (window.sillIn < lowest) {
+      reasons.push({
+        key: "refusal.windowSill",
+        vars: {
+          sillIn: window.sillIn,
+          lowestIn: lowest,
+          overIn: WINDOW.aboveCounterIn,
+          shortIn: round8(lowest - window.sillIn),
+        },
+        suggestion: {
+          key: "suggestion.raiseSill",
+          vars: { value: lowest },
+          patch: {
+            windows: params.windows.map((other) =>
+              other === window ? { ...other, sillIn: lowest } : other,
+            ),
+          },
+        },
+      });
+    }
+    if (window.sillIn + window.heightIn > ROOM.wallHeight * 12 + 1e-6) {
+      reasons.push({
+        key: "refusal.windowHead",
+        vars: {
+          headIn: window.sillIn + window.heightIn,
+          ceilingIn: ROOM.wallHeight * 12,
+        },
+      });
+    }
   }
 
   if (params.hasIsland) {
@@ -1663,7 +1738,32 @@ function bankStop(segments: RunSegment[]): number {
 }
 
 /**
- * The banks on the leg carrying the range, which the canopy interrupts.
+ * How much of a wall the hood takes, where the leg carries one.
+ *
+ * A canopy is as wide as the range under it; a housing built round an insert
+ * liner is wider than both — 42" over a 36" rangetop is what a chimney breast
+ * looks like. Either way it is centred on the machine, because the hood is
+ * centred on the machine by rule. Null where nothing cooks on this leg.
+ */
+export function hoodSpan(
+  segments: RunSegment[],
+  spec: Record<SlotId, PackageSlot>,
+): readonly [number, number] | null {
+  const range = segments.find((segment) => segment.slot === "slot-range");
+  if (!range) return null;
+  const centre = (range.from + range.to) / 2;
+  const half = Math.max((range.to - range.from) / 2, ft(spec["slot-hood"].widthIn) / 2);
+  return [centre - half, centre + half] as const;
+}
+
+/**
+ * The banks on a leg: the wall cabinets, and what breaks them.
+ *
+ * The canopy over a cooking surface breaks them, and so does a window — the
+ * one because there is a hood there and the other because there is nothing
+ * there at all, and a cabinet hung over a window is the same mistake either
+ * way. What is left is banked between the cuts, each with a finished end.
+ *
  *
  * The bridge over the hood has no band of its own: its floor is the canopy's
  * top, which moves with whichever range goes in. See `hoodBridgeBand`.
@@ -1675,29 +1775,24 @@ function bankStop(segments: RunSegment[]): number {
  * stainless flue through the middle of it — the space above a chimney hood is
  * meant to be empty.
  */
-function banksAroundHood(
+function banksOn(
   runId: string,
   segments: RunSegment[],
   start: number,
   corner: (typeof CORNERS)[keyof typeof CORNERS] | null,
   spec: Record<SlotId, PackageSlot>,
   housingStyle: HousingStyle,
+  windows: ResolvedWindow[],
 ): UpperBank[] {
-  const range = segments.find((segment) => segment.slot === "slot-range");
   const stop = bankStop(segments);
-  if (!range) return [bankFor(`upper-${runId}`, start, stop, corner)];
+  const openings = cutsFor(windows, runId === "back" ? "back" : "left").filter(
+    (cut) => cut.to > start && cut.from < stop,
+  );
+  const hood = hoodSpan(segments, spec);
+  if (!hood) return banksBetween(runId, start, stop, corner, openings, null);
 
   // The bank stops exactly at the hood's flank. A gap there is one you cannot
   // get a cloth into and a foot of shelf nobody has.
-  //
-  // Which flank that is depends on the hood: a canopy is as wide as the range
-  // under it, and a housing built round an insert liner is wider than both —
-  // 42" over a 36" rangetop is what a chimney breast looks like. So the span
-  // is the hood's own width where that is the greater, centred on the range,
-  // because the hood is centred on the range by rule.
-  const centre = (range.from + range.to) / 2;
-  const half = Math.max((range.to - range.from) / 2, ft(spec["slot-hood"].widthIn) / 2);
-  const hood = [centre - half, centre + half] as const;
   const hoodIn = Math.round((hood[1] - hood[0]) * 12);
   const install = spec["slot-hood"].installType;
   const bridged = install === "under-cabinet";
@@ -1728,13 +1823,6 @@ function banksAroundHood(
   };
 
   /**
-   * What breaks the run of wall cabinets, in order along the wall.
-   *
-   * The hood, and any tall unit standing in the middle of the leg — an oven
-   * tower is 96" of carcass and there is no shelf over it. The tall units that
-   * *finish* the leg are not in this list: they are where the bank stops.
-   */
-  /**
    * The stretch beside a mid-run tower that is filled to its top.
    *
    * The far side only. What is between the tower and the cooking surface is
@@ -1762,10 +1850,35 @@ function banksAroundHood(
     // Always the hood, whatever hangs there: a chimney carries its own cover
     // to the ceiling and takes no cabinet, and the bank still stops at it.
     { from: hood[0], to: hood[1], hood: true },
-  ]
+    // And the windows, which are the same cut for the opposite reason.
+    ...openings,
+  ];
+
+  return banksBetween(runId, start, stop, corner, cuts, {
+    bank: hoodBank,
+    housed,
+    bridged,
+  });
+}
+
+/**
+ * A leg's wall cabinets, banked between whatever cuts them.
+ *
+ * The cuts arrive in any order and are put in the wall's; what is between two
+ * of them is a bank with a finished end, and what is too narrow to be a bank
+ * beside a hood housing is given to the housing instead.
+ */
+function banksBetween(
+  runId: string,
+  start: number,
+  stop: number,
+  corner: (typeof CORNERS)[keyof typeof CORNERS] | null,
+  unsorted: { from: number; to: number; hood: boolean }[],
+  housing: { bank: UpperBank; housed: boolean; bridged: boolean } | null,
+): UpperBank[] {
+  const cuts = unsorted
     .filter((cut) => cut.to > start && cut.from < stop)
     .sort((a, b) => a.from - b.from);
-
   if (cuts.length === 0) return [bankFor(`upper-${runId}`, start, stop, corner, "end")];
 
   const banks: UpperBank[] = [];
@@ -1782,6 +1895,7 @@ function banksAroundHood(
    */
   const scribes: { from: number; to: number }[] = [];
   const narrowest = narrowestBank();
+  const housed = housing?.housed === true;
   let cursor = start;
   for (const [i, cut] of cuts.entries()) {
     // The scribe goes away from what it abuts: at the corner end of the first
@@ -1796,7 +1910,7 @@ function banksAroundHood(
         );
       }
     }
-    if (cut.hood && (bridged || housed)) banks.push(hoodBank);
+    if (cut.hood && housing && (housing.bridged || housing.housed)) banks.push(housing.bank);
     cursor = Math.max(cursor, cut.to);
   }
   if (stop > cursor) {
@@ -1808,6 +1922,7 @@ function banksAroundHood(
   }
 
   for (const scribe of scribes) {
+    const hoodBank = housing!.bank;
     const widthIn = round8((scribe.to - scribe.from) * 12);
     // As deep as the housing, so the two faces are one face.
     const module = M(`BF${widthIn}`, "filler", widthIn, {
@@ -1997,13 +2112,62 @@ export function generateLayout(
     throw new Error("layoutTemplate: a wall passed its requirement and would not pack");
   }
 
-  const leftSegments = layOut("left", -halfZ, plan.left.items, packedLeft.widths);
-  const backSegments = layOut(
-    "back",
-    -halfX + ft(corner.acrossIn),
-    plan.back.items,
-    packedBack.widths,
+  const legs = {
+    left: { start: -halfZ, items: plan.left.items, widths: packedLeft.widths },
+    back: {
+      start: -halfX + ft(corner.acrossIn),
+      items: plan.back.items,
+      widths: packedBack.widths,
+    },
+  };
+  const cut = (leg: "left" | "back") =>
+    layOut(leg, legs[leg].start, legs[leg].items, legs[leg].widths);
+
+  // Where the windows land, which needs the run laid out: a window with no
+  // figure of its own goes over the sink, and the sink is wherever the leg's
+  // arithmetic has put it.
+  let leftSegments = cut("left");
+  let backSegments = cut("back");
+  const segmentsOf = (leg: "left" | "back") =>
+    leg === "left" ? leftSegments : backSegments;
+
+  // And then the sink slides under the window, where the parameter asks for it
+  // and the window named a place of its own. The slack comes off the stretch
+  // on one side and goes onto the other, in whole cabinet steps, as far as
+  // both of them will allow.
+  if (params.sinkUnderWindow) {
+    for (const window of params.windows) {
+      if (window.centerIn === null) continue;
+      const leg = wallFor(window, params.sinkLeg);
+      const moved = slideToWindow(
+        legs[leg].items,
+        legs[leg].widths,
+        segmentsOf(leg),
+        resolveWindow(window, segmentsOf(leg)),
+      );
+      if (!moved) continue;
+      legs[leg].widths = moved;
+      if (leg === "left") leftSegments = cut("left");
+      else backSegments = cut("back");
+    }
+  }
+
+  // On the wall the parameter names, or the sink's own wall where it names
+  // none: "the window over the sink" moves with the sink.
+  const windows = params.windows.map((window) => {
+    const wall = wallFor(window, params.sinkLeg);
+    return { ...resolveWindow({ ...window, wall }, segmentsOf(wall)), wall };
+  });
+
+  // What a window may not be behind, and how far the sink ended up from it.
+  const blocked = windowRefusals(
+    windows,
+    { left: leftSegments, back: backSegments },
+    spec,
+    params,
   );
+  if (blocked.length > 0) return { ok: false, reasons: blocked };
+
   const island = islandFor(params, spec, halfX, halfZ);
 
   // The left leg's bank starts at the wall; the back leg's picks up where the
@@ -2015,20 +2179,29 @@ export function generateLayout(
       axis: "z",
       centre: -halfX + ROOM.counterDepth / 2,
       segments: leftSegments,
-      uppers: [bankFor("upper-left", -halfZ, bankStop(leftSegments), corner)],
+      uppers: banksOn(
+        "left",
+        leftSegments,
+        -halfZ,
+        corner,
+        spec,
+        params.housingStyle,
+        windows,
+      ),
     },
     {
       id: "back",
       axis: "x",
       centre: -halfZ + ROOM.counterDepth / 2,
       segments: backSegments,
-      uppers: banksAroundHood(
+      uppers: banksOn(
         "back",
         backSegments,
         -halfX + ft(corner.upper.acrossIn),
         null,
         spec,
         params.housingStyle,
+        windows,
       ),
     },
   ];
@@ -2044,8 +2217,127 @@ export function generateLayout(
       slots: placed.slots,
       fixtures: placed.fixtures,
       omitted,
+      windows,
     },
   };
+}
+
+/**
+ * Move the sink along its leg until it is under the window.
+ *
+ * The stretches either side of the sink group are what pays for it: whatever
+ * comes off one goes onto the other, so the leg is the same length after as
+ * before. In whole cabinet steps, because what is being moved is cabinets —
+ * and only as far as both stretches allow, since one of them is somebody's
+ * landing and has a minimum of its own.
+ *
+ * Null where there is nothing to move: no sink on this leg, no stretch either
+ * side of it, or the sink is already close enough. What it cannot fix,
+ * `windowRefusals` reports.
+ */
+function slideToWindow(
+  items: Item[],
+  widths: number[],
+  segments: RunSegment[],
+  window: ResolvedWindow,
+): number[] | null {
+  const sink = segments.find((segment) => segment.fixture === "fixture-sink");
+  if (!sink) return null;
+  const middle = (span: readonly [number, number]) => (span[0] + span[1]) / 2;
+  const deltaIn = (middle(window.along) - middle([sink.from, sink.to])) * 12;
+  if (Math.abs(deltaIn) < 3) return null;
+
+  // Number the gaps the way the packer did, then take the nearest one on each
+  // side of the sink's own item.
+  const gapAt: number[] = [];
+  let g = 0;
+  for (const [i, item] of items.entries()) {
+    if (item.kind === "gap") gapAt[i] = g++;
+  }
+  const at = items.findIndex((item) => item.kind === "fixed" && item.fixture === "fixture-sink");
+  if (at < 0) return null;
+  const before = [...items.keys()].filter((i) => i < at && gapAt[i] !== undefined).pop();
+  const after = [...items.keys()].find((i) => i > at && gapAt[i] !== undefined);
+  if (before === undefined || after === undefined) return null;
+
+  const grow = deltaIn > 0 ? before : after;
+  const give = deltaIn > 0 ? after : before;
+  const growItem = items[grow] as Extract<Item, { kind: "gap" }>;
+  const giveItem = items[give] as Extract<Item, { kind: "gap" }>;
+  const room = Math.min(
+    (growItem.maxIn ?? Infinity) - widths[gapAt[grow]],
+    widths[gapAt[give]] - giveItem.minIn,
+    Math.abs(deltaIn),
+  );
+  const stepsIn = Math.floor(room / 3) * 3;
+  if (stepsIn < 3) return null;
+
+  const moved = [...widths];
+  moved[gapAt[grow]] += stepsIn;
+  moved[gapAt[give]] -= stepsIn;
+  return moved;
+}
+
+/**
+ * What a window will not have in front of it, and what has to be under it.
+ *
+ * Both are refusals rather than adjustments: a cabinet over a window is a
+ * mistake somebody has to be told about, and a sink four feet from the window
+ * it was supposed to be under is a room nobody asked for.
+ */
+function windowRefusals(
+  windows: ResolvedWindow[],
+  segments: { left: RunSegment[]; back: RunSegment[] },
+  spec: Record<SlotId, PackageSlot>,
+  params: LayoutParams,
+): Refusal[] {
+  const reasons: Refusal[] = [];
+  for (const window of windows) {
+    const leg = segments[window.wall];
+    const blocked = blockedBy(window, leg, hoodSpan(leg, spec));
+    if (blocked) {
+      reasons.push({
+        key: "refusal.windowBlocked",
+        vars: {
+          wallKey: `leg.${window.wall}`,
+          // "slot-fridge" is the id; "slot.fridge" is what it is called.
+          whatKey: blocked.key.startsWith("slot-")
+            ? `slot.${blocked.key.replace("slot-", "")}`
+            : "cabinet.tall",
+          widthIn: window.widthIn,
+        },
+        suggestion: {
+          key: "suggestion.dropWindow",
+          vars: { wallKey: `leg.${window.wall}` },
+          patch: { windows: params.windows.filter((other) => other.wall !== window.wall) },
+        },
+      });
+      continue;
+    }
+
+    if (!params.sinkUnderWindow) continue;
+    const sink = leg.find((segment) => segment.fixture === "fixture-sink");
+    if (!sink) continue;
+    const offIn = Math.abs(
+      ((sink.from + sink.to) / 2 - (window.along[0] + window.along[1]) / 2) * 12,
+    );
+    if (offIn > WINDOW.sinkOffsetIn) {
+      reasons.push({
+        key: "refusal.sinkFromWindow",
+        vars: {
+          offIn: round8(offIn),
+          allowedIn: WINDOW.sinkOffsetIn,
+          wallKey: `leg.${window.wall}`,
+        },
+        suggestion: {
+          key: "suggestion.freeTheSink",
+          vars: {},
+          patch: { sinkUnderWindow: false },
+        },
+      });
+    }
+  }
+  return reasons;
 }
 
 /**

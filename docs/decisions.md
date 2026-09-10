@@ -383,6 +383,41 @@ each one has a test with a case that breaks it.
     in `LAYOUT_LIMITS` in `roomShell.ts`, where the generator lays a run out to
     them and `checkLayout` holds it to them.
 
+11. **A refrigerator is surrounded by what it is sold as.** A built-in gets a
+    finished panel each side and a cabinet over it; a freestanding one gets
+    counter-deep panels so its doors and handles stand proud of them, and a
+    cabinet sitting on its own top rather than a bridge. Against a return wall
+    it takes 3-1/2" of filler, or the door will not open ninety degrees and the
+    drawers will not come out.
+12. **A cooking surface with an oven tower beside it keeps open counter between
+    them.** Five inches is the machine's own clearance to a combustible
+    surface; eighteen is what the stretch is built at, because it is the
+    landing a pan comes off the burner onto and because five inches of gap
+    makes the tower crowd the cooking. The tower's own side is a 3/4" finished
+    end panel from the floor to its top, and the wall's spare inches go to
+    these landings before they go anywhere else. A wall that cannot pay for
+    eighteen builds them narrower, three inches at a time, together, and never
+    under six.
+13. **Nothing hangs in front of a window.** The bank of wall cabinets breaks at
+    the opening and is finished as an end each side of it; a tall unit or a
+    hood housing in front of one is a refusal rather than something to draw.
+    The sink goes under the window, because that is where people put it and
+    where a photograph of a kitchen shows it — within six inches of its middle,
+    which is a cabinet step and a half. The sill clears the worktop by at least
+    two inches, so the backsplash has somewhere to land and a tap has somewhere
+    to stand.
+
+**A window is a fact of the building, not a fitting.** It is a layout
+parameter — which wall, where along it, how wide, how high, how far off the
+floor — and the room is laid out around it rather than the other way round.
+The default has no position at all: it is "over the sink", and it follows the
+sink to whichever leg the sink is on. That is what a customer means by the
+phrase, and it is why moving the sink to the other wall moves the window with
+it rather than leaving a hole behind a run of cabinets. A window that does name
+a place pulls the sink toward it instead, three inches at a time, off one
+landing and onto the other; what the run will not move that far is a refusal
+with the arithmetic.
+
 **Scheme 01 as laid out.** Left wall, from the far end back to the corner:
 refrigerator tower, 15" landing, corner cabinet. Back wall, from the corner
 out: 18" counter, range with its hood, 18" counter, sink, dishwasher, counter to
