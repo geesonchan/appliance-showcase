@@ -1,6 +1,6 @@
 import { applianceBox } from "./applianceBox";
 import { cooktopHeight } from "./rangeModel";
-import { CABINET_STANDARDS, ISLAND, ROOM, RUNS, RUN_BY_ID, ft } from "./room";
+import { CABINET_STANDARDS, ISLAND, ROOM, RUNS, RUN_BY_ID, WINDOWS, ft } from "./room";
 import { SLOT_BY_ID } from "./slots";
 import type { Appliance, SlotId } from "../types";
 
@@ -115,6 +115,10 @@ export function dimensionsFor(
     // the mode: it is not an annotation about the room, it is the reason three
     // and a half inches of that wall have no cabinet on them. D11 rule 11.
     ...fridgeClearance(),
+    // The windows: how wide the hole is and how far its sill is off the floor.
+    // Both are figures somebody has to set out on site before any cabinet is
+    // hung, and neither is derivable from looking at the drawing.
+    ...windowDimensions(),
     // The aisle, measured on the floor between the run and the island. A room
     // with no island has no aisle to dimension, so the figure is absent rather
     // than zero.
@@ -145,6 +149,46 @@ export function dimensionsFor(
   return all.filter(
     (dimension) => dimension.always || dimension.slots.includes(selectedSlot),
   );
+}
+
+/**
+ * A window's width and the height of its sill.
+ *
+ * Drawn in the plane of the wall the window is in, standing a little into the
+ * room so the lines are not buried in the reveal: the width across the head,
+ * the sill height up from the floor at the opening's far side. They belong to
+ * no appliance, so they disappear when one is being looked at — the same as
+ * the room's other figures.
+ */
+function windowDimensions(): Dimension[] {
+  const out: Dimension[] = [];
+  for (const [index, window] of WINDOWS.entries()) {
+    const back = window.wall === "back";
+    const run = RUN_BY_ID[window.wall];
+    // In front of the wall by a foot and a half, which clears the worktop and
+    // the cabinets either side.
+    const plane = run.centre + ROOM.counterDepth / 2 + 0.35;
+    const at = (along: number, y: number): [number, number, number] =>
+      back ? [along, y, plane] : [plane, y, along];
+
+    out.push({
+      id: `window-${index}-width`,
+      from: at(window.along[0], window.band[1] + 0.35),
+      to: at(window.along[1], window.band[1] + 0.35),
+      valueIn: Number(((window.along[1] - window.along[0]) * 12).toFixed(3)),
+      labelAt: 0.5,
+      slots: [],
+    });
+    out.push({
+      id: `window-${index}-sill`,
+      from: at(window.along[1] + 0.5, 0),
+      to: at(window.along[1] + 0.5, window.band[0]),
+      valueIn: Number((window.band[0] * 12).toFixed(3)),
+      labelAt: 0.38,
+      slots: [],
+    });
+  }
+  return out;
 }
 
 /** Inches as a builder writes them: 36¾ rather than 36.75. */

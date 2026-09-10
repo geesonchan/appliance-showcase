@@ -32,7 +32,8 @@ export type TextureKind =
   | "oak-floor"
   | "marble"
   | "quartz"
-  | "tile";
+  | "tile"
+  | "sky";
 
 const cache = new Map<string, THREE.Texture>();
 
@@ -373,6 +374,28 @@ export function tile(ctx: Ink, size: number) {
 }
 
 /**
+ * What is outside a window: a plain gradient, and deliberately nothing else.
+ *
+ * Not a photograph and not a garden. A window in a drawing of a kitchen is
+ * there for the light and for the fact that the wall has a hole in it; putting
+ * a real view behind it invites a customer to look at the view, and a
+ * rendered-looking one is worse than none. So it is sky at the top going to
+ * haze at the bottom, in bands rather than a smooth ramp — a plain gradient,
+ * drawn with the same handful of context methods everything else here uses.
+ */
+export function sky(ctx: Ink, size: number) {
+  const bands = 32;
+  const top = [0x9d, 0xbc, 0xd8];
+  const bottom = [0xe8, 0xe2, 0xd4];
+  for (let i = 0; i < bands; i += 1) {
+    const t = i / (bands - 1);
+    const mix = top.map((from, channel) => Math.round(from + (bottom[channel] - from) * t));
+    ctx.fillStyle = `rgb(${mix[0]}, ${mix[1]}, ${mix[2]})`;
+    ctx.fillRect(0, Math.floor((i * size) / bands), size, Math.ceil(size / bands) + 1);
+  }
+}
+
+/**
  * A single white pixel, and a single flat normal.
  *
  * Not decoration: they are what a mapped surface wears in the white model and
@@ -398,6 +421,7 @@ export const DRAW: Record<TextureKind, (ctx: Ink, size: number) => void> = {
   marble,
   quartz,
   tile,
+  sky,
 };
 
 /**

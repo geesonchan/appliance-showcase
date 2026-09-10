@@ -1,4 +1,5 @@
-import { ROOM, RUN, ft } from "../data/room";
+import { useMemo } from "react";
+import { ROOM, RUN, WINDOWS, ft, type ResolvedWindow } from "../data/room";
 import { useAppStore } from "../store/useAppStore";
 import type { Lighting, RenderMode } from "../types";
 
@@ -55,6 +56,55 @@ const KELVIN = {
   night: { key: "#FFD9A8", fill: "#43536B", ground: "#2A3230" },
 } as const;
 
+/**
+ * The sun through the windows.
+ *
+ * A spotlight standing outside each opening, aimed at the middle of the room:
+ * the walls stop it, so what gets in is the shape of the hole, and what it
+ * lands on is the worktop under the window and the floor past it. That patch
+ * is most of why a window makes a drawing of a room look like a room.
+ *
+ * Off at night rather than unmounted. A light appearing and disappearing
+ * changes the light count three compiles into every material in the scene,
+ * and the switch between day and night has to stay a property write — the same
+ * reason the shadows fade rather than being turned off.
+ */
+function Daylight({ on }: { on: boolean }) {
+  const layoutVersion = useAppStore((s) => s.layoutVersion);
+  const windows = useMemo(() => WINDOWS.slice(), [layoutVersion]);
+
+  return (
+    <>
+      {windows.map((window, index) => (
+        <spotLight
+          key={`${window.wall}-${index}`}
+          position={outside(window)}
+          intensity={on ? 260 : 0}
+          angle={0.62}
+          penumbra={0.75}
+          distance={46}
+          decay={1.1}
+          color="#FFF4E2"
+          castShadow
+          shadow-mapSize={[1024, 1024]}
+          shadow-bias={-0.0004}
+          shadow-normalBias={0.04}
+        />
+      ))}
+    </>
+  );
+}
+
+/** Where the sun stands for a given window: outside it, and above its head. */
+function outside(window: ResolvedWindow): [number, number, number] {
+  const along = (window.along[0] + window.along[1]) / 2;
+  const up = window.band[1] + ft(18);
+  const out = ft(90);
+  return window.wall === "back"
+    ? [along, up, -ROOM.halfZ - out]
+    : [-ROOM.halfX - out, up, along];
+}
+
 export function Lights() {
   const lighting = useAppStore((s) => s.lighting);
   const renderMode = useAppStore((s) => s.renderMode);
@@ -95,6 +145,10 @@ export function Lights() {
         decay={1.6}
         color={tone.key}
       />
+
+      {/* Daylight through the window, which is the one light in this room that
+          comes from somewhere a customer can point at. */}
+      <Daylight on={renderMode === "realistic" && day} />
 
       {/* Under-cabinet lighting: a strip along each run rather than one lamp,
           so the counter reads as lit from above it and the wall cabinets cast

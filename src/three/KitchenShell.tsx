@@ -1,8 +1,9 @@
 import { useMemo } from "react";
-import { HOOD_OPENING, ROOM, RUN, ft, fridgeReturnWall } from "../data/room";
+import { HOOD_OPENING, ROOM, RUN, WINDOWS, ft, fridgeReturnWall } from "../data/room";
 import { useAppStore } from "../store/useAppStore";
 import { finish, floorColor, wallColor } from "./materials";
 import { Surface } from "./Surface";
+import { WindowLayer, wallWithWindows } from "./WindowLayer";
 
 /** Floor and the two walls the L-shaped run sits against. */
 /**
@@ -27,6 +28,44 @@ export function KitchenShell() {
     ...(lighting === "night" && renderMode === "realistic" ? { color: "#A79274" } : {}),
     ...(renderMode !== "realistic" ? { color: floor } : {}),
   };
+  // The walls are shapes rather than planes, because they have holes in them:
+  // a window is a hole in a wall before it is anything else. A wall drawn as
+  // four rectangles round each opening shows its seams the moment the light is
+  // low, the same reason the countertop is one slab.
+  //
+  // The left wall's plane is turned a quarter turn to face the room, so what
+  // is further along it in the room is nearer the start of the shape: its
+  // holes are mirrored, and its own geometry is the only place that is true.
+  const layoutVersion = useAppStore((s) => s.layoutVersion);
+  const backWall = useMemo(
+    () =>
+      wallWithWindows(
+        ROOM.halfX + WALL_GAP,
+        ROOM.wallHeight,
+        WINDOWS.filter((window) => window.wall === "back").map((window) => ({
+          from: window.along[0],
+          to: window.along[1],
+          sill: window.band[0],
+          head: window.band[1],
+        })),
+      ),
+    [layoutVersion],
+  );
+  const leftWall = useMemo(
+    () =>
+      wallWithWindows(
+        ROOM.halfZ + WALL_GAP,
+        ROOM.wallHeight,
+        WINDOWS.filter((window) => window.wall === "left").map((window) => ({
+          from: -window.along[1],
+          to: -window.along[0],
+          sill: window.band[0],
+          head: window.band[1],
+        })),
+      ),
+    [layoutVersion],
+  );
+
   const floorSize: [number, number] = [
     ROOM.halfX * 2 + WALL_GAP * 2,
     ROOM.halfZ * 2 + WALL_GAP * 2,
@@ -49,10 +88,11 @@ export function KitchenShell() {
       {/* back wall (-Z), faces +Z */}
       <mesh
         name="wall-back"
-        position={[0, ROOM.wallHeight / 2, -ROOM.halfZ - WALL_GAP]}
+        geometry={backWall}
+        position={[0, 0, -ROOM.halfZ - WALL_GAP]}
         receiveShadow
+        castShadow
       >
-        <planeGeometry args={[ROOM.halfX * 2 + WALL_GAP * 2, ROOM.wallHeight]} />
         <meshStandardMaterial
           key={wallOpacity < 1 ? "ghost" : "solid"}
           color={wall}
@@ -68,11 +108,12 @@ export function KitchenShell() {
       {/* left wall (-X), faces +X */}
       <mesh
         name="wall-left"
-        position={[-ROOM.halfX - WALL_GAP, ROOM.wallHeight / 2, 0]}
+        geometry={leftWall}
+        position={[-ROOM.halfX - WALL_GAP, 0, 0]}
         rotation={[0, Math.PI / 2, 0]}
         receiveShadow
+        castShadow
       >
-        <planeGeometry args={[ROOM.halfZ * 2 + WALL_GAP * 2, ROOM.wallHeight]} />
         <meshStandardMaterial
           key={wallOpacity < 1 ? "ghost" : "solid"}
           color={wall}
@@ -82,6 +123,8 @@ export function KitchenShell() {
           opacity={wallOpacity}
         />
       </mesh>
+
+      <WindowLayer />
     </group>
   );
 }
