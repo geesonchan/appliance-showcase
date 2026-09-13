@@ -1474,9 +1474,78 @@ async function captureRound38(browser) {
   await desktop.close();
 }
 
+/**
+ * Round 39: one condition for the steam oven, the crown against the ceiling,
+ * the junction box beside the tower, and the aisle between counter edges.
+ *
+ * B's combination oven with a solid back and no grille, and in the install
+ * view with its junction box in the base cabinet beside the tower; D's steam
+ * oven the same two ways; A's hood, where the crown now meets the ceiling; and
+ * A in the install view, where the aisle is figured between the counter edges.
+ */
+async function captureRound39(browser) {
+  const desktop = await browser.newContext({ viewport: DESKTOP, deviceScaleFactor: 2 });
+  const page = await desktop.newPage();
+  const open = async () => {
+    await page.goto(baseUrl, { waitUntil: "load", timeout: 120000 });
+    await page.waitForSelector("canvas", { timeout: 120000 });
+    await settle(page, 3200);
+  };
+  const toPackage = async (code) => {
+    await page.locator(`[data-segment="package"] button`, { hasText: code }).first().click();
+    await settle(page, 3000);
+  };
+  const fromList = async (name) => {
+    const back = page.getByRole("button", { name: "All appliances" }).first();
+    if (await back.isVisible()) {
+      await back.click();
+      await settle(page, 900);
+    }
+    const item = page.locator(`aside [data-panel="list"] button`, { hasText: name }).first();
+    if (!(await item.isVisible())) {
+      await page.click(`button[data-rail="left"]`);
+      await settle(page, 700);
+    }
+    await item.click();
+    await settle(page, 2400);
+  };
+
+  for (const [code, name] of [
+    ["b", /Microwave/],
+    ["d", "Steam oven"],
+  ]) {
+    await open();
+    await toPackage(code.toUpperCase());
+    await fromList(name);
+    await page.screenshot({ path: `${outDir}/desktop-${code}-oven.png` });
+    await click(page, "Install");
+    await settle(page, 1800);
+    await page.screenshot({ path: `${outDir}/desktop-${code}-oven-junction.png` });
+  }
+
+  await open();
+  await toPackage("A");
+  await fromList("Ventilation hood");
+  await page.screenshot({ path: `${outDir}/desktop-a-crown.png` });
+
+  await open();
+  await toPackage("A");
+  await click(page, "Install");
+  await settle(page, 1800);
+  await page.screenshot({ path: `${outDir}/desktop-a-aisle.png` });
+  await desktop.close();
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round39") {
+    await captureRound39(browser);
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round38") {
     await captureRound38(browser);
