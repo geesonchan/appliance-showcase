@@ -10,6 +10,7 @@ import {
   type FloorFinish,
   type TileSize,
 } from "../store/useAppStore";
+import type { WallFinish } from "../three/materials";
 import { PanelSection, Segmented } from "./primitives";
 
 /**
@@ -246,6 +247,23 @@ export function FinishPicker() {
             />
           </div>
         )}
+      </div>
+
+      {/* The walls' paint. Round 35: warm grey by default, not white. */}
+      <div className="mt-4">
+        <span className="mb-1.5 block text-[13px] text-ink">{t("finish.wall")}</span>
+        <Segmented
+          size="sm"
+          name="wall"
+          value={finishes.wall}
+          onChange={(wall: WallFinish) => setFinish({ wall })}
+          options={[
+            { value: "warm-grey" as const, label: t("finish.wall.warmGrey") },
+            { value: "mid-grey" as const, label: t("finish.wall.midGrey") },
+            { value: "taupe" as const, label: t("finish.wall.taupe") },
+            { value: "white" as const, label: t("finish.wall.white") },
+          ]}
+        />
       </div>
     </PanelSection>
   );

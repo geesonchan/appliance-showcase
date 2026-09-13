@@ -21,7 +21,8 @@ export function KitchenShell() {
   const tiled = floorFinish === "floor-tile";
   const floorToken: FinishToken = tiled ? `floor-tile-${tileSize}` : "floor-oak";
   const floor = floorColor(renderMode, lighting);
-  const wall = wallColor(renderMode, lighting);
+  const wallPaint = useAppStore((s) => s.finishes.wall);
+  const wall = wallColor(renderMode, lighting, wallPaint);
   const wallOpacity = renderMode === "install" ? 0.35 : 1;
 
   // The floor keeps its night tint under a texture: after dark a room is not

@@ -87,8 +87,12 @@ export const CABINET_STANDARDS = {
    * also carry the eighteen inches of landing each side of the burners that
    * D11 rule 4 and rule 12 ask for. Both times the figure was Leo's: a single
    * run of 180" is a long wall, but it is one somebody builds.
+   *
+   * And to eighteen in round 35, with the wall slider going to 240": the
+   * slider's top is this plus the corner's depth, so one cannot move without
+   * the other. Seventeen to twenty feet of wall is an ordinary kitchen.
    */
-  legIn: { shortMin: 96, longMin: 120, longMax: 180 },
+  legIn: { shortMin: 96, longMin: 120, longMax: 216 },
   /**
    * Ventilation, from the Thermador clearance sheet
    * (docs/reference/thermador-hood-clearance.png).

@@ -1124,7 +1124,7 @@ async function captureRound33(browser) {
     await settle(page, 1200);
   };
 
-  for (const swatch of ["green", "navy", "walnut", "bone", "oak"]) {
+  for (const swatch of ["green", "navy", "burgundy", "bone", "oak"]) {
     await open(`?cabinet=${swatch}`);
     await page.screenshot({ path: `${outDir}/desktop-cabinet-${swatch}.png` });
   }
@@ -1204,9 +1204,86 @@ async function captureRound34(browser) {
   await desktop.close();
 }
 
+/**
+ * Round 35: the walls, the burgundy doors, and package D with every switch
+ * buildable.
+ *
+ * The room in each of the four wall paints; the burgundy doors; package D as it
+ * now opens, at 224-1/4" by 178-7/8"; and D's two switches that round 34 refused
+ * — the columns onto the back leg and the coffee cabinet onto the back wall —
+ * flipped from that room without the wall growing.
+ */
+async function captureRound35(browser) {
+  const desktop = await browser.newContext({ viewport: DESKTOP, deviceScaleFactor: 2 });
+  const page = await desktop.newPage();
+  // "load" and then the canvas, rather than "networkidle": the dev server's
+  // own connection can keep the network from ever going quiet for the thirty
+  // seconds Playwright allows, and the second page of a run is where it did.
+  const open = async (query) => {
+    await page.goto(baseUrl + query, { waitUntil: "load", timeout: 120000 });
+    await page.waitForSelector("canvas", { timeout: 120000 });
+    await settle(page, 3200);
+  };
+
+  for (const paint of ["warm-grey", "mid-grey", "taupe", "white"]) {
+    await open(`?wall=${paint}`);
+    await page.screenshot({ path: `${outDir}/desktop-wall-${paint}.png` });
+  }
+
+  await open("?cabinet=burgundy");
+  await page.screenshot({ path: `${outDir}/desktop-cabinet-burgundy.png` });
+
+  const toD = async () => {
+    await open("");
+    await page.locator(`[data-segment="package"] button`, { hasText: "D" }).first().click();
+    await settle(page, 2800);
+  };
+  // The option inside one labelled row of the layout panel. "Back leg" alone
+  // matches the accent run's segment first, which is higher up the panel.
+  // The option in one labelled row of the layout panel — "Back leg" alone
+  // matches the accent run's segment first, higher up — clicked from inside the
+  // page: while a room is rebuilding the headless scene draws too few frames
+  // for Playwright's stability check to finish.
+  const pick = (label, option) =>
+    page.evaluate(
+      ({ label, option }) => {
+        const row = [...document.querySelectorAll("div")].find(
+          (div) =>
+            div.className.split(/\s+/).includes("py-1.5") &&
+            div.querySelector("span")?.textContent === label,
+        );
+        [...(row?.querySelectorAll("button") ?? [])].find((b) => b.textContent === option)?.click();
+      },
+      { label, option },
+    );
+
+  await toD();
+  await page.getByText("Left wall", { exact: true }).first().scrollIntoViewIfNeeded();
+  await settle(page, 600);
+  await page.screenshot({ path: `${outDir}/desktop-d-opens.png` });
+
+  await toD();
+  await pick("Refrigerator", "Back leg");
+  await settle(page, 3000);
+  await page.screenshot({ path: `${outDir}/desktop-d-columns-back.png` });
+
+  await toD();
+  await pick("Coffee cabinet", "Back leg");
+  await settle(page, 3000);
+  await page.screenshot({ path: `${outDir}/desktop-d-coffee-back.png` });
+  await desktop.close();
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round35") {
+    await captureRound35(browser);
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round34") {
     await captureRound34(browser);

@@ -136,7 +136,8 @@ describe("the wall lengths", () => {
   });
 
   it("still refuses a wall outside the range altogether", () => {
-    const result = setLayoutParams(params({ backWallIn: 240 }));
+    // A step past the slider's 240" top (204" until round 35).
+    const result = setLayoutParams(params({ backWallIn: 246 }));
     expect(result.ok).toBe(false);
     expect(result.reasons[0].key).toBe("refusal.outOfRange");
   });

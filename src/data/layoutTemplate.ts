@@ -147,10 +147,12 @@ export interface LayoutParams {
  * what it cannot do, with the arithmetic underneath, teaches the constraint.
  */
 export const PARAM_LIMITS = {
-  // Two hundred and four: a 180" run plus the corner cabinet's own depth at
-  // the end of it, which is the longest wall the leg rule allows.
-  backWallIn: { min: 96, max: 204, step: 6 },
-  leftWallIn: { min: 96, max: 204, step: 6 },
+  // Two hundred and forty, twenty feet: a 216" run plus the corner cabinet's
+  // own depth at the end of it, which is the longest wall the leg rule allows.
+  // Round 35, Leo: a seventeen-to-twenty-foot wall is an ordinary kitchen, and
+  // 204" had been set early without one in mind. See D13.
+  backWallIn: { min: 96, max: 240, step: 6 },
+  leftWallIn: { min: 96, max: 240, step: 6 },
   islandLengthIn: { min: 48, max: 96, step: 6 },
   islandDepthIn: { min: 24, max: 42, step: 6 },
   aisleIn: { min: 42, max: 60, step: 3 },
@@ -292,7 +294,7 @@ export interface WallRequirement {
    * and the room has to be sized for it.
    */
   wantedIn: number;
-  /** D13 caps a leg at 180"; past that it is two runs, not one. */
+  /** D13 caps a leg at 216" (round 35); past that it is two runs, not one. */
   maximumIn: number;
 }
 

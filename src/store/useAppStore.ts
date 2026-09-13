@@ -12,6 +12,7 @@ import { LAYOUT_ISSUES, REQUESTED_PARAMS } from "../data/room";
 import type { Lang, Lighting, RenderMode, SlotId, UtilityType } from "../types";
 import { readRails, writeRails } from "./railState";
 import { lookupRal } from "../data/ral";
+import type { WallFinish } from "../three/materials";
 
 export interface ToastMessage {
   id: number;
@@ -67,6 +68,8 @@ interface AppState {
     floor: FloorFinish;
     /** The panel size of a tile floor. Kept when the floor is oak, for coming back. */
     tileSize: TileSize;
+    /** The walls' paint. Warm grey unless somebody asks otherwise. Round 35. */
+    wall: WallFinish;
   };
   /**
    * Render quality. Dropped automatically when the frame rate will not hold,
@@ -163,6 +166,7 @@ export type FloorFinish = "floor-oak" | "floor-tile";
 /** Large-format panel sizes, long side first along the room. Round 33. */
 export type TileSize = "24x48" | "32x32" | "48x48";
 export const TILE_SIZES: TileSize[] = ["24x48", "32x32", "48x48"];
+export const WALL_FINISHES: WallFinish[] = ["warm-grey", "mid-grey", "taupe", "white"];
 
 /**
  * The four cabinet colours, which are paint chips rather than data.
@@ -172,9 +176,10 @@ export const TILE_SIZES: TileSize[] = ["24x48", "32x32", "48x48"];
 export const CABINET_COLORS = [
   { key: "finish.cabinet.green", value: "#2E5C45", token: "painted" as const },
   { key: "finish.cabinet.navy", value: "#2B3A4A", token: "painted" as const },
-  // Walnut, round 35: what round 33 darkened toward, now the colour and the
-  // name both. It was a pale clay before that.
-  { key: "finish.cabinet.walnut", value: "#5D4037", token: "painted" as const },
+  // Burgundy, round 35, Leo: a deep, cool wine red of the kind phones are sold
+  // in, never orange. It was clay, then walnut; wood is the oak swatch's and
+  // any RAL number's to cover now.
+  { key: "finish.cabinet.burgundy", value: "#6E2639", token: "painted" as const },
   { key: "finish.cabinet.bone", value: "#E3DFD3", token: "painted" as const },
   // Not a colour: a door made of something. Its swatch shows the wood rather
   // than a flat brown, which is the whole difference between the two. The
@@ -239,6 +244,7 @@ function initialFinishes() {
     counter: "quartz-white" as CounterFinish,
     floor: "floor-oak" as FloorFinish,
     tileSize: "24x48" as TileSize,
+    wall: "warm-grey" as WallFinish,
   };
   if (typeof window === "undefined") return defaults;
 
@@ -246,9 +252,9 @@ function initialFinishes() {
   // A swatch by name, or a RAL number from the table: `?cabinet=ral6005`.
   const swatch = (palette: typeof CABINET_COLORS | typeof ACCENT_COLORS, asked: string | null) => {
     if (!asked) return undefined;
-    // The walnut swatch was called clay until round 35; a link from before
-    // still opens on it.
-    const name = asked === "clay" ? "walnut" : asked;
+    // The third swatch was clay, then walnut, and is burgundy since round 35;
+    // a link from before still opens on it.
+    const name = asked === "clay" || asked === "walnut" ? "burgundy" : asked;
     const ral = lookupRal(name);
     if (ral.ok) return { value: ral.colour.hex };
     return palette.find((paint) => paint.key.endsWith(name));
@@ -270,6 +276,7 @@ function initialFinishes() {
     counter: counters[query.get("counter") ?? ""] ?? defaults.counter,
     floor: floors[query.get("floor") ?? ""] ?? defaults.floor,
     tileSize: TILE_SIZES.find((size) => size === query.get("tile")) ?? defaults.tileSize,
+    wall: WALL_FINISHES.find((paint) => paint === query.get("wall")) ?? defaults.wall,
   };
 }
 

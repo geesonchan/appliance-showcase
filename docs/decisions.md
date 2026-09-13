@@ -719,6 +719,13 @@ Both are checked by `checkLayout`, and the M3-3 generator has to satisfy both.
   in `roomShell.ts` has carried 180 since then; this entry is the record that
   was missing. *(Added round 31 — the decision is round 25's, the write-up is
   late.)*
+  **Amended a third time 2026-09-13 (round 35), Leo: the wall slider goes to
+  240", and the single-run cap to 216".** Package D's refrigerator columns on
+  the back wall need 207-1/2" and its coffee cabinet there 224-1/4", and at a
+  204" slider both were refused rather than grown into (D18). A seventeen-to-
+  twenty-foot wall is an ordinary kitchen; 204" was set early without one in
+  mind. The slider's top is the run cap plus the corner's 24" depth, so the cap
+  moves with it: 180" to 216". Supersedes round 25's 180" run and 204" slider.
 - **What finishes a run.** Against a wall, a filler at least 3" wide: a door
   needs somewhere to swing past, and the refrigerator's own clearance is the
   same rule. In the open, a whole cabinet with a finished end panel closing its
@@ -814,7 +821,12 @@ sRGB, so these are approximations, and `_meta.provenance` in the file says so.
 It is still colour, not product: nothing about it reaches the package or the
 quote. The oak on doors and floors is a shade deeper, toward #8B6B47, and the
 clay swatch is a deeper walnut brown to match (#6B4E3D) — in round 35 renamed
-Walnut / 胡桃 and made a true walnut, #5D4037 (`?cabinet=clay` still opens it). A tile floor is large
+Walnut / 胡桃 and made a true walnut, #5D4037; later in round 35 replaced by a
+deep, cool Burgundy / 酒红, #6E2639, with wood left to the oak swatch and the RAL
+input (`?cabinet=clay` and `?cabinet=walnut` both open it). The walls are a
+finish too since round 35: warm grey by default (#D6D2CB), a step below the
+counters and the pale doors so they do not compete, with mid grey, taupe and
+white to choose from under Floor. The backsplash is tile, not wall, and stays. A tile floor is large
 format — 24" x 48" by default, 32" x 32" or 48" x 48" — laid third-bond with
 1/16" joints; the size is a finish setting under Floor. Marble is warm grey with
 ink-dot veining, and quartz stays pale. None of it is a download; every surface
@@ -955,9 +967,14 @@ sentence of explanation), and Undo goes with it. A wall only ever grows here;
 nothing shrinks a room.
 
 **It still refuses when growing is not the answer**, with the reasons it always
-gave: when a wall would have to pass the slider's 204" (package D's columns or
-its coffee cabinet on the back wall need 207-1/2" and 224-1/4"), or when
-something other than length is in the way.
+gave: when a wall would have to pass the slider's top, or when something other
+than length is in the way. The top was 204" and refused three of package D's
+switches — its columns or its coffee cabinet on the back wall need 207-1/2" and
+224-1/4" — until round 35 raised it to 240" (D13). A window that will not sit
+evenly in its wall counts as length since round 35 too: the two banks each side
+of it finish on what the wall leaves, and that wall grows an eighth of an inch
+at a time until they match (D's left wall builds at 178-7/8" where 178-3/4"
+would not).
 
 **The wall sliders are not switches.** Dragging one is asking for that length,
 and a length the room will not build at is refused on its own terms, as before.
@@ -967,8 +984,10 @@ wall any single switch needs from that room, extreme combinations aside, so the
 switches a salesperson actually flips never make it grow. Checked over every
 switch in every package: A 168" x 144" (the largest need is 159" x 126"), B
 202-3/8" x 144" (199-3/8" x 126"), C 168" x 144" (153" x 126"), all unchanged;
-D 201-3/4" x 178-3/4", its left wall up from 175-1/4" for the return wall's
-clearance. The spare inches are handed to the landings in the reverse of the
+D 201-3/4" x 178-3/4" in round 34, its left wall up from 175-1/4" for the return
+wall's clearance, and 224-1/4" x 178-7/8" since round 35, when every switch
+became buildable: the coffee cabinet on the back wall needs the 224-1/4", and
+the columns on the back leg the eighth of an inch. The spare inches are handed to the landings in the reverse of the
 shrink order, as D13 already does. A package's default walls are a floor:
 choosing it never shortens a room somebody has made bigger.
 

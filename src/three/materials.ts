@@ -263,9 +263,25 @@ export function floorColor(mode: RenderMode, lighting: Lighting): string {
   return lighting === "night" ? SCENE_COLORS.floorNight : SCENE_COLORS.floor;
 }
 
-export function wallColor(mode: RenderMode, lighting: Lighting): string {
+/**
+ * The walls' paint, by day and after dark. Round 35, Leo.
+ *
+ * Not white by default: a light warm grey a step below the counters and the
+ * pale doors, so the room's surfaces are what the eye goes to and the wall sits
+ * behind them. White is still there for the customer who wants it. The
+ * backsplash is tile and not wall, and keeps its own finish.
+ */
+export const WALL_COLORS = {
+  "warm-grey": { day: "#D6D2CB", night: "#ADA9A2" },
+  "mid-grey": { day: "#B8B5AF", night: "#94918C" },
+  taupe: { day: "#C9BFB3", night: "#A29A90" },
+  white: { day: SCENE_COLORS.wall, night: SCENE_COLORS.wallNight },
+} as const;
+export type WallFinish = keyof typeof WALL_COLORS;
+
+export function wallColor(mode: RenderMode, lighting: Lighting, paint: WallFinish = "warm-grey"): string {
   if (mode === "white") return SCENE_COLORS.whiteModel;
-  return lighting === "night" ? SCENE_COLORS.wallNight : SCENE_COLORS.wall;
+  return lighting === "night" ? WALL_COLORS[paint].night : WALL_COLORS[paint].day;
 }
 
 /**

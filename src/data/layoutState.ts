@@ -75,6 +75,17 @@ function wallsFor(reason: Refusal): Partial<Record<WallKey, number>> | null {
       Number(reason.vars.islandIn) + (Number(reason.vars.wallIn) - Number(reason.vars.roomIn));
     return WALL_KEYS.includes(key) && Number.isFinite(needIn) ? { [key]: needIn } : null;
   }
+  // A window that will not sit evenly in its wall. The two banks each side of it
+  // finish on whatever the wall leaves, and an eighth of an inch more wall is
+  // what evens them out — round 35 found package D refused at a 178-3/4" left
+  // wall and building at 178-7/8". So that wall grows an eighth at a time until
+  // it does, which is the same cure as any other length and a better one than
+  // the refusal's own offer to narrow the window.
+  if (reason.key === "refusal.windowGap") {
+    const leg = String(reason.vars.wallKey ?? "").replace("leg.", "");
+    const wall = leg === "back" ? "backWallIn" : leg === "left" ? "leftWallIn" : null;
+    return wall ? { [wall]: Number.NaN } : null;
+  }
   const patch = reason.suggestion?.patch;
   if (!patch) return null;
   const keys = Object.keys(patch);
@@ -116,15 +127,20 @@ export function setLayoutParamsGrowing(params: LayoutParams): {
   let next = params;
   let reasons = first.reasons;
   // Growing one wall can change what the other is asked for, so it is tried
-  // again with what the new refusal says — a couple of rounds at most.
-  for (let round = 0; round < 3; round += 1) {
+  // again with what the new refusal says. A window that will not sit evenly
+  // is cured an eighth of an inch at a time, so there are enough rounds for a
+  // couple of inches of that on top of the lengths themselves.
+  for (let round = 0; round < 24; round += 1) {
     const wanted: Partial<Record<WallKey, number>> = {};
     for (const reason of reasons) {
       const walls = wallsFor(reason);
       if (!walls) return refuse();
       for (const key of WALL_KEYS) {
-        const value = walls[key];
-        if (value !== undefined) wanted[key] = Math.max(wanted[key] ?? 0, value);
+        const asked = walls[key];
+        if (asked === undefined) continue;
+        // NaN is a window's "a little more": the next eighth up from here.
+        const value = Number.isNaN(asked) ? next[key] + 1 / 8 : asked;
+        wanted[key] = Math.max(wanted[key] ?? 0, value);
       }
     }
     let changed = false;

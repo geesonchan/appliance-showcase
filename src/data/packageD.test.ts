@@ -8,6 +8,7 @@ import { checkLayout } from "./layoutRules";
 import { setActivePackage, setLayoutParams } from "./layoutState";
 import {
   DEFAULT_PARAMS,
+  PARAM_LIMITS,
   columnsAlongRun,
   generateLayout,
   type LayoutParams,
@@ -674,14 +675,18 @@ describe("package D · the coffee cabinet", () => {
     }
   });
 
-  it("refuses the other leg with the bill, and offers this leg back", () => {
+  it("refuses the other leg on a 204-inch wall with the bill, and offers this leg back", () => {
+    // The generator on its own, at a fixed wall: the switch in the panel grows
+    // the wall instead (D18), and since round 35 there is slider enough to.
     const base = activateD();
     const result = generateLayout({ ...base, coffeeLeg: "back", backWallIn: 204 }, D);
     expect(result.ok).toBe(false);
     if (result.ok) return;
     const short = result.reasons.find((reason) => reason.key === "refusal.wallShort")!;
     expect(short).toBeTruthy();
-    expect(Number(short.vars.minimumIn)).toBeGreaterThan(Number(short.vars.maximumIn));
+    expect(Number(short.vars.minimumIn)).toBe(224.25);
+    expect(Number(short.vars.minimumIn)).toBeGreaterThan(204);
+    expect(Number(short.vars.minimumIn)).toBeLessThanOrEqual(PARAM_LIMITS.backWallIn.max);
     expect(short.occupancy!.map((item) => item.labelKey)).toContain("requirement.coffee");
     const total = short.occupancy!.reduce((sum, item) => sum + item.widthIn, 0);
     expect(total).toBeCloseTo(Number(short.vars.minimumIn), 9);

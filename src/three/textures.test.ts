@@ -312,18 +312,18 @@ describe("oak is a mid brown", () => {
     expect(door.r - door.b).toBeGreaterThan(40);
   });
 
-  it("shows the wood's own tone on the oak swatches, and a deeper walnut", () => {
+  it("shows the wood's own tone on the oak swatches, and a deep cool burgundy beside it", () => {
     const oak = CABINET_COLORS.find((paint) => paint.key === "finish.cabinet.oak")!;
     expect(oak.value).toBe("#8B6B47");
     expect(ACCENT_COLORS.find((paint) => paint.key === "finish.accent.oak")!.value).toBe("#8B6B47");
-    // Walnut, round 35: a true walnut around #5D4037, darker than the oak and
-    // far darker than the clay it replaced (#9C7B63), and still brown.
-    const walnut = CABINET_COLORS.find((paint) => paint.key === "finish.cabinet.walnut")!;
-    expect(walnut.value).toBe("#5D4037");
-    const w = hex(walnut.value);
-    expect(luminance(w)).toBeLessThan(luminance(hex(oak.value)) - 20);
-    expect(luminance(w)).toBeLessThan(luminance(hex("#9C7B63")) - 40);
-    expect(w.r).toBeGreaterThan(w.b);
+    // Burgundy, round 35: a deep wine red leaning cool rather than orange —
+    // red first, then blue over green — and dark.
+    const burgundy = CABINET_COLORS.find((paint) => paint.key === "finish.cabinet.burgundy")!;
+    expect(burgundy.value).toBe("#6E2639");
+    const c = hex(burgundy.value);
+    expect(c.r).toBeGreaterThan(c.b * 1.5);
+    expect(c.b, "leans orange: green over blue").toBeGreaterThan(c.g);
+    expect(luminance(c)).toBeLessThan(luminance(hex(oak.value)) - 30);
   });
 });
 

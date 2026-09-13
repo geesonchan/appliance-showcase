@@ -17,7 +17,7 @@ import { useAppStore } from "./useAppStore";
  * the room the package opens in and from the tightest room it can be built in.
  * The room grows only as far as the change needs, says so with an Undo, and
  * Undo puts back exactly what was there. The wall sliders still refuse, and so
- * does anything that would take a wall past 204".
+ * does anything that would take a wall past 240" (204" until round 35).
  */
 const store = () => useAppStore.getState();
 const WALLS = ["backWallIn", "leftWallIn"] as const;
@@ -74,7 +74,7 @@ afterAll(() => {
 });
 
 describe("a switch that needs more wall", () => {
-  it("never refuses or grows from a package's own room, bar the three that need more than 204 inches", () => {
+  it("never refuses or grows from a package's own room, whichever single switch is flipped", () => {
     const refused: string[] = [];
     for (const id of PACKAGES) {
       const room = openPackage(id);
@@ -98,9 +98,10 @@ describe("a switch that needs more wall", () => {
         expect(store().layoutIssues, `${where}, put back`).toEqual([]);
       }
     }
-    // Package D's columns or its coffee cabinet on the back wall: 207-1/2" and
-    // 224-1/4" of run. The sink on the left leg pushes the columns across too.
-    expect(refused.sort()).toEqual(["package-d coffeeLeg", "package-d fridgeEnd", "package-d sinkLeg"]);
+    // Round 34 refused three of package D's: its columns or its coffee cabinet
+    // on the back wall needed 207-1/2" and 224-1/4" against a 204" slider.
+    // Since round 35's 240" slider nothing a single switch asks for is past it.
+    expect(refused).toEqual([]);
   });
 
   it("grows each wall to exactly what the change needs from the tightest room, and Undo puts it all back", () => {
@@ -210,10 +211,30 @@ describe("a switch that needs more wall", () => {
 });
 
 describe("a package's own room", () => {
-  it("opens package D with the left wall its return-wall switch needs", () => {
+  it("opens package D with the walls every one of its switches needs", () => {
     const room = openPackage("package-d");
-    expect(room.leftWallIn).toBeGreaterThanOrEqual(178.75);
-    expect(room.backWallIn).toBe(201.75);
+    // The coffee cabinet on the back wall needs 224-1/4" of it; the columns on
+    // the back leg need 207-1/2" there and an eighth more left wall than the
+    // return wall's 178-3/4", for the window to sit evenly.
+    expect(room.backWallIn).toBe(224.25);
+    expect(room.leftWallIn).toBe(178.875);
+  });
+
+  it("grows rather than refuses the columns onto the back leg, window and all", () => {
+    const room = openPackage("package-d");
+    store().setLayout({ ...room, backWallIn: 201.75, leftWallIn: 178.75 });
+    expect(store().layoutIssues).toEqual([]);
+    store().dismissToast();
+    store().setLayout({ fridgeEnd: "back" });
+    expect(store().layoutIssues).toEqual([]);
+    expect(store().layoutParams.fridgeEnd).toBe("back");
+    expect(store().layoutParams.sinkLeg).toBe("left");
+    expect(store().layoutParams.backWallIn).toBe(207.5);
+    expect(store().layoutParams.leftWallIn).toBe(178.875);
+    expect(store().toast?.lines?.map((line) => line.vars?.wallKey)).toEqual([
+      "toast.wall.back",
+      "toast.wall.left",
+    ]);
   });
 
   it("never shrinks a room somebody made bigger when a package is chosen", () => {
