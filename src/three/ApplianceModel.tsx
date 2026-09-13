@@ -2,7 +2,15 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import type { ThreeEvent } from "@react-three/fiber";
 import { applianceBox, doorOverhang, flushOffset, isRangetop } from "../data/applianceBox";
-import { comboOvenParts, isCombo, isColumn, wineColumnParts } from "../data/columnModel";
+import {
+  coffeeParts,
+  comboOvenParts,
+  doubleOvenParts,
+  isCombo,
+  isColumn,
+  isDouble,
+  wineColumnParts,
+} from "../data/columnModel";
 import {
   CHIMNEY,
   HOOD_PROFILE,
@@ -19,7 +27,7 @@ import {
 } from "../data/rangeModel";
 import { Surface } from "./Surface";
 import { CABINET_STANDARDS, ROOM, SLOT_BY_ID, ft } from "../data/slots";
-import { hingeAwayFrom, trimKitBeside } from "../data/room";
+import { hingeAwayFrom, trimKitBeside, trimKitsBeside } from "../data/room";
 import { runForSlot } from "../data/room";
 import { cabinetPaint, useAppStore } from "../store/useAppStore";
 import { useSelection } from "../store/useSelection";
@@ -109,6 +117,7 @@ export function ApplianceModel({ slot, appliance }: ApplianceModelProps) {
         userData={{ cabinetRole: panelReady }}
       >
         <Body
+          slot={slot}
           category={appliance.category}
           appliance={appliance}
           installType={appliance.installType}
@@ -235,6 +244,8 @@ function Mat({ s, size }: { s: SurfaceProps; size?: [number, number] }) {
 }
 
 interface BodyProps {
+  /** Which opening it stands in: a column needs to know what stands beside it. */
+  slot: SlotId;
   category: Category;
   /** The record itself: a range reads its own burner count off it. */
   appliance: Appliance;
@@ -268,6 +279,7 @@ interface BodyProps {
  * sheet, which is the number this whole app exists to be trusted about.
  */
 function Body({
+  slot,
   category,
   appliance,
   installType,
@@ -293,8 +305,16 @@ function Body({
   const gripZ = d / 2 - bar / 2;
 
   switch (category) {
+    // A freezer column is a refrigerator column with a colder inside: the same
+    // steel door on the same grille, which is what a customer sees of either.
     case "refrigerator":
-      return <Fridge appliance={appliance} w={w} h={h} d={d} body={body} trim={trim} />;
+    case "freezer":
+      return (
+        <Fridge slot={slot} appliance={appliance} w={w} h={h} d={d} body={body} trim={trim} />
+      );
+
+    case "coffee":
+      return <CoffeeMachine w={w} h={h} d={d} body={body} trim={trim} glass={glass} />;
 
     case "range":
       // Three machines wear this category. A rangetop is a cooking surface
@@ -355,8 +375,18 @@ function Body({
       // A combination oven is two machines in one carcass, and that is what is
       // on its face: a microwave door over an oven door, each with its own
       // handle. A single oven keeps the one door it always had.
-      return isCombo(appliance) ? (
-        <ComboOven w={w} h={h} d={d} body={body} trim={trim} glass={glass} />
+      // A double oven is two doors too — steam over convection — with a control
+      // strip across the top, so it is drawn by the same component.
+      return isCombo(appliance) || isDouble(appliance) ? (
+        <ComboOven
+          double={!isCombo(appliance)}
+          w={w}
+          h={h}
+          d={d}
+          body={body}
+          trim={trim}
+          glass={glass}
+        />
       ) : (
         <group>
           <mesh position={[0, h / 2, cz]} castShadow>
@@ -481,7 +511,23 @@ function reachOverTheKit(
   });
 }
 
+/**
+ * Which side a column's single door is hinged on.
+ *
+ * Away from the machine beside it, so two doors open back to back: the freezer
+ * away from the refrigerator, and the refrigerator away from the freezer. Only
+ * where there is a freezer column — every other refrigerator keeps the hinge it
+ * has always been drawn with.
+ */
+function columnHinge(slot: SlotId): -1 | 1 {
+  if (!SLOT_BY_ID["slot-freezer"]) return -1;
+  return slot === "slot-freezer"
+    ? hingeAwayFrom("slot-freezer", "slot-fridge")
+    : hingeAwayFrom("slot-fridge", "slot-freezer");
+}
+
 function Fridge({
+  slot: slotId,
   appliance,
   w,
   h,
@@ -489,6 +535,7 @@ function Fridge({
   body,
   trim,
 }: {
+  slot: SlotId;
   appliance: Appliance;
   w: number;
   h: number;
@@ -498,15 +545,15 @@ function Fridge({
 }) {
   // The doors, and how far they reach past the case. A built-in beside a
   // column is joined to it by a 5/8" kit, and its door closes over that kit —
-  // so the panel on that side is wider than the machine by what it covers.
+  // so the panel on that side is wider than the machine by what it covers. A
+  // column in the middle of a group has a kit each side and covers both.
   const panels = useMemo(
     () =>
-      reachOverTheKit(
-        fridgeParts(appliance, { w, h }),
-        w,
-        doorOverhang(SLOT_BY_ID["slot-fridge"], w, trimKitBeside("slot-fridge")),
+      trimKitsBeside(slotId).reduce(
+        (fronts, kit) => reachOverTheKit(fronts, w, doorOverhang(SLOT_BY_ID[slotId], w, kit)),
+        fridgeParts(appliance, { w, h }, columnHinge(slotId)),
       ),
-    [appliance, w, h],
+    [slotId, appliance, w, h],
   );
 
   // Where the fronts stand relative to the carcass — which is the difference
@@ -705,6 +752,7 @@ function Fridge({
  * the machine is built into a tower and the cabinet is what reaches the floor.
  */
 function ComboOven({
+  double = false,
   w,
   h,
   d,
@@ -712,6 +760,8 @@ function ComboOven({
   trim,
   glass,
 }: {
+  /** Steam over convection rather than microwave over oven. */
+  double?: boolean;
   w: number;
   h: number;
   d: number;
@@ -719,7 +769,10 @@ function ComboOven({
   trim: SurfaceProps;
   glass: SurfaceProps;
 }) {
-  const parts = useMemo(() => comboOvenParts({ w, h }), [w, h]);
+  const parts = useMemo(
+    () => (double ? doubleOvenParts({ w, h }) : comboOvenParts({ w, h })),
+    [double, w, h],
+  );
   // The carcass is set back by what the handle reaches, so the machine stays
   // inside the depth it is sold at.
   const cd = Math.max(d - parts.handle.proud, d * 0.5);
@@ -775,6 +828,58 @@ function ComboOven({
           </group>
         );
       })}
+    </group>
+  );
+}
+
+/**
+ * A built-in coffee machine: a steel face with a display across the top and a
+ * dark niche in the middle of it, where the cup stands under the spout.
+ *
+ * Everything stays inside the published envelope: the face is set back by what
+ * the spout and the grate stand out, so the machine is no deeper than its
+ * opening says.
+ */
+function CoffeeMachine({
+  w,
+  h,
+  d,
+  body,
+  trim,
+  glass,
+}: {
+  w: number;
+  h: number;
+  d: number;
+  body: SurfaceProps;
+  trim: SurfaceProps;
+  glass: SurfaceProps;
+}) {
+  const parts = useMemo(() => coffeeParts({ w, h }), [w, h]);
+  const proud = ft(0.8);
+  const face = d / 2 - proud;
+  return (
+    <group name="coffee-machine">
+      <mesh position={[0, h / 2, -proud / 2]} castShadow receiveShadow>
+        <boxGeometry args={[w, h, d - proud]} />
+        <Mat s={body} size={[w, h]} />
+      </mesh>
+      <mesh name="coffee-display" position={[0, parts.display.y, face + ft(0.02)]}>
+        <boxGeometry args={[parts.display.w, parts.display.h, ft(0.05)]} />
+        <Mat s={glass} />
+      </mesh>
+      <mesh name="coffee-niche" position={[0, parts.niche.y, face + ft(0.02)]}>
+        <boxGeometry args={[parts.niche.w, parts.niche.h, ft(0.05)]} />
+        <Mat s={glass} />
+      </mesh>
+      <mesh name="coffee-spout" position={[0, parts.spout.y, face + ft(0.4)]} castShadow>
+        <boxGeometry args={[parts.spout.w, parts.spout.h, ft(0.75)]} />
+        <Mat s={trim} />
+      </mesh>
+      <mesh name="coffee-grate" position={[0, parts.grate.y, face + ft(0.35)]}>
+        <boxGeometry args={[parts.grate.w, parts.grate.h, ft(0.7)]} />
+        <Mat s={trim} />
+      </mesh>
     </group>
   );
 }
