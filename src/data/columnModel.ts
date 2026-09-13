@@ -1,4 +1,4 @@
-import { ft } from "./roomShell";
+import { ROOM, ft } from "./roomShell";
 import type { Appliance } from "../types";
 
 /**
@@ -208,17 +208,21 @@ export function wineColumnParts(
  * Package D's steam oven: a double oven, steam over convection.
  *
  * It has no microwave, so the reach rule the combination oven is hung from does
- * not apply. What stands in for it is the lower door's handle, which Leo puts
- * at 40" off the floor: 22" up the machine's own front on the double-oven
- * elevation, so the opening starts at 18" — the same sill package B's tower
- * lands on at its default reach. Measured from the machine's bottom, like the
- * combination oven's figures.
+ * not apply, and nothing is worked backwards from a handle. Under it is what
+ * is under any base cabinet — the 4" toe kick — and one shallow drawer, and the
+ * opening starts on top of that drawer. Leo, round 31: the machine is tall
+ * enough that a second drawer, or a door, down there is cabinet nobody uses.
+ *
+ * The drawer is 8" so that the sill lands on the 3" step D13 builds to:
+ * 4 + 8 = 12". Leo asked for an 8"-10" drawer and a 12"-14" sill, and 12" is
+ * the only step in that band. Figures up the machine are measured from its own
+ * bottom, like the combination oven's.
  */
 export const STEAM_OVEN = {
   /** Where the lower door's bar sits, up the machine's own front. */
   lowerHandleIn: 22,
-  /** Where Leo wants that handle, off the floor. */
-  handleReferenceIn: 40,
+  /** The one drawer front between the toe kick and the opening. */
+  drawerFrontIn: 8,
   /** Where the lower door stops and the steam oven's door starts. */
   splitIn: 23.75,
   /** The control strip across the top. */
@@ -227,8 +231,9 @@ export const STEAM_OVEN = {
   upperHandleDropIn: 1.75,
 };
 
-/** The sill that puts the lower handle where Leo asked: 40 less 22. */
-export const steamOvenSillIn = () => STEAM_OVEN.handleReferenceIn - STEAM_OVEN.lowerHandleIn;
+/** The toe kick and one drawer: 4 + 8 = 12". */
+export const steamOvenSillIn = () =>
+  Math.round((ROOM.toeKick * 12 + STEAM_OVEN.drawerFrontIn) * 8) / 8;
 
 /** True when this machine is a double oven. */
 export const isDouble = (appliance: Appliance) => appliance.installType.includes("double");

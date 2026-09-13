@@ -8,6 +8,14 @@ import { useSelection } from "../store/useSelection";
 import { DebugBadge } from "./DebugBadge";
 import { SwapPanel } from "./SwapPanel";
 
+/** A length in feet as 16′10″, or 14′ when it is whole. */
+function feetInches(feet: number) {
+  const total = Math.round(feet * 12);
+  const whole = Math.floor(total / 12);
+  const inches = total - whole * 12;
+  return inches === 0 ? `${whole}′` : `${whole}′${inches}″`;
+}
+
 /**
  * Hero copy, the two headline numbers, and the appliance list — until a slot is
  * selected, at which point the column drills into that slot's alternatives.
@@ -22,7 +30,7 @@ export function LeftPanel() {
   if (selectedSlot) return <SwapPanel slotId={selectedSlot} />;
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto">
+    <div data-panel="list" className="flex h-full flex-col overflow-y-auto overflow-x-hidden">
       <div className="px-5 pb-6 pt-6">
         <p className="tracking-label text-[10px] text-ink-muted">{t("hero.eyebrow")}</p>
         <h1 className="mt-2 font-display text-[30px] leading-[1.15] text-ink">
@@ -32,7 +40,7 @@ export function LeftPanel() {
       </div>
 
       <div className="grid grid-cols-2 gap-px border-y border-line bg-line">
-        <div className="bg-surface px-5 py-4">
+        <div className="min-w-0 bg-surface px-5 py-4">
           <div className="font-display text-[32px] leading-none text-accent">
             {String(summary.count).padStart(2, "0")}
           </div>
@@ -40,12 +48,14 @@ export function LeftPanel() {
             {t("hero.stat.appliances")}
           </div>
         </div>
-        {/* The room's size, not its price: what this screen is for. */}
-        <div className="bg-surface px-5 py-4">
-          <div className="font-display text-[32px] leading-none text-accent">
-            {ROOM.halfX * 2}
-            <span className="text-ink-muted">×</span>
-            {ROOM.halfZ * 2}
+        {/* The room's size, not its price: what this screen is for. In feet and
+            inches, because a generated room is not a whole number of feet, and
+            printed raw in display type it ran 400px past the column. */}
+        <div className="flex min-w-0 flex-col justify-between bg-surface px-5 py-4">
+          <div className="font-display text-[18px] leading-[1.15] text-accent">
+            <span className="whitespace-nowrap">{feetInches(ROOM.halfX * 2)}</span>{" "}
+            <span className="text-ink-muted">×</span>{" "}
+            <span className="whitespace-nowrap">{feetInches(ROOM.halfZ * 2)}</span>
           </div>
           <div className="tracking-label mt-2 text-[9px] text-ink-muted">
             {t("hero.stat.room")}
@@ -78,34 +88,41 @@ export function LeftPanel() {
                 type="button"
                 onClick={() => selectSlot(slotId)}
                 className={[
-                  "group flex w-full items-center gap-3 border-l-2 px-5 py-3 text-left transition-colors",
+                  "group flex w-full items-center gap-2.5 border-l-2 py-2.5 pl-4 pr-3 text-left transition-colors",
                   active
                     ? "border-l-accent bg-[rgba(46,92,69,0.07)]"
                     : "border-l-transparent hover:bg-[rgba(46,92,69,0.04)]",
                 ].join(" ")}
               >
-                <span className="w-5 shrink-0 font-display text-[13px] tabular-nums text-ink-muted">
+                <span className="w-5 shrink-0 self-start pt-px font-display text-[12px] tabular-nums text-ink-muted">
                   {String(index + 1).padStart(2, "0")}
                 </span>
+                {/* Two lines: what it is, with the opening it takes on the
+                    right; then which model, cut short rather than wrapped. */}
                 <span className="min-w-0 flex-1">
-                  <span className="flex items-center gap-1.5 truncate text-[13px] text-ink">
-                    {t(slot.labelKey)}
-                    {SCHEME_FALLBACKS[slotId] && (
-                      <DebugBadge
-                        labelKey="debug.fallback"
-                        title={`scheme asked for ${SCHEME_FALLBACKS[slotId]}`}
-                      />
-                    )}
+                  <span className="flex items-baseline gap-2">
+                    <span className="flex min-w-0 flex-1 items-center gap-1.5 text-[13px] leading-[1.3] text-ink">
+                      <span className="truncate">{t(slot.labelKey)}</span>
+                      {SCHEME_FALLBACKS[slotId] && (
+                        <DebugBadge
+                          labelKey="debug.fallback"
+                          title={`scheme asked for ${SCHEME_FALLBACKS[slotId]}`}
+                        />
+                      )}
+                    </span>
+                    {/* The opening, not the price. See docs/decisions.md D12. */}
+                    <span className="shrink-0 text-right text-[10px] tabular-nums text-ink-muted/80">
+                      {formatInches(slot.cutout.w)}
+                    </span>
                   </span>
                   {appliance && (
-                    <span className="block truncate text-[11px] text-ink-muted">
+                    <span
+                      className="mt-0.5 block truncate text-[11px] leading-[1.3] text-ink-muted"
+                      title={`${appliance.brand} ${appliance.model}`}
+                    >
                       {appliance.brand} · {appliance.model}
                     </span>
                   )}
-                </span>
-                {/* The opening, not the price. See docs/decisions.md D12. */}
-                <span className="shrink-0 text-[10px] tabular-nums text-ink-muted/80">
-                  {formatInches(slot.cutout.w)}
                 </span>
                 <span
                   className={

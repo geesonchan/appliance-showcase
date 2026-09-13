@@ -99,9 +99,10 @@ function installParts(selection: Record<SlotId, Appliance>): Finding[] {
 /**
  * Where the steam oven hangs, and what that puts the handle at.
  *
- * It has no microwave to reach for, so the figure is the lower door's handle —
- * 40" off the floor, which is what the 18" opening is cut for — and the circuit
- * it needs, which is the one thing about it an electrician has to be told.
+ * It has no microwave to reach for, so what is worth saying is where the
+ * opening starts — on the toe kick and one drawer — where that puts the lower
+ * door's handle, and the circuit it needs, which is the one thing about it an
+ * electrician has to be told.
  */
 function steamOven(selection: Record<SlotId, Appliance>): Finding[] {
   const oven = selection["slot-oven"];

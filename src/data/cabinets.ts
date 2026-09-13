@@ -269,9 +269,10 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
       // poking through.
       //
       // And under the opening, where the opening does not start at the floor:
-      // an oven tower's hole is 18" up and what is below it is a drawer base,
-      // which is where the trays go. A refrigerator's sill is zero and this
-      // draws what it always drew.
+      // an oven tower's hole is off the floor and what is below it is a drawer,
+      // which is where the trays go. It stands on the run's toe kick like any
+      // base cabinet rather than carrying its front down to the floor. A
+      // refrigerator's sill is zero and this draws what it always drew.
       const inset = module.insetIn === undefined ? PANEL : ft(module.insetIn);
       const opening = [along[0] + inset, along[1] - inset] as const;
       const outline = segment.id;
@@ -290,7 +291,9 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
       // Where a machine stands on the floor under the opening — the dishwasher
       // in the bottom of the coffee cabinet — the cabinetry starts on top of
       // that machine's own opening: a drawer between it and the one above.
-      const floor = module.lowerSlot ? ft(SLOT_BY_ID[module.lowerSlot].cutout.h) : 0;
+      const floor = module.lowerSlot
+        ? ft(SLOT_BY_ID[module.lowerSlot].cutout.h)
+        : ROOM.toeKick;
       if (sill > floor) {
         boxes.push(
           onRun(run, `${segment.id}-base`, "base", opening, [floor, sill], ROOM.counterDepth, 0, {

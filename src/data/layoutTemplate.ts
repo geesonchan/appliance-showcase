@@ -436,8 +436,8 @@ export function sillFor(slot: PackageSlot, params: LayoutParams): number {
   if (slot.category === "coffee") return params.coffeeSillIn;
   // A combination oven is hung from where its microwave handle lands. Any other
   // oven beside the cooking surface has no microwave handle to reach for, and
-  // stands at the package's own figure — package D's steam oven at 18", which
-  // puts the handle of its lower door at 40".
+  // stands at the package's own figure — package D's steam oven at 12", the toe
+  // kick and one drawer (`steamOvenSillIn`).
   if (slot.beside === "range" && slot.installType === "combo") {
     return comboSillFor(params.microwaveHandleIn).sillIn;
   }

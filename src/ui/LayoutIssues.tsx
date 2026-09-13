@@ -38,7 +38,9 @@ export function LayoutIssues() {
             island: LAYOUT_PARAMS.islandLengthIn,
             fridge: t(`leg.${LAYOUT_PARAMS.fridgeEnd}`),
           })}
-          {!rightOpen && ` ${t("layout.seeConfig")}`}
+          {/* On a phone the configuration is behind the sheet whatever the
+              desktop rail is doing, so the pointer to it always shows there. */}
+          <span className={rightOpen ? "md:hidden" : undefined}>{` ${t("layout.seeConfig")}`}</span>
         </p>
       </div>
     </div>

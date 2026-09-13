@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { formatUSD } from "./money";
 import { buildQuote, formatQuote } from "./quote";
 import { FIXTURES } from "./testFixtures";
 import { SLOTS, SLOT_BY_ID } from "./slots";
@@ -163,8 +164,24 @@ describe("quote summary", () => {
     expect(formatQuote(clean, t)).not.toContain(t("checklist.title"));
   });
 
-  it("prices in whole dollars", () => {
-    expect(formatQuote(quoteOf(), t)).toMatch(/\$[\d,]+\b/);
-    expect(formatQuote(quoteOf(), t)).not.toMatch(/\$[\d,]+\.\d/);
+  /** Dollars and cents with thousands separated, every time: $13,199.00. */
+  const MONEY = /\$\d{1,3}(?:,\d{3})*\.\d{2}(?!\d)/;
+
+  it("prices to the cent, with thousands separated", () => {
+    const text = formatQuote(quoteOf(), t);
+    const amounts = text.match(/\$[\d,.]+/g) ?? [];
+    expect(amounts.length).toBeGreaterThan(0);
+    for (const amount of amounts) expect(amount, text).toMatch(new RegExp(`^${MONEY.source}$`));
+    expect(text).toContain("$1,000.00");
+  });
+
+  it("formats every amount the same way, and the check catches the old one", () => {
+    expect(formatUSD(13199)).toBe("$13,199.00");
+    expect(formatUSD(1234567.5)).toBe("$1,234,567.50");
+    expect(formatUSD(0.5)).toBe("$0.50");
+    // What rounds 1-30 printed, which the pattern has to refuse.
+    for (const old of ["$13,199", "$13199.00", "$13,199.0"]) {
+      expect(old).not.toMatch(new RegExp(`^${MONEY.source}$`));
+    }
   });
 });

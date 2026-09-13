@@ -957,9 +957,89 @@ async function captureRound30(page) {
   await page.screenshot({ path: `${outDir}/mobile-d-steam-oven.png` });
 }
 
+/**
+ * Round 31: four corrections.
+ *
+ * The page as it now opens — Configuration open, the list folded — then the
+ * list opened on package D, where it used to run 400px sideways; the steam oven
+ * tower on its toe kick and one drawer, in the finished room, in the install
+ * view and on the install list; package B's combination oven, whose drawer now
+ * stands on the kick too; the quote sheet in dollars and cents; and the list on
+ * a phone.
+ */
+async function captureRound31(browser) {
+  const desktop = await browser.newContext({ viewport: DESKTOP, deviceScaleFactor: 2 });
+  const page = await desktop.newPage();
+  const toPackage = async (target, code) => {
+    await target.locator(`[data-segment="package"] button`, { hasText: code }).first().click();
+    await settle(target, 2600);
+  };
+  const fromList = async (name) => {
+    await page.locator(`aside [data-panel="list"] button`, { hasText: name }).first().click();
+    await settle(page, 1800);
+  };
+
+  await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await settle(page, 2600);
+  await page.screenshot({ path: `${outDir}/desktop-opens.png` });
+
+  await toPackage(page, "D");
+  await page.getByText(/Steam oven opening starts/).first().scrollIntoViewIfNeeded();
+  await settle(page, 600);
+  await page.screenshot({ path: `${outDir}/desktop-d-checklist.png` });
+
+  await page.click(`button[data-rail="left"]`);
+  await settle(page, 900);
+  await page.screenshot({ path: `${outDir}/desktop-d-list.png` });
+
+  await fromList("Steam oven");
+  await page.screenshot({ path: `${outDir}/desktop-d-steam-oven.png` });
+  await click(page, "Install");
+  await settle(page, 1600);
+  await page.screenshot({ path: `${outDir}/desktop-d-steam-oven-install.png` });
+  await click(page, "Materials");
+  await settle(page, 1200);
+  await click(page, "Reset view");
+  await settle(page, 1400);
+
+  await toPackage(page, "B");
+  await fromList(/Microwave/);
+  await page.screenshot({ path: `${outDir}/desktop-b-oven-tower.png` });
+  await click(page, "Reset view");
+  await settle(page, 1400);
+
+  await page.getByRole("button", { name: /quote/i }).first().click();
+  await settle(page, 1000);
+  await page.screenshot({ path: `${outDir}/desktop-quote.png` });
+  await desktop.close();
+
+  const phone = await browser.newContext({
+    viewport: MOBILE,
+    deviceScaleFactor: 2,
+    isMobile: true,
+    hasTouch: true,
+  });
+  const mobile = await phone.newPage();
+  await mobile.goto(baseUrl, { waitUntil: "networkidle" });
+  await settle(mobile, 2600);
+  await mobile.screenshot({ path: `${outDir}/mobile-opens.png` });
+  await toPackage(mobile, "D");
+  await click(mobile, "Appliances");
+  await mobile.waitForTimeout(800);
+  await mobile.screenshot({ path: `${outDir}/mobile-d-list.png` });
+  await phone.close();
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round31") {
+    await captureRound31(browser);
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round30") {
     const ctx = await browser.newContext({

@@ -16,13 +16,16 @@ import { TopBar } from "./ui/TopBar";
 import { useT } from "./i18n/useT";
 import { useAppStore } from "./store/useAppStore";
 
+/** The appliance list's width when open. Fixed, so a long model name truncates. */
+const LIST_RAIL_PX = 260;
+
 /**
  * The room gets the screen.
  *
- * At desktop widths the configuration rail starts closed and the appliance list
- * folds away, so the scene holds better than 80% of the viewport in the state
- * the app opens in. Both columns are still one click away; neither is where the
- * explaining happens. See docs/decisions.md D12.
+ * At desktop widths the page opens with Configuration open and the appliance
+ * list folded to its rail, and a tab remembers either being changed. The list
+ * is a fixed width, so what is in it has to fit rather than push the column
+ * wider. See docs/decisions.md D12.
  */
 export default function App() {
   const t = useT();
@@ -40,7 +43,7 @@ export default function App() {
   const layoutVersion = useAppStore((s) => s.layoutVersion);
 
   const columns = [
-    leftOpen ? "minmax(200px,15%)" : "36px",
+    leftOpen ? `${LIST_RAIL_PX}px` : "36px",
     "1fr",
     rightOpen ? "minmax(240px,18%)" : "36px",
   ].join(" ");

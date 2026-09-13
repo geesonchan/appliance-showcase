@@ -332,7 +332,7 @@
           "enclosure": true,
           "heightIn": 47.375,
           "beside": "range",
-          "sillIn": 18,
+          "sillIn": 12,
           "panelReady": false,
           "utilities": {
             "gas": null,

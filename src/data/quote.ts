@@ -1,6 +1,7 @@
 import type { Appliance, Slot, SlotId } from "../types";
 import type { Finding, Severity } from "./rules";
 import { fitCheck } from "./fit";
+import { formatUSD } from "./money";
 import { deriveUtilities } from "./utilities";
 import { effectiveCfm, formatCfm } from "./ventilation";
 
@@ -160,12 +161,7 @@ export function buildQuote(input: QuoteInput): Quote {
   };
 }
 
-const usd = (value: number) =>
-  value.toLocaleString("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  });
+const usd = formatUSD;
 
 /** Plain text, for an email body or a message. */
 export function formatQuote(

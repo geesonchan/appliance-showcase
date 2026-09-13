@@ -14,6 +14,7 @@ import {
 } from "./layoutTemplate";
 import { DEFAULT_PACKAGE, PACKAGE, PACKAGE_BY_ID, SLOT_ORDER } from "./packages";
 import { RUNS, trimKitsBeside, type CabinetRun, type RunSegment } from "./room";
+import { CABINET_STANDARDS, ROOM } from "./roomShell";
 import { resolveRoughIn } from "./roughIn";
 import { SLOT_BY_ID } from "./slots";
 import { deriveUtilities } from "./utilities";
@@ -260,21 +261,100 @@ describe("package D · the steam oven tower", () => {
     expect(checkLayout()).toEqual([]);
   });
 
-  it("opens at 18 inches, which puts the lower door's handle at 40, whatever the microwave reach", () => {
+  it("opens at 12 inches, on the 3-inch step, whatever the microwave reach", () => {
     const base = activateD();
-    expect(steamOvenSillIn()).toBe(18);
-    expect(18 + STEAM_OVEN.lowerHandleIn).toBe(STEAM_OVEN.handleReferenceIn);
-    expect(STEAM_OVEN.handleReferenceIn).toBe(40);
-    expect(inches(SLOT_BY_ID["slot-oven"].position[1])).toBeCloseTo(18, 9);
+    const sillIn = steamOvenSillIn();
+    expect(sillIn).toBe(12);
+    expect(sillIn % CABINET_STANDARDS.widthIn.step).toBe(0);
+    expect(STEAM_OVEN.drawerFrontIn).toBeGreaterThanOrEqual(8);
+    expect(STEAM_OVEN.drawerFrontIn).toBeLessThanOrEqual(MAX_DRAWER_IN);
+    expect(inches(SLOT_BY_ID["slot-oven"].position[1])).toBeCloseTo(sillIn, 9);
+    // The lower door's handle follows the sill rather than setting it.
+    expect(sillIn + STEAM_OVEN.lowerHandleIn).toBe(34);
 
     // The microwave reach is a combination oven's parameter, and this is not one.
     expect(setLayoutParams({ ...base, microwaveHandleIn: 44 }).ok).toBe(true);
-    expect(inches(SLOT_BY_ID["slot-oven"].position[1])).toBeCloseTo(18, 9);
+    expect(inches(SLOT_BY_ID["slot-oven"].position[1])).toBeCloseTo(sillIn, 9);
+    setLayoutParams(base);
 
     const power = deriveUtilities(SLOT_BY_ID["slot-oven"], model("slot-oven")).power;
     expect(power.voltage).toBe(240);
   });
+
+  it("stands on the toe kick and one drawer, with a door from the opening to the top", () => {
+    activateD();
+    const tower = segmentOf("slot-oven");
+    const along = runOf("slot-oven").axis === "x" ? 0 : 2;
+    const sillIn = steamOvenSillIn();
+
+    const fronts = CABINETS.filter((box) => box.slot === "slot-oven" && box.kind === "base").map(
+      (box) => ({
+        bottomIn: inches(box.position[1] - box.size[1] / 2),
+        topIn: inches(box.position[1] + box.size[1] / 2),
+      }),
+    );
+    expect(drawerProblems(fronts, sillIn)).toEqual([]);
+
+    // The kick under it is the run's own, carried on under the tower.
+    const toe = CABINETS.find(
+      (box) =>
+        box.kind === "toe" &&
+        box.position[along] - box.size[along] / 2 <= tower.from + 1e-9 &&
+        box.position[along] + box.size[along] / 2 >= tower.to - 1e-9,
+    );
+    expect(toe).toBeTruthy();
+    expect(inches(toe!.size[1])).toBeCloseTo(inches(ROOM.toeKick), 9);
+
+    // Over the opening, a door to the top of the 96" tower.
+    const bridge = CABINETS.find((box) => box.id === `${tower.id}-bridge`)!;
+    const headIn = sillIn + SLOT_BY_ID["slot-oven"].cutout.h;
+    expect(inches(bridge.position[1] - bridge.size[1] / 2)).toBeCloseTo(headIn, 9);
+    expect(inches(bridge.position[1] + bridge.size[1] / 2)).toBeCloseTo(96, 9);
+    expect(96 - headIn).toBeCloseTo(36.625, 9);
+  });
+
+  it("fails a tower that carries its front to the floor, a second drawer, or a door", () => {
+    const sillIn = steamOvenSillIn();
+    const toeIn = inches(ROOM.toeKick);
+    // What round 30 built: one front from the floor to an 18" sill.
+    expect(drawerProblems([{ bottomIn: 0, topIn: 18 }], 18)).not.toEqual([]);
+    // Two drawers stacked under the opening.
+    expect(
+      drawerProblems(
+        [
+          { bottomIn: toeIn, topIn: toeIn + 7 },
+          { bottomIn: toeIn + 7, topIn: toeIn + 14 },
+        ],
+        toeIn + 14,
+      ),
+    ).not.toEqual([]);
+    // One front too tall to be a drawer.
+    expect(drawerProblems([{ bottomIn: toeIn, topIn: toeIn + 14 }], toeIn + 14)).not.toEqual([]);
+    // Nothing under the opening at all.
+    expect(drawerProblems([], sillIn)).not.toEqual([]);
+  });
 });
+
+/** Leo's band for the drawer under a steam oven, round 31: 8" to 10". */
+const MAX_DRAWER_IN = 10;
+
+/**
+ * What is wrong with the fronts under a tower's opening, in inches off the
+ * floor: there should be exactly one, a drawer, from the top of the toe kick to
+ * the sill.
+ */
+function drawerProblems(fronts: { bottomIn: number; topIn: number }[], sillIn: number): string[] {
+  const toeIn = inches(ROOM.toeKick);
+  if (fronts.length !== 1) return [`${fronts.length} fronts under the opening, wants one drawer`];
+  const [{ bottomIn, topIn }] = fronts;
+  const problems: string[] = [];
+  if (Math.abs(bottomIn - toeIn) > 1e-6) problems.push(`front starts at ${bottomIn}", wants the ${toeIn}" kick`);
+  if (Math.abs(topIn - sillIn) > 1e-6) problems.push(`front stops at ${topIn}", the sill is ${sillIn}"`);
+  if (topIn - bottomIn > MAX_DRAWER_IN + 1e-6) {
+    problems.push(`a ${topIn - bottomIn}" front is more than one drawer`);
+  }
+  return problems;
+}
 
 describe("package D · the coffee cabinet", () => {
   it("hangs the coffee machine 42 inches up by default, with the dishwasher on the floor under it", () => {

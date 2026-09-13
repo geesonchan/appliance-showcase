@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { formatInches, requiredOpening } from "../data/fit";
+import { formatUSD } from "../data/money";
 import { formatPrice } from "../data/packageSummary";
 import { buildQuote, formatQuote, type Quote, type QuoteLine } from "../data/quote";
 import { SLOTS, SLOT_BY_ID } from "../data/slots";
@@ -149,7 +150,7 @@ export function QuotePage() {
           </ul>
 
           <dl className="mt-5 space-y-1 border-t border-line pt-4 text-[12px]">
-            <Total label={t("panel.package.total")} value={usd(quote.totals.subtotalUSD)} />
+            <Total label={t("panel.package.total")} value={formatUSD(quote.totals.subtotalUSD)} />
             {quote.totals.pricedCount < quote.totals.itemCount && (
               <p className="text-right text-[10px] text-ink-muted">
                 {t("panel.package.priced", {
@@ -211,13 +212,6 @@ export function QuotePage() {
     </div>
   );
 }
-
-const usd = (value: number) =>
-  value.toLocaleString("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  });
 
 function Total({ label, value }: { label: string; value: string }) {
   return (

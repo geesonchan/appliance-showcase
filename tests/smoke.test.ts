@@ -275,6 +275,8 @@ describe("desktop", () => {
             .__applianceBoxes?.["slot-range"],
       );
 
+    // The appliance list opens folded (D12, round 31).
+    await page.click(`button[data-rail="left"]`);
     await page.getByRole("button", { name: /^02 Range/ }).first().click();
     await page.waitForTimeout(1200);
     const boxBefore = await rangeBox();
@@ -309,6 +311,8 @@ describe("desktop", () => {
 
     // Swap the gas range for the induction one: no gas line, so strictly less
     // geometry. Found by fuel rather than by SKU so an import cannot break it.
+    // The appliance list opens folded (D12, round 31).
+    await page.click(`button[data-rail="left"]`);
     await page.getByRole("button", { name: /^02 Range/ }).first().click();
     await page.waitForTimeout(1200);
     const induction = page.locator("li button[aria-pressed]:not([disabled])").filter({
@@ -661,8 +665,8 @@ describe("cabinet finishes", () => {
     const NAVY = "#2B3A4A";
     const BRICK = "#8A4A38";
 
-    // The configuration rail opens closed.
-    await page.click(`button[data-rail="right"]`);
+    // The configuration rail opens open (D12, round 31).
+    await page.waitForSelector(`[data-segment="accent-run"]`);
 
     // One colour through the whole room.
     await page.click(`[data-segment="accent-run"] button[data-value="none"]`);
@@ -684,5 +688,65 @@ describe("cabinet finishes", () => {
 
     expect(errors).toEqual([]);
     await page.context().close();
+  });
+});
+
+describe("side rails", () => {
+  /**
+   * Configuration open, the list closed, and a change kept for the tab.
+   * See docs/decisions.md D12, round 31.
+   */
+  it("opens with the list closed and Configuration open, and remembers a change", async () => {
+    const { page, errors } = await openPage(DESKTOP);
+    expect(await page.$(`aside [data-panel="list"]`)).toBeNull();
+    expect(await page.$(`[data-segment="accent-run"]`)).not.toBeNull();
+
+    await page.click(`button[data-rail="right"]`);
+    await page.click(`button[data-rail="left"]`);
+    await page.reload({ waitUntil: "networkidle" });
+    await page.waitForSelector(`aside [data-panel="list"]`);
+    expect(await page.$(`[data-segment="accent-run"]`)).toBeNull();
+
+    // A new tab is a new session, and gets the default back.
+    const fresh = await openPage(DESKTOP);
+    expect(await fresh.page.$(`aside [data-panel="list"]`)).toBeNull();
+    await fresh.page.context().close();
+
+    expect(errors).toEqual([]);
+    await page.context().close();
+  });
+
+  /**
+   * The list never scrolls sideways. Rounds 20-30 had it 386px wide in a
+   * 200px column from package B on, and 613px on D: the room's size was a
+   * fractional number of feet printed in display type.
+   */
+  it("never scrolls the appliance list sideways, at 1440 or 390, in any package", async () => {
+    for (const [viewport, isMobile] of [
+      [DESKTOP, false],
+      [MOBILE, true],
+    ] as const) {
+      const { page, errors } = await openPage(viewport, isMobile);
+      if (isMobile) {
+        await page.getByRole("button", { name: "Appliances", exact: true }).first().click();
+      } else {
+        await page.click(`button[data-rail="left"]`);
+      }
+      for (const code of ["A", "B", "C", "D"]) {
+        await page.locator(`[data-segment="package"] button`, { hasText: code }).first().click();
+        await page.waitForTimeout(1500);
+        const where = `package ${code} at ${viewport.width}px`;
+        const lists = await page.$$eval(`[data-panel="list"]`, (elements) =>
+          elements
+            .filter((element) => (element as HTMLElement).offsetParent !== null)
+            .map((element) => [element.scrollWidth, element.clientWidth]),
+        );
+        expect(lists.length, where).toBe(1);
+        const [[scrollWidth, clientWidth]] = lists;
+        expect(scrollWidth, where).toBe(clientWidth);
+      }
+      expect(errors).toEqual([]);
+      await page.context().close();
+    }
   });
 });

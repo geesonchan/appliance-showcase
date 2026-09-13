@@ -458,8 +458,21 @@ deep, one tall unit to the cabinetmaker. The doors are steel and stand on each
 machine's own grille, at its drawing's figure and unscaled; what is lined up is
 the bottom of the doors, not the grilles. The steam oven beside the cooking
 surface is held to the rest of rule 12 exactly as the combination oven is. It has
-no microwave handle to hang it from, so its opening starts at 18", which puts its
-lower door's handle at 40".
+no microwave handle to hang it from.
+
+**Amended 2026-09-12 (round 31), Leo: the steam oven stands on a toe kick and
+one drawer.** The round-30 figure was 18", worked backwards from a 40" lower
+handle; that reasoning belongs to a combination oven's microwave and this
+machine has none, and 18" left 14" of front under it — a second drawer or a
+door nobody uses. So under the opening there is the run's 4" toe kick and one
+8" drawer, and nothing else. Leo asked for an 8"-10" drawer and a 12"-14" sill;
+12" is the only figure in that band on D13's 3" step, so the sill is 12", the
+lower handle lands at 34", and the door over the opening is 36-5/8" to the top
+of the 96" tower. *(Leo's call, not a drawing: there is no PODS302B installation
+sheet in `docs/reference/`, so the machine's own allowed sill range has not been
+checked against 12".)* Every tower whose opening is off the floor now stands its
+drawer on the toe kick the same way, which includes package B's combination
+oven.
 
 **Scheme 01 as laid out.** Left wall, from the far end back to the corner:
 refrigerator tower, 15" landing, corner cabinet. Back wall, from the corner
@@ -620,6 +633,16 @@ no free-form cabinet placement. Appliances slide within their own cabinet
 segment to a legal position and no further — the moment a customer can drag a
 cabinet anywhere, this is a design tool and every rule in D11 becomes advisory.
 
+**Amended 2026-09-12 (round 31), Leo: the page opens with Configuration open
+and the appliance list closed.** That reverses the default above. Configuration
+is what gets used in front of a customer; the list is one click away. On a phone
+both still open closed, behind the sheet. Whichever way somebody leaves the two
+rails, they stay that way until the tab is closed (sessionStorage, not
+localStorage: the next customer gets the default). The list rail is a fixed
+width now rather than a share of the screen, and never scrolls sideways. At
+1440px wide, the scene now gets about 79% of the screen when the page opens,
+just under the 80% above.
+
 ---
 
 ## D13 · The dimensions a kitchen is actually built to
@@ -645,6 +668,14 @@ Both are checked by `checkLayout`, and the M3-3 generator has to satisfy both.
   Twelve feet was what stopped a kitchen with no island from ever carrying the
   microwave drawer and the wine cabinet on the refrigerator's leg — the pair
   costs 60" of run, since each is an enclosure with a finished panel each side.
+  **Amended again 2026-09-08 (round 25), Leo: the cap is 180", and the wall
+  slider goes to 204".** Package B's back wall carries the sink, the
+  dishwasher, the rangetop and the oven tower, and has to keep 18" of landing
+  each side of the burners; at 168" the landings came out at 6". Supersedes
+  the round-19 figure above (144" to 168"). `CABINET_STANDARDS.legIn.longMax`
+  in `roomShell.ts` has carried 180 since then; this entry is the record that
+  was missing. *(Added round 31 — the decision is round 25's, the write-up is
+  late.)*
 - **What finishes a run.** Against a wall, a filler at least 3" wide: a door
   needs somewhere to swing past, and the refrigerator's own clearance is the
   same rule. In the open, a whole cabinet with a finished end panel closing its

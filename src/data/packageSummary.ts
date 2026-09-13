@@ -1,13 +1,13 @@
 import type { SlotId } from "../types";
 import { OMITTED_SLOTS } from "./room";
 import { useSelection, useSelectedBlower } from "../store/useSelection";
+import { formatUSD } from "./money";
 
 /** A price, or the copy for a model the sheet has no price for. */
 export const formatPrice = (usd: number | null, onRequest: string) =>
   usd === null ? onRequest : formatUSD(usd);
 
-export const formatUSD = (usd: number) =>
-  usd.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+export { formatUSD } from "./money";
 
 /**
  * Live totals for the current package. M1 reads the hard-coded selection; M2

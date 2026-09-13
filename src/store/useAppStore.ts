@@ -9,6 +9,7 @@ import { setActivePackage, setLayoutParams } from "../data/layoutState";
 import type { LayoutParams, Refusal } from "../data/layoutTemplate";
 import { LAYOUT_ISSUES, REQUESTED_PARAMS } from "../data/room";
 import type { Lang, Lighting, RenderMode, SlotId, UtilityType } from "../types";
+import { readRails, writeRails } from "./railState";
 
 export interface ToastMessage {
   id: number;
@@ -274,8 +275,9 @@ export const useAppStore = create<AppState>((set, get) => ({
   helpOpen: false,
   quoteOpen: false,
   specSlot: null,
-  leftOpen: true,
-  rightOpen: false,
+  // The list closed and Configuration open, unless this tab has already been
+  // told otherwise. See railState.ts and docs/decisions.md D12.
+  ...readRails(),
   mobilePanel: "none",
   toast: null,
   modeSwitchStartedAt: null,
@@ -385,8 +387,18 @@ export const useAppStore = create<AppState>((set, get) => ({
     set((s) => ({ zoomRequest: { token: s.zoomRequest.token + 1, direction } })),
   setHelpOpen: (helpOpen) => set({ helpOpen }),
   setQuoteOpen: (quoteOpen) => set({ quoteOpen }),
-  toggleLeft: () => set((s) => ({ leftOpen: !s.leftOpen })),
-  toggleRight: () => set((s) => ({ rightOpen: !s.rightOpen })),
+  toggleLeft: () =>
+    set((s) => {
+      const rails = { leftOpen: !s.leftOpen, rightOpen: s.rightOpen };
+      writeRails(rails);
+      return rails;
+    }),
+  toggleRight: () =>
+    set((s) => {
+      const rails = { leftOpen: s.leftOpen, rightOpen: !s.rightOpen };
+      writeRails(rails);
+      return rails;
+    }),
   openSpec: (specSlot) => set({ specSlot }),
   closeSpec: () => set({ specSlot: null }),
   setMobilePanel: (mobilePanel) => set({ mobilePanel }),
