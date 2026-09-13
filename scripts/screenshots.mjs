@@ -1229,6 +1229,17 @@ async function captureRound35(browser) {
     await open(`?wall=${paint}`);
     await page.screenshot({ path: `${outDir}/desktop-wall-${paint}.png` });
   }
+  // Closer, for two of them: in the overview the upper cabinets hide most of
+  // the wall, and the pale band under them is the countertop, not the paint.
+  for (const paint of ["warm-grey", "white"]) {
+    await open(`?wall=${paint}`);
+    for (let i = 0; i < 3; i += 1) {
+      await click(page, "Zoom in");
+      await page.waitForTimeout(300);
+    }
+    await settle(page, 1800);
+    await page.screenshot({ path: `${outDir}/desktop-wall-${paint}-close.png` });
+  }
 
   await open("?cabinet=burgundy");
   await page.screenshot({ path: `${outDir}/desktop-cabinet-burgundy.png` });
