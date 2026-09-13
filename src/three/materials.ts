@@ -1,10 +1,11 @@
 import type { Finish, Lighting, RenderMode } from "../types";
-import type { TextureKind } from "./textures";
+import { FLOOR_TILE, TILE_FORMATS, type TextureKind, type TileFormat } from "./textures";
 
 /** Palette used by the procedural scene, keyed to the §6 design tokens. */
 export const SCENE_COLORS = {
-  floor: "#C9A77B",
-  floorNight: "#8E7455",
+  // The oak floor's own mid brown, round 33.
+  floor: "#7A5C3C",
+  floorNight: "#54412C",
   wall: "#EFEDE6",
   wallNight: "#C3C4BD",
   cabinet: "#2E5C45",
@@ -114,7 +115,22 @@ export type FinishToken =
   | "quartz-white"
   | "marble-veined"
   | "tile-white"
-  | "floor-oak";
+  | "floor-oak"
+  | `floor-tile-${TileFormat}`;
+
+/**
+ * A large-format tile floor in one of its sizes. The repeat is exactly the
+ * inches one texture covers, so a panel is its real size on the floor. Porcelain
+ * panels are honed or polished, so it is smoother than the oak.
+ */
+const floorTileFinish = (format: TileFormat): Omit<SurfaceProps, "transparent" | "opacity"> => ({
+  color: "#FFFFFF",
+  metalness: 0.02,
+  roughness: 0.32,
+  map: `floor-tile-${format}`,
+  repeatFt: (TILE_FORMATS[format].alongIn * FLOOR_TILE.along) / 12,
+  repeatAcrossFt: (TILE_FORMATS[format].acrossIn * FLOOR_TILE.rows) / 12,
+});
 
 export const FINISHES: Record<FinishToken, Omit<SurfaceProps, "transparent" | "opacity">> = {
   // Cabinet paint: a satin sheen, not a gloss. The colour is supplied.
@@ -137,7 +153,13 @@ export const FINISHES: Record<FinishToken, Omit<SurfaceProps, "transparent" | "o
     repeatFt: 1.2,
     normalScale: 0.3,
   },
-  "wood-oak": { color: "#FFFFFF", metalness: 0, roughness: 0.62, map: "oak", repeatFt: 2 },
+  // The colours on the mapped finishes below are not tints but a correction
+  // for the room's lighting, set from measurement in round 33. Tone mapping and
+  // the environment light lift a mid tone a long way: the oak texture averaging
+  // #8B6B47 rendered at #AE8B5F on a door and #AF8B66 on the floor, and the
+  // marble's #D8D2C8 ground came out within ten levels of the white quartz.
+  // Each multiplier brings what is on screen back to what was asked for.
+  "wood-oak": { color: "#C7C7C7", metalness: 0, roughness: 0.62, map: "oak", repeatFt: 2 },
   // Quartz is duller than marble, and that is half of what separates them by
   // eye. The other half is that one has a grain and the other has veins.
   "quartz-white": {
@@ -150,7 +172,7 @@ export const FINISHES: Record<FinishToken, Omit<SurfaceProps, "transparent" | "o
   // A vein has to cross a whole counter to read as one, so the tile is big:
   // twelve feet of stone to a tile, which is most of a run.
   "marble-veined": {
-    color: "#FFFFFF",
+    color: "#E4DDD4",
     metalness: 0.02,
     roughness: 0.2,
     map: "marble",
@@ -160,7 +182,10 @@ export const FINISHES: Record<FinishToken, Omit<SurfaceProps, "transparent" | "o
     repeatAcrossFt: 2.5,
   },
   "tile-white": { color: "#FFFFFF", metalness: 0.03, roughness: 0.35, map: "tile", repeatFt: 1 },
-  "floor-oak": { color: "#FFFFFF", metalness: 0, roughness: 0.72, map: "oak-floor", repeatFt: 4 },
+  "floor-oak": { color: "#AEAEAE", metalness: 0, roughness: 0.72, map: "oak-floor", repeatFt: 4 },
+  "floor-tile-24x48": floorTileFinish("24x48"),
+  "floor-tile-32x32": floorTileFinish("32x32"),
+  "floor-tile-48x48": floorTileFinish("48x48"),
 };
 
 /**

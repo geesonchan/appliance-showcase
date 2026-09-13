@@ -10,6 +10,7 @@ import type { LayoutParams, Refusal } from "../data/layoutTemplate";
 import { LAYOUT_ISSUES, REQUESTED_PARAMS } from "../data/room";
 import type { Lang, Lighting, RenderMode, SlotId, UtilityType } from "../types";
 import { readRails, writeRails } from "./railState";
+import { lookupRal } from "../data/ral";
 
 export interface ToastMessage {
   id: number;
@@ -48,6 +49,8 @@ interface AppState {
     accentRun: AccentRun;
     counter: CounterFinish;
     floor: FloorFinish;
+    /** The panel size of a tile floor. Kept when the floor is oak, for coming back. */
+    tileSize: TileSize;
   };
   /**
    * Render quality. Dropped automatically when the frame rate will not hold,
@@ -138,7 +141,10 @@ let toastId = 0;
 export type Quality = "high" | "low";
 export type AccentRun = "none" | "left" | "back" | "island";
 export type CounterFinish = "quartz-white" | "marble-veined" | "wood-oak";
-export type FloorFinish = "floor-oak" | "tile-white";
+export type FloorFinish = "floor-oak" | "floor-tile";
+/** Large-format panel sizes, long side first along the room. Round 33. */
+export type TileSize = "24x48" | "32x32" | "48x48";
+export const TILE_SIZES: TileSize[] = ["24x48", "32x32", "48x48"];
 
 /**
  * The four cabinet colours, which are paint chips rather than data.
@@ -148,11 +154,13 @@ export type FloorFinish = "floor-oak" | "tile-white";
 export const CABINET_COLORS = [
   { key: "finish.cabinet.green", value: "#2E5C45", token: "painted" as const },
   { key: "finish.cabinet.navy", value: "#2B3A4A", token: "painted" as const },
-  { key: "finish.cabinet.clay", value: "#9C7B63", token: "painted" as const },
+  // Deeper in round 33, with the oak: a walnut brown rather than a pale clay.
+  { key: "finish.cabinet.clay", value: "#6B4E3D", token: "painted" as const },
   { key: "finish.cabinet.bone", value: "#E3DFD3", token: "painted" as const },
   // Not a colour: a door made of something. Its swatch shows the wood rather
-  // than a flat brown, which is the whole difference between the two.
-  { key: "finish.cabinet.oak", value: "#C6A276", token: "wood-oak" as const },
+  // than a flat brown, which is the whole difference between the two. The
+  // swatch is the wood's own mid tone, round 33.
+  { key: "finish.cabinet.oak", value: "#8B6B47", token: "wood-oak" as const },
 ] as const;
 
 /**
@@ -164,7 +172,7 @@ export const CABINET_COLORS = [
  * near-black, a deep clay, an off-white and a slate.
  */
 export const ACCENT_COLORS = [
-  { key: "finish.accent.oak", value: "#C6A276", token: "wood-oak" as const },
+  { key: "finish.accent.oak", value: "#8B6B47", token: "wood-oak" as const },
   { key: "finish.accent.ink", value: "#23282B", token: "painted" as const },
   { key: "finish.accent.brick", value: "#8A4A38", token: "painted" as const },
   { key: "finish.accent.cream", value: "#EFE8D8", token: "painted" as const },
@@ -211,12 +219,18 @@ function initialFinishes() {
     accentRun: "none" as AccentRun,
     counter: "quartz-white" as CounterFinish,
     floor: "floor-oak" as FloorFinish,
+    tileSize: "24x48" as TileSize,
   };
   if (typeof window === "undefined") return defaults;
 
   const query = new URLSearchParams(window.location.search);
-  const swatch = (palette: typeof CABINET_COLORS | typeof ACCENT_COLORS, name: string | null) =>
-    name ? palette.find((paint) => paint.key.endsWith(name)) : undefined;
+  // A swatch by name, or a RAL number from the table: `?cabinet=ral6005`.
+  const swatch = (palette: typeof CABINET_COLORS | typeof ACCENT_COLORS, name: string | null) => {
+    if (!name) return undefined;
+    const ral = lookupRal(name);
+    if (ral.ok) return { value: ral.colour.hex };
+    return palette.find((paint) => paint.key.endsWith(name));
+  };
   const cabinet = swatch(CABINET_COLORS, query.get("cabinet"));
   const accent = swatch(ACCENT_COLORS, query.get("accent"));
   const runs: AccentRun[] = ["none", "left", "back", "island"];
@@ -225,7 +239,7 @@ function initialFinishes() {
     marble: "marble-veined",
     oak: "wood-oak",
   };
-  const floors: Record<string, FloorFinish> = { oak: "floor-oak", tile: "tile-white" };
+  const floors: Record<string, FloorFinish> = { oak: "floor-oak", tile: "floor-tile" };
 
   return {
     cabinet: cabinet?.value ?? defaults.cabinet,
@@ -233,6 +247,7 @@ function initialFinishes() {
     accentRun: runs.find((run) => run === query.get("accentRun")) ?? defaults.accentRun,
     counter: counters[query.get("counter") ?? ""] ?? defaults.counter,
     floor: floors[query.get("floor") ?? ""] ?? defaults.floor,
+    tileSize: TILE_SIZES.find((size) => size === query.get("tile")) ?? defaults.tileSize,
   };
 }
 

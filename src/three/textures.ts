@@ -33,6 +33,9 @@ export type TextureKind =
   | "marble"
   | "quartz"
   | "tile"
+  | "floor-tile-24x48"
+  | "floor-tile-32x32"
+  | "floor-tile-48x48"
   | "sky";
 
 const cache = new Map<string, THREE.Texture>();
@@ -65,6 +68,7 @@ export interface Ink {
     to: number,
   ): void;
   stroke(): void;
+  fill(): void;
 }
 
 function canvas(size: number) {
@@ -100,6 +104,19 @@ export function brushedNormal(ctx: Ink, size: number) {
 }
 
 /**
+ * The four board tones for each oak.
+ *
+ * Round 33, Leo: both a shade deeper than they were, toward a mid brown around
+ * #8B6B47 rather than the pale yellow oak they had been. The floor sits a step
+ * darker than a door, so an oak kitchen on an oak floor still has an edge where
+ * the cabinets stop. The rings keep their contrast against the new ground.
+ */
+export const OAK_TONES = {
+  cabinet: ["#9A7A51", "#8B6B47", "#7C5E3D", "#93734B"],
+  floor: ["#806140", "#6F5337", "#604730", "#785A3C"],
+} as const;
+
+/**
  * Oak: boards in four tones, with growth rings running along them.
  *
  * The four tones are the point. A single brown with lines scratched into it
@@ -114,10 +131,8 @@ export function brushedNormal(ctx: Ink, size: number) {
  */
 export function oak(ctx: Ink, size: number, dark: boolean) {
   const next = random(dark ? 21 : 13);
-  const tones = dark
-    ? ["#B08A5E", "#9C7448", "#87613C", "#A67F53"]
-    : ["#D6B58C", "#C6A276", "#B18F63", "#CDAA80"];
-  const ink = dark ? "48,32,18" : "100,72,44";
+  const tones = dark ? OAK_TONES.floor : OAK_TONES.cabinet;
+  const ink = dark ? "34,22,12" : "54,36,20";
 
   const boards = 4;
   const boardH = size / boards;
@@ -167,175 +182,174 @@ export function oak(ctx: Ink, size: number, dark: boolean) {
 }
 
 /**
- * Marble, drawn the way a Calacatta or a Statuario slab actually looks.
+ * Marble, as ink bleeding into stone rather than lines drawn on it.
  *
- * Observed from photographs rather than invented; the notes are in
- * docs/reference/assets.md. What matters, in the order the eye takes it in:
+ * Round 33, Leo: the bezier veins read as something drawn — a stroke has a
+ * width, a start and an end, and the eye finds all three. A vein in a slab has
+ * none of them. So nothing here is a stroke. The vein is thousands of small,
+ * nearly transparent dots piled along a soft path: thick where they overlap in
+ * the middle, thinning out to single specks at the edge, which is what a stain
+ * spreading through a porous stone looks like. The band's width wanders, it
+ * breaks off and resumes, and fainter clusters of the same ink sit beside it.
  *
- * - The ground is not white. It is a warm off-white with slow, low-contrast
- *   clouding through it, and the clouding is what stops a slab reading as a
- *   painted board before you have even noticed a vein.
- * - There is one dominant vein, occasionally two, and it crosses the whole
- *   slab. It is not straight and it does not turn corners; it is a long curve.
- * - Its width changes along its length, and both ends taper away to nothing.
- *   A vein that starts and stops at full width reads as a drawn line.
- * - Around it there is a halo — the same colour, much fainter and much wider,
- *   bleeding into the stone.
- * - Branches leave it at a shallow angle, twenty to forty degrees, each shorter
- *   and finer than the one before.
- * - The colour is warm: grey with brown in it, never a neutral grey and never
- *   black.
+ * The ground is a warm grey, not white (see round 33's item 3): quartz is the
+ * pale counter, and marble is told apart from it at a glance.
  *
- * Everything is drawn three times, offset by a tile width each way, so a vein
- * running off one edge arrives on the other and the tile has no seam.
+ * The tile is twelve feet along a run and two and a half across it, so the
+ * canvas is stretched: every dot is an ellipse measured in inches on each axis,
+ * which lands round on the counter. A dot near an edge is drawn again on the
+ * far side, so the tile has no seam either way.
  */
-
-/** A point on a cubic bezier. */
-function bezier(
-  p0: [number, number],
-  p1: [number, number],
-  p2: [number, number],
-  p3: [number, number],
-  t: number,
-): [number, number] {
-  const u = 1 - t;
-  const a = u * u * u;
-  const b = 3 * u * u * t;
-  const c = 3 * u * t * t;
-  const d = t * t * t;
-  return [
-    a * p0[0] + b * p1[0] + c * p2[0] + d * p3[0],
-    a * p0[1] + b * p1[1] + c * p2[1] + d * p3[1],
-  ];
-}
+export const MARBLE = {
+  ground: "#D8D2C8",
+  /** The vein's ink: a dark grey with brown in it. */
+  ink: "86,74,62",
+  /** The slow clouding in the ground, a little darker than the ground. */
+  cloud: "176,168,156",
+  dotRadiusIn: [0.05, 0.4] as const,
+  dotAlpha: [0.03, 0.12] as const,
+  alongIn: 144,
+  acrossIn: 30,
+};
 
 export function marble(ctx: Ink, size: number) {
   const next = random(31);
-  /** A twelve-foot tile, so an inch of stone is this many pixels. */
-  const inch = size / (12 * 12);
-  // A light ink wash rather than a drawing: warm grey with brown in it, kept
-  // pale, so the slab reads as quiet stone rather than as a marked-up board.
-  // The strength is in the halo and the taper, not in how dark the line is.
-  const warm = (alpha: number) => `rgba(140,131,117,${alpha})`;
-  const pale = (alpha: number) => `rgba(170,163,151,${alpha})`;
+  const sx = size / MARBLE.alongIn;
+  const sy = size / MARBLE.acrossIn;
+  const [rMin, rMax] = MARBLE.dotRadiusIn;
+  const [aMin, aMax] = MARBLE.dotAlpha;
 
-  ctx.fillStyle = "#F5F2EB";
-  ctx.fillRect(0, 0, size, size);
-  ctx.lineCap = "round";
+  /** A standard normal, so most dots land near the middle of the band. */
+  const gauss = () => {
+    let u = 0;
+    while (u === 0) u = next();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * next());
+  };
+  /** A sum of sines with whole periods across the tile, so it wraps. */
+  const wave = (terms: [number, number][]) => {
+    const phases = terms.map(() => next() * Math.PI * 2);
+    return (t: number) =>
+      terms.reduce((sum, [amp, k], i) => sum + amp * Math.sin(2 * Math.PI * k * t + phases[i]), 0);
+  };
+  const wrap = (value: number) => ((value % size) + size) % size;
 
-  /** Slow clouding: very wide, very faint strokes wandering across the slab. */
-  for (let i = 0; i < 7; i += 1) {
-    ctx.strokeStyle = `rgba(196,190,180,${0.05 + next() * 0.05})`;
-    ctx.lineWidth = size * (0.12 + next() * 0.16);
-    ctx.beginPath();
-    let x = -size * 0.2;
-    let y = next() * size;
-    ctx.moveTo(x, y);
-    while (x < size * 1.2) {
-      const cx = x + size * 0.2;
-      const cy = y + (next() - 0.5) * size * 0.3;
-      x += size * 0.4;
-      y += (next() - 0.5) * size * 0.35;
-      ctx.quadraticCurveTo(cx, cy, x, y);
+  /** One dot, measured in inches, drawn again across any edge it touches. */
+  const dot = (x: number, y: number, radiusIn: number, style: string) => {
+    const rx = radiusIn * sx;
+    const ry = radiusIn * sy;
+    const cx = wrap(x);
+    const cy = wrap(y);
+    const xs = [cx];
+    if (cx - rx < 0) xs.push(cx + size);
+    if (cx + rx > size) xs.push(cx - size);
+    const ys = [cy];
+    if (cy - ry < 0) ys.push(cy + size);
+    if (cy + ry > size) ys.push(cy - size);
+    ctx.fillStyle = style;
+    for (const px of xs) {
+      for (const py of ys) {
+        ctx.beginPath();
+        ctx.ellipse(px, py, rx, ry, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
-    ctx.stroke();
+  };
+
+  ctx.fillStyle = MARBLE.ground;
+  ctx.fillRect(0, 0, size, size);
+
+  // Clouding: a few very large, very faint patches, so the ground is not a
+  // painted board before any vein is seen.
+  for (let i = 0; i < 26; i += 1) {
+    dot(
+      next() * size,
+      next() * size,
+      3 + next() * 7,
+      `rgba(${MARBLE.cloud},${(0.025 + next() * 0.03).toFixed(3)})`,
+    );
   }
 
   /**
-   * One vein: a bezier walked in short segments, each stroked at its own
-   * width. That is the only way to get a line that swells in the middle and
-   * fades to nothing at both ends — a single stroke has one width.
+   * A band of ink along a soft path across the slab.
+   *
+   * Dots are spread across the band by a normal distribution, so they pile up
+   * in the middle and thin out at the edges, and each dot's opacity falls with
+   * its distance from the middle too. The band's width wanders along its
+   * length, and where the gap wave dips most of it is simply not drawn.
    */
-  function vein(
-    from: [number, number],
-    to: [number, number],
-    widthIn: number,
-    ink: (alpha: number) => string,
-    strength: number,
-    depth: number,
-  ) {
-    const bend = size * (0.18 + next() * 0.22);
-    const p1: [number, number] = [
-      from[0] + (to[0] - from[0]) * 0.3,
-      from[1] + (to[1] - from[1]) * 0.3 - bend,
-    ];
-    const p2: [number, number] = [
-      from[0] + (to[0] - from[0]) * 0.7,
-      from[1] + (to[1] - from[1]) * 0.7 + bend * 0.7,
-    ];
-
-    const steps = 40;
+  function band(opts: {
+    centreIn: number;
+    /** The path the band follows across the slab, so two passes can share one. */
+    path: (t: number) => number;
+    widthIn: [number, number];
+    dotsPerPx: number;
+    strength: number;
+  }) {
+    const { path } = opts;
+    const width = wave([
+      [0.6, 3],
+      [0.4, 7],
+    ]);
+    const gaps = wave([
+      [1, 2],
+      [0.55, 5],
+    ]);
+    const count = Math.round(size * opts.dotsPerPx);
     const points: [number, number][] = [];
-    for (let i = 0; i <= steps; i += 1) points.push(bezier(from, p1, p2, to, i / steps));
-
-    // The halo first, then the vein: wide and faint under narrow and dark.
-    for (const [spread, alpha] of [
-      [7, 0.09],
-      [2.6, 0.18],
-      [1, 0.46],
-    ] as const) {
-      for (let i = 1; i < points.length; i += 1) {
-        const t = i / steps;
-        // Thin at both ends, fattest around the middle, wobbling as it goes.
-        const taper = Math.sin(Math.PI * t) ** 0.55;
-        const wobble = 0.7 + 0.6 * Math.sin(t * 9 + depth);
-        ctx.strokeStyle = ink(alpha * strength);
-        ctx.lineWidth = Math.max(0.4, widthIn * inch * taper * wobble * spread);
-        // Three passes across the tile, so nothing stops at an edge.
-        for (const shift of [-size, 0, size]) {
-          ctx.beginPath();
-          ctx.moveTo(points[i - 1][0] + shift, points[i - 1][1]);
-          ctx.lineTo(points[i][0] + shift, points[i][1]);
-          ctx.stroke();
-        }
-      }
+    for (let i = 0; i < count; i += 1) {
+      const t = next();
+      // Broken off here and there: most of the dots in a gap are not drawn.
+      if (gaps(t) < -0.9 && next() > 0.1) continue;
+      const w = opts.widthIn[0] + (opts.widthIn[1] - opts.widthIn[0]) * (0.5 + 0.5 * Math.max(-1, Math.min(1, width(t))));
+      const n = gauss();
+      const core = Math.exp((-n * n) / 2);
+      const yIn = opts.centreIn + path(t) + (n * w) / 2;
+      const alpha = aMin + (aMax - aMin) * core * opts.strength;
+      const radius = rMin + (rMax - rMin) * next() ** 2;
+      dot(t * size, yIn * sy, radius, `rgba(${MARBLE.ink},${alpha.toFixed(3)})`);
+      if (i % 97 === 0) points.push([t * size, (opts.centreIn + path(t)) * sy]);
     }
     return points;
   }
 
-  /** Branches: shallow, shorter each time, finer each time. */
-  function branches(spine: [number, number][], widthIn: number, depth: number) {
-    let reach = size * 0.3;
-    let width = widthIn * 0.45;
-    // Three, not a network. An ink wash is a few decided strokes and a lot of
-    // paper; a slab covered in branches reads as granite, or as busy.
-    for (let i = 0; i < 3; i += 1) {
-      const at = spine[6 + Math.floor(next() * (spine.length - 12))];
-      // Twenty to forty degrees off the slab's diagonal, either side of it.
-      const angle = (20 + next() * 20) * (Math.PI / 180) * (next() < 0.5 ? -1 : 1);
-      const to: [number, number] = [
-        at[0] + Math.cos(angle) * reach,
-        at[1] + Math.sin(angle) * reach,
-      ];
-      vein(at, to, width, pale, 0.8, depth + i);
-      reach *= 0.7;
-      width *= 0.75;
+  // The dominant band across the slab. Drawn twice along one path: a wide,
+  // faint pass that is the stain spreading out into the stone, then the band
+  // itself piled up over it. Same ink, same dot sizes; the halo is only wider
+  // and thinner. Its companion is narrower and fainter.
+  /** A soft path across the slab, wandering this many inches either way. */
+  const softPath = (wanderIn: number) =>
+    wave([
+      [wanderIn, 1],
+      [wanderIn * 0.45, 2],
+      [wanderIn * 0.18, 5],
+    ]);
+  const mainPath = { centreIn: MARBLE.acrossIn * 0.58, path: softPath(5) };
+  band({ ...mainPath, widthIn: [5, 12], dotsPerPx: 4, strength: 0.25 });
+  const main = band({ ...mainPath, widthIn: [2, 6], dotsPerPx: 14, strength: 1 });
+  band({
+    centreIn: MARBLE.acrossIn * 0.2,
+    path: softPath(2.5),
+    widthIn: [0.8, 2.5],
+    dotsPerPx: 5,
+    strength: 0.5,
+  });
+
+  // Paler clusters of the same ink beside the main band, where the stain has
+  // found its way a couple of inches out into the stone.
+  for (let c = 0; c < 28; c += 1) {
+    const [x, y] = main[Math.floor(next() * main.length)];
+    const offIn = (2 + next() * 3) * (next() < 0.5 ? -1 : 1);
+    const spreadIn = 0.4 + next() * 1.2;
+    const dots = 20 + Math.floor(next() * 40);
+    for (let i = 0; i < dots; i += 1) {
+      dot(
+        x + gauss() * spreadIn * 2 * sx,
+        y + (offIn + gauss() * spreadIn) * sy,
+        rMin + (0.2 - rMin) * next(),
+        `rgba(${MARBLE.ink},${(aMin + next() * 0.02).toFixed(3)})`,
+      );
     }
   }
-
-  // The dominant vein, corner to corner, and a companion much fainter and
-  // never parallel to it.
-  const main = vein(
-    [-size * 0.15, size * (0.72 + next() * 0.16)],
-    [size * 1.15, size * (0.08 + next() * 0.16)],
-    0.75,
-    warm,
-    1,
-    0,
-  );
-  branches(main, 0.75, 3);
-
-  // One companion, far paler and never parallel to it. That is the whole
-  // composition: a stroke, a lighter answer to it, and space.
-  const second = vein(
-    [-size * 0.15, size * (0.25 + next() * 0.15)],
-    [size * 1.15, size * (0.58 + next() * 0.22)],
-    0.3,
-    pale,
-    0.6,
-    5,
-  );
-  branches(second, 0.3, 11);
 }
 
 /**
@@ -370,6 +384,79 @@ export function tile(ctx: Ink, size: number) {
       ctx.fillStyle = "#F4F2EC";
       ctx.fillRect(x * cell + inset, y * cell + inset, cell - inset * 2, cell - inset * 2);
     }
+  }
+}
+
+/**
+ * Large-format floor tile, the sizes the market sells it in.
+ *
+ * Round 33, Leo: a floor in 24" x 48" (the default), 32" x 32" or 48" x 48"
+ * panels. What makes a large panel look expensive is how little grout there is:
+ * the joint is a sixteenth of an inch, darker than the tile but not black. The
+ * rows are offset by a third of a tile rather than a half — half-bond is how
+ * small tile is laid, and on a four-foot panel it puts a seam in the middle of
+ * the next one's width. And no two panels are quite the same grey: a pressed or
+ * cut panel varies within a batch, and a floor of identical squares reads as a
+ * printed pattern.
+ *
+ * The long side of a rectangular panel runs along the texture's x axis. One
+ * texture covers two panels along and six rows across — six so the third-bond
+ * comes round twice and there are twelve panels to vary — and the finish sets
+ * its repeat to exactly that many inches so a tile is its real size on the floor.
+ */
+export const TILE_FORMATS = {
+  "24x48": { alongIn: 48, acrossIn: 24 },
+  "32x32": { alongIn: 32, acrossIn: 32 },
+  "48x48": { alongIn: 48, acrossIn: 48 },
+} as const;
+export type TileFormat = keyof typeof TILE_FORMATS;
+
+export const FLOOR_TILE = {
+  /** Panels along, and rows across, in one texture. */
+  along: 2,
+  rows: 6,
+  groutIn: 1 / 16,
+  base: [0x4a, 0x4a, 0x48] as const,
+  grout: "#383836",
+  /** How far a panel's grey may stray from the base, per channel. */
+  shadeSpread: 5,
+};
+
+export function floorTile(ctx: Ink, size: number, format: TileFormat) {
+  const { alongIn, acrossIn } = TILE_FORMATS[format];
+  const next = random(41 + alongIn + acrossIn);
+  const sx = size / (alongIn * FLOOR_TILE.along);
+  const sy = size / (acrossIn * FLOOR_TILE.rows);
+  // A sixteenth of an inch, or a pixel where that is less than one.
+  const gx = Math.max(1, FLOOR_TILE.groutIn * sx);
+  const gy = Math.max(1, FLOOR_TILE.groutIn * sy);
+
+  ctx.fillStyle = FLOOR_TILE.grout;
+  ctx.fillRect(0, 0, size, size);
+
+  for (let row = 0; row < FLOOR_TILE.rows; row += 1) {
+    const offsetIn = ((row % 3) * alongIn) / 3;
+    const top = row * acrossIn * sy;
+    for (let col = 0; col < FLOOR_TILE.along; col += 1) {
+      const shade = Math.round((next() * 2 - 1) * FLOOR_TILE.shadeSpread);
+      const [r, g, b] = FLOOR_TILE.base.map((channel) => channel + shade);
+      ctx.fillStyle = `rgb(${r},${g},${b})`;
+      const left = (col * alongIn + offsetIn) * sx;
+      // A panel pushed past the right edge by the bond arrives on the left.
+      for (const shift of [0, -size]) {
+        ctx.fillRect(left + shift + gx / 2, top + gy / 2, alongIn * sx - gx, acrossIn * sy - gy);
+      }
+    }
+  }
+
+  // A faint mottle in the face, finer than anything else here.
+  const grain = Math.max(1, size / 1024);
+  for (let i = 0; i < size * 3; i += 1) {
+    const light = next() < 0.5;
+    ctx.fillStyle = light
+      ? `rgba(255,255,250,${(0.02 + next() * 0.03).toFixed(3)})`
+      : `rgba(20,20,18,${(0.02 + next() * 0.03).toFixed(3)})`;
+    ctx.fillRect(next() * size, next() * size, grain, grain);
   }
 }
 
@@ -421,6 +508,9 @@ export const DRAW: Record<TextureKind, (ctx: Ink, size: number) => void> = {
   marble,
   quartz,
   tile,
+  "floor-tile-24x48": (ctx, size) => floorTile(ctx, size, "24x48"),
+  "floor-tile-32x32": (ctx, size) => floorTile(ctx, size, "32x32"),
+  "floor-tile-48x48": (ctx, size) => floorTile(ctx, size, "48x48"),
   sky,
 };
 
@@ -439,7 +529,14 @@ export const DRAW: Record<TextureKind, (ctx: Ink, size: number) => void> = {
  * pixels wide at the default size. So it gets twice the pixels; everything else
  * has no detail that fine.
  */
-const DETAIL: Partial<Record<TextureKind, number>> = { marble: 2 };
+const DETAIL: Partial<Record<TextureKind, number>> = {
+  marble: 2,
+  // A texture of floor tile covers up to two panels by six rows — as much as
+  // eight feet by twenty-four — and its grout still has to be a line.
+  "floor-tile-24x48": 2,
+  "floor-tile-32x32": 2,
+  "floor-tile-48x48": 2,
+};
 
 export function texture(kind: TextureKind, size: number): THREE.Texture {
   const key = `${kind}@${size}`;

@@ -803,6 +803,22 @@ all is the default, because one colour is what "the cabinets are green" means.
 that only reaches part of a run; putting either palette on the quote. Colour is
 how the room is looked at, not what is bought (D12).
 
+**Amended 2026-09-13 (round 33), Leo: any RAL colour in the table, and deeper
+woods.** The five swatches stay as the quick picks for both palettes, and under
+each is a RAL number input. A number in `data/ral.json` paints the doors — or
+the accent run — exactly that colour; a number the table does not carry says so
+and changes nothing, and so does anything that is not a RAL number. The table is
+forty codes kitchens are commonly specified in, with the sRGB values from the
+detail table of Wikipedia's *List of RAL colours*. RAL publishes no official
+sRGB, so these are approximations, and `_meta.provenance` in the file says so.
+It is still colour, not product: nothing about it reaches the package or the
+quote. The oak on doors and floors is a shade deeper, toward #8B6B47, and the
+clay swatch is a deeper walnut brown to match (#6B4E3D). A tile floor is large
+format — 24" x 48" by default, 32" x 32" or 48" x 48" — laid third-bond with
+1/16" joints; the size is a finish setting under Floor. Marble is warm grey with
+ink-dot veining, and quartz stays pale. None of it is a download; every surface
+is still drawn on a canvas.
+
 ---
 
 ## D14 · The layout is a plain sequence, not a derived value

@@ -1,0 +1,209 @@
+{
+  "_meta": {
+    "generatedBy": "Hand-picked from the detail table of Wikipedia's 'List of RAL colours' (raw wikitext), HEX column",
+    "updatedAt": "2026-09-13",
+    "provenance": "https://en.wikipedia.org/wiki/List_of_RAL_colours, retrieved 2026-09-13. RAL publishes no official sRGB value for any Classic colour; these are Wikipedia's approximations, taken from the page's detail table (the colour column of the summary table disagrees for a few codes, e.g. RAL 9003 and RAL 9005, and is not used). Forty codes commonly specified for kitchen cabinetry: whites and creams, beiges and browns, greys, black, greens and blues. A code outside this list is reported as not included rather than guessed."
+  },
+  "colours": [
+    {
+      "code": "RAL 9001",
+      "name": "Cream",
+      "hex": "#EFEBDC"
+    },
+    {
+      "code": "RAL 9002",
+      "name": "Grey white",
+      "hex": "#DDDED4"
+    },
+    {
+      "code": "RAL 9003",
+      "name": "Signal white",
+      "hex": "#F4F8F4"
+    },
+    {
+      "code": "RAL 9010",
+      "name": "Pure white",
+      "hex": "#F7F9EF"
+    },
+    {
+      "code": "RAL 9016",
+      "name": "Traffic white",
+      "hex": "#F7FBF5"
+    },
+    {
+      "code": "RAL 1013",
+      "name": "Oyster white",
+      "hex": "#E3D9C6"
+    },
+    {
+      "code": "RAL 1015",
+      "name": "Light ivory",
+      "hex": "#E6D2B5"
+    },
+    {
+      "code": "RAL 1001",
+      "name": "Beige",
+      "hex": "#D0B084"
+    },
+    {
+      "code": "RAL 1019",
+      "name": "Grey beige",
+      "hex": "#A48F7A"
+    },
+    {
+      "code": "RAL 8014",
+      "name": "Sepia brown",
+      "hex": "#49392D"
+    },
+    {
+      "code": "RAL 8017",
+      "name": "Chocolate brown",
+      "hex": "#44322D"
+    },
+    {
+      "code": "RAL 8019",
+      "name": "Grey brown",
+      "hex": "#3F3A3A"
+    },
+    {
+      "code": "RAL 8024",
+      "name": "Beige brown",
+      "hex": "#79553C"
+    },
+    {
+      "code": "RAL 8025",
+      "name": "Pale brown",
+      "hex": "#755C49"
+    },
+    {
+      "code": "RAL 7035",
+      "name": "Light grey",
+      "hex": "#CBD0CC"
+    },
+    {
+      "code": "RAL 7044",
+      "name": "Silk grey",
+      "hex": "#BDBDB2"
+    },
+    {
+      "code": "RAL 7047",
+      "name": "Telegrey 4",
+      "hex": "#CFD0CF"
+    },
+    {
+      "code": "RAL 7032",
+      "name": "Pebble grey",
+      "hex": "#B9B9A8"
+    },
+    {
+      "code": "RAL 7030",
+      "name": "Stone grey",
+      "hex": "#939388"
+    },
+    {
+      "code": "RAL 7039",
+      "name": "Quartz grey",
+      "hex": "#6B695F"
+    },
+    {
+      "code": "RAL 7022",
+      "name": "Umbra grey",
+      "hex": "#4B4D46"
+    },
+    {
+      "code": "RAL 7015",
+      "name": "Slate grey",
+      "hex": "#51565C"
+    },
+    {
+      "code": "RAL 7016",
+      "name": "Anthracite grey",
+      "hex": "#373F43"
+    },
+    {
+      "code": "RAL 7021",
+      "name": "Black grey",
+      "hex": "#2E3234"
+    },
+    {
+      "code": "RAL 7024",
+      "name": "Graphite grey",
+      "hex": "#474A50"
+    },
+    {
+      "code": "RAL 7026",
+      "name": "Granite grey",
+      "hex": "#374447"
+    },
+    {
+      "code": "RAL 9005",
+      "name": "Jet black",
+      "hex": "#0A0A0D"
+    },
+    {
+      "code": "RAL 6005",
+      "name": "Moss green",
+      "hex": "#0F4336"
+    },
+    {
+      "code": "RAL 6009",
+      "name": "Fir green",
+      "hex": "#26392F"
+    },
+    {
+      "code": "RAL 6012",
+      "name": "Black green",
+      "hex": "#31403D"
+    },
+    {
+      "code": "RAL 6021",
+      "name": "Pale green",
+      "hex": "#86A47C"
+    },
+    {
+      "code": "RAL 6028",
+      "name": "Pine green",
+      "hex": "#2D5546"
+    },
+    {
+      "code": "RAL 6011",
+      "name": "Reseda green",
+      "hex": "#68825B"
+    },
+    {
+      "code": "RAL 6013",
+      "name": "Reed green",
+      "hex": "#797C5A"
+    },
+    {
+      "code": "RAL 5003",
+      "name": "Sapphire blue",
+      "hex": "#2A3756"
+    },
+    {
+      "code": "RAL 5008",
+      "name": "Grey blue",
+      "hex": "#313C48"
+    },
+    {
+      "code": "RAL 5011",
+      "name": "Steel blue",
+      "hex": "#232C3F"
+    },
+    {
+      "code": "RAL 5014",
+      "name": "Pigeon blue",
+      "hex": "#6C7C98"
+    },
+    {
+      "code": "RAL 5023",
+      "name": "Distant blue",
+      "hex": "#4D668E"
+    },
+    {
+      "code": "RAL 5024",
+      "name": "Pastel blue",
+      "hex": "#6A93B0"
+    }
+  ]
+}

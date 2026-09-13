@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { HOOD_OPENING, ROOM, RUN, WINDOWS, ft, fridgeReturnWall } from "../data/room";
 import { useAppStore } from "../store/useAppStore";
-import { finish, floorColor, wallColor } from "./materials";
+import { finish, floorColor, wallColor, type FinishToken } from "./materials";
 import { Surface } from "./Surface";
 import { WindowLayer, wallWithWindows } from "./WindowLayer";
 
@@ -16,16 +16,22 @@ export function KitchenShell() {
   const renderMode = useAppStore((s) => s.renderMode);
   const lighting = useAppStore((s) => s.lighting);
 
-  const floorToken = useAppStore((s) => s.finishes.floor);
+  const floorFinish = useAppStore((s) => s.finishes.floor);
+  const tileSize = useAppStore((s) => s.finishes.tileSize);
+  const tiled = floorFinish === "floor-tile";
+  const floorToken: FinishToken = tiled ? `floor-tile-${tileSize}` : "floor-oak";
   const floor = floorColor(renderMode, lighting);
   const wall = wallColor(renderMode, lighting);
   const wallOpacity = renderMode === "install" ? 0.35 : 1;
 
   // The floor keeps its night tint under a texture: after dark a room is not
   // the same wood at lower brightness, it is a warmer, dimmer version of it.
+  // A grey tile dims without warming; it is stone, not wood.
   const floorSurface = {
     ...finish(renderMode, floorToken),
-    ...(lighting === "night" && renderMode === "realistic" ? { color: "#A79274" } : {}),
+    ...(lighting === "night" && renderMode === "realistic"
+      ? { color: tiled ? "#B4B4B0" : "#857A6A" }
+      : {}),
     ...(renderMode !== "realistic" ? { color: floor } : {}),
   };
   // The walls are shapes rather than planes, because they have holes in them:

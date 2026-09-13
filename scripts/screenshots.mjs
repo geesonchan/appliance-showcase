@@ -1101,9 +1101,71 @@ async function captureRound32(browser) {
   await desktop.close();
 }
 
+/**
+ * Round 33: the finishes.
+ *
+ * The room in each of the five cabinet swatches, the marble counter close up
+ * where the ink dots have to read as stone, the tile floor close up in its
+ * default size and its largest, and the RAL input — one number it knows, and one
+ * it does not.
+ */
+async function captureRound33(browser) {
+  const desktop = await browser.newContext({ viewport: DESKTOP, deviceScaleFactor: 2 });
+  const page = await desktop.newPage();
+  const open = async (query) => {
+    await page.goto(baseUrl + query, { waitUntil: "networkidle" });
+    await settle(page, 2800);
+  };
+  const zoom = async (steps) => {
+    for (let i = 0; i < steps; i += 1) {
+      await click(page, "Zoom in");
+      await page.waitForTimeout(250);
+    }
+    await settle(page, 1200);
+  };
+
+  for (const swatch of ["green", "navy", "clay", "bone", "oak"]) {
+    await open(`?cabinet=${swatch}`);
+    await page.screenshot({ path: `${outDir}/desktop-cabinet-${swatch}.png` });
+  }
+
+  await open("?counter=marble");
+  await page.click(`button[data-rail="left"]`);
+  await settle(page, 700);
+  await page.locator(`aside [data-panel="list"] button`, { hasText: "Dishwasher" }).first().click();
+  await settle(page, 1800);
+  await zoom(2);
+  await page.screenshot({ path: `${outDir}/desktop-marble-close.png` });
+
+  for (const size of ["24x48", "48x48"]) {
+    await open(`?floor=tile&tile=${size}`);
+    await zoom(3);
+    await page.screenshot({ path: `${outDir}/desktop-tile-${size}-close.png` });
+  }
+  await open("?floor=tile");
+  await page.screenshot({ path: `${outDir}/desktop-tile-room.png` });
+
+  await open("");
+  await page.fill(`[data-ral-input="cabinet"]`, "RAL 6005");
+  await page.click(`[data-ral-apply="cabinet"]`);
+  await settle(page, 1400);
+  await page.fill(`[data-ral-input="cabinet"]`, "RAL 1234");
+  await page.click(`[data-ral-apply="cabinet"]`);
+  await settle(page, 600);
+  await page.screenshot({ path: `${outDir}/desktop-ral-input.png` });
+  await desktop.close();
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round33") {
+    await captureRound33(browser);
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round32") {
     await captureRound32(browser);

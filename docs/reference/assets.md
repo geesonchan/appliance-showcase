@@ -8,10 +8,11 @@ are no image files in the repository, and nothing is fetched from a CDN.
 | Map | What it is | Source | Licence |
 | --- | --- | --- | --- |
 | `brushed-normal` | Horizontal streaks in a normal map, so stainless catches a band of reflection rather than a blur | Drawn on a canvas in `brushedNormal()` | Original, MIT with this repository |
-| `oak` / `oak-floor` | Warm bands with grain lines wandering along them | `oak()` | Original |
-| `marble` | Warm off-white with clouding, one or two tapering veins and their branches | `marble()` | Original |
+| `oak` / `oak-floor` | Mid-brown boards (round 33: around #8B6B47, the floor a step darker) with grain lines wandering along them | `oak()` | Original |
+| `marble` | Warm grey ground (#D8D2C8) with ink-dot veining: thousands of small translucent dots piled along soft paths, and no strokes (round 33) | `marble()` | Original |
 | `quartz` | Near-white with a fine speckle and no veining | `quartz()` | Original |
-| `tile` | A four-by-four grid with a grout line | `tile()` | Original |
+| `tile` | A four-by-four grid with a grout line, for the backsplash | `tile()` | Original |
+| `floor-tile-24x48` / `-32x32` / `-48x48` | Large-format grey panels (#4A4A48) laid in third-bond, 1/16" joints, each panel a slightly different grey (round 33) | `floorTile()` | Original |
 
 They are drawn once per size and cached. The quality tier picks the size: 512px
 on a desktop, 256px on a phone or after the frame-rate guard steps in.
@@ -23,6 +24,20 @@ on a desktop, 256px on a phone or after the frame-rate guard steps in.
 library, so it is a dependency rather than an asset.
 
 ## What marble actually looks like
+
+**Superseded in round 33, Leo.** The six points below produced tapered bezier
+veins, and a stroke still reads as drawn: it has a width, a start and an end.
+The marble is now ink bleeding into stone. The ground is a warm grey (#D8D2C8)
+rather than off-white, so it stands apart from the quartz. The veining is no
+strokes at all: thousands of dots, each 0.05"-0.4" across and 3%-12% opaque,
+piled along a soft path. They are dense and dark at the middle of the band and
+thin to single specks at its edges. The band's width wanders and breaks off, and
+paler clusters of the same ink sit a few inches out from it. `textures.test.ts`
+holds it to that: no stroke longer than an inch at one width, more than 500 ink
+dots, every dot inside those radius and opacity ranges, a band that crosses the
+slab and is densest at its middle, and a ground clearly darker than the quartz.
+What the photographs showed still stands for the composition — one dominant
+band, warm ink, clouding in the ground.
 
 Before redrawing the marble I looked at Calacatta and Statuario photographs on
 Pexels — search results only, nothing downloaded, nothing in this repository.

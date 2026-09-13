@@ -691,6 +691,50 @@ describe("cabinet finishes", () => {
   });
 });
 
+describe("RAL colours", () => {
+  /**
+   * A RAL number typed into the finish picker paints the doors exactly the
+   * table's value, and one it cannot read changes nothing. Round 33.
+   */
+  it("paints the doors in a typed RAL colour, and leaves them for one it does not know", async () => {
+    const { page, errors } = await openPage(DESKTOP, false, "?debug=1");
+    const panels = () =>
+      page.evaluate(() =>
+        (window as unknown as { __cabinetPanels: () => string[] }).__cabinetPanels(),
+      );
+    const type = async (which: string, text: string) => {
+      await page.fill(`[data-ral-input="${which}"]`, text);
+      await page.click(`[data-ral-apply="${which}"]`);
+      await page.waitForTimeout(700);
+    };
+
+    await page.waitForSelector(`[data-ral-input="cabinet"]`);
+    const before = await panels();
+
+    // Not in the table: an error, and the doors as they were.
+    await type("cabinet", "RAL 1234");
+    expect(await page.textContent(`[data-ral-error="cabinet"]`)).toContain("RAL 1234");
+    expect(await panels()).toEqual(before);
+    // Not a RAL number at all: the same.
+    await type("cabinet", "green");
+    expect(await page.$(`[data-ral-error="cabinet"]`)).not.toBeNull();
+    expect(await panels()).toEqual(before);
+
+    // In the table: every panel is that colour, and the picker says which.
+    await type("cabinet", "RAL 6005");
+    expect(await panels()).toEqual(["#0F4336"]);
+    expect(await page.textContent(`[data-ral-current="cabinet"]`)).toContain("RAL 6005");
+
+    // The accent takes one too.
+    await page.click(`[data-segment="accent-run"] button[data-value="left"]`);
+    await type("accent", "ral 9010");
+    expect(await panels()).toEqual(["#0F4336", "#F7F9EF"].sort());
+
+    expect(errors).toEqual([]);
+    await page.context().close();
+  });
+});
+
 describe("tower vent", () => {
   /**
    * The vent in the top of a hung oven's opening, at the back (D11, round 32).
