@@ -153,7 +153,10 @@ export function wineColumnParts(
 ): WineColumnParts {
   const W = WINE_COLUMN;
   const doorH = Math.min(ft(W.doorHeightIn), box.h);
-  const doorW = Math.min(ft(W.doorWidthIn), box.w);
+  // The drawing's 17-3/4" on an 18" column, and on a wider one its own width
+  // less a reveal each side — 23-3/4" on a 24" column. Taking the 18" door as
+  // every column's door put a 24" column's case in view either side of it.
+  const doorW = Math.min(box.w, Math.max(ft(W.doorWidthIn), box.w - ft(W.revealIn * 2)));
   // Four inches off the floor, which is the grille under it — not centred in
   // the opening. The refrigerator beside it starts its own fronts at the same
   // four, whatever the grille behind them is, so the two doors are on one
@@ -201,11 +204,120 @@ export function wineColumnParts(
   };
 }
 
+/**
+ * Package D's steam oven: a double oven, steam over convection.
+ *
+ * It has no microwave, so the reach rule the combination oven is hung from does
+ * not apply. What stands in for it is the lower door's handle, which Leo puts
+ * at 40" off the floor: 22" up the machine's own front on the double-oven
+ * elevation, so the opening starts at 18" — the same sill package B's tower
+ * lands on at its default reach. Measured from the machine's bottom, like the
+ * combination oven's figures.
+ */
+export const STEAM_OVEN = {
+  /** Where the lower door's bar sits, up the machine's own front. */
+  lowerHandleIn: 22,
+  /** Where Leo wants that handle, off the floor. */
+  handleReferenceIn: 40,
+  /** Where the lower door stops and the steam oven's door starts. */
+  splitIn: 23.75,
+  /** The control strip across the top. */
+  controlIn: 4.5,
+  /** The upper door's bar, down from its own top. */
+  upperHandleDropIn: 1.75,
+};
+
+/** The sill that puts the lower handle where Leo asked: 40 less 22. */
+export const steamOvenSillIn = () => STEAM_OVEN.handleReferenceIn - STEAM_OVEN.lowerHandleIn;
+
+/** True when this machine is a double oven. */
+export const isDouble = (appliance: Appliance) => appliance.installType.includes("double");
+
+/**
+ * A double oven's front, given the envelope it is drawn in: the convection
+ * oven's door at the bottom with its bar where the handle figure puts it, the
+ * steam oven's over it, and the control strip across the top. Same parts as a
+ * combination oven, so the same component draws both.
+ */
+export function doubleOvenParts(box: { w: number; h: number }): ComboOvenParts {
+  const S = STEAM_OVEN;
+  const reveal = ft(COMBO_OVEN.revealIn);
+  const split = Math.min(ft(S.splitIn), box.h / 2);
+  const controlFloor = box.h - ft(S.controlIn);
+  return {
+    doors: [
+      { band: [0, split - reveal] as const, kind: "oven", handleAt: ft(S.lowerHandleIn) },
+      {
+        band: [split, controlFloor - reveal] as const,
+        kind: "steam",
+        handleAt: controlFloor - reveal - ft(S.upperHandleDropIn),
+      },
+      { band: [controlFloor, box.h] as const, kind: "control", handleAt: null },
+    ],
+    handle: {
+      r: ft(COMBO_OVEN.handleDiameterIn) / 2,
+      proud: ft(COMBO_OVEN.handleProudIn),
+      width: box.w * COMBO_OVEN.handleFraction,
+    },
+    glassInset: ft(COMBO_OVEN.glassInsetIn),
+  };
+}
+
+/**
+ * A built-in coffee machine's front, in inches up and across it.
+ *
+ * From the TCM24PS product elevation: a steel face with a display strip across
+ * the top, and the dispensing niche in the lower middle — the recess a cup
+ * stands in, with the spout at the top of it and the drip grate at the bottom.
+ * The niche is what makes it read as a coffee machine rather than a small oven,
+ * so it is the part drawn with any care.
+ */
+export const COFFEE_MACHINE = {
+  displayIn: 2.75,
+  displayWidthIn: 12,
+  nicheWidthIn: 9.5,
+  nicheHeightIn: 9.25,
+  nicheFromBottomIn: 1.25,
+  nicheDepthIn: 3,
+  spoutWidthIn: 3.5,
+  spoutHeightIn: 1.5,
+  grateHeightIn: 0.5,
+};
+
+export interface CoffeeParts {
+  display: { w: number; h: number; y: number };
+  niche: { w: number; h: number; y: number; depth: number };
+  spout: { w: number; h: number; y: number };
+  grate: { w: number; h: number; y: number };
+}
+
+/** The coffee machine's face, fitted to the envelope it is drawn in. */
+export function coffeeParts(box: { w: number; h: number }): CoffeeParts {
+  const C = COFFEE_MACHINE;
+  const nicheH = Math.min(ft(C.nicheHeightIn), box.h * 0.6);
+  const nicheY = ft(C.nicheFromBottomIn) + nicheH / 2;
+  const displayH = Math.min(ft(C.displayIn), box.h * 0.2);
+  return {
+    display: {
+      w: Math.min(ft(C.displayWidthIn), box.w * 0.6),
+      h: displayH,
+      y: box.h - displayH / 2 - ft(1),
+    },
+    niche: { w: Math.min(ft(C.nicheWidthIn), box.w * 0.5), h: nicheH, y: nicheY, depth: ft(C.nicheDepthIn) },
+    spout: {
+      w: ft(C.spoutWidthIn),
+      h: ft(C.spoutHeightIn),
+      y: nicheY + nicheH / 2 - ft(C.spoutHeightIn) / 2,
+    },
+    grate: { w: Math.min(ft(C.nicheWidthIn), box.w * 0.5), h: ft(C.grateHeightIn), y: nicheY - nicheH / 2 + ft(C.grateHeightIn) / 2 },
+  };
+}
+
 export interface ComboOvenParts {
   /** The two doors and the control panel, bottom to top. */
   doors: {
     band: readonly [number, number];
-    kind: "oven" | "microwave" | "control";
+    kind: "oven" | "microwave" | "steam" | "control";
     /** Where the bar sits on it, or null for the control panel. */
     handleAt: number | null;
   }[];

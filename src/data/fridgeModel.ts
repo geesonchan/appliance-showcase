@@ -1,5 +1,9 @@
 import { CABINET_STANDARDS, ROOM, ft } from "./roomShell";
+import { WINE_COLUMN } from "./columnModel";
 import type { Appliance } from "../types";
+
+/** True for a full-height column rather than a refrigerator with drawers. */
+const standsAsColumn = (appliance: Appliance) => appliance.installType.includes("column");
 
 /**
  * How a refrigerator opens, as geometry.
@@ -23,10 +27,14 @@ export const DEFAULT_DOOR_CONFIG: DoorConfig = "french-door-1-drawer";
 
 /** True when the front being drawn is a guess rather than a published fact. */
 export const hasGenericDoors = (appliance: Appliance | undefined) =>
-  appliance?.category === "refrigerator" && !appliance.doorConfig;
+  appliance?.category === "refrigerator" && !appliance.doorConfig && !standsAsColumn(appliance);
 
+/**
+ * A column is one door, whatever the sheet's Feature column says: a fresh-food
+ * column and a freezer column are both a single steel door from the grille up.
+ */
 export const doorConfigOf = (appliance: Appliance): DoorConfig =>
-  appliance.doorConfig ?? DEFAULT_DOOR_CONFIG;
+  appliance.doorConfig ?? (standsAsColumn(appliance) ? "column" : DEFAULT_DOOR_CONFIG);
 
 /** A front, in feet, relative to the body's centre and floor. */
 export interface Panel {
@@ -196,6 +204,21 @@ export const GENERIC_SPLIT = {
 export type DoorSplit = typeof GENERIC_SPLIT;
 
 /**
+ * A column's front: one door on its own grille.
+ *
+ * The Freedom columns share the panel drawing the wine column's figures come
+ * from — a 79-7/8" door standing on a 4" grille, 83-7/8" to its top — so the
+ * three of them standing together have their doors on one line top and bottom
+ * without any of them being scaled to the others. No drawers.
+ */
+export const COLUMN_SPLIT: DoorSplit = {
+  toeIn: WINE_COLUMN.toeIn,
+  drawerLowIn: 0,
+  drawerHighIn: 0,
+  doorIn: WINE_COLUMN.doorHeightIn,
+};
+
+/**
  * The four bands of the front, fitted to the machine.
  *
  * The published figures are proportions, not a sum: on the Thermador Freedom
@@ -214,7 +237,8 @@ export type DoorSplit = typeof GENERIC_SPLIT;
  * is the part of the grille you cannot see.
  */
 export function doorSplitOf(appliance: Appliance, heightFt: number) {
-  const published: DoorSplit = appliance.doorSplit ?? GENERIC_SPLIT;
+  const published: DoorSplit =
+    appliance.doorSplit ?? (standsAsColumn(appliance) ? COLUMN_SPLIT : GENERIC_SPLIT);
   const gaps = (FRIDGE_PROPORTIONS.gapIn * 3) / 12;
   /** The grille as a part: the drawing's own figure, unscaled. */
   const toe = Math.min(published.toeIn / 12, heightFt);
@@ -242,7 +266,17 @@ export function doorSplitOf(appliance: Appliance, heightFt: number) {
  * bar across it. The toe grille is not a panel and does not appear here — it is
  * drawn under everything, because nothing opens.
  */
-export function fridgeParts(appliance: Appliance, box: { w: number; h: number }): Panel[] {
+export function fridgeParts(
+  appliance: Appliance,
+  box: { w: number; h: number },
+  /**
+   * Which side a single door is hinged on, in the machine's own frame: -1 for
+   * its left, which is what a single door has always been drawn with. A column
+   * in a group is hinged away from the one beside it, so the two doors open
+   * back to back.
+   */
+  hinge: -1 | 1 = -1,
+): Panel[] {
   const config = doorConfigOf(appliance);
   const P = FRIDGE_PROPORTIONS;
   const { w } = box;
@@ -286,7 +320,7 @@ export function fridgeParts(appliance: Appliance, box: { w: number; h: number })
     },
   });
 
-  /** A single door across the full width, hinged on the left. */
+  /** A single door across the full width, with its handle on the side it opens from. */
   const door = (id: string, low: number, high: number): Panel => ({
     id,
     x: 0,
@@ -294,7 +328,7 @@ export function fridgeParts(appliance: Appliance, box: { w: number; h: number })
     w,
     h: high - low,
     handle: {
-      x: w / 2 - grip * 1.5,
+      x: -hinge * (w / 2 - grip * 1.5),
       y: (low + high) / 2,
       length: (high - low) * P.doorHandleFraction,
       along: "y",
@@ -348,6 +382,17 @@ export function fridgeParts(appliance: Appliance, box: { w: number; h: number })
     case "side-by-side":
       return [...pair("door", lowFrom, box.h), grille()];
     case "column":
-      return [door("door", lowFrom, box.h), grille()];
+      // To the top of the drawing's door rather than the top of the opening:
+      // the columns' doors all stop at 83-7/8", which is the line they share.
+      return [
+        door(
+          "door",
+          lowFrom,
+          standsAsColumn(appliance)
+            ? Math.min(box.h, lowFrom + (appliance.doorSplit ?? COLUMN_SPLIT).doorIn / 12)
+            : box.h,
+        ),
+        grille(),
+      ];
   }
 }

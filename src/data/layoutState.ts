@@ -1,6 +1,11 @@
 import { rebuildCabinets } from "./cabinets";
 import { rebuildFixtures } from "./fixtures";
-import { generateLayout, type LayoutParams, type Refusal } from "./layoutTemplate";
+import {
+  generateLayout,
+  wallRequirement,
+  type LayoutParams,
+  type Refusal,
+} from "./layoutTemplate";
 import { PACKAGE, setPackage } from "./packages";
 import { LAYOUT, REQUESTED_PARAMS, applyLayout } from "./room";
 import { rebuildSlots } from "./slots";
@@ -114,6 +119,20 @@ export function setActivePackage(id: string): {
   if (Object.keys(walls).length > 0) {
     const grown = setLayoutParams({ ...arranged, ...walls });
     if (grown.ok) return { ok: true, reasons: [], adjusted: { ...moved, ...walls } };
+  }
+
+  // A room shaped for another package can refuse this one for a reason that
+  // is not length at all: package D's 175-1/4" left wall is long enough for
+  // package B's sink leg, and B's window will not sit evenly in it. Choosing a
+  // package is still choosing the kitchen, so it gets the room it asks for —
+  // both walls at what its own legs want — before the switch is given up.
+  const asksFor: Partial<LayoutParams> = {
+    backWallIn: wallRequirement(arranged, "back").wantedIn,
+    leftWallIn: wallRequirement(arranged, "left").wantedIn,
+  };
+  if (asksFor.backWallIn !== arranged.backWallIn || asksFor.leftWallIn !== arranged.leftWallIn) {
+    const sized = setLayoutParams({ ...arranged, ...asksFor });
+    if (sized.ok) return { ok: true, reasons: [], adjusted: { ...moved, ...asksFor } };
   }
 
   setPackage(previous);

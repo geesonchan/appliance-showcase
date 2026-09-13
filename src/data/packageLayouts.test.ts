@@ -81,6 +81,17 @@ function combinations(): Partial<LayoutParams>[] {
   out.push({ windows: [] });
   out.push({ sinkUnderWindow: false });
 
+  // Where package D's coffee cabinet goes and how high its machine is. The
+  // other packages have no coffee cabinet and have to ignore both.
+  for (const coffeeLeg of ["left", "back"] as const) {
+    out.push({ coffeeLeg });
+    out.push({ coffeeLeg, hasIsland: false });
+    out.push({ coffeeLeg, cornerType: "lazy-susan" });
+  }
+  for (const coffeeSillIn of [PARAM_LIMITS.coffeeSillIn.min, 42, PARAM_LIMITS.coffeeSillIn.max]) {
+    out.push({ coffeeSillIn });
+  }
+
   // Which shape the hood housing is built in. It changes the geometry over the
   // range rather than the run under it, but the run is what has to survive it.
   for (const housingStyle of ["box", "sweep"] as const) {

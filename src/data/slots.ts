@@ -51,7 +51,11 @@ export const SLOT_RECORDS: SlotRecord[] = parsed.slots;
  * appliance with finished sides, or a full-height unit standing on its own.
  */
 function size(record: SlotRecord, spec: PackageSlot): SlotRecord {
-  const box = { w: spec.widthIn, ...(spec.heightIn === null ? {} : { h: spec.heightIn }) };
+  const box = {
+    w: spec.widthIn,
+    ...(spec.heightIn === null ? {} : { h: spec.heightIn }),
+    ...(spec.depthIn === null ? {} : { d: spec.depthIn }),
+  };
   return {
     ...record,
     // What this package's machine actually needs, where it differs from what

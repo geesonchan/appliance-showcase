@@ -187,13 +187,44 @@ export function trimKitBeside(slotId: SlotId): { side: -1 | 1; widthIn: number }
   return null;
 }
 
+/**
+ * Whether a stretch of run carries a slot.
+ *
+ * Its own slot, or the one standing in the bottom of its tower: the dishwasher
+ * under the coffee machine is in that cabinet's stretch of run and has none of
+ * its own.
+ */
+export const carries = (segment: RunSegment, slotId: SlotId) =>
+  segment.slot === slotId || segment.modules.some((module) => module.lowerSlot === slotId);
+
 /** The segment carrying a slot, wherever it is. */
 export function segmentForSlot(slotId: SlotId): RunSegment | undefined {
   for (const run of RUNS) {
-    const found = run.segments.find((s) => s.slot === slotId);
+    const found = run.segments.find((s) => carries(s, slotId));
     if (found) return found;
   }
   return undefined;
+}
+
+/**
+ * Every kit beside a machine, in the machine's own frame.
+ *
+ * A column in the middle of a group has one each side, and its door closes over
+ * both. `trimKitBeside` is the first of them, for the machines at the ends.
+ */
+export function trimKitsBeside(slotId: SlotId): { side: -1 | 1; widthIn: number }[] {
+  const run = RUNS.find((r) => r.segments.some((s) => s.slot === slotId));
+  const mine = run?.segments.find((s) => s.slot === slotId);
+  if (!run || !mine) return [];
+  const at = run.segments.indexOf(mine);
+  const kits: { side: -1 | 1; widthIn: number }[] = [];
+  for (const step of [-1, 1] as const) {
+    const kit = run.segments[at + step]?.modules.find((module) => module.kind === "spacer");
+    if (!kit) continue;
+    const side = (step > 0) === (run.axis === "x") ? 1 : -1;
+    kits.push({ side, widthIn: kit.widthIn });
+  }
+  return kits;
 }
 
 /**
@@ -206,7 +237,7 @@ export function segmentForSlot(slotId: SlotId): RunSegment | undefined {
 export function runForSlot(slotId: SlotId): "left" | "back" | "island" {
   if (SLOT_PLACEMENT[slotId]?.mount === "island") return "island";
   for (const run of RUNS) {
-    if (run.segments.some((segment) => segment.slot === slotId)) return run.id;
+    if (run.segments.some((segment) => carries(segment, slotId))) return run.id;
   }
   return "back";
 }

@@ -115,9 +115,11 @@ function locate(runs: CabinetRun[], slotId: SlotId): { run: CabinetRun; index: n
  * sheet asks for, and a tower three cabinets away is not beside anything.
  */
 function besideTheRange(run: CabinetRun, index: number): boolean {
+  // Either of the two towers rule 1 makes an exception for: the oven beside
+  // the cooking surface, or a tower that stands in the run on its own.
   const isTower = (at: number) => {
     const slot = run.segments[at]?.slot;
-    return !!slot && PACKAGE_SLOTS[slot]?.beside === "range";
+    return !!slot && !!PACKAGE_SLOTS[slot]?.beside;
   };
   // The tower's own side panel is part of the tower: a board from the floor to
   // its top, which is a tall segment with nothing in it.
@@ -125,6 +127,9 @@ function besideTheRange(run: CabinetRun, index: number): boolean {
     const panel = run.segments[index].modules.every((module) => module.kind === "panel");
     return panel && (isTower(index - 1) || isTower(index + 1));
   }
+  // A coffee cabinet is a tower in the middle of the run by design, with its
+  // own side panel each end and counter past both. D11 rule 14.
+  if (PACKAGE_SLOTS[run.segments[index].slot!]?.beside === "run") return true;
   // And the machine is beside it: counter and the panel are what may be
   // between them, nothing else.
   for (const step of [-1, 1]) {
@@ -454,6 +459,28 @@ export function checkLayout(
       `the dishwasher's ${stray.map((p) => p.type).join(", ")} ` +
         `${stray.length === 1 ? "does" : "do"} not land in the sink base`,
     );
+  }
+
+  // D11 rule 14: the second dishwasher, under the coffee machine. It is not
+  // beside the sink, so rule 5 does not ask where it is — but it still needs
+  // everything a dishwasher needs, brought to its own cabinet rather than
+  // borrowed from the sink base.
+  if (PACKAGE_SLOTS["slot-dishwasher-2"]) {
+    const host = runs
+      .flatMap((run) => run.segments)
+      .find((segment) =>
+        segment.modules.some((module) => module.lowerSlot === "slot-dishwasher-2"),
+      );
+    if (!host) fail("d11-14", "the second dishwasher is not standing under the coffee machine");
+    const services = SLOT_BY_ID["slot-dishwasher-2"]?.utilities;
+    const missing = [
+      !services?.power && "power",
+      !services?.water?.supply && "water supply",
+      !services?.water?.drain && "drain",
+    ].filter(Boolean);
+    if (missing.length > 0) {
+      fail("d11-14", `the second dishwasher has no ${missing.join(", ")} of its own`);
+    }
   }
 
   // D11 rule 10: the sink has counter on both sides and stands clear of the

@@ -239,6 +239,168 @@
         "slot-wine": "zephyr-prw24c01cg"
       },
       "defaultBlower": null
+    },
+    {
+      "id": "package-d",
+      "name": {
+        "en": "Package D",
+        "zh": "套餐 D"
+      },
+      "code": "D",
+      "tier": 4,
+      "available": true,
+      "slots": [
+        {
+          "slotId": "slot-freezer",
+          "category": "freezer",
+          "widthIn": 24,
+          "installType": "column",
+          "tallUnit": true,
+          "enclosure": true,
+          "heightIn": 84,
+          "depthIn": 25,
+          "panelReady": false
+        },
+        {
+          "slotId": "slot-fridge",
+          "category": "refrigerator",
+          "widthIn": 30,
+          "installType": "column",
+          "tallUnit": true,
+          "enclosure": true,
+          "heightIn": 84,
+          "depthIn": 25,
+          "panelReady": false
+        },
+        {
+          "slotId": "slot-wine",
+          "category": "wine",
+          "widthIn": 24,
+          "installType": "column",
+          "tallUnit": true,
+          "enclosure": true,
+          "heightIn": 84,
+          "depthIn": 25,
+          "panelReady": false,
+          "utilities": {
+            "gas": null,
+            "power": {
+              "voltage": 120,
+              "amps": 15,
+              "dedicated": true
+            }
+          }
+        },
+        {
+          "slotId": "slot-range",
+          "category": "range",
+          "widthIn": 36,
+          "installType": "rangetop",
+          "utilities": {
+            "gas": {
+              "pipeSize": "3/4\"",
+              "shutoff": true
+            },
+            "power": null
+          }
+        },
+        {
+          "slotId": "slot-hood",
+          "category": "hood",
+          "widthIn": 42,
+          "installType": "insert",
+          "builtForCooktopIn": 36.4375,
+          "utilities": {
+            "gas": null,
+            "power": {
+              "voltage": 120,
+              "amps": 15,
+              "dedicated": true
+            },
+            "duct": {
+              "diameterIn": 10,
+              "route": "up-through-cabinet"
+            }
+          }
+        },
+        {
+          "slotId": "slot-oven",
+          "category": "wall-oven",
+          "widthIn": 30,
+          "installType": "double",
+          "tallUnit": true,
+          "enclosure": true,
+          "heightIn": 47.375,
+          "beside": "range",
+          "sillIn": 18,
+          "panelReady": false,
+          "utilities": {
+            "gas": null,
+            "power": {
+              "voltage": 240,
+              "amps": 40,
+              "dedicated": true
+            }
+          },
+          "bestView": {
+            "azimuth": 45,
+            "pitch": 26
+          }
+        },
+        {
+          "slotId": "slot-coffee",
+          "category": "coffee",
+          "widthIn": 24,
+          "installType": "built-in",
+          "tallUnit": true,
+          "heightIn": 17.75,
+          "beside": "run",
+          "sillIn": 42,
+          "standsOver": "slot-dishwasher-2",
+          "panelReady": false
+        },
+        {
+          "slotId": "slot-dishwasher",
+          "category": "dishwasher",
+          "widthIn": 24,
+          "installType": "freestanding"
+        },
+        {
+          "slotId": "slot-dishwasher-2",
+          "category": "dishwasher",
+          "widthIn": 24,
+          "installType": "freestanding"
+        },
+        {
+          "slotId": "slot-microwave",
+          "category": "microwave",
+          "widthIn": 24,
+          "installType": "drawer"
+        }
+      ],
+      "defaultSelection": {
+        "slot-freezer": "thermador-t24if905sp",
+        "slot-fridge": "thermador-t30ir905sp",
+        "slot-wine": "thermador-t24iw905sp",
+        "slot-range": "thermador-pcg366w",
+        "slot-hood": "thermador-vcin36gws",
+        "slot-oven": "thermador-pods302b",
+        "slot-coffee": "thermador-tcm24ps",
+        "slot-dishwasher": "bosch-shx78cm5n",
+        "slot-dishwasher-2": "bosch-shx78cm5n",
+        "slot-microwave": "thermador-md24bs"
+      },
+      "defaultBlower": "thermador-vtn2fz",
+      "defaultLayout": {
+        "sinkLeg": "back",
+        "fridgeEnd": "left",
+        "coffeeLeg": "left"
+      },
+      "columnOrder": [
+        "slot-freezer",
+        "slot-fridge",
+        "slot-wine"
+      ]
     }
   ]
 }

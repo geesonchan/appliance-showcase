@@ -287,9 +287,13 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
       boxes.push(
         onRun(run, `${segment.id}-bridge`, "upper", opening, [head, tall[1]], ROOM.counterDepth, 0, { outline, slot: module.slot, module }),
       );
-      if (sill > 0) {
+      // Where a machine stands on the floor under the opening — the dishwasher
+      // in the bottom of the coffee cabinet — the cabinetry starts on top of
+      // that machine's own opening: a drawer between it and the one above.
+      const floor = module.lowerSlot ? ft(SLOT_BY_ID[module.lowerSlot].cutout.h) : 0;
+      if (sill > floor) {
         boxes.push(
-          onRun(run, `${segment.id}-base`, "base", opening, [0, sill], ROOM.counterDepth, 0, {
+          onRun(run, `${segment.id}-base`, "base", opening, [floor, sill], ROOM.counterDepth, 0, {
             outline,
             slot: module.slot,
             module,

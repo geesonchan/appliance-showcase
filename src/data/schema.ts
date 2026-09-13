@@ -357,6 +357,12 @@ export const packageSlotSchema = z.object({
    * slot's own published opening alone.
    */
   heightIn: inches.nullable().default(null),
+  /**
+   * The opening's depth, where the package differs from the slot: a wine
+   * column's cutout is 25" deep like the refrigerator's beside it, where the
+   * slot was drawn for a 24" under-counter cooler. Null keeps the slot's own.
+   */
+  depthIn: inches.nullable().default(null),
   installType: z.string().min(1),
   /**
    * Hoods: the cooking surface the wall is drilled for, in this package.
@@ -380,7 +386,7 @@ export const packageSlotSchema = z.object({
    * and that is worth the exception to rule 1 that a tall unit mid-run needs.
    * Null means the end of a run, which is where every other tall unit goes.
    */
-  beside: z.enum(["range"]).nullable().default(null),
+  beside: z.enum(["range", "run"]).nullable().default(null),
   /**
    * How far off the floor the opening starts, where it is not on the floor.
    *
@@ -391,6 +397,16 @@ export const packageSlotSchema = z.object({
    * heights a person actually reaches for.
    */
   sillIn: inches.default(0),
+  /**
+   * The slot standing in the bottom of this tall unit, where it has one.
+   *
+   * Package D's coffee cabinet is one 24" tower with two machines in it: the
+   * coffee machine hung at a height a person reaches, and a dishwasher on the
+   * floor under it. They are two slots — two models, two quotes, two sets of
+   * services — and one carcass, so the lower one is named here rather than
+   * given a stretch of run it does not have.
+   */
+  standsOver: slotIdSchema.nullable().default(null),
   /**
    * Whether the cabinetmaker builds around it.
    *
@@ -495,8 +511,18 @@ export const packageSchema = z
       .object({
         sinkLeg: z.enum(["left", "back"]).optional(),
         fridgeEnd: z.enum(["left", "back"]).optional(),
+        coffeeLeg: z.enum(["left", "back"]).optional(),
       })
       .default({}),
+    /**
+     * The order a group of columns stands in, left to right as you face them.
+     *
+     * Facing them rather than along the run, because that is how anybody says
+     * it — "freezer, refrigerator, wine" — and because the run reads from the
+     * corner outward, which is left to right on one wall and right to left on
+     * the other. Null keeps the template's own order for a bank.
+     */
+    columnOrder: z.array(slotIdSchema).nullable().default(null),
   })
   .refine(
     (p) =>

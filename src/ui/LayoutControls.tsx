@@ -95,6 +95,13 @@ export function LayoutControls() {
   const specified = useActivePackage().entry.slots;
   // Whether this package has an oven tower to stand on one side or the other.
   const hasTower = specified.some((slot) => slot.beside === "range");
+  // A microwave handle to reach for is a combination oven's; package D's steam
+  // oven has none, and hangs at its own figure.
+  const hasMicrowaveTower = specified.some(
+    (slot) => slot.beside === "range" && slot.installType === "combo",
+  );
+  // And a coffee cabinet, which can go on either leg at a height somebody sets.
+  const hasCoffee = specified.some((slot) => slot.category === "coffee");
   // And whether its hood is a liner that goes up inside joinery, which is the
   // only kind with a shape to choose.
   const hasHousing = specified.some(
@@ -186,6 +193,15 @@ export function LayoutControls() {
           />
         )}
 
+        {hasCoffee && (
+          <Choice
+            label={t("panel.layout.coffee")}
+            value={params.coffeeLeg}
+            onChange={(coffeeLeg) => setLayout({ coffeeLeg })}
+            options={legs}
+          />
+        )}
+
         <div className="mt-1 border-t border-line pt-1">
           <Toggle
             label={t("panel.layout.island")}
@@ -237,13 +253,22 @@ export function LayoutControls() {
         />
         {/* Where a hand reaches, which is what the oven tower is built round:
             the hole is cut from this rather than the other way about. */}
-        {hasTower && (
+        {hasMicrowaveTower && (
           <Slider
             label={t("panel.layout.microwaveHandle")}
             value={params.microwaveHandleIn}
             {...PARAM_LIMITS.microwaveHandleIn}
             caption={<MicrowaveReach handleIn={params.microwaveHandleIn} />}
             onChange={(microwaveHandleIn) => setLayout({ microwaveHandleIn })}
+          />
+        )}
+        {hasCoffee && (
+          <Slider
+            label={t("panel.layout.coffeeSill")}
+            value={params.coffeeSillIn}
+            {...PARAM_LIMITS.coffeeSillIn}
+            caption={t("panel.layout.coffeeSill.caption", { sillIn: params.coffeeSillIn })}
+            onChange={(coffeeSillIn) => setLayout({ coffeeSillIn })}
           />
         )}
         {params.hasIsland && (

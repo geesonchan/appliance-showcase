@@ -1,7 +1,7 @@
 import roughInFile from "../../data/rough-in.json";
 import { applianceBox } from "./applianceBox";
 import { hoodBridgeBand } from "./cabinets";
-import { ROOM, RUNS, ft, type CabinetRun, type RunSegment } from "./room";
+import { ROOM, RUNS, carries, ft, type CabinetRun, type RunSegment } from "./room";
 import { parseDataFile, roughInFileSchema, type RoughInPoint } from "./schema";
 import { SLOT_BY_ID } from "./slots";
 import type { Appliance, Slot, SlotId } from "../types";
@@ -55,7 +55,7 @@ const segmentsOf = (run: CabinetRun) => run.segments;
 
 function locate(slotId: SlotId): { run: CabinetRun; index: number } | null {
   for (const run of RUNS) {
-    const index = segmentsOf(run).findIndex((s) => s.slot === slotId);
+    const index = segmentsOf(run).findIndex((s) => carries(s, slotId));
     if (index >= 0) return { run, index };
   }
   return null;
@@ -98,6 +98,26 @@ function hostFor(slot: Slot, appliance: Appliance, point: RoughInPoint): HostBox
       along,
       band: [box.y, box.y + box.h] as const,
     };
+  }
+
+  // A dishwasher that is not beside the sink cannot borrow the sink base: the
+  // second one, under the coffee machine, has its services brought to the base
+  // cabinet beside its own tower. D11 rule 14.
+  if (point.location === "under-sink" && slot.id !== "slot-dishwasher" && found) {
+    const segments = found.run.segments;
+    for (let reach = 1; reach < segments.length; reach += 1) {
+      for (const at of [found.index + reach, found.index - reach]) {
+        const neighbour = segments[at];
+        if (neighbour?.kind !== "counter") continue;
+        return {
+          id: neighbour.id,
+          run: found.run,
+          along: [neighbour.from, neighbour.to] as const,
+          band: [0, ROOM.counterHeight - ROOM.counterThickness] as const,
+        };
+      }
+    }
+    return null;
   }
 
   if (point.location === "under-sink") {

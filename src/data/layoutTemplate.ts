@@ -86,6 +86,22 @@ export interface LayoutParams {
    */
   microwaveHandleIn: number;
   /**
+   * Which leg the coffee cabinet stands on, in a package that has one.
+   *
+   * It is a tower in the run with counter either side of it — a coffee machine
+   * at a height a person reaches, and a dishwasher on the floor under it — so
+   * it can go on whichever leg has the room. See D11 rule 14.
+   */
+  coffeeLeg: "left" | "back";
+  /**
+   * How far off the floor the coffee machine's opening starts.
+   *
+   * Forty-two inches puts the cup under the spout at a standing person's
+   * waist, clear of the counter beside it. Leo's to change: it is where a
+   * hand goes, and the cabinet is cut round it.
+   */
+  coffeeSillIn: number;
+  /**
    * What is at the far end of that leg, past the refrigerator.
    *
    * A refrigerator door opens through more than the machine's own width. Beside
@@ -139,6 +155,9 @@ export const PARAM_LIMITS = {
   islandDepthIn: { min: 24, max: 42, step: 6 },
   aisleIn: { min: 42, max: 60, step: 3 },
   microwaveHandleIn: { min: 44, max: 60, step: 1 },
+  // Thirty-six is the dishwasher's 34" opening under it and the rail over
+  // that; sixty is as high as anybody reaches to take a cup out.
+  coffeeSillIn: { min: 36, max: 60, step: 1 },
 };
 
 export const DEFAULT_PARAMS: LayoutParams = {
@@ -156,6 +175,8 @@ export const DEFAULT_PARAMS: LayoutParams = {
   housingStyle: "box",
   islandOrientation: "parallel",
   microwaveHandleIn: 54,
+  coffeeLeg: "left",
+  coffeeSillIn: 42,
   fridgeEndAbuts: "cabinet",
   sinkLeg: "back",
   windows: [DEFAULT_WINDOW],
@@ -369,7 +390,9 @@ export const insetOf = (slot: PackageSlot) => (slot.enclosure ? PANEL : 0);
  */
 const ROLES = {
   refrigerator: "tower",
+  freezer: "tower",
   "wall-oven": "tower",
+  coffee: "tower",
   range: "range",
   hood: "over-range",
   dishwasher: "sink-group",
@@ -409,8 +432,16 @@ const COLUMN_SPACER = { code: "COMBIKIT10", widthIn: 0.625 } as const;
  * hole that produces it, clamped to what the machine's drawing allows.
  */
 export function sillFor(slot: PackageSlot, params: LayoutParams): number {
-  if (slot.beside !== "range") return slot.sillIn;
-  return comboSillFor(params.microwaveHandleIn).sillIn;
+  // The coffee machine is hung where a cup is taken out, which is a parameter.
+  if (slot.category === "coffee") return params.coffeeSillIn;
+  // A combination oven is hung from where its microwave handle lands. Any other
+  // oven beside the cooking surface has no microwave handle to reach for, and
+  // stands at the package's own figure — package D's steam oven at 18", which
+  // puts the handle of its lower door at 40".
+  if (slot.beside === "range" && slot.installType === "combo") {
+    return comboSillFor(params.microwaveHandleIn).sillIn;
+  }
+  return slot.sillIn;
 }
 
 /**
@@ -424,11 +455,30 @@ export function sillFor(slot: PackageSlot, params: LayoutParams): number {
 const isSpare = (slot: PackageSlot | undefined) => !!slot && !slot.tallUnit;
 
 /** Whether two adjacent tall slots are the pair that kit is for. */
+const REFRIGERATION = ["refrigerator", "freezer", "wine"];
 const takesSpacer = (a: PackageSlot | undefined, b: PackageSlot | undefined) =>
-  !!a &&
-  !!b &&
-  ["refrigerator", "wine"].includes(a.category) &&
-  ["refrigerator", "wine"].includes(b.category);
+  !!a && !!b && REFRIGERATION.includes(a.category) && REFRIGERATION.includes(b.category);
+
+/**
+ * The columns at the end of a run, in the order they stand along it.
+ *
+ * A package that names an order names it as you face the columns, left to
+ * right, because that is how anybody says it. The run reads from the corner
+ * outward, which is the same direction on the back wall — the corner is on
+ * your left as you face it — and the opposite one on the left wall, where the
+ * corner is on your right. So the left wall takes the package's order reversed,
+ * and a freezer that is on the left of the group is on the left of it
+ * whichever wall the group is on.
+ *
+ * With no order named it is the template's own: `TALL_ORDER`.
+ */
+export function columnsAlongRun(pkg: Package, leg: "left" | "back"): SlotId[] {
+  const spec = slotsOf(pkg);
+  const standing = (slotId: SlotId) => !!spec[slotId]?.tallUnit && !spec[slotId]?.beside;
+  if (!pkg.columnOrder) return TALL_ORDER.filter(standing);
+  const facing = pkg.columnOrder.filter(standing);
+  return leg === "back" ? facing : [...facing].reverse();
+}
 
 // --- packing a leg --------------------------------------------------------
 
@@ -856,6 +906,7 @@ function validate(params: LayoutParams): Refusal[] {
   push(within("leftWallIn", params.leftWallIn));
   // A height a hand reaches to, so it is an inch at a time rather than a step.
   push(within("microwaveHandleIn", params.microwaveHandleIn));
+  push(within("coffeeSillIn", params.coffeeSillIn));
 
   // The tower and the sink base both need a run's worth of wall behind them,
   // and D13 caps a leg at 144". One leg will not carry a range, a sink, a
@@ -1020,7 +1071,19 @@ function firstSuggestion(
   const otherCorner =
     params.cornerType === "blind" ? ("lazy-susan" as const) : ("blind" as const);
 
+  const otherCoffee = params.coffeeLeg === "back" ? ("left" as const) : ("back" as const);
   const candidates: NonNullable<Refusal["suggestion"]>[] = [
+    // The cheapest move of all where there is a coffee cabinet: it is one
+    // tower with counter either side, and the other leg may have the room.
+    ...(pkg.slots.some((slot) => slot.beside === "run")
+      ? [
+          {
+            key: "suggestion.coffeeLeg",
+            vars: { legKey: `leg.${otherCoffee}` } as Record<string, string | number>,
+            patch: { coffeeLeg: otherCoffee } as Partial<LayoutParams>,
+          },
+        ]
+      : []),
     {
       key: "suggestion.moveSinkMinimum",
       vars: { legKey: `leg.${otherLeg}`, paramKey: `param.${key}` },
@@ -1297,9 +1360,7 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
   // The bank at the end of the run. A tall unit that stands beside the range
   // is not part of it — it is built into the middle of the back leg, which is
   // the exception rule 12 makes to rule 1.
-  const tallSlots = TALL_ORDER.filter(
-    (slotId) => spec[slotId]?.tallUnit && !spec[slotId]?.beside,
-  );
+  const tallSlots = columnsAlongRun(pkg, params.fridgeEnd);
 
   /**
    * One full-height unit: the machine's own opening in a 96" carcass.
@@ -1323,14 +1384,21 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
         // and a tower beside the range has its own each side as items of the
         // run rather than as inches taken out of the machine's hole.
         insetIn: 0,
+        ...(slot.standsOver ? { lowerSlot: slot.standsOver } : {}),
       }),
       { slot: slotId },
     );
   };
   const bank = (): Item[] => {
-    const outerIn = params.fridgeEndAbuts === "wall" ? LAYOUT_LIMITS.fridge.fromWallIn : PANEL_IN;
+    // A group of columns a package names in order is finished like the oven
+    // tower is: a 3/4" board at each end, floor to top, and nothing between
+    // the machines but their kits — 24 + 5/8 + 30 + 5/8 + 24 + two boards is
+    // package D's 80-3/4". A bank the template orders itself keeps the 3"
+    // panels it was built with.
+    const sideIn = pkg.columnOrder ? LAYOUT_LIMITS.towerSpacer.panelIn : PANEL_IN;
+    const outerIn = params.fridgeEndAbuts === "wall" ? LAYOUT_LIMITS.fridge.fromWallIn : sideIn;
     const items: Item[] = [
-      fixed("tall-inner", PANEL_IN, "tall", M(`PNL${PANEL_IN}`, "panel", PANEL_IN)),
+      fixed("tall-inner", sideIn, "tall", M(`PNL${sideIn}`, "panel", sideIn)),
     ];
     tallSlots.forEach((slotId, index) => {
       const slot = spec[slotId];
@@ -1405,7 +1473,9 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
    * least that may be there and a foot of it is a spice pull-out. The other
    * side keeps the wide landing, which is where a pan comes off the burner.
    */
-  const besideRange = TALL_ORDER.filter((slotId) => spec[slotId]?.beside === "range");
+  const besideRange = pkg.slots
+    .filter((slot) => slot.beside === "range")
+    .map((slot) => slot.slotId);
   const cookingBlock = (): Item[] => {
     if (besideRange.length === 0) {
       return [
@@ -1503,11 +1573,42 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
         opening(slot, slot.replace("slot-", "")),
       );
 
+  /**
+   * A tall unit standing in the run on its own: package D's coffee cabinet.
+   *
+   * Its own 3/4" side panel each end, floor to top, and counter either side of
+   * that. On the refrigerator's leg it is the last thing before the column
+   * group's landing; on the other leg it is the first thing after the corner,
+   * clear of it by the twelve inches rule 1 keeps any tower off a corner.
+   * Either way nothing else on the leg moves for it — it is on the bill, and a
+   * leg that will not take it is refused with the bill.
+   */
+  const inRun = pkg.slots.filter((slot) => slot.tallUnit && slot.beside === "run");
+  const inRunGroup = (): Item[] =>
+    inRun.flatMap((slot) => {
+      const id = slot.slotId.replace("slot-", "");
+      const { panelIn } = LAYOUT_LIMITS.towerSpacer;
+      const side = (end: "start" | "end") =>
+        fixed(`${id}-panel-${end}`, panelIn, "tall", M(`PNL${panelIn}`, "panel", panelIn));
+      return [side("start"), column(slot.slotId), side("end")];
+    });
+  const coffeeHere = (leg: "left" | "back") => inRun.length > 0 && params.coffeeLeg === leg;
+
+  if (coffeeHere("back") && params.fridgeEnd !== "back") {
+    back.unshift(
+      gap("coffee-landing", LAYOUT_LIMITS.cornerLandingIn, "d11-1", { shrink: "corner-to-range" }),
+      ...inRunGroup(),
+    );
+  }
+
   if (params.fridgeEnd === "left") {
+    if (coffeeHere("left")) left.push(...inRunGroup());
     left.push(...spare, gap("fridge-landing", LAYOUT_LIMITS.fridgeLandingIn, "d11-6"), ...tower);
     back.push(...terminal("back-end", "wall"));
   } else {
+    if (coffeeHere("back")) back.push(...inRunGroup());
     back.push(...spare, gap("fridge-landing", LAYOUT_LIMITS.fridgeLandingIn, "d11-6"), ...tower);
+    if (coffeeHere("left")) left.push(...inRunGroup());
     left.push(...terminal("left-end", "open"));
   }
 
@@ -1827,7 +1928,11 @@ function banksOn(
     (cut) => cut.to > start && cut.from < stop,
   );
   const hood = hoodSpan(segments, spec);
-  if (!hood) return banksBetween(runId, start, stop, corner, openings, null);
+  // A leg with nothing cooking on it can still have a tower in the middle of
+  // it — the coffee cabinet — and a wall cabinet is not hung across a 96" tower.
+  if (!hood) {
+    return banksBetween(runId, start, stop, corner, [...wallCuts(segments, spec), ...openings], null);
+  }
 
   // The bank stops exactly at the hood's flank. A gap there is one you cannot
   // get a cloth into and a foot of shelf nobody has.
@@ -1915,7 +2020,11 @@ export function wallCuts(
     })),
     // And what is filled beside them: a wall cabinet over a stretch that is
     // already finished panel to the ceiling is a cabinet inside a cabinet.
+    // Only beside the oven tower, which is the one `cabinets.ts` fills: a
+    // coffee cabinet has its own side panels and counter with wall cabinets
+    // over it either side.
     ...towers
+      .filter((tower) => !!tower.slot && spec[tower.slot]?.beside === "range")
       .flatMap((tower) => filled(segments.indexOf(tower)))
       .map((segment) => ({
         from: segment!.from,
@@ -2140,27 +2249,44 @@ function placements(
   const onARun = (slot: SlotId) =>
     runs.some((run) => run.segments.some((segment) => segment.slot === slot));
 
-  return {
-    slots: {
-      // Inset by a panel inside its enclosure; hard against the run's own line
-      // when there is no enclosure to be inside.
-      "slot-fridge": wall("slot-fridge", insetOf(spec["slot-fridge"])),
-      "slot-range": wall("slot-range"),
-      "slot-hood": {
+  /**
+   * A machine standing in the bottom of another's tower: the dishwasher under
+   * the coffee machine. On the floor, centred in the tower it is in.
+   */
+  const under = (slot: SlotId): SlotPlacement => {
+    const { run, segment } = find((s) => s.modules.some((module) => module.lowerSlot === slot));
+    return {
+      position: onRun(run, mid([segment.from, segment.to])),
+      rotationY: facing(run),
+      mount: "wall",
+    };
+  };
+
+  const slots: Partial<Record<SlotId, SlotPlacement>> = {};
+  for (const slot of Object.keys(spec) as SlotId[]) {
+    if (slot === "slot-hood") {
+      slots[slot] = {
         position: [rangeAt[0], hoodY, rangeAt[2]] as [number, number, number],
         rotationY: facing(range.run),
         mount: "wall" as const,
-      },
-      "slot-dishwasher": wall("slot-dishwasher"),
-      "slot-microwave": spare("slot-microwave", () =>
-        onARun("slot-microwave")
-          ? wall("slot-microwave")
-          : islandSlot(island.microwave, "working"),
-      ),
-      "slot-wine": spare("slot-wine", () =>
-        onARun("slot-wine") ? wall("slot-wine") : islandSlot(island.wine, "seating"),
-      ),
-    },
+      };
+    } else if (slot === "slot-microwave" || slot === "slot-wine") {
+      const [opening, face] =
+        slot === "slot-microwave"
+          ? ([island.microwave, "working"] as const)
+          : ([island.wine, "seating"] as const);
+      slots[slot] = spare(slot, () => (onARun(slot) ? wall(slot) : islandSlot(opening, face)));
+    } else if (onARun(slot)) {
+      // Inset by a panel inside its enclosure; hard against the run's own line
+      // when there is no enclosure to be inside. Either way it is centred.
+      slots[slot] = wall(slot, slot === "slot-fridge" ? insetOf(spec[slot]) : 0);
+    } else {
+      slots[slot] = under(slot);
+    }
+  }
+
+  return {
+    slots,
     fixtures: {
       "fixture-sink": {
         position: onRun(sink.run, mid([sink.segment.from, sink.segment.to])),

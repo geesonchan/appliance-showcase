@@ -12,7 +12,7 @@ import {
   PACKAGE_BY_ID,
   slotsOf,
 } from "./packages";
-import { SLOT_BY_ID } from "./slots";
+import { SLOT_RECORDS } from "./slots";
 
 /**
  * The packages as data.
@@ -42,17 +42,18 @@ describe("the packages on offer", () => {
     }
   });
 
-  it("fills every slot the app has, with a model the catalogue holds", () => {
+  it("fills every slot it names, with a model the catalogue holds", () => {
     for (const entry of BUILDABLE_PACKAGES) {
       const byId = slotsOf(entry);
-      for (const slotId of Object.keys(SLOT_BY_ID) as (keyof typeof SLOT_BY_ID)[]) {
+      for (const slotId of entry.slots.map((named) => named.slotId)) {
         const slot = byId[slotId];
-        expect(slot, `${entry.id} does not fill ${slotId}`).toBeTruthy();
+        const record = SLOT_RECORDS.find((candidate) => candidate.id === slotId);
+        expect(record, `${entry.id} names ${slotId}, which data/slots.json does not have`).toBeTruthy();
 
         // The package may narrow the slot, never contradict it: a dishwasher
         // slot takes a dishwasher whichever package is on.
         expect(
-          SLOT_BY_ID[slotId].compatibleCategories,
+          record!.compatibleCategories,
           `${entry.id} puts a ${slot.category} in ${slotId}`,
         ).toContain(slot.category);
 
@@ -217,6 +218,42 @@ describe("changing package", () => {
     // nothing — it goes rather than sitting on the quote.
     expect(hood.blower).toBe("integrated");
     expect(migrateBlower(c, hood, a.defaultBlower)).toBe(null);
+  });
+
+  /**
+   * Package D names four slots the others do not, and shares six with them.
+   *
+   * Into D, every one of its ten comes out filled with something its own
+   * cabinetry takes; out of D, only the six the other package has, each one
+   * something that package can build. What D alone has does not follow the
+   * customer back to A.
+   */
+  it("fills all ten of D's slots coming in, and only the other package's six going out", () => {
+    const d = PACKAGE_BY_ID["package-d"];
+    for (const id of ["package-a", "package-b", "package-c"]) {
+      const other = PACKAGE_BY_ID[id];
+      const intoD = migrateSelection(d, migrateSelection(other), other);
+      expect(Object.keys(intoD).sort(), `${id} → D`).toEqual(
+        d.slots.map((slot) => slot.slotId).sort(),
+      );
+      for (const slot of d.slots) {
+        expect(
+          suitsPackageSlot(APPLIANCE_BY_ID[intoD[slot.slotId]], slot),
+          `${id} → D: ${slot.slotId}`,
+        ).toBe(true);
+      }
+
+      const back = migrateSelection(other, intoD, d);
+      expect(Object.keys(back).sort(), `D → ${id}`).toEqual(
+        other.slots.map((slot) => slot.slotId).sort(),
+      );
+      for (const slot of other.slots) {
+        expect(
+          suitsPackageSlot(APPLIANCE_BY_ID[back[slot.slotId]], slot),
+          `D → ${id}: ${slot.slotId}`,
+        ).toBe(true);
+      }
+    }
   });
 
   it("keeps a blower the new hood accepts", () => {

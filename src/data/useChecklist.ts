@@ -8,10 +8,12 @@ import { applianceBox } from "./applianceBox";
 import {
   COLUMN_DOOR_PANELS,
   COMBO_OVEN,
+  STEAM_OVEN,
   comboHandleAt,
   comboSillFor,
   isColumn,
   isCombo,
+  isDouble,
 } from "./columnModel";
 import { CHIMNEY, chimneyParts, isChimney } from "./hood";
 import { ISLAND, LAYOUT_LIMITS, LAYOUT_PARAMS, OMITTED_SLOTS, RUNS } from "./room";
@@ -89,7 +91,75 @@ function installParts(selection: Record<SlotId, Appliance>): Finding[] {
     ...ovenDoorSwing(selection),
     ...microwaveReach(selection),
     ...towerLanding(),
+    ...steamOven(selection),
+    ...coffeeCabinet(selection),
   ];
+}
+
+/**
+ * Where the steam oven hangs, and what that puts the handle at.
+ *
+ * It has no microwave to reach for, so the figure is the lower door's handle —
+ * 40" off the floor, which is what the 18" opening is cut for — and the circuit
+ * it needs, which is the one thing about it an electrician has to be told.
+ */
+function steamOven(selection: Record<SlotId, Appliance>): Finding[] {
+  const oven = selection["slot-oven"];
+  const slot = SLOT_BY_ID["slot-oven"];
+  if (!oven || !slot || !isDouble(oven)) return [];
+  const sillIn = round8(slot.position[1] * 12);
+  return [
+    {
+      ruleId: "steam-oven",
+      severity: "info",
+      messageKey: "rule.steamOven",
+      slot: "slot-oven",
+      params: {
+        sillIn,
+        handleIn: round8(sillIn + STEAM_OVEN.lowerHandleIn),
+        amps: slot.utilities.power?.amps ?? oven.requires.amps ?? 40,
+      },
+    },
+  ];
+}
+
+/**
+ * The coffee cabinet, and the dishwasher standing in the bottom of it.
+ *
+ * Two lines. The machine's height and services. And D11 rule 14, said out
+ * loud: the dishwasher under it is not beside the sink, so it cannot take its
+ * water and drain from the sink base the way the other one does — its own
+ * circuit, hot water and drain go to this cabinet, and somebody pricing the
+ * plumbing has to know that before they see it.
+ */
+function coffeeCabinet(selection: Record<SlotId, Appliance>): Finding[] {
+  const coffee = selection["slot-coffee"];
+  const slot = SLOT_BY_ID["slot-coffee"];
+  if (!coffee || !slot) return [];
+  const sillIn = round8(slot.position[1] * 12);
+  const lines: Finding[] = [
+    {
+      ruleId: "coffee-machine",
+      severity: "info",
+      messageKey: "rule.coffeeMachine",
+      slot: "slot-coffee",
+      params: {
+        sillIn,
+        headIn: round8(sillIn + slot.cutout.h),
+        amps: slot.utilities.power?.amps ?? coffee.requires.amps ?? 15,
+      },
+    },
+  ];
+  if (selection["slot-dishwasher-2"]) {
+    lines.push({
+      ruleId: "d11-14",
+      severity: "info",
+      messageKey: "rule.coffeeDishwasher",
+      slot: "slot-dishwasher-2",
+      params: {},
+    });
+  }
+  return lines;
 }
 
 /**
@@ -242,7 +312,10 @@ function ovenDoorSwing(selection: Record<SlotId, Appliance>): Finding[] {
  */
 function columnDoorPanel(selection: Record<SlotId, Appliance>): Finding[] {
   const wine = selection["slot-wine"];
-  if (!wine || !isColumn(wine) || wine.finish.includes("panel-ready")) return [];
+  // The two part numbers are the 18" column's panels, and nothing else's.
+  if (!wine || !isColumn(wine) || wine.finish.includes("panel-ready") || wine.widthIn !== 18) {
+    return [];
+  }
 
   return [
     {
@@ -267,9 +340,10 @@ function columnDoorPanel(selection: Record<SlotId, Appliance>): Finding[] {
  * and says which two it is between.
  */
 function columnKit(): Finding[] {
-  const spacer = RUNS.flatMap((run) => run.segments)
+  const spacers = RUNS.flatMap((run) => run.segments)
     .flatMap((segment) => segment.modules)
-    .find((module) => module.kind === "spacer");
+    .filter((module) => module.kind === "spacer");
+  const spacer = spacers[0];
   if (!spacer) return [];
 
   return [
@@ -278,7 +352,7 @@ function columnKit(): Finding[] {
       severity: "info",
       messageKey: "rule.columnKit",
       slot: "slot-wine",
-      params: { model: spacer.code, gapIn: spacer.widthIn },
+      params: { model: spacer.code, gapIn: spacer.widthIn, count: spacers.length },
     },
   ];
 }

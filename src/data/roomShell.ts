@@ -276,6 +276,14 @@ export interface CabinetModule {
    */
   sillIn?: number;
   /**
+   * The machine standing on the floor under the opening, where there is one.
+   *
+   * A coffee cabinet is a tall unit with a dishwasher in the bottom of it: what
+   * is under the sill is that machine's opening and a drawer over it, not a
+   * drawer base to the floor.
+   */
+  lowerSlot?: SlotId;
+  /**
    * Which shape a hood housing is built in, where the module is one.
    *
    * A parameter rather than a constant because it is a decision somebody makes

@@ -410,6 +410,18 @@ each one has a test with a case that breaks it.
     bank rather than out of whatever the wall had spare. The wall above the
     opening carries on bare to the top line: no cabinet is hung in the strip
     between a window's head and the ceiling.
+14. **A dishwasher that is not beside the sink still gets everything a
+    dishwasher needs.** Package D's second dishwasher stands in the bottom of
+    the coffee cabinet, so rule 5 does not ask where it is — but its circuit,
+    hot water and drain are brought to its own cabinet rather than borrowed
+    from the sink base, the checker fails a room where they are missing, and
+    the install list says so in as many words. The coffee cabinet itself is a
+    tower standing in the middle of a run on purpose: 24" wide, the machine's
+    opening 42" off the floor unless somebody moves it, a 3/4" finished board
+    at each end and counter past both. It is the second exception to rule 1,
+    after the oven beside the cooking surface. It goes on whichever leg
+    `coffeeLeg` names, and a leg that will not take it is refused with the bill
+    and the other leg offered.
 
 **A window is a fact of the building, not a fitting.** It is a layout
 parameter — which wall, where along it, how wide, how high, how far off the
@@ -432,6 +444,22 @@ the six inches the sink may be from the glass allow, and two banks of the same
 width are then built of the same boxes and finish the same way. Where no
 position within those six inches does it, the room is refused with the
 arithmetic and the way out is a narrower window.
+
+**Rule 12, extended 2026-09-12 (round 30), Leo: a group of columns.** Where a
+package stands its refrigeration as separate columns, they are one group at the
+end of one leg and nothing is put between them. Left to right as you face them
+it is freezer, refrigerator, wine — 24", 30", 24" — whichever leg the group is
+on, which means the run's own order is reversed on the left wall, where the
+corner is on your right. Each pair is joined by Thermador's COMBIKIT10, 5/8"
+between the cases, hidden behind doors that close over it; each end of the group
+is a 3/4" finished board from the floor to the top. So the group is
+24 + 5/8 + 30 + 5/8 + 24 + 3/4 + 3/4 = 80-3/4", every cutout 84" high and 25"
+deep, one tall unit to the cabinetmaker. The doors are steel and stand on each
+machine's own grille, at its drawing's figure and unscaled; what is lined up is
+the bottom of the doors, not the grilles. The steam oven beside the cooking
+surface is held to the rest of rule 12 exactly as the combination oven is. It has
+no microwave handle to hang it from, so its opening starts at 18", which puts its
+lower door's handle at 40".
 
 **Scheme 01 as laid out.** Left wall, from the far end back to the corner:
 refrigerator tower, 15" landing, corner cabinet. Back wall, from the corner
