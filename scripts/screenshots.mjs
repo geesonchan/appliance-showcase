@@ -926,9 +926,55 @@ async function captureRound29(page) {
   await page.screenshot({ path: `${outDir}/mobile-window-gaps-b.png` });
 }
 
+/**
+ * Round 30: package D.
+ *
+ * The room as it opens, then the three things it adds: the column group at the
+ * end of the left wall, the coffee cabinet standing in the run with the second
+ * dishwasher under it, and the steam oven tower beside the rangetop.
+ */
+async function captureRound30(page) {
+  await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await settle(page, 2400);
+  await page.locator(`[data-segment="package"] button`, { hasText: "D" }).first().click();
+  await settle(page, 2800);
+  await page.screenshot({ path: `${outDir}/mobile-d-overview.png` });
+
+  await flyTo(page, /Freezer column/);
+  await settle(page, 1500);
+  await page.screenshot({ path: `${outDir}/mobile-d-columns.png` });
+  await click(page, "Reset view");
+  await settle(page, 1400);
+
+  await flyTo(page, /Coffee machine/);
+  await settle(page, 1500);
+  await page.screenshot({ path: `${outDir}/mobile-d-coffee.png` });
+  await click(page, "Reset view");
+  await settle(page, 1400);
+
+  await flyTo(page, /Steam oven/);
+  await settle(page, 1500);
+  await page.screenshot({ path: `${outDir}/mobile-d-steam-oven.png` });
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round30") {
+    const ctx = await browser.newContext({
+      viewport: MOBILE,
+      deviceScaleFactor: 2,
+      isMobile: true,
+      hasTouch: true,
+    });
+    const page = await ctx.newPage();
+    await captureRound30(page);
+    await ctx.close();
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round29") {
     const ctx = await browser.newContext({
