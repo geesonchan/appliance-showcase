@@ -262,29 +262,60 @@ export function fridgeReturnWall(): {
   size: [number, number, number];
 } | null {
   if (LAYOUT_PARAMS?.fridgeEndAbuts !== "wall") return null;
-  for (const run of RUNS) {
-    const segment = run.segments.find((s) => s.slot === "slot-fridge");
-    if (!segment) continue;
+  const run = fridgeRun();
+  if (!run) return null;
 
-    const thickness = ft(4.5);
-    const depth = ft(LAYOUT_LIMITS.fridge.wallReturnIn);
-    // Face on the segment's far end, returning into the room from the wall the
-    // run stands against.
-    const face = segment.to + thickness / 2;
-    const back = run.centre - ROOM.counterDepth / 2;
-    const mid = back + depth / 2;
-    return run.axis === "x"
-      ? {
-          position: [face, ROOM.wallHeight / 2, mid],
-          size: [thickness, ROOM.wallHeight, depth],
-        }
-      : {
-          position: [mid, ROOM.wallHeight / 2, face],
-          size: [depth, ROOM.wallHeight, thickness],
-        };
-  }
-  return null;
+  const thickness = ft(4.5);
+  const depth = ft(LAYOUT_LIMITS.fridge.wallReturnIn);
+  // Face on the far end of the run — past the clearance filler where there is
+  // one, past a built-in refrigerator's own tower where there is not — and
+  // returning into the room from the wall the run stands against.
+  const face = run.segments[run.segments.length - 1].to + thickness / 2;
+  const back = run.centre - ROOM.counterDepth / 2;
+  const mid = back + depth / 2;
+  return run.axis === "x"
+    ? {
+        position: [face, ROOM.wallHeight / 2, mid],
+        size: [thickness, ROOM.wallHeight, depth],
+      }
+    : {
+        position: [mid, ROOM.wallHeight / 2, face],
+        size: [depth, ROOM.wallHeight, thickness],
+      };
 }
+
+/**
+ * The door clearance against a return wall: the filler that finishes the
+ * refrigerator's run, and where along the run it is.
+ *
+ * Read off the end of the run rather than off the refrigerator's own segment.
+ * A single refrigerator carries its filler inside its surround, so the two are
+ * the same place; a group of columns does not. Package D's refrigerator is the
+ * middle one of three, and a wall put beside *it* stood between two columns —
+ * round 32. The wall is past the whole group, whichever column is in the middle.
+ *
+ * Null where nothing finishes the run as a clearance: a built-in refrigerator
+ * against a wall is drawn against it with no filler, and has no figure to print.
+ */
+export function fridgeWallClearance(): {
+  run: CabinetRun;
+  /** Extent along the run, in feet. */
+  from: number;
+  to: number;
+  widthIn: number;
+} | null {
+  if (LAYOUT_PARAMS?.fridgeEndAbuts !== "wall") return null;
+  const run = fridgeRun();
+  if (!run) return null;
+  const last = run.segments[run.segments.length - 1];
+  const filler = last?.modules[last.modules.length - 1];
+  if (!filler || filler.kind !== "filler") return null;
+  return { run, from: last.to - ft(filler.widthIn), to: last.to, widthIn: filler.widthIn };
+}
+
+/** The run the refrigerator stands at the end of. */
+const fridgeRun = () =>
+  RUNS.find((run) => run.segments.some((segment) => carries(segment, "slot-fridge")));
 
 export const extent = (s: RunSegment) => [s.from, s.to] as const;
 export const spanOf = (s: RunSegment) => s.to - s.from;

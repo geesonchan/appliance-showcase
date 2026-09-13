@@ -270,9 +270,10 @@ export interface CabinetModule {
   /**
    * How far off the floor a tall unit's opening starts.
    *
-   * Zero for a refrigerator, which stands on the floor of its opening; 18" for
-   * an oven tower, which hangs in a hole with a drawer base under it. What is
-   * below the sill and above the opening is cabinetry either way.
+   * Zero for a refrigerator, which stands on the floor of its opening; above
+   * the floor for an oven tower, which hangs in a hole with a drawer on the toe
+   * kick under it — 15" for B's combination oven, 12" for D's steam oven. What
+   * is below the sill and above the opening is cabinetry either way.
    */
   sillIn?: number;
   /**

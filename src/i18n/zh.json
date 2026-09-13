@@ -327,5 +327,8 @@
   "param.coffeeSillIn": "咖啡机高度",
   "rule.coffeeDishwasher": "咖啡机下方的第二台洗碗机不在水槽旁，不受 D11 第 5 条约束——但仍需单独的 120V 电源、热水和排水接到本柜（D11 第 14 条）",
   "rule.coffeeMachine": "咖啡机切口底边离地 {sillIn}″，顶边 {headIn}″；120V {amps}A 电源，嵌入式接水型需接水路",
-  "rule.steamOven": "蒸烤箱切口底边离地 {sillIn}″，下门把手因此在 {handleIn}″；240V {amps}A 专用回路"
+  "rule.steamOven": "蒸烤箱切口底边离地 {sillIn}″，下门把手因此在 {handleIn}″；240V {amps}A 专用回路",
+  "rule.towerVent": "塔顶后方需开通风口，尺寸 {size}：开在切口顶板靠后墙一侧；不要开在烤箱下方的抽屉或踢脚处，正面看得见",
+  "towerVent.callout": "切口顶板靠后墙的通风口：{size}",
+  "dimension.towerVent": "通风口，深 {depth}"
 }

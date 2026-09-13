@@ -13,7 +13,15 @@ import {
   type LayoutParams,
 } from "./layoutTemplate";
 import { DEFAULT_PACKAGE, PACKAGE, PACKAGE_BY_ID, SLOT_ORDER } from "./packages";
-import { RUNS, trimKitsBeside, type CabinetRun, type RunSegment } from "./room";
+import {
+  LAYOUT_LIMITS,
+  RUNS,
+  fridgeReturnWall,
+  fridgeWallClearance,
+  trimKitsBeside,
+  type CabinetRun,
+  type RunSegment,
+} from "./room";
 import { CABINET_STANDARDS, ROOM } from "./roomShell";
 import { resolveRoughIn } from "./roughIn";
 import { SLOT_BY_ID } from "./slots";
@@ -334,6 +342,263 @@ describe("package D · the steam oven tower", () => {
     expect(drawerProblems([], sillIn)).not.toEqual([]);
   });
 });
+
+describe("package D · the column group against a return wall", () => {
+  /**
+   * D11 rule 11, round 32. The group is one tall unit: the wall stands past
+   * its outer 3/4" board with the 3-1/2" clearance filler between them, and
+   * nothing inside the group is a wall or a filler — whichever column is the
+   * refrigerator.
+   */
+  it("stands the wall past the group's outer board, on either leg", () => {
+    const base = activateD();
+    const built: string[] = [];
+    const refused: string[] = [];
+    for (const fridgeEnd of ["left", "back"] as const) {
+      // The clearance costs the leg 3-1/2", so a wall that was exactly long
+      // enough for the group is grown to the minimum the refusal names, where
+      // the slider reaches it.
+      const { result, short } = withWall(base, fridgeEnd);
+      if (!result.ok) {
+        // Refused with its arithmetic rather than built wrong: more wall than
+        // the slider has.
+        expect(short, `${fridgeEnd}: ${JSON.stringify(result.reasons)}`).toBeTruthy();
+        expect(Number(short!.vars!.minimumIn), fridgeEnd).toBeGreaterThan(
+          Number(short!.vars!.maximumIn),
+        );
+        refused.push(fridgeEnd);
+        continue;
+      }
+      built.push(fridgeEnd);
+      expect(checkLayout(), fridgeEnd).toEqual([]);
+
+      const run = runOf("slot-fridge");
+      expect(run.id, fridgeEnd).toBe(fridgeEnd);
+      const span = columnGroup(run);
+
+      // The outer board is kept, and the clearance is outside it and ends the run.
+      expect(widthIn(span.outer), fridgeEnd).toBeCloseTo(0.75, 9);
+      expect(span.outer.modules.map((m) => m.kind), fridgeEnd).toEqual(["panel"]);
+      expect(span.after.length, fridgeEnd).toBe(1);
+      expect(span.after[0].modules.map((m) => m.kind), fridgeEnd).toEqual(["filler"]);
+      expect(widthIn(span.after[0]), fridgeEnd).toBeCloseTo(LAYOUT_LIMITS.fridge.fromWallIn, 9);
+
+      expect(wallProblems(run, span, fridgeReturnWall()!), fridgeEnd).toEqual([]);
+      // And the clearance figure is drawn across that filler, not somewhere in the group.
+      const clearance = fridgeWallClearance()!;
+      expect(clearance.from, fridgeEnd).toBeCloseTo(span.to, 9);
+      expect(clearance.widthIn, fridgeEnd).toBeCloseTo(LAYOUT_LIMITS.fridge.fromWallIn, 9);
+    }
+    // The left leg is where D's columns stand by default; it has to build.
+    expect(built).toContain("left");
+    setLayoutParams(base);
+  });
+
+  it("fails a wall beside the refrigerator column, or a filler between two columns", () => {
+    const base = activateD();
+    expect(withWall(base, "left").result.ok).toBe(true);
+    const run = runOf("slot-fridge");
+    const span = columnGroup(run);
+    const wall = fridgeReturnWall()!;
+    const along = run.axis === "x" ? 0 : 2;
+
+    // Where it stood before round 32: on the refrigerator column's far side.
+    const beside = { ...wall, position: [...wall.position] as [number, number, number] };
+    beside.position[along] = segmentOf("slot-fridge").to + wall.size[along] / 2;
+    expect(wallProblems(run, span, beside)).not.toEqual([]);
+
+    // A filler where a kit between two columns belongs.
+    const kit = run.segments.find((s) => s.modules.some((m) => m.kind === "spacer"))!;
+    const withFiller: CabinetRun = {
+      ...run,
+      segments: run.segments.map((s) =>
+        s === kit ? { ...s, modules: s.modules.map((m) => ({ ...m, kind: "filler" as const })) } : s,
+      ),
+    };
+    expect(wallProblems(withFiller, span, wall)).not.toEqual([]);
+    setLayoutParams(base);
+  });
+
+  it("leaves A, B and C with the wall at the end of their refrigerator's run, as before", () => {
+    for (const id of ["package-a", "package-b", "package-c"]) {
+      setActivePackage(DEFAULT_PACKAGE.id);
+      setLayoutParams(DEFAULT_PARAMS);
+      const chosen = setActivePackage(id);
+      expect(chosen.ok, id).toBe(true);
+      const room = { ...DEFAULT_PARAMS, ...PACKAGE_BY_ID[id].defaultLayout, ...(chosen.adjusted ?? {}) };
+      const result = setLayoutParams({ ...room, fridgeEndAbuts: "wall" });
+      expect(result.ok, `${id}: ${JSON.stringify(result.reasons)}`).toBe(true);
+      expect(checkLayout(), id).toEqual([]);
+
+      const run = RUNS.find((r) => r.segments.some((s) => s.slot === "slot-fridge"))!;
+      const along = run.axis === "x" ? 0 : 2;
+      const wall = fridgeReturnWall()!;
+      const face = wall.position[along] - wall.size[along] / 2;
+      const last = run.segments[run.segments.length - 1];
+      expect(face, id).toBeCloseTo(last.to, 9);
+      // Nothing stands past the refrigerator but the filler that closes the
+      // clearance, where there is one.
+      const fridgeAt = run.segments.findIndex((s) => s.slot === "slot-fridge");
+      const past = run.segments.slice(fridgeAt + 1);
+      expect(
+        past.every((s) => s.modules.every((m) => m.kind === "filler")),
+        `${id}: ${past.map((s) => s.id).join(", ")}`,
+      ).toBe(true);
+      // A single refrigerator ends its own run, and the wall is where it always
+      // was: a built-in against its tower with no filler, a freestanding one
+      // past the filler in its surround. B's bank closes with a filler segment
+      // of its own, and its wall now stands past that rather than over it.
+      if (id !== "package-b") {
+        expect(face, id).toBeCloseTo(run.segments[fridgeAt].to, 9);
+      }
+    }
+    setActivePackage(DEFAULT_PACKAGE.id);
+    setLayoutParams(DEFAULT_PARAMS);
+  });
+});
+
+describe("package D · rules 1 and 6 read the group, not the machine", () => {
+  const codes = (runs: CabinetRun[]) => checkLayout(runs).map((problem) => problem.code);
+  const copy = () => structuredClone(RUNS) as CabinetRun[];
+  const fridgeRunIn = (runs: CabinetRun[]) =>
+    runs.find((run) => run.segments.some((segment) => segment.slot === "slot-fridge"))!;
+
+  afterAll(() => {
+    setActivePackage(DEFAULT_PACKAGE.id);
+    setLayoutParams(DEFAULT_PARAMS);
+  });
+
+  it("measures the refrigerator's landing before the whole group, and fails when it is gone", () => {
+    activateD();
+    const runs = copy();
+    const run = fridgeRunIn(runs);
+    const at = run.segments.findIndex((segment) => segment.slot === "slot-fridge");
+    // The refrigerator's own neighbours are the kits to the other columns:
+    // there is no worktop beside the machine itself, only before the group.
+    expect([run.segments[at - 1].kind, run.segments[at + 1].kind]).toEqual(["tall", "tall"]);
+    expect(codes(runs)).not.toContain("d11-6");
+
+    const group = columnGroup(run);
+    const inner = run.segments.findIndex((segment) => Math.abs(segment.from - group.from) < 1e-9);
+    for (let i = inner - 1; i >= 0 && run.segments[i].kind === "counter"; i -= 1) {
+      run.segments[i].kind = "appliance";
+    }
+    expect(codes(runs)).toContain("d11-6");
+  });
+
+  it("does not measure a refrigerator's landing in front of a tall unit it is not part of", () => {
+    setActivePackage(DEFAULT_PACKAGE.id);
+    setLayoutParams(DEFAULT_PARAMS);
+    expect(setActivePackage("package-c").ok).toBe(true);
+    const runs = copy();
+    const run = fridgeRunIn(runs);
+    const at = run.segments.findIndex((segment) => segment.slot === "slot-fridge");
+    // A freestanding refrigerator is an appliance standing in the run, with
+    // counter before it.
+    run.segments[at].kind = "appliance";
+    expect(codes(runs)).not.toContain("d11-6");
+    // Stand a board past it. The board is the run's last tall stretch, and the
+    // refrigerator is not in it: its landing is still the counter before it.
+    const last = run.segments[run.segments.length - 1];
+    run.segments.push({
+      id: `${run.id}-board`,
+      kind: "tall",
+      from: last.to,
+      to: last.to + 0.75 / 12,
+      modules: [{ code: "PNL0.75", kind: "panel", widthIn: 0.75 }],
+    });
+    expect(codes(runs)).not.toContain("d11-6");
+  });
+
+  it("treats the group as one tall unit for rule 1, and fails counter inside it", () => {
+    activateD();
+    const runs = copy();
+    const run = fridgeRunIn(runs);
+    expect(codes(runs)).not.toContain("d11-1");
+    const kit = run.segments.find((segment) => segment.modules.some((m) => m.kind === "spacer"))!;
+    kit.kind = "counter";
+    kit.modules = [{ code: "B0.625", kind: "base", widthIn: 0.625 }];
+    expect(codes(runs)).toContain("d11-1");
+  });
+});
+
+/**
+ * D against a return wall on one leg: the room as it stands, or the wall grown
+ * to the minimum a refusal names when the clearance does not fit and the slider
+ * can reach it, or the refusal itself.
+ */
+function withWall(base: LayoutParams, fridgeEnd: "left" | "back") {
+  const asked: LayoutParams = {
+    ...base,
+    fridgeEndAbuts: "wall",
+    fridgeEnd,
+    sinkLeg: fridgeEnd === "left" ? "back" : "left",
+  };
+  let result = setLayoutParams(asked);
+  const short = result.reasons.find((reason) => reason.key === "refusal.wallShort");
+  const key =
+    short?.vars?.paramKey === "param.leftWallIn"
+      ? "leftWallIn"
+      : short?.vars?.paramKey === "param.backWallIn"
+        ? "backWallIn"
+        : null;
+  if (!result.ok && short && key && Number(short.vars!.minimumIn) <= Number(short.vars!.maximumIn)) {
+    result = setLayoutParams({ ...asked, [key]: Number(short.vars!.minimumIn) });
+  }
+  return { result, short };
+}
+
+/**
+ * Package D's column group along its run: the board before the first column,
+ * the board after the last, and whatever finishes the run past that.
+ */
+function columnGroup(run: CabinetRun) {
+  const at = run.segments
+    .map((segment, index) => (COLUMNS.some((slot) => carries(segment, slot)) ? index : -1))
+    .filter((index) => index >= 0);
+  const inner = run.segments[at[0] - 1];
+  const outer = run.segments[at[at.length - 1] + 1];
+  return {
+    from: Math.min(inner.from, outer.from),
+    to: Math.max(inner.to, outer.to),
+    outer,
+    after: run.segments.slice(at[at.length - 1] + 2),
+  };
+}
+
+const carries = (segment: RunSegment, slot: SlotId) => segment.slot === slot;
+
+/** What is wrong with a return wall, measured against the group it is past. */
+function wallProblems(
+  run: CabinetRun,
+  span: { from: number; to: number },
+  wall: { position: [number, number, number]; size: [number, number, number] },
+): string[] {
+  const along = run.axis === "x" ? 0 : 2;
+  const problems: string[] = [];
+  const near = wall.position[along] - wall.size[along] / 2;
+  const far = wall.position[along] + wall.size[along] / 2;
+  if (far > span.from + 1e-9 && near < span.to - 1e-9) {
+    problems.push(`wall ${inches(near)}"-${inches(far)}" is inside the group ${inches(span.from)}"-${inches(span.to)}"`);
+  }
+  const gapIn = inches(near - span.to);
+  if (Math.abs(gapIn - LAYOUT_LIMITS.fridge.fromWallIn) > 1e-6) {
+    problems.push(`wall stands ${gapIn}" past the group, wants ${LAYOUT_LIMITS.fridge.fromWallIn}"`);
+  }
+  const inside = (lo: number, hi: number) => hi > span.from + 1e-9 && lo < span.to - 1e-9;
+  for (const segment of run.segments) {
+    if (inside(segment.from, segment.to) && segment.modules.some((m) => m.kind === "filler")) {
+      problems.push(`a filler in ${segment.id}, inside the group`);
+    }
+  }
+  for (const box of CABINETS) {
+    if (box.run !== run.id || box.module?.kind !== "filler") continue;
+    const lo = box.position[along] - box.size[along] / 2;
+    const hi = box.position[along] + box.size[along] / 2;
+    if (inside(lo, hi)) problems.push(`filler box ${box.id} inside the group`);
+  }
+  return problems;
+}
 
 /** Leo's band for the drawer under a steam oven, round 31: 8" to 10". */
 const MAX_DRAWER_IN = 10;

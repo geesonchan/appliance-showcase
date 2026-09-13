@@ -1396,7 +1396,14 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
     // package D's 80-3/4". A bank the template orders itself keeps the 3"
     // panels it was built with.
     const sideIn = pkg.columnOrder ? LAYOUT_LIMITS.towerSpacer.panelIn : PANEL_IN;
-    const outerIn = params.fridgeEndAbuts === "wall" ? LAYOUT_LIMITS.fridge.fromWallIn : sideIn;
+    const wall = params.fridgeEndAbuts === "wall";
+    const clearanceIn = LAYOUT_LIMITS.fridge.fromWallIn;
+    // Against a return wall, a named group keeps its 3/4" board — it is one
+    // tall unit, finished at both ends — and the door clearance is a filler
+    // outside that board, between it and the wall. A bank the template orders
+    // itself has always given its 3" end panel up to the clearance, and still
+    // does. D11 rule 11, round 32.
+    const outerIn = wall && !pkg.columnOrder ? clearanceIn : sideIn;
     const items: Item[] = [
       fixed("tall-inner", sideIn, "tall", M(`PNL${sideIn}`, "panel", sideIn)),
     ];
@@ -1414,11 +1421,21 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
       }
       items.push(column(slotId));
     });
-    items.push(
-      params.fridgeEndAbuts === "wall"
-        ? fixed("tall-outer", outerIn, "tall", M(`BF${round8(outerIn)}`, "filler", outerIn))
-        : fixed("tall-outer", outerIn, "tall", M(`PNL${outerIn}`, "panel", outerIn)),
-    );
+    if (wall && !pkg.columnOrder) {
+      items.push(fixed("tall-outer", outerIn, "tall", M(`BF${round8(outerIn)}`, "filler", outerIn)));
+    } else {
+      items.push(fixed("tall-outer", outerIn, "tall", M(`PNL${outerIn}`, "panel", outerIn)));
+      if (wall) {
+        items.push(
+          fixed(
+            "tall-clearance",
+            clearanceIn,
+            "tall",
+            M(`BF${round8(clearanceIn)}`, "filler", clearanceIn),
+          ),
+        );
+      }
+    }
     return items;
   };
   const tower: Item[] = tallSlots.length > 1 ? bank() : [single];

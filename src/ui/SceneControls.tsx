@@ -61,7 +61,9 @@ export function BottomBar() {
         sheetOpen ? "hidden md:flex" : "flex",
       ].join(" ")}
     >
-      <p className="hidden text-[11px] text-ink-muted sm:block">
+      {/* `data-pin-keep-out`: the pin labels read clear of this line and of
+          the toolbar under it. See PinProjector. */}
+      <p data-pin-keep-out data-scene-hint className="hidden text-[11px] text-ink-muted sm:block">
         {t("scene.hint")}
         {/* The build this page was served from. It is here rather than in a
             panel because the question it answers — "am I looking at the
@@ -72,7 +74,10 @@ export function BottomBar() {
       </p>
       {/* Nothing here sells anything any more; it is the view controls and the
           plan toggle, so the bar shrinks to fit them. */}
-      <div className="pointer-events-auto flex items-center justify-center gap-4 rounded-full border border-line bg-surface/95 px-3 py-2 backdrop-blur-sm">
+      <div
+        data-pin-keep-out
+        className="pointer-events-auto flex items-center justify-center gap-4 rounded-full border border-line bg-surface/95 px-3 py-2 backdrop-blur-sm"
+      >
         <div className="hidden md:block">
           <Segmented
             size="sm"

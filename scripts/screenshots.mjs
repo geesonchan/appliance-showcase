@@ -1030,9 +1030,87 @@ async function captureRound31(browser) {
   await phone.close();
 }
 
+/**
+ * Round 32: the vent in the top of a hung oven's opening, and the pin labels
+ * off the controls.
+ *
+ * Package A as it opens, where 05 and 06 used to print across the hint line;
+ * D's steam oven close up in the finished room, where there is nothing to see
+ * of the vent, and in the install view, where it is drawn and figured; B's
+ * combination oven in the install view, which gets its vent from the same
+ * rule; and D's install list with the line for it.
+ */
+async function captureRound32(browser) {
+  const desktop = await browser.newContext({ viewport: DESKTOP, deviceScaleFactor: 2 });
+  const page = await desktop.newPage();
+  const toPackage = async (code) => {
+    await page.locator(`[data-segment="package"] button`, { hasText: code }).first().click();
+    await settle(page, 2600);
+  };
+  const fromList = async (name) => {
+    await page.click(`button[data-rail="left"]`);
+    await settle(page, 700);
+    await page.locator(`aside [data-panel="list"] button`, { hasText: name }).first().click();
+    await settle(page, 1800);
+  };
+
+  await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await settle(page, 2600);
+  await page.screenshot({ path: `${outDir}/desktop-a-labels.png` });
+
+  await toPackage("D");
+  await page.getByText(/vent in the top of the tower opening/).first().scrollIntoViewIfNeeded();
+  await settle(page, 600);
+  await page.screenshot({ path: `${outDir}/desktop-d-checklist-vent.png` });
+
+  await fromList("Steam oven");
+  await page.screenshot({ path: `${outDir}/desktop-d-oven-finished.png` });
+  await click(page, "Install");
+  await settle(page, 1600);
+  await page.screenshot({ path: `${outDir}/desktop-d-oven-vent.png` });
+  await click(page, "Materials");
+  await settle(page, 1200);
+  await page.getByRole("button", { name: "All appliances" }).first().click();
+  await click(page, "Reset view");
+  await settle(page, 1400);
+
+  await toPackage("B");
+  await page.locator(`aside [data-panel="list"] button`, { hasText: /Microwave/ }).first().click();
+  await settle(page, 1800);
+  await click(page, "Install");
+  await settle(page, 1600);
+  await page.screenshot({ path: `${outDir}/desktop-b-oven-vent.png` });
+  await click(page, "Materials");
+  await settle(page, 1200);
+  await page.getByRole("button", { name: "All appliances" }).first().click();
+  await click(page, "Reset view");
+  await settle(page, 1400);
+
+  // D's column group against a return wall: the wall past the group's outer
+  // board, with the clearance between them, in the finished room and figured.
+  await toPackage("D");
+  await page.getByRole("button", { name: "Wall", exact: true }).first().click();
+  await settle(page, 2400);
+  await page.screenshot({ path: `${outDir}/desktop-d-columns-wall.png` });
+  await page.locator(`aside [data-panel="list"] button`, { hasText: "Freezer column" }).first().click();
+  await settle(page, 1800);
+  await page.screenshot({ path: `${outDir}/desktop-d-columns-wall-close.png` });
+  await click(page, "Install");
+  await settle(page, 1600);
+  await page.screenshot({ path: `${outDir}/desktop-d-columns-wall-install.png` });
+  await desktop.close();
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round32") {
+    await captureRound32(browser);
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round31") {
     await captureRound31(browser);

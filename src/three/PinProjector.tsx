@@ -110,6 +110,8 @@ export function PinProjector() {
     [],
   );
   const appliances = useMemo<KeepOut[]>(() => [], []);
+  const overlay = useMemo<KeepOut[]>(() => [], []);
+  const gl = useThree((s) => s.gl);
 
   useFrame(() => {
     frame.current += 1;
@@ -135,7 +137,25 @@ export function PinProjector() {
     // ended up: the figures are tied to the geometry they measure, so the pins
     // are what gives way.
     projectRects(keepOutCorners, camera, size.width, size.height, projected, appliances);
-    const keepOut = appliances.concat(dimensionRects);
+    // And the interface laid over the scene — the hint line and the toolbar at
+    // the bottom — which a label has to read clear of as much as an appliance.
+    // They only move on a resize or a breakpoint, so measured with the labels.
+    if (measure || frame.current === 1) {
+      overlay.length = 0;
+      const base = gl.domElement.getBoundingClientRect();
+      document.querySelectorAll<HTMLElement>("[data-pin-keep-out]").forEach((element) => {
+        if (element.offsetParent === null) return;
+        const rect = element.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return;
+        overlay.push({
+          x: rect.left - base.left + rect.width / 2,
+          y: rect.top - base.top + rect.height / 2,
+          w: rect.width,
+          h: rect.height,
+        });
+      });
+    }
+    const keepOut = appliances.concat(dimensionRects, overlay);
 
     for (let i = 0; i < anchors.length; i += 1) {
       const { slotId, candidates } = anchors[i];
@@ -194,7 +214,10 @@ export function PinProjector() {
       // What the label placement had to work with, so the check that no label
       // covers an appliance has something to read.
       (window as unknown as { __pinLayout?: unknown }).__pinLayout = {
-        appliances: keepOut,
+        // The room's own footprints, as this has always published; the
+        // controls laid over the scene are their own list.
+        appliances: appliances.concat(dimensionRects),
+        overlay,
         labels: layout.map((box, i) => ({
           slot: anchors[i].slotId,
           x: box.x,

@@ -1,7 +1,17 @@
 import { applianceBox } from "./applianceBox";
 import { cooktopHeight } from "./rangeModel";
-import { CABINET_STANDARDS, ISLAND, ROOM, RUNS, RUN_BY_ID, WINDOWS, ft } from "./room";
+import {
+  CABINET_STANDARDS,
+  ISLAND,
+  ROOM,
+  RUNS,
+  RUN_BY_ID,
+  WINDOWS,
+  fridgeWallClearance,
+  ft,
+} from "./room";
 import { SLOT_BY_ID } from "./slots";
+import { towerVents } from "./towerVent";
 import type { Appliance, SlotId } from "../types";
 
 export interface Dimension {
@@ -119,6 +129,18 @@ export function dimensionsFor(
     // Both are figures somebody has to set out on site before any cabinet is
     // hung, and neither is derivable from looking at the drawing.
     ...windowDimensions(),
+    // The vent in the top of a hung oven's opening: a hole somebody cuts on
+    // site, so its width is a figure on the drawing.
+    ...towerVents().map((vent) => ({
+      id: `tower-vent-${vent.slot}`,
+      from: vent.front[0],
+      to: vent.front[1],
+      valueIn: vent.widthIn,
+      labelAt: 0.5,
+      slots: [vent.slot],
+      noteKey: "dimension.towerVent",
+      noteVars: { depth: formatDimension(vent.depthIn) },
+    })),
     // The aisle, measured on the floor between the run and the island. A room
     // with no island has no aisle to dimension, so the figure is absent rather
     // than zero.
@@ -215,14 +237,12 @@ export function formatDimension(valueIn: number): string {
  * across the filler that holds the gap open.
  */
 function fridgeClearance(): Dimension[] {
-  const segment = RUNS.flatMap((run) => run.segments).find((s) => s.slot === "slot-fridge");
-  const filler = segment?.modules.find((module) => module.kind === "filler");
-  if (!segment || !filler) return [];
-
-  const run = RUNS.find((r) => r.segments.includes(segment))!;
-  // The filler is the last module on the segment, at its far end.
-  const to = segment.to;
-  const from = to - ft(filler.widthIn);
+  // The filler that finishes the refrigerator's run: inside a single machine's
+  // surround, or past a whole group of columns. See `fridgeWallClearance`.
+  const clearance = fridgeWallClearance();
+  if (!clearance) return [];
+  const { run, from, to } = clearance;
+  const filler = { widthIn: clearance.widthIn };
   const across = run.centre + ROOM.counterDepth / 2 + 0.2;
   const at = (along: number): [number, number, number] =>
     run.axis === "x" ? [along, 0.03, across] : [across, 0.03, along];

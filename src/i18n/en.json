@@ -326,5 +326,8 @@
   "param.coffeeSillIn": "the coffee machine's height",
   "rule.coffeeDishwasher": "Second dishwasher, under the coffee machine: not beside the sink, so D11 rule 5 does not apply — it still needs its own 120V circuit, hot water supply and drain run to this cabinet (D11 rule 14)",
   "rule.coffeeMachine": "Coffee machine opening starts {sillIn}\" off the floor, {headIn}\" to its top; 120V {amps}A circuit, and a water line if it is plumbed in",
-  "rule.steamOven": "Steam oven opening starts {sillIn}\" off the floor, which puts the lower door's handle at {handleIn}\"; 240V {amps}A dedicated circuit"
+  "rule.steamOven": "Steam oven opening starts {sillIn}\" off the floor, which puts the lower door's handle at {handleIn}\"; 240V {amps}A dedicated circuit",
+  "rule.towerVent": "Cut a {size} vent in the top of the tower opening, along its back edge — not in the drawer or the toe kick under the oven, where it shows from the front",
+  "towerVent.callout": "Vent in the top of the opening, against the back: {size}",
+  "dimension.towerVent": "vent, {depth} deep"
 }

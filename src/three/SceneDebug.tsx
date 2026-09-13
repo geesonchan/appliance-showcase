@@ -66,6 +66,26 @@ export function SceneDebug() {
     };
   }, [scene]);
 
+  // Every tower vent in the scene, and whether it can actually be seen: drawn,
+  // and inside nothing hidden. Asked at the moment, like the panel colours,
+  // because it changes with the render mode.
+  useEffect(() => {
+    if (!DEBUG) return;
+    (window as unknown as { __towerVents?: () => { slot: string; shown: boolean }[] }).__towerVents =
+      () => {
+        const vents: { slot: string; shown: boolean }[] = [];
+        scene.traverse((object) => {
+          if (object.name !== "tower-vent") return;
+          let shown = true;
+          for (let node: THREE.Object3D | null = object; node; node = node.parent) {
+            if (!node.visible) shown = false;
+          }
+          vents.push({ slot: String(object.userData.slot), shown });
+        });
+        return vents;
+      };
+  }, [scene]);
+
   return null;
 }
 

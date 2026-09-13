@@ -3,6 +3,8 @@ import * as THREE from "three";
 import { SLOT_ORDER } from "../data/catalogue";
 import { resolveRoughIn, roughInFor, roughInSentence, type ResolvedPoint } from "../data/roughIn";
 import { ROOM, ft, isOmitted } from "../data/slots";
+import { formatDimension } from "../data/dimensions";
+import { towerVents } from "../data/towerVent";
 import { useAppStore } from "../store/useAppStore";
 import { useSelection } from "../store/useSelection";
 import { UTILITY_COLORS } from "./materials";
@@ -47,9 +49,38 @@ export function RoughInLayer() {
       ),
     [selection],
   );
+  // Read off the run, so rebuilt with it.
+  const layoutVersion = useAppStore((s) => s.layoutVersion);
+  const vents = useMemo(() => {
+    void layoutVersion;
+    return towerVents();
+  }, [layoutVersion]);
 
   return (
     <group name="rough-in-layer" visible={renderMode === "install"}>
+      {/* The vent in the top of each hung oven's opening, at the back. It is
+          only ever drawn here: in the finished room it is behind the machine
+          and under the cabinet over it, which is the point of putting it there. */}
+      {vents.map((vent) => (
+        <group
+          key={vent.slot}
+          position={vent.position}
+          rotation={[0, vent.rotationY, 0]}
+          onClick={(event) => {
+            event.stopPropagation();
+            showToast("towerVent.callout", {
+              size: `${formatDimension(vent.widthIn)} × ${formatDimension(vent.depthIn)}`,
+            });
+          }}
+          onPointerOver={() => (document.body.style.cursor = "pointer")}
+          onPointerOut={() => (document.body.style.cursor = "auto")}
+        >
+          <mesh name="tower-vent" userData={{ slot: vent.slot }} rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[ft(vent.widthIn), ft(vent.depthIn)]} />
+            <meshBasicMaterial color={UTILITY_COLORS.duct} side={THREE.DoubleSide} />
+          </mesh>
+        </group>
+      ))}
       {points.map(({ slotId, resolved }, i) => (
         <Fitting
           key={`${slotId}-${resolved.point.type}-${i}`}

@@ -543,7 +543,10 @@ export function checkLayout(
         segment.kind === "tall" &&
         fridge.run.segments.slice(i).every((later) => later.kind === "tall"),
     );
-    const at = bank >= 0 ? bank : fridge.index;
+    // And only when the refrigerator is one of them. A board or a tower past a
+    // machine it is not part of says nothing about that machine's landing, and
+    // measuring in front of it found none.
+    const at = bank >= 0 && bank <= fridge.index ? bank : fridge.index;
     const best = Math.max(
       landing(fridge.run, at, -1),
       landing(fridge.run, fridge.index, 1),

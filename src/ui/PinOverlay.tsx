@@ -63,6 +63,7 @@ export function PinOverlay() {
             />
             <button
               type="button"
+              data-pin-label={slotId}
               ref={(el) => registerPinPart(slotId, "label", el)}
               onClick={() => selectSlot(slotId)}
               style={{ position: "absolute", left: 0, top: 0, opacity: 0, willChange: "transform" }}

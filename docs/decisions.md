@@ -474,6 +474,23 @@ checked against 12".)* Every tower whose opening is off the floor now stands its
 drawer on the toe kick the same way, which includes package B's combination
 oven.
 
+**Amended 2026-09-13 (round 32), Leo, from site practice: a hung oven breathes
+through the top of its opening, at the back.** Not through a grille in the
+drawer or the toe kick under it: that is on the front of the tower and is the
+first thing anybody sees of it. The shelf the bridge cabinet stands on — the top
+of the opening — is cut through along its back edge instead, hard against the
+back of the opening, where it is behind the machine and under the cabinet and
+cannot be seen from the room. It is most of the opening's width and 2"-3" deep;
+it is built at 3", with a 3/4" board left each side so the shelf still bears on
+the carcass, which makes it 28-1/2" x 3" in a 30" opening. The junction box is
+where the machine's own sheet puts it, above or beside the opening (MEM301WS;
+there is no PODS302B sheet, see above). It is drawn in the install view with its
+width figured, and it is a line on the install list. It applies to every tall
+unit whose opening starts above the floor with no machine under it — B's
+combination oven and D's steam oven by one rule — and not to a refrigerator
+column or the coffee cabinet. *(Leo's figures, not a drawing: neither sheet in
+`docs/reference/` gives a vent size.)*
+
 **Scheme 01 as laid out.** Left wall, from the far end back to the corner:
 refrigerator tower, 15" landing, corner cabinet. Back wall, from the corner
 out: 18" counter, range with its hood, 18" counter, sink, dishwasher, counter to
@@ -549,6 +566,28 @@ render mode, and puts a line on the install list. It is not an annotation about
 the room: it is the reason three and a half inches of that wall have no cabinet
 on them, and a reader who cannot see it is looking at a gap somebody forgot to
 fill.
+
+**Amended 2026-09-13 (round 32), Leo: a group of columns meets the wall as one
+unit.** Package D's refrigerator is the middle column of three, and the return
+wall was placed beside the refrigerator's own opening — between two columns. The
+wall is past the whole group: the group's outer 3/4" board stays, the 3-1/2"
+full-height filler stands between that board and the wall, and nothing inside
+the group is ever a wall or a filler. A single refrigerator is unchanged — its
+filler is part of its own surround and it ends its run — and so is a bank the
+template orders itself, which gives its 3" end panel up to the clearance. The
+wall and the clearance figure are both found from the filler that ends the
+refrigerator's run, not from the refrigerator's segment.
+
+Rules 1 and 6 were checked for the same mistake at the same time. Rule 1 was
+already right: it asks whether counter follows a tall segment, and every part of
+a group — boards, kits, the clearance filler — is tall, so the group is one tall
+unit; its exceptions are keyed to `beside` on a package slot, which no column
+has. Rule 6 already measured the landing before the whole group, but did not
+check that the refrigerator was in the tall stretch it measured at, so a board
+past a freestanding machine would have read as no landing. It now only measures
+at the group when the refrigerator is part of it. Both have a test that fails the
+old way. Rule 6 still takes the better of the machine's two sides rather than
+its door side specifically: no model in the catalogue records its hinge.
 
 **A run does not always divide by the module step.** Three and a half inches of
 door clearance is not a multiple of three, and what goes in the remainder is a
@@ -642,6 +681,10 @@ localStorage: the next customer gets the default). The list rail is a fixed
 width now rather than a share of the screen, and never scrolls sideways. At
 1440px wide, the scene now gets about 79% of the screen when the page opens,
 just under the 80% above.
+
+**Amended 2026-09-13 (round 32), Leo: the scene gets at least 78% of the
+viewport, not 80%.** Configuration open by default is the round-31 decision,
+and 79.5% at 1440px is what it costs. The figure moves; the layout does not.
 
 ---
 

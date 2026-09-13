@@ -691,6 +691,95 @@ describe("cabinet finishes", () => {
   });
 });
 
+describe("tower vent", () => {
+  /**
+   * The vent in the top of a hung oven's opening, at the back (D11, round 32).
+   * It exists only in the install view: in the finished room it is behind the
+   * machine and under the cabinet, and a vent on the front of the tower is
+   * exactly what the rule is there to stop.
+   */
+  it("draws the vent in install mode and nowhere on the finished tower", async () => {
+    const { page, errors } = await openPage(DESKTOP, false, "?debug=1");
+    const vents = () =>
+      page.evaluate(() =>
+        (
+          window as unknown as { __towerVents: () => { slot: string; shown: boolean }[] }
+        ).__towerVents(),
+      );
+
+    for (const [code, slot] of [
+      ["B", "slot-microwave"],
+      ["D", "slot-oven"],
+    ] as const) {
+      await page.locator(`[data-segment="package"] button`, { hasText: code }).first().click();
+      await page.waitForTimeout(1800);
+
+      await setMode(page, "Materials");
+      await page.waitForTimeout(600);
+      const finished = await vents();
+      expect(finished.map((vent) => vent.slot), code).toEqual([slot]);
+      expect(finished.every((vent) => !vent.shown), `${code} in materials`).toBe(true);
+
+      await setMode(page, "Install");
+      await page.waitForTimeout(900);
+      expect((await vents()).every((vent) => vent.shown), `${code} in install`).toBe(true);
+      await setMode(page, "Materials");
+      await page.waitForTimeout(600);
+    }
+
+    expect(errors).toEqual([]);
+    await page.context().close();
+  });
+});
+
+describe("pin labels and the scene controls", () => {
+  /**
+   * No label lands on the hint line or the toolbar under it. Round 31's
+   * screenshots had package A's 05 and 06 printed across "Drag to rotate"
+   * once the Configuration rail opened by default and the scene got narrower.
+   */
+  it("keeps every label off the hint and the toolbar, in every package, at 1440 and 390", async () => {
+    for (const [viewport, isMobile] of [
+      [DESKTOP, false],
+      [MOBILE, true],
+    ] as const) {
+      const { page, errors } = await openPage(viewport, isMobile);
+      for (const code of ["A", "B", "C", "D"]) {
+        await page.locator(`[data-segment="package"] button`, { hasText: code }).first().click();
+        await page.waitForTimeout(2200);
+        const where = `package ${code} at ${viewport.width}px`;
+        const found = await page.evaluate(() => {
+          const areas = [...document.querySelectorAll<HTMLElement>("[data-pin-keep-out]")]
+            .filter((element) => element.offsetParent !== null)
+            .map((element) => ({
+              name: element.hasAttribute("data-scene-hint") ? "hint" : "toolbar",
+              rect: element.getBoundingClientRect(),
+            }));
+          const labels = [...document.querySelectorAll<HTMLElement>("[data-pin-label]")].filter(
+            (element) => element.style.opacity === "1",
+          );
+          const clashes: string[] = [];
+          for (const label of labels) {
+            const a = label.getBoundingClientRect();
+            for (const { name, rect: b } of areas) {
+              if (a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top) {
+                clashes.push(`${label.dataset.pinLabel} over the ${name}`);
+              }
+            }
+          }
+          return { clashes, labels: labels.length, hint: areas.some((area) => area.name === "hint") };
+        });
+        expect(found.labels, where).toBeGreaterThan(0);
+        // The hint line is only shown from 640px up; the toolbar always is.
+        expect(found.hint, where).toBe(!isMobile);
+        expect(found.clashes, where).toEqual([]);
+      }
+      expect(errors).toEqual([]);
+      await page.context().close();
+    }
+  });
+});
+
 describe("side rails", () => {
   /**
    * Configuration open, the list closed, and a change kept for the tab.

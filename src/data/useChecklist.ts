@@ -17,6 +17,8 @@ import {
 } from "./columnModel";
 import { CHIMNEY, chimneyParts, isChimney } from "./hood";
 import { ISLAND, LAYOUT_LIMITS, LAYOUT_PARAMS, OMITTED_SLOTS, RUNS } from "./room";
+import { formatDimension } from "./dimensions";
+import { towerVents } from "./towerVent";
 import type { Appliance, SlotId } from "../types";
 
 export interface Checklist {
@@ -92,8 +94,23 @@ function installParts(selection: Record<SlotId, Appliance>): Finding[] {
     ...microwaveReach(selection),
     ...towerLanding(),
     ...steamOven(selection),
+    ...towerVent(),
     ...coffeeCabinet(selection),
   ];
+}
+
+/**
+ * The vent in the top of each hung oven's opening, at the back. It is a hole
+ * the cabinetmaker cuts, so its size goes on the list; see `towerVent.ts`.
+ */
+function towerVent(): Finding[] {
+  return towerVents().map((vent) => ({
+    ruleId: `tower-vent:${vent.slot}`,
+    severity: "info" as const,
+    messageKey: "rule.towerVent",
+    slot: vent.slot,
+    params: { size: `${formatDimension(vent.widthIn)} × ${formatDimension(vent.depthIn)}` },
+  }));
 }
 
 /**
