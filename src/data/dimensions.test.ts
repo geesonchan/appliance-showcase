@@ -18,7 +18,7 @@ const by = (id: string, over: Partial<Record<SlotId, Appliance>> = {}) =>
 describe("the dimensions come from the standards, not from captions", () => {
   it("measures floor to ceiling", () => {
     expect(by("floor-to-ceiling").valueIn).toBe(inches(ROOM.wallHeight));
-    expect(by("floor-to-ceiling").valueIn).toBe(96);
+    expect(by("floor-to-ceiling").valueIn).toBe(108.5);
   });
 
   it("measures floor to counter at the D13 height", () => {

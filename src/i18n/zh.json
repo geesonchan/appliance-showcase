@@ -356,6 +356,7 @@
   "rule.coffeeMachine": "咖啡机切口底边离地 {sillIn}″，顶边 {headIn}″；120V {amps}A 电源，嵌入式接水型需接水路",
   "rule.steamOven": "蒸烤箱切口底边离地 {sillIn}″，下门把手因此在 {handleIn}″；240V {amps}A 专用回路",
   "rule.towerVent": "塔顶后方需开通风口，尺寸 {size}：开在切口顶板靠后墙一侧；不要开在烤箱下方的抽屉或踢脚处，正面看得见",
+  "rule.towerBridge": "烤箱正上方一格柜体做开放背板，离后墙 {gap}，让从通风口上来的热气有出路；数字待现场确认",
   "towerVent.callout": "切口顶板靠后墙的通风口：{size}",
   "dimension.towerVent": "通风口，深 {depth}"
 }

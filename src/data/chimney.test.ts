@@ -31,7 +31,8 @@ describe("a chimney reaches the ceiling", () => {
   });
 
   it("keeps both sections one section long and slides them, canopy to ceiling", () => {
-    for (const canopyTopIn of [60, 74.5625, 84.75]) {
+    // Canopy tops the two sections can span under the 108-1/2" ceiling.
+    for (const canopyTopIn of [66, 74.5625, 84.75]) {
       const chimney = chimneyParts(ft(canopyTopIn));
       const where = `canopy top ${canopyTopIn}"`;
 
@@ -108,8 +109,9 @@ describe("a chimney reaches the ceiling", () => {
 
       expect(canopyTop + chimney.rise).toBeCloseTo(ROOM.wallHeight, 9);
       expect(chimney.upper.from + chimney.upper.h).toBeCloseTo(chimney.rise, 9);
-      // An eight-foot ceiling is inside the assembly's own travel, at the
-      // collapsed end of it: this is the room the sheet's 30" is drawn for.
+      // The 108-1/2" ceiling is inside the assembly's own travel, with the
+      // canopy raised to 66-1/2" so the chimney stays inside the 42" the sheet
+      // rates it for (D19).
       expect(chimney.needsExtension).toBe(false);
       expect(chimney.tooLow).toBe(false);
     } finally {

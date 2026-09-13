@@ -1346,9 +1346,80 @@ async function captureRound36(browser) {
   await desktop.close();
 }
 
+/**
+ * Round 37: the 108-1/2" ceiling, finished with 12" stacked boxes (D19).
+ *
+ * Every package as it opens, then close on its tall cabinets, where the stacks
+ * and the half inch to the ceiling are. B and D on the oven as well, finished
+ * and in the install view, for the cabinet over it standing off the wall; A
+ * and C on the hood — A's bridge made to the 96" line under its stack, C's
+ * chimney hood raised half an inch.
+ */
+async function captureRound37(browser) {
+  const desktop = await browser.newContext({ viewport: DESKTOP, deviceScaleFactor: 2 });
+  const page = await desktop.newPage();
+  const open = async () => {
+    await page.goto(baseUrl, { waitUntil: "load", timeout: 120000 });
+    await page.waitForSelector("canvas", { timeout: 120000 });
+    await settle(page, 3200);
+  };
+  const toPackage = async (code) => {
+    await page.locator(`[data-segment="package"] button`, { hasText: code }).first().click();
+    await settle(page, 3000);
+  };
+  // The list rail is a toggle that survives a reload, and a selected machine
+  // replaces the list with its alternatives: back out first, open the rail only
+  // when the list is not showing.
+  const fromList = async (name) => {
+    const back = page.getByRole("button", { name: "All appliances" }).first();
+    if (await back.isVisible()) {
+      await back.click();
+      await settle(page, 900);
+    }
+    const item = page.locator(`aside [data-panel="list"] button`, { hasText: name }).first();
+    if (!(await item.isVisible())) {
+      await page.click(`button[data-rail="left"]`);
+      await settle(page, 700);
+    }
+    await item.click();
+    await settle(page, 2400);
+  };
+  const close = {
+    a: [["Refrigerator", "fridge"], ["Ventilation hood", "hood"]],
+    b: [["Refrigerator", "fridge"], [/Microwave/, "oven"]],
+    c: [["Refrigerator", "fridge"], ["Ventilation hood", "hood"]],
+    d: [["Freezer column", "columns"], ["Coffee machine", "coffee"], ["Steam oven", "oven"]],
+  };
+
+  for (const code of ["a", "b", "c", "d"]) {
+    await open();
+    await toPackage(code.toUpperCase());
+    await page.screenshot({ path: `${outDir}/desktop-${code}-opens.png` });
+    for (const [name, label] of close[code]) {
+      await fromList(name);
+      await page.screenshot({ path: `${outDir}/desktop-${code}-${label}.png` });
+      if (label === "oven") {
+        await click(page, "Install");
+        await settle(page, 1800);
+        await page.screenshot({ path: `${outDir}/desktop-${code}-oven-install.png` });
+        await click(page, "Materials");
+        await settle(page, 1200);
+      }
+    }
+  }
+  await desktop.close();
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round37") {
+    await captureRound37(browser);
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round36") {
     await captureRound36(browser);

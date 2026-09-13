@@ -104,13 +104,24 @@ function installParts(selection: Record<SlotId, Appliance>): Finding[] {
  * the cabinetmaker cuts, so its size goes on the list; see `towerVent.ts`.
  */
 function towerVent(): Finding[] {
-  return towerVents().map((vent) => ({
-    ruleId: `tower-vent:${vent.slot}`,
-    severity: "info" as const,
-    messageKey: "rule.towerVent",
-    slot: vent.slot,
-    params: { size: `${formatDimension(vent.widthIn)} × ${formatDimension(vent.depthIn)}` },
-  }));
+  return towerVents().flatMap((vent): Finding[] => [
+    {
+      ruleId: `tower-vent:${vent.slot}`,
+      severity: "info" as const,
+      messageKey: "rule.towerVent",
+      slot: vent.slot,
+      params: { size: `${formatDimension(vent.widthIn)} × ${formatDimension(vent.depthIn)}` },
+    },
+    // And where that air goes next: the box over the oven has no back and
+    // stands off the wall. Round 37; the figure is to be confirmed on site.
+    {
+      ruleId: `tower-bridge:${vent.slot}`,
+      severity: "info" as const,
+      messageKey: "rule.towerBridge",
+      slot: vent.slot,
+      params: { gap: formatDimension(vent.bridgeStandOffIn) },
+    },
+  ]);
 }
 
 /**

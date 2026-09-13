@@ -1,7 +1,7 @@
 import slotsFile from "../../data/slots.json";
 import type { PackageSlot, Slot, SlotId, SlotRecord } from "../types";
 import { PACKAGE_SLOTS } from "./packages";
-import { CABINET_STANDARDS, OMITTED_SLOTS, SLOT_PLACEMENT, ft } from "./room";
+import { CABINET_STANDARDS, OMITTED_SLOTS, ROOM, SLOT_PLACEMENT, ft } from "./room";
 import { parseDataFile, slotsFileSchema } from "./schema";
 
 export { ft, CABINET_STANDARDS, ROOM, RUN, RUNS, RUN_BY_ID, PANEL, FRIDGE_OPENING, HOOD_OPENING, ISLAND, OMITTED_SLOTS, isOmitted } from "./room";
@@ -95,7 +95,15 @@ function place(record: SlotRecord): Slot {
     return { ...record, ...placement };
   }
   const [x, , z] = placement.position;
-  const y = ft(record.builtForCooktopIn + CABINET_STANDARDS.hood.aboveCooktopMinIn);
+  const { aboveCooktopMinIn, chimneyReachIn } = CABINET_STANDARDS.hood;
+  const clearanceIn = record.builtForCooktopIn + aboveCooktopMinIn;
+  // A chimney hood's duct cover has to reach the ceiling, and it is rated for
+  // 42" from the canopy's underside. Under the 108-1/2" ceiling that puts the
+  // canopy of package C's hood at 66-1/2" rather than on the 30" minimum over
+  // its 36" cooking surface — 30-1/2" of clearance, inside D13's 30"-40". D19.
+  const chimney = PACKAGE_SLOTS["slot-hood"]?.installType === "chimney";
+  const underIn = chimney ? Math.max(clearanceIn, ROOM.wallHeight * 12 - chimneyReachIn) : clearanceIn;
+  const y = ft(underIn);
   return { ...record, ...placement, position: [x, y, z] as [number, number, number] };
 }
 

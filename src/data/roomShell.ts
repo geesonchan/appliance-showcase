@@ -29,7 +29,8 @@ export const ft = (inches: number) => inches / 12;
 export const ROOM = {
   halfX: 7,
   halfZ: 6,
-  wallHeight: 8,
+  /** The ceiling: 108-1/2", which is 9'-0-1/2". The same in every kitchen. D19. */
+  wallHeight: ft(108.5),
   /** Finished counter height: a 34.5" base box under a 1.5" top. */
   counterHeight: ft(36),
   counterThickness: ft(1.5),
@@ -41,6 +42,12 @@ export const ROOM = {
   upperTop: ft(96),
   /** Tall cabinets are 24" deep and run to the same 96" as the uppers. */
   tallTop: ft(96),
+  /**
+   * The line the room's joinery finishes at. Every cabinet that stops at 96"
+   * carries a 12" stacked box, which takes it to 108"; the half inch left to
+   * the ceiling is the closing scribe D13 already allows. Leo, round 37. D19.
+   */
+  stackTop: ft(108),
   toeKick: ft(4),
 };
 
@@ -67,6 +74,12 @@ export const CABINET_STANDARDS = {
   widthIn: { min: 9, max: 36, step: 3 },
   upper: { depthIn: 12, heightsIn: [30, 36, 42], bottomAboveCounterIn: 18 },
   tall: { depthIn: 24, heightsIn: [84, 90, 96] },
+  /**
+   * The box stacked on a cabinet that finishes at 96", as deep as the cabinet
+   * under it. Leo, round 37: 96" + 12" + a 1/2" scribe to the 108-1/2" ceiling.
+   * An entry in the height list, not an exception to the closing-gap rule. D19.
+   */
+  stack: { heightsIn: [12] },
   /** A lazy susan is a 36" square; a blind corner is 42" along one run. */
   corner: {
     lazySusanIn: 36,
@@ -102,6 +115,14 @@ export const CABINET_STANDARDS = {
     /** Canopy bottom above the cooking surface. Gas sets the 30" minimum. */
     aboveCooktopMinIn: 30,
     aboveCooktopMaxIn: 40,
+    /**
+     * How far a chimney hood's own duct cover is rated to reach, from the
+     * underside of its canopy to the top of the chimney: HMCB30WS's 30"-42",
+     * from docs/reference/hmcb30ws-spec.png. Under a ceiling higher than the
+     * minimum clearance plus this, the canopy goes up rather than the chimney
+     * being drawn past what it is rated for. D19.
+     */
+    chimneyReachIn: 42,
     /** The duct collar sits this far above the canopy top. */
     outletAboveBodyIn: 8.375,
     /**

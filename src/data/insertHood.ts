@@ -231,4 +231,6 @@ export const isInsert = (appliance: Appliance | undefined) =>
  * the cooking surface — the same one a canopy is hung at, and the same rule.
  */
 export const hoodCabinetBand = (mountY: number) =>
-  [mountY + ft(HOOD_CABINET.linerProudIn), ROOM.wallHeight] as const;
+  // Up to the line the stacked boxes beside it finish at, not to the ceiling:
+  // it is part of that wall, and the half inch above is the same scribe. D19.
+  [mountY + ft(HOOD_CABINET.linerProudIn), ROOM.stackTop] as const;

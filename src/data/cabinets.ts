@@ -3,7 +3,9 @@ import { HOOD_CABINET } from "./insertHood";
 import { islandAcross, islandPoint } from "./layoutTemplate";
 import { PACKAGE_SLOTS } from "./packages";
 import { SLOT_BY_ID } from "./slots";
+import { TOWER_VENT } from "./towerVent";
 import {
+  CABINET_STANDARDS,
   LAYOUT_LIMITS,
   ISLAND,
   PANEL,
@@ -285,8 +287,14 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
           onRun(run, `${segment.id}-panel-b`, "surround", [opening[1], along[1]], tall, ROOM.counterDepth, 0, { outline, slot: module.slot, module }),
         );
       }
+      // Over a hung oven the box has an open back and stands off the wall, so
+      // what comes up through the vent in its floor has somewhere to go. Leo,
+      // round 37; the figure is his to confirm on site. Its front stays in the
+      // plane of the tower's, so it is shallower by what it stands off.
+      const hung = sill > 0 && !module.lowerSlot;
+      const off = hung ? ft(TOWER_VENT.bridgeStandOffIn) : 0;
       boxes.push(
-        onRun(run, `${segment.id}-bridge`, "upper", opening, [head, tall[1]], ROOM.counterDepth, 0, { outline, slot: module.slot, module }),
+        onRun(run, `${segment.id}-bridge`, "upper", opening, [head, tall[1]], ROOM.counterDepth - off, off / 2, { outline, slot: module.slot, module }),
       );
       // Where a machine stands on the floor under the opening — the dishwasher
       // in the bottom of the coffee cabinet — the cabinetry starts on top of
@@ -341,20 +349,22 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
 }
 
 /**
- * The bridge over a canopy: from the canopy's top up to the ceiling, less a
- * closing scribe.
+ * The bridge over a canopy: from the canopy's top up to the 96" line.
  *
  * It cannot be a stock box. Hanging the canopy 30" over a 36-3/4" cooking
  * surface puts its top at 84-3/4", and 96" less that is 11-1/4" — no supplier
- * lists an 11" bridge. A made-to-size bridge over a hood is ordinary, so it is
- * ordered to the whole inch and the remainder becomes the closing gap D13
- * allows at the ceiling.
+ * lists an 11" bridge, and a made-to-size bridge over a hood is ordinary.
+ *
+ * Under a 96" ceiling it was ordered to the whole inch and the remainder left
+ * as the closing scribe. Since round 37 (D19, scheme A) it carries a 12"
+ * stacked box like every other cabinet at 96", so it is made to that line
+ * exactly: a quarter inch short and its stack would sit out of level with the
+ * stacks beside it. The scribe is over the stacks now.
  */
 export function hoodBridgeBand(): readonly [number, number] {
   const hood = SLOT_BY_ID["slot-hood"];
   const floor = hood.position[1] + ft(hood.cutout.h);
-  const heightIn = Math.floor((ROOM.wallHeight - floor) * 12);
-  return [floor, floor + ft(heightIn)] as const;
+  return [floor, ROOM.upperTop] as const;
 }
 
 /** A bank of wall cabinets, likewise one box per module. */
@@ -380,12 +390,18 @@ function upperBoxes(run: CabinetRun, bank: UpperBank): CabinetBox[] {
    *
    * A hood housing carries its own round its own top section, because that one
    * steps forward with the breast. Everything else on a bank that reaches the
-   * ceiling takes the line along the wall — the cabinets, and the scribe
+   * top line takes the line along the wall — the cabinets, and the scribe
    * between a breast and the tower beside it — so what a customer sees along
    * the top of that wall is a single line that steps forward where the breast
    * does and is unbroken everywhere else.
+   *
+   * Since round 37 that line is the stacked boxes' top, 108", not the ceiling:
+   * a bank that stops at 96" has its stack over it, and a housing runs up to
+   * the same line. D19.
    */
-  if (Math.abs(band[1] - ROOM.wallHeight) < 1e-6) {
+  const reachesTheTop =
+    Math.abs(band[1] - ROOM.upperTop) < 1e-6 || Math.abs(band[1] - ROOM.stackTop) < 1e-6;
+  if (reachesTheTop) {
     const moulding = ft(HOOD_CABINET.mouldingIn);
     const proud = ft(HOOD_CABINET.mouldingProudIn);
     const depth = ROOM.upperDepth + proud;
@@ -396,7 +412,7 @@ function upperBoxes(run: CabinetRun, bank: UpperBank): CabinetBox[] {
           `${bank.id}-crown-${index}`,
           "upper",
           along,
-          [band[1] - moulding, band[1]] as const,
+          [ROOM.stackTop - moulding, ROOM.stackTop] as const,
           depth,
           -(ROOM.counterDepth - depth) / 2,
           // No module: it is a length of moulding along the bank rather than
@@ -435,10 +451,60 @@ function crownRuns(bank: UpperBank): (readonly [number, number])[] {
   return runs;
 }
 
+/**
+ * The box stacked on a cabinet that finishes at 96".
+ *
+ * Leo, round 37 (D19, scheme A): under the 108-1/2" ceiling every tall cabinet,
+ * tower, bridge and wall cabinet that stops at 96" takes a 12" box on top — a
+ * stocked height, on the same run and in the same finish — and the half inch
+ * left over is the closing scribe D13 has always allowed. There is a door seam
+ * at 96", and that is accepted: it is what a stacked cabinet is.
+ *
+ * It has the footprint of the box under it, so it is as deep as that box and
+ * stands where that box stands: 12" over a wall cabinet, 24" over a tower, and
+ * off the wall where the box under it is. Narrower than the narrowest cabinet
+ * anybody stocks it is not a cabinet but the same board carried on up.
+ */
+function stackOn(run: CabinetRun, box: CabinetBox): CabinetBox[] {
+  if (box.installOnly || box.kind === "counter" || box.kind === "toe") return [];
+  if (/-crown-\d+$/.test(box.id)) return [];
+  const top = box.position[1] + box.size[1] / 2;
+  if (![ROOM.upperTop, ROOM.tallTop].some((line) => Math.abs(top - line) < 1e-6)) return [];
+
+  const height = ROOM.stackTop - top;
+  const sixteenths = (feet: number) => Math.round(feet * 12 * 16) / 16;
+  const widthIn = sixteenths(run.axis === "x" ? box.size[0] : box.size[2]);
+  const depthIn = sixteenths(run.axis === "x" ? box.size[2] : box.size[0]);
+  const heightIn = sixteenths(height);
+  const board = widthIn < CABINET_STANDARDS.widthIn.min;
+  const module: CabinetModule = board
+    ? { code: `PNL${widthIn}X${heightIn}`, kind: "panel", widthIn, heightIn }
+    : {
+        code: `W${widthIn}${heightIn}${depthIn === CABINET_STANDARDS.upper.depthIn ? "" : `-${depthIn}D`}`,
+        kind: "wall",
+        widthIn,
+        heightIn,
+        depthIn,
+      };
+  return [
+    {
+      ...box,
+      id: `${box.id}-stack`,
+      kind: board ? "surround" : "upper",
+      module,
+      position: [box.position[0], top + height / 2, box.position[2]],
+      size: [box.size[0], height, box.size[2]],
+    },
+  ];
+}
+
 function runBoxes(run: CabinetRun): CabinetBox[] {
   const boxes: CabinetBox[] = run.segments.flatMap((segment) => segmentBoxes(run, segment));
 
   for (const bank of run.uppers) boxes.push(...upperBoxes(run, bank));
+
+  // D19, scheme A: a 12" stacked box on everything that finishes at 96".
+  for (const box of [...boxes]) boxes.push(...stackOn(run, box));
 
   // The toe kick runs under the cabinetry, and stops where the cabinetry does.
   // A freestanding range stands on the floor between two runs of boxes, and so

@@ -529,6 +529,24 @@ time and is where that amendment says: in the shelf over the opening, at the
 back, drawn only in the install view, with nothing named a vent on or under
 either tower.
 
+**Amended 2026-09-13 (round 37), Leo: the cabinet over a hung oven has an open
+back and stands off the wall.** The vent in the shelf lets the machine's air
+out of the opening; this is where it goes next. The box directly over the
+oven has no back panel and does not touch the wall. Its front stays in the
+plane of the tower, so it is shallower by what it stands off, and the 12"
+box stacked on it (D19) stands off with it, so the gap behind runs up to the
+scribe at the ceiling. Two parts of this are to confirm:
+- **The stand-off figure is Leo's to give from site.** Until then it is 3",
+  the depth of the vent under it, so the gap is directly over the hole
+  (`TOWER_VENT.bridgeStandOffIn`). The install list states the figure and
+  says it is to be confirmed.
+- **The stack standing off with the bridge is this round's reading, not
+  Leo's words.** He named the one box over the oven. A stack against the wall
+  would close the top of that gap at 96", so it follows the box under it.
+
+It applies to the same towers as the vent: B's combination oven and D's steam
+oven. Refrigerator columns and the coffee cabinet stay against the wall.
+
 **Scheme 01 as laid out.** Left wall, from the far end back to the corner:
 refrigerator tower, 15" landing, corner cabinet. Back wall, from the corner
 out: 18" counter, range with its hood, 18" counter, sink, dishwasher, counter to
@@ -1047,23 +1065,35 @@ no package has its own.
 so where its canopy can be depends on how high the ceiling is. Every hood,
 bridge and housing that already runs to the ceiling depends on it too.
 
-**Not built yet.** The app still draws a 96" ceiling (`ROOM.wallHeight`).
-Raising it changes more than the walls. The tall cabinets, the towers, the
-column groups and the wall cabinets all finish at 96", which would leave a
-12-1/2" strip under the new ceiling. How that strip is finished — cabinets to
-the ceiling, a filler closing it, or left open — is Leo's to choose, from the
-three renderings in round 36's report. The ceiling moves in the same round as
-that choice, so the room is never drawn with the strip undecided.
+**Built in round 37, as scheme A (Leo).** Everything that finished at 96"
+still finishes there, and a 12" box is stacked on it. That covers every tall
+cabinet, tower, column bridge and oven bridge, the cabinet over a freestanding
+refrigerator, the finished boards beside them, and every wall cabinet. The
+joinery then tops out at 108" (`ROOM.stackTop`). The 1/2" left to the ceiling
+is the closing scribe D13 has always allowed, so the six-inch rule is not
+touched: D13 gains an entry in its height list (`stack: 12`), not an
+exception. There is a door seam at 96", and that is accepted — it is what a
+stacked cabinet is.
 
-What else moves with it, and is checked when it is built:
-- the bridge over a canopy and an insert hood's housing, which run to the
-  ceiling and grow with it;
-- package C's chimney hood, HMCB30WS, which covers 30"-42" from the underside of
-  its canopy to the top of its chimney. At 36" of cooking surface plus the 30"
-  minimum its underside is at 66" and its chimney can reach 108" — half an inch
-  short of the ceiling. Its canopy therefore goes up at least 1/2", to 30-1/2"
-  of clearance, which is inside D13's 30"-40";
-- the window check, which compares a window's head with the ceiling.
+What it changed:
+- A stack has the footprint of the box under it: 12" deep over a wall
+  cabinet, 24" over a tower, and off the wall where the box under it is.
+  Under 9" wide it is not a cabinet but the same board carried on up.
+- The bridge over an under-cabinet hood is made to the 96" line exactly —
+  11-1/4" over package A's 84-3/4" canopy top — rather than ordered to the
+  whole inch with a scribe over it. That keeps its stack level with the
+  stacks beside it; the scribe is over the stacks now.
+- The crown runs along the stacks' top at 108", and an insert hood's housing
+  runs up to that same line rather than to the ceiling.
+- Package C's chimney hood, HMCB30WS, is rated 30"-42" from the underside of its
+  canopy to the top of its chimney. On the 30" minimum over its 36" cooking
+  surface it would reach 108", half an inch short, so its canopy goes up to
+  66-1/2": 30-1/2" of clearance, inside D13's 30"-40". A, B and D hang
+  where they did.
+- The box over a hung oven stands off the wall with an open back (D11 rule 12,
+  round 37), and the stack on it stands off with it, so the gap behind runs up
+  to the scribe at the ceiling.
+- The window check compares a window's head with the 108-1/2" ceiling.
 
 **What this forbids:** a ceiling height per package or per room; 96 or 108.5
 written into geometry instead of read from `ROOM`.
@@ -1086,11 +1116,39 @@ written into geometry instead of read from `ROOM`.
   install list says so. 12" is the alternative.
 - **The island hood's height is worked out, never a constant.** The underside
   is at max(the cooking surface plus the manual's minimum clearance, 66") off
-  the floor. The top of the range is the 108-1/2" ceiling less the hood's
-  shortest overall height. Both figures come from the HMIB42WS manual. Leo
-  leans toward the top of that range, about 72": an induction plume is weak,
-  and a clear line of sight across the island matters more. If the manual asks
-  for a lower canopy at 600 CFM, the manual wins.
+  the floor. The HMIB42WS manual gives 30" over the cooking surface for gas and
+  for electric/induction alike, and no lower figure at 600 CFM, so the lower
+  end is 66". Its duct cover spans 30"-45-1/16" from the bottom of the hood to
+  its top, which under the 108-1/2" ceiling puts the underside at most 78-1/2".
+  That figure is the cover fully collapsed with no adjustment left, so it is
+  not a usable top. **The usable range is 66"-76".** *(Leo, round 37.)*
+- **The underside is at 72"**, 36" over the cooking surface: an induction plume
+  is weak, and a clear line of sight across the island matters more. *(Leo,
+  round 37.)*
+- **The standard duct covers are enough.** At 72" the hood is 36-1/2" from its
+  bottom to the ceiling, inside the drawing's 30"-45-1/16". The manual's text
+  also says the supplied covers fill an 8' ceiling and the CHXTHMIB telescopic
+  kit reaches 9'-12', and 108-1/2" is half an inch over 9'. So **CHXTHMIB stays
+  on the quote as a conditional line, marked "to confirm with Thermador"**. The
+  importer skips anything named a kit, so that line comes from a rule, not from
+  the catalogue.
+- **The canopy is 27" deep**, from the drawing on page 8 of the manual. The same
+  page's text says 23-3/16"; Leo is checking the spec sheet. *(Round 37.)*
+- **Island depth, and what an aisle is measured to.** The 24"-42" island depth
+  slider is the island's cabinet footprint. Its counter laps 1" past that on
+  every side, and the app measures an aisle from cabinet face to cabinet face.
+  Package E's island is a different shape: a 24" base on the cooking side, a
+  15" seating overhang and 1" at the front, which is 40" of counter over 24" of
+  cabinet. The slider cannot describe it, so E needs its overhang as a figure
+  of its own. Across the room, with the 44" behind the seating measured from
+  the counter's edge, that is:
+  - **155"** with the 48" cooking aisle measured between cabinet faces:
+    24 + 48 + 24 + 15 + 44;
+  - **157"** with it measured between counter edges: 25 + 48 + 40 + 44.
+
+  Round 36's 158" counted a 42" island with no seating overhang, and 156" mixes
+  the two ways of measuring. Which one the 48" is measured to is Leo's to say.
+  The default depth is 168" *(Leo, round 37)*, 11"-13" over either.
 
 Registered, not scheduled. None of these is a round of its own.
 

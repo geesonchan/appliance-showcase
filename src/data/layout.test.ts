@@ -315,13 +315,13 @@ describe("D13 · wall cabinets", () => {
     expect(inches(bottom)).toBeCloseTo(inches(hood.position[1]) + hood.cutout.h, 6);
   });
 
-  // It cannot finish level with them: 96" less an 84-3/4" canopy top is
-  // 11-1/4", and nobody lists an 11" bridge. Made to size, with the remainder
-  // as the closing scribe D13 allows.
-  it("orders the bridge to a whole inch and scribes the rest", () => {
-    const [floor, top] = hoodBridgeBand();
-    expect(inches(top - floor) % 1).toBeCloseTo(0, 6);
-    const gap = inches(ROOM.wallHeight - top);
+  // Round 37, scheme A: the bridge finishes on the 96" line the cabinets beside
+  // it finish at — made to size, 11-1/4" over an 84-3/4" canopy top — so the
+  // 12" stacked box goes on it level with theirs. The scribe is over the stack.
+  it("makes the bridge to the 96 inch line, and scribes over the stack", () => {
+    const [, top] = hoodBridgeBand();
+    expect(inches(top)).toBeCloseTo(inches(ROOM.upperTop), 6);
+    const gap = inches(ROOM.wallHeight - ROOM.stackTop);
     expect(gap).toBeGreaterThanOrEqual(CABINET_STANDARDS.closingGapIn.min);
     expect(gap).toBeLessThanOrEqual(CABINET_STANDARDS.closingGapIn.max);
   });
@@ -540,7 +540,11 @@ describe("D11 rule 2 · the corner is continuous", () => {
     // Wall cabinets only: the bridge over the hood and the one over the
     // refrigerator both start where their appliance stops.
     const uppers = CABINETS.filter(
-      (b) => b.kind === "upper" && (b.module?.kind === "wall" || b.module?.kind === "corner"),
+      // Not the 12" boxes stacked on them, which start where they stop.
+      (b) =>
+        b.kind === "upper" &&
+        !b.id.endsWith("-stack") &&
+        (b.module?.kind === "wall" || b.module?.kind === "corner"),
     );
     expect(uppers.length).toBeGreaterThan(3);
     const bottoms = uppers.map((b) => b.position[1] - b.size[1] / 2);

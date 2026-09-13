@@ -21,11 +21,22 @@ export const TOWER_VENT = {
   depthIn: 3,
   /** Shelf left each side of the hole. */
   sideLipIn: 0.75,
+  /**
+   * How far the cabinet over the opening stands off the wall.
+   *
+   * Leo, round 37: the one box directly over the oven has an open back and does
+   * not touch the wall, so what comes up through the vent has somewhere to go.
+   * The site figure is Leo's to give. Until he does, it is the vent's own depth,
+   * so the gap behind the box is directly over the hole under it.
+   */
+  bridgeStandOffIn: 3,
 };
 
 export interface TowerVent {
   /** The oven whose opening it is in. */
   slot: SlotId;
+  /** How far the open-backed cabinet over the opening stands off the wall. */
+  bridgeStandOffIn: number;
   widthIn: number;
   depthIn: number;
   /** Centre of the hole, in world feet. */
@@ -81,6 +92,7 @@ export function towerVents(): TowerVent[] {
     const frontZ = back + ft(depthIn);
     return {
       slot: slotId,
+      bridgeStandOffIn: TOWER_VENT.bridgeStandOffIn,
       widthIn,
       depthIn,
       position: toWorld(slotId, 0, y, (back + frontZ) / 2),

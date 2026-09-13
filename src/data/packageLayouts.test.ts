@@ -292,7 +292,10 @@ describe("a freestanding refrigerator is surrounded differently", () => {
   });
 
   const fridgeBoxes = () =>
-    CABINETS.filter((box) => box.slot === "slot-fridge" && box.kind !== "toe");
+    // The surround itself, not the 12" boxes stacked on it (D19).
+    CABINETS.filter(
+      (box) => box.slot === "slot-fridge" && box.kind !== "toe" && !box.id.endsWith("-stack"),
+    );
 
   it("builds panels and a bridge round an enclosed one", () => {
     activate("package-a");
@@ -336,7 +339,7 @@ describe("a freestanding refrigerator is surrounded differently", () => {
       }
 
       // The cabinet over it starts an inch above the machine, not at the head
-      // of an opening, and runs to the ceiling.
+      // of an opening, and runs to the 96" line, where its stacked box goes on.
       const over_ = boxes.find((box) => box.kind === "upper")!;
       const floor = over_.position[1] - over_.size[1] / 2;
       const top = over_.position[1] + over_.size[1] / 2;
@@ -344,7 +347,7 @@ describe("a freestanding refrigerator is surrounded differently", () => {
         SLOT_BY_ID["slot-fridge"].cutout.h + LAYOUT_LIMITS.fridge.aboveIn,
         6,
       );
-      expect(top, where).toBeCloseTo(ROOM.wallHeight, 6);
+      expect(top, where).toBeCloseTo(ROOM.tallTop, 6);
       expect(over_.id.endsWith("-bridge"), `${where}: that is a bridge`).toBe(false);
     }
   });
@@ -858,7 +861,11 @@ describe("a bank of tall units", () => {
     const banks = run.uppers.filter(
       (bank) => !bank.modules.some((module) => module.kind === "hood-cabinet"),
     );
-    const top = Math.max(...banks.map((bank) => (bank.band ?? [0, ROOM.wallHeight])[1]));
+    // The cabinets' top line is their stacked boxes' top since round 37: a bank
+    // stops at 96" and its 12" stack takes it to the line. D19.
+    const tops = banks.map((bank) => (bank.band ?? [0, ROOM.upperTop])[1]);
+    expect(tops.every((t) => Math.abs(t - ROOM.upperTop) < 1e-6), where).toBe(true);
+    const top = ROOM.stackTop;
 
     const housing = CABINETS.find((box) => box.module?.kind === "hood-cabinet")!;
     expect(housing.module?.housing, where).toBe(housingStyle);
@@ -1135,12 +1142,13 @@ describe("a bank of tall units", () => {
     const beside = run.uppers.filter((bank) => bank !== housing);
     expect(beside.length, "no banks beside the housing").toBeGreaterThan(0);
 
-    // Same top: the ceiling, for all of them.
+    // Same top: the housing runs to the stacked boxes' 108" line, and every
+    // bank beside it stops at 96" with its 12" stack over it. Round 37, D19.
     const top = (bank: (typeof run.uppers)[number]) =>
-      (bank.band ?? [0, ROOM.wallHeight])[1];
-    expect(inches(top(housing))).toBeCloseTo(inches(ROOM.wallHeight), 6);
+      (bank.band ?? [0, ROOM.upperTop])[1];
+    expect(inches(top(housing))).toBeCloseTo(inches(ROOM.stackTop), 6);
     for (const bank of beside) {
-      expect(inches(top(bank)), bank.id).toBeCloseTo(inches(top(housing)), 6);
+      expect(inches(top(bank)), bank.id).toBeCloseTo(inches(ROOM.upperTop), 6);
       // And the same height of box: one module height along the wall.
       const band = bank.band ?? [0, ROOM.wallHeight];
       expect(inches(band[1] - band[0]), bank.id).toBeCloseTo(42, 6);
@@ -1164,7 +1172,7 @@ describe("a bank of tall units", () => {
       (box) => /-crown-\d+$/.test(box.id) && box.id.startsWith(`upper-${run.id}`),
     );
     expect(crowns.length, "no crown along the banks").toBeGreaterThan(0);
-    const ceiling = inches(ROOM.wallHeight);
+    const ceiling = inches(ROOM.stackTop);
     for (const crown of crowns) {
       expect(inches(crown.position[1] + crown.size[1] / 2), crown.id).toBeCloseTo(ceiling, 6);
     }
@@ -1254,8 +1262,11 @@ describe("a bank of tall units", () => {
       )!;
       expect(side, `${where}: no end panel on the tower`).toBeDefined();
       expect(inches(side.size[along]), `${where}: the end panel`).toBeCloseTo(0.75, 6);
+      // Not the cabinet over the oven, which stands off the wall with an open
+      // back since round 37 and so is shallower than the tower it is in.
       const body = CABINETS.find(
-        (box) => box.outline === tower.id && box.module?.kind === "tall",
+        (box) =>
+          box.outline === tower.id && box.module?.kind === "tall" && !box.id.endsWith("-bridge"),
       )!;
       expect(inches(side.size[across]), `${where}: the panel's depth`).toBeCloseTo(
         inches(body.size[across]),

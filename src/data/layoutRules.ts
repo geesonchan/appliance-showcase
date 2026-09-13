@@ -641,9 +641,28 @@ export function checkHeights(): LayoutViolation[] {
     fail("d13-tall", `tall cabinets are ${inches(ROOM.tallTop)}" tall`);
   }
 
-  // D13: a run may finish short of the ceiling, but only by a scribe.
+  // D19, scheme A: what goes on the 96" line is a stacked box of a stocked
+  // height, the same over the wall cabinets and over the tall ones. The bridge
+  // over a hood stops on that line too, or its stack sits out of level with
+  // the stacks beside it.
+  const stack = CABINET_STANDARDS.stack.heightsIn;
+  for (const under of [ROOM.upperTop, ROOM.tallTop]) {
+    const stackIn = inches(ROOM.stackTop - under);
+    if (!stack.includes(stackIn)) {
+      fail("d13-stack", `a stacked box is ${stackIn}" tall, wants one of ${stack.join("/")}`);
+    }
+  }
+  if (Math.abs(inches(hoodBridgeBand()[1] - ROOM.upperTop)) > 1e-6) {
+    fail(
+      "d13-stack",
+      `the bridge over the hood stops at ${inches(hoodBridgeBand()[1]).toFixed(2)}", not on the ${inches(ROOM.upperTop)}" line`,
+    );
+  }
+
+  // D13: a run may finish short of the ceiling, but only by a scribe. With
+  // every 96" top stacked, what finishes a run is the stack.
   const { closingGapIn } = CABINET_STANDARDS;
-  for (const top of [ROOM.upperTop, ROOM.tallTop, hoodBridgeBand()[1]]) {
+  for (const top of [ROOM.stackTop]) {
     const gap = inches(ROOM.wallHeight - top);
     if (gap < closingGapIn.min - 1e-6 || gap > closingGapIn.max + 1e-6) {
       fail(
