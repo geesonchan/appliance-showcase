@@ -247,10 +247,11 @@ describe("D11 rule 7 · the island's openings face opposite ways", () => {
     expect(wine.position[2]).toBeGreaterThan(microwave.position[2]);
   });
 
-  it("leaves a 42 inch aisle to the back run", () => {
-    expect(inches(ISLAND.z[0] - back().centre - ROOM.counterDepth / 2)).toBeGreaterThanOrEqual(
-      LAYOUT_LIMITS.aisleIn,
-    );
+  // Counter edge to counter edge since round 39 (D20): both tops lap 1".
+  it("leaves a 42 inch aisle to the back run, counter edge to counter edge", () => {
+    const lap = ROOM.counterOverhang;
+    const runEdge = back().centre + ROOM.counterDepth / 2 + lap;
+    expect(inches(ISLAND.z[0] - lap - runEdge)).toBeGreaterThanOrEqual(LAYOUT_LIMITS.aisleIn - 1e-6);
   });
 });
 

@@ -169,8 +169,18 @@ export const LAYOUT_LIMITS = {
    * is a piece nobody makes, and a filler stops at six.
    */
   towerSpacer: { counterIn: 5, wantIn: 18, panelIn: 0.75 },
-  /** D11 rule 7: the aisle a working kitchen needs, for the island. */
+  /**
+   * D11 rule 7: the aisle a working kitchen needs, for the island. Measured
+   * counter edge to counter edge since round 39 (D20): each top laps 1" past
+   * its cabinets, so it is 2" more than the cabinets' own gap.
+   */
   aisleIn: 42,
+  /**
+   * Behind an island's seating overhang, from its edge to the end of the room.
+   * Leo, round 38. Checked only where there is an overhang to sit at, so A-D,
+   * which have none, pass it as they are.
+   */
+  seatingAisleIn: 44,
   /**
    * What finishes a run, which is never the appliance itself. Against a wall a
    * filler, so a door has somewhere to swing; in the open a cabinet.

@@ -34,13 +34,14 @@ describe("the dimensions come from the standards, not from captions", () => {
     expect(by("canopy-height").valueIn).toBe(CABINET_STANDARDS.hood.bodyHeightIn);
   });
 
+  // Counter edge to counter edge since round 39 (D20): both tops lap 1".
   it("measures the island aisle", () => {
     const back = RUN_BY_ID.back;
     expect(by("island-aisle").valueIn).toBeCloseTo(
-      inches(ISLAND.z[0] - back.centre - ROOM.counterDepth / 2),
+      inches(ISLAND.z[0] - back.centre - ROOM.counterDepth / 2 - 2 * ROOM.counterOverhang),
       3,
     );
-    expect(by("island-aisle").valueIn).toBeGreaterThanOrEqual(LAYOUT_LIMITS.aisleIn);
+    expect(by("island-aisle").valueIn).toBeGreaterThanOrEqual(LAYOUT_LIMITS.aisleIn - 1e-6);
   });
 });
 

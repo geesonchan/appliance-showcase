@@ -229,7 +229,8 @@ describe("the island", () => {
         expect(result.ok, `${aisleIn}" aisle, ${islandDepthIn}" island`).toBe(true);
         expect(inches(ISLAND.z[1] - ISLAND.z[0])).toBeCloseTo(islandDepthIn, 6);
         expect(
-          inches(ISLAND.z[0] - RUN_BY_ID.back.centre - ROOM.counterDepth / 2),
+          // Counter edge to counter edge: both tops lap 1" (D20, round 39).
+          inches(ISLAND.z[0] - RUN_BY_ID.back.centre - ROOM.counterDepth / 2 - 2 * ROOM.counterOverhang),
         ).toBeCloseTo(aisleIn, 6);
       }
     }

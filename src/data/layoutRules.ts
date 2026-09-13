@@ -590,14 +590,32 @@ export function checkLayout(
     }
     // The aisle between the island and the run it stands off: the back run for
     // an island along the back wall, the left run for one turned across it.
+    // Counter edge to counter edge (D20, round 39): the run's top laps 1" past
+    // its cabinets, and the island's does on its working side.
     const run = runs.find((r) => r.id === (island.axis === "x" ? "back" : "left"))!;
-    const front = run.centre + ROOM.counterDepth / 2;
-    const aisle = inches((island.axis === "x" ? island.z[0] : island.x[0]) - front);
+    const lap = ROOM.counterOverhang;
+    const front = run.centre + ROOM.counterDepth / 2 + lap;
+    const aisle = inches((island.axis === "x" ? island.z[0] : island.x[0]) - lap - front);
     if (aisle < LAYOUT_LIMITS.aisleIn - 1e-6) {
       fail(
         "d11-7",
         `${aisle.toFixed(1)}" aisle between the island and the ${run.id} run, ` +
           `needs ${LAYOUT_LIMITS.aisleIn}"`,
+      );
+    }
+  }
+
+  // Behind the seating, where there is a seating overhang to sit at: from the
+  // edge of that overhang to the end of the room. An island with none has
+  // nobody sitting at it and passes; package E's is the first that will not.
+  if (island.present && island.overhangIn > 0) {
+    const edge = (island.axis === "x" ? island.z[1] : island.x[1]) + island.overhangIn / 12;
+    const end = island.axis === "x" ? ROOM.halfZ : ROOM.halfX;
+    const behind = inches(end - edge);
+    if (behind < LAYOUT_LIMITS.seatingAisleIn - 1e-6) {
+      fail(
+        "d11-7",
+        `${behind.toFixed(1)}" behind the island's seating, needs ${LAYOUT_LIMITS.seatingAisleIn}"`,
       );
     }
   }

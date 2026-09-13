@@ -653,7 +653,9 @@ function islandBoxes(): Omit<CabinetBox, "run">[] {
       ...box(
         "island-counter",
         [along[0] - ROOM.counterOverhang, along[1] + ROOM.counterOverhang],
-        [across[0] - ROOM.counterOverhang, across[1] + ROOM.counterOverhang],
+        // The seating side reaches past the cabinets by the overhang where
+        // there is one, and by the ordinary 1" lap where there is not. D20.
+        [across[0] - ROOM.counterOverhang, across[1] + Math.max(ft(ISLAND.overhangIn), ROOM.counterOverhang)],
         ROOM.counterThickness,
       ),
       kind: "counter",

@@ -133,8 +133,14 @@ export interface LayoutParams {
   hasIsland: boolean;
   islandLengthIn: number;
   islandDepthIn: number;
-  /** The working aisle between the island and the perimeter run. */
+  /** The working aisle between the island and the perimeter run, counter edge to counter edge. */
   aisleIn: number;
+  /**
+   * How far the island's top reaches past its cabinets on the seating side.
+   * Absent is none, which is every package so far; E's will be 15". The island
+   * depth slider is the cabinets alone. See D20.
+   */
+  islandOverhangIn?: number;
 }
 
 /**
@@ -213,6 +219,12 @@ export interface IslandLayout {
   working: number;
   /** And the face people sit at, which is the far side of it. */
   seating: number;
+  /**
+   * How far the top reaches past the cabinets on the seating side, in inches.
+   * Zero for every package so far; the top then laps 1" there as it does
+   * everywhere else. See D20.
+   */
+  overhangIn: number;
   height: number;
   /** The two openings, measured along `axis`. */
   microwave: readonly [number, number];
@@ -991,7 +1003,10 @@ function validate(params: LayoutParams): Refusal[] {
 
     // The island stands clear of the run behind it by an aisle, and everything
     // from there to the far side of the room is what it has to fit in.
-    const alongIn = alongWallIn - CABINET_STANDARDS.base.depthIn - params.aisleIn;
+    // Counter edge to counter edge (D20, round 39): the run's top laps 1" into
+    // the aisle, and the island's top laps 1" past its cabinets at each end.
+    const lap = ROOM.counterOverhang * 12;
+    const alongIn = alongWallIn - CABINET_STANDARDS.base.depthIn - lap - params.aisleIn - 2 * lap;
     if (params.islandLengthIn > alongIn) {
       const step_ = PARAM_LIMITS.islandLengthIn.step;
       const fits = Math.floor(alongIn / step_) * step_;
@@ -1014,7 +1029,18 @@ function validate(params: LayoutParams): Refusal[] {
             : undefined,
       });
     }
-    const acrossIn = CABINET_STANDARDS.base.depthIn + params.aisleIn + params.islandDepthIn;
+    // Across the room: the run, its lap, the aisle, the island's whole top —
+    // its cabinets, the 1" lap at the front and whichever is more of its seating
+    // overhang and the ordinary lap — and, where there is an overhang to sit at,
+    // the aisle behind it. D20.
+    const overhangIn = params.islandOverhangIn ?? 0;
+    const islandCounterDepthIn = params.islandDepthIn + lap + Math.max(overhangIn, lap);
+    const acrossIn =
+      CABINET_STANDARDS.base.depthIn +
+      lap +
+      params.aisleIn +
+      islandCounterDepthIn +
+      (overhangIn > 0 ? LAYOUT_LIMITS.seatingAisleIn : 0);
     if (acrossIn > acrossWallIn) {
       reasons.push({
         key: "refusal.islandDeep",
@@ -1145,6 +1171,10 @@ function islandFor(
   const length = ft(params.hasIsland ? params.islandLengthIn : 0);
   const depth = ft(params.islandDepthIn);
   const aisle = ft(params.aisleIn);
+  // The aisle is measured counter edge to counter edge (D20, round 39): the
+  // run's top and the island's each lap 1" past their cabinets, so the
+  // cabinets stand the aisle plus both laps apart.
+  const clear = aisle + 2 * ROOM.counterOverhang;
 
   /**
    * Which way it is turned, and where that puts it.
@@ -1160,8 +1190,8 @@ function islandFor(
    * when it does not.
    */
   const axis = params.islandOrientation === "perpendicular" ? ("z" as const) : ("x" as const);
-  const alongFrom = axis === "x" ? (leftFace + aisle + halfX) / 2 - length / 2 : backFace + aisle;
-  const acrossFrom = axis === "x" ? backFace + aisle : leftFace + aisle;
+  const alongFrom = axis === "x" ? (leftFace + clear + halfX) / 2 - length / 2 : backFace + clear;
+  const acrossFrom = axis === "x" ? backFace + clear : leftFace + clear;
   const along = [alongFrom, alongFrom + length] as const;
   const across = [acrossFrom, acrossFrom + depth] as const;
   const x = axis === "x" ? along : across;
@@ -1184,6 +1214,7 @@ function islandFor(
     // the cook stands between the island and the counter.
     working: across[0],
     seating: across[1],
+    overhangIn: params.islandOverhangIn ?? 0,
     height: ROOM.counterHeight,
     microwave: [along[0] + inset, along[0] + inset + microwave] as const,
     wine: [along[1] - inset - wine, along[1] - inset] as const,
@@ -1698,10 +1729,21 @@ function requirementFor(
   // depth of the room the island stands in. Whichever asks for more is the
   // minimum, and the difference goes on the bill so the figure still adds up.
   if (params.hasIsland) {
+    // Counter edge to counter edge, the island's whole top, and the aisle behind
+    // a seating overhang where there is one — the same arithmetic `validate`
+    // refuses on. D20, round 39.
+    const lapIn = ROOM.counterOverhang * 12;
+    const overhangIn = params.islandOverhangIn ?? 0;
     const clearance =
       CABINET_STANDARDS.base.depthIn +
+      lapIn +
       params.aisleIn +
-      (leg === "back" ? params.islandLengthIn : params.islandDepthIn);
+      (leg === "back"
+        ? params.islandLengthIn + 2 * lapIn
+        : params.islandDepthIn +
+          lapIn +
+          Math.max(overhangIn, lapIn) +
+          (overhangIn > 0 ? LAYOUT_LIMITS.seatingAisleIn : 0));
     if (clearance > minimumIn) {
       items.push({
         widthIn: clearance - minimumIn,

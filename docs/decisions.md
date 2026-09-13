@@ -1196,11 +1196,17 @@ written into geometry instead of read from `ROOM`.
   Across the room for E it is 25 + 48 + 40 + 44 = **157"**, and the default
   depth stays 168" *(Leo, round 37)*.
 
-  *As built today* the app measures its aisle between cabinet faces, from the
-  perimeter run's 24" carcass to the island's, and its room-depth check adds
-  the cabinet depth, not the top. The perimeter counter and the island counter
-  each lap 1" into that aisle, so an aisle A-D report as 42" is 40" counter
-  edge to counter edge. Reported in round 38, not changed: that is Leo's call.
+  *Found in round 38, changed in round 39 (Leo).* The app used to measure its
+  aisle between cabinet faces, from the perimeter run's 24" carcass to the
+  island's, and its room-depth check added the cabinet depth, not the top.
+  Both counters lap 1" into that aisle, so an aisle A-D reported as 42" was 40"
+  counter edge to counter edge. Now the island stands the aisle plus both laps
+  off the run, the aisle figure on the drawing is drawn between the counter
+  edges, the checks that refuse an island or grow a wall count the whole top,
+  and there is a check behind the seating that passes wherever there is no
+  overhang. **None of A-D's default rooms had to change:** every package's own
+  room still takes every single switch without growing a wall. That is the test
+  that holds D18's slack, and it passed as it stands.
 
 Registered, not scheduled. None of these is a round of its own.
 

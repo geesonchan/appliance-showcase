@@ -141,23 +141,26 @@ export function dimensionsFor(
       noteKey: "dimension.towerVent",
       noteVars: { depth: formatDimension(vent.depthIn) },
     })),
-    // The aisle, measured on the floor between the run and the island. A room
-    // with no island has no aisle to dimension, so the figure is absent rather
-    // than zero.
+    // The aisle, between the run's counter edge and the island's (D20, round
+    // 39): each top laps 1" past its cabinets. A room with no island has no
+    // aisle to dimension, so the figure is absent rather than zero.
     ...(ISLAND.present
       ? [
           {
             id: "island-aisle",
             labelAt: 0.5,
             slots: ["slot-microwave", "slot-wine"] as SlotId[],
-            from: [ISLAND.x[0] + 1, 0.03, backRun.centre + ROOM.counterDepth / 2] as [
-              number,
-              number,
-              number,
-            ],
-            to: [ISLAND.x[0] + 1, 0.03, ISLAND.z[0]] as [number, number, number],
+            from: [
+              ISLAND.x[0] + 1,
+              0.03,
+              backRun.centre + ROOM.counterDepth / 2 + ROOM.counterOverhang,
+            ] as [number, number, number],
+            to: [ISLAND.x[0] + 1, 0.03, ISLAND.z[0] - ROOM.counterOverhang] as [number, number, number],
             valueIn: Number(
-              ((ISLAND.z[0] - backRun.centre - ROOM.counterDepth / 2) * 12).toFixed(3),
+              (
+                (ISLAND.z[0] - ROOM.counterOverhang - backRun.centre - ROOM.counterDepth / 2 - ROOM.counterOverhang) *
+                12
+              ).toFixed(3),
             ),
           },
         ]
