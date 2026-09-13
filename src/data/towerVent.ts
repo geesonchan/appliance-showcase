@@ -32,6 +32,24 @@ export const TOWER_VENT = {
   bridgeStandOffIn: 3,
 };
 
+/**
+ * Where the air leaves: a grille in the top of the box stacked over a steam
+ * oven, just under the crown. Leo, round 38.
+ *
+ * Only for a steam oven, and keyed on the machine rather than the tower. The
+ * size is worked back from an area rather than read off a drawing: the
+ * PODS302B sheet in `docs/reference/` states no ventilation requirement for
+ * the cabinet at all.
+ */
+export const OVEN_GRILLE = {
+  heightIn: 6,
+  widthIn: 28,
+  slats: 5,
+  slatIn: 0.375,
+  /** How far each slat is turned down toward the room, in radians. */
+  tilt: Math.PI / 5,
+};
+
 export interface TowerVent {
   /** The oven whose opening it is in. */
   slot: SlotId;

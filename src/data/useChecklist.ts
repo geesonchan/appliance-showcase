@@ -14,11 +14,12 @@ import {
   isColumn,
   isCombo,
   isDouble,
+  isSteamOven,
 } from "./columnModel";
 import { CHIMNEY, chimneyParts, isChimney } from "./hood";
 import { ISLAND, LAYOUT_LIMITS, LAYOUT_PARAMS, OMITTED_SLOTS, RUNS } from "./room";
 import { formatDimension } from "./dimensions";
-import { towerVents } from "./towerVent";
+import { OVEN_GRILLE, towerVents } from "./towerVent";
 import type { Appliance, SlotId } from "../types";
 
 export interface Checklist {
@@ -94,7 +95,7 @@ function installParts(selection: Record<SlotId, Appliance>): Finding[] {
     ...microwaveReach(selection),
     ...towerLanding(),
     ...steamOven(selection),
-    ...towerVent(),
+    ...towerVent(selection),
     ...coffeeCabinet(selection),
   ];
 }
@@ -103,8 +104,22 @@ function installParts(selection: Record<SlotId, Appliance>): Finding[] {
  * The vent in the top of each hung oven's opening, at the back. It is a hole
  * the cabinetmaker cuts, so its size goes on the list; see `towerVent.ts`.
  */
-function towerVent(): Finding[] {
+function towerVent(selection: Record<SlotId, Appliance>): Finding[] {
   return towerVents().flatMap((vent): Finding[] => [
+    // Where that air leaves, for a steam oven only. Round 38.
+    ...(isSteamOven(selection[vent.slot])
+      ? [
+          {
+            ruleId: `oven-grille:${vent.slot}`,
+            severity: "info" as const,
+            messageKey: "rule.ovenGrille",
+            slot: vent.slot,
+            params: {
+              size: `${formatDimension(OVEN_GRILLE.heightIn)} × ${formatDimension(OVEN_GRILLE.widthIn)}`,
+            },
+          },
+        ]
+      : []),
     {
       ruleId: `tower-vent:${vent.slot}`,
       severity: "info" as const,

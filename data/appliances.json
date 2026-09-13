@@ -726,7 +726,8 @@
       "sourceUrl": "https://media3.bsh-group.com/Documents/22895094_PODS302B-30-INCH-DOUBLE-COMBINATION-BUILT-IN-OVEN-WITH-STEAM-CONVECTION-OVEN-Specifications.pdf",
       "verifiedAt": "2026-09-12",
       "installType": [
-        "double"
+        "double",
+        "steam"
       ],
       "fuel": null,
       "blower": null,

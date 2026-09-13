@@ -239,6 +239,17 @@ export const steamOvenSillIn = () =>
 export const isDouble = (appliance: Appliance) => appliance.installType.includes("double");
 
 /**
+ * True when this machine is a steam oven, whatever else it is.
+ *
+ * What the joinery keys on, not whether there is a tower: the cabinet over a
+ * steam oven carries a grille (D11 rule 12, round 38), and a combination oven
+ * in the same tower does not. Read off the install form the import finds in
+ * the Appliance Type.
+ */
+export const isSteamOven = (appliance: Appliance | undefined) =>
+  !!appliance && appliance.category === "wall-oven" && appliance.installType.includes("steam");
+
+/**
  * A double oven's front, given the envelope it is drawn in: the convection
  * oven's door at the bottom with its bar where the handle figure puts it, the
  * steam oven's over it, and the control strip across the top. Same parts as a

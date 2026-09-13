@@ -56,6 +56,13 @@ export interface CabinetBox {
    * parts are, so that is where it is drawn.
    */
   installOnly?: boolean;
+  /**
+   * The hung oven this box stands over, when it is the open-backed cabinet over
+   * one or the box stacked on that cabinet. What goes on its front depends on
+   * the machine in the slot, which is the selection's business rather than the
+   * layout's: see `GrilleDoor` in CabinetLayer.
+   */
+  ventSlot?: SlotId;
   /** Centre of the box, in feet. */
   position: [number, number, number];
   /** Full extents, in feet. */
@@ -294,7 +301,13 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
       const hung = sill > 0 && !module.lowerSlot;
       const off = hung ? ft(TOWER_VENT.bridgeStandOffIn) : 0;
       boxes.push(
-        onRun(run, `${segment.id}-bridge`, "upper", opening, [head, tall[1]], ROOM.counterDepth - off, off / 2, { outline, slot: module.slot, module }),
+        onRun(run, `${segment.id}-bridge`, "upper", opening, [head, tall[1]], ROOM.counterDepth - off, off / 2, {
+          outline,
+          slot: module.slot,
+          module,
+          // The stack on it copies this, which is where a grille can go.
+          ...(hung && module.slot ? { ventSlot: module.slot } : {}),
+        }),
       );
       // Where a machine stands on the floor under the opening — the dishwasher
       // in the bottom of the coffee cabinet — the cabinetry starts on top of

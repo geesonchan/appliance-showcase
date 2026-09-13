@@ -1410,9 +1410,80 @@ async function captureRound37(browser) {
   await desktop.close();
 }
 
+/**
+ * Round 38: the grille over package D's steam oven, and the crown's half inch.
+ *
+ * D as it opens; the steam oven's tower flown in on; closer, where the louvre
+ * and the door cut short under it can be read, and where the half inch between
+ * the crown and the ceiling shows; and the same close view in burgundy, to see
+ * the slats take the doors' colour under the lights.
+ */
+async function captureRound38(browser) {
+  const desktop = await browser.newContext({ viewport: DESKTOP, deviceScaleFactor: 2 });
+  const page = await desktop.newPage();
+  const open = async (query = "") => {
+    await page.goto(baseUrl + query, { waitUntil: "load", timeout: 120000 });
+    await page.waitForSelector("canvas", { timeout: 120000 });
+    await settle(page, 3200);
+  };
+  const toD = async () => {
+    await page.locator(`[data-segment="package"] button`, { hasText: "D" }).first().click();
+    await settle(page, 3000);
+  };
+  const fromList = async (name) => {
+    const back = page.getByRole("button", { name: "All appliances" }).first();
+    if (await back.isVisible()) {
+      await back.click();
+      await settle(page, 900);
+    }
+    const item = page.locator(`aside [data-panel="list"] button`, { hasText: name }).first();
+    if (!(await item.isVisible())) {
+      await page.click(`button[data-rail="left"]`);
+      await settle(page, 700);
+    }
+    await item.click();
+    await settle(page, 2400);
+  };
+  const closer = async (clicks) => {
+    for (let i = 0; i < clicks; i += 1) {
+      await click(page, "Zoom in");
+      await page.waitForTimeout(300);
+    }
+    await settle(page, 1800);
+  };
+
+  await open();
+  await toD();
+  await page.screenshot({ path: `${outDir}/desktop-d-opens.png` });
+  await fromList("Steam oven");
+  await page.screenshot({ path: `${outDir}/desktop-d-oven.png` });
+  // The camera does not pan, and zooming closes on the selected machine's
+  // middle. The hood hangs at the height of the grille, beside the tower, so
+  // flying to it is what brings the top of the tower into the middle of the view.
+  await fromList("Ventilation hood");
+  await closer(2);
+  await page.screenshot({ path: `${outDir}/desktop-d-grille-close.png` });
+  await closer(2);
+  await page.screenshot({ path: `${outDir}/desktop-d-crown-gap.png` });
+
+  await open("?cabinet=burgundy");
+  await toD();
+  await fromList("Ventilation hood");
+  await closer(2);
+  await page.screenshot({ path: `${outDir}/desktop-d-grille-burgundy.png` });
+  await desktop.close();
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round38") {
+    await captureRound38(browser);
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round37") {
     await captureRound37(browser);

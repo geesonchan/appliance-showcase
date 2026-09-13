@@ -297,6 +297,10 @@ const INSTALL_WORDS: { pattern: RegExp; value: string }[] = [
   { pattern: /\bdrawer\b/i, value: "drawer" },
   { pattern: /\bsingle\b/i, value: "single" },
   { pattern: /\bdouble\b/i, value: "double" },
+  // A steam oven is a family of its own for the joinery: the cabinet over its
+  // tower breathes out through a grille (D11 rule 12, round 38). "Steam Oven",
+  // "Steam Double Oven" and "Steam Combo Oven" all say so in the type.
+  { pattern: /\bsteam\b/i, value: "steam" },
   { pattern: /\bcombo\b/i, value: "combo" },
   { pattern: /\bcountertop\b/i, value: "countertop" },
   { pattern: /\bundercounter\b/i, value: "undercounter" },
@@ -641,7 +645,9 @@ export const PUBLISHED_SPECS: Record<
     cutoutWidthIn: 28.5,
     cutoutHeightIn: 47.375,
     cutoutDepthIn: 23.5,
-    installType: ["double"],
+    // Steam over convection: the sheet's type is "Steam Oven" and its feature
+    // "Double Oven", and this override would otherwise drop the first.
+    installType: ["double", "steam"],
   },
   // Thermador T18IW100SP, from docs/reference/t18iw100sp-spec.pdf. 83-7/8" on
   // its legs retracted, 85-1/2" fully extended. Panel-ready: what is seen is

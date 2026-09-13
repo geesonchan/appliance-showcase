@@ -14,6 +14,8 @@ import { useIsMobile } from "../hooks/useIsMobile";
 import { cabinetPaint, useAppStore } from "../store/useAppStore";
 import { ft } from "../data/room";
 import { CABINET_DOOR_IN } from "../data/ovenTrim";
+import { isSteamOven } from "../data/columnModel";
+import { OVEN_GRILLE } from "../data/towerVent";
 import { SCENE_COLORS, finish, type FinishToken, type SurfaceProps } from "./materials";
 import { Surface } from "./Surface";
 import { HoodCabinet } from "./HoodCabinet";
@@ -132,6 +134,93 @@ function Door({ box, s }: { box: CabinetBox; s: SurfaceProps }) {
 }
 
 /**
+ * The grille in the cabinet stacked over a steam oven.
+ *
+ * Leo, round 38: the air that comes up the gap behind the open-backed cabinets
+ * over a steam oven leaves at the top of the column, just under the crown. The
+ * box keeps its height and lines up with every box beside it; only its door is
+ * cut short, and the strip it gives up is a louvre in the same finish as the
+ * door, so on the elevation there is one door in two parts. The figures are
+ * `OVEN_GRILLE` in towerVent.ts; see docs/decisions.md D11 rule 12.
+ */
+function GrilleDoor({ box, s }: { box: CabinetBox; s: SurfaceProps }) {
+  const { axis, width, height } = facing(box);
+  const depth = axis === "x" ? box.size[0] : box.size[2];
+  const w = width - DOOR.reveal;
+  // Never more than leaves three inches of door under it.
+  const grilleH = Math.min(ft(OVEN_GRILLE.heightIn), height - DOOR.reveal * 2 - ft(3));
+  const grilleW = Math.min(ft(OVEN_GRILLE.widthIn), w);
+  const doorH = height - grilleH - DOOR.reveal * 2;
+  const front = depth / 2 + DOOR.thickness / 2;
+  const doorY = -height / 2 + DOOR.reveal / 2 + doorH / 2;
+  const grilleY = height / 2 - DOOR.reveal / 2 - grilleH / 2;
+  const panel: [number, number] = [
+    Math.max(0, w - DOOR.rail * 2),
+    Math.max(0, doorH - DOOR.rail * 2),
+  ];
+  const side = (w - grilleW) / 2;
+  const pitch = grilleH / OVEN_GRILLE.slats;
+
+  return (
+    <group
+      name={"grille-door-" + box.id}
+      rotation={axis === "x" ? [0, Math.PI / 2, 0] : [0, 0, 0]}
+    >
+      {/* The door, cut short: a frame and a recessed panel like any other. */}
+      <mesh position={[0, doorY, front]} castShadow receiveShadow userData={{ cabinetRole: true }}>
+        <boxGeometry args={[w, doorH, DOOR.thickness]} />
+        <Surface s={s} size={[w, doorH]} rotate={0} />
+      </mesh>
+      {panel[0] > 0 && panel[1] > 0 && (
+        <mesh
+          position={[0, doorY, front + DOOR.thickness / 2 - DOOR.recess]}
+          receiveShadow
+          userData={{ cabinetRole: true }}
+        >
+          <boxGeometry args={[panel[0], panel[1], DOOR.thickness / 2]} />
+          <Surface s={s} size={[panel[0], panel[1]]} rotate={Math.PI / 2} />
+        </mesh>
+      )}
+      {/* A stile each side of the louvre, where it is narrower than the door. */}
+      {side > ft(0.1) &&
+        ([-1, 1] as const).map((sign) => (
+          <mesh
+            key={sign}
+            position={[sign * (w / 2 - side / 2), grilleY, front]}
+            castShadow
+            receiveShadow
+            userData={{ cabinetRole: true }}
+          >
+            <boxGeometry args={[side, grilleH, DOOR.thickness]} />
+            <Surface s={s} size={[side, grilleH]} rotate={Math.PI / 2} />
+          </mesh>
+        ))}
+      {/* The dark space behind the slats, which is the gap the air comes up.
+          Not something to click on, and it must not stop a click either. */}
+      <mesh position={[0, grilleY, front - DOOR.thickness / 2]} raycast={() => null}>
+        <boxGeometry args={[grilleW, grilleH, ft(0.1)]} />
+        <meshBasicMaterial color="#1B1D1A" />
+      </mesh>
+      {/* The slats: geometry in the door's own finish, not a picture of them. */}
+      {Array.from({ length: OVEN_GRILLE.slats }, (_, i) => (
+        <mesh
+          key={i}
+          name="oven-grille-slat"
+          position={[0, grilleY - grilleH / 2 + pitch * (i + 0.5), front]}
+          rotation={[OVEN_GRILLE.tilt, 0, 0]}
+          castShadow
+          receiveShadow
+          userData={{ cabinetRole: true }}
+        >
+          <boxGeometry args={[grilleW, pitch * 0.9, ft(OVEN_GRILLE.slatIn)]} />
+          <Surface s={s} size={[grilleW, pitch]} rotate={0} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/**
  * The door across a corner susan, set diagonally.
  *
  * Same two layers as any other door — a frame and a recessed panel — turned
@@ -228,6 +317,14 @@ function CabinetSolid({ box }: { box: CabinetBox }) {
   // A corner susan wears one door across the corner rather than a flat front
   // on each leg. See docs/reference/lazy-susan-corner.svg.
   const corner = useMemo(() => diagonalDoor(box), [box]);
+  // The box stacked over a steam oven's cabinet breathes out through its door.
+  // Keyed on the machine in the slot, so a combination oven in the same tower
+  // gets a plain door. D11 rule 12, round 38.
+  const selection = useSelection();
+  const grille =
+    box.ventSlot !== undefined &&
+    box.id.endsWith("-stack") &&
+    isSteamOven(selection[box.ventSlot]);
 
   // The housing round an insert liner is cabinetry with a shape of its own:
   // three sections rather than a box, and no door on any of them. It is
@@ -266,7 +363,14 @@ function CabinetSolid({ box }: { box: CabinetBox }) {
           size={[box.size[0], box.size[1]]}
         />
       </mesh>
-      {hasDoor && (corner ? <CornerDoor box={box} door={corner} s={props} /> : <Door box={box} s={props} />)}
+      {hasDoor &&
+        (grille ? (
+          <GrilleDoor box={box} s={props} />
+        ) : corner ? (
+          <CornerDoor box={box} door={corner} s={props} />
+        ) : (
+          <Door box={box} s={props} />
+        ))}
     </>
   );
 }

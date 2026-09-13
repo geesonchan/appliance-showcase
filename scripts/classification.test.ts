@@ -163,9 +163,21 @@ describe("install form from the Appliance Type", () => {
     ["Wine Column", "column"],
     ["Undercounter Refrigerator", "undercounter"],
     ["Refrigerator Drawer", "drawer"],
+    ["Steam Oven", "steam"],
+    ["Steam Double Oven", "steam"],
+    ["Steam Combo Oven", "steam"],
   ])("reads %s as %s", (type, expected) => {
     expect(formOf(type)).toContain(expected);
   });
+
+  // Round 38: the joinery keys on a steam oven, so a combination or a plain
+  // double oven must not read as one.
+  it.each(["Double Oven", "Microwave Combo Oven", "Speed Combo Oven", "Single Oven"])(
+    "does not read %s as a steam oven",
+    (type) => {
+      expect(formOf(type)).not.toContain("steam");
+    },
+  );
 
   it.each([
     ["Internal", "internal"],

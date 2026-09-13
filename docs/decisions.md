@@ -547,6 +547,33 @@ scribe at the ceiling. Two parts of this are to confirm:
 It applies to the same towers as the vent: B's combination oven and D's steam
 oven. Refrigerator columns and the coffee cabinet stay against the wall.
 
+**Amended 2026-09-13 (round 38), Leo: a steam oven's air leaves through a
+grille at the top of the column.** The stack standing off with the bridge is
+confirmed. The air goes up the gap behind the two boxes and leaves through a
+louvre in the door of the stacked box, just under the crown. The boxes keep
+their heights and line up with everything beside them; only that one door is
+cut short, and the strip it gives up is the grille, in the door's own finish,
+so the elevation shows one door in two parts.
+- **Keyed on the machine, not on the tower.** A steam oven gets a grille; a
+  combination oven in the same tower does not. So D's PODS302B has one, B's
+  MEM301WS does not, and package E's 30" combination oven will not either
+  without a change to the rule. The import reads "steam" out of the Appliance
+  Type (`Steam Oven`, `Steam Double Oven`, `Steam Combo Oven`) and
+  `isSteamOven` is what the joinery asks.
+- **6" x 28" is worked back from an area, not read off a drawing.** The
+  PODS302B sheet (`docs/reference/pods302b-spec.pdf`) states no ventilation
+  requirement for the cabinet: cutout, sill, trim and junction box, and nothing
+  else. `OVEN_GRILLE` in `towerVent.ts`.
+- **This is Leo's site practice, not a drawing** — the open back, the stand-off,
+  the stack following it and the grille alike.
+- **Still open.** The stand-off figure has not been given, so it is still 3".
+  And with the grille only on a steam oven, B's tower has the open back and
+  the stand-off but no way out at the top. Whether the open back and stand-off
+  should follow the same rule — (a) only over a steam oven, B back to a solid
+  back against the wall — or stay on every hung oven with B's outlet found some
+  other way — (b) — is Leo's to choose. Until then the code does what round 37
+  built: both on every hung oven.
+
 **Scheme 01 as laid out.** Left wall, from the far end back to the corner:
 refrigerator tower, 15" landing, corner cabinet. Back wall, from the corner
 out: 18" counter, range with its hood, 18" counter, sink, dishwasher, counter to
@@ -1134,21 +1161,27 @@ written into geometry instead of read from `ROOM`.
   the catalogue.
 - **The canopy is 27" deep**, from the drawing on page 8 of the manual. The same
   page's text says 23-3/16"; Leo is checking the spec sheet. *(Round 37.)*
-- **Island depth, and what an aisle is measured to.** The 24"-42" island depth
-  slider is the island's cabinet footprint. Its counter laps 1" past that on
-  every side, and the app measures an aisle from cabinet face to cabinet face.
-  Package E's island is a different shape: a 24" base on the cooking side, a
-  15" seating overhang and 1" at the front, which is 40" of counter over 24" of
-  cabinet. The slider cannot describe it, so E needs its overhang as a figure
-  of its own. Across the room, with the 44" behind the seating measured from
-  the counter's edge, that is:
-  - **155"** with the 48" cooking aisle measured between cabinet faces:
-    24 + 48 + 24 + 15 + 44;
-  - **157"** with it measured between counter edges: 25 + 48 + 40 + 44.
+- **Every aisle is measured counter edge to counter edge.** *(Leo, round 38.)*
+  The island is described in three figures, and every aisle check uses the
+  last of them:
+  - `islandCabinetDepth` — the cabinets, which is what the island depth slider
+    sets today (24"-42");
+  - `islandOverhangIn` — the counter past the cabinets on the seating side, a
+    new parameter for E: 15";
+  - `islandCounterDepth` — the whole top: cabinets + seating overhang + the 1"
+    lap at the front.
 
-  Round 36's 158" counted a 42" island with no seating overhang, and 156" mixes
-  the two ways of measuring. Which one the 48" is measured to is Leo's to say.
-  The default depth is 168" *(Leo, round 37)*, 11"-13" over either.
+  For E that is a 24" cabinet and 40" of counter. For A-D, which have no
+  seating overhang, it is the cabinets plus 1" each side. Leo's round-38 note
+  gives A-D as 42" and 44"; the default the app opens with is 36", so 38".
+  Across the room for E it is 25 + 48 + 40 + 44 = **157"**, and the default
+  depth stays 168" *(Leo, round 37)*.
+
+  *As built today* the app measures its aisle between cabinet faces, from the
+  perimeter run's 24" carcass to the island's, and its room-depth check adds
+  the cabinet depth, not the top. The perimeter counter and the island counter
+  each lap 1" into that aisle, so an aisle A-D report as 42" is 40" counter
+  edge to counter edge. Reported in round 38, not changed: that is Leo's call.
 
 Registered, not scheduled. None of these is a round of its own.
 

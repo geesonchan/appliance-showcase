@@ -1,9 +1,29 @@
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { chromium, type Browser, type Page } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
 
 const DESKTOP = { width: 1440, height: 900 };
 const MOBILE = { width: 390, height: 844 };
+
+/**
+ * How many tests this file runs, and a check that every one of them did.
+ *
+ * Round 37's first run had its setup fall over: all twenty-five tests were
+ * skipped, and through a pipe the run looked like a pass. A smoke suite that
+ * tested nothing has to fail, so the count is asserted once the file is done.
+ * Change the number when a test is added or removed. A run filtered with -t
+ * runs fewer on purpose, and is the one exception.
+ */
+const EXPECTED_TESTS = 25;
+let testsRun = 0;
+const filtered = process.argv.some((arg) => arg === "-t" || arg.startsWith("--testNamePattern"));
+beforeEach(() => {
+  testsRun += 1;
+});
+afterAll(() => {
+  if (filtered) return;
+  expect(testsRun, `${testsRun} of ${EXPECTED_TESTS} smoke tests actually ran`).toBe(EXPECTED_TESTS);
+});
 
 let browser: Browser;
 
