@@ -1177,9 +1177,16 @@ async function captureRound34(browser) {
   await settle(page, 1500);
   await page.screenshot({ path: `${outDir}/desktop-a-grown-toast.png` });
 
-  // Clicked in the page rather than through Playwright's actionability check:
-  // at twice the pixel density the headless scene draws a frame or two a
-  // second, and "stable across two animation frames" never arrives in time.
+  // Undo is only there while the toast is, and a screenshot at twice the pixel
+  // density can take longer than the toast stays up. So the change is made
+  // again and undone straight away, with no capture between the two. Clicked
+  // in the page rather than through Playwright's actionability check: the
+  // headless scene draws a frame or two a second at this density, and "stable
+  // across two animation frames" never arrives in time.
+  await page.goto(`${baseUrl}?back=147&left=102`, { waitUntil: "networkidle" });
+  await settle(page, 2800);
+  await page.getByRole("button", { name: "Across the room", exact: true }).first().click();
+  await page.waitForSelector("[data-toast-undo]");
   await page.$eval("[data-toast-undo]", (button) => button.click());
   await settle(page, 1500);
   await page.screenshot({ path: `${outDir}/desktop-a-undone.png` });
