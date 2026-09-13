@@ -172,8 +172,9 @@ export const TILE_SIZES: TileSize[] = ["24x48", "32x32", "48x48"];
 export const CABINET_COLORS = [
   { key: "finish.cabinet.green", value: "#2E5C45", token: "painted" as const },
   { key: "finish.cabinet.navy", value: "#2B3A4A", token: "painted" as const },
-  // Deeper in round 33, with the oak: a walnut brown rather than a pale clay.
-  { key: "finish.cabinet.clay", value: "#6B4E3D", token: "painted" as const },
+  // Walnut, round 35: what round 33 darkened toward, now the colour and the
+  // name both. It was a pale clay before that.
+  { key: "finish.cabinet.walnut", value: "#5D4037", token: "painted" as const },
   { key: "finish.cabinet.bone", value: "#E3DFD3", token: "painted" as const },
   // Not a colour: a door made of something. Its swatch shows the wood rather
   // than a flat brown, which is the whole difference between the two. The
@@ -243,8 +244,11 @@ function initialFinishes() {
 
   const query = new URLSearchParams(window.location.search);
   // A swatch by name, or a RAL number from the table: `?cabinet=ral6005`.
-  const swatch = (palette: typeof CABINET_COLORS | typeof ACCENT_COLORS, name: string | null) => {
-    if (!name) return undefined;
+  const swatch = (palette: typeof CABINET_COLORS | typeof ACCENT_COLORS, asked: string | null) => {
+    if (!asked) return undefined;
+    // The walnut swatch was called clay until round 35; a link from before
+    // still opens on it.
+    const name = asked === "clay" ? "walnut" : asked;
     const ral = lookupRal(name);
     if (ral.ok) return { value: ral.colour.hex };
     return palette.find((paint) => paint.key.endsWith(name));

@@ -179,7 +179,9 @@ export function Toast() {
       return;
     }
     setVisible(true);
-    const showFor = toast.undo ? 9000 : 3500;
+    // Twenty seconds, round 35, Leo: nine was shorter than a sentence of
+    // explanation, and Undo is gone when the toast is.
+    const showFor = toast.undo ? 20000 : 3500;
     timers.current.push(window.setTimeout(() => setVisible(false), showFor));
     timers.current.push(window.setTimeout(() => dismissToast(), showFor + 300));
     return () => timers.current.forEach(clearTimeout);

@@ -316,9 +316,14 @@ describe("oak is a mid brown", () => {
     const oak = CABINET_COLORS.find((paint) => paint.key === "finish.cabinet.oak")!;
     expect(oak.value).toBe("#8B6B47");
     expect(ACCENT_COLORS.find((paint) => paint.key === "finish.accent.oak")!.value).toBe("#8B6B47");
-    const clay = CABINET_COLORS.find((paint) => paint.key === "finish.cabinet.clay")!;
-    // Darker than the clay it was, #9C7B63.
-    expect(luminance(hex(clay.value))).toBeLessThan(luminance(hex("#9C7B63")) - 30);
+    // Walnut, round 35: a true walnut around #5D4037, darker than the oak and
+    // far darker than the clay it replaced (#9C7B63), and still brown.
+    const walnut = CABINET_COLORS.find((paint) => paint.key === "finish.cabinet.walnut")!;
+    expect(walnut.value).toBe("#5D4037");
+    const w = hex(walnut.value);
+    expect(luminance(w)).toBeLessThan(luminance(hex(oak.value)) - 20);
+    expect(luminance(w)).toBeLessThan(luminance(hex("#9C7B63")) - 40);
+    expect(w.r).toBeGreaterThan(w.b);
   });
 });
 

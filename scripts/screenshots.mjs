@@ -1124,7 +1124,7 @@ async function captureRound33(browser) {
     await settle(page, 1200);
   };
 
-  for (const swatch of ["green", "navy", "clay", "bone", "oak"]) {
+  for (const swatch of ["green", "navy", "walnut", "bone", "oak"]) {
     await open(`?cabinet=${swatch}`);
     await page.screenshot({ path: `${outDir}/desktop-cabinet-${swatch}.png` });
   }

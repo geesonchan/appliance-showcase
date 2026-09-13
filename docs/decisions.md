@@ -813,7 +813,8 @@ detail table of Wikipedia's *List of RAL colours*. RAL publishes no official
 sRGB, so these are approximations, and `_meta.provenance` in the file says so.
 It is still colour, not product: nothing about it reaches the package or the
 quote. The oak on doors and floors is a shade deeper, toward #8B6B47, and the
-clay swatch is a deeper walnut brown to match (#6B4E3D). A tile floor is large
+clay swatch is a deeper walnut brown to match (#6B4E3D) — in round 35 renamed
+Walnut / 胡桃 and made a true walnut, #5D4037 (`?cabinet=clay` still opens it). A tile floor is large
 format — 24" x 48" by default, 32" x 32" or 48" x 48" — laid third-bond with
 1/16" joints; the size is a finish setting under Floor. Marble is warm grey with
 ink-dot veining, and quartz stays pale. None of it is a download; every surface
@@ -949,7 +950,9 @@ fit only because a wall is short, that wall grows to the shortest length that
 takes the change, and the room is built. A toast says which wall, from what to
 what and why — "左墙已从 175¼″ 加长到 178¾″，以容纳返墙间隙" — with an Undo that
 puts back the package, the switches, the walls and the choices exactly as they
-were. A wall only ever grows here; nothing shrinks a room.
+were. The toast stays up for twenty seconds (round 35: nine was shorter than a
+sentence of explanation), and Undo goes with it. A wall only ever grows here;
+nothing shrinks a room.
 
 **It still refuses when growing is not the answer**, with the reasons it always
 gave: when a wall would have to pass the slider's 204" (package D's columns or
