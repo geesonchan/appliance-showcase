@@ -8,7 +8,7 @@ import type { Appliance, SlotId } from "../types";
 
 const t = (key: string, vars?: Record<string, string | number>) => translate("en", key, vars);
 
-const selection = (): Record<SlotId, Appliance> => ({
+const selection = (): Partial<Record<SlotId, Appliance>> => ({
   "slot-fridge": FIXTURES.fridgeBuiltIn,
   "slot-range": FIXTURES.gasRange36,
   "slot-hood": FIXTURES.hoodNeedsBlower,
@@ -22,7 +22,7 @@ function quoteOf(
   blower: Appliance | null = FIXTURES.blower600,
 ) {
   const picked = { ...selection(), ...overrides };
-  const hood = picked["slot-hood"];
+  const hood = picked["slot-hood"]!;
   const context = packageContext(hood, blower);
   const findings = [
     ...SLOTS.flatMap((slot) => evaluateSlot(slot, picked[slot.id], context)),

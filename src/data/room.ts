@@ -87,7 +87,7 @@ export let HOOD_OPENING: readonly [number, number];
  */
 export let ISLAND: GeneratedLayout["island"];
 
-export let SLOT_PLACEMENT: Record<SlotId, SlotPlacement>;
+export let SLOT_PLACEMENT: Partial<Record<SlotId, SlotPlacement>>;
 /**
  * The machines this room was built without: never more than the island's two,
  * and only in a room with no island short of the wall to carry them.

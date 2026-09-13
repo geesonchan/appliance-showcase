@@ -83,6 +83,8 @@ describe("an appliance is drawn at its own size, not its opening's", () => {
   it("keeps every catalogue model inside its own published dimensions", () => {
     for (const [slotId, candidates] of Object.entries(APPLIANCES_BY_SLOT)) {
       const def = SLOT_BY_ID[slotId as keyof typeof SLOT_BY_ID];
+      // A slot this package does not have has no opening to measure against.
+      if (!def) continue;
       for (const appliance of candidates) {
         const box = applianceBox(def, appliance);
         const declaredH = appliance.heightIn ?? appliance.cutoutHeightIn ?? def.cutout.h;

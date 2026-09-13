@@ -6,7 +6,8 @@ import {
   parseDataFile,
   schemesFileSchema,
 } from "./schema";
-import { SLOT_BY_ID } from "./slots";
+import { SLOT_ORDER } from "./packages";
+import { SLOT_RECORDS } from "./slots";
 
 /**
  * The appliance catalogue and the schemes built from it.
@@ -32,16 +33,24 @@ export const APPLIANCE_BY_ID: Record<string, Appliance> = Object.fromEntries(
 /**
  * Every candidate for a slot, cheapest first.
  *
+ * By what the slot accepts rather than by where the import filed the model.
+ * An appliance is filed under one slot, but a kitchen can have two openings
+ * that take the same machine — package D has a dishwasher beside the sink and
+ * another under its coffee machine, and a steam oven where package B has a
+ * combination oven — and each of those openings has to offer the whole range.
+ *
  * Blowers are filed under `slot-hood` because that is what they attach to, but
  * they are not candidates for the slot itself, so they are kept out here and
  * listed separately. See docs/decisions.md D6.
  */
 export const APPLIANCES_BY_SLOT: Record<SlotId, Appliance[]> = (() => {
   const grouped = {} as Record<SlotId, Appliance[]>;
-  for (const slotId of Object.keys(SLOT_BY_ID) as SlotId[]) grouped[slotId] = [];
-  for (const appliance of APPLIANCES) {
-    if (appliance.category === "blower") continue;
-    grouped[appliance.slot].push(appliance);
+  for (const record of SLOT_RECORDS) {
+    grouped[record.id] = APPLIANCES.filter(
+      (appliance) =>
+        appliance.category !== "blower" &&
+        record.compatibleCategories.includes(appliance.category),
+    );
   }
   // Cheapest first, with unpriced models last rather than treated as free.
   for (const list of Object.values(grouped)) {
@@ -75,15 +84,12 @@ export function blowersFor(hood: Appliance): Appliance[] {
 /** True when nobody has checked what this hood takes. */
 export const blowerListUnverified = (hood: Appliance) => hood.compatibleBlowers.length === 0;
 
-/** Ordering used by the left column, the pin numbering and the plan key. */
-export const SLOT_ORDER: SlotId[] = [
-  "slot-fridge",
-  "slot-range",
-  "slot-hood",
-  "slot-dishwasher",
-  "slot-microwave",
-  "slot-wine",
-];
+/**
+ * Ordering used by the left column, the pin numbering and the plan key.
+ *
+ * The active package's, and a live binding: see `SLOT_ORDER` in packages.ts.
+ */
+export { SLOT_ORDER } from "./packages";
 
 /**
  * Whether a model can stand in the slot this package specifies.
@@ -180,7 +186,11 @@ function resolveScheme(scheme: (typeof parsedSchemes.schemes)[number]): Scheme {
   for (const [slotId, applianceId] of Object.entries(scheme.defaultSelection)) {
     const appliance = APPLIANCE_BY_ID[applianceId];
 
-    if (appliance && appliance.slot !== slotId) {
+    // Filed under a slot that does not take it is still a mistake in the scheme.
+    // Filed under a different slot that also takes it — the second dishwasher,
+    // say — is not.
+    const accepts = SLOT_RECORDS.find((record) => record.id === slotId)?.compatibleCategories;
+    if (appliance && !accepts?.includes(appliance.category)) {
       throw new Error(
         `data/schemes.json: ${scheme.id} puts ${applianceId} in ${slotId}, but it belongs to ${appliance.slot}`,
       );
@@ -218,8 +228,13 @@ export const SCHEME: Scheme = SCHEMES[0];
 
 /** Resolve a scheme's id-based selection into the appliances themselves. */
 export function selectionFor(scheme: Scheme): Record<SlotId, Appliance> {
+  // The active package's slots that the scheme fills. A scheme names the six
+  // core slots; a larger package's own are filled from the package, not here.
   return Object.fromEntries(
-    SLOT_ORDER.map((slotId) => [slotId, APPLIANCE_BY_ID[scheme.defaultSelection[slotId]]]),
+    SLOT_ORDER.flatMap((slotId) => {
+      const id = scheme.defaultSelection[slotId];
+      return id ? [[slotId, APPLIANCE_BY_ID[id]]] : [];
+    }),
   ) as Record<SlotId, Appliance>;
 }
 

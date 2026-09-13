@@ -1,7 +1,7 @@
 {
   "_meta": {
-    "generatedBy": "scripts/csv-to-json.ts from C:\\Users\\leoch\\Downloads\\showcase_export.csv",
-    "updatedAt": "2026-09-09",
+    "generatedBy": "scripts/csv-to-json.ts from C:/Users/leoch/Downloads/showcase_export.csv",
+    "updatedAt": "2026-09-13",
     "provenance": "Derived from the showcase_export tab of the 2026 AA Inventory Manager. Brand, Model, Appliance Type, Feature, Width, Depth, Height and Color come from Stock current; everything else is hand entered. Normalisation lives in scripts/normalise.ts, not in the sheet. verifiedAt is null until a row has been checked against its sourceUrl."
   },
   "appliances": [
@@ -290,6 +290,56 @@
       "cutoutWidthIn": 30,
       "cutoutHeightIn": null,
       "cutoutDepthIn": null,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": null,
+      "highlights": {
+        "en": [],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
+        "gasBTU": null,
+        "water": false,
+        "cfm": 600,
+        "makeupAirRequired": true
+      }
+    },
+    {
+      "id": "thermador-hmib42ws",
+      "slot": "slot-hood",
+      "category": "hood",
+      "brand": "Thermador",
+      "model": "HMIB42WS",
+      "series": null,
+      "msrpUSD": 3849,
+      "sourceUrl": "https://media3.bsh-group.com/Documents/specsheet/en-US/HMIB42WS.pdf",
+      "verifiedAt": "2026-09-12",
+      "installType": [
+        "island"
+      ],
+      "fuel": null,
+      "blower": "integrated",
+      "compatibleBlowers": [],
+      "topDepthIn": null,
+      "frontLipIn": null,
+      "widthIn": 42,
+      "heightIn": null,
+      "depthIn": null,
+      "burners": null,
+      "cooktopIn": null,
+      "backguardIn": null,
+      "depthWithDoorsIn": null,
+      "depthWithHandleIn": null,
+      "rearSpacerIn": null,
+      "doorConfig": null,
+      "doorSplit": null,
+      "cutoutWidthIn": 42,
+      "cutoutHeightIn": 27.25,
+      "cutoutDepthIn": 25.9375,
       "finish": [
         "stainless"
       ],
@@ -666,6 +716,56 @@
       }
     },
     {
+      "id": "thermador-pods302b",
+      "slot": "slot-microwave",
+      "category": "wall-oven",
+      "brand": "Thermador",
+      "model": "PODS302B",
+      "series": null,
+      "msrpUSD": 10949,
+      "sourceUrl": "https://media3.bsh-group.com/Documents/22895094_PODS302B-30-INCH-DOUBLE-COMBINATION-BUILT-IN-OVEN-WITH-STEAM-CONVECTION-OVEN-Specifications.pdf",
+      "verifiedAt": "2026-09-12",
+      "installType": [
+        "double"
+      ],
+      "fuel": null,
+      "blower": null,
+      "compatibleBlowers": [],
+      "topDepthIn": null,
+      "frontLipIn": null,
+      "widthIn": 30,
+      "heightIn": null,
+      "depthIn": null,
+      "burners": null,
+      "cooktopIn": null,
+      "backguardIn": null,
+      "depthWithDoorsIn": null,
+      "depthWithHandleIn": null,
+      "rearSpacerIn": null,
+      "doorConfig": null,
+      "doorSplit": null,
+      "cutoutWidthIn": 28.5,
+      "cutoutHeightIn": 47.375,
+      "cutoutDepthIn": 23.5,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": null,
+      "highlights": {
+        "en": [],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 240,
+        "amps": 40,
+        "gasBTU": null,
+        "water": false,
+        "cfm": null,
+        "makeupAirRequired": false
+      }
+    },
+    {
       "id": "thermador-prg304wh",
       "slot": "slot-range",
       "category": "range",
@@ -761,6 +861,206 @@
         "amps": 15,
         "gasBTU": 119500,
         "water": true,
+        "cfm": null,
+        "makeupAirRequired": false
+      }
+    },
+    {
+      "id": "thermador-t18if900sp",
+      "slot": "slot-freezer",
+      "category": "freezer",
+      "brand": "Thermador",
+      "model": "T18IF900SP",
+      "series": null,
+      "msrpUSD": 7599,
+      "sourceUrl": "https://media3.bsh-group.com/Documents/17016674_16588583_T18IF905SP-18-INCH-FLUSH-FREEZER-COLUMN-WITH-INTERNAL-ICE-MAKER-Spec2.pdf",
+      "verifiedAt": "2026-09-12",
+      "installType": [
+        "column"
+      ],
+      "fuel": null,
+      "blower": null,
+      "compatibleBlowers": [],
+      "topDepthIn": null,
+      "frontLipIn": null,
+      "widthIn": 18,
+      "heightIn": null,
+      "depthIn": null,
+      "burners": null,
+      "cooktopIn": null,
+      "backguardIn": null,
+      "depthWithDoorsIn": null,
+      "depthWithHandleIn": null,
+      "rearSpacerIn": null,
+      "doorConfig": null,
+      "doorSplit": null,
+      "cutoutWidthIn": 18,
+      "cutoutHeightIn": 84,
+      "cutoutDepthIn": 25,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": null,
+      "highlights": {
+        "en": [],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
+        "gasBTU": null,
+        "water": false,
+        "cfm": null,
+        "makeupAirRequired": false
+      }
+    },
+    {
+      "id": "thermador-t24if905sp",
+      "slot": "slot-freezer",
+      "category": "freezer",
+      "brand": "Thermador",
+      "model": "T24IF905SP",
+      "series": null,
+      "msrpUSD": 8099,
+      "sourceUrl": "https://media3.bsh-group.com/Documents/16173437_T24IF905SP-24-INCH-FLUSH-FREEZER-COLUMN-WITH-INTERNAL-ICE-MAKER-Specifications.pdf",
+      "verifiedAt": "2026-09-12",
+      "installType": [
+        "column"
+      ],
+      "fuel": null,
+      "blower": null,
+      "compatibleBlowers": [],
+      "topDepthIn": null,
+      "frontLipIn": null,
+      "widthIn": 24,
+      "heightIn": null,
+      "depthIn": null,
+      "burners": null,
+      "cooktopIn": null,
+      "backguardIn": null,
+      "depthWithDoorsIn": null,
+      "depthWithHandleIn": null,
+      "rearSpacerIn": null,
+      "doorConfig": null,
+      "doorSplit": null,
+      "cutoutWidthIn": 24,
+      "cutoutHeightIn": 84,
+      "cutoutDepthIn": 25,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": null,
+      "highlights": {
+        "en": [],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
+        "gasBTU": null,
+        "water": false,
+        "cfm": null,
+        "makeupAirRequired": false
+      }
+    },
+    {
+      "id": "thermador-t24iw905sp",
+      "slot": "slot-wine",
+      "category": "wine",
+      "brand": "Thermador",
+      "model": "T24IW905SP",
+      "series": null,
+      "msrpUSD": 7599,
+      "sourceUrl": "https://media3.bsh-group.com/Documents/16173463_T24IW905SP-24-INCH-FLUSH-CUSTOM-WINE-PRESERVATION-COLUMN-Specifications.pdf",
+      "verifiedAt": "2026-09-12",
+      "installType": [
+        "column"
+      ],
+      "fuel": null,
+      "blower": null,
+      "compatibleBlowers": [],
+      "topDepthIn": null,
+      "frontLipIn": null,
+      "widthIn": 24,
+      "heightIn": null,
+      "depthIn": null,
+      "burners": null,
+      "cooktopIn": null,
+      "backguardIn": null,
+      "depthWithDoorsIn": null,
+      "depthWithHandleIn": null,
+      "rearSpacerIn": null,
+      "doorConfig": null,
+      "doorSplit": null,
+      "cutoutWidthIn": 24,
+      "cutoutHeightIn": 84,
+      "cutoutDepthIn": 25,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": null,
+      "highlights": {
+        "en": [],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
+        "gasBTU": null,
+        "water": false,
+        "cfm": null,
+        "makeupAirRequired": false
+      }
+    },
+    {
+      "id": "thermador-t30ir905sp",
+      "slot": "slot-fridge",
+      "category": "refrigerator",
+      "brand": "Thermador",
+      "model": "T30IR905SP",
+      "series": null,
+      "msrpUSD": 8599,
+      "sourceUrl": "https://media3.bsh-group.com/Documents/16173446_T30IR905SP-30-INCH-FLUSH-CUSTOM-FRESH-FOOD-COLUMN-Specifications.pdf",
+      "verifiedAt": "2026-09-12",
+      "installType": [
+        "column"
+      ],
+      "fuel": null,
+      "blower": null,
+      "compatibleBlowers": [],
+      "topDepthIn": null,
+      "frontLipIn": null,
+      "widthIn": 30,
+      "heightIn": null,
+      "depthIn": null,
+      "burners": null,
+      "cooktopIn": null,
+      "backguardIn": null,
+      "depthWithDoorsIn": null,
+      "depthWithHandleIn": null,
+      "rearSpacerIn": null,
+      "doorConfig": null,
+      "doorSplit": null,
+      "cutoutWidthIn": 30,
+      "cutoutHeightIn": 84,
+      "cutoutDepthIn": 25,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": null,
+      "highlights": {
+        "en": [],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
+        "gasBTU": null,
+        "water": false,
         "cfm": null,
         "makeupAirRequired": false
       }
@@ -917,6 +1217,56 @@
         "en": [
           "French Door"
         ],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
+        "gasBTU": null,
+        "water": true,
+        "cfm": null,
+        "makeupAirRequired": false
+      }
+    },
+    {
+      "id": "thermador-tcm24ps",
+      "slot": "slot-coffee",
+      "category": "coffee",
+      "brand": "Thermador",
+      "model": "TCM24PS",
+      "series": null,
+      "msrpUSD": 4729,
+      "sourceUrl": "https://media3.bsh-group.com/Documents/28311963_TCM24PS-24-INCH-BUILT-IN-COFFEE-MACHINE-PLUMBED-Specifications.pdf",
+      "verifiedAt": "2026-09-12",
+      "installType": [
+        "built-in"
+      ],
+      "fuel": null,
+      "blower": null,
+      "compatibleBlowers": [],
+      "topDepthIn": null,
+      "frontLipIn": null,
+      "widthIn": 24,
+      "heightIn": null,
+      "depthIn": null,
+      "burners": null,
+      "cooktopIn": null,
+      "backguardIn": null,
+      "depthWithDoorsIn": null,
+      "depthWithHandleIn": null,
+      "rearSpacerIn": null,
+      "doorConfig": null,
+      "doorSplit": null,
+      "cutoutWidthIn": 22.3125,
+      "cutoutHeightIn": 17.75,
+      "cutoutDepthIn": 23.5,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": null,
+      "highlights": {
+        "en": [],
         "zh": []
       },
       "imageUrl": null,

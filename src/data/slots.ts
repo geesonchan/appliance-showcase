@@ -20,6 +20,15 @@ export { ft, CABINET_STANDARDS, ROOM, RUN, RUNS, RUN_BY_ID, PANEL, FRIDGE_OPENIN
 const parsed = parseDataFile(slotsFileSchema, slotsFile, "data/slots.json");
 
 /**
+ * Every slot record in the file, whether or not the room has it.
+ *
+ * The catalogue reads these to decide what each opening can take, and it has to
+ * know that for slots the current package does not use — a model filed under
+ * the freezer column is still a freezer when package A is on screen.
+ */
+export const SLOT_RECORDS: SlotRecord[] = parsed.slots;
+
+/**
  * The canopy hangs its clearance above the cooking surface.
  *
  * That is the range's own top, not the 36" counter beside it: a slide-in
@@ -73,8 +82,11 @@ function size(record: SlotRecord, spec: PackageSlot): SlotRecord {
   };
 }
 
-function place(record: SlotRecord) {
+function place(record: SlotRecord): Slot {
   const placement = SLOT_PLACEMENT[record.id];
+  // A slot the package names and the layout did not place is a bug in the
+  // generator, not a room: say which one rather than drawing it at the origin.
+  if (!placement) throw new Error(`layout placed nothing for ${record.id}`);
   if (record.id !== "slot-hood" || record.builtForCooktopIn === null) {
     return { ...record, ...placement };
   }
@@ -103,7 +115,11 @@ export let SLOT_BY_ID: Record<SlotId, Slot>;
  * pay for a schema pass.
  */
 export function rebuildSlots() {
-  const all = parsed.slots.map((record) => place(size(record, PACKAGE_SLOTS[record.id])));
+  // Only the slots this package has. The file describes every opening any
+  // package might have; the room is built with the ones this one names.
+  const all = parsed.slots
+    .filter((record) => PACKAGE_SLOTS[record.id])
+    .map((record) => place(size(record, PACKAGE_SLOTS[record.id])));
   SLOT_BY_ID = Object.fromEntries(all.map((slot) => [slot.id, slot])) as Record<SlotId, Slot>;
   SLOTS = all.filter((slot) => !OMITTED_SLOTS.includes(slot.id));
 }

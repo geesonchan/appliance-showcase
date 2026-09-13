@@ -19,6 +19,15 @@ export const categorySchema = z.enum([
   "hood",
   "microwave",
   "wine",
+  /**
+   * A freezer column: a full-height machine that is all freezer, sold to stand
+   * beside a refrigerator column. Its own category because it has its own
+   * opening in a column group, and a refrigerator slot that took one would be
+   * a refrigerator slot with no refrigerator in it.
+   */
+  "freezer",
+  /** A built-in coffee machine, which lives in a tall cabinet of its own. */
+  "coffee",
   "blower",
   "other",
 ]);
@@ -32,7 +41,23 @@ export const slotIdSchema = z.enum([
   "slot-dishwasher",
   "slot-microwave",
   "slot-wine",
+  // Package D's. A package names the slots it has; the six above are the ones
+  // every package has, and these are the ones only a larger kitchen does.
+  "slot-freezer",
+  "slot-oven",
+  "slot-coffee",
+  "slot-dishwasher-2",
 ]);
+
+/** The slots every package fills. Anything else is a package's own. */
+export const CORE_SLOTS = [
+  "slot-fridge",
+  "slot-range",
+  "slot-hood",
+  "slot-dishwasher",
+  "slot-microwave",
+  "slot-wine",
+] as const;
 
 export const finishSchema = z.enum([
   "stainless",
@@ -294,7 +319,15 @@ export const schemeSchema = z.object({
   nameKey: z.string().min(1),
   conceptKey: z.string().min(1),
   palette: z.array(z.string().regex(/^#[0-9A-Fa-f]{6}$/)).min(1),
-  defaultSelection: z.record(slotIdSchema, z.string().min(1)),
+  /**
+   * The six core slots, and nothing else required: a scheme is the first
+   * kitchen, and the slots only a larger package has are that package's to fill.
+   */
+  defaultSelection: z
+    .partialRecord(slotIdSchema, z.string().min(1))
+    .refine((selection) => CORE_SLOTS.every((core) => selection[core]), {
+      message: "a scheme has to fill the six core slots",
+    }),
   /** The blower specified with the hood, when the hood needs one. */
   defaultBlower: z.string().min(1).nullable().default(null),
 });
@@ -465,8 +498,12 @@ export const packageSchema = z
       })
       .default({}),
   })
-  .refine((p) => !p.available || p.slots.length === 6, {
-    message: "an available package has to fill all six slots",
+  .refine(
+    (p) =>
+      !p.available ||
+      CORE_SLOTS.every((core) => p.slots.some((slot) => slot.slotId === core)),
+    {
+    message: "an available package has to fill the six core slots",
     path: ["slots"],
   })
   .refine((p) => new Set(p.slots.map((s) => s.slotId)).size === p.slots.length, {
@@ -492,7 +529,7 @@ export const appliancesFileSchema = z.object({
 
 export const slotsFileSchema = z.object({
   _meta: metaSchema,
-  slots: z.array(slotRecordSchema).length(6),
+  slots: z.array(slotRecordSchema).min(CORE_SLOTS.length),
 });
 
 export const schemesFileSchema = z.object({

@@ -56,12 +56,24 @@ export function slotsOf(entry: Package): Record<SlotId, PackageSlot> {
 /** The order the slots are packed and listed in, as the package writes them. */
 export const slotOrderOf = (entry: Package): SlotId[] => entry.slots.map((slot) => slot.slotId);
 
+/**
+ * The slots the room is built with, in the order they are listed and numbered.
+ *
+ * A live binding rather than a constant. Every package has the same six core
+ * slots, but a larger one has more — a freezer column, a steam oven, a coffee
+ * machine, a second dishwasher — and the left column, the pins and the plan
+ * key list what this kitchen has rather than what the first one had. It moves
+ * with `setPackage`, which is the one place the package moves.
+ */
+export let SLOT_ORDER: SlotId[] = [];
+
 export function setPackage(id: string) {
   const next = PACKAGE_BY_ID[id];
   if (!next) throw new Error(`No package "${id}"`);
   if (!next.available) throw new Error(`Package "${id}" is registered but has no slots`);
   PACKAGE = next;
   PACKAGE_SLOTS = slotsOf(next);
+  SLOT_ORDER = slotOrderOf(next);
 }
 
 setPackage(DEFAULT_PACKAGE.id);

@@ -157,9 +157,12 @@ catch every fuel prefix without a row per combination.
 | `All Refrigerator`, `All Freezer` | `refrigerator` | — |
 | `Dishwasher` | `dishwasher` | — |
 | `*Hood` | `hood` | — |
-| `Wine*`, `Beverage*`, `Freezer*` | `other` | — |
+| `Wine*` | `wine` | — |
+| `Freezer Column` | `freezer` | `column` |
+| `Built-In Coffee Machine` | `coffee` | `built-in` |
+| `Beverage*`, `Freezer` and any other `Freezer*` | `other` | — |
 | `Warming Drawer`, `Ice-Maker`, `Trash Compactor` | `other` | — |
-| `Built-In Coffee Machine`, `Countertop Coffee Machine` | `other` | — |
+| `Countertop Coffee Machine` | `other` | — |
 | `Countertop Combo Oven` | `other` | `countertop` |
 | the explicit skip list (laundry, parts, warranties — see `SKIPPED_TYPES`) | skipped by name, counted |  |
 | anything containing `Kit`, `Panel`, `Handle`, `Cover`, `Filter` or `Accessor*` | skipped as `accessory-like`, counted |  |
@@ -191,7 +194,9 @@ boundaries, so `Kit` cannot eat a `Kitchen` anything.
 | `Speed Combo Oven` | `wall-oven` | goes in a tall tower |
 | `Countertop Combo Oven` | `other` | sits on the counter |
 | `Countertop Microwave` | `microwave` | |
+| `Built-In Coffee Machine` | `coffee` | has a tall cabinet in package D |
 | `Countertop Coffee Machine` | `other` | |
+| `Freezer Column` | `freezer` | stands in a column group |
 | `Microwave Drawer` | `microwave` | |
 | `Refrigerator Drawer` | `refrigerator` | |
 | `Warming Drawer` | `other` | |

@@ -219,7 +219,11 @@ export interface GeneratedLayout {
   params: LayoutParams;
   runs: CabinetRun[];
   island: IslandLayout;
-  slots: Record<SlotId, SlotPlacement>;
+  /**
+   * Where each of this package's machines stands. Partial, because a package
+   * names its own slots: package A has no freezer column to place.
+   */
+  slots: Partial<Record<SlotId, SlotPlacement>>;
   fixtures: Record<FixtureId, SlotPlacement>;
   /**
    * What the package names and the room was built without.

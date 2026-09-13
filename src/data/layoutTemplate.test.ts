@@ -123,9 +123,9 @@ describe("moving the refrigerator moves the sink with it", () => {
   it("turns the appliances to face the leg they end up on", () => {
     const onBack = built(kitchen("back")).slots;
     const onLeft = built(kitchen("left")).slots;
-    expect(onLeft["slot-fridge"].rotationY).toBeCloseTo(Math.PI / 2, 6);
-    expect(onBack["slot-fridge"].rotationY).toBeCloseTo(0, 6);
-    expect(onBack["slot-dishwasher"].rotationY).toBeCloseTo(Math.PI / 2, 6);
+    expect(onLeft["slot-fridge"]!.rotationY).toBeCloseTo(Math.PI / 2, 6);
+    expect(onBack["slot-fridge"]!.rotationY).toBeCloseTo(0, 6);
+    expect(onBack["slot-dishwasher"]!.rotationY).toBeCloseTo(Math.PI / 2, 6);
   });
 
   it("keeps both legs inside the room whichever end the tower is at", () => {
@@ -180,9 +180,9 @@ describe("the canopy still lands where D13 puts it", () => {
   it("hangs over the range wherever the range is", () => {
     for (const fridgeEnd of ["left", "back"] as const) {
       const slots = built(kitchen(fridgeEnd)).slots;
-      expect(slots["slot-hood"].position[0]).toBeCloseTo(slots["slot-range"].position[0], 6);
-      expect(slots["slot-hood"].position[2]).toBeCloseTo(slots["slot-range"].position[2], 6);
-      expect(inches(slots["slot-hood"].position[1])).toBeGreaterThanOrEqual(
+      expect(slots["slot-hood"]!.position[0]).toBeCloseTo(slots["slot-range"]!.position[0], 6);
+      expect(slots["slot-hood"]!.position[2]).toBeCloseTo(slots["slot-range"]!.position[2], 6);
+      expect(inches(slots["slot-hood"]!.position[1])).toBeGreaterThanOrEqual(
         CABINET_STANDARDS.base.counterHeightIn + CABINET_STANDARDS.hood.aboveCooktopMinIn,
       );
     }

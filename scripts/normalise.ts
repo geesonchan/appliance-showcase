@@ -175,9 +175,15 @@ const CATEGORY_RULES: { match: (type: string) => boolean; category: Category }[]
   // not appliances.
   // Wine gets its own category: the island has a slot that takes only wine.
   { match: (t) => /^wine/i.test(t), category: "wine" },
+  // Package D's two. A freezer column stands in a column group beside a
+  // refrigerator column, and a built-in coffee machine has a tall cabinet of
+  // its own; both are real openings in that kitchen, so both are categories.
+  // The countertop coffee machine and a standalone freezer are still not.
+  { match: (t) => /^freezer\s+column$/i.test(t), category: "freezer" },
+  { match: (t) => /^built-in\s+coffee\s+machine$/i.test(t), category: "coffee" },
   { match: (t) => /^(beverage|freezer)/i.test(t), category: "other" },
   { match: (t) => /^warming\s+drawer$/i.test(t), category: "other" },
-  { match: (t) => /^(built-in|countertop)\s+coffee\s+machine$/i.test(t), category: "other" },
+  { match: (t) => /^countertop\s+coffee\s+machine$/i.test(t), category: "other" },
   { match: (t) => /^countertop\s+combo\s+oven$/i.test(t), category: "other" },
   { match: (t) => /^ice-?\s?maker$/i.test(t), category: "other" },
   { match: (t) => /^trash\s+compactor$/i.test(t), category: "other" },

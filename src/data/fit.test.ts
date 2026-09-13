@@ -80,6 +80,8 @@ describe("fit check", () => {
   it("offers at least one model that fits every slot", () => {
     for (const [slotId, candidates] of Object.entries(APPLIANCES_BY_SLOT)) {
       const slot = SLOT_BY_ID[slotId as keyof typeof SLOT_BY_ID];
+      // Only the openings this package has: package A has no coffee cabinet.
+      if (!slot) continue;
       const fitting = candidates.filter((item) => fitCheck(slot, item).fits);
       expect(fitting.length, `${slotId} has no model that fits`).toBeGreaterThan(0);
     }

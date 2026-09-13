@@ -82,7 +82,8 @@ describe("skipping rows the scene has no place for", () => {
     // oven in a tall tower: `slot-microwave` takes the category now, so those
     // rows are exported rather than counted here.
     expect(summary.skipped["no slot: cooktop"]).toBe(1);
-    expect(summary.skipped["no slot: other"]).toBe(3);
+    // The built-in coffee machine has a slot now, in package D.
+    expect(summary.skipped["no slot: other"]).toBe(2);
     expect(summary.skipped["no slot: wall-oven"]).toBeUndefined();
   });
 
@@ -170,10 +171,12 @@ describe("the new families, end to end", () => {
 
   it("keeps appliances with no slot out, and counts them by category", () => {
     const { summary } = run();
-    // Coffee machine, ice-maker and warming drawer. The wine cooler has a slot
-    // of its own, and so do the wall ovens now.
-    expect(summary.skipped["no slot: other"]).toBe(3);
-    expect(byModel("CVA7440")).toBeUndefined();
+    // Ice-maker and warming drawer. The wine cooler has a slot of its own, so do
+    // the wall ovens, and so does a built-in coffee machine now that package D
+    // has a tall cabinet for one.
+    expect(summary.skipped["no slot: other"]).toBe(2);
+    expect(byModel("CVA7440")?.category).toBe("coffee");
+    expect(byModel("CVA7440")?.slot).toBe("slot-coffee");
   });
 
   /**

@@ -75,7 +75,8 @@ export interface QuoteInput {
    */
   packageName: string;
   slots: Slot[];
-  selection: Record<SlotId, Appliance>;
+  /** What fills each of this package's slots. Partial: a package names its own. */
+  selection: Partial<Record<SlotId, Appliance>>;
   blower: Appliance | null;
   hoodNeedsBlower: boolean;
   findings: Finding[];
@@ -87,13 +88,14 @@ const SEVERITY_ORDER: Severity[] = ["blocker", "warning", "info"];
 
 export function buildQuote(input: QuoteInput): Quote {
   const { slots, selection, blower, hoodNeedsBlower, findings, t } = input;
-  const hood = selection["slot-hood"];
+  // Every package has a hood: it is one of the six core slots.
+  const hood = selection["slot-hood"]!;
   const cfm = effectiveCfm(hood, blower);
 
   const lines: QuoteLine[] = slots
     .filter((slot) => selection[slot.id])
     .map((slot) => {
-      const appliance = selection[slot.id];
+      const appliance = selection[slot.id]!;
       const fit = fitCheck(slot, appliance);
       return {
         slot: slot.id,

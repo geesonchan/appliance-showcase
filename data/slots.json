@@ -259,6 +259,178 @@
         "dx": 62,
         "dy": -30
       }
+    },
+    {
+      "id": "slot-freezer",
+      "labelKey": "slot.freezer",
+      "cutout": {
+        "w": 24,
+        "h": 84,
+        "d": 25
+      },
+      "bestView": {
+        "azimuth": 45,
+        "pitch": 26
+      },
+      "labelOffset": {
+        "dx": -70,
+        "dy": -30
+      },
+      "builtForCooktopIn": null,
+      "compatibleCategories": [
+        "freezer"
+      ],
+      "cabinetConfig": {
+        "type": "enclosure",
+        "openingIn": {
+          "w": 24,
+          "h": 84,
+          "d": 25
+        },
+        "panelReady": false,
+        "finishedSides": 2
+      },
+      "utilities": {
+        "gas": null,
+        "power": {
+          "voltage": 120,
+          "amps": 15,
+          "dedicated": true
+        },
+        "water": {
+          "supply": true,
+          "drain": false
+        },
+        "duct": null
+      }
+    },
+    {
+      "id": "slot-oven",
+      "labelKey": "slot.oven",
+      "cutout": {
+        "w": 30,
+        "h": 47.375,
+        "d": 24
+      },
+      "bestView": {
+        "azimuth": 45,
+        "pitch": 26
+      },
+      "labelOffset": {
+        "dx": 64,
+        "dy": -44
+      },
+      "builtForCooktopIn": null,
+      "compatibleCategories": [
+        "wall-oven"
+      ],
+      "cabinetConfig": {
+        "type": "tall",
+        "openingIn": {
+          "w": 30,
+          "h": 47.375,
+          "d": 24
+        },
+        "panelReady": false,
+        "finishedSides": 2
+      },
+      "utilities": {
+        "gas": null,
+        "power": {
+          "voltage": 240,
+          "amps": 40,
+          "dedicated": true
+        },
+        "water": null,
+        "duct": null
+      }
+    },
+    {
+      "id": "slot-coffee",
+      "labelKey": "slot.coffee",
+      "cutout": {
+        "w": 24,
+        "h": 17.75,
+        "d": 23.5
+      },
+      "bestView": {
+        "azimuth": 45,
+        "pitch": 18
+      },
+      "labelOffset": {
+        "dx": 60,
+        "dy": -24
+      },
+      "builtForCooktopIn": null,
+      "compatibleCategories": [
+        "coffee"
+      ],
+      "cabinetConfig": {
+        "type": "tall",
+        "openingIn": {
+          "w": 24,
+          "h": 17.75,
+          "d": 23.5
+        },
+        "panelReady": false,
+        "finishedSides": 2
+      },
+      "utilities": {
+        "gas": null,
+        "power": {
+          "voltage": 120,
+          "amps": 15,
+          "dedicated": true
+        },
+        "water": {
+          "supply": true,
+          "drain": false
+        },
+        "duct": null
+      }
+    },
+    {
+      "id": "slot-dishwasher-2",
+      "labelKey": "slot.dishwasher2",
+      "cutout": {
+        "w": 24,
+        "h": 34,
+        "d": 24
+      },
+      "compatibleCategories": [
+        "dishwasher"
+      ],
+      "cabinetConfig": {
+        "type": "base",
+        "openingIn": {
+          "w": 24,
+          "h": 34,
+          "d": 24
+        },
+        "panelReady": true,
+        "finishedSides": 0
+      },
+      "utilities": {
+        "gas": null,
+        "power": {
+          "voltage": 120,
+          "amps": 15,
+          "dedicated": true
+        },
+        "water": {
+          "supply": true,
+          "drain": true
+        },
+        "duct": null
+      },
+      "bestView": {
+        "azimuth": 55,
+        "pitch": 26
+      },
+      "labelOffset": {
+        "dx": 62,
+        "dy": 24
+      }
     }
   ]
 }

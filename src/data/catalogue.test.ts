@@ -7,7 +7,7 @@ import {
   SCHEME,
   SLOT_ORDER,
 } from "./catalogue";
-import { ROOM, SLOTS, SLOT_BY_ID, ft } from "./slots";
+import { ROOM, SLOTS, SLOT_RECORDS, ft } from "./slots";
 import { appliancesFileSchema, parseDataFile, slotsFileSchema } from "./schema";
 
 describe("data files", () => {
@@ -30,7 +30,8 @@ describe("data files", () => {
 
   it("files every appliance under a category its slot accepts", () => {
     for (const appliance of APPLIANCES) {
-      const slot = SLOT_BY_ID[appliance.slot];
+      // Every slot in the file, not only the ones package A has.
+      const slot = SLOT_RECORDS.find((record) => record.id === appliance.slot)!;
       expect(slot.compatibleCategories, `${appliance.id} in ${slot.id}`).toContain(
         appliance.category,
       );
