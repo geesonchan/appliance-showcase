@@ -349,9 +349,25 @@ each one has a test with a case that breaks it.
 3. **The countertop runs unbroken from the corner to the tall cabinet.** In the
    run model that means the segments tile the run: no gaps, no overlaps. The
    range is the one thing that sits *in* the counter rather than under it.
-4. **The range is centred on a straight run with at least 12" of counter each
-   side**, and the hood over it is at least as wide and centred on it. Twelve
-   inches is where you put a hot pan down.
+4. **A cooking surface has counter on both sides: 15" on one and 12" on the
+   other, the wide side toward the sink**, and the hood over it is at least as
+   wide and centred on it. Twelve inches is where you put a hot pan down;
+   fifteen is the side the pan goes on to the sink. *(Leo, confirmed round 19;
+   the figures are `rangeLanding` in `data/rules.json`.)* The rule is stated for
+   the two places a cooking surface can be, so moving one onto an island is not
+   a new rule:
+   - **Against a wall**, the two landings are along the run. Where an oven
+     tower stands on one side (rule 12), that side is the tower's clearance
+     instead, and the other side is the 15".
+   - **On an island**, the two landings are along the island's length, the same
+     15" and 12", measured to the end of the island or to the next opening in
+     it. Which end is the wide one, and what an island asks for behind a
+     cooktop, are settled with package E, not here.
+
+   *Amended 2026-09-13 (round 36), Leo.* This entry used to say "at least 12"
+   of counter each side", which is not what has been built or checked since
+   round 19. The checker holds the pair rather than the direction; every
+   arrangement the generator builds today puts the wide side toward the sink.
 5. **The dishwasher is immediately beside the sink**, and within 36" of it —
    further and you are carrying dripping plates across the floor.
 6. **The refrigerator has at least 15" of counter on its door side**, to land
@@ -1019,9 +1035,62 @@ range would build; growing a wall further than the change needs; growing a wall
 without saying so and offering to undo it; growing a wall behind a slider the
 customer is dragging.
 
----
+## D19 · The ceiling is 108-1/2"
 
-## Open items
+**Decided:** 2026-09-13 (round 36), Leo.
+
+Every kitchen in the app stands under a ceiling 108-1/2" off the floor —
+9'-0-1/2". It is a global default, not a parameter: no control changes it, and
+no package has its own.
+
+**Why it is a decision now.** Package E's island hood hangs from the ceiling,
+so where its canopy can be depends on how high the ceiling is. Every hood,
+bridge and housing that already runs to the ceiling depends on it too.
+
+**Not built yet.** The app still draws a 96" ceiling (`ROOM.wallHeight`).
+Raising it changes more than the walls. The tall cabinets, the towers, the
+column groups and the wall cabinets all finish at 96", which would leave a
+12-1/2" strip under the new ceiling. How that strip is finished — cabinets to
+the ceiling, a filler closing it, or left open — is Leo's to choose, from the
+three renderings in round 36's report. The ceiling moves in the same round as
+that choice, so the room is never drawn with the strip undecided.
+
+What else moves with it, and is checked when it is built:
+- the bridge over a canopy and an insert hood's housing, which run to the
+  ceiling and grow with it;
+- package C's chimney hood, HMCB30WS, which covers 30"-42" from the underside of
+  its canopy to the top of its chimney. At 36" of cooking surface plus the 30"
+  minimum its underside is at 66" and its chimney can reach 108" — half an inch
+  short of the ceiling. Its canopy therefore goes up at least 1/2", to 30-1/2"
+  of clearance, which is inside D13's 30"-40";
+- the window check, which compares a window's head with the ceiling.
+
+**What this forbids:** a ceiling height per package or per room; 96 or 108.5
+written into geometry instead of read from `ROOM`.
+
+## D20 · Package E: island cooking — registered, not built
+
+**Registered:** 2026-09-13 (round 36), Leo's answers before any of it is built.
+
+- **The column group** is a refrigerator column and a freezer column. The
+  refrigerator column stands next to the landing and the freezer column at the
+  outer end of the wall. The order is stated by what each column is next to,
+  never as left and right, so it holds on either leg: 18 + 5/8 + 30 + 3/4 +
+  3/4 = 50-1/8".
+- **Landings on the island** are D11 rule 4's island branch: 15" and 12" along
+  the island's length.
+- **Aisles:** 48" on the cooking side, between the perimeter run and the
+  island, because somebody is working at the cooktop and standing under the
+  hood; 44" behind the seating. Package E does not use rule 7's single 42".
+- **The seating overhang is 15"**, which needs steel support brackets, and the
+  install list says so. 12" is the alternative.
+- **The island hood's height is worked out, never a constant.** The underside
+  is at max(the cooking surface plus the manual's minimum clearance, 66") off
+  the floor. The top of the range is the 108-1/2" ceiling less the hood's
+  shortest overall height. Both figures come from the HMIB42WS manual. Leo
+  leans toward the top of that range, about 72": an induction plume is weak,
+  and a clear line of sight across the island matters more. If the manual asks
+  for a lower canopy at 600 CFM, the manual wins.
 
 Registered, not scheduled. None of these is a round of its own.
 
