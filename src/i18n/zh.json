@@ -357,7 +357,7 @@
   "rule.steamOven": "蒸烤箱切口底边离地 {sillIn}″，下门把手因此在 {handleIn}″；240V {amps}A 专用回路",
   "rule.towerVent": "塔顶后方需开通风口，尺寸 {size}：开在切口顶板靠后墙一侧；不要开在烤箱下方的抽屉或踢脚处，正面看得见",
   "rule.ovenGrille": "蒸烤箱上方叠柜顶部、顶线条下方做 {size} 格栅，作为热气出口；尺寸按面积倒推，不是图纸",
-  "rule.towerBridge":"烤箱正上方一格柜体做开放背板，离后墙 {gap}，让从通风口上来的热气有出路；数字待现场确认",
+  "rule.towerBridge": "蒸烤箱上方柜体做开放背板，离后墙 {gap}，让从通风口上来的热气通到格栅",
   "towerVent.callout": "切口顶板靠后墙的通风口：{size}",
   "dimension.towerVent": "通风口，深 {depth}"
 }

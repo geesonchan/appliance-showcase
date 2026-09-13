@@ -1,13 +1,15 @@
 import { afterAll, describe, expect, it } from "vitest";
-import { CABINETS, type CabinetBox } from "./cabinets";
+import { CABINETS, standOffFromWall, type CabinetBox } from "./cabinets";
+import { APPLIANCES } from "./catalogue";
+import { isSteamOven } from "./columnModel";
 import { checkLayout } from "./layoutRules";
 import { setActivePackage, setLayoutParams } from "./layoutState";
 import { DEFAULT_PARAMS } from "./layoutTemplate";
-import { DEFAULT_PACKAGE } from "./packages";
+import { DEFAULT_PACKAGE, PACKAGE_BY_ID } from "./packages";
 import { CABINET_STANDARDS, ROOM } from "./room";
 import { SLOT_BY_ID } from "./slots";
 import { TOWER_VENT, towerVents } from "./towerVent";
-import type { SlotId } from "../types";
+import type { Appliance, SlotId } from "../types";
 
 /**
  * D19: the 108-1/2" ceiling, finished by scheme A. Leo, round 37: every
@@ -141,23 +143,55 @@ describe("D19 · the 108-1/2 inch ceiling, finished with stacked boxes", () => {
   });
 });
 
-describe("the cabinet over a hung oven", () => {
-  it("has an open back and stands off the wall, its front in line with the tower, in B and D", () => {
-    for (const id of ["package-b", "package-d"]) {
+describe("the cabinets over a hung oven", () => {
+  /**
+   * Round 39, Leo: one condition decides the open backs, the stand-off and the
+   * grille — a steam oven in the tower. The run marks the boxes over any hung
+   * oven, and the stand-off is applied from the machine in the slot.
+   */
+  const standing = (_id: string, slotId: SlotId, appliance: Appliance) =>
+    CABINETS.filter((box) => box.ventSlot === slotId).map((box) =>
+      isSteamOven(appliance) ? standOffFromWall(box) : box,
+    );
+
+  it("stands D's steam oven cabinets off the wall, and leaves B's combination oven against it", () => {
+    for (const [id, standsOff] of [
+      ["package-d", true],
+      ["package-b", false],
+    ] as const) {
       activate(id);
-      const vents = towerVents();
-      expect(vents.length, id).toBe(1);
-      for (const vent of vents) {
-        expect(vent.bridgeStandOffIn).toBe(TOWER_VENT.bridgeStandOffIn);
-        expect(bridgeProblems(CABINETS, vent.slot), id).toEqual([]);
-      }
+      const [vent] = towerVents();
+      expect(vent.bridgeStandOffIn).toBe(3);
+      const appliance = APPLIANCES.find((a) => a.id === PACKAGE_BY_ID[id].defaultSelection[vent.slot])!;
+      const boxes = standing(id, vent.slot, appliance);
+      // The bridge and the box stacked on it, both marked.
+      expect(boxes.map((box) => box.id.replace(/^.*-(bridge(-stack)?)$/, "$1")).sort(), id).toEqual([
+        "bridge",
+        "bridge-stack",
+      ]);
+      const problems = bridgeProblems(boxes, vent.slot);
+      if (standsOff) expect(problems, id).toEqual([]);
+      else expect(problems.some((p) => p.includes("off the wall")), `${id} is against the wall`).toBe(true);
     }
+  });
+
+  it("follows the machine: a steam oven in B's tower stands off, a combination oven in D's does not", () => {
+    activate("package-b");
+    const [b] = towerVents();
+    expect(bridgeProblems(standing("package-b", b.slot, APPLIANCES.find((a) => a.model === "PODS302B")!), b.slot)).toEqual([]);
+    activate("package-d");
+    const [d] = towerVents();
+    expect(
+      bridgeProblems(standing("package-d", d.slot, APPLIANCES.find((a) => a.model === "MEM301WS")!), d.slot),
+    ).not.toEqual([]);
   });
 
   it("fails a box against the wall, or one standing out of the run", () => {
     activate("package-d");
     const [vent] = towerVents();
-    const bridge = CABINETS.find((box) => box.slot === vent.slot && box.id.endsWith("-bridge"))!;
+    const bridge = standOffFromWall(
+      CABINETS.find((box) => box.slot === vent.slot && box.id.endsWith("-bridge"))!,
+    );
     const slot = SLOT_BY_ID[vent.slot];
     const along = Math.abs(Math.sin(slot.rotationY)) > 0.5 ? 0 : 2;
     const flush = { ...bridge };

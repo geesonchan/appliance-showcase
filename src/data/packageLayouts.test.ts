@@ -861,11 +861,12 @@ describe("a bank of tall units", () => {
     const banks = run.uppers.filter(
       (bank) => !bank.modules.some((module) => module.kind === "hood-cabinet"),
     );
-    // The cabinets' top line is their stacked boxes' top since round 37: a bank
-    // stops at 96" and its 12" stack takes it to the line. D19.
+    // Every bank stops at 96" with a 12" stack over it (round 37), and the
+    // housing runs to the ceiling with its crown against it, as the crown
+    // along the stacks does (round 39). D19.
     const tops = banks.map((bank) => (bank.band ?? [0, ROOM.upperTop])[1]);
     expect(tops.every((t) => Math.abs(t - ROOM.upperTop) < 1e-6), where).toBe(true);
-    const top = ROOM.stackTop;
+    const top = ROOM.wallHeight;
 
     const housing = CABINETS.find((box) => box.module?.kind === "hood-cabinet")!;
     expect(housing.module?.housing, where).toBe(housingStyle);
@@ -1146,7 +1147,7 @@ describe("a bank of tall units", () => {
     // bank beside it stops at 96" with its 12" stack over it. Round 37, D19.
     const top = (bank: (typeof run.uppers)[number]) =>
       (bank.band ?? [0, ROOM.upperTop])[1];
-    expect(inches(top(housing))).toBeCloseTo(inches(ROOM.stackTop), 6);
+    expect(inches(top(housing))).toBeCloseTo(inches(ROOM.wallHeight), 6);
     for (const bank of beside) {
       expect(inches(top(bank)), bank.id).toBeCloseTo(inches(ROOM.upperTop), 6);
       // And the same height of box: one module height along the wall.
@@ -1172,7 +1173,7 @@ describe("a bank of tall units", () => {
       (box) => /-crown-\d+$/.test(box.id) && box.id.startsWith(`upper-${run.id}`),
     );
     expect(crowns.length, "no crown along the banks").toBeGreaterThan(0);
-    const ceiling = inches(ROOM.stackTop);
+    const ceiling = inches(ROOM.wallHeight);
     for (const crown of crowns) {
       expect(inches(crown.position[1] + crown.size[1] / 2), crown.id).toBeCloseTo(ceiling, 6);
     }

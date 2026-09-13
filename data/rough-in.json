@@ -152,17 +152,32 @@
       ]
     },
     "thermador-mem301ws": {
-      "sourceUrl": "docs/reference/mem301ws-spec.pdf",
+      "sourceUrl": "docs/reference/mem301ws-manual.png",
       "points": [
         {
           "type": "power",
-          "location": "in-cutout",
-          "x": "center",
+          "location": "beside-tower",
+          "x": 3,
           "y": "top",
           "z": "rear",
-          "size": null,
+          "size": [4, 4, 2.5],
           "highLoopApexIn": null,
-          "note": "240V 50A hard wired: junction box above the cutout or beside it, inside the reach of the 60\" conduit"
+          "note": "240V 50A hard wired. The manual (§5.6, mem301ws-manual.png) puts the junction box above, left or right of the unit within reach of the 60\" conduit — never behind it. Drawn in the base cabinet beside the tower, 3\" from its side, on the landing side where there is a cabinet both sides: open that cabinet's door to see it"
+        }
+      ]
+    },
+    "thermador-pods302b": {
+      "sourceUrl": "docs/reference/pods302b-spec.pdf",
+      "points": [
+        {
+          "type": "power",
+          "location": "beside-tower",
+          "x": 3,
+          "y": "top",
+          "z": "rear",
+          "size": [4, 4, 2.5],
+          "highLoopApexIn": null,
+          "note": "240V 40A hard wired. The sheet (p. 2, pods302b-spec.pdf) puts the junction box above, beneath, right or left of the unit within reach of the power cord — never behind it. Drawn in the base cabinet beside the tower, 3\" from its side, on the landing side where there is a cabinet both sides: open that cabinet's door to see it"
         }
       ]
     },

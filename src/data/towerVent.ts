@@ -22,12 +22,13 @@ export const TOWER_VENT = {
   /** Shelf left each side of the hole. */
   sideLipIn: 0.75,
   /**
-   * How far the cabinet over the opening stands off the wall.
+   * How far the cabinets over a steam oven stand off the wall, backs open.
    *
-   * Leo, round 37: the one box directly over the oven has an open back and does
-   * not touch the wall, so what comes up through the vent has somewhere to go.
-   * The site figure is Leo's to give. Until he does, it is the vent's own depth,
-   * so the gap behind the box is directly over the hole under it.
+   * Leo, round 37: the box directly over the oven, and the box stacked on it,
+   * have open backs and do not touch the wall, so what comes up through the
+   * vent has somewhere to go; round 38 gave it a grille to leave by. Round 39:
+   * only over a steam oven, and 3" is Leo's figure from site — a site value,
+   * not read off a drawing and not an inference.
    */
   bridgeStandOffIn: 3,
 };

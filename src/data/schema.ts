@@ -589,6 +589,9 @@ export const roughInPointSchema = z.object({
     "adjacent-cabinet-right",
     "under-sink",
     "above-cabinet",
+    // The base cabinet beside a tower, on whichever side has one — the landing
+    // side where both do. `x` is measured from the side next to the tower.
+    "beside-tower",
   ]),
   x: z.union([inches, z.enum(["left", "center", "right"])]),
   y: z.union([inches, z.enum(["bottom", "center", "top"])]),

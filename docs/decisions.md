@@ -574,6 +574,23 @@ so the elevation shows one door in two parts.
   other way — (b) — is Leo's to choose. Until then the code does what round 37
   built: both on every hung oven.
 
+**Amended 2026-09-13 (round 39), Leo: one condition decides all three.** Leo
+chose (a). A tower holding a steam oven gets the open backs, the stand-off and
+the grille in the stacked box's door. Any other tower gets solid backs against
+the wall and no grille. So B's combination oven is back to a solid back
+against the wall.
+- **B is a decision, not an oversight.** The MEM301WS manual and sheet in
+  `docs/reference/` state no requirement for space behind the cabinet over it.
+  No written requirement means it is not done.
+- **The stand-off is 3".** That is Leo's figure from site
+  (`TOWER_VENT.bridgeStandOffIn`), not an inference and not a drawing.
+- **All of it is site practice**, not a manufacturer's drawing: the open
+  backs, the stand-off and the grille.
+- **It follows the machine.** The cabinets carry which oven they stand over;
+  whether they stand off is decided from the machine in that slot, so swapping
+  D's steam oven for a combination oven puts the backs against the wall and
+  takes the grille away.
+
 **Scheme 01 as laid out.** Left wall, from the far end back to the corner:
 refrigerator tower, 15" landing, corner cabinet. Back wall, from the corner
 out: 18" counter, range with its hood, 18" counter, sink, dishwasher, counter to
@@ -1110,8 +1127,10 @@ What it changed:
   11-1/4" over package A's 84-3/4" canopy top — rather than ordered to the
   whole inch with a scribe over it. That keeps its stack level with the
   stacks beside it; the scribe is over the stacks now.
-- The crown runs along the stacks' top at 108", and an insert hood's housing
-  runs up to that same line rather than to the ceiling.
+- The crown runs along the top of the stacks, and an insert hood's housing
+  runs up beside them. *Amended round 39, Leo:* both go to the ceiling, not
+  to 108". A crown is what covers the half-inch scribe over the stacks; with
+  the grille as the steam oven's outlet, that gap has no job to do.
 - Package C's chimney hood, HMCB30WS, is rated 30"-42" from the underside of its
   canopy to the top of its chimney. On the 30" minimum over its 36" cooking
   surface it would reach 108", half an inch short, so its canopy goes up to
@@ -1191,3 +1210,12 @@ Registered, not scheduled. None of these is a round of its own.
   are being forced onto Node 24. Nothing fails yet. Move them to releases that
   target Node 24 alongside some other change to the workflow. *(Noted
   2026-09-13, round 36, Leo: not urgent.)*
+- **Smoke results before round 38 are of doubtful weight.** In round 37 the
+  first full smoke run had its setup fall over and all twenty-five tests were
+  skipped. The run was reported as exit code 0 because the command piped
+  vitest's output through `grep`, and a pipe returns the last command's
+  status, not vitest's. Vitest itself had failed. Every earlier smoke result
+  that was read through a pipe could have hidden the same thing, so the
+  history before round 38 — when the suite started asserting that all 25
+  tests ran — is not proof they passed. Read the exit code from vitest itself.
+  *(Noted 2026-09-13, round 39, Leo.)*

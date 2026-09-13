@@ -127,15 +127,19 @@ function towerVent(selection: Record<SlotId, Appliance>): Finding[] {
       slot: vent.slot,
       params: { size: `${formatDimension(vent.widthIn)} × ${formatDimension(vent.depthIn)}` },
     },
-    // And where that air goes next: the box over the oven has no back and
-    // stands off the wall. Round 37; the figure is to be confirmed on site.
-    {
-      ruleId: `tower-bridge:${vent.slot}`,
-      severity: "info" as const,
-      messageKey: "rule.towerBridge",
-      slot: vent.slot,
-      params: { gap: formatDimension(vent.bridgeStandOffIn) },
-    },
+    // And the way to it: the boxes over a steam oven have no backs and stand
+    // off the wall. Anything else keeps a solid back against it. Round 39.
+    ...(isSteamOven(selection[vent.slot])
+      ? [
+          {
+            ruleId: `tower-bridge:${vent.slot}`,
+            severity: "info" as const,
+            messageKey: "rule.towerBridge",
+            slot: vent.slot,
+            params: { gap: formatDimension(vent.bridgeStandOffIn) },
+          },
+        ]
+      : []),
   ]);
 }
 

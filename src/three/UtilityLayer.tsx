@@ -7,7 +7,8 @@ import { deriveUtilities } from "../data/utilities";
 import { useAppStore } from "../store/useAppStore";
 import { useSelection, useSelectedBlower } from "../store/useSelection";
 import { effectiveCfm } from "../data/ventilation";
-import type { Appliance, ServicePoint, UtilityType, Utilities } from "../types";
+import { resolveRoughIn } from "../data/roughIn";
+import type { Appliance, ServicePoint, SlotId, UtilityType, Utilities } from "../types";
 import { UTILITY_COLORS, UTILITY_RADIUS_IN } from "./materials";
 
 const UP = new THREE.Vector3(0, 1, 0);
@@ -213,7 +214,14 @@ function GasRuns({ effective }: { effective: Record<string, Utilities> }) {
  * feeders are heavier, drop to the toe kick, run under the cabinets, then rise
  * to the appliance.
  */
-function PowerRuns({ effective }: { effective: Record<string, Utilities> }) {
+function PowerRuns({
+  effective,
+  selection,
+}: {
+  effective: Record<string, Utilities>;
+  /** What is in each slot: a hard-wired oven's box is where its own sheet puts it. */
+  selection: Record<SlotId, Appliance>;
+}) {
   const panelAt = entry(STANDOFF.default);
   return (
     <group name="utility-power">
@@ -251,6 +259,27 @@ function PowerRuns({ effective }: { effective: Record<string, Utilities> }) {
                 size={[ft(3), ft(4.5), ft(2)]}
                 color={color}
               />
+            </group>
+          );
+        }
+
+        // A hard-wired oven's junction box is where its own sheet puts it, in
+        // the cabinet beside the tower, not behind the machine (round 39): the
+        // feeder runs along the wall to under that cabinet and rises there, and
+        // the rough-in layer draws the box itself.
+        const wired = is240
+          ? resolveRoughIn(slot.id as SlotId, selection[slot.id]).find(
+              (p) => p.point.type === "power" && p.point.location === "beside-tower",
+            )
+          : undefined;
+        if (wired) {
+          const [px, py, pz] = wired.position;
+          const foot: [number, number, number] = a.onLeftWall ? [a.x, trunkY, pz] : [px, trunkY, a.z];
+          return (
+            <group key={slot.id}>
+              <Trunk points={trunkPoints(slot, trunkY)} radius={radius} color={color} />
+              <Pipe from={[a.x, trunkY, a.z]} to={foot} radius={radius} color={color} />
+              <Pipe from={foot} to={[foot[0], py, foot[2]]} radius={radius} color={color} />
             </group>
           );
         }
@@ -493,7 +522,7 @@ export function UtilityLayer({ type }: { type: UtilityType }) {
   return (
     <group name={"utility-layer-" + type} visible={visible}>
       {type === "gas" && <GasRuns effective={effective} />}
-      {type === "power" && <PowerRuns effective={effective} />}
+      {type === "power" && <PowerRuns effective={effective} selection={selection} />}
       {type === "water" && <WaterRuns effective={withFixtures} />}
       {type === "duct" && (
         <DuctRuns

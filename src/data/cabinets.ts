@@ -294,18 +294,18 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
           onRun(run, `${segment.id}-panel-b`, "surround", [opening[1], along[1]], tall, ROOM.counterDepth, 0, { outline, slot: module.slot, module }),
         );
       }
-      // Over a hung oven the box has an open back and stands off the wall, so
-      // what comes up through the vent in its floor has somewhere to go. Leo,
-      // round 37; the figure is his to confirm on site. Its front stays in the
-      // plane of the tower's, so it is shallower by what it stands off.
+      // Over a hung oven the box is marked with the oven it stands over, and so
+      // is the box stacked on it, which copies it. Whether the two stand off the
+      // wall with open backs and a grille depends on the machine in the slot —
+      // a steam oven does, anything else does not (D11 rule 12, round 39) — and
+      // that is the selection's business, so `standOffFromWall` is applied
+      // where the machine is known.
       const hung = sill > 0 && !module.lowerSlot;
-      const off = hung ? ft(TOWER_VENT.bridgeStandOffIn) : 0;
       boxes.push(
-        onRun(run, `${segment.id}-bridge`, "upper", opening, [head, tall[1]], ROOM.counterDepth - off, off / 2, {
+        onRun(run, `${segment.id}-bridge`, "upper", opening, [head, tall[1]], ROOM.counterDepth, 0, {
           outline,
           slot: module.slot,
           module,
-          // The stack on it copies this, which is where a grille can go.
           ...(hung && module.slot ? { ventSlot: module.slot } : {}),
         }),
       );
@@ -425,7 +425,9 @@ function upperBoxes(run: CabinetRun, bank: UpperBank): CabinetBox[] {
           `${bank.id}-crown-${index}`,
           "upper",
           along,
-          [ROOM.stackTop - moulding, ROOM.stackTop] as const,
+          // Against the ceiling, covering the half-inch scribe over the
+          // stacks, which is what a crown is for. Round 39.
+          [ROOM.wallHeight - moulding, ROOM.wallHeight] as const,
           depth,
           -(ROOM.counterDepth - depth) / 2,
           // No module: it is a length of moulding along the bank rather than
@@ -509,6 +511,27 @@ function stackOn(run: CabinetRun, box: CabinetBox): CabinetBox[] {
       size: [box.size[0], height, box.size[2]],
     },
   ];
+}
+
+/**
+ * A box stood off the wall by `inches`, its front where it was.
+ *
+ * The cabinets over a steam oven stand off the wall with their backs open
+ * (D11 rule 12, round 39): shallower by the stand-off, the same face to the
+ * room. Only run boxes stand over an oven, and a run's boxes face +x on the
+ * left wall and +z on the back one.
+ */
+export function standOffFromWall(
+  box: CabinetBox,
+  inches: number = TOWER_VENT.bridgeStandOffIn,
+): CabinetBox {
+  const off = ft(inches);
+  const axis = box.run === "left" ? 0 : 2;
+  const size = [...box.size] as [number, number, number];
+  const position = [...box.position] as [number, number, number];
+  size[axis] -= off;
+  position[axis] += off / 2;
+  return { ...box, size, position };
 }
 
 function runBoxes(run: CabinetRun): CabinetBox[] {

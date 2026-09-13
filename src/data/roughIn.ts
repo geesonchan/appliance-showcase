@@ -49,6 +49,8 @@ interface HostBox {
   along: readonly [number, number];
   /** Floor and ceiling of the box, in feet. */
   band: readonly [number, number];
+  /** For the cabinet beside a tower: which end of `along` meets the tower. */
+  nearEnd?: 0 | 1;
 }
 
 const segmentsOf = (run: CabinetRun) => run.segments;
@@ -135,6 +137,42 @@ function hostFor(slot: Slot, appliance: Appliance, point: RoughInPoint): HostBox
     return null;
   }
 
+  // The base cabinet beside a tower. Not behind the machine: both ovens' own
+  // sheets put the junction box above, beside or below the unit, and a box in
+  // the cabinet next to it is one an electrician reaches by opening a door.
+  // Whichever side has a cabinet; where both do, the side toward the cooking
+  // surface, which is the landing. A tall board beside the tower is part of it.
+  if (point.location === "beside-tower") {
+    if (!found) return null;
+    const segments = found.run.segments;
+    const reach = (step: -1 | 1): number | null => {
+      for (let i = found.index + step; i >= 0 && i < segments.length; i += step) {
+        const segment = segments[i];
+        if (segment.kind === "counter") return i;
+        const board = segment.kind === "tall" && segment.modules.every((m) => m.kind === "panel");
+        if (!board) return null;
+      }
+      return null;
+    };
+    const sides = ([-1, 1] as const).flatMap((step) => {
+      const at = reach(step);
+      return at === null ? [] : [{ step, at }];
+    });
+    if (sides.length === 0) return null;
+    const rangeAt = segments.findIndex((s) => s.slot === "slot-range");
+    const towardRange = rangeAt >= 0 ? Math.sign(rangeAt - found.index) : 0;
+    const side = sides.find((s) => s.step === towardRange) ?? sides[0];
+    const cabinet = segments[side.at];
+    return {
+      id: cabinet.id,
+      run: found.run,
+      along: [cabinet.from, cabinet.to] as const,
+      band: [0, ROOM.counterHeight - ROOM.counterThickness] as const,
+      // The end of the cabinet that meets the tower.
+      nearEnd: side.step === 1 ? 0 : 1,
+    };
+  }
+
   // A neighbour on the same run. "Left" and "right" are read along the run from
   // the corner outward, which is the order the segments are already in.
   const step = point.location === "adjacent-cabinet-left" ? -1 : 1;
@@ -174,8 +212,14 @@ export function resolveRoughIn(slotId: SlotId, appliance: Appliance | undefined)
     if (!host) continue;
 
     const size = (point.size ?? DEFAULT_SIZE).map(ft) as [number, number, number];
+    // Beside a tower, a figure is measured from the end of the cabinet that
+    // meets the tower, whichever side of it that cabinet is on.
     const along =
-      point.x === "left"
+      host.nearEnd !== undefined && typeof point.x === "number"
+        ? host.nearEnd === 0
+          ? host.along[0] + ft(point.x)
+          : host.along[1] - ft(point.x)
+        : point.x === "left"
         ? host.along[0] + size[0] / 2
         : point.x === "right"
           ? host.along[1] - size[0] / 2
@@ -251,7 +295,9 @@ export function roughInSentence(point: RoughInPoint): { where: string; at: strin
         ? "inside the sink base"
         : point.location === "above-cabinet"
           ? "in the cabinet above"
-          : point.location === "adjacent-cabinet-left"
+          : point.location === "beside-tower"
+            ? "in the base cabinet beside the tower — open its door to see it"
+            : point.location === "adjacent-cabinet-left"
             ? "in the cabinet to the left"
             : "in the cabinet to the right";
 

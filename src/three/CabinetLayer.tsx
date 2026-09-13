@@ -5,6 +5,7 @@ import {
   CABINET_OUTLINES,
   type CabinetBox,
   diagonalDoor,
+  standOffFromWall,
   wearsDoorFinish,
 } from "../data/cabinets";
 import { counterOutline } from "../data/counter";
@@ -484,12 +485,24 @@ function CounterSlab() {
 export function CabinetLayer() {
   const showCabinets = useAppStore((s) => s.showCabinets);
   const isMobile = useIsMobile();
-  const wireBoxes = isMobile ? CABINET_OUTLINES : CABINETS;
+  // The cabinets over a steam oven stand off the wall with open backs, and which
+  // machine is in the slot is the selection's to say. D11 rule 12, round 39.
+  const selection = useSelection();
+  const solids = useMemo(
+    () =>
+      CABINETS.map((box) =>
+        box.ventSlot !== undefined && isSteamOven(selection[box.ventSlot]) ? standOffFromWall(box) : box,
+      ),
+    // CABINETS is rebuilt with the layout, which re-renders this layer.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [selection, CABINETS],
+  );
+  const wireBoxes = isMobile ? CABINET_OUTLINES : solids;
 
   return (
     <group name="cabinet-layer" visible={showCabinets}>
       <CounterSlab />
-      {CABINETS.map((box) => (
+      {solids.map((box) => (
         <group key={box.id} position={box.position} userData={{ slot: box.slot }}>
           <CabinetSolid box={box} />
         </group>
