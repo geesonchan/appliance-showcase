@@ -1129,12 +1129,12 @@ async function captureRound33(browser) {
     await page.screenshot({ path: `${outDir}/desktop-cabinet-${swatch}.png` });
   }
 
+  // Zoomed on the overview rather than flown to an appliance: a fly-in fades
+  // whatever stands between the camera and the machine, and on the dishwasher
+  // that is the very counter this shot is for.
   await open("?counter=marble");
-  await page.click(`button[data-rail="left"]`);
-  await settle(page, 700);
-  await page.locator(`aside [data-panel="list"] button`, { hasText: "Dishwasher" }).first().click();
-  await settle(page, 1800);
-  await zoom(2);
+  await page.screenshot({ path: `${outDir}/desktop-marble-room.png` });
+  await zoom(3);
   await page.screenshot({ path: `${outDir}/desktop-marble-close.png` });
 
   for (const size of ["24x48", "48x48"]) {
@@ -1156,9 +1156,54 @@ async function captureRound33(browser) {
   await desktop.close();
 }
 
+/**
+ * Round 34: a switch that needs more wall gets it.
+ *
+ * Package A in the tightest room it builds in, the same room a moment after
+ * the island is turned across it — the wall grown and the toast saying so, with
+ * Undo — and the room again after Undo. Then package D as it now opens, with
+ * the left wall its return-wall switch needs, and that switch turned on without
+ * anything growing.
+ */
+async function captureRound34(browser) {
+  const desktop = await browser.newContext({ viewport: DESKTOP, deviceScaleFactor: 2 });
+  const page = await desktop.newPage();
+
+  await page.goto(`${baseUrl}?back=147&left=102`, { waitUntil: "networkidle" });
+  await settle(page, 2800);
+  await page.screenshot({ path: `${outDir}/desktop-a-tight.png` });
+
+  await page.getByRole("button", { name: "Across the room", exact: true }).first().click();
+  await settle(page, 1500);
+  await page.screenshot({ path: `${outDir}/desktop-a-grown-toast.png` });
+
+  await page.click("[data-toast-undo]");
+  await settle(page, 1500);
+  await page.screenshot({ path: `${outDir}/desktop-a-undone.png` });
+
+  await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await settle(page, 2600);
+  await page.locator(`[data-segment="package"] button`, { hasText: "D" }).first().click();
+  await settle(page, 2800);
+  await page.getByText("Left wall", { exact: true }).first().scrollIntoViewIfNeeded();
+  await settle(page, 600);
+  await page.screenshot({ path: `${outDir}/desktop-d-opens.png` });
+  await page.getByRole("button", { name: "Wall", exact: true }).first().click();
+  await settle(page, 2000);
+  await page.screenshot({ path: `${outDir}/desktop-d-return-wall.png` });
+  await desktop.close();
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round34") {
+    await captureRound34(browser);
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round33") {
     await captureRound33(browser);

@@ -394,7 +394,9 @@
       "defaultLayout": {
         "sinkLeg": "back",
         "fridgeEnd": "left",
-        "coffeeLeg": "left"
+        "coffeeLeg": "left",
+        "backWallIn": 201.75,
+        "leftWallIn": 178.75
       },
       "columnOrder": [
         "slot-freezer",

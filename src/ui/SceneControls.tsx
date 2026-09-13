@@ -156,11 +156,18 @@ export function SelectionCallout() {
   );
 }
 
-/** Transient message shown on a render-mode switch, as in the reference. */
+/**
+ * Transient message shown on a render-mode switch, as in the reference.
+ *
+ * Also how the room says it grew to take a change (round 34), with an Undo that
+ * puts back the room as it was. A toast with Undo stays up longer: it is asking
+ * for a decision, not reporting one.
+ */
 export function Toast() {
   const t = useT();
   const toast = useAppStore((s) => s.toast);
   const dismissToast = useAppStore((s) => s.dismissToast);
+  const undo = useAppStore((s) => s.undo);
   const [visible, setVisible] = useState(false);
   const timers = useRef<number[]>([]);
 
@@ -172,24 +179,52 @@ export function Toast() {
       return;
     }
     setVisible(true);
-    timers.current.push(window.setTimeout(() => setVisible(false), 3500));
-    timers.current.push(window.setTimeout(() => dismissToast(), 3800));
+    const showFor = toast.undo ? 9000 : 3500;
+    timers.current.push(window.setTimeout(() => setVisible(false), showFor));
+    timers.current.push(window.setTimeout(() => dismissToast(), showFor + 300));
     return () => timers.current.forEach(clearTimeout);
   }, [toast, dismissToast]);
 
   if (!toast) return null;
 
+  // A value named `...Key` is a message key of its own: the wall, the reason.
+  const say = (key: string, vars?: Record<string, string | number>) =>
+    t(
+      key,
+      vars &&
+        Object.fromEntries(
+          Object.entries(vars).map(([name, value]) =>
+            name.endsWith("Key") ? [name.slice(0, -3), t(String(value))] : [name, value],
+          ),
+        ),
+    );
+  const message = toast.lines
+    ? toast.lines.map((line) => say(line.key, line.vars)).join(" ")
+    : say(toast.key, toast.vars);
+
   return (
     <div
       role="status"
+      data-toast={toast.key}
       className={[
-        "pointer-events-none absolute bottom-28 left-1/2 z-20 -translate-x-1/2",
-        "rounded-full border border-line bg-ink px-4 py-2 text-[11px] text-[#F7F5EF]",
+        toast.undo ? "pointer-events-auto" : "pointer-events-none",
+        "absolute bottom-28 left-1/2 z-20 flex w-max max-w-[min(92vw,560px)] -translate-x-1/2 items-center gap-3",
+        "rounded-2xl border border-line bg-ink px-4 py-2 text-[11px] leading-snug text-[#F7F5EF]",
         "transition-opacity duration-300",
         visible ? "opacity-100" : "opacity-0",
       ].join(" ")}
     >
-      {t(toast.key, toast.vars)}
+      <span>{message}</span>
+      {toast.undo && (
+        <button
+          type="button"
+          data-toast-undo
+          onClick={undo}
+          className="shrink-0 rounded-full border border-[#F7F5EF]/40 px-2.5 py-0.5 text-[11px] font-medium text-[#F7F5EF] transition-colors hover:bg-[#F7F5EF]/10"
+        >
+          {t("toast.undo")}
+        </button>
+      )}
     </div>
   );
 }

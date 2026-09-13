@@ -1,6 +1,7 @@
 import { rebuildCabinets } from "./cabinets";
 import { rebuildFixtures } from "./fixtures";
 import {
+  PARAM_LIMITS,
   generateLayout,
   wallRequirement,
   type LayoutParams,
@@ -38,6 +39,118 @@ export function setLayoutParams(params: LayoutParams): { ok: boolean; reasons: R
   rebuildFixtures();
   rebuildCabinets();
   return { ok: true, reasons: [] };
+}
+
+type WallKey = "backWallIn" | "leftWallIn";
+const WALL_KEYS: WallKey[] = ["backWallIn", "leftWallIn"];
+
+/** A wall the room grew so a change would fit, and by how much. */
+export interface WallGrowth {
+  key: WallKey;
+  fromIn: number;
+  toIn: number;
+}
+
+/**
+ * The longer walls a refusal could be cured by, or null if it is not about
+ * length.
+ *
+ * A wall that is short says how short. A room whose island will not fit across
+ * it offers a longer wall as its way out, and that is the same cure. Anything
+ * else — a window that will not sit evenly, a sink and a refrigerator on one
+ * leg — is not something more wall fixes.
+ */
+function wallsFor(reason: Refusal): Partial<Record<WallKey, number>> | null {
+  const key = String(reason.vars.paramKey ?? "").replace("param.", "") as WallKey;
+  if (reason.key === "refusal.wallShort") {
+    const minimumIn = Number(reason.vars.minimumIn);
+    return WALL_KEYS.includes(key) && Number.isFinite(minimumIn) ? { [key]: minimumIn } : null;
+  }
+  // An island too long for the wall its length runs along — which is what
+  // turning it across the room does in a shallow room. Its own figures say how
+  // much wall it wants: the island, plus the run and the aisle behind it, which
+  // is the difference between the wall and the room it left.
+  if (reason.key === "refusal.islandLong") {
+    const needIn =
+      Number(reason.vars.islandIn) + (Number(reason.vars.wallIn) - Number(reason.vars.roomIn));
+    return WALL_KEYS.includes(key) && Number.isFinite(needIn) ? { [key]: needIn } : null;
+  }
+  const patch = reason.suggestion?.patch;
+  if (!patch) return null;
+  const keys = Object.keys(patch);
+  if (keys.length === 0 || !keys.every((key) => WALL_KEYS.includes(key as WallKey))) return null;
+  return patch as Partial<Record<WallKey, number>>;
+}
+
+/**
+ * Change the room, growing a wall to the shortest length that takes the change.
+ *
+ * Round 34, Leo: a switch that asks for more wall than the room has — a return
+ * wall past the refrigerator, the tower on the other side of the range — gets
+ * it, and the room is rebuilt at once, rather than refusing in front of a
+ * customer and making somebody go and find the slider. The wall grows only as
+ * far as the change needs, never shrinks, and what grew is returned for the
+ * interface to say out loud and offer to undo.
+ *
+ * It still refuses, with exactly the reasons it always gave, when growing is
+ * not the answer: when a wall would have to pass the slider's 204", or when
+ * something other than length is in the way. The wall sliders do not come
+ * through here at all — dragging one is asking for that length, and a length
+ * that will not build is refused on its own terms.
+ */
+export function setLayoutParamsGrowing(params: LayoutParams): {
+  ok: boolean;
+  reasons: Refusal[];
+  params: LayoutParams;
+  grown: WallGrowth[];
+} {
+  const first = setLayoutParams(params);
+  if (first.ok) return { ...first, params, grown: [] };
+
+  const refuse = () => {
+    // Leave the room standing and the request remembered, as a refusal always has.
+    setLayoutParams(params);
+    return { ok: false, reasons: first.reasons, params, grown: [] as WallGrowth[] };
+  };
+
+  let next = params;
+  let reasons = first.reasons;
+  // Growing one wall can change what the other is asked for, so it is tried
+  // again with what the new refusal says — a couple of rounds at most.
+  for (let round = 0; round < 3; round += 1) {
+    const wanted: Partial<Record<WallKey, number>> = {};
+    for (const reason of reasons) {
+      const walls = wallsFor(reason);
+      if (!walls) return refuse();
+      for (const key of WALL_KEYS) {
+        const value = walls[key];
+        if (value !== undefined) wanted[key] = Math.max(wanted[key] ?? 0, value);
+      }
+    }
+    let changed = false;
+    for (const key of WALL_KEYS) {
+      const value = wanted[key];
+      if (value === undefined) continue;
+      if (value > PARAM_LIMITS[key].max) return refuse();
+      if (value > next[key]) {
+        next = { ...next, [key]: value };
+        changed = true;
+      }
+    }
+    if (!changed) return refuse();
+
+    const attempt = setLayoutParams(next);
+    if (attempt.ok) {
+      const grown = WALL_KEYS.filter((key) => next[key] !== params[key]).map((key) => ({
+        key,
+        fromIn: params[key],
+        toIn: next[key],
+      }));
+      return { ok: true, reasons: [], params: next, grown };
+    }
+    reasons = attempt.reasons;
+  }
+  return refuse();
 }
 
 /**
@@ -83,12 +196,21 @@ export function setActivePackage(id: string): {
 
   const asked = REQUESTED_PARAMS;
   setPackage(id);
-  // The arrangement the package is designed around, where it names one.
-  const arranged = { ...asked, ...PACKAGE.defaultLayout };
+  // The arrangement the package is designed around, where it names one. Its
+  // wall lengths are a floor rather than a setting: a package's default room
+  // has the slack its switches need (round 34), and choosing it never shrinks a
+  // room somebody has already made bigger.
+  const defaults = PACKAGE.defaultLayout;
+  const arranged: LayoutParams = {
+    ...asked,
+    ...defaults,
+    backWallIn: Math.max(asked.backWallIn, defaults.backWallIn ?? 0),
+    leftWallIn: Math.max(asked.leftWallIn, defaults.leftWallIn ?? 0),
+  };
   const moved: Partial<LayoutParams> = {};
-  for (const [key, value] of Object.entries(PACKAGE.defaultLayout)) {
-    if (asked[key as keyof LayoutParams] !== value) {
-      (moved as Record<string, unknown>)[key] = value;
+  for (const key of Object.keys(defaults) as (keyof LayoutParams)[]) {
+    if (asked[key] !== arranged[key]) {
+      (moved as Record<string, unknown>)[key] = arranged[key];
     }
   }
 
@@ -122,7 +244,7 @@ export function setActivePackage(id: string): {
   }
 
   // A room shaped for another package can refuse this one for a reason that
-  // is not length at all: package D's 175-1/4" left wall is long enough for
+  // is not length at all: package D's left wall is long enough for
   // package B's sink leg, and B's window will not sit evenly in it. Choosing a
   // package is still choosing the kitchen, so it gets the room it asks for —
   // both walls at what its own legs want — before the switch is given up.

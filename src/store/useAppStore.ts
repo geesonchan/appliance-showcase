@@ -5,7 +5,8 @@ import {
   migrateSelection,
 } from "../data/catalogue";
 import { DEFAULT_PACKAGE, PACKAGE_BY_ID } from "../data/packages";
-import { setActivePackage, setLayoutParams } from "../data/layoutState";
+import { setActivePackage, setLayoutParams, setLayoutParamsGrowing } from "../data/layoutState";
+import { inchesSpoken } from "../data/inches";
 import type { LayoutParams, Refusal } from "../data/layoutTemplate";
 import { LAYOUT_ISSUES, REQUESTED_PARAMS } from "../data/room";
 import type { Lang, Lighting, RenderMode, SlotId, UtilityType } from "../types";
@@ -15,8 +16,23 @@ import { lookupRal } from "../data/ral";
 export interface ToastMessage {
   id: number;
   key: string;
-  /** Values for the message's placeholders, when it has any. */
+  /**
+   * Values for the message's placeholders, when it has any. A value whose name
+   * ends in `Key` is itself a message key, translated before it is put in.
+   */
   vars?: Record<string, string | number>;
+  /** More than one sentence: shown in order, each a key and its values. */
+  lines?: { key: string; vars?: Record<string, string | number> }[];
+  /** What Undo puts back, when the toast offers it. */
+  undo?: RoomSnapshot;
+}
+
+/** The room as it was before something changed it, for Undo. */
+export interface RoomSnapshot {
+  packageId: string;
+  layoutParams: LayoutParams;
+  selection: Record<SlotId, string>;
+  blowerId: string | null;
 }
 
 interface AppState {
@@ -133,6 +149,8 @@ interface AppState {
   setMobilePanel: (panel: "none" | "list" | "config") => void;
   showToast: (key: string, vars?: Record<string, string | number>) => void;
   dismissToast: () => void;
+  /** Put back the room the current toast offers to undo. */
+  undo: () => void;
   reportModeSwitch: (ms: number) => void;
 }
 
@@ -251,6 +269,40 @@ function initialFinishes() {
   };
 }
 
+/** The room as it stands, for a toast to offer to put back. */
+const snapshot = (state: {
+  packageId: string;
+  layoutParams: LayoutParams;
+  selection: Record<SlotId, string>;
+  blowerId: string | null;
+}): RoomSnapshot => ({
+  packageId: state.packageId,
+  layoutParams: state.layoutParams,
+  selection: state.selection,
+  blowerId: state.blowerId,
+});
+
+/** The switches a room can grow for, each with the words for why. */
+const GROW_REASONS = [
+  "fridgeEndAbuts",
+  "towerSide",
+  "sinkLeg",
+  "fridgeEnd",
+  "coffeeLeg",
+  "cornerType",
+  "housingStyle",
+  "hasIsland",
+  "islandOrientation",
+  "windows",
+  "sinkUnderWindow",
+] as const;
+
+/** Why a wall grew, as a message key: the first switch in the change that has words. */
+const growReasonKey = (patch: Partial<LayoutParams>) => {
+  const key = GROW_REASONS.find((name) => name in patch);
+  return key ? `toast.growReason.${key}` : "toast.growReason.other";
+};
+
 /**
  * Where quality starts.
  *
@@ -303,21 +355,47 @@ export const useAppStore = create<AppState>((set, get) => ({
   // parameters, so which appliance is in which opening survives a rebuild
   // without being carried across.
   setLayout: (patch) => {
-    const layoutParams = { ...get().layoutParams, ...patch };
+    const before = snapshot(get());
+    const built = get().layoutIssues.length === 0;
+    const asked = { ...before.layoutParams, ...patch };
     // One leg will not carry the sink and the refrigerator both, so moving one
     // onto the other's leg pushes that one across. Whichever was just asked
     // for wins; the other yields. Asking for the pair directly still refuses,
     // with the reason, which is what a link in the query string gets.
-    if (layoutParams.fridgeEnd === layoutParams.sinkLeg) {
-      const other = layoutParams.sinkLeg === "back" ? "left" : "back";
-      if (patch.fridgeEnd) layoutParams.sinkLeg = other;
-      else if (patch.sinkLeg) layoutParams.fridgeEnd = other;
+    if (asked.fridgeEnd === asked.sinkLeg) {
+      const other = asked.sinkLeg === "back" ? "left" : "back";
+      if (patch.fridgeEnd) asked.sinkLeg = other;
+      else if (patch.sinkLeg) asked.fridgeEnd = other;
     }
-    const result = setLayoutParams(layoutParams);
+    // A wall slider is somebody asking for that length, and a length that will
+    // not build is refused on its own terms. Anything else that needs more wall
+    // than the room has gets it, and says so. Round 34.
+    const setsAWall = "backWallIn" in patch || "leftWallIn" in patch;
+    const result = setsAWall
+      ? { ...setLayoutParams(asked), params: asked, grown: [] }
+      : setLayoutParamsGrowing(asked);
     set((s) => ({
-      layoutParams,
+      layoutParams: result.params,
       layoutIssues: result.reasons,
       layoutVersion: result.ok ? s.layoutVersion + 1 : s.layoutVersion,
+      toast:
+        result.grown.length > 0
+          ? {
+              id: ++toastId,
+              key: "toast.wallGrew",
+              lines: result.grown.map((growth) => ({
+                key: "toast.wallGrew",
+                vars: {
+                  wallKey: growth.key === "backWallIn" ? "toast.wall.back" : "toast.wall.left",
+                  fromIn: inchesSpoken(growth.fromIn),
+                  toIn: inchesSpoken(growth.toIn),
+                  reasonKey: growReasonKey(patch),
+                },
+              })),
+              // Only a room that was standing can be gone back to.
+              undo: built ? before : undefined,
+            }
+          : s.toast,
     }));
   },
   setRenderMode: (renderMode) => {
@@ -356,6 +434,8 @@ export const useAppStore = create<AppState>((set, get) => ({
     const entry = PACKAGE_BY_ID[packageId];
     if (!entry?.available) return;
 
+    const before = snapshot(get());
+    const built = get().layoutIssues.length === 0;
     const result = setActivePackage(packageId);
     if (!result.ok) {
       set({ layoutIssues: result.reasons });
@@ -392,6 +472,7 @@ export const useAppStore = create<AppState>((set, get) => ({
                 backIn: Number(REQUESTED_PARAMS.backWallIn.toFixed(1)),
                 leftIn: Number(REQUESTED_PARAMS.leftWallIn.toFixed(1)),
               },
+              undo: built ? before : undefined,
             }
           : s.toast,
       };
@@ -419,5 +500,24 @@ export const useAppStore = create<AppState>((set, get) => ({
   setMobilePanel: (mobilePanel) => set({ mobilePanel }),
   showToast: (key, vars) => set({ toast: { id: ++toastId, key, vars } }),
   dismissToast: () => set({ toast: null }),
+  undo: () => {
+    const back = get().toast?.undo;
+    if (!back) return;
+    // The package first, because it decides every opening the room is built
+    // round; then the exact room and choices that were standing, which built
+    // then and builds now.
+    if (back.packageId !== get().packageId) setActivePackage(back.packageId);
+    const result = setLayoutParams(back.layoutParams);
+    set((s) => ({
+      packageId: back.packageId,
+      selection: back.selection,
+      blowerId: back.blowerId,
+      layoutParams: back.layoutParams,
+      layoutIssues: result.reasons,
+      layoutVersion: s.layoutVersion + 1,
+      selectedSlot: null,
+      toast: null,
+    }));
+  },
   reportModeSwitch: (ms) => set({ modeSwitchMs: Math.round(ms), modeSwitchStartedAt: null }),
 }));

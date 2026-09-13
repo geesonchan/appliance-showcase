@@ -931,3 +931,45 @@ The site was a day behind and nothing said so.
 **What this forbids:** reporting a push as finished work; a local suite that is
 a subset of CI's without saying so; a build that cannot be identified from the
 page it serves.
+
+## D18 · A switch never refuses for want of wall
+
+**Decided:** 2026-09-13 (round 34), Leo.
+
+Turning on a return wall in package D asked for 178-3/4" of left wall in a room
+that had 175-1/4", and the answer was a refusal and a button to lengthen the
+wall. In front of a customer that is an interruption in the middle of the
+explanation, for a change the room could simply have made.
+
+**So a switch that needs more wall gets it.** Any control that changes what the
+kitchen is — the return wall, the tower's side, the sink's leg, the refrigerator's
+leg, the coffee cabinet's leg, the corner, the housing, the island and which way
+it runs, the window, the package — is built at once if it fits. If it does not
+fit only because a wall is short, that wall grows to the shortest length that
+takes the change, and the room is built. A toast says which wall, from what to
+what and why — "左墙已从 175¼″ 加长到 178¾″，以容纳返墙间隙" — with an Undo that
+puts back the package, the switches, the walls and the choices exactly as they
+were. A wall only ever grows here; nothing shrinks a room.
+
+**It still refuses when growing is not the answer**, with the reasons it always
+gave: when a wall would have to pass the slider's 204" (package D's columns or
+its coffee cabinet on the back wall need 207-1/2" and 224-1/4"), or when
+something other than length is in the way.
+
+**The wall sliders are not switches.** Dragging one is asking for that length,
+and a length the room will not build at is refused on its own terms, as before.
+
+**A package's own room has slack.** Its default walls are at least the largest
+wall any single switch needs from that room, extreme combinations aside, so the
+switches a salesperson actually flips never make it grow. Checked over every
+switch in every package: A 168" x 144" (the largest need is 159" x 126"), B
+202-3/8" x 144" (199-3/8" x 126"), C 168" x 144" (153" x 126"), all unchanged;
+D 201-3/4" x 178-3/4", its left wall up from 175-1/4" for the return wall's
+clearance. The spare inches are handed to the landings in the reverse of the
+shrink order, as D13 already does. A package's default walls are a floor:
+choosing it never shortens a room somebody has made bigger.
+
+**What this forbids:** refusing a switch that a longer wall within the slider's
+range would build; growing a wall further than the change needs; growing a wall
+without saying so and offering to undo it; growing a wall behind a slider the
+customer is dragging.

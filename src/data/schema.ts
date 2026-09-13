@@ -512,6 +512,10 @@ export const packageSchema = z
         sinkLeg: z.enum(["left", "back"]).optional(),
         fridgeEnd: z.enum(["left", "back"]).optional(),
         coffeeLeg: z.enum(["left", "back"]).optional(),
+        // The walls the package's default room is built at, with the slack its
+        // switches need. A floor, not a setting: see `setActivePackage`.
+        backWallIn: z.number().positive().optional(),
+        leftWallIn: z.number().positive().optional(),
       })
       .default({}),
     /**
