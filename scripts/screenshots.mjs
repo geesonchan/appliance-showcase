@@ -1177,7 +1177,10 @@ async function captureRound34(browser) {
   await settle(page, 1500);
   await page.screenshot({ path: `${outDir}/desktop-a-grown-toast.png` });
 
-  await page.click("[data-toast-undo]");
+  // Clicked in the page rather than through Playwright's actionability check:
+  // at twice the pixel density the headless scene draws a frame or two a
+  // second, and "stable across two animation frames" never arrives in time.
+  await page.$eval("[data-toast-undo]", (button) => button.click());
   await settle(page, 1500);
   await page.screenshot({ path: `${outDir}/desktop-a-undone.png` });
 
