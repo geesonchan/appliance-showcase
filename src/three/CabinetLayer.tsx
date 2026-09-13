@@ -13,6 +13,7 @@ import { useSelection } from "../store/useSelection";
 import { useIsMobile } from "../hooks/useIsMobile";
 import { cabinetPaint, useAppStore } from "../store/useAppStore";
 import { ft } from "../data/room";
+import { CABINET_DOOR_IN } from "../data/ovenTrim";
 import { SCENE_COLORS, finish, type FinishToken, type SurfaceProps } from "./materials";
 import { Surface } from "./Surface";
 import { HoodCabinet } from "./HoodCabinet";
@@ -40,7 +41,7 @@ function counterMap(props: SurfaceProps, quality: "high" | "low") {
  * back a quarter.
  */
 const DOOR = {
-  thickness: ft(0.75),
+  thickness: ft(CABINET_DOOR_IN),
   reveal: ft(0.125),
   /** Width of the frame around the panel. */
   rail: ft(2.25),

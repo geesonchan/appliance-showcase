@@ -71,22 +71,99 @@ export function SceneDebug() {
   // because it changes with the render mode.
   useEffect(() => {
     if (!DEBUG) return;
-    (window as unknown as { __towerVents?: () => { slot: string; shown: boolean }[] }).__towerVents =
-      () => {
-        const vents: { slot: string; shown: boolean }[] = [];
-        scene.traverse((object) => {
-          if (object.name !== "tower-vent") return;
-          let shown = true;
-          for (let node: THREE.Object3D | null = object; node; node = node.parent) {
-            if (!node.visible) shown = false;
-          }
-          vents.push({ slot: String(object.userData.slot), shown });
+    type Vent = { slot: string; shown: boolean; yIn: number; shelfIn: number | null };
+    (window as unknown as { __towerVents?: () => Vent[] }).__towerVents = () => {
+      const vents: Vent[] = [];
+      scene.traverse((object) => {
+        if (object.name !== "tower-vent") return;
+        let shown = true;
+        for (let node: THREE.Object3D | null = object; node; node = node.parent) {
+          if (!node.visible) shown = false;
+        }
+        const slot = String(object.userData.slot);
+        const bridge = bridgeOf(scene, slot);
+        vents.push({
+          slot,
+          shown,
+          yIn: object.getWorldPosition(new THREE.Vector3()).y * 12,
+          // The underside of the cabinet over the opening: the shelf it is cut in.
+          shelfIn: bridge ? new THREE.Box3().setFromObject(bridge).min.y * 12 : null,
         });
-        return vents;
+      });
+      return vents;
+    };
+
+    // Everything in the scene named as a vent, and which opening it belongs
+    // to — so a grille in a tower's drawer or toe kick has nowhere to hide.
+    (window as unknown as { __ventNames?: () => { name: string; slot: string | null }[] }).__ventNames =
+      () => {
+        const found: { name: string; slot: string | null }[] = [];
+        scene.traverse((object) => {
+          if (!/vent/i.test(object.name)) return;
+          let slot: string | null = null;
+          for (let node: THREE.Object3D | null = object; node && slot === null; node = node.parent) {
+            if (node.userData?.slot) slot = String(node.userData.slot);
+            else if (node.name.startsWith("appliance-") && !node.name.startsWith("appliance-body-")) {
+              slot = node.name.replace(/^appliance-(filler-|trim-)?/, "");
+            }
+          }
+          found.push({ name: object.name, slot });
+        });
+        return found;
       };
   }, [scene]);
 
+  // Each hung oven's front against the door of the cabinet over it, in inches
+  // along the way both of them face. Handles are left out: they are meant to
+  // stand proud. Round 36: a standard install puts the machine's trim in the
+  // plane of the doors, not back in its cutout.
+  useEffect(() => {
+    if (!DEBUG) return;
+    type Front = { slot: string; ovenIn: number; doorIn: number };
+    (window as unknown as { __ovenFronts?: () => Front[] }).__ovenFronts = () => {
+      const fronts: Front[] = [];
+      scene.traverse((object) => {
+        if (object.name !== "combo-oven") return;
+        let body: THREE.Object3D | null = object;
+        while (body && !body.name.startsWith("appliance-body-")) body = body.parent;
+        if (!body) return;
+        const slot = body.name.slice("appliance-body-".length);
+        const bridge = bridgeOf(scene, slot);
+        const door = bridge && scene.getObjectByName("door-" + bridge.userData.boxId);
+        if (!bridge || !door) return;
+        // The run's boxes open toward +x on the left wall and +z on the back.
+        const size = new THREE.Box3().setFromObject(bridge).getSize(new THREE.Vector3());
+        const axis = size.x < size.z ? "x" : "z";
+        const face = new THREE.Box3();
+        object.traverse((part) => {
+          if ((part as THREE.Mesh).isMesh && !part.userData.handle) face.expandByObject(part);
+        });
+        fronts.push({
+          slot,
+          ovenIn: face.max[axis] * 12,
+          doorIn: new THREE.Box3().setFromObject(door).max[axis] * 12,
+        });
+      });
+      return fronts;
+    };
+  }, [scene]);
+
   return null;
+}
+
+/** The carcass of the cabinet over a tower's opening, if the slot has one. */
+function bridgeOf(scene: THREE.Object3D, slot: string): THREE.Object3D | undefined {
+  let found: THREE.Object3D | undefined;
+  scene.traverse((object) => {
+    if (
+      (object as THREE.Mesh).isMesh &&
+      object.userData?.slot === slot &&
+      String(object.userData?.boxId ?? "").endsWith("-bridge")
+    ) {
+      found = object;
+    }
+  });
+  return found;
 }
 
 /**

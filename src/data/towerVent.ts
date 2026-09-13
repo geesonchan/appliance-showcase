@@ -11,8 +11,8 @@ import type { SlotId } from "../types";
  * cabinet stands on, cut through along its back edge, where nobody standing in
  * the kitchen can see it.
  *
- * Neither the MEM301WS sheet nor anything for the PODS302B in
- * `docs/reference/` gives a figure for it, so the size is Leo's: most of the
+ * Neither the MEM301WS sheet nor the PODS302B sheet in `docs/reference/`
+ * gives a figure for it, so the size is Leo's: most of the
  * opening's width and 2"-3" deep. It is built at the deep end of that, with a
  * 3/4" board left each side so the shelf still bears on the carcass.
  */

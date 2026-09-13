@@ -491,6 +491,28 @@ combination oven and D's steam oven by one rule — and not to a refrigerator
 column or the coffee cabinet. *(Leo's figures, not a drawing: neither sheet in
 `docs/reference/` gives a vent size.)*
 
+**Amended 2026-09-13 (round 36), Leo: a hung oven is a standard install, and
+its front is in the plane of the doors.** The machine was drawn back inside its
+opening, its door skin two inches behind the doors of the tower round it. A
+standard install is not that: the machine's trim is wider and taller than the
+cutout, laps over the cabinet round it, and finishes in the plane of the doors.
+So the front of the door skin is set at the front of the tower's doors, a
+sixteenth in front of them so the two faces do not share a plane, and the
+handle stands its own figure further out. The trim's border is each sheet's
+overlap: MEM301WS 1/2" at the top, 9/16" each side, nothing at the bottom, with
+a 2-3/8" handle; PODS302B 3/4"-1-1/2" at the top — 1-1/2" in package D's
+47-3/8" cutout — 9/16" each side, nothing at the bottom, with a 2-5/8" handle.
+Behind the trim, what goes into the hole is the machine less those overlaps.
+The figures are in
+`src/data/ovenTrim.ts`; a model with no entry there keeps the old placement
+rather than borrowing another machine's. *(Both from the manufacturer's sheets,
+now `docs/reference/mem301ws-spec.pdf` and `pods302b-spec.pdf`. The PODS302B
+sheet also puts its standard sill at 4-3/4"-18-3/4", which takes round 31's
+12"; it still gives no vent size.)* Round 32's vent was checked at the same
+time and is where that amendment says: in the shelf over the opening, at the
+back, drawn only in the install view, with nothing named a vent on or under
+either tower.
+
 **Scheme 01 as laid out.** Left wall, from the far end back to the corner:
 refrigerator tower, 15" landing, corner cabinet. Back wall, from the corner
 out: 18" counter, range with its hood, 18" counter, sink, dishwasher, counter to
@@ -726,6 +748,7 @@ Both are checked by `checkLayout`, and the M3-3 generator has to satisfy both.
   twenty-foot wall is an ordinary kitchen; 204" was set early without one in
   mind. The slider's top is the run cap plus the corner's 24" depth, so the cap
   moves with it: 180" to 216". Supersedes round 25's 180" run and 204" slider.
+  *(Leo confirmed both figures on 2026-09-13, round 36.)*
 - **What finishes a run.** Against a wall, a filler at least 3" wide: a door
   needs somewhere to swing past, and the refrigerator's own clearance is the
   same rule. In the open, a whole cabinet with a finished end panel closing its
@@ -995,3 +1018,16 @@ choosing it never shortens a room somebody has made bigger.
 range would build; growing a wall further than the change needs; growing a wall
 without saying so and offering to undo it; growing a wall behind a slider the
 customer is dragging.
+
+---
+
+## Open items
+
+Registered, not scheduled. None of these is a round of its own.
+
+- **GitHub Actions on Node 20.** Since round 35's deploy the Pages workflow
+  warns that `actions/checkout@v4`, `actions/setup-node@v4` and
+  `actions/upload-artifact@v4` target Node 20, which GitHub is retiring, and
+  are being forced onto Node 24. Nothing fails yet. Move them to releases that
+  target Node 24 alongside some other change to the workflow. *(Noted
+  2026-09-13, round 36, Leo: not urgent.)*

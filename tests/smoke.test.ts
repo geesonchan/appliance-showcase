@@ -774,6 +774,84 @@ describe("tower vent", () => {
     expect(errors).toEqual([]);
     await page.context().close();
   });
+
+  /**
+   * Round 36, Leo: confirm it is where round 32 said — in the shelf over the
+   * machine, at the back — and that nothing else named a vent is on or under
+   * either tower.
+   */
+  it("sits in the shelf over the opening, and nothing vent-like is under the tower", async () => {
+    const { page, errors } = await openPage(DESKTOP, false, "?debug=1");
+    for (const [code, slot] of [
+      ["B", "slot-microwave"],
+      ["D", "slot-oven"],
+    ] as const) {
+      await page.locator(`[data-segment="package"] button`, { hasText: code }).first().click();
+      await page.waitForTimeout(1800);
+      await setMode(page, "Install");
+      await page.waitForTimeout(900);
+
+      const vents = await page.evaluate(() =>
+        (
+          window as unknown as {
+            __towerVents: () => { slot: string; yIn: number; shelfIn: number | null }[];
+          }
+        ).__towerVents(),
+      );
+      expect(vents.map((vent) => vent.slot), code).toEqual([slot]);
+      for (const vent of vents) {
+        expect(vent.shelfIn, `${code} has a cabinet over the opening`).not.toBeNull();
+        expect(Math.abs(vent.yIn - (vent.shelfIn ?? 0)), `${code}: vent at ${vent.yIn}"`).toBeLessThan(0.05);
+      }
+      const named = await page.evaluate(
+        (slot) =>
+          (window as unknown as { __ventNames: () => { name: string; slot: string | null }[] })
+            .__ventNames()
+            .filter((vent) => vent.slot === slot)
+            .map((vent) => vent.name),
+        slot,
+      );
+      expect(named, code).toEqual(["tower-vent"]);
+
+      await setMode(page, "Materials");
+      await page.waitForTimeout(600);
+    }
+    expect(errors).toEqual([]);
+    await page.context().close();
+  });
+});
+
+describe("a hung oven's front", () => {
+  /**
+   * Round 36, Leo: a standard install. The machine's trim laps over its cutout
+   * and its front is in the plane of the tower's doors, not back inside the
+   * hole. Handles excepted — they are meant to stand proud.
+   */
+  it("stands in the plane of the tower's doors, in B and D", async () => {
+    const { page, errors } = await openPage(DESKTOP, false, "?debug=1");
+    for (const [code, slot] of [
+      ["B", "slot-microwave"],
+      ["D", "slot-oven"],
+    ] as const) {
+      await page.locator(`[data-segment="package"] button`, { hasText: code }).first().click();
+      await page.waitForTimeout(1800);
+      await setMode(page, "Materials");
+      await page.waitForTimeout(600);
+      const fronts = await page.evaluate(() =>
+        (
+          window as unknown as { __ovenFronts: () => { slot: string; ovenIn: number; doorIn: number }[] }
+        ).__ovenFronts(),
+      );
+      const front = fronts.find((each) => each.slot === slot);
+      expect(front, `${code}: no oven front found`).toBeTruthy();
+      const off = front!.ovenIn - front!.doorIn;
+      expect(Math.abs(off), `${code}: oven front ${off.toFixed(3)}" from the door plane`).toBeLessThanOrEqual(
+        0.125 + 1e-3,
+      );
+    }
+    expect(errors).toEqual([]);
+    await page.context().close();
+  });
 });
 
 describe("pin labels and the scene controls", () => {

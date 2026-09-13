@@ -627,6 +627,22 @@ export const PUBLISHED_SPECS: Record<
     cutoutDepthIn: 23.5,
     installType: ["combo"],
   },
+  // Thermador PODS302B, from docs/reference/pods302b-spec.pdf. The sheet's own
+  // row carried only the nominal 30", so the machine was drawn at the size of
+  // its hole: 48-7/8" x 29-3/4" x 24-1/2" overall, and a standard cutout of
+  // 47-3/8"-48-1/8" x 28-1/2" x 23-1/2", which package D builds at the short
+  // end. The trim laps 3/4"-1-1/2" at the top, 9/16" each side and nothing at
+  // the bottom; the Professional handle stands 2-5/8" off the door skin.
+  PODS302B: {
+    heightIn: 48.875,
+    widthIn: 29.75,
+    depthIn: 24.5,
+    depthWithHandleIn: 27.125,
+    cutoutWidthIn: 28.5,
+    cutoutHeightIn: 47.375,
+    cutoutDepthIn: 23.5,
+    installType: ["double"],
+  },
   // Thermador T18IW100SP, from docs/reference/t18iw100sp-spec.pdf. 83-7/8" on
   // its legs retracted, 85-1/2" fully extended. Panel-ready: what is seen is
   // the door panel, not the machine. The cutout is the sheet's own now that

@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import type { ThreeEvent } from "@react-three/fiber";
 import { applianceBox, doorOverhang, flushOffset, isRangetop } from "../data/applianceBox";
+import { standardInstall, type StandardInstall } from "../data/ovenTrim";
 import {
   coffeeParts,
   comboOvenParts,
@@ -85,7 +86,11 @@ export function ApplianceModel({ slot, appliance }: ApplianceModelProps) {
   const glass = { ...surface(renderMode, "#2B322D", { metalness: 0.3, roughness: 0.1 }), hardware: true };
 
   const box = applianceBox(def, appliance);
-  const dz = flushOffset(def, box.d, box.rearSpacerIn);
+  // A hung oven with a published trim stands its front in the plane of the
+  // tower's doors, the trim lapping its cutout, rather than back in the hole.
+  // Round 36; the figures are in `ovenTrim.ts`.
+  const install = standardInstall(def, appliance);
+  const dz = install ? ft(install.faceIn) - box.d / 2 : flushOffset(def, box.d, box.rearSpacerIn);
 
   const outline = useMemo(
     () => new THREE.EdgesGeometry(new THREE.BoxGeometry(box.w, box.h, box.d)),
@@ -379,6 +384,7 @@ function Body({
       // strip across the top, so it is drawn by the same component.
       return isCombo(appliance) || isDouble(appliance) ? (
         <ComboOven
+          install={standardInstall(SLOT_BY_ID[slot], appliance)}
           double={!isCombo(appliance)}
           w={w}
           h={h}
@@ -752,6 +758,7 @@ function Fridge({
  * the machine is built into a tower and the cabinet is what reaches the floor.
  */
 function ComboOven({
+  install,
   double = false,
   w,
   h,
@@ -760,6 +767,8 @@ function ComboOven({
   trim,
   glass,
 }: {
+  /** The standard install, where the machine's own sheet gives its trim. */
+  install: StandardInstall | null;
   /** Steam over convection rather than microwave over oven. */
   double?: boolean;
   w: number;
@@ -773,18 +782,52 @@ function ComboOven({
     () => (double ? doubleOvenParts({ w, h }) : comboOvenParts({ w, h })),
     [double, w, h],
   );
-  // The carcass is set back by what the handle reaches, so the machine stays
-  // inside the depth it is sold at.
-  const cd = Math.max(d - parts.handle.proud, d * 0.5);
-  const cz = -(d - cd) / 2;
-  const face = cz + cd / 2;
+  // What the doors and their glass take off the front of the envelope.
+  const doors = ft(0.65);
+  // Without a published trim the carcass is set back by what the handle
+  // reaches, so the machine stays inside the depth it is sold at.
+  //
+  // With one (round 36) the envelope is the machine without its handle: the
+  // door skin is its front, in the plane of the tower's doors, and the handle
+  // stands its own figure past it. Behind the doors the trim's frame is the
+  // full width and height, and behind that what goes into the cutout is
+  // narrower by the side overlaps and shorter by the top one.
+  const carcass = install
+    ? {
+        w: ft(install.chassisIn.w),
+        h: ft(install.chassisIn.h),
+        d: ft(install.chassisIn.d),
+        y: ft(install.overlapIn.bottom) + ft(install.chassisIn.h) / 2,
+        z: -d / 2 + ft(install.chassisIn.d) / 2,
+      }
+    : (() => {
+        const cd = Math.max(d - parts.handle.proud, d * 0.5);
+        return { w, h, d: cd, y: h / 2, z: -(d - cd) / 2 };
+      })();
+  const face = install ? d / 2 - doors : carcass.z + carcass.d / 2;
+  const frameD = install ? d - ft(install.chassisIn.d) - doors : 0;
+  const handleZ = install
+    ? d / 2 + ft(install.handleProudIn) - parts.handle.r
+    : d / 2 - parts.handle.r;
 
   return (
     <group name="combo-oven">
-      <mesh position={[0, h / 2, cz]} castShadow receiveShadow>
-        <boxGeometry args={[w, h, cd]} />
+      <mesh position={[0, carcass.y, carcass.z]} castShadow receiveShadow>
+        <boxGeometry args={[carcass.w, carcass.h, carcass.d]} />
         <Mat s={body} />
       </mesh>
+      {install && frameD > 0 && (
+        <mesh
+          name="oven-trim"
+          position={[0, h / 2, face - frameD / 2]}
+          castShadow
+          receiveShadow
+          userData={{ overlapIn: install.overlapIn }}
+        >
+          <boxGeometry args={[w, h, frameD]} />
+          <Mat s={body} />
+        </mesh>
+      )}
       {parts.doors.map((door) => {
         const height = door.band[1] - door.band[0];
         const middle = (door.band[0] + door.band[1]) / 2;
@@ -818,8 +861,9 @@ function ComboOven({
                 that figure names rather than at a guess off the door's top. */}
             {door.handleAt !== null && (
               <mesh
-                position={[0, door.handleAt, d / 2 - parts.handle.r]}
+                position={[0, door.handleAt, handleZ]}
                 rotation={[0, 0, Math.PI / 2]}
+                userData={{ handle: true }}
               >
                 <cylinderGeometry args={[parts.handle.r, parts.handle.r, parts.handle.width, 12]} />
                 <Mat s={trim} />

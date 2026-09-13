@@ -1285,9 +1285,77 @@ async function captureRound35(browser) {
   await desktop.close();
 }
 
+/**
+ * Round 36: the oven towers as a standard install.
+ *
+ * D's steam oven and B's combination oven flown in on, in the finished room —
+ * the machine's front in the plane of the tower's doors — and turned to the
+ * side, where a recess would show; then each in the install view, with the vent
+ * in the shelf over the opening and its figure.
+ */
+async function captureRound36(browser) {
+  const desktop = await browser.newContext({ viewport: DESKTOP, deviceScaleFactor: 2 });
+  const page = await desktop.newPage();
+  const open = async () => {
+    await page.goto(baseUrl, { waitUntil: "load", timeout: 120000 });
+    await page.waitForSelector("canvas", { timeout: 120000 });
+    await settle(page, 3200);
+  };
+  const toPackage = async (code) => {
+    await page.locator(`[data-segment="package"] button`, { hasText: code }).first().click();
+    await settle(page, 2800);
+  };
+  // The rail is a toggle, and it stays as it was left across a reload: open it
+  // only when the list is not already showing.
+  const fromList = async (name) => {
+    const item = page.locator(`aside [data-panel="list"] button`, { hasText: name }).first();
+    if (!(await item.isVisible())) {
+      await page.click(`button[data-rail="left"]`);
+      await settle(page, 700);
+    }
+    await item.click();
+    await settle(page, 2200);
+  };
+  // Closer on the fly-in's own angle, which already looks along the run: the
+  // plane of the doors and the machine's front can be compared on a phone.
+  const closer = async () => {
+    for (let i = 0; i < 2; i += 1) {
+      await click(page, "Zoom in");
+      await page.waitForTimeout(300);
+    }
+    await settle(page, 1600);
+  };
+
+  for (const [code, name] of [
+    ["d", "Steam oven"],
+    ["b", /Microwave/],
+  ]) {
+    await open();
+    await toPackage(code.toUpperCase());
+    await fromList(name);
+    await page.screenshot({ path: `${outDir}/desktop-${code}-oven-flush.png` });
+    await closer();
+    await page.screenshot({ path: `${outDir}/desktop-${code}-oven-close.png` });
+    await click(page, "Reset view");
+    await settle(page, 1200);
+    await fromList(name);
+    await click(page, "Install");
+    await settle(page, 1800);
+    await page.screenshot({ path: `${outDir}/desktop-${code}-oven-install.png` });
+  }
+  await desktop.close();
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round36") {
+    await captureRound36(browser);
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round35") {
     await captureRound35(browser);
