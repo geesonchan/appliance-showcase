@@ -1,4 +1,5 @@
-import { APPLIANCES_BY_SLOT, blowerListUnverified, blowersFor } from "../data/catalogue";
+import { blowerListUnverified, blowersFor, offeredFor } from "../data/catalogue";
+import { slotsOf } from "../data/packages";
 import { slotAvailability } from "../data/availability";
 import { fitCheck, formatInches, requiredOpening } from "../data/fit";
 import { formatPrice } from "../data/packageSummary";
@@ -8,7 +9,7 @@ import { SCHEME_FALLBACKS } from "../data/catalogue";
 import { formatCfm } from "../data/ventilation";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
-import { useSelectedAppliance, useSelectedBlower, useSelection } from "../store/useSelection";
+import { useActivePackage, useSelectedAppliance, useSelectedBlower, useSelection } from "../store/useSelection";
 import type { Appliance, SlotId } from "../types";
 
 /**
@@ -21,7 +22,10 @@ import type { Appliance, SlotId } from "../types";
 export function SwapPanel({ slotId }: { slotId: SlotId }) {
   const t = useT();
   const slot = SLOT_BY_ID[slotId];
-  const candidates = APPLIANCES_BY_SLOT[slotId];
+  // Only what hangs the way this package's slot hangs; width still refuses in
+  // the row rather than hiding it. Round 45.
+  const { entry } = useActivePackage();
+  const candidates = offeredFor(slotId, slotsOf(entry)[slotId]);
   const selectedId = useAppStore((s) => s.selection[slotId]);
   const selectAppliance = useAppStore((s) => s.selectAppliance);
   const selectSlot = useAppStore((s) => s.selectSlot);

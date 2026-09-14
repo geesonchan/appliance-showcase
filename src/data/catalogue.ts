@@ -111,6 +111,23 @@ export function suitsPackageSlot(appliance: Appliance, slot: PackageSlot): boole
 }
 
 /**
+ * The alternatives a package's slot offers.
+ *
+ * Width is not a reason to leave one out: a model wider than the opening is
+ * offered and refused, with the overrun spelled out. How it hangs is. A hood
+ * hung from the ceiling is not offered for a slot on a wall, nor a wall hood for
+ * a slot over an island. Picked for a wall slot, HMIB42WS was drawn at that
+ * slot's height with a stem sized as if it stood on the floor, 72" through the
+ * ceiling, and in packages B and D a customer could pick it. Round 45.
+ */
+export function offeredFor(slotId: SlotId, packageSlot: PackageSlot | undefined): Appliance[] {
+  const all = APPLIANCES_BY_SLOT[slotId] ?? [];
+  if (!packageSlot) return all;
+  const hungOverIsland = packageSlot.installType === "island";
+  return all.filter((appliance) => appliance.installType.includes("island") === hungOverIsland);
+}
+
+/**
  * The selection carried across a package change.
  *
  * By slot id, because the six slots do not change: a dishwasher stays a

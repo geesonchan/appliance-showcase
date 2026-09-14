@@ -1248,6 +1248,34 @@ written into geometry instead of read from `ROOM`.
   the ceiling. *(Leo, round 40.)* Today the island branch in
   `ApplianceModel.tsx` draws the body at `heightIn` with a thin drop to the
   ceiling, so that changes when E is built.
+- **E's first job: a hood hung from the ceiling has heights that start from
+  where it hangs.** *(Leo, round 45.)* Round 44's prototype hung HMIB42WS over
+  package D's island with its underside at 72" and drew what the code draws: a
+  30" solid wedge from `heightIn` (72"-102"), and a stem from the wedge's top
+  78-1/2" long — the ceiling less the wedge, as if the hood stood on the floor —
+  so the stem reached 180-1/2", 72" through the ceiling, while the canopy top was
+  6-1/2" short of it. The three are one mistake: nothing in the code knows the
+  hood is hung. Fix them as one, not as three patches:
+  - overall height = ceiling - underside = 108-1/2" - 72" = 36-1/2";
+  - the canopy body is 2-3/4", its thickness on the drawing;
+  - the duct cover is the rest, 33-3/4", and must fall inside the drawing's
+    30"-45-1/16";
+  - the duct cover runs from the canopy's top up to the ceiling, never from the
+    floor.
+
+  Sight lines need no picture: a standing eye is about 64" and a seated one about
+  45", both under a 72" underside, so the hood does not block the view. What is
+  left to look at is how a 27"-deep canopy sits over the island, once it is drawn
+  right. *(Leo, round 45.)*
+- **Until E, nobody can pick the island hood.** *(Round 45.)* HMIB42WS could be
+  picked from the hood alternatives in packages B and D on the live site: the
+  list offered every hood and refused only on width, and both slots are 42".
+  Round 40's report that it could be picked in no package was wrong — it read
+  the rule that migrates a selection between packages, not the list. The list
+  now leaves out a model that hangs differently from its slot
+  (`offeredFor` in `catalogue.ts`): no hood hung from the ceiling for a wall
+  slot, no wall hood for a slot over an island. HMIB42WS is the only model this
+  removes from any list today.
 - **The cooktop is in the island and the hood hangs straight over it.** The
   induction cooktop is set into the island's counter on its working side, not
   against a wall, and the hood hangs from the ceiling directly over it with no
@@ -1455,3 +1483,15 @@ Registered, not scheduled. None of these is a round of its own.
   `mfgs4030rs-front.png` — so their points can be read off and added. This is
   work to do, not where it ends. *(Noted 2026-09-14, round 43, Leo: not this
   round.)*
+- **One click, two outcomes.** In round 44 a click at the same screen point on
+  the refrigerator's water point, with the same fly-in, showed no callout in one
+  run and the callout in the next. The cause was not found. Clicks work and the
+  rough-in list reaches every point, so it is not chased now. *(Noted
+  2026-09-14, round 45, Leo.)*
+- **A React style warning from the wall sliders.** `Slider` in
+  `src/ui/primitives.tsx` sets `background` and `backgroundSize` on the same
+  input, and React warns about mixing a shorthand with one of its parts on
+  every rerender. It came in on 2026-09-06 (`db0c9a8`, the feasible band under a
+  wall slider), well before rounds 40-45, so it was not touched. The fix is to
+  set `backgroundImage` instead of `background`. *(Noted 2026-09-14, round 45,
+  Leo.)*
