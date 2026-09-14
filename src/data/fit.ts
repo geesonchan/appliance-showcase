@@ -1,4 +1,4 @@
-import { isRangetop } from "./applianceBox";
+import { dropsIntoCounter } from "./applianceBox";
 import { CABINET_STANDARDS } from "./roomShell";
 import { PROTRUSION_DATUM } from "./rules";
 import type { Appliance, Slot } from "../types";
@@ -74,7 +74,7 @@ export function fitCheck(slot: Slot, appliance: Appliance): FitResult {
     // is *meant* to stand 1-1/2" out: that is where its controls are, and it is
     // on the install list as a clearance rather than here as an overrun.
     depthOverIn:
-      depth === null || isRangetop(appliance) ? null : depth - protrusionDatumIn(slot),
+      depth === null || dropsIntoCounter(appliance) ? null : depth - protrusionDatumIn(slot),
   };
 }
 
@@ -113,7 +113,7 @@ export function protrusionDatumIn(slot: Slot): number {
 
 /** Whether the opening closes round the machine rather than being filled. */
 const dropsIntoSomething = (appliance: Appliance) =>
-  isRangetop(appliance) || appliance.installType.includes("insert");
+  dropsIntoCounter(appliance) || appliance.installType.includes("insert");
 
 /** Inches to one decimal, without a trailing ".0" on whole numbers. */
 export const formatInches = (value: number) =>

@@ -1625,9 +1625,85 @@ async function captureRound41(browser) {
   await desktop.close();
 }
 
+/**
+ * Round 49: slot-cooktop, looked at before any package has one.
+ *
+ * Shot from a prototype that was then removed: package D with its island
+ * microwave drawer taken off and CIT367YG put in the island instead. The island
+ * laid along the back wall and turned across the room; for each, the cooktop as
+ * the room opens on it, closer, and in the install view, where the stone is
+ * ghosted and the chassis in its cutout and the gap over the drawer base show.
+ */
+async function captureRound49(browser) {
+  const desktop = await browser.newContext({ viewport: DESKTOP, deviceScaleFactor: 2 });
+  const page = await desktop.newPage();
+  const open = async () => {
+    await page.goto(baseUrl, { waitUntil: "load", timeout: 120000 });
+    await page.waitForSelector("canvas", { timeout: 120000 });
+    await settle(page, 3200);
+  };
+  // Clicked from inside the page: while a room rebuilds the headless scene
+  // draws too few frames for Playwright's stability check to finish.
+  const press = (label) =>
+    page.evaluate((text) => {
+      const button = [...document.querySelectorAll("button")].find(
+        (candidate) => candidate.textContent.trim() === text,
+      );
+      button?.click();
+      return Boolean(button);
+    }, label);
+  const fromList = async (name) => {
+    const back = page.getByRole("button", { name: "All appliances" }).first();
+    if (await back.isVisible()) {
+      await back.click();
+      await settle(page, 900);
+    }
+    const item = page.locator(`aside [data-panel="list"] button`, { hasText: name }).first();
+    if (!(await item.isVisible())) {
+      await page.click(`button[data-rail="left"]`);
+      await settle(page, 700);
+    }
+    await item.click();
+    await settle(page, 2400);
+  };
+
+  for (const [label, turn] of [
+    ["along", null],
+    ["across", "Across the room"],
+  ]) {
+    await open();
+    await page.locator(`[data-segment="package"] button`, { hasText: "D" }).first().click();
+    await settle(page, 3000);
+    if (turn) {
+      if (!(await press(turn))) throw new Error(`no "${turn}" button`);
+      await settle(page, 3000);
+    }
+    await fromList("Cooktop");
+    await page.screenshot({ path: `${outDir}/desktop-d-cooktop-${label}.png` });
+    // The zoom buttons are labelled for screen readers, not with text.
+    for (let i = 0; i < 3; i += 1) {
+      await page.evaluate(() => document.querySelector('button[aria-label="Zoom in"]')?.click());
+      await page.waitForTimeout(300);
+    }
+    await settle(page, 1800);
+    await page.screenshot({ path: `${outDir}/desktop-d-cooktop-${label}-close.png` });
+    await press("Install");
+    await settle(page, 1800);
+    await page.screenshot({ path: `${outDir}/desktop-d-cooktop-${label}-install.png` });
+  }
+  await desktop.close();
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round49") {
+    await captureRound49(browser);
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round41") {
     await captureRound41(browser);

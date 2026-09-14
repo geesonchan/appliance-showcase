@@ -9,7 +9,9 @@ import {
   wearsDoorFinish,
 } from "../data/cabinets";
 import { counterOutline } from "../data/counter";
-import { RUNS } from "../data/room";
+import { ISLAND, RUNS } from "../data/room";
+import { SLOT_BY_ID } from "../data/slots";
+import { islandHasCooktop } from "../data/layoutTemplate";
 import { useSelection } from "../store/useSelection";
 import { useIsMobile } from "../hooks/useIsMobile";
 import { cabinetPaint, useAppStore } from "../store/useAppStore";
@@ -70,11 +72,14 @@ function useBoxGeometry(size: [number, number, number]) {
  * box's own proportions rather than carrying an axis on every box keeps the
  * generator from having to know which way a door swings.
  */
-function facing(box: CabinetBox): { axis: "x" | "z"; sign: 1; width: number; height: number } {
+function facing(box: CabinetBox): { axis: "x" | "z"; sign: -1 | 1; width: number; height: number } {
   const alongZ = box.size[0] < box.size[2];
   return {
     axis: alongZ ? "x" : "z",
-    sign: 1,
+    // Round 49: a box can say its front is the other face. Only the cooktop's
+    // drawer base does so far; the island's other boxes still open toward +x or
+    // +z, which is registered in decisions.md's Open items.
+    sign: box.front ?? 1,
     width: alongZ ? box.size[2] : box.size[0],
     height: box.size[1],
   };
@@ -94,7 +99,7 @@ function facing(box: CabinetBox): { axis: "x" | "z"; sign: 1; width: number; hei
  * which is the point of a token: the same geometry, a different finish.
  */
 function Door({ box, s }: { box: CabinetBox; s: SurfaceProps }) {
-  const { axis, width, height } = facing(box);
+  const { axis, sign, width, height } = facing(box);
   const depth = axis === "x" ? box.size[0] : box.size[2];
   const w = width - DOOR.reveal;
   const h = height - DOOR.reveal;
@@ -109,7 +114,7 @@ function Door({ box, s }: { box: CabinetBox; s: SurfaceProps }) {
   return (
     <group
       name={"door-" + box.id}
-      rotation={axis === "x" ? [0, Math.PI / 2, 0] : [0, 0, 0]}
+      rotation={[0, (axis === "x" ? Math.PI / 2 : 0) + (sign < 0 ? Math.PI : 0), 0]}
     >
       {/* The frame: stiles up the sides, rails across. Drawn as one slab, with
           its grain running across, because that is the rails' direction and the
@@ -420,9 +425,15 @@ function CounterSlab() {
   // The range is part of the slab's shape, not something laid on top of it: a
   // freestanding machine is a hole right through and a slide-in is a hole with
   // an inch of stone left at the front for its cooktop to lap over.
-  const range = useSelection()["slot-range"];
+  const selection = useSelection();
+  const range = selection["slot-range"];
+  // And the island's top, where a cooktop is cut into it. Round 49.
+  const cooktop = selection["slot-cooktop"];
   const geometry = useMemo(() => {
-    const { pieces, band } = counterOutline(RUNS, range);
+    const island = islandHasCooktop(ISLAND)
+      ? { layout: ISLAND, slot: SLOT_BY_ID["slot-cooktop"], appliance: cooktop }
+      : undefined;
+    const { pieces, band } = counterOutline(RUNS, range, island);
     // One extrusion for all of them: a freestanding range cuts the run into two
     // slabs, and they are still one countertop as far as the scene is concerned
     // — one geometry, one material, one shadow.
@@ -441,7 +452,7 @@ function CounterSlab() {
     extruded.rotateX(Math.PI / 2);
     extruded.translate(0, band[1], 0);
     return extruded;
-  }, [range]);
+  }, [range, cooktop]);
 
   const token = useAppStore((s) => s.finishes.counter);
   const props = finish(renderMode, token);

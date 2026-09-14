@@ -8,6 +8,7 @@ import { useAppStore } from "../store/useAppStore";
 import { useSelection, useSelectedBlower } from "../store/useSelection";
 import { effectiveCfm } from "../data/ventilation";
 import { resolveRoughIn } from "../data/roughIn";
+import { islandRiser } from "../data/islandRiser";
 import type { Appliance, ServicePoint, SlotId, UtilityType, Utilities } from "../types";
 import { UNREVIEWED, UTILITY_COLORS, UTILITY_RADIUS_IN } from "./materials";
 
@@ -246,20 +247,19 @@ function PowerRuns({
           : [ft(3), ft(4.5), ft(2)];
 
         if (isIsland(slot)) {
-          const [x, , z] = slot.position;
           // Behind the appliance, whichever way its door faces.
-          const back = z - Math.cos(slot.rotationY) * ft(6);
+          const riser = islandRiser(slot);
           return (
             <group key={slot.id}>
               <Pipe
-                from={[x, 0, back]}
-                to={[x, outletY, back]}
+                from={[riser.x, 0, riser.z]}
+                to={[riser.x, outletY, riser.z]}
                 radius={radius}
                 color={color}
               />
               <Fitting
-                position={[x, outletY, back]}
-                size={[ft(3), ft(4.5), ft(2)]}
+                position={[riser.x, outletY, riser.z]}
+                size={riser.box}
                 color={color}
               />
             </group>

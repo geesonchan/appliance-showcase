@@ -46,6 +46,14 @@ export const isRangetop = (appliance: Appliance) =>
   appliance.installType.includes("rangetop");
 
 /**
+ * A cooking surface set into the stone: a rangetop, or a cooktop. Both drop
+ * their cutout depth into the counter and have a drawer base under them rather
+ * than anything of their own.
+ */
+export const dropsIntoCounter = (appliance: Appliance) =>
+  isRangetop(appliance) || appliance.category === "cooktop";
+
+/**
  * How far a rangetop drops into the counter, in feet.
  *
  * Its cutout depth: the sheet gives a body 8-1/8" tall and a 7-11/16" hole for
@@ -83,7 +91,7 @@ export function applianceBox(slot: Slot, appliance: Appliance): ApplianceBox {
   // A rangetop sits in the stone rather than on the floor of its opening: what
   // is under it is a cabinet, and the machine is the last 8" of the opening
   // plus whatever stands proud of the counter.
-  const rangetop = isRangetop(appliance);
+  const rangetop = dropsIntoCounter(appliance);
 
   // The leftover is only cabinetry where there is cabinetry. A full-height
   // appliance the joiner does not build round — a refrigerator standing at the
@@ -145,6 +153,9 @@ export function doorOverhang(
 
 export function flushOffset(slot: Slot, depth: number, rearSpacerIn = 0): number {
   if (slot.id === "slot-hood") return -(ROOM.counterDepth - depth) / 2;
+  // A cooktop is centred on its drawer base, and so is the hole cut for it
+  // (`islandCooktopHole` in counter.ts). Round 49.
+  if (slot.id === "slot-cooktop") return 0;
   // A machine that carries its own spacers stands exactly that far off the
   // wall — which is the figure its published depth-to-wall is measured over.
   if (rearSpacerIn > 0) return (depth - ROOM.counterDepth) / 2 + ft(rearSpacerIn);

@@ -1,5 +1,6 @@
 import { bowlExtent, FIXTURE_BY_ID } from "./fixtures";
 import { ROOM, RUNS, ft, type CabinetRun } from "./room";
+import { islandAcross, type IslandLayout } from "./layoutTemplate";
 import type { Appliance } from "../types";
 
 /** A point on the floor plan, in world feet. */
@@ -56,6 +57,11 @@ export function counterOutline(
   runs: CabinetRun[] = RUNS,
   /** The range that is specified, which decides how its cutout is shaped. */
   range?: Appliance,
+  /**
+   * The island, where its top has a cooktop cut into it. An island without one
+   * is still a box in cabinets.ts: this is only the top that needs a hole.
+   */
+  island?: IslandTop,
 ): CounterOutline {
   const left = runs.find((run) => run.axis === "z")!;
   const back = runs.find((run) => run.axis === "x")!;
@@ -99,12 +105,58 @@ export function counterOutline(
   const holes = [...rangeHoles(runs, range), ...sinkHoles(runs)];
 
   return {
-    pieces: outlines.map((outline) => ({
-      outline,
-      holes: holes.filter((hole) => inside(centroid(hole), outline)),
-    })),
+    pieces: [
+      ...outlines.map((outline) => ({
+        outline,
+        holes: holes.filter((hole) => inside(centroid(hole), outline)),
+      })),
+      ...(island ? [islandTop(island)] : []),
+    ],
     band: [ROOM.counterHeight - ROOM.counterThickness, ROOM.counterHeight] as const,
   };
+}
+
+/** The island's top with a cooktop in it: the island, its slot and the machine specified. */
+export interface IslandTop {
+  layout: IslandLayout;
+  slot: { position: readonly [number, number, number]; cutout: { w: number; d: number } };
+  appliance?: Appliance;
+}
+
+/**
+ * The island's top, cut for its cooktop.
+ *
+ * The same extent as the island's counter box in cabinets.ts: 1" past the
+ * cabinets all round, and the seating overhang on that side where there is one.
+ */
+function islandTop(top: IslandTop): CounterPiece {
+  const { layout } = top;
+  const along = layout.axis === "x" ? layout.x : layout.z;
+  const across = islandAcross(layout);
+  const lap = ROOM.counterOverhang;
+  const outline = rect(
+    [along[0] - lap, along[1] + lap],
+    [across[0] - lap, across[1] + Math.max(ft(layout.overhangIn), lap)],
+    layout.axis,
+  );
+  return { outline, holes: [islandCooktopHole(top)] };
+}
+
+/**
+ * The hole a cooktop drops into.
+ *
+ * The machine's own published cutout — 34-3/4" x 19-7/8" for CIT367YG — its
+ * width along the island and its depth across it, centred on the slot, which is
+ * the middle of the drawer base under it. Where nothing is specified, the slot's
+ * own opening.
+ */
+export function islandCooktopHole({ layout, slot, appliance }: IslandTop): Point2[] {
+  const [x, , z] = slot.position;
+  const alongAt = layout.axis === "x" ? x : z;
+  const acrossAt = layout.axis === "x" ? z : x;
+  const halfW = ft(appliance?.cutoutWidthIn ?? slot.cutout.w) / 2;
+  const halfD = ft(appliance?.cutoutDepthIn ?? slot.cutout.d) / 2;
+  return rect([alongAt - halfW, alongAt + halfW], [acrossAt - halfD, acrossAt + halfD], layout.axis);
 }
 
 /** Where a leg's counter stops: the end of the run. */

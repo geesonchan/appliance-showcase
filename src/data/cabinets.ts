@@ -1,6 +1,7 @@
 import type { SlotId } from "../types";
 import { HOOD_CABINET } from "./insertHood";
-import { islandAcross, islandPoint } from "./layoutTemplate";
+import { islandAcross, islandHasCooktop, islandPoint } from "./layoutTemplate";
+import { COOKTOP_CABINET } from "./cooktop";
 import { PACKAGE_SLOTS } from "./packages";
 import { SLOT_BY_ID } from "./slots";
 import { TOWER_VENT } from "./towerVent";
@@ -63,6 +64,12 @@ export interface CabinetBox {
    * layout's: see `GrilleDoor` in CabinetLayer.
    */
   ventSlot?: SlotId;
+  /**
+   * Which face along its facing axis the door is on: -1 for the lower
+   * coordinate. Unset is +1, the face every perimeter box opens toward. An
+   * island box on the working side opens the other way. Round 49.
+   */
+  front?: -1 | 1;
   /** Centre of the box, in feet. */
   position: [number, number, number];
   /** Full extents, in feet. */
@@ -621,13 +628,53 @@ function islandBoxes(): Omit<CabinetBox, "run">[] {
     ...extra,
   });
 
+  /**
+   * Under a cooktop, a drawer base on the working side and a carcass behind it.
+   *
+   * The drawer base stops short of the counter by the guide's 3-3/4" to the top
+   * of its drawer, and short of the carcass behind it by the 13/16" at its back,
+   * so both gaps are in the drawing as the guide states them (CIT367YG, page 7).
+   * The top is cut for the cooktop in counter.ts, where every cutout is.
+   */
+  const cooktop = islandHasCooktop(ISLAND);
+  const underCooktop = cooktop
+    ? [
+        box(
+          "island-cooktop-drawers",
+          ISLAND.cooktop,
+          [ISLAND.working, ISLAND.working + ROOM.counterDepth - ft(COOKTOP_CABINET.rearGapIn)],
+          ROOM.counterHeight - ft(COOKTOP_CABINET.drawerTopBelowCounterIn),
+          { outline: "island", slot: "slot-cooktop", front: -1 },
+        ),
+        box(
+          "island-behind-cooktop",
+          ISLAND.cooktop,
+          [ISLAND.working + ROOM.counterDepth, across[1]],
+          BASE_BOX[1],
+          { outline: "island", slot: "slot-cooktop" },
+        ),
+      ]
+    : [];
+
   return [
     box("island-left", [along[0], ISLAND.microwave[0]], across, BASE_BOX[1], {
       outline: "island",
     }),
-    box("island-middle", [ISLAND.microwave[1], ISLAND.wine[0]], across, BASE_BOX[1], {
-      outline: "island",
-    }),
+    ...(cooktop
+      ? [
+          box("island-middle", [ISLAND.microwave[1], ISLAND.cooktop[0]], across, BASE_BOX[1], {
+            outline: "island",
+          }),
+          ...underCooktop,
+          box("island-middle-2", [ISLAND.cooktop[1], ISLAND.wine[0]], across, BASE_BOX[1], {
+            outline: "island",
+          }),
+        ]
+      : [
+          box("island-middle", [ISLAND.microwave[1], ISLAND.wine[0]], across, BASE_BOX[1], {
+            outline: "island",
+          }),
+        ]),
     box("island-right", [ISLAND.wine[1], along[1]], across, BASE_BOX[1], { outline: "island" }),
     // Behind the microwave, on the seating side.
     //
@@ -649,6 +696,11 @@ function islandBoxes(): Omit<CabinetBox, "run">[] {
       BASE_BOX[1],
       { outline: "island", slot: "slot-wine" },
     ),
+    // With a cooktop the top is a slab with a hole in it, drawn with the rest
+    // of the stone (`counterOutline`); a box cannot have one.
+    ...(cooktop
+      ? []
+      : [
     {
       ...box(
         "island-counter",
@@ -658,7 +710,7 @@ function islandBoxes(): Omit<CabinetBox, "run">[] {
         [across[0] - ROOM.counterOverhang, across[1] + Math.max(ft(ISLAND.overhangIn), ROOM.counterOverhang)],
         ROOM.counterThickness,
       ),
-      kind: "counter",
+      kind: "counter" as const,
       position: islandPoint(
         ISLAND,
         mid(along),
@@ -666,6 +718,7 @@ function islandBoxes(): Omit<CabinetBox, "run">[] {
         ROOM.counterHeight - ROOM.counterThickness / 2,
       ),
     },
+        ]),
     {
       ...box(
         "island-toe",
@@ -673,7 +726,7 @@ function islandBoxes(): Omit<CabinetBox, "run">[] {
         [across[0] + ft(1.5), across[1] - ft(1.5)],
         ROOM.toeKick,
       ),
-      kind: "toe",
+      kind: "toe" as const,
     },
   ];
 }

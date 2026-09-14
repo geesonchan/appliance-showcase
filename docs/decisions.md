@@ -1318,7 +1318,9 @@ written into geometry instead of read from `ROOM`.
     machine by `z - cos(rotationY) * 6"` only. Turned a quarter, cos is 0, so the
     riser sits under the middle of the machine instead of behind it. Seen in the
     code; the riser is too faint to read in the screenshots. *To be fixed with
-    `slot-cooktop`, not before. (Leo, round 48.)*
+    `slot-cooktop`, not before. (Leo, round 48.)* *Fixed in round 49
+    (`islandRiser.ts`): behind the machine on both axes, and the box turned
+    with it.*
 
   Sight lines need no picture: a standing eye is about 64" and a seated one about
   45", both under a 72" underside, so the hood does not block the view. What is
@@ -1348,6 +1350,46 @@ written into geometry instead of read from `ROOM`.
   island faces from its microwave drawer and wine cabinet, and E's island has
   neither. *(Leo says this was registered in round 36; this file had no entry
   for it until round 48.)* Not rewritten yet.
+- **`slot-cooktop`, built in round 49.** *(Scope from Leo, round 48.)* No
+  package has one yet; it was looked at by putting CIT367YG in place of package
+  D's island microwave drawer in a prototype that was then removed.
+  - **The slot.** Category `cooktop`, in the island on its working side,
+    centred along it, so a 72" island is 18" + 36" + 18". A package names
+    `slot-range` or `slot-cooktop` (`COOKING_SLOTS` in schema.ts); before, it
+    had to name `slot-range`. A package with a cooktop is refused a room with
+    no island, and a package that puts a cooktop and an island microwave drawer
+    or wine cabinet in the island together fails loudly in the template.
+    240V / 50A on the slot.
+  - **The cutout.** Where the island has a cooktop its top is one slab with the
+    machine's own published cutout in it — 34-3/4" x 19-7/8" for CIT367YG, its
+    width along the island — centred on the drawer base (`islandCooktopHole`,
+    counter.ts). The test also holds it to the guide's page 6: at least 2" to
+    the counter's rear edge, which on an island is the seating side, and 2-1/4"
+    to its sides.
+  - **The drawer base.** Its top is 3-3/4" below the counter and it stops 13/16"
+    short of the carcass behind it (page 7, stated; `COOKTOP_CABINET` in
+    cooktop.ts). The band between the drawer top and the counter is drawn
+    open: whether a cabinet has a rail across it is not in the guide. Its door
+    is on the working face (`CabinetBox.front`).
+  - **The cooktop.** Glass 37" x 21-1/4", about 1/4" proud of the counter — an
+    inference, the 4" body less the 3-3/4" cutout depth. Under the counter a
+    chassis the size of the cutout, 2-3/4" deep, and the 1" conduit fitting
+    under that (page 8). Where the fitting is under the cooktop is not on the
+    drawing; it is drawn in the middle and only its height is the guide's.
+  - **The data.** CIT367YG now imports: read 33 / exported 33 / skipped 0, and
+    its cells match the sheet (37 / 21-1/4 / 4; cutout 34-3/4 / 3-3/4 / 19-7/8;
+    induction; 240V 50A). Its Feature cell is blank, so its install type came
+    in as the importer's default, `freestanding`. Nothing is drawn from that —
+    a cooktop is recognised by its category — but the cell is wrong, and it is
+    the sheet's to fix.
+  - **The fit panel** said "0.6" filler each side" for it. A cooktop drops into
+    the stone as a rangetop does, so it quotes no filler now.
+  - **The riser.** Its test failed on the old formula for the four islands laid
+    across the room, and passes on the new one.
+- **E is also stopped by `CORE_SLOTS`.** *(Found round 49, not changed.)* Every
+  available package still has to name `slot-microwave` and `slot-wine`, and E's
+  island has neither, so E's package entry will not load until that changes.
+  Its configuration round has to take it up.
 - **Until E, nobody can pick the island hood.** *(Round 45.)* HMIB42WS could be
   picked from the hood alternatives in packages B and D on the live site: the
   list offered every hood and refused only on width, and both slots are 42".
@@ -1606,3 +1648,32 @@ Registered, not scheduled. None of these is a round of its own.
   outline is ten times the 2-3/4" canopy it surrounds. Round 46 drew the hood
   itself right and left this. *(Noted 2026-09-14, round 47, Leo: the next round
   or the one after.)*
+- **Two rule numbers do not say which rule failed.** Rule 7's facing check and
+  both aisle checks all fail as `d11-7`, and rule 9 fails as `d11-8` (above).
+  Sort both out when rule 7 is rewritten for E, when it may become four checks.
+  *(Noted 2026-09-14, round 48, Leo: not a round of its own.)*
+- **A hood over an island is held exactly centred.** The check allows no offset
+  on either axis, so an island hood moved a little for its duct would be
+  refused. Recorded, not changed. *(Round 48, Leo.)*
+- **One axis written in, found in round 49 and not fixed.** A sweep for
+  positions and checks that assume one axis or the back wall, done with the
+  riser fix. Real now:
+  - `PlanThumbnail.tsx` swaps width and depth for any turned slot, so the
+    parallel island's microwave drawer is drawn sideways on the plan.
+  - The island aisle dimension (`dimensions.ts`) is drawn from the back run
+    even when the island is turned and its aisle is to the left run.
+  - Rough-in leader lines (`RoughInLayer.tsx`) run toward +x or +z, which for
+    an island opening is through the island.
+  - Island cabinet doors are drawn on the +x or +z face (`CabinetLayer.tsx`),
+    so a working-side door faces into the island; `front` fixes it only for the
+    cooktop's drawer base.
+  - A fly-in's azimuth is not turned with the island, so on an island laid
+    across the room the camera arrives at the microwave drawer and the wine
+    cabinet well off their fronts. The cooktop's 240 degrees was chosen because
+    it happens to face the working side both ways.
+
+  Waiting for a hood on an island: the duct outlet and duct run assume the back
+  wall (`hoodOutlet`, `DuctRuns`); gas and water trunks to an island slot go to
+  a wall point (`wallAnchor`); a rough-in point that is not in its cutout is
+  dropped for an island slot (`roughIn.ts`); and the hood is placed on the
+  range's run (`placements`). *(Noted 2026-09-14, round 49.)*

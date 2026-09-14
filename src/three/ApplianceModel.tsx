@@ -23,6 +23,7 @@ import {
   islandHoodParts,
 } from "../data/hood";
 import { fridgeParts, fridgeSeams, fridgeStance } from "../data/fridgeModel";
+import { COOKTOP_BODY } from "../data/cooktop";
 import {
   FREESTANDING_PROPORTIONS,
   RANGE_PROPORTIONS,
@@ -341,6 +342,9 @@ function Body({
       ) : (
         <Range appliance={appliance} w={w} h={h} d={d} body={body} trim={trim} glass={glass} />
       );
+
+    case "cooktop":
+      return <Cooktop appliance={appliance} w={w} h={h} d={d} trim={trim} glass={glass} />;
 
     case "hood":
       return (
@@ -1072,6 +1076,63 @@ function WineColumn({
  * The chassis under the deck is drawn because it is really there, inside the
  * cabinet: the machine is 8-1/8" tall and drops 7-11/16" through the top.
  */
+/**
+ * An induction cooktop set into the counter. Round 49.
+ *
+ * Drawn in the body's own frame, whose floor is the bottom of its 4": the
+ * counter's surface is the cutout depth up from there (3-3/4" for CIT367YG).
+ * - The glass: the sheet's width and depth, 37" x 21-1/4", from the counter up
+ *   to the top of the body. That leaves about 1/4" proud, which is the 4" body
+ *   less the 3-3/4" cutout depth: an inference, not a figure on the drawing.
+ * - Under the counter, a chassis the size of the counter's cutout, 2-3/4" deep
+ *   (guide page 8), an eighth inside the hole so the two faces do not meet.
+ * - Under that, the 1" conduit fitting (page 8). Where it is under the cooktop
+ *   is not on the drawing; it is drawn in the middle, and only its height is
+ *   the guide's.
+ */
+function Cooktop({
+  appliance,
+  w,
+  h,
+  d,
+  trim,
+  glass,
+}: {
+  appliance: Appliance;
+  w: number;
+  h: number;
+  d: number;
+  trim: SurfaceProps;
+  glass: SurfaceProps;
+}) {
+  const counter = Math.min(h, ft(appliance.cutoutHeightIn ?? COOKTOP_BODY.belowCounterIn));
+  const proud = Math.max(h - counter, ft(0.125));
+  const below = Math.min(counter, ft(COOKTOP_BODY.belowCounterIn));
+  const fitting = Math.min(counter - below, ft(COOKTOP_BODY.fittingIn));
+  const chassisW = ft(appliance.cutoutWidthIn ?? w * 12) - ft(0.125);
+  const chassisD = ft(appliance.cutoutDepthIn ?? d * 12) - ft(0.125);
+  const black = tint(glass, "#0B0C0D", { metalness: 0.35, roughness: 0.08 });
+
+  return (
+    <group name="cooktop">
+      <mesh name="cooktop-glass" position={[0, counter + proud / 2, 0]} castShadow receiveShadow>
+        <boxGeometry args={[w, proud, d]} />
+        <Mat s={black} />
+      </mesh>
+      <mesh name="cooktop-chassis" position={[0, counter - below / 2, 0]}>
+        <boxGeometry args={[chassisW, below, chassisD]} />
+        <Mat s={trim} />
+      </mesh>
+      {fitting > 0 && (
+        <mesh name="cooktop-fitting" position={[0, counter - below - fitting / 2, 0]}>
+          <boxGeometry args={[ft(2), fitting, ft(2)]} />
+          <Mat s={trim} />
+        </mesh>
+      )}
+    </group>
+  );
+}
+
 function Rangetop({
   appliance,
   faceZ,

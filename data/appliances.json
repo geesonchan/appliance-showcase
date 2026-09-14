@@ -258,6 +258,56 @@
       }
     },
     {
+      "id": "thermador-cit367yg",
+      "slot": "slot-cooktop",
+      "category": "cooktop",
+      "brand": "Thermador",
+      "model": "CIT367YG",
+      "series": null,
+      "msrpUSD": 4999,
+      "sourceUrl": "https://media3.bsh-group.com/Documents/19810965_CIT367YG-36-INCH-LIBERTY-INDUCTION-COOKTOP-Specifications.pdf",
+      "verifiedAt": "2026-09-12",
+      "installType": [
+        "freestanding"
+      ],
+      "fuel": "induction",
+      "blower": null,
+      "compatibleBlowers": [],
+      "topDepthIn": null,
+      "frontLipIn": null,
+      "widthIn": 37,
+      "heightIn": 4,
+      "depthIn": 21.25,
+      "burners": null,
+      "cooktopIn": null,
+      "backguardIn": null,
+      "depthWithDoorsIn": null,
+      "depthWithHandleIn": null,
+      "rearSpacerIn": null,
+      "doorConfig": null,
+      "doorSplit": null,
+      "cutoutWidthIn": 34.75,
+      "cutoutHeightIn": 3.75,
+      "cutoutDepthIn": 19.875,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": null,
+      "highlights": {
+        "en": [],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 240,
+        "amps": 50,
+        "gasBTU": null,
+        "water": false,
+        "cfm": null,
+        "makeupAirRequired": false
+      }
+    },
+    {
       "id": "thermador-hmcb30ws",
       "slot": "slot-hood",
       "category": "hood",

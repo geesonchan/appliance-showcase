@@ -229,11 +229,20 @@ export interface IslandLayout {
   /** The two openings, measured along `axis`. */
   microwave: readonly [number, number];
   wine: readonly [number, number];
+  /**
+   * The cooktop's drawer base, measured along `axis`, on the working side.
+   * Empty (both ends the island's middle) in a package with no cooktop.
+   */
+  cooktop: readonly [number, number];
 }
 
 /** The island's extent across its long axis: its depth, in room coordinates. */
 export const islandAcross = (island: IslandLayout) =>
   island.axis === "x" ? island.z : island.x;
+
+/** Whether the island has a cooktop set into it: the cabinets and the counter both ask. */
+export const islandHasCooktop = (island: IslandLayout) =>
+  island.present && island.cooktop[1] - island.cooktop[0] > 1e-9;
 
 /**
  * A point on the island, from a distance along it and one across it.
@@ -412,6 +421,8 @@ const ROLES = {
   dishwasher: "sink-group",
   microwave: "island-or-perimeter",
   wine: "island-or-perimeter",
+  // Set into the island's counter on its working side, never on a run. D20.
+  cooktop: "island",
 } as const;
 
 /**
@@ -1204,6 +1215,10 @@ function islandFor(
   const wine = isSpare(spec["slot-wine"]) ? ft(openingIn(spec["slot-wine"])) : 0;
   // Flush to the ends on a short island, inset on a long one.
   const inset = Math.min(ft(6), Math.max(0, (length - microwave - wine) / 2));
+  // The cooktop is centred along the island, so its landings are equal: on E's
+  // 72" island that is 18" + 36" + 18" (D20, Leo, round 48).
+  const cooktop = spec["slot-cooktop"] ? ft(openingIn(spec["slot-cooktop"])) : 0;
+  const middle = (along[0] + along[1]) / 2;
 
   return {
     present: params.hasIsland,
@@ -1218,6 +1233,7 @@ function islandFor(
     height: ROOM.counterHeight,
     microwave: [along[0] + inset, along[0] + inset + microwave] as const,
     wine: [along[1] - inset - wine, along[1] - inset] as const,
+    cooktop: [middle - cooktop / 2, middle + cooktop / 2] as const,
   };
 }
 
@@ -1245,6 +1261,16 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
           "and the L-with-island template has nowhere to stand one",
       );
     }
+  }
+  // A cooktop takes the island. 36" of it and its 15" and 12" of landing are
+  // 63", which leaves a 72" island no room for a 24" machine (D20, round 36),
+  // so a package that asks for both is one the template cannot build.
+  const islandMachines = SPARE_SLOTS.filter((slotId) => isSpare(spec[slotId]));
+  if (spec["slot-cooktop"] && islandMachines.length > 0) {
+    throw new Error(
+      `layoutTemplate: ${pkg.id} puts a cooktop in the island with ${islandMachines.join(", ")}, ` +
+        "and an island that takes a cooktop has no room for another machine",
+    );
   }
 
   const opening = (slotId: SlotId, id: string) => {
@@ -2331,6 +2357,9 @@ function placements(
         rotationY: facing(range.run),
         mount: "wall" as const,
       };
+    } else if (slot === "slot-cooktop") {
+      // In the island's counter, on the side the cook works from. D20.
+      slots[slot] = islandSlot(island.cooktop, "working");
     } else if (slot === "slot-microwave" || slot === "slot-wine") {
       const [opening, face] =
         slot === "slot-microwave"
@@ -2364,6 +2393,26 @@ export function generateLayout(
 ): GenerateResult {
   const reasons = validate(params);
   if (reasons.length > 0) return { ok: false, reasons };
+
+  // A cooktop is set into the island's counter, so a room without an island has
+  // nowhere to put it. A refusal, not a machine left out: the cooktop is the
+  // kitchen's cooking surface, not one of the two it can do without. D20.
+  if (!params.hasIsland && pkg.slots.some((slot) => slot.slotId === "slot-cooktop")) {
+    return {
+      ok: false,
+      reasons: [
+        {
+          key: "refusal.cooktopIsland",
+          vars: {},
+          suggestion: {
+            key: "suggestion.cooktopIsland",
+            vars: {},
+            patch: { hasIsland: true },
+          },
+        },
+      ],
+    };
+  }
 
   const halfX = ft(params.backWallIn) / 2;
   const halfZ = ft(params.leftWallIn) / 2;

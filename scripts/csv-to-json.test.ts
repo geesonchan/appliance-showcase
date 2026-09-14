@@ -77,11 +77,11 @@ describe("skipping rows the scene has no place for", () => {
     expect(summary.skipped.Dryer).toBe(1);
     expect(summary.skipped.Backguard).toBe(1);
     expect(summary.skipped.Filter).toBe(1);
-    // Cooktops and the "other" family are real appliances with no slot in this
-    // kitchen. Wall ovens had none either until package B stood a combination
-    // oven in a tall tower: `slot-microwave` takes the category now, so those
-    // rows are exported rather than counted here.
-    expect(summary.skipped["no slot: cooktop"]).toBe(1);
+    // The "other" family are real appliances with no slot in this kitchen.
+    // Wall ovens had none either until package B stood a combination oven in a
+    // tall tower, and cooktops none until round 49 gave the island
+    // `slot-cooktop`: both are exported now rather than counted here.
+    expect(summary.skipped["no slot: cooktop"]).toBeUndefined();
     // The built-in coffee machine has a slot now, in package D.
     expect(summary.skipped["no slot: other"]).toBe(2);
     expect(summary.skipped["no slot: wall-oven"]).toBeUndefined();

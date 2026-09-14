@@ -180,6 +180,46 @@
       }
     },
     {
+      "id": "slot-cooktop",
+      "labelKey": "slot.cooktop",
+      "cutout": {
+        "w": 36,
+        "h": 36,
+        "d": 24
+      },
+      "compatibleCategories": [
+        "cooktop"
+      ],
+      "cabinetConfig": {
+        "type": "base",
+        "openingIn": {
+          "w": 36,
+          "h": 36,
+          "d": 24
+        },
+        "panelReady": false,
+        "finishedSides": 0
+      },
+      "utilities": {
+        "gas": null,
+        "power": {
+          "voltage": 240,
+          "amps": 50,
+          "dedicated": true
+        },
+        "water": null,
+        "duct": null
+      },
+      "bestView": {
+        "azimuth": 240,
+        "pitch": 45
+      },
+      "labelOffset": {
+        "dx": 62,
+        "dy": -30
+      }
+    },
+    {
       "id": "slot-microwave",
       "labelKey": "slot.microwave",
       "cutout": {
