@@ -1299,12 +1299,24 @@ written into geometry instead of read from `ROOM`.
 
 **Decided:** 2026-09-14 (round 41), Leo.
 
-In the install view a connection is drawn by where its figures come from. A
-figure off the manufacturer's drawing is a solid fitting in the service's
-colour. Site practice, an inference, and a figure the drawing leaves unclear
-are a grey dashed outline and leader, and clicking one says which: "site
-practice, not a drawing — to confirm", "inferred, not on any drawing — to
-confirm", "the drawing is unclear here — to confirm".
+In the install view every line is drawn in one of three looks, and each look
+has one meaning:
+- **Solid, in the service's colour — confirmed.** The figure is off the
+  manufacturer's drawing.
+- **Grey dashed — reviewed, not confirmed.** Site practice, an inference, or a
+  figure the drawing leaves unclear. Clicking one says which: "site practice,
+  not a drawing — to confirm", "inferred, not on any drawing — to confirm",
+  "the drawing is unclear here — to confirm".
+- **Faint thin grey — not yet reviewed.** The default. Nobody has classified
+  it, so it is drawn weaker than a dashed line and never looks more certain than
+  one. Clicking a point in this tier says "not yet reviewed".
+
+*Amended the same round, Leo: three looks, not two.* The first version had two,
+and solid meant "from a drawing, or not yet reviewed" — one look with two
+opposite meanings. In the dishwasher's install view a solid generic trunk ran
+into a dashed sink-base connection, which read as a certain pipe ending in an
+uncertain fitting. A third, weaker look for what nobody has reviewed removes
+that reading without recolouring any one run by hand.
 
 **Why.** In front of a customer a dashed line is one the salesperson can point
 at and say they will confirm, which is better than a line that looks certain
@@ -1330,15 +1342,22 @@ weakest figure.
   7-1/4" tall on the drawing, but running the whole 36" of the opening is not:
   `inferred`.
 
-**Not yet classified.** Every other model's points — PH36HWS, PCG366W,
-MEM301WS, PODS302B, T18IW100SP, VCIN36WS — have `provenance: null` and keep the
-solid look. Until they are classified, a solid line means "from a drawing, or
-not yet reviewed". The trunks along the walls in the utility layer are the
-room's generic runs, not a model's figures, and are not part of this.
+**Not yet reviewed, and drawn faint.** Every other model's points — PH36HWS,
+PCG366W, MEM301WS, PODS302B, T18IW100SP, VCIN36WS — have `provenance: null`.
+So does everything the utility layer draws along the walls: the gas, water,
+drain and power trunks with their risers, elbows and boxes, the service panel,
+and the duct with its damper and blower. Those runs come from room-wide heights
+and routes, not from any model's figures, so they are this tier as a whole,
+whatever their service. The service colours remain on confirmed points and in
+the utility legend.
 
-**What this forbids:** drawing a figure that is not off a drawing the same way
-as one that is, once it has been classified; changing a position to make a line
-solid.
+Not covered by the three tiers yet: the vent plane in the top of a hung oven's
+opening and the duct hole in the floor of the cabinet over a hood are still
+drawn as flat duct-grey planes.
+
+**What this forbids:** one look standing for two meanings; drawing an
+unreviewed line as strongly as a reviewed one; changing a position to move a
+line up a tier.
 
 ## Open items
 
@@ -1359,3 +1378,9 @@ Registered, not scheduled. None of these is a round of its own.
   history before round 38 — when the suite started asserting that all 25
   tests ran — is not proof they passed. Read the exit code from vitest itself.
   *(Noted 2026-09-13, round 39, Leo.)*
+- **D11 rule 9 is `d11-8` in the code.** The rule that a dishwasher's power,
+  water and drain land in the sink base is number 9 in this file and fails as
+  `d11-8` in `layoutRules.ts`, where the comment calls it rule 8. The numbering
+  here is the authority; the code has not been renumbered, so a finding shown
+  as `d11-8` means rule 9. Renumber with some other change to the checker.
+  *(Noted 2026-09-14, round 41, Leo: not this round.)*

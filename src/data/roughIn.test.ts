@@ -3,7 +3,7 @@ import { APPLIANCE_BY_ID } from "./catalogue";
 import { checkLayout } from "./layoutRules";
 import {
   hasGenericRoughIn,
-  isDashed,
+  lineTier,
   resolveRoughIn,
   roughInCalloutKey,
   roughInFor,
@@ -166,17 +166,18 @@ describe("D21 · a line says where its figure comes from", () => {
     }
   });
 
-  it("draws a drawing's figure solid and everything else dashed", () => {
+  it("draws each point in one of three looks, one meaning each", () => {
     const md24bs = roughInFor(model("thermador-md24bs"))!.points;
-    expect(isDashed(md24bs.find((p) => p.type === "anti-tip")!)).toBe(false);
-    expect(isDashed(md24bs.find((p) => p.type === "power")!)).toBe(true);
+    expect(lineTier(md24bs.find((p) => p.type === "anti-tip")!)).toBe("confirmed");
+    expect(lineTier(md24bs.find((p) => p.type === "power")!)).toBe("unconfirmed");
     for (const point of roughInFor(model("bosch-shv78cm3n"))!.points) {
-      expect(isDashed(point), point.type).toBe(true);
+      expect(lineTier(point), point.type).toBe("unconfirmed");
     }
-    // Not yet classified keeps the solid look it had.
+    // Not yet reviewed is its own, weaker look — never the confirmed one, which
+    // is the reading that put a certain pipe onto an uncertain fitting.
     const hood = roughInFor(model("thermador-ph36hws"))!.points[0];
     expect(hood.provenance).toBeNull();
-    expect(isDashed(hood)).toBe(false);
+    expect(lineTier(hood)).toBe("unreviewed");
   });
 
   it("has a callout, in both languages, that names the source", () => {

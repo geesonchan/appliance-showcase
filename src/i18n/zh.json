@@ -180,7 +180,7 @@
   "roughIn.callout.site": "{type}：{where}，{at}。现场做法，非图纸——待确认。",
   "roughIn.callout.inferred": "{type}：{where}，{at}。推断，任何图纸上都没有——待确认。",
   "roughIn.callout.uncertain": "{type}：{where}，{at}。图纸此处读不确定——待确认。",
-  "roughIn.callout.unclassified": "{type}：{where}，{at}。出处尚未分类。",
+  "roughIn.callout.unreviewed": "{type}：{where}，{at}。出处尚未审核。",
   "rule.chimneyTooLow": "罩顶到天花仅 {riseIn}\"，烟囱罩收拢后为 {sectionIn}\"，无法再缩短",
   "rule.chimneyExtension": "烟囱延长件 {model} —— 此处需 {riseIn}\"，超出标准伸缩范围 {overIn}\"",
   "rule.fridgeDoorClearance": "冰箱与墙之间 {gapIn}\" 整高 filler，保证门开 90°。可选门挡 {doorStop}。",

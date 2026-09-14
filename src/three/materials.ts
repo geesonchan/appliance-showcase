@@ -32,6 +32,18 @@ export const UTILITY_COLORS = {
 } as const;
 
 /**
+ * A line nobody has reviewed yet (D21): every generic run along the walls, and
+ * any rough-in point with no provenance. Fainter and thinner than a reviewed
+ * guess, so it never reads as more certain than one.
+ */
+export const UNREVIEWED = {
+  color: "#B7BAB3",
+  opacity: 0.45,
+  /** Pipe radius in inches, whatever the service. */
+  radiusIn: 0.3,
+} as const;
+
+/**
  * Pipe radii in inches. Line weight carries the same ordering as real trades:
  * the gas line is the heaviest small run, then water, then the 240V feeder,
  * with 120V branch circuits thinnest.

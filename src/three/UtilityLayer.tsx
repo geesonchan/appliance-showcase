@@ -9,7 +9,7 @@ import { useSelection, useSelectedBlower } from "../store/useSelection";
 import { effectiveCfm } from "../data/ventilation";
 import { resolveRoughIn } from "../data/roughIn";
 import type { Appliance, ServicePoint, SlotId, UtilityType, Utilities } from "../types";
-import { UTILITY_COLORS, UTILITY_RADIUS_IN } from "./materials";
+import { UNREVIEWED, UTILITY_COLORS, UTILITY_RADIUS_IN } from "./materials";
 
 const UP = new THREE.Vector3(0, 1, 0);
 const DUCT = CABINET_STANDARDS.hood;
@@ -37,13 +37,22 @@ const STANDOFF = {
   waterDrain: ft(5.5),
 };
 
+/**
+ * Every run this layer draws is generic — room-wide heights and routes, not a
+ * model's figures — so every one of them is drawn as not yet reviewed (D21): a
+ * faint thin grey line, whatever the service. The service colour is still passed
+ * in by each run, for the day a run is reviewed and earns it back.
+ */
+const unreviewedMaterial = () => (
+  <meshBasicMaterial color={UNREVIEWED.color} transparent opacity={UNREVIEWED.opacity} depthWrite={false} />
+);
+const thin = (radius: number) => Math.min(radius, ft(UNREVIEWED.radiusIn));
+
 /** A straight run of pipe between two points. */
 function Pipe({
   from,
   to,
   radius,
-  color,
-  hollow = false,
 }: {
   from: [number, number, number];
   to: [number, number, number];
@@ -63,14 +72,9 @@ function Pipe({
   if (length < 1e-4) return null;
 
   return (
-    <mesh position={position} quaternion={quaternion}>
-      <cylinderGeometry args={[radius, radius, length, hollow ? 16 : 10, 1, hollow]} />
-      <meshStandardMaterial
-        color={color}
-        metalness={hollow ? 0.35 : 0.2}
-        roughness={0.55}
-        side={hollow ? THREE.DoubleSide : THREE.FrontSide}
-      />
+    <mesh position={position} quaternion={quaternion} userData={{ tier: "unreviewed" }}>
+      <cylinderGeometry args={[thin(radius), thin(radius), length, 8, 1]} />
+      {unreviewedMaterial()}
     </mesh>
   );
 }
@@ -79,16 +83,15 @@ function Pipe({
 function Fitting({
   position,
   size,
-  color,
 }: {
   position: [number, number, number];
   size: [number, number, number];
   color: string;
 }) {
   return (
-    <mesh position={position}>
+    <mesh position={position} userData={{ tier: "unreviewed" }}>
       <boxGeometry args={size} />
-      <meshStandardMaterial color={color} metalness={0.2} roughness={0.5} />
+      {unreviewedMaterial()}
     </mesh>
   );
 }
@@ -160,9 +163,9 @@ function Trunk({
         <Pipe key={i} from={from} to={points[i + 1]} radius={radius} color={color} />
       ))}
       {points.slice(1, -1).map((elbow, i) => (
-        <mesh key={"elbow-" + i} position={elbow}>
-          <sphereGeometry args={[radius, 10, 8]} />
-          <meshStandardMaterial color={color} metalness={0.2} roughness={0.55} />
+        <mesh key={"elbow-" + i} position={elbow} userData={{ tier: "unreviewed" }}>
+          <sphereGeometry args={[thin(radius), 8, 6]} />
+          {unreviewedMaterial()}
         </mesh>
       ))}
     </group>

@@ -24,18 +24,21 @@ const parsed = parseDataFile(roughInFileSchema, roughInFile, "data/rough-in.json
 export const ROUGH_IN = parsed.roughIn;
 
 /**
- * Whether a connection is drawn as a grey dashed outline rather than a solid
- * fitting (D21, round 41). A figure off a drawing is solid; site practice, an
- * inference and a figure the drawing leaves unclear are dashed, so a salesperson
- * can point at it and say it is to be confirmed. A point nobody has classified
- * yet keeps the solid look it had.
+ * The three ways a connection is drawn (D21, round 41), one meaning each.
+ * `confirmed`: off a drawing — a solid fitting in the service's colour.
+ * `unconfirmed`: reviewed, but site practice, an inference or a figure the
+ * drawing leaves unclear — a grey dashed outline. `unreviewed`: nobody has
+ * classified it — a faint thin grey line, weaker than a dashed one, which is
+ * also how every generic run along the walls is drawn.
  */
-export const isDashed = (point: RoughInPoint) =>
-  point.provenance !== null && point.provenance !== "drawing";
+export type LineTier = "confirmed" | "unconfirmed" | "unreviewed";
+
+export const lineTier = (point: RoughInPoint): LineTier =>
+  point.provenance === null ? "unreviewed" : point.provenance === "drawing" ? "confirmed" : "unconfirmed";
 
 /** The callout for a connection, which says where its figures come from. */
 export const roughInCalloutKey = (point: RoughInPoint) =>
-  `roughIn.callout.${point.provenance ?? "unclassified"}`;
+  `roughIn.callout.${point.provenance ?? "unreviewed"}`;
 
 export const roughInFor = (appliance: Appliance | undefined) =>
   appliance ? (ROUGH_IN[appliance.id] ?? null) : null;
