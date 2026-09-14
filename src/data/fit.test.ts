@@ -27,6 +27,22 @@ describe("fit check", () => {
     expect(result.fillerEachSideIn).toBeNull();
   });
 
+  // A machine that exactly fills its space fits, in fractions too, and a
+  // floating-point sum that lands a hair over the figure is still equal.
+  it("never fails on equality", () => {
+    const opening = { ...range, cutout: { ...range.cutout, w: 29.875 } };
+    const exact = { ...base(), cutoutWidthIn: 29 + 7 / 8 };
+    expect(fitCheck(opening, exact).fits).toBe(true);
+
+    // 20.1 + 0.3 is 20.400000000000002 in floating point, a hair over 20.4.
+    const summed = 20.1 + 0.3;
+    expect(summed).toBeGreaterThan(20.4);
+    const decimal = { ...range, cutout: { ...range.cutout, w: 20.4 } };
+    expect(fitCheck(decimal, { ...base(), cutoutWidthIn: summed }).fits).toBe(true);
+
+    expect(fitCheck(opening, { ...base(), cutoutWidthIn: 29.875 + 1 / 16 }).fits).toBe(false);
+  });
+
   it("fails a wider appliance and reports the overrun", () => {
     const wide = FIXTURES.dualFuelRange48; // 48" in a 36" opening
     const result = fitCheck(range, wide);

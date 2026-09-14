@@ -34,6 +34,14 @@ export interface FitResult {
 const required = (cutout: number | null, body: number | null) => cutout ?? body;
 
 /**
+ * A machine that exactly fills its space fits. Figures are fractions of an inch
+ * added in floating point, so equality is given a millionth of an inch rather
+ * than trusted to the last bit. A hung hood's space is its own outline, so it
+ * is always exactly equal (D4, round 40).
+ */
+const FIT_TOLERANCE_IN = 1e-6;
+
+/**
  * Check an appliance against a slot's rough opening.
  *
  * Width is the only dimension that gates. Height and depth are computed and
@@ -51,7 +59,7 @@ export function fitCheck(slot: Slot, appliance: Appliance): FitResult {
   const depth = depthFromWallIn(appliance);
 
   return {
-    fits: widthOverIn <= 0,
+    fits: widthOverIn <= FIT_TOLERANCE_IN,
     widthOverIn,
     // What is left over each side of a machine is filler — unless the machine
     // is not standing in the opening at all. A liner hangs on the ledge of a

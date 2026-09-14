@@ -167,6 +167,26 @@ held 29 entries (it went from 25 to 32 in `e0eaf0f` and has been 32 since), so
 which three rows, and why, cannot be recovered. The same kind of failure as the
 smoke suite's count (Open items): a summary that can be misread as success.
 
+*Amended 2026-09-14 (round 40), Leo: a cutout figure means one of three things,
+by how the machine is installed.* The three `cutout*In` cells are the space the
+machine needs, and what bounds that space depends on the install:
+- **Built in** — a wall oven, a built-in refrigerator, a dishwasher: the cabinet
+  opening.
+- **Dropped in** — a cooktop, a rangetop: the hole in the counter, with how far
+  the machine drops below the counter in `cutoutHeightIn`.
+- **Hung** — an island hood, hung from the ceiling over open space: there is no
+  opening. The figure is the clear space the machine needs, which is its own
+  outline. HMIB42WS's cutout cells equal its body on purpose, 42" wide, 27"
+  deep, 30" high, and are not a mistake to clear. (Its installed height is
+  another matter; see D20.)
+
+So a cutout equal to the body is right for a hung machine and a question worth
+asking of any other. The fit check passes a machine that exactly fills its
+space, with a millionth of an inch of tolerance so fractions added in floating
+point never fail on equality (`fit.ts`). Two sheet traps sit next to this: the
+cutout columns run Width, Height, Depth while the body columns run Width,
+Depth, Height, so copying one set across the other crosses height and depth.
+
 **Counts by default, rows on request.** The summary reports buckets, not lines:
 `no width: 12` rather than twelve lines. `--verbose` expands them. The one
 exception is blank types, which are always named, for the reason above. A
@@ -1191,18 +1211,36 @@ written into geometry instead of read from `ROOM`.
   importer skips anything named a kit, so that line comes from a rule, not from
   the catalogue.
 - **The canopy is 27" deep**, from the drawing on page 8 of the manual. The same
-  page's text says 23-3/16"; Leo is checking the spec sheet. *(Round 37.)*
-- **Sheet cells for CIT367YG and HMIB42WS are not yet checked by rendering.**
-  *(Round 40.)* Leo filled CIT367YG's Depth and Height and changed its
-  `cutoutHeightIn` to 3-3/4" from the manual (at most 2-3/4" under the counter
-  plus the 1" connection), and cleared HMIB42WS's `cutoutDepthIn` and
-  `cutoutHeightIn`, since an island hood has no cutout. CIT367YG is still
-  skipped as `no slot: cooktop`, so none of its cells reach `appliances.json`
-  until `slot-cooktop` exists; verify them then. The export read in round 40
-  (`showcase_export.csv`, saved 2026-09-13 18:38) did not yet carry two of the
-  edits: CIT367YG's `cutoutHeightIn` was still 3-7/8, and HMIB42WS's two cutout
-  cells were 27 and 30 — the same figures as its new Depth and Height — rather
-  than blank. That import was not committed.
+  page's text says 23-3/16", and that figure is not used. *(Round 37; confirmed
+  by Leo, round 40.)*
+- **The catalogue's Height of 30" is not the height to draw.** 30" is the duct
+  cover fully collapsed: the bottom of the drawing's 30"-45-1/16" span from the
+  underside of the hood to the top of the cover. Installed, the hood is the
+  ceiling less its underside, 108-1/2" - 72" = 36-1/2", which leaves 6-1/2" of
+  adjustment down and 8-9/16" up. The island hood is drawn to that worked-out
+  figure, never to `heightIn`: drawn at 30" its top would hang 6-1/2" short of
+  the ceiling. *(Leo, round 40.)* Today the island branch in
+  `ApplianceModel.tsx` draws the body at `heightIn` with a thin drop to the
+  ceiling, so that changes when E is built.
+- **The cooktop is in the island and the hood hangs straight over it.** The
+  induction cooktop is set into the island's counter on its working side, not
+  against a wall, and the hood hangs from the ceiling directly over it with no
+  cabinetry between them. *(Leo, round 40. Thermador's own rendering of an
+  island kitchen shows the same arrangement; it is a sales illustration, so it
+  confirms the direction and is the source of no figure.)*
+- **Sheet cells not yet checked by rendering.** *(Round 40.)*
+  - CIT367YG: Leo filled Depth (21-1/4") and Height (4"), and its
+    `cutoutHeightIn` is to be 3-3/4" from the manual (at most 2-3/4" under the
+    counter plus the 1" connection). The export read in round 40 still had
+    3-7/8"; Leo is re-entering it. The row is skipped as `no slot: cooktop`, so
+    none of its cells reach `appliances.json` until `slot-cooktop` exists;
+    verify them then.
+  - HMIB42WS: its cutout cells are its outline on purpose (D4, round 40). In
+    the export read in round 40 the body is 42 / 27 / 30 in the sheet's order
+    Width / Depth / Height, and the cutout cells are 42 / 27 / 30 in the sheet's
+    order cutoutWidth / cutoutHeight / cutoutDepth. So height and depth are
+    crossed — `cutoutHeightIn` 27 and `cutoutDepthIn` 30 against a body 30 high
+    and 27 deep — and that import is not committed.
 - **Every aisle is measured counter edge to counter edge.** *(Leo, round 38.)*
   The island is described in three figures, and every aisle check uses the
   last of them:

@@ -58,8 +58,8 @@ docs/decisions.md D4.
 
 | App field | Sheet column | Rule |
 | --- | --- | --- |
-| `cutoutWidthIn` | cutoutWidthIn | Blank → `null`; the fit check then falls back to `widthIn` and the import warns. |
-| `cutoutHeightIn` | cutoutHeightIn | Blank → `null`. |
+| `cutoutWidthIn` | cutoutWidthIn | Blank → `null`; the fit check then falls back to `widthIn` and the import warns. What the three cutout figures mean depends on the install (decisions.md D4): the cabinet opening for a built-in, the hole in the counter for a drop-in, and the clear space — the machine's own outline — for a hung hood, which has no opening. |
+| `cutoutHeightIn` | cutoutHeightIn | Blank → `null`. Mind the order: the cutout columns run Width, **Height**, Depth, while the body columns run Width, Depth, Height. |
 | `cutoutDepthIn` | cutoutDepthIn | Blank → `null`. |
 | `requires.gasBTU` | gasBTU | Blank → `null`. |
 | `requires.voltage` | voltage | `240` or `120`; anything else reads as 120. |
