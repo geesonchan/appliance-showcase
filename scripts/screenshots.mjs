@@ -1536,9 +1536,60 @@ async function captureRound39(browser) {
   await desktop.close();
 }
 
+/**
+ * Round 40: the catalogue from the corrected export, checked for breakage.
+ *
+ * The data change is invisible — HMIB42WS is an island hood and no package's
+ * hood slot takes one — so the set is the machines nearest to it that are drawn:
+ * A's and B's refrigerators, each as the package opens and flown in on.
+ */
+async function captureRound40(browser) {
+  const desktop = await browser.newContext({ viewport: DESKTOP, deviceScaleFactor: 2 });
+  const page = await desktop.newPage();
+  const open = async () => {
+    await page.goto(baseUrl, { waitUntil: "load", timeout: 120000 });
+    await page.waitForSelector("canvas", { timeout: 120000 });
+    await settle(page, 3200);
+  };
+  const toPackage = async (code) => {
+    await page.locator(`[data-segment="package"] button`, { hasText: code }).first().click();
+    await settle(page, 3000);
+  };
+  const fromList = async (name) => {
+    const back = page.getByRole("button", { name: "All appliances" }).first();
+    if (await back.isVisible()) {
+      await back.click();
+      await settle(page, 900);
+    }
+    const item = page.locator(`aside [data-panel="list"] button`, { hasText: name }).first();
+    if (!(await item.isVisible())) {
+      await page.click(`button[data-rail="left"]`);
+      await settle(page, 700);
+    }
+    await item.click();
+    await settle(page, 2400);
+  };
+
+  for (const code of ["a", "b"]) {
+    await open();
+    await toPackage(code.toUpperCase());
+    await page.screenshot({ path: `${outDir}/desktop-${code}-opens.png` });
+    await fromList("Refrigerator");
+    await page.screenshot({ path: `${outDir}/desktop-${code}-fridge.png` });
+  }
+  await desktop.close();
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round40") {
+    await captureRound40(browser);
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round39") {
     await captureRound39(browser);
