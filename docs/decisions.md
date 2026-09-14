@@ -1707,6 +1707,10 @@ acceptance are report two, next round.)*
     the machine. Every island opening in A, C and D is 24" by 24", so the swap
     could not show and the first run of the test passed on the old code for
     that reason. It is held on a cooktop island, whose 36" by 24" shows it.
+    **The lesson (Leo): symmetry in the data hides errors in the logic.** A
+    square opening, a box as wide as it is deep, a turn of zero — a case like
+    that passes whether the code is right or not. A test case is picked for
+    being lopsided, or it proves nothing.
   - Rough-in leader lines (`leaderEnd`): out of the face the host opens by.
   - The wall anchor (`wallAnchor`): none for an island slot. Gas and water to an
     island slot are not drawn — no island slot has either yet; step 3.
@@ -1725,14 +1729,38 @@ acceptance are report two, next round.)*
   all in A to D, as the square openings predict. Elsewhere under 0.6% changed:
   the doors on an island turned across the room appear on its working side, and
   the edges of the tall units' side boards and the fillers change.
-- **A dark band now shows at the foot of an exposed run end** — the side of
-  package A's refrigerator tower, the end panel past the sink, both ends of
-  D's column group. The toe kick runs to the very end of the run, flush with
-  the side of the last cabinet. The door that was wrongly on that side stood
-  3/4" proud of it and covered the toe kick's end, so the band was always
-  there. A finished end panel goes to the floor. Not fixed: the toe kick's
-  length is what three existing tests are written against, so it is Leo's to
-  say whether it is changed with this report or after it.
+- **A dark band showed at the foot of an exposed run end, and is fixed in the
+  same report** *(Leo: fix it before pushing — a customer would take it for a
+  new bug)*. It showed at the side of package A's refrigerator tower, the end
+  panel past the sink, and both ends of D's column group. The toe kick ran to
+  the very end of the run, flush with the side of the last cabinet. The door
+  wrongly on that side had stood 3/4" proud and covered the kick's end, so the
+  band had always been there. A finished end goes to the floor, and the toe
+  recess shows only at the front. The kick now stops 1-1/2" short of each run's
+  far end — `TOE_SETBACK`, the same figure it is set back at the front and the
+  island's is set in by all round.
+  - Its break at a freestanding range, or a freestanding refrigerator, is still
+    exactly at the machine's side, and the run's start still meets the wall or
+    the corner cabinet.
+  - `layout.test.ts` now states those three facts separately. It used to say
+    the kick ran the whole leg less the range, which at the far end held the
+    mistake in place; correcting it is the fix, not a concession.
+  - Last round's report said three tests stood on the old length. Only that
+    one did; the toe-kick checks in `packageLayouts` and `packageD` are about
+    the refrigerator and the oven tower and pass unchanged.
+- **Fillers and finished boards have no door** *(Leo)*. With doors on the face a
+  box records, a 3", 2" or 1/2" filler, a tall unit's side board and the boards
+  stacked on them got a door-board on their fronts. It was too narrow for a
+  frame or a panel, so it looked like a strip, but it came from the door code
+  with a door's reveal each side. The box now records `face: "strip"` where it
+  is made, from what it is ordered as — a filler or panel module, or a tall
+  unit's two side boards — and it is drawn as one flush strip with no reveal.
+  `cabinetFronts.test.ts` failed on all four packages before the change.
+- **Measured again after both.** The dark band is gone, and so is the door on
+  the side of the wall run's end fillers. The plan thumbnails are still 0
+  pixels changed. Under 0.6% changed elsewhere, at the board edges and the
+  island's doors. The red over "Drag to rotate" in the diff is the hint text
+  fading at a different moment, not the scene.
 
 ## Open items
 

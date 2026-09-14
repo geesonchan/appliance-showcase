@@ -120,6 +120,27 @@ function Door({ box, s }: { box: CabinetBox; s: SurfaceProps }) {
 }
 
 /**
+ * The face of a filler or a finished board: one flush strip of board the
+ * height of the doors beside it, with no frame, no panel and no reveal at its
+ * sides — it closes a gap and does not open, so it butts the door next to it.
+ * Round 50 (Leo): these went through `Door`, which on a face too narrow for a
+ * frame drew a strip that only looked like this, with a door's gap each side.
+ */
+function Strip({ box, s }: { box: CabinetBox; s: SurfaceProps }) {
+  const face = doorFace(box);
+  const h = face.height - DOOR.reveal;
+  const front = face.depth / 2 + DOOR.thickness / 2;
+  return (
+    <group name={"strip-" + box.id} rotation={[0, rotationOf(face), 0]}>
+      <mesh position={[0, 0, front]} castShadow receiveShadow userData={{ cabinetRole: true }}>
+        <boxGeometry args={[face.width, h, DOOR.thickness]} />
+        <Surface s={s} size={[face.width, h]} rotate={Math.PI / 2} />
+      </mesh>
+    </group>
+  );
+}
+
+/**
  * The grille in the cabinet stacked over a steam oven.
  *
  * Leo, round 38: the air that comes up the gap behind the open-backed cabinets
@@ -351,6 +372,8 @@ function CabinetSolid({ box }: { box: CabinetBox }) {
           <GrilleDoor box={box} s={props} />
         ) : corner ? (
           <CornerDoor box={box} door={corner} s={props} />
+        ) : box.face === "strip" ? (
+          <Strip box={box} s={props} />
         ) : (
           <Door box={box} s={props} />
         ))}

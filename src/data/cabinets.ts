@@ -71,6 +71,12 @@ export interface CabinetBox {
    * except those on the seating side. Its door is on this face (`doorFace`).
    */
   facing: Facing;
+  /**
+   * What is on that face: a door, unless the box is a filler or a finished
+   * board, which is a flush strip — it closes a gap and does not open. Recorded
+   * where the box is made, from what it is ordered as. Round 50.
+   */
+  face?: "strip";
   /** Centre of the box, in feet. */
   position: [number, number, number];
   /** Full extents, in feet. */
@@ -79,6 +85,14 @@ export interface CabinetBox {
 
 /** The base box under the top: 34.5" plus a 1.5" counter makes 36". */
 const BASE_BOX = [0, ROOM.counterHeight - ROOM.counterThickness] as const;
+
+/**
+ * How far the toe kick is set in: behind the cabinet fronts, and short of an
+ * end that shows. The island's is set in by it on every side; a run's at its
+ * front and at its far end, where the last cabinet's side is a finished end
+ * that goes to the floor (round 50, Leo).
+ */
+const TOE_SETBACK = ft(1.5);
 
 /** The refrigerator opening's height, in feet, as the slot actually declares it. */
 const fridgeOpeningH = () => ft(SLOT_BY_ID["slot-fridge"].cutout.h);
@@ -256,7 +270,7 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
           [0, ft(module.heightIn ?? 96)],
           ROOM.counterDepth,
           0,
-          { outline: volumeOf(run, segment), slot: module.slot, module },
+          { outline: volumeOf(run, segment), slot: module.slot, module, face: "strip" },
         ),
       );
       return;
@@ -302,8 +316,8 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
       const head = Math.min(sill + openingH(module.slot), tall[1]);
       if (inset > 0) {
         boxes.push(
-          onRun(run, `${segment.id}-panel-a`, "surround", [along[0], opening[0]], tall, ROOM.counterDepth, 0, { outline, slot: module.slot, module }),
-          onRun(run, `${segment.id}-panel-b`, "surround", [opening[1], along[1]], tall, ROOM.counterDepth, 0, { outline, slot: module.slot, module }),
+          onRun(run, `${segment.id}-panel-a`, "surround", [along[0], opening[0]], tall, ROOM.counterDepth, 0, { outline, slot: module.slot, module, face: "strip" }),
+          onRun(run, `${segment.id}-panel-b`, "surround", [opening[1], along[1]], tall, ROOM.counterDepth, 0, { outline, slot: module.slot, module, face: "strip" }),
         );
       }
       // Over a hung oven the box is marked with the oven it stands over, and so
@@ -352,7 +366,13 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
           [ROOM.counterHeight, fillTo],
           ROOM.counterDepth,
           0,
-          { outline: segment.id, module },
+          {
+            outline: segment.id,
+            module,
+            // A filler carried on up beside the tower is still a strip of board.
+            // (A panel never reaches here: it is drawn to its full height above.)
+            ...(module.kind === "filler" ? { face: "strip" as const } : {}),
+          },
         ),
       );
     }
@@ -366,6 +386,8 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
     boxes.push(
       onRun(run, `${segment.id}-${module.code}-${index}`, "base", along, base, depth, offset, {
         module,
+        // A filler in a run of base cabinets is a strip of board, not a cabinet.
+        ...(module.kind === "filler" ? { face: "strip" as const } : {}),
       }),
     );
   });
@@ -406,6 +428,8 @@ function upperBoxes(run: CabinetRun, bank: UpperBank): CabinetBox[] {
       onRun(run, `${bank.id}-${module.code}-${index}`, "upper", along, band, depth, across, {
         module,
         slot: module.slot,
+        // So is one in a bank of wall cabinets.
+        ...(module.kind === "filler" || module.kind === "panel" ? { face: "strip" as const } : {}),
       }),
     );
   });
@@ -520,6 +544,9 @@ function stackOn(run: CabinetRun, box: CabinetBox): CabinetBox[] {
       id: `${box.id}-stack`,
       kind: board ? "surround" : "upper",
       module,
+      // A board carried on up is a board; a 12" box on a cabinet is a cabinet,
+      // whatever the box under it was.
+      face: board ? "strip" : undefined,
       position: [box.position[0], top + height / 2, box.position[2]],
       size: [box.size[0], height, box.size[2]],
     },
@@ -564,8 +591,14 @@ function runBoxes(run: CabinetRun): CabinetBox[] {
     const breaks =
       segment.slot === "slot-range" ||
       segment.modules.some((module) => module.kind === "tall-open");
-    const end = breaks ? segment.from : segment.to;
     const last = i === run.segments.length - 1;
+    // A break is exactly at the machine's side. The run's far end is not a
+    // break: the last cabinet's side there is a finished end, which goes to the
+    // floor, so the kick stops short of it by the same setback it has at the
+    // front and the recess shows only where a toe goes. Round 50 (Leo): the kick
+    // used to run to the very end, flush with that side, and a door wrongly hung
+    // on the side had been covering its end.
+    const end = breaks ? segment.from : last ? segment.to - TOE_SETBACK : segment.to;
     if ((breaks || last) && end > start) {
       boxes.push(
         onRun(
@@ -574,8 +607,8 @@ function runBoxes(run: CabinetRun): CabinetBox[] {
           "toe",
           [start, end],
           [0, ROOM.toeKick],
-          ROOM.counterDepth - ft(3),
-          -ft(1.5),
+          ROOM.counterDepth - 2 * TOE_SETBACK,
+          -TOE_SETBACK,
         ),
       );
     }
@@ -731,8 +764,8 @@ function islandBoxes(): Omit<CabinetBox, "run">[] {
     {
       ...box(
         "island-toe",
-        [along[0] + ft(1.5), along[1] - ft(1.5)],
-        [across[0] + ft(1.5), across[1] - ft(1.5)],
+        [along[0] + TOE_SETBACK, along[1] - TOE_SETBACK],
+        [across[0] + TOE_SETBACK, across[1] - TOE_SETBACK],
         ROOM.toeKick,
       ),
       kind: "toe" as const,

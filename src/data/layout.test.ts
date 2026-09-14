@@ -609,24 +609,41 @@ describe("D11 rule 2 · the corner is continuous", () => {
     for (const bottom of bottoms) expect(bottom).toBeCloseTo(ROOM.upperBottom, 6);
   });
 
-  it("runs the toe kick along each leg, breaking only at the range", () => {
+  /**
+   * Three facts about the toe kick, and they are separate ones.
+   *
+   * It starts where the run starts, against the wall or the corner cabinet. It
+   * breaks at the range, exactly at the machine's sides: a freestanding machine
+   * stands on the floor, and a recessed board behind it is a board behind
+   * nothing. And it stops 1-1/2" short of the run's far end (round 50, Leo):
+   * the last cabinet's side there is a finished end, which goes to the floor,
+   * and the toe recess shows only at the front — the same 1-1/2" the island's
+   * toe kick is set in by on every side.
+   *
+   * This test used to say the kick ran the whole leg less the range. At the far
+   * end that was wrong: a door wrongly hung on the side of the last cabinet
+   * stood proud and hid the kick's end, and the test held the mistake in place.
+   */
+  it("runs the toe kick from the start of each leg, breaks it at the range, and stops it short of the open end", () => {
     const toes = CABINETS.filter((box) => box.kind === "toe" && !box.id.startsWith("island"));
-    // One per leg, plus one more on the leg the range splits: a freestanding
-    // machine stands on the floor, and a recessed board behind it is a board
-    // behind nothing.
+    // One per leg, plus one more on the leg the range splits.
     expect(toes).toHaveLength(3);
     for (const run of RUNS) {
       const onRun = toes.filter((box) => box.id.startsWith(run.id));
       expect(onRun.length, `${run.id} has no toe kick`).toBeGreaterThan(0);
       const along = run.axis === "x" ? 0 : 2;
-      const reach = onRun.reduce(
-        (sum, box) => sum + box.size[along],
-        0,
-      );
-      const leg = run.segments[run.segments.length - 1].to - run.segments[0].from;
+      const extents = onRun
+        .map((box) => [box.position[along] - box.size[along] / 2, box.position[along] + box.size[along] / 2])
+        .sort((a, b) => a[0] - b[0]);
+      const first = run.segments[0].from;
+      const last = run.segments[run.segments.length - 1].to;
+      expect(extents[0][0], `${run.id} toe kick starts at the run`).toBeCloseTo(first, 6);
+      expect(inches(last - extents[extents.length - 1][1]), `${run.id} toe kick short of the end`).toBeCloseTo(1.5, 6);
       const range = run.segments.find((s) => s.slot === "slot-range");
-      const cut = range ? range.to - range.from : 0;
-      expect(reach, `${run.id} toe kick`).toBeCloseTo(leg - cut, 6);
+      if (range) {
+        expect(extents.some(([, to]) => Math.abs(to - range.from) < 1e-9), "kick stops at the range").toBe(true);
+        expect(extents.some(([from]) => Math.abs(from - range.to) < 1e-9), "kick starts past the range").toBe(true);
+      }
     }
   });
 });
