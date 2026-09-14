@@ -1401,6 +1401,21 @@ clicks, and round 42 stopped only meshes. That ray also passed through no
 rough-in point, so part of "it cannot be clicked" was clicking where the point
 is not. The list is the way in until this is taken up.
 
+**Clicks, fixed. Amended 2026-09-14 (round 44), Leo.** Two changes:
+- In the install view an appliance's outline takes no click either. It is line
+  segments, which round 42's change passed over — a variant of "hidden geometry
+  still takes a raycast".
+- Every point has an invisible 7" box round it that takes the click, only in the
+  install view. Outside it the layer is hidden but would still take a raycast,
+  so neither the box nor the fitting is clickable there, and a click in the
+  finished room still selects the appliance.
+
+A click on the refrigerator's water point beside it now shows its callout. The
+dashed box that had been clicked beside the refrigerator in earlier rounds was
+MD24BS's outlet, drawn there by the island fallback; after round 43 it is in the
+island, and there is nothing at that spot to click. `islandRoughIn.test.ts` now
+covers package C's island too.
+
 ## Open items
 
 Registered, not scheduled. None of these is a round of its own.

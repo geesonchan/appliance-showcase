@@ -25,6 +25,15 @@ const COLOUR: Record<string, string> = {
 const DASH = { dashSize: ft(1.2), gapSize: ft(0.8) };
 /** The point picked in the list: a colour no service uses. */
 const FOCUS = "#C2185B";
+/**
+ * The side of the invisible box a click on a point lands in, in inches. A
+ * fitting is often 3" across, and what shows of it on screen is its outline and
+ * leader rather than anything a ray passes through; round 43's probe found a
+ * click on one passing through no rough-in point at all. Round 44.
+ */
+const HITBOX_IN = 7;
+const HIT = THREE.Mesh.prototype.raycast;
+const NO_HIT: THREE.Mesh["raycast"] = () => {};
 
 /** The line material for each tier. */
 function lineMaterial(tier: LineTier, colour: string, dash = DASH): THREE.Material {
@@ -50,8 +59,9 @@ function lineMaterial(tier: LineTier, colour: string, dash = DASH): THREE.Materi
  * reviewed it. The callout names which. The point picked in the panel's list is
  * marked on top of everything, so it can be found behind an appliance.
  *
- * A short leader runs out to the front of the cabinet so the fitting can be
- * seen and clicked through a wireframed carcass.
+ * Nothing here takes a click outside the install view: the layer is only
+ * hidden there, and a hidden mesh still takes a raycast, which would put these
+ * in front of the appliances a customer is clicking.
  */
 export function RoughInLayer() {
   const renderMode = useAppStore((s) => s.renderMode);
@@ -59,6 +69,7 @@ export function RoughInLayer() {
   const showToast = useAppStore((s) => s.showToast);
   const active = useRoughInFocus((s) => s.active);
   const setActive = useRoughInFocus((s) => s.setActive);
+  const install = renderMode === "install";
 
   const items = useMemo(() => listRoughIn(selection), [selection]);
   // Read off the run, so rebuilt with it.
@@ -69,7 +80,7 @@ export function RoughInLayer() {
   }, [layoutVersion]);
 
   return (
-    <group name="rough-in-layer" visible={renderMode === "install"}>
+    <group name="rough-in-layer" visible={install}>
       {/* The vent in the top of each hung oven's opening, at the back. It is
           only ever drawn here: in the finished room it is behind the machine
           and under the cabinet over it, which is the point of putting it there. */}
@@ -87,7 +98,12 @@ export function RoughInLayer() {
           onPointerOver={() => (document.body.style.cursor = "pointer")}
           onPointerOut={() => (document.body.style.cursor = "auto")}
         >
-          <mesh name="tower-vent" userData={{ slot: vent.slot }} rotation={[-Math.PI / 2, 0, 0]}>
+          <mesh
+            name="tower-vent"
+            userData={{ slot: vent.slot }}
+            rotation={[-Math.PI / 2, 0, 0]}
+            raycast={install ? HIT : NO_HIT}
+          >
             <planeGeometry args={[ft(vent.widthIn), ft(vent.depthIn)]} />
             <meshBasicMaterial color={UTILITY_COLORS.duct} side={THREE.DoubleSide} />
           </mesh>
@@ -97,6 +113,7 @@ export function RoughInLayer() {
         <Fitting
           key={item.key}
           item={item}
+          install={install}
           active={active === item.key}
           onSelect={() => {
             setActive(item.key);
@@ -109,7 +126,17 @@ export function RoughInLayer() {
   );
 }
 
-function Fitting({ item, active, onSelect }: { item: RoughInItem; active: boolean; onSelect: () => void }) {
+function Fitting({
+  item,
+  install,
+  active,
+  onSelect,
+}: {
+  item: RoughInItem;
+  install: boolean;
+  active: boolean;
+  onSelect: () => void;
+}) {
   const { resolved, tier } = item;
   const colour =
     tier === "confirmed"
@@ -118,6 +145,8 @@ function Fitting({ item, active, onSelect }: { item: RoughInItem; active: boolea
         ? UNCONFIRMED
         : UNREVIEWED.color;
   const [x, y, z] = resolved.position;
+  // At least the hitbox's size each way, and never smaller than the fitting.
+  const hitbox = resolved.size.map((side) => Math.max(side, ft(HITBOX_IN))) as [number, number, number];
 
   // The leader: out of the carcass toward the room, so it is visible and
   // clickable through a wireframe.
@@ -139,8 +168,7 @@ function Fitting({ item, active, onSelect }: { item: RoughInItem; active: boolea
   }, [x, y, z, resolved.host, tier, colour]);
 
   // Anything short of confirmed is an outline round a faint box, dashed where it
-  // has been reviewed and thin where it has not. The box stays so there is
-  // still something to click.
+  // has been reviewed and thin where it has not.
   const outline = useMemo(() => {
     if (tier === "confirmed") return null;
     const edges = new THREE.LineSegments(
@@ -162,7 +190,7 @@ function Fitting({ item, active, onSelect }: { item: RoughInItem; active: boolea
       onPointerOver={() => (document.body.style.cursor = "pointer")}
       onPointerOut={() => (document.body.style.cursor = "auto")}
     >
-      <mesh position={[x, y, z]} userData={{ roughIn: item.key, tier }}>
+      <mesh position={[x, y, z]} userData={{ roughIn: item.key, tier }} raycast={install ? HIT : NO_HIT}>
         <boxGeometry args={resolved.size} />
         {tier === "confirmed" ? (
           <meshStandardMaterial color={colour} metalness={0.2} roughness={0.5} />
@@ -175,6 +203,14 @@ function Fitting({ item, active, onSelect }: { item: RoughInItem; active: boolea
           />
         )}
       </mesh>
+      {/* What a click lands in: bigger than the fitting, never drawn, and only
+          there in the install view. */}
+      {install && (
+        <mesh position={[x, y, z]} name="rough-in-hitbox" userData={{ roughIn: item.key, hitbox: true }}>
+          <boxGeometry args={hitbox} />
+          <meshBasicMaterial visible={false} />
+        </mesh>
+      )}
       {outline && <primitive object={outline} />}
       <primitive object={lead} />
       {resolved.highLoopY !== null && (
@@ -237,7 +273,7 @@ function HighLoop({
 
   if (line) return <primitive object={line} />;
   return (
-    <mesh geometry={tube!}>
+    <mesh geometry={tube!} raycast={() => null}>
       <meshStandardMaterial color={colour} metalness={0.2} roughness={0.55} />
     </mesh>
   );

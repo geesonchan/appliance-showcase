@@ -28,7 +28,7 @@ const within = (value: number, [low, high]: readonly [number, number]) =>
 const f2 = (values: readonly number[]) => values.map((v) => v.toFixed(2)).join("..");
 
 describe.each(["parallel", "perpendicular"] as const)("an island laid %s", (islandOrientation) => {
-  it.each(["package-a", "package-d"])("keeps the rough-in points of %s's island machines in the island", (id) => {
+  it.each(["package-a", "package-c", "package-d"])("keeps the rough-in points of %s's island machines in the island", (id) => {
     setActivePackage(DEFAULT_PACKAGE.id);
     setLayoutParams(DEFAULT_PARAMS);
     expect(setActivePackage(id).ok).toBe(true);

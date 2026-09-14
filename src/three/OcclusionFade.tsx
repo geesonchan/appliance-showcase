@@ -83,7 +83,11 @@ export function OcclusionFade() {
     if (!layer) return;
     layer.traverse((object) => {
       const mesh = object as THREE.Mesh;
-      if (!mesh.isMesh) return;
+      // Lines too: an appliance's install-view outline is line segments, and a
+      // hidden or faint line still takes a raycast. Round 43's probe found the
+      // refrigerator's outline taking the clicks meant for its services.
+      const line = (object as THREE.Line).isLine === true;
+      if (!mesh.isMesh && !line) return;
       const material = Array.isArray(mesh.material) ? null : mesh.material;
       const saved = installFaded.current.get(mesh);
       // A material React has swapped in since is faded again.
@@ -94,7 +98,9 @@ export function OcclusionFade() {
         opacity: material?.opacity ?? 1,
       });
       mesh.raycast = NO_HIT;
-      if (material?.transparent) material.opacity = Math.min(material.opacity, INSTALL_APPLIANCE_OPACITY);
+      if (mesh.isMesh && material?.transparent) {
+        material.opacity = Math.min(material.opacity, INSTALL_APPLIANCE_OPACITY);
+      }
     });
   };
   useEffect(() => () => applyInstallFade(false), []);
