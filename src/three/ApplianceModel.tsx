@@ -15,10 +15,12 @@ import {
 import {
   CHIMNEY,
   HOOD_PROFILE,
+  ISLAND_HOOD,
   canopySolid,
   chimneyParts,
   hoodProfile,
   hoodTopDepthIn,
+  islandHoodParts,
 } from "../data/hood";
 import { fridgeParts, fridgeSeams, fridgeStance } from "../data/fridgeModel";
 import {
@@ -1590,13 +1592,28 @@ function Hood({
   );
 
   if (kind === "island") {
-    // Suspended: a drop to the ceiling rather than a duct cover on a wall.
-    const drop = ROOM.wallHeight - h;
+    // Hung from the ceiling, and every height starts from where it hangs
+    // (D20, round 46): a 2-3/4" canopy at the underside, and the duct cover
+    // from the canopy's top to the ceiling. Not `h`, which is the catalogue's
+    // collapsed 30", and nothing measured from the floor — that drew a 30"
+    // solid wedge with a stem 72" through the ceiling.
+    const parts = islandHoodParts(baseY * 12);
+    const canopyH = ft(parts.canopyIn);
+    const coverH = ft(Math.max(0, parts.coverIn));
     return (
-      <group>
-        {body_}
-        <mesh position={[0, h + drop / 2, 0]}>
-          <boxGeometry args={[w * 0.2, drop, d * 0.2]} />
+      <group name="hood-island">
+        <mesh position={[0, canopyH / 2, 0]} castShadow receiveShadow>
+          <boxGeometry args={[w, canopyH, d]} />
+          <Mat s={body} size={[w, d]} />
+        </mesh>
+        {/* Baffle filters across the underside, pressed from the canopy's own
+            sheet, as on the wall hoods. */}
+        <mesh position={[0, ft(0.1), 0]}>
+          <boxGeometry args={[w * 0.88, ft(0.2), d * 0.6]} />
+          <Mat s={body} />
+        </mesh>
+        <mesh position={[0, canopyH + coverH / 2, 0]} castShadow receiveShadow>
+          <boxGeometry args={[ft(ISLAND_HOOD.cover.widthIn), coverH, ft(ISLAND_HOOD.cover.depthIn)]} />
           <Mat s={body} />
         </mesh>
       </group>

@@ -186,6 +186,50 @@ export function chimneyParts(canopyTop: number, ceiling = ROOM.wallHeight): Chim
   };
 }
 
+/**
+ * A hood hung from the ceiling over an island, from HMIB42WS's installation
+ * guide, page 8 (docs/reference/HMIB42WS_Installation.pdf): a canopy 2-3/4"
+ * thick, a 13-1/4" x 14-7/8" duct cover over it, and 30"-45-1/16" from the
+ * bottom of the hood to the top of the cover, ducted. D20, round 46.
+ */
+export const ISLAND_HOOD = {
+  canopyThicknessIn: 2.75,
+  cover: { widthIn: 13.25, depthIn: 14.875 },
+  /** Bottom of the hood to the top of the duct cover, ducted. */
+  spanIn: [30, 45.0625] as const,
+};
+
+export interface IslandHoodParts {
+  /** Bottom of the hood to the ceiling. */
+  overallIn: number;
+  canopyIn: number;
+  /** The duct cover, from the canopy's top to the ceiling. */
+  coverIn: number;
+  /** Whether the overall height is inside the drawing's span. */
+  withinSpan: boolean;
+}
+
+/**
+ * A hung hood, its underside `undersideIn` off the floor, in inches.
+ *
+ * Every height starts from where it hangs. Round 44's prototype drew a 30"
+ * solid canopy from `heightIn` and a stem as long as the ceiling less that — as
+ * if the hood stood on the floor — so the stem ran 72" through the ceiling. The
+ * overall height is the ceiling less the underside; the canopy is its own
+ * thickness; the duct cover is the rest, from the canopy's top to the ceiling.
+ */
+export function islandHoodParts(undersideIn: number, ceilingIn = ROOM.wallHeight * 12): IslandHoodParts {
+  const overallIn = ceilingIn - undersideIn;
+  const canopyIn = ISLAND_HOOD.canopyThicknessIn;
+  const [low, high] = ISLAND_HOOD.spanIn;
+  return {
+    overallIn,
+    canopyIn,
+    coverIn: overallIn - canopyIn,
+    withinSpan: overallIn >= low - 1e-6 && overallIn <= high + 1e-6,
+  };
+}
+
 /** True when this model hangs its own duct cover rather than living under a box. */
 export const isChimney = (appliance: Appliance | undefined) =>
   !!appliance?.installType.some((type) => type === "chimney" || type === "wall-mount");

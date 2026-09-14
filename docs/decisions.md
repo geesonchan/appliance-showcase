@@ -1263,6 +1263,16 @@ written into geometry instead of read from `ROOM`.
   - the duct cover runs from the canopy's top up to the ceiling, never from the
     floor.
 
+  *Done in round 46.* `islandHoodParts` in `hood.ts` works the heights out from
+  the underside, with HMIB42WS's page-8 figures in `ISLAND_HOOD`, and the island
+  branch in `ApplianceModel.tsx` draws the 2-3/4" canopy and a 13-1/4" x
+  14-7/8" duct cover from its top to the ceiling. The drawing's 30"-45-1/16" is
+  measured from the bottom of the hood to the top of the cover, so it is checked
+  against the overall 36-1/2" (the 33-3/4" cover alone is also inside it).
+  Checked by hanging it over package D's island in a prototype that was then
+  removed. Not yet done: the install view's outline round an appliance is still
+  a box `heightIn` tall, so round an island hood it is a 30" box.
+
   Sight lines need no picture: a standing eye is about 64" and a seated one about
   45", both under a 72" underside, so the hood does not block the view. What is
   left to look at is how a 27"-deep canopy sits over the island, once it is drawn
@@ -1276,6 +1286,24 @@ written into geometry instead of read from `ROOM`.
   (`offeredFor` in `catalogue.ts`): no hood hung from the ceiling for a wall
   slot, no wall hood for a slot over an island. HMIB42WS is the only model this
   removes from any list today.
+- **One judgement, one implementation.** *(Leo, round 46.)* The root of that
+  bug: switching packages and the alternatives list judged the same question —
+  does this model go in this slot — with two different pieces of code, and they
+  disagreed. The junction box drawn behind the oven and the island points drawn
+  on a wall had the same shape: one fact decided in two places. So a new
+  judgement about a slot has one implementation, or its callers share the one
+  function. As it stands they still do not: switching packages carries a model
+  across only if `suitsPackageSlot` passes (category, install type and width),
+  and the list offers what `offeredFor` passes (how it hangs) and refuses on
+  width in the row. That is deliberate for now and recorded here so the next
+  change joins them rather than adds a third.
+- **What the list leaves out: what cannot be built, not what is built
+  differently.** *(Leo, round 46.)* An island hood in a wall slot cannot be drawn
+  or installed there, so it is left out. A freestanding refrigerator in package
+  A's built-in slot can: D11 rule 11 already draws its surround and return wall,
+  and a customer trading down to a freestanding model is a real conversation.
+  So the list does not filter refrigerators, or anything else, on install type.
+  Do not "complete" the filter.
 - **The cooktop is in the island and the hood hangs straight over it.** The
   induction cooktop is set into the island's counter on its working side, not
   against a wall, and the hood hangs from the ceiling directly over it with no
@@ -1495,3 +1523,9 @@ Registered, not scheduled. None of these is a round of its own.
   wall slider), well before rounds 40-45, so it was not touched. The fix is to
   set `backgroundImage` instead of `background`. *(Noted 2026-09-14, round 45,
   Leo.)*
+- **Is a freestanding refrigerator in package A's slot drawn right?** The list
+  offers one (D20, round 46), and D11 rule 11 was written for package C, where
+  the refrigerator stands at the end of a run with nothing built round it. A's
+  slot is at the end of a tall bank with cabinets round it, which is not the
+  same case. It deserves a test of its own. *(Noted 2026-09-14, round 46, Leo:
+  not now.)*
