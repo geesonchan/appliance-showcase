@@ -17,8 +17,15 @@ const EPSILON = 0.35;
 const CADENCE = 4;
 /** Sample offsets across the appliance's own face, as a fraction of it. */
 const GRID = [-0.6, 0, 0.6];
-/** Groups whose meshes may be faded. The appliances themselves never are. */
+/**
+ * Groups whose meshes may be faded off a sight line. The appliances never are
+ * on a sight line; in install mode they step back as a whole instead.
+ */
 const LAYERS = ["kitchen-shell", "cabinet-layer", "fixture-layer"];
+/** What an appliance's install-mode material drops to. */
+const INSTALL_APPLIANCE_OPACITY = 0.12;
+/** A mesh that takes no clicks. */
+const NO_HIT: THREE.Mesh["raycast"] = () => {};
 
 interface Saved {
   material: THREE.Material;
@@ -50,7 +57,47 @@ export function OcclusionFade() {
   const camera = useThree((s) => s.camera);
   const scene = useThree((s) => s.scene);
   const selectedSlot = useAppStore((s) => s.selectedSlot);
+  const renderMode = useAppStore((s) => s.renderMode);
   const selection = useSelection();
+
+  /**
+   * Install mode: the appliances step back so the services inside and behind
+   * them can be seen and clicked (round 42). The same saved-and-restored writes
+   * as the sight-line fade, on the whole appliance layer: no click lands on an
+   * appliance, and a material that is already transparent drops further. Only
+   * opacity is written — never `transparent` — so no shader is rebuilt.
+   */
+  const installFaded = useRef(
+    new Map<THREE.Mesh, { raycast: THREE.Mesh["raycast"]; material: THREE.Material | null; opacity: number }>(),
+  );
+  const applyInstallFade = (on: boolean) => {
+    if (!on) {
+      for (const [mesh, saved] of installFaded.current) {
+        mesh.raycast = saved.raycast;
+        if (saved.material) saved.material.opacity = saved.opacity;
+      }
+      installFaded.current.clear();
+      return;
+    }
+    const layer = scene.getObjectByName("appliance-layer");
+    if (!layer) return;
+    layer.traverse((object) => {
+      const mesh = object as THREE.Mesh;
+      if (!mesh.isMesh) return;
+      const material = Array.isArray(mesh.material) ? null : mesh.material;
+      const saved = installFaded.current.get(mesh);
+      // A material React has swapped in since is faded again.
+      if (saved && saved.material === material) return;
+      installFaded.current.set(mesh, {
+        raycast: saved?.raycast ?? mesh.raycast,
+        material,
+        opacity: material?.opacity ?? 1,
+      });
+      mesh.raycast = NO_HIT;
+      if (material?.transparent) material.opacity = Math.min(material.opacity, INSTALL_APPLIANCE_OPACITY);
+    });
+  };
+  useEffect(() => () => applyInstallFade(false), []);
 
   const raycaster = useMemo(() => new THREE.Raycaster(), []);
   const forward = useMemo(() => new THREE.Vector3(), []);
@@ -88,6 +135,8 @@ export function OcclusionFade() {
   useFrame(() => {
     frame.current += 1;
     if (frame.current % CADENCE !== 0) return;
+
+    applyInstallFade(renderMode === "install");
 
     if (!selectedSlot) {
       if (faded.current.size > 0) restoreAll();

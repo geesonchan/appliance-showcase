@@ -1359,6 +1359,25 @@ drawn as flat duct-grey planes.
 unreviewed line as strongly as a reviewed one; changing a position to move a
 line up a tier.
 
+**Reaching a point. Amended 2026-09-14 (round 42), Leo.** The install view
+exists to explain the services to a customer, and a point that cannot be
+reached explains nothing. Most points stand inside or behind an appliance, and
+a click on them landed on the appliance. Two changes:
+- **The panel lists every rough-in point in the package**, grouped by tier,
+  under a legend drawn the way each tier is drawn. Picking one switches to the
+  install view, marks the point with a sphere drawn over whatever is in front
+  of it, and shows the callout a click on it would. It does not depend on the
+  point being clickable, and it is the table of contents of what the package
+  roughs in. The utility switches lost their service colours: the runs they
+  switch are faint grey (`src/ui/RoughInList.tsx`, `src/data/roughInList.ts`).
+- **In the install view the appliances step back and take no clicks.** Their
+  materials, already transparent in that mode, drop to 12%, and a click passes
+  through them to the service behind. This extends `OcclusionFade`, which
+  already faded what stands between the camera and an appliance; it writes
+  opacity only on materials that are already transparent and never flips
+  `transparent`, so no shader is rebuilt. An appliance is picked from the list
+  while in the install view.
+
 ## Open items
 
 Registered, not scheduled. None of these is a round of its own.
@@ -1384,3 +1403,9 @@ Registered, not scheduled. None of these is a round of its own.
   here is the authority; the code has not been renumbered, so a finding shown
   as `d11-8` means rule 9. Renumber with some other change to the checker.
   *(Noted 2026-09-14, round 41, Leo: not this round.)*
+- **Two install-view planes are outside D21's three tiers.** The vent in the
+  top of a hung oven's opening (`towerVents`, drawn in `RoughInLayer`) and the
+  duct hole in the floor of the cabinet over a hood (`DuctRuns` in
+  `UtilityLayer`) are still flat duct-grey planes. Both are figures from site
+  practice or a generic route, not from a drawing, so they belong in a tier and
+  in the rough-in list. *(Noted 2026-09-14, round 42, Leo: not this round.)*

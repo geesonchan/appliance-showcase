@@ -3,20 +3,20 @@ import { useActivePackage } from "../store/useSelection";
 import { usePackageSummary } from "../data/packageSummary";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
-import { UTILITY_COLORS } from "../three/materials";
 import type { UtilityType } from "../types";
 import { FinishPicker } from "./FinishPicker";
 import { InstallChecklist } from "./InstallChecklist";
 import { LayoutControls } from "./LayoutControls";
 import { PlanThumbnail } from "./PlanThumbnail";
 import { PanelSection, Segmented, Toggle } from "./primitives";
+import { RoughInList } from "./RoughInList";
 
-const UTILITY_SWATCH: Record<UtilityType, string> = {
-  gas: UTILITY_COLORS.gas,
-  power: UTILITY_COLORS.power240,
-  water: UTILITY_COLORS.water,
-  duct: UTILITY_COLORS.duct,
-};
+/**
+ * The four utility layers, as switches. No colour swatch beside them: the runs
+ * they switch are drawn faint grey whatever the service (D21), and the legend
+ * for what the looks mean is with the rough-in list below. Round 42.
+ */
+const UTILITY_TYPES: UtilityType[] = ["gas", "power", "water", "duct"];
 
 function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
@@ -82,17 +82,20 @@ export function RightPanel() {
           stays visible but goes quiet outside it. */}
       <PanelSection title={t("panel.utilities")}>
         <div className={renderMode === "install" ? "" : "opacity-45"}>
-          {(Object.keys(UTILITY_SWATCH) as UtilityType[]).map((type) => (
+          {UTILITY_TYPES.map((type) => (
             <Toggle
               key={type}
               label={t("utility." + type)}
-              swatch={UTILITY_SWATCH[type]}
               checked={visibleUtilities[type]}
               onChange={() => toggleUtility(type)}
             />
           ))}
         </div>
       </PanelSection>
+
+      {/* Every point this package roughs in, by where its figures come from,
+          with the legend for the three looks. */}
+      <RoughInList key={`rough-in-${layoutVersion}`} />
 
       {/* Its own group: a dimension is drawn over the room rather than run
           through it, and it is the last thing anybody turns on. */}

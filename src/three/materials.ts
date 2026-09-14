@@ -36,6 +36,9 @@ export const UTILITY_COLORS = {
  * any rough-in point with no provenance. Fainter and thinner than a reviewed
  * guess, so it never reads as more certain than one.
  */
+/** A line that is reviewed but not off a drawing (D21): grey, dashed. */
+export const UNCONFIRMED = "#8E928B";
+
 export const UNREVIEWED = {
   color: "#B7BAB3",
   opacity: 0.45,

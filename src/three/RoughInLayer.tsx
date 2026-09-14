@@ -1,13 +1,14 @@
 import { useMemo } from "react";
 import * as THREE from "three";
-import { SLOT_ORDER } from "../data/catalogue";
-import { lineTier, resolveRoughIn, roughInCalloutKey, roughInSentence, type LineTier, type ResolvedPoint } from "../data/roughIn";
-import { ROOM, ft, isOmitted } from "../data/slots";
+import type { LineTier } from "../data/roughIn";
+import { listRoughIn, roughInCallout, type RoughInItem } from "../data/roughInList";
+import { ROOM, ft } from "../data/slots";
 import { formatDimension } from "../data/dimensions";
 import { towerVents } from "../data/towerVent";
 import { useAppStore } from "../store/useAppStore";
+import { useRoughInFocus } from "../store/useRoughInFocus";
 import { useSelection } from "../store/useSelection";
-import { UNREVIEWED, UTILITY_COLORS } from "./materials";
+import { UNCONFIRMED, UNREVIEWED, UTILITY_COLORS } from "./materials";
 
 /** Which of the four service colours a connection reads as. */
 const COLOUR: Record<string, string> = {
@@ -21,9 +22,9 @@ const COLOUR: Record<string, string> = {
   "service-channel": "#6B7268",
 };
 
-/** Reviewed but not off a drawing: grey, whatever the service. */
-const UNCONFIRMED = "#8E928B";
 const DASH = { dashSize: ft(1.2), gapSize: ft(0.8) };
+/** The point picked in the list: a colour no service uses. */
+const FOCUS = "#C2185B";
 
 /** The line material for each tier. */
 function lineMaterial(tier: LineTier, colour: string, dash = DASH): THREE.Material {
@@ -46,7 +47,8 @@ function lineMaterial(tier: LineTier, colour: string, dash = DASH): THREE.Materi
  * How each is drawn says where its figures come from (D21), in three looks with
  * one meaning each: solid in the service's colour off a drawing, grey dashed
  * where it is reviewed but not confirmed, faint thin grey where nobody has
- * reviewed it. The callout names which.
+ * reviewed it. The callout names which. The point picked in the panel's list is
+ * marked on top of everything, so it can be found behind an appliance.
  *
  * A short leader runs out to the front of the cabinet so the fitting can be
  * seen and clicked through a wireframed carcass.
@@ -55,17 +57,10 @@ export function RoughInLayer() {
   const renderMode = useAppStore((s) => s.renderMode);
   const selection = useSelection();
   const showToast = useAppStore((s) => s.showToast);
+  const active = useRoughInFocus((s) => s.active);
+  const setActive = useRoughInFocus((s) => s.setActive);
 
-  const points = useMemo(
-    () =>
-      SLOT_ORDER.flatMap((slotId) =>
-        // A machine that is not in the room has nothing to rough in for.
-        isOmitted(slotId)
-          ? []
-          : resolveRoughIn(slotId, selection[slotId]).map((resolved) => ({ slotId, resolved })),
-      ),
-    [selection],
-  );
+  const items = useMemo(() => listRoughIn(selection), [selection]);
   // Read off the run, so rebuilt with it.
   const layoutVersion = useAppStore((s) => s.layoutVersion);
   const vents = useMemo(() => {
@@ -98,17 +93,15 @@ export function RoughInLayer() {
           </mesh>
         </group>
       ))}
-      {points.map(({ slotId, resolved }, i) => (
+      {items.map((item) => (
         <Fitting
-          key={`${slotId}-${resolved.point.type}-${i}`}
-          resolved={resolved}
+          key={item.key}
+          item={item}
+          active={active === item.key}
           onSelect={() => {
-            const { where, at } = roughInSentence(resolved.point);
-            showToast(roughInCalloutKey(resolved.point), {
-              type: resolved.point.type,
-              where,
-              at,
-            });
+            setActive(item.key);
+            const callout = roughInCallout(item);
+            showToast(callout.key, callout.vars);
           }}
         />
       ))}
@@ -116,8 +109,8 @@ export function RoughInLayer() {
   );
 }
 
-function Fitting({ resolved, onSelect }: { resolved: ResolvedPoint; onSelect: () => void }) {
-  const tier = lineTier(resolved.point);
+function Fitting({ item, active, onSelect }: { item: RoughInItem; active: boolean; onSelect: () => void }) {
+  const { resolved, tier } = item;
   const colour =
     tier === "confirmed"
       ? (COLOUR[resolved.point.type] ?? UTILITY_COLORS.power120)
@@ -169,7 +162,7 @@ function Fitting({ resolved, onSelect }: { resolved: ResolvedPoint; onSelect: ()
       onPointerOver={() => (document.body.style.cursor = "pointer")}
       onPointerOut={() => (document.body.style.cursor = "auto")}
     >
-      <mesh position={[x, y, z]} userData={{ roughIn: resolved.point.type, tier }}>
+      <mesh position={[x, y, z]} userData={{ roughIn: item.key, tier }}>
         <boxGeometry args={resolved.size} />
         {tier === "confirmed" ? (
           <meshStandardMaterial color={colour} metalness={0.2} roughness={0.5} />
@@ -186,6 +179,13 @@ function Fitting({ resolved, onSelect }: { resolved: ResolvedPoint; onSelect: ()
       <primitive object={lead} />
       {resolved.highLoopY !== null && (
         <HighLoop at={resolved.position} apex={resolved.highLoopY} colour={colour} tier={tier} />
+      )}
+      {/* The point picked in the list, drawn over whatever stands in front of it. */}
+      {active && (
+        <mesh position={[x, y, z]} renderOrder={999} raycast={() => null} name="rough-in-focus">
+          <sphereGeometry args={[ft(4), 20, 14]} />
+          <meshBasicMaterial color={FOCUS} transparent opacity={0.5} depthTest={false} depthWrite={false} />
+        </mesh>
       )}
     </group>
   );
