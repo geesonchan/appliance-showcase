@@ -1272,6 +1272,46 @@ written into geometry instead of read from `ROOM`.
   Checked by hanging it over package D's island in a prototype that was then
   removed. Not yet done: the install view's outline round an appliance is still
   a box `heightIn` tall, so round an island hood it is a 30" box.
+- **The 66"-76" range belongs to the 108-1/2" ceiling.** *(Leo, round 47.)* The
+  drawing's 30"-45-1/16" is the bottom of the hood to the top of its cover, so
+  under a 108-1/2" ceiling the underside can be anywhere from 63-7/16" to
+  78-1/2". Headroom takes it to 66" at the bottom, because people walk under an
+  island hood, and the telescoping cover's last 2-1/2" of travel is left alone
+  at the top, which is 66"-76"; 72" is in the middle. If the ceiling ever becomes
+  a parameter this range has to be worked out again, and a low ceiling reaches
+  the headroom line first: under an 8' ceiling (96") the shortest overall height,
+  30", puts the underside at 66" at most — exactly the headroom line, with
+  nothing to spare. If E is to support an 8' ceiling, that is the first thing
+  that stops it.
+- **What the cooktop prototype found.** *(Round 47; a temporary prototype put
+  CIT367YG on package D's island with HMIB42WS over it, then was removed. None
+  of this is built.)*
+  - The guide's two figures under the cooktop agree if read one way. Page 7
+    (ventilation) asks for at least 3-3/4" (95 mm) from the counter's surface to
+    the top of the drawer and 13/16" (20 mm) at the back of the cabinet. The
+    diagram on page 8 gives at most 2-3/4" of cooktop below the counter, a 1"
+    conduit fitting and at least 1" of air. 2-3/4" + 1" of air is 3-3/4"; with
+    the fitting as well it is 4-3/4". The reading that agrees is that the 1" of
+    air is under the body and the fitting stands clear of the drawer. That is an
+    inference: the guide does not say it.
+  - The island has no drawer cabinet to measure against. Its base is plain
+    boxes either side of and behind the two openings, and its top is one solid
+    box with nothing cut out of it. A cutout, a drawer base and its clearances
+    are all new for E.
+  - Package D's island is too short for a 36" cooktop and its microwave drawer:
+    set halfway along it, the cooktop runs over the drawer's opening. This is
+    D20's "a 72" island that takes the cooktop has no room for a 24" machine" in
+    practice.
+  - The check that a hood is centred over its cooking surface
+    (`layoutRules.ts`, `d11-4`) compares the x coordinate only. On a wall, and
+    on an island laid parallel to the back wall, x is along the run and the
+    check is right. On an island turned across the room, x is across it, and a
+    hood slid along the island would pass. It has to compare along the island
+    when the cooking surface is on one.
+  - An island machine's floor riser (`UtilityLayer.tsx`) is offset 6" behind the
+    machine by `z - cos(rotationY) * 6"` only. Turned a quarter, cos is 0, so the
+    riser sits under the middle of the machine instead of behind it. Seen in the
+    code; the riser is too faint to read in the screenshots.
 
   Sight lines need no picture: a standing eye is about 64" and a seated one about
   45", both under a 72" underside, so the hood does not block the view. What is
@@ -1529,3 +1569,9 @@ Registered, not scheduled. None of these is a round of its own.
   slot is at the end of a tall bank with cabinets round it, which is not the
   same case. It deserves a test of its own. *(Noted 2026-09-14, round 46, Leo:
   not now.)*
+- **The install view's outline round an island hood is a 30" box.** The outline
+  round every appliance is a box its catalogue `heightIn` tall, and HMIB42WS's is
+  the collapsed 30", so in the view that exists to explain installation the
+  outline is ten times the 2-3/4" canopy it surrounds. Round 46 drew the hood
+  itself right and left this. *(Noted 2026-09-14, round 47, Leo: the next round
+  or the one after.)*
