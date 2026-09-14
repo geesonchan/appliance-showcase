@@ -155,6 +155,18 @@ real appliance.
 `exported + skipped === rowsRead` is asserted, so no row can disappear without
 appearing in one of those counts.
 
+*Amended 2026-09-14 (round 40), Leo:* it is asserted on the real run too, not
+only over the test fixture. A run that does not close exits with an error and
+writes nothing (`assertAccounted`), and the first line of the summary carries
+the skipped total — `read 33 rows, exported 32, skipped 1` — so that line read
+on its own adds up. The reason: an import was reported as read 33 / exported 29
+/ skipped 1. The converter counts every row it does not export, so the other
+three were almost certainly on another line under `skipped:`, but that run's
+CSV and output are not in the repository and no committed `appliances.json` ever
+held 29 entries (it went from 25 to 32 in `e0eaf0f` and has been 32 since), so
+which three rows, and why, cannot be recovered. The same kind of failure as the
+smoke suite's count (Open items): a summary that can be misread as success.
+
 **Counts by default, rows on request.** The summary reports buckets, not lines:
 `no width: 12` rather than twelve lines. `--verbose` expands them. The one
 exception is blank types, which are always named, for the reason above. A
@@ -1180,6 +1192,17 @@ written into geometry instead of read from `ROOM`.
   the catalogue.
 - **The canopy is 27" deep**, from the drawing on page 8 of the manual. The same
   page's text says 23-3/16"; Leo is checking the spec sheet. *(Round 37.)*
+- **Sheet cells for CIT367YG and HMIB42WS are not yet checked by rendering.**
+  *(Round 40.)* Leo filled CIT367YG's Depth and Height and changed its
+  `cutoutHeightIn` to 3-3/4" from the manual (at most 2-3/4" under the counter
+  plus the 1" connection), and cleared HMIB42WS's `cutoutDepthIn` and
+  `cutoutHeightIn`, since an island hood has no cutout. CIT367YG is still
+  skipped as `no slot: cooktop`, so none of its cells reach `appliances.json`
+  until `slot-cooktop` exists; verify them then. The export read in round 40
+  (`showcase_export.csv`, saved 2026-09-13 18:38) did not yet carry two of the
+  edits: CIT367YG's `cutoutHeightIn` was still 3-7/8, and HMIB42WS's two cutout
+  cells were 27 and 30 — the same figures as its new Depth and Height — rather
+  than blank. That import was not committed.
 - **Every aisle is measured counter edge to counter edge.** *(Leo, round 38.)*
   The island is described in three figures, and every aisle check uses the
   last of them:

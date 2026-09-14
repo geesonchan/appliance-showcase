@@ -233,7 +233,7 @@ So `Width = "36 CD"` on a `Refrigerator` with `Feature = "French Door"` gives
 The import prints, and the tests assert on:
 
 ```
-read 38 rows, exported 24
+read 38 rows, exported 24, skipped 14
 skipped:
      4  no slot: other
      2  blank type
@@ -253,8 +253,10 @@ warnings:
 re-run with --verbose to list the rows behind those counts
 ```
 
-`exported + skipped` always equals `rowsRead`; a test enforces it, so a row can
-never vanish silently.
+`exported + skipped` always equals `rowsRead`. A test enforces it over the
+fixture, and the import itself checks it on every real run: if it does not
+close, the import exits with an error and writes nothing. Read the skipped
+total on the first line, not the first line under `skipped:`.
 
 Everything is counted rather than listed, with two exceptions:
 

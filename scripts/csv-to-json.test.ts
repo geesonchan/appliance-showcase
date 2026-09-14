@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import slotsFile from "../data/slots.json";
-import { convert, formatSummary, parseCsv } from "./csv-to-json.ts";
+import { assertAccounted, convert, formatSummary, parseCsv } from "./csv-to-json.ts";
 import {
   BLANK_TYPE,
   UnknownApplianceTypeError,
@@ -91,6 +91,22 @@ describe("skipping rows the scene has no place for", () => {
     const { summary } = run();
     const skipped = Object.values(summary.skipped).reduce((a, b) => a + b, 0);
     expect(summary.exported + skipped).toBe(summary.rowsRead);
+    expect(() => assertAccounted(summary)).not.toThrow();
+  });
+
+  it("refuses a run that loses rows, and says how many", () => {
+    const { summary } = run();
+    // Break it: three rows neither exported nor counted.
+    const lost = { ...summary, exported: summary.exported - 3 };
+    expect(() => assertAccounted(lost)).toThrow(/3 rows unaccounted for/);
+  });
+
+  it("puts the skipped total on the first line", () => {
+    const { summary } = run();
+    const skipped = Object.values(summary.skipped).reduce((a, b) => a + b, 0);
+    expect(formatSummary(summary).split("\n")[0]).toBe(
+      `read ${summary.rowsRead} rows, exported ${summary.exported}, skipped ${skipped}`,
+    );
   });
 });
 

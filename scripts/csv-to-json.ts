@@ -283,8 +283,30 @@ export function convert(
   return { appliances, summary };
 }
 
+const totalSkipped = (summary: ConversionSummary) =>
+  Object.values(summary.skipped).reduce((a, b) => a + b, 0);
+
+/**
+ * Every row read is either exported or counted under a skip reason. Checked on
+ * the real run, not only in the tests: an import once reported 33 read and 29
+ * exported beside a single skip line, and nothing stopped it being read as a
+ * run that had lost three rows. A run that does not close writes nothing.
+ */
+export function assertAccounted(summary: ConversionSummary): void {
+  const skipped = totalSkipped(summary);
+  if (summary.exported + skipped !== summary.rowsRead) {
+    throw new Error(
+      `read ${summary.rowsRead} rows but exported ${summary.exported} + skipped ${skipped} = ` +
+        `${summary.exported + skipped}: ${summary.rowsRead - summary.exported - skipped} rows unaccounted for`,
+    );
+  }
+}
+
 export function formatSummary(summary: ConversionSummary, verbose = false): string {
-  const lines = [`read ${summary.rowsRead} rows, exported ${summary.exported}`];
+  // The skipped total is on the first line, so the line read on its own closes.
+  const lines = [
+    `read ${summary.rowsRead} rows, exported ${summary.exported}, skipped ${totalSkipped(summary)}`,
+  ];
 
   const skipped = Object.entries(summary.skipped).sort((a, b) => b[1] - a[1]);
   if (skipped.length > 0) {
@@ -352,6 +374,14 @@ function main() {
       process.exit(1);
     }
     throw error;
+  }
+
+  try {
+    assertAccounted(result.summary);
+  } catch (error) {
+    console.log(formatSummary(result.summary, verbose));
+    console.error(`\n${(error as Error).message}\nnothing written\n`);
+    process.exit(1);
   }
 
   const file = {
