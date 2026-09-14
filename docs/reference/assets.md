@@ -1,7 +1,8 @@
 # Where the room's surfaces come from
 
-Every texture and every reflection in this app is generated at run time. There
-are no image files in the repository, and nothing is fetched from a CDN.
+Every texture and every reflection in this app is generated at run time. The app
+loads no image files, and nothing is fetched from a CDN. (The drawings in this
+directory are reference material for the figures, not something the page loads.)
 
 ## Textures — `src/three/textures.ts`
 

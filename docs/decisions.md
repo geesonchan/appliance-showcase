@@ -187,6 +187,25 @@ point never fail on equality (`fit.ts`). Two sheet traps sit next to this: the
 cutout columns run Width, Height, Depth while the body columns run Width,
 Depth, Height, so copying one set across the other crosses height and depth.
 
+**T36IT100NP's 84" is taken as the cabinet opening's height — an inference.**
+*(Leo, round 40.)* Its own sheet is not in `docs/reference/`, so which of
+its figures 84" is cannot be read. Three things point the same way, and none
+of them is that sheet:
+- (a) Leo confirms 84".
+- (b) The sheet of its sibling in the same Freedom series, T36BT120NS
+  (`docs/reference/thermador-t36bt120ns.png`, page 4, proud install), marks 84"
+  as the height of the cutout.
+- (c) Package A's refrigerator slot is 36" x 84" x 25", and a built-in
+  refrigerator renders in it and fits (round 40 screenshot). The machine drawn
+  there is T36BT120NS, not T36IT100NP; T36IT100NP appears among that slot's
+  alternatives with no overrun against it but has not itself been drawn.
+
+To check when T36IT100NP's sheet is in the repository. The side effect now:
+`appliances.json` has 84" for both its body height and its cutout height, so
+the clearance between them is zero. `normalise.ts` quotes that sheet's page 4
+as giving the body as 83-7/8" (`FREEDOM_SPLIT`, round 13); if the sheet, once
+in, says so, the body height changes and the cutout stays 84".
+
 **Counts by default, rows on request.** The summary reports buckets, not lines:
 `no width: 12` rather than twelve lines. `--verbose` expands them. The one
 exception is blank types, which are always named, for the reason above. A
