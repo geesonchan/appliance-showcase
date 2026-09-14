@@ -1307,16 +1307,47 @@ written into geometry instead of read from `ROOM`.
     on an island laid parallel to the back wall, x is along the run and the
     check is right. On an island turned across the room, x is across it, and a
     hood slid along the island would pass. It has to compare along the island
-    when the cooking surface is on one.
+    when the cooking surface is on one. *Fixed in round 48, before `slot-cooktop`
+    (Leo): E's point is the cooktop and hood on the island, and a check that
+    misses there leaves the main scene without a guard. Over an island the hood
+    is now held centred along the island and across it, the axes taken from the
+    way the island is turned; against a wall the check is unchanged. The case
+    in `layout.test.ts` — an island 72" along z, a hood 6" off along it — found
+    nothing wrong on the old check and fails on the new one.*
   - An island machine's floor riser (`UtilityLayer.tsx`) is offset 6" behind the
     machine by `z - cos(rotationY) * 6"` only. Turned a quarter, cos is 0, so the
     riser sits under the middle of the machine instead of behind it. Seen in the
-    code; the riser is too faint to read in the screenshots.
+    code; the riser is too faint to read in the screenshots. *To be fixed with
+    `slot-cooktop`, not before. (Leo, round 48.)*
 
   Sight lines need no picture: a standing eye is about 64" and a seated one about
   45", both under a 72" underside, so the hood does not block the view. What is
   left to look at is how a 27"-deep canopy sits over the island, once it is drawn
   right. *(Leo, round 45.)*
+- **Under the cooktop: 3-3/4" on the drawing, 4-3/4" on site.** *(Leo, round
+  48.)* The reading in round 47 that makes the guide's two figures agree may be
+  right, but it is not a source. A figure the guide states is taken over one
+  made by adding figures up, as everywhere else in this file.
+  - The top of the drawer is at least 3-3/4" below the counter's surface:
+    CIT367YG guide, page 7, stated.
+  - At least 13/16" at the back of the cabinet: page 7, stated.
+  - The diagram on page 8, 2-3/4" + 1" + 1" = 4-3/4", does not agree with page
+    7. The stated 3-3/4" is taken; where the extra inch comes from is not known.
+    **A known ambiguity.**
+  - *Site practice (Leo), not the guide:* the drawing is labelled 3-3/4", and on
+    site 4-3/4" is left. An inch in a drawer base costs nothing; a cooktop that
+    will not go in is the problem.
+- **E's island is 72" long and carries only the cooktop.** *(Leo, round 48.)* No
+  microwave drawer and no wine cabinet. The arithmetic was done in round 36 —
+  36" of cooktop + 15" + 12" of landing is 63", which leaves no room for a 24"
+  machine — and round 47's prototype made it visible. 72" is the 36" cooktop
+  with 18" of landing each side, and seats three at 24" each. Rule 4 asks for
+  15" and 12"; 18" and 18" is past both minimums, so it conforms. **Screenshots
+  label the landings as built, 18" and 18", not as the rule's 15" and 12".**
+- **Rule 7 does nothing on E, and has to be rewritten.** It says which way the
+  island faces from its microwave drawer and wine cabinet, and E's island has
+  neither. *(Leo says this was registered in round 36; this file had no entry
+  for it until round 48.)* Not rewritten yet.
 - **Until E, nobody can pick the island hood.** *(Round 45.)* HMIB42WS could be
   picked from the hood alternatives in packages B and D on the live site: the
   list offered every hood and refused only on width, and both slots are 42".

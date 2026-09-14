@@ -14,7 +14,7 @@ import {
 } from "./room";
 import { PACKAGE_SLOTS } from "./packages";
 import { SLOT_BY_ID } from "./slots";
-import type { Appliance, SlotId } from "../types";
+import type { Appliance, Slot, SlotId } from "../types";
 
 /**
  * The cabinet rules, as something the code can be held to.
@@ -192,6 +192,8 @@ export function checkLayout(
   selection?: Partial<Record<SlotId, Appliance>>,
   /** The island the runs were generated with, when checking a layout that is not the room. */
   island: IslandLayout = ISLAND,
+  /** Where the slots stand, when checking a placement that is not the room's. */
+  slots: Record<SlotId, Slot> = SLOT_BY_ID,
 ): LayoutViolation[] {
   const problems: LayoutViolation[] = [];
   const fail = (code: string, message: string) => problems.push({ code, message });
@@ -414,13 +416,32 @@ export function checkLayout(
         );
       }
     }
-    const rangeW = SLOT_BY_ID["slot-range"].cutout.w;
-    const hoodW = SLOT_BY_ID["slot-hood"].cutout.w;
+    const rangeW = slots["slot-range"].cutout.w;
+    const hoodW = slots["slot-hood"].cutout.w;
     if (hoodW < rangeW) fail("d13-hood-width", `hood is ${hoodW}" over a ${rangeW}" range`);
-    if (
-      Math.abs(SLOT_BY_ID["slot-hood"].position[0] - SLOT_BY_ID["slot-range"].position[0]) > 1e-6
-    ) {
-      fail("d11-4", "hood is not centred over the range");
+    // And centred on it. Against a wall that is along the run, which is x: the
+    // range is only ever on the back leg. Over an island the hood hangs from the
+    // ceiling straight over the cooktop (D20), so it is centred along the island
+    // and across it, and which of x and z is which follows the way the island is
+    // turned. Comparing x alone let a hood slid along an island turned across
+    // the room pass (round 48).
+    const cooktop = slots["slot-range"].position;
+    const hood = slots["slot-hood"].position;
+    if (slots["slot-range"].mount !== "island") {
+      if (Math.abs(hood[0] - cooktop[0]) > 1e-6) {
+        fail("d11-4", "hood is not centred over the range");
+      }
+    } else {
+      const along = island.axis === "x" ? 0 : 2;
+      for (const [axis, where] of [
+        [along, "along"],
+        [2 - along, "across"],
+      ] as const) {
+        const off = Math.abs(hood[axis] - cooktop[axis]);
+        if (off > 1e-6) {
+          fail("d11-4", `hood is ${inches(off).toFixed(2)}" off centre ${where} the island`);
+        }
+      }
     }
   }
 

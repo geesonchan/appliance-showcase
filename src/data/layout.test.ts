@@ -2,7 +2,8 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { CABINETS, diagonalDoor, hoodBridgeBand } from "./cabinets";
 import { counterOutline, isRectilinearL } from "./counter";
 import { FIXTURES as TEST_APPLIANCES } from "./testFixtures";
-import type { Appliance } from "../types";
+import type { Appliance, Slot, SlotId } from "../types";
+import type { IslandLayout } from "./layoutTemplate";
 import { checkHeights, checkLayout, LAYOUT_LIMITS, occupants } from "./layoutRules";
 import { FIXTURE_BY_ID } from "./fixtures";
 import {
@@ -157,6 +158,62 @@ describe("D11 rule 4 · the range sits with landing either side, hood over it", 
       ...rest,
     ];
     expect(codes(runs)).toContain("d11-4");
+  });
+});
+
+/**
+ * Round 48: on an island the hood is centred along the island, whichever way
+ * the island is turned.
+ *
+ * The check used to compare x only. On a wall and on an island parallel to the
+ * back wall x is along the run, but on an island turned across the room it is
+ * across, so a hood slid along the island passed. That was a missed failure,
+ * not a false one: this case found nothing wrong on the old check.
+ *
+ * Nothing here comes from the placement code. The island's extents are written
+ * out — 72" along z, 36" across x — so which way is "along" is a fact of the
+ * extents, and the cooktop and hood are put on it by hand.
+ */
+describe("D11 rule 4 · a hood over an island cooktop is centred on it", () => {
+  const island = (axis: "x" | "z"): IslandLayout =>
+    axis === "z"
+      ? { ...ISLAND, present: true, axis, x: [-1.5, 1.5], z: [-3, 3] }
+      : { ...ISLAND, present: true, axis, x: [-3, 3], z: [-1.5, 1.5] };
+  const centre = (i: IslandLayout) => [(i.x[0] + i.x[1]) / 2, (i.z[0] + i.z[1]) / 2] as const;
+  /** The room's slots with the cooktop in the middle of the island and the hood `dx`, `dz` feet off it. */
+  const hung = (i: IslandLayout, dx: number, dz: number): Record<SlotId, Slot> => {
+    const [x, z] = centre(i);
+    return {
+      ...SLOT_BY_ID,
+      "slot-range": { ...SLOT_BY_ID["slot-range"], mount: "island", position: [x, 0, z] },
+      "slot-hood": { ...SLOT_BY_ID["slot-hood"], mount: "island", position: [x + dx, 6, z + dz] },
+    };
+  };
+  const hoodProblems = (i: IslandLayout, slots: Record<SlotId, Slot>) =>
+    checkLayout(RUNS, undefined, i, slots).filter(
+      (v) => v.code === "d11-4" && v.message.includes("hood"),
+    );
+
+  it("catches a hood slid 6 inches along an island turned across the room", () => {
+    const across = island("z");
+    // Along is the long side: the extents say so, not the code under test.
+    expect(across.z[1] - across.z[0]).toBeGreaterThan(across.x[1] - across.x[0]);
+    expect(hoodProblems(across, hung(across, 0, 0.5))).not.toEqual([]);
+  });
+
+  it("catches a hood slid 6 inches along an island parallel to the back wall", () => {
+    expect(hoodProblems(island("x"), hung(island("x"), 0.5, 0))).not.toEqual([]);
+  });
+
+  it("catches a hood slid 6 inches across the island, either way it is turned", () => {
+    expect(hoodProblems(island("z"), hung(island("z"), 0.5, 0))).not.toEqual([]);
+    expect(hoodProblems(island("x"), hung(island("x"), 0, 0.5))).not.toEqual([]);
+  });
+
+  it("passes a hood hung straight over the cooktop, either way the island is turned", () => {
+    for (const axis of ["x", "z"] as const) {
+      expect(hoodProblems(island(axis), hung(island(axis), 0, 0)), axis).toEqual([]);
+    }
   });
 });
 
