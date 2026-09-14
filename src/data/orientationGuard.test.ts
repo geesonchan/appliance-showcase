@@ -47,28 +47,10 @@ const FRAME_MODULE = "src/data/frame.ts";
  * exact. Step 2 fixes the ones that are wrong today; step 3 the ones that are
  * wrong once a hood hangs over the island.
  */
-const PENDING: Record<string, { hits: number; step: 2 | 3; why: string }> = {
-  "src/three/CabinetLayer.tsx": {
-    hits: 5,
-    step: 2,
-    why: "doors guess their face from the box's proportions and always open to +x or +z; `box.facing` says which",
-  },
-  "src/three/RoughInLayer.tsx": {
-    hits: 1,
-    step: 2,
-    why: "a leader line guesses which way is out from its host's proportions and always runs to +x or +z",
-  },
-  "src/three/UtilityLayer.tsx": {
-    hits: 1,
-    step: 2,
-    why: "`wallAnchor` reads a quarter turn as the left wall and anything else as the back wall",
-  },
-  "src/ui/PlanThumbnail.tsx": {
-    hits: 1,
-    step: 2,
-    why: "any turn at all swaps width and depth, so the parallel island's microwave drawer is drawn sideways",
-  },
-};
+// Round 50, step 2: the four that were here — doors, leader lines, the wall
+// anchor and the plan thumbnail — now read `facing`, and the list is empty.
+// Step 3's sites are back-wall assumptions this guard cannot see (D22).
+const PENDING: Record<string, { hits: number; step: 2 | 3; why: string }> = {};
 
 /**
  * Where a turn is decided rather than read: allowed, permanently, at the count
@@ -170,14 +152,9 @@ describe("nothing outside frame.ts works out which way a thing faces", () => {
     expect(wrong, wrong.join("\n")).toEqual([]);
   });
 
-  it("has step 2 take the four that are wrong today", () => {
-    // D22: step 2 is these four and the fly-in angle; step 3 is the hood over
-    // the island. Named here so the list is the plan, not a tolerance.
-    expect(Object.entries(PENDING).filter(([, entry]) => entry.step === 2).map(([file]) => file).sort()).toEqual([
-      "src/three/CabinetLayer.tsx",
-      "src/three/RoughInLayer.tsx",
-      "src/three/UtilityLayer.tsx",
-      "src/ui/PlanThumbnail.tsx",
-    ]);
+  it("has nothing left pending", () => {
+    // D22: step 2 took the four that were wrong today. Nothing is allowed to be
+    // added back here as a tolerance; a new site is migrated, not listed.
+    expect(PENDING).toEqual({});
   });
 });

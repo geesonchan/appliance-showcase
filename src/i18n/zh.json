@@ -301,6 +301,8 @@
   "suggestion.moveSink": "把水槽放到{leg}段。",
   "suggestion.moveSinkMinimum": "把水槽移到{leg}段，{param}最小变 {minimumIn}\"。",
   "suggestion.shortenIsland": "把岛台改成 {value}\"。",
+  "refusal.cooktopLanding": "{islandIn}\" 的岛台只给电磁灶两侧留 {narrowIn}\" 和 {wideIn}\" 台面，需要 {needNarrowIn}\" 和 {needWideIn}\"。",
+  "suggestion.lengthenIsland": "把岛台加长到 {value}\"。",
   "suggestion.lengthen": "把{param}改成 {value}\"。",
   "layout.applySuggestion": "按建议调整",
   "layout.seeConfig": "打开右栏查看算式。",

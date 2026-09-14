@@ -221,6 +221,20 @@ Drawer` are three different categories; `All Freezer` is refrigeration and
 
 ---
 
+**`freestanding` usually means "nothing matched". A known hazard, noted
+2026-09-14 (round 50), Leo.** The importer reads install type from words in the
+Feature and Appliance Type cells, and a row where none of its words appears
+comes in as `freestanding`. Of the eight catalogue rows that say freestanding,
+the two dishwashers (SHV78CM3N, SHX78CM5N), the over-the-range microwave
+JVM3160RFSS and the wine cabinet PRW24C01CG are that default. They sit in the
+same bucket as the machines that really stand on their own, like package C's
+range, and nothing tells the two apart. Nothing visible is wrong today. But
+round 45's HMIB42WS was a model that some piece of code trusted an install type
+for, so any new logic that reads `installType` should not take `freestanding` at
+its word. How a machine installs comes from its manual, into `PUBLISHED_SPECS`;
+CIT367YG's `drop-in` is the first to arrive that way since PCG366W's `rangetop`
+(round 50). Not changed.
+
 ## D5 · The kitchen is a rangetop, an island, and no wall oven
 
 **Decided:** 2026-09-05 (M2), from Leo's read of the catalogue.
@@ -1667,13 +1681,58 @@ from the other step-2 fixes.
     fails too.
   - **It cannot see an assumed back wall** — `hoodOutlet`'s `backZ`, the duct
     run's `-ROOM.halfZ`, the island aisle dimension, the hood placed on the
-    range's run. Those are named for steps 2 and 3, not detected.
+    range's run. Those are named for steps 2 and 3, not detected. **Nothing
+    guards them.** Once fixed, a new position written against the back wall
+    would raise nothing. *(Leo, round 50: after step 3, see whether the guard
+    can take a rule that reading a back-wall constant outside `frame.ts` fails.
+    Not now.)*
 - **A package's slots are the ones it declares.** The schema's list of core
   slots is gone. What the L template cannot build without is the template's to
   say, by name: `TEMPLATE_NEEDS`, today the range, the hood and the dishwasher.
   Step 3 turns the first two into "a cooking surface, and a hood over it".
   Package D with no microwave drawer and no wine column loads, builds and passes
   every rule.
+
+**Step 2, report one, round 50.** *(The fly-in angle and its per-slot
+acceptance are report two, next round.)*
+- **Four places that guessed, now reading `facing`.** Each was pulled out into a
+  plain function with its old logic, held to a test that reads only the
+  island's extents and which run carries a machine, run red on the old logic,
+  and then fixed. `orientationGuard.test.ts` has nothing pending.
+  - Doors (`doorFace`): the box's own facing. On the island the working side's
+    doors were inside the island; on the wall runs anything narrower than it is
+    deep had its door on its side — the 21" drawer base beside package A's
+    range, the 3" and 1/2" fillers, the side boards of the tall units.
+  - The plan thumbnail (`planFootprint`): width across the face, turned with
+    the machine. Every island opening in A, C and D is 24" by 24", so the swap
+    could not show and the first run of the test passed on the old code for
+    that reason. It is held on a cooktop island, whose 36" by 24" shows it.
+  - Rough-in leader lines (`leaderEnd`): out of the face the host opens by.
+  - The wall anchor (`wallAnchor`): none for an island slot. Gas and water to an
+    island slot are not drawn — no island slot has either yet; step 3.
+- **Rule 4 on the island.** `cooktopLandingsIn` is the one figure: 15" one side
+  and 12" the other, along the island, to its end or the next opening. The rule
+  holds a room to it, and the generator refuses an island that falls short,
+  offering the shortest island on the slider's step that has it — 66" for a 36"
+  cooktop, since it is centred. `checkLayout` is not called by the app, so the
+  rule alone would have let a customer drag the island to 60"; the refusal is
+  what stops it.
+- **CIT367YG is `drop-in`**, in `PUBLISHED_SPECS` from its guide's pages 6-8
+  (Leo: how a machine installs is the manual's, as D4 says, the same road as
+  PCG366W's `rangetop`). The sheet's Feature cell stays blank.
+- **What the screenshots show, measured rather than eyeballed.** Before (the
+  live site) and after, pixel by pixel. The plan thumbnails did not change at
+  all in A to D, as the square openings predict. Elsewhere under 0.6% changed:
+  the doors on an island turned across the room appear on its working side, and
+  the edges of the tall units' side boards and the fillers change.
+- **A dark band now shows at the foot of an exposed run end** — the side of
+  package A's refrigerator tower, the end panel past the sink, both ends of
+  D's column group. The toe kick runs to the very end of the run, flush with
+  the side of the last cabinet. The door that was wrongly on that side stood
+  3/4" proud of it and covered the toe kick's end, so the band was always
+  there. A finished end panel goes to the floor. Not fixed: the toe kick's
+  length is what three existing tests are written against, so it is Leo's to
+  say whether it is changed with this report or after it.
 
 ## Open items
 

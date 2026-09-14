@@ -611,6 +611,16 @@ export const PUBLISHED_SPECS: Record<
     burners: 6,
     installType: ["rangetop"],
   },
+  // Thermador CIT367YG, from docs/reference/CIT367YG_Installation.pdf, pages
+  // 6-8. An induction cooktop dropped into the counter: a cutout in the stone
+  // (page 6), a drawer base under it with its clearances (page 7), and at most
+  // 2-3/4" of the machine below the counter with its glass lying on the top
+  // (page 8). The sheet's Feature cell is blank, and no word the importer reads
+  // says drop-in, so without this it came in as the default, "freestanding".
+  // How a machine installs is the manual's, not the catalogue's (D4). Round 50.
+  CIT367YG: {
+    installType: ["drop-in"],
+  },
   // Thermador MEM301WS, from docs/reference/mem301ws-spec.pdf. A 49" machine in
   // a 48-1/2" cutout: the trim overlaps 1/2" at the top and 9/16" each side.
   // The handle stands 2-3/8" off the door skin.

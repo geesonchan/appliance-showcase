@@ -1694,9 +1694,93 @@ async function captureRound49(browser) {
   await desktop.close();
 }
 
+/**
+ * Round 50: which way things face (D22 step 2, report one).
+ *
+ * Packages A to D: the room as it opens, the plan thumbnail in the panel, and —
+ * for the three with a machine in the island — the island from its working
+ * side, flown in on the microwave drawer, which is where its doors now are.
+ * Package A again with the island turned across the room. Run the same set
+ * against the live site first (BASE_URL, round "50-before") to have the room as
+ * it was beside it.
+ */
+async function captureRound50(browser) {
+  const desktop = await browser.newContext({ viewport: DESKTOP, deviceScaleFactor: 2 });
+  const page = await desktop.newPage();
+  const open = async () => {
+    await page.goto(baseUrl, { waitUntil: "load", timeout: 120000 });
+    await page.waitForSelector("canvas", { timeout: 120000 });
+    await settle(page, 3200);
+  };
+  const press = (label) =>
+    page.evaluate((text) => {
+      const button = [...document.querySelectorAll("button")].find(
+        (candidate) => candidate.textContent.trim() === text,
+      );
+      button?.click();
+      return Boolean(button);
+    }, label);
+  const toPackage = async (code) => {
+    await page.locator(`[data-segment="package"] button`, { hasText: code }).first().click();
+    await settle(page, 3000);
+  };
+  const fromList = async (name) => {
+    const back = page.getByRole("button", { name: "All appliances" }).first();
+    if (await back.isVisible()) {
+      await back.click();
+      await settle(page, 900);
+    }
+    const item = page.locator(`aside [data-panel="list"] button`, { hasText: name }).first();
+    if (!(await item.isVisible())) {
+      await page.click(`button[data-rail="left"]`);
+      await settle(page, 700);
+    }
+    await item.click();
+    await settle(page, 2400);
+  };
+  const plan = async (name) => {
+    const thumbnail = page.locator('svg[aria-label="Kitchen floor plan"]').first();
+    await thumbnail.scrollIntoViewIfNeeded();
+    await settle(page, 600);
+    await thumbnail.screenshot({ path: `${outDir}/${name}` });
+  };
+
+  const shots = [
+    ["a", "A", null],
+    ["b", "B", null],
+    ["c", "C", null],
+    ["d", "D", null],
+    ["a-across", "A", "Across the room"],
+  ];
+  for (const [label, code, turn] of shots) {
+    await open();
+    await toPackage(code);
+    if (turn) {
+      if (!(await press(turn))) throw new Error(`no "${turn}" button`);
+      await settle(page, 3000);
+    }
+    await page.screenshot({ path: `${outDir}/desktop-${label}-overview.png` });
+    await plan(`desktop-${label}-plan.png`);
+    // B's island is a prep island with no machine in it; the others are flown
+    // in on the microwave drawer, which opens to the working side.
+    if (code !== "B") {
+      await fromList("Microwave");
+      await page.screenshot({ path: `${outDir}/desktop-${label}-island-working.png` });
+    }
+  }
+  await desktop.close();
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round50") {
+    await captureRound50(browser);
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round49") {
     await captureRound49(browser);

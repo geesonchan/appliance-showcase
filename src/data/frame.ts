@@ -124,6 +124,9 @@ export function facingOf(rotationY: number): Facing {
     : { axis: "x", sign: x >= 0 ? 1 : -1 };
 }
 
+/** Whether two facings are the same way. */
+export const sameFacing = (a: Facing, b: Facing): boolean => a.axis === b.axis && a.sign === b.sign;
+
 /** The turn that faces a given way. */
 export function rotationOf(facing: Facing): number {
   if (facing.axis === "z") return facing.sign > 0 ? 0 : Math.PI;

@@ -14,7 +14,7 @@ import {
 } from "./room";
 import { PACKAGE_SLOTS } from "./packages";
 import { SLOT_BY_ID } from "./slots";
-import { islandAcross } from "./layoutTemplate";
+import { cooktopLandingsIn, islandAcross } from "./layoutTemplate";
 import { acrossOf, axisIndex, extentsOnAxis, otherAxis, outward } from "./frame";
 import type { Appliance, Slot, SlotId } from "../types";
 
@@ -443,6 +443,24 @@ export function checkLayout(
           fail("d11-4", `hood is ${inches(off).toFixed(2)}" off centre ${where} the island`);
         }
       }
+    }
+  }
+
+  // D11 rule 4 on an island (D20): 15" of counter one side of a cooktop and 12"
+  // the other, along the island's length, to its end or to the next opening in
+  // it. Round 50: until now nothing but the arithmetic that lays the island out
+  // kept it, and an island dragged to 60" left 12" and 12" with nobody saying so.
+  const islandLandings = cooktopLandingsIn(island);
+  if (islandLandings) {
+    const wide = Math.max(...islandLandings);
+    const narrow = Math.min(...islandLandings);
+    const wanted = LAYOUT_LIMITS.rangeLanding;
+    if (wide < wanted.wideIn - 1e-6 || narrow < wanted.narrowIn - 1e-6) {
+      fail(
+        "d11-4",
+        `cooktop has ${narrow.toFixed(1)}" and ${wide.toFixed(1)}" of island beside it, ` +
+          `needs ${wanted.narrowIn}" and ${wanted.wideIn}"`,
+      );
     }
   }
 

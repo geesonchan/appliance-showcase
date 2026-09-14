@@ -250,6 +250,25 @@ export const islandHasCooktop = (island: IslandLayout) =>
   island.present && island.cooktop[1] - island.cooktop[0] > 1e-9;
 
 /**
+ * The counter either side of an island's cooktop, along the island, in inches:
+ * from the cooktop's cabinet to the end of the island, or to the next opening
+ * in it. Null where the island has no cooktop.
+ *
+ * D11 rule 4's island branch (D20), round 50. One implementation: the rule
+ * holds a room to it, and the generator refuses an island that falls short of
+ * it rather than building one.
+ */
+export function cooktopLandingsIn(island: IslandLayout): [number, number] | null {
+  if (!islandHasCooktop(island)) return null;
+  const along = islandAlong(island);
+  const [start, end] = island.cooktop;
+  const openings = [island.microwave, island.wine].filter(([from, to]) => to - from > 1e-9);
+  const before = Math.max(along[0], ...openings.filter(([, to]) => to <= start + 1e-9).map(([, to]) => to));
+  const after = Math.min(along[1], ...openings.filter(([from]) => from >= end - 1e-9).map(([from]) => from));
+  return [(start - before) * 12, (after - end) * 12];
+}
+
+/**
  * A point on the island, from a distance along it and one across it.
  *
  * Everything about an island is easier to say in its own terms — this far
@@ -2591,6 +2610,44 @@ export function generateLayout(
   if (blocked.length > 0) return { ok: false, reasons: blocked };
 
   const island = islandFor(params, spec, halfX, halfZ);
+
+  // D11 rule 4 on the island (D20): an island too short for its cooktop's
+  // landings is refused rather than built, on the same figures the rule holds a
+  // room to (`cooktopLandingsIn`). Round 50: a 60" island used to build with 12"
+  // and 12" beside the cooktop, and nothing said so.
+  const landings = cooktopLandingsIn(island);
+  if (landings) {
+    const wanted = LAYOUT_LIMITS.rangeLanding;
+    const wide = Math.max(...landings);
+    const narrow = Math.min(...landings);
+    if (wide < wanted.wideIn - 1e-6 || narrow < wanted.narrowIn - 1e-6) {
+      // The cooktop is centred, so both sides grow together and each needs the
+      // wide figure; the shortest island on the slider's step that has it.
+      const { min, step: increment } = PARAM_LIMITS.islandLengthIn;
+      const needIn = openingIn(spec["slot-cooktop"]) + 2 * wanted.wideIn;
+      const value = min + Math.ceil((needIn - min) / increment - 1e-9) * increment;
+      return {
+        ok: false,
+        reasons: [
+          {
+            key: "refusal.cooktopLanding",
+            vars: {
+              islandIn: params.islandLengthIn,
+              narrowIn: Number(narrow.toFixed(2)),
+              wideIn: Number(wide.toFixed(2)),
+              needNarrowIn: wanted.narrowIn,
+              needWideIn: wanted.wideIn,
+            },
+            suggestion: {
+              key: "suggestion.lengthenIsland",
+              vars: { value },
+              patch: { islandLengthIn: value },
+            },
+          },
+        ],
+      };
+    }
+  }
 
   // The left leg's bank starts at the wall; the back leg's picks up where the
   // corner wall cabinet stops, which is 24" in over a lazy susan and 12" in

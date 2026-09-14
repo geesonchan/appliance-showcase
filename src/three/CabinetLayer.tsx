@@ -12,6 +12,8 @@ import { counterOutline } from "../data/counter";
 import { ISLAND, RUNS } from "../data/room";
 import { SLOT_BY_ID } from "../data/slots";
 import { islandHasCooktop } from "../data/layoutTemplate";
+import { doorFace } from "../data/doorFace";
+import { rotationOf } from "../data/frame";
 import { useSelection } from "../store/useSelection";
 import { useIsMobile } from "../hooks/useIsMobile";
 import { cabinetPaint, useAppStore } from "../store/useAppStore";
@@ -64,28 +66,6 @@ function useBoxGeometry(size: [number, number, number]) {
 }
 
 /**
- * Which way a box's door faces, and how wide that face is.
- *
- * The perimeter runs are against the -X and -Z walls, so a box on the left run
- * is deeper across x than along z and opens toward +x; a box on the back run
- * does the opposite. The island opens toward the room. Working it out from the
- * box's own proportions rather than carrying an axis on every box keeps the
- * generator from having to know which way a door swings.
- */
-function facing(box: CabinetBox): { axis: "x" | "z"; sign: -1 | 1; width: number; height: number } {
-  const alongZ = box.size[0] < box.size[2];
-  return {
-    axis: alongZ ? "x" : "z",
-    // Round 49: a box can say its front is the other face. Only the cooktop's
-    // drawer base does so far; the island's other boxes still open toward +x or
-    // +z, which is registered in decisions.md's Open items.
-    sign: box.front ?? 1,
-    width: alongZ ? box.size[2] : box.size[0],
-    height: box.size[1],
-  };
-}
-
-/**
  * A shaker door: a frame with a panel recessed inside it.
  *
  * Two layers, because that is what a cabinet door is. The eighth-inch gap
@@ -99,8 +79,11 @@ function facing(box: CabinetBox): { axis: "x" | "z"; sign: -1 | 1; width: number
  * which is the point of a token: the same geometry, a different finish.
  */
 function Door({ box, s }: { box: CabinetBox; s: SurfaceProps }) {
-  const { axis, sign, width, height } = facing(box);
-  const depth = axis === "x" ? box.size[0] : box.size[2];
+  // On the face the box records as its front (D22). Round 50: this used to
+  // guess from the box's proportions, which hid the island's working-side doors
+  // inside it and put a narrow cabinet's door on its side.
+  const face = doorFace(box);
+  const { width, height, depth } = face;
   const w = width - DOOR.reveal;
   const h = height - DOOR.reveal;
   const front = depth / 2 + DOOR.thickness / 2;
@@ -112,10 +95,7 @@ function Door({ box, s }: { box: CabinetBox; s: SurfaceProps }) {
   ];
 
   return (
-    <group
-      name={"door-" + box.id}
-      rotation={[0, (axis === "x" ? Math.PI / 2 : 0) + (sign < 0 ? Math.PI : 0), 0]}
-    >
+    <group name={"door-" + box.id} rotation={[0, rotationOf(face), 0]}>
       {/* The frame: stiles up the sides, rails across. Drawn as one slab, with
           its grain running across, because that is the rails' direction and the
           rails are what meets the eye at the top and bottom of a run. */}
@@ -150,8 +130,8 @@ function Door({ box, s }: { box: CabinetBox; s: SurfaceProps }) {
  * `OVEN_GRILLE` in towerVent.ts; see docs/decisions.md D11 rule 12.
  */
 function GrilleDoor({ box, s }: { box: CabinetBox; s: SurfaceProps }) {
-  const { axis, width, height } = facing(box);
-  const depth = axis === "x" ? box.size[0] : box.size[2];
+  const face = doorFace(box);
+  const { width, height, depth } = face;
   const w = width - DOOR.reveal;
   // Never more than leaves three inches of door under it.
   const grilleH = Math.min(ft(OVEN_GRILLE.heightIn), height - DOOR.reveal * 2 - ft(3));
@@ -168,10 +148,7 @@ function GrilleDoor({ box, s }: { box: CabinetBox; s: SurfaceProps }) {
   const pitch = grilleH / OVEN_GRILLE.slats;
 
   return (
-    <group
-      name={"grille-door-" + box.id}
-      rotation={axis === "x" ? [0, Math.PI / 2, 0] : [0, 0, 0]}
-    >
+    <group name={"grille-door-" + box.id} rotation={[0, rotationOf(face), 0]}>
       {/* The door, cut short: a frame and a recessed panel like any other. */}
       <mesh position={[0, doorY, front]} castShadow receiveShadow userData={{ cabinetRole: true }}>
         <boxGeometry args={[w, doorH, DOOR.thickness]} />

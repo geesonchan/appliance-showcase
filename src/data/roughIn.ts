@@ -5,7 +5,7 @@ import { hoodBridgeBand } from "./cabinets";
 import { ROOM, RUNS, carries, ft, type CabinetRun, type RunSegment } from "./room";
 import { parseDataFile, roughInFileSchema, type RoughInPoint } from "./schema";
 import { SLOT_BY_ID } from "./slots";
-import { onAxis, sizeOnPlan, toPlan } from "./frame";
+import { axisIndex, facingOf, onAxis, sizeOnPlan, stripFacing, toPlan, type Facing } from "./frame";
 import type { Appliance, Slot, SlotId } from "../types";
 
 /**
@@ -76,10 +76,29 @@ export interface ResolvedPoint {
   position: [number, number, number];
   /** Its extents in feet, so a bracket reads as a bracket. */
   size: [number, number, number];
-  /** The box it sits in, for the check that it is actually inside one. */
-  host: { id: string; min: [number, number, number]; max: [number, number, number] };
+  /**
+   * The box it sits in, for the check that it is actually inside one, and which
+   * way that box faces — the side a leader line leaves it by.
+   */
+  host: { id: string; min: [number, number, number]; max: [number, number, number]; facing: Facing };
   /** A drain's high loop, when it has one, in world feet. */
   highLoopY: number | null;
+}
+
+/**
+ * Where a point's leader line ends: 4" out of the face its host opens by, so
+ * the point can be seen and clicked through a wireframe.
+ *
+ * Round 50 (D22 step 2). This used to guess the face from the host's
+ * proportions and always leave by its +x or +z side, so every point in an
+ * island opening facing the runs ran its leader back into the island.
+ */
+export function leaderEnd(resolved: ResolvedPoint): [number, number, number] {
+  const end = [...resolved.position] as [number, number, number];
+  const { facing, min, max } = resolved.host;
+  const index = axisIndex(facing.axis);
+  end[index] = facing.sign > 0 ? max[index] + ft(4) : min[index] - ft(4);
+  return end;
 }
 
 /** A box in world space, as min/max corners. */
@@ -325,6 +344,7 @@ export function resolveRoughIn(slotId: SlotId, appliance: Appliance | undefined)
           id: host.id,
           min: [Math.min(...xs), host.band[0], Math.min(...zs)],
           max: [Math.max(...xs), host.band[1], Math.max(...zs)],
+          facing: facingOf(rotationY),
         },
         highLoopY: point.highLoopApexIn === null ? null : ft(point.highLoopApexIn),
       });
@@ -345,7 +365,8 @@ export function resolveRoughIn(slotId: SlotId, appliance: Appliance | undefined)
       point,
       position,
       size,
-      host: { id: host.id, min, max },
+      // A run's cabinetry opens to the room.
+      host: { id: host.id, min, max, facing: stripFacing(host.run.axis, 1) },
       highLoopY: point.highLoopApexIn === null ? null : ft(point.highLoopApexIn),
     });
   }

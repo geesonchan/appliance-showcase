@@ -170,7 +170,7 @@ describe.each(["parallel", "perpendicular"] as const)("a cooktop in an island la
     const across = acrossOf(ISLAND);
     // Its front is the working face, and its door is drawn on that face.
     expect(d.across[0]).toBeCloseTo(Math.min(...across), 6);
-    expect(drawers.front).toBe(-1);
+    expect(drawers.facing.sign).toBe(-1);
     // Guide page 7: 13/16" at the back of the cabinet.
     expect(inches(b.across[0] - d.across[1])).toBeCloseTo(13 / 16, 6);
     expect(inches(d.along[1] - d.along[0])).toBeCloseTo(36, 6);

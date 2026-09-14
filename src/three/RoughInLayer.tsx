@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import * as THREE from "three";
-import type { LineTier } from "../data/roughIn";
+import { leaderEnd, type LineTier } from "../data/roughIn";
 import { listRoughIn, roughInCallout, type RoughInItem } from "../data/roughInList";
 import { ROOM, ft } from "../data/slots";
 import { formatDimension } from "../data/dimensions";
@@ -152,12 +152,7 @@ function Fitting({
   // clickable through a wireframe.
   const lead = useMemo(() => {
     const from = new THREE.Vector3(x, y, z);
-    const to = from.clone();
-    if (Math.abs(resolved.host.max[0] - resolved.host.min[0]) > Math.abs(resolved.host.max[2] - resolved.host.min[2])) {
-      to.z = resolved.host.max[2] + ft(4);
-    } else {
-      to.x = resolved.host.max[0] + ft(4);
-    }
+    const to = new THREE.Vector3(...leaderEnd(resolved));
     const line = new THREE.LineSegments(
       new THREE.BufferGeometry().setFromPoints([from, to]),
       lineMaterial(tier, colour),

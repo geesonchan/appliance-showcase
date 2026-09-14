@@ -66,17 +66,9 @@ export interface CabinetBox {
    */
   ventSlot?: SlotId;
   /**
-   * Which face along its facing axis the door is on: -1 for the lower
-   * coordinate. Unset is +1, the face every perimeter box opens toward. An
-   * island box on the working side opens the other way. Round 49.
-   */
-  front?: -1 | 1;
-  /**
    * Which way the box's front faces, recorded where it is made (D22, round 50).
    * A run's boxes face the room; an island's face the side a cook works from,
-   * except those on the seating side. Recorded so nothing has to guess it from
-   * the box's proportions. Doors still guess until step 2; `front` is the
-   * cooktop drawer base's stopgap until then.
+   * except those on the seating side. Its door is on this face (`doorFace`).
    */
   facing: Facing;
   /** Centre of the box, in feet. */
@@ -661,7 +653,7 @@ function islandBoxes(): Omit<CabinetBox, "run">[] {
           ISLAND.cooktop,
           [ISLAND.working, ISLAND.working + ROOM.counterDepth - ft(COOKTOP_CABINET.rearGapIn)],
           ROOM.counterHeight - ft(COOKTOP_CABINET.drawerTopBelowCounterIn),
-          { outline: "island", slot: "slot-cooktop", front: -1 },
+          { outline: "island", slot: "slot-cooktop" },
         ),
         box(
           "island-behind-cooktop",

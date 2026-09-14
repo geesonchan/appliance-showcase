@@ -300,6 +300,8 @@
   "suggestion.moveSink": "Put the sink on the {leg} leg.",
   "suggestion.moveSinkMinimum": "Move the sink to the {leg} leg and {param}'s minimum becomes {minimumIn}\".",
   "suggestion.shortenIsland": "Take the island to {value}\".",
+  "refusal.cooktopLanding": "A {islandIn}\" island leaves the cooktop {narrowIn}\" and {wideIn}\" of counter either side. It needs {needNarrowIn}\" and {needWideIn}\".",
+  "suggestion.lengthenIsland": "Take the island to {value}\".",
   "suggestion.lengthen": "Take {param} to {value}\".",
   "layout.applySuggestion": "Apply",
   "layout.seeConfig": "Open Configuration for the arithmetic.",

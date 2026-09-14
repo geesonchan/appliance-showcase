@@ -9,6 +9,7 @@ import { useSelection, useSelectedBlower } from "../store/useSelection";
 import { effectiveCfm } from "../data/ventilation";
 import { resolveRoughIn } from "../data/roughIn";
 import { islandRiser } from "../data/islandRiser";
+import { wallAnchor } from "../data/wallAnchor";
 import type { Appliance, ServicePoint, SlotId, UtilityType, Utilities } from "../types";
 import { UNREVIEWED, UTILITY_COLORS, UTILITY_RADIUS_IN } from "./materials";
 
@@ -97,15 +98,6 @@ function Fitting({
   );
 }
 
-/** Where a slot meets its wall, at a given standoff from the wall plane. */
-function wallAnchor(slot: ServicePoint, standoff: number) {
-  const onLeftWall = Math.abs(slot.rotationY - Math.PI / 2) < 0.01;
-  return {
-    onLeftWall,
-    x: onLeftWall ? -ROOM.halfX + standoff : slot.position[0],
-    z: onLeftWall ? slot.position[2] : -ROOM.halfZ + standoff,
-  };
-}
 
 /**
  * Island slots have no wall to run along. Their services come up through the
@@ -138,6 +130,10 @@ function trunkPoints(
   standoff = STANDOFF.default,
 ): [number, number, number][] {
   const anchor = wallAnchor(slot, standoff);
+  // A trunk runs along the walls, and an island slot is on none of them: its
+  // services come up through the floor (`islandRiser`). Asking for a trunk to
+  // one is a bug in the caller, not a route to draw. D22.
+  if (!anchor) throw new Error(`UtilityLayer: no wall trunk to ${slot.id}, which is in the island`);
   const start = entry(standoff);
   const points: [number, number, number][] = [[start.x, y, start.z]];
   if (anchor.onLeftWall) {
@@ -184,6 +180,10 @@ function GasRuns({ effective }: { effective: Record<string, Utilities> }) {
         const gas = effective[slot.id].gas;
         if (!gas) return null;
         const a = wallAnchor(slot, STANDOFF.default);
+        // No island slot has gas yet. Running it up through the floor is D22's
+        // step 3, with the rest of what an island hood needs; until then an
+        // island slot is not drawn a trunk to a wall it is not on.
+        if (!a) return null;
         const riserTop = ft(26);
         return (
           <group key={slot.id}>
@@ -236,17 +236,14 @@ function PowerRuns({
         color={UTILITY_COLORS.power240}
       />
       {SLOTS.map((slot) => {
-        const a = wallAnchor(slot, STANDOFF.default);
         const is240 = effective[slot.id].power.voltage === 240;
         const color = is240 ? UTILITY_COLORS.power240 : UTILITY_COLORS.power120;
         const radius = ft(is240 ? UTILITY_RADIUS_IN.power240 : UTILITY_RADIUS_IN.power120);
         const trunkY = is240 ? HEIGHT.power240Trunk : HEIGHT.power120;
         const outletY = is240 ? connectionHeight(slot) : HEIGHT.power120;
-        const box: [number, number, number] = a.onLeftWall
-          ? [ft(2), ft(4.5), ft(3)]
-          : [ft(3), ft(4.5), ft(2)];
 
-        if (isIsland(slot)) {
+        const a = wallAnchor(slot, STANDOFF.default);
+        if (!a || isIsland(slot)) {
           // Behind the appliance, whichever way its door faces.
           const riser = islandRiser(slot);
           return (
@@ -265,6 +262,10 @@ function PowerRuns({
             </group>
           );
         }
+
+        const box: [number, number, number] = a.onLeftWall
+          ? [ft(2), ft(4.5), ft(3)]
+          : [ft(3), ft(4.5), ft(2)];
 
         // A hard-wired oven's junction box is where its own sheet puts it, in
         // the cabinet beside the tower, not behind the machine (round 39): the
@@ -322,6 +323,9 @@ function WaterRuns({ effective }: { effective: Record<string, Utilities> }) {
         const w = effective[slot.id]?.water;
         if (!w) return null;
         const supply = wallAnchor(slot, STANDOFF.default);
+        // As with gas: no island slot has water yet, and a floor route to one is
+        // D22's step 3.
+        if (!supply) return null;
         return (
           <group key={slot.id}>
             {w.supply && (
