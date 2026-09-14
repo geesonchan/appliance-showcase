@@ -1,7 +1,7 @@
 {
   "_meta": {
-    "generatedBy": "scripts/csv-to-json.ts from C:/Users/leoch/Downloads/showcase_export.csv",
-    "updatedAt": "2026-09-13",
+    "generatedBy": "scripts/csv-to-json.ts from C:\\Users\\leoch\\Downloads\\showcase_export.csv",
+    "updatedAt": "2026-09-14",
     "provenance": "Derived from the showcase_export tab of the 2026 AA Inventory Manager. Brand, Model, Appliance Type, Feature, Width, Depth, Height and Color come from Stock current; everything else is hand entered. Normalisation lives in scripts/normalise.ts, not in the sheet. verifiedAt is null until a row has been checked against its sourceUrl."
   },
   "appliances": [
@@ -327,8 +327,8 @@
       "topDepthIn": null,
       "frontLipIn": null,
       "widthIn": 42,
-      "heightIn": null,
-      "depthIn": null,
+      "heightIn": 30,
+      "depthIn": 27,
       "burners": null,
       "cooktopIn": null,
       "backguardIn": null,
@@ -338,8 +338,8 @@
       "doorConfig": null,
       "doorSplit": null,
       "cutoutWidthIn": 42,
-      "cutoutHeightIn": 27.25,
-      "cutoutDepthIn": 25.9375,
+      "cutoutHeightIn": 30,
+      "cutoutDepthIn": 27,
       "finish": [
         "stainless"
       ],
