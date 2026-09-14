@@ -1,3 +1,4 @@
+import appliancesFile from "../../data/appliances.json";
 import roughInFile from "../../data/rough-in.json";
 import { applianceBox } from "./applianceBox";
 import { hoodBridgeBand } from "./cabinets";
@@ -22,6 +23,27 @@ import type { Appliance, Slot, SlotId } from "../types";
 const parsed = parseDataFile(roughInFileSchema, roughInFile, "data/rough-in.json");
 
 export const ROUGH_IN = parsed.roughIn;
+
+/**
+ * Keys in `data/rough-in.json` that name no model in the catalogue.
+ *
+ * A misspelt key is never used and never says so: package B's insert hood was
+ * entered as `thermador-vcin36ws` against the catalogue's `thermador-vcin36gws`,
+ * and B's hood drew no rough-in point at all. So the file refuses to load with
+ * one. Round 43.
+ */
+export function orphanRoughInKeys(keys: string[], catalogueIds: Iterable<string>): string[] {
+  const known = new Set(catalogueIds);
+  return keys.filter((key) => !known.has(key));
+}
+
+const ORPHANS = orphanRoughInKeys(
+  Object.keys(ROUGH_IN),
+  (appliancesFile as { appliances: { id: string }[] }).appliances.map((appliance) => appliance.id),
+);
+if (ORPHANS.length > 0) {
+  throw new Error(`data/rough-in.json has entries for models not in the catalogue: ${ORPHANS.join(", ")}`);
+}
 
 /**
  * The three ways a connection is drawn (D21, round 41), one meaning each.
@@ -69,6 +91,12 @@ interface HostBox {
   band: readonly [number, number];
   /** For the cabinet beside a tower: which end of `along` meets the tower. */
   nearEnd?: 0 | 1;
+  /**
+   * For an opening on no wall run — an island slot — the opening's own frame:
+   * `along` and `band` are then local, across the face from its left edge and
+   * up, and the point is turned with the slot. `run` is not read. Round 43.
+   */
+  frame?: { origin: readonly [number, number]; rotationY: number; depth: number };
 }
 
 const segmentsOf = (run: CabinetRun) => run.segments;
@@ -107,16 +135,31 @@ function hostFor(slot: Slot, appliance: Appliance, point: RoughInPoint): HostBox
 
   if (point.location === "in-cutout") {
     const box = applianceBox(slot, appliance);
-    const segment = found?.run.segments[found.index];
-    const centre = slot.position[found?.run.axis === "z" ? 2 : 0];
-    const along = segment
-      ? ([segment.from, segment.to] as const)
-      : ([centre - box.w / 2, centre + box.w / 2] as const);
+    const band = [box.y, box.y + box.h] as const;
+    // An island slot stands on no wall run, so its opening is measured in its
+    // own frame and turned with the island. It used to borrow the first wall
+    // run instead, which drew MD24BS's outlet and anti-tip block on the left
+    // wall beside the refrigerator. Round 43.
+    if (!found) {
+      const halfW = ft(slot.cutout.w) / 2;
+      return {
+        id: `${slot.id}-opening`,
+        run: RUNS[0],
+        along: [-halfW, halfW] as const,
+        band,
+        frame: {
+          origin: [slot.position[0], slot.position[2]] as const,
+          rotationY: slot.rotationY,
+          depth: ft(slot.cutout.d),
+        },
+      };
+    }
+    const segment = found.run.segments[found.index];
     return {
       id: `${slot.id}-opening`,
-      run: found?.run ?? RUNS[0],
-      along,
-      band: [box.y, box.y + box.h] as const,
+      run: found.run,
+      along: [segment.from, segment.to] as const,
+      band,
     };
   }
 
@@ -253,6 +296,43 @@ export function resolveRoughIn(slotId: SlotId, appliance: Appliance | undefined)
           : point.y === "center"
             ? (host.band[0] + host.band[1]) / 2
             : host.band[0] + ft(point.y);
+
+    // An island opening: local across-the-face and back-from-the-face, turned
+    // the way the slot is turned (the same frame the pins use: +Z out of the
+    // face, rotated about Y).
+    if (host.frame) {
+      const { origin, rotationY, depth } = host.frame;
+      const cos = Math.cos(rotationY);
+      const sin = Math.sin(rotationY);
+      const turn = (lx: number, lz: number): [number, number] => [
+        origin[0] + lx * cos + lz * sin,
+        origin[1] - lx * sin + lz * cos,
+      ];
+      const localZ = point.z === "rear" ? -depth / 2 + size[2] / 2 : depth / 2 - size[2] / 2;
+      const [px, pz] = turn(along, localZ);
+      const corners = [
+        turn(host.along[0], -depth / 2),
+        turn(host.along[1], -depth / 2),
+        turn(host.along[0], depth / 2),
+        turn(host.along[1], depth / 2),
+      ];
+      const xs = corners.map((c) => c[0]);
+      const zs = corners.map((c) => c[1]);
+      // A quarter turn swaps which world axis the fitting's width lies along.
+      const quarter = Math.abs(sin) > 0.5;
+      resolved.push({
+        point,
+        position: [px, y, pz],
+        size: quarter ? [size[2], size[1], size[0]] : size,
+        host: {
+          id: host.id,
+          min: [Math.min(...xs), host.band[0], Math.min(...zs)],
+          max: [Math.max(...xs), host.band[1], Math.max(...zs)],
+        },
+        highLoopY: point.highLoopApexIn === null ? null : ft(point.highLoopApexIn),
+      });
+      continue;
+    }
 
     // Rear means against the wall the run stands on.
     const across =

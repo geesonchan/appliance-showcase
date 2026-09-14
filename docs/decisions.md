@@ -1378,6 +1378,29 @@ a click on them landed on the appliance. Two changes:
   `transparent`, so no shader is rebuilt. An appliance is picked from the list
   while in the install view.
 
+**Island points, and misspelt keys. Amended 2026-09-14 (round 43), Leo.** The
+list's first use highlighted MD24BS's anti-tip block on the left wall beside
+the refrigerator, not in the island. A slot on no wall run had borrowed the
+first wall run to place its points, so every point of an island machine was
+drawn on that wall — MD24BS's outlet and anti-tip block in packages A and D.
+The existing test missed it because it asked whether a point sat inside the
+host box that the same fallback had produced: test and code shared the wrong
+premise. An island opening is now measured in its own frame, across its face
+and back from it, turned with the slot. `islandRoughIn.test.ts` checks the
+points against the island's own plan extents, with the island laid both ways,
+and it failed on the old code before the fix went in.
+
+Separately, `data/rough-in.json` now refuses to load with a key the catalogue
+does not have. Package B's insert hood was entered as `thermador-vcin36ws`
+against the catalogue's `thermador-vcin36gws`, so it drew no point at all. It
+is corrected, and it was the only key that did not match.
+
+**Clicks, still not fixed.** A click on a point beside the refrigerator lands
+on the refrigerator: its install-view outline is line segments, which still take
+clicks, and round 42 stopped only meshes. That ray also passed through no
+rough-in point, so part of "it cannot be clicked" was clicking where the point
+is not. The list is the way in until this is taken up.
+
 ## Open items
 
 Registered, not scheduled. None of these is a round of its own.
@@ -1409,3 +1432,11 @@ Registered, not scheduled. None of these is a round of its own.
   `UtilityLayer`) are still flat duct-grey planes. Both are figures from site
   practice or a generic route, not from a drawing, so they belong in a tier and
   in the rough-in list. *(Noted 2026-09-14, round 42, Leo: not this round.)*
+- **Package C's rough-in is mostly unrecorded, and some of it can be.** Of C's
+  six machines only MD24BS has an entry in `data/rough-in.json`. T36FT820NS,
+  MFGS4030RS, HMCB30WS, SHX78CM5N and PRW24C01CG have none: they are not yet
+  reviewed, not "the sheet has nothing". Three of them already have a drawing in
+  `docs/reference/` — `t36ft820ns-spec.png`, `hmcb30ws-spec.png`,
+  `mfgs4030rs-front.png` — so their points can be read off and added. This is
+  work to do, not where it ends. *(Noted 2026-09-14, round 43, Leo: not this
+  round.)*

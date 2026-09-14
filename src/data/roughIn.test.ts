@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 import { APPLIANCE_BY_ID } from "./catalogue";
 import { checkLayout } from "./layoutRules";
 import {
+  ROUGH_IN,
   hasGenericRoughIn,
   lineTier,
+  orphanRoughInKeys,
   resolveRoughIn,
   roughInCalloutKey,
   roughInFor,
@@ -211,5 +213,17 @@ describe("D21 · a line says where its figure comes from", () => {
       ["drain", "under-sink", 18, 10, "rear", null, 38],
       ["air-gap", "under-sink", 24, "top", "rear", [2, 3, 2], null],
     ]);
+  });
+});
+
+describe("every rough-in entry names a model in the catalogue", () => {
+  it("has no key the catalogue does not know", () => {
+    expect(orphanRoughInKeys(Object.keys(ROUGH_IN), Object.keys(APPLIANCE_BY_ID))).toEqual([]);
+  });
+
+  it("catches a misspelt key", () => {
+    expect(
+      orphanRoughInKeys(["thermador-vcin36ws", "thermador-md24bs"], Object.keys(APPLIANCE_BY_ID)),
+    ).toEqual(["thermador-vcin36ws"]);
   });
 });
