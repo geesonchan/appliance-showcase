@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { applianceBox, flushOffset } from "../data/applianceBox";
 import { ROOM, SLOT_BY_ID } from "../data/slots";
+import { toPlan } from "../data/frame";
 import type { Appliance, SlotId } from "../types";
 
 /**
@@ -38,9 +39,8 @@ export function pinAnchors(slotId: SlotId, appliance: Appliance | undefined): TH
   const across = w / 2;
 
   return [-1, 1].map((side) => {
-    const local = new THREE.Vector3(side * across, y, out);
-    local.applyAxisAngle(new THREE.Vector3(0, 1, 0), slot.rotationY);
-    return local.add(new THREE.Vector3(slot.position[0], slot.position[1], slot.position[2]));
+    const [x, z] = toPlan(slot, side * across, out);
+    return new THREE.Vector3(x, slot.position[1] + y, z);
   });
 }
 

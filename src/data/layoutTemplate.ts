@@ -14,6 +14,7 @@ import {
 } from "./roomShell";
 import type { FixtureId, Package, PackageSlot, SlotId } from "../types";
 import { PACKAGE, slotsOf } from "./packages";
+import { extentsOnAxis, faceRotation, onAxis, sizeOnAxis } from "./frame";
 import { LAYOUT_POLICY, shrinkRank, type ShrinkGroup } from "./layoutPolicy";
 import { comboSillFor } from "./columnModel";
 import { hoodCabinetBand } from "./insertHood";
@@ -238,7 +239,11 @@ export interface IslandLayout {
 
 /** The island's extent across its long axis: its depth, in room coordinates. */
 export const islandAcross = (island: IslandLayout) =>
-  island.axis === "x" ? island.z : island.x;
+  extentsOnAxis(island.axis, island.x, island.z).across;
+
+/** The island's extent along its long axis: its length, in room coordinates. */
+export const islandAlong = (island: IslandLayout) =>
+  extentsOnAxis(island.axis, island.x, island.z).along;
 
 /** Whether the island has a cooktop set into it: the cabinets and the counter both ask. */
 export const islandHasCooktop = (island: IslandLayout) =>
@@ -256,8 +261,7 @@ export const islandPoint = (
   alongAt: number,
   acrossAt: number,
   y = 0,
-): [number, number, number] =>
-  island.axis === "x" ? [alongAt, y, acrossAt] : [acrossAt, y, alongAt];
+): [number, number, number] => onAxis(island.axis, alongAt, acrossAt, y);
 
 export interface GeneratedLayout {
   params: LayoutParams;
@@ -411,6 +415,18 @@ export const insetOf = (slot: PackageSlot) => (slot.enclosure ? PANEL : 0);
  * A category with no entry here is a package the template cannot build, and it
  * says so rather than quietly leaving the appliance out.
  */
+/**
+ * What the L template cannot build a kitchen without. D22, round 50.
+ *
+ * Not a list every package must fill — a package declares its own slots — but
+ * what this template's arithmetic stands on: the range the back leg is laid out
+ * round, the hood hung off that range, and the dishwasher the sink group is
+ * packed with. A package without one is refused by name. Step 3 of the island
+ * work, which hangs a hood over an island cooktop, changes the first two to
+ * "a cooking surface, and a hood over it".
+ */
+const TEMPLATE_NEEDS: readonly SlotId[] = ["slot-range", "slot-hood", "slot-dishwasher"];
+
 const ROLES = {
   refrigerator: "tower",
   freezer: "tower",
@@ -1205,8 +1221,7 @@ function islandFor(
   const acrossFrom = axis === "x" ? backFace + clear : leftFace + clear;
   const along = [alongFrom, alongFrom + length] as const;
   const across = [acrossFrom, acrossFrom + depth] as const;
-  const x = axis === "x" ? along : across;
-  const z = axis === "x" ? across : along;
+  const [x, z] = sizeOnAxis(axis, along, across);
 
   // Zero for a machine that stands in the tall bank instead: the island is
   // then a prep island, and an extent for something that is not on it would be
@@ -1250,6 +1265,16 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
   const corner = CORNERS[params.cornerType];
   const { sink: sinkRule } = LAYOUT_LIMITS;
   const spec = slotsOf(pkg);
+
+  // And what this template cannot build a kitchen without, whatever the
+  // package declares. D22: the schema no longer has a list of core slots.
+  const missing = TEMPLATE_NEEDS.filter((slotId) => !spec[slotId]);
+  if (missing.length > 0) {
+    throw new Error(
+      `layoutTemplate: ${pkg.id} declares no ${missing.join(", ")}, ` +
+        "and the L-with-island template cannot build a kitchen without it",
+    );
+  }
 
   // Every slot the package lists has to have somewhere to go. A package the
   // template cannot build is a loud failure at import, not an appliance that
@@ -2262,8 +2287,9 @@ function placements(
   params: LayoutParams,
 ) {
   const onRun = (run: CabinetRun, at: number): [number, number, number] =>
-    run.axis === "x" ? [at, 0, run.centre] : [run.centre, 0, at];
-  const facing = (run: CabinetRun) => (run.axis === "x" ? 0 : Math.PI / 2);
+    onAxis(run.axis, at, run.centre);
+  // A run's machines face the room, out of the run's +1 side.
+  const facing = (run: CabinetRun) => faceRotation(run.axis, 1);
 
   const find = (match: (segment: RunSegment) => boolean) => {
     for (const run of runs) {
@@ -2306,11 +2332,11 @@ function placements(
       face === "seating"
         ? island.seating - ROOM.counterDepth / 2
         : island.working + ROOM.counterDepth / 2;
-    const outward = face === "seating" ? 0 : Math.PI;
     return {
       position: islandPoint(island, mid(opening), across),
-      // A quarter turn of the island is a quarter turn of everything in it.
-      rotationY: island.axis === "x" ? outward : outward + Math.PI / 2,
+      // Out of the face it opens through: the seats are the island's higher
+      // across coordinate, the cook's side its lower, whichever way it is turned.
+      rotationY: faceRotation(island.axis, face === "seating" ? 1 : -1),
       mount: "island",
     };
   };

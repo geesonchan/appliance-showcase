@@ -5,6 +5,7 @@ import { hoodBridgeBand } from "./cabinets";
 import { ROOM, RUNS, carries, ft, type CabinetRun, type RunSegment } from "./room";
 import { parseDataFile, roughInFileSchema, type RoughInPoint } from "./schema";
 import { SLOT_BY_ID } from "./slots";
+import { onAxis, sizeOnPlan, toPlan } from "./frame";
 import type { Appliance, Slot, SlotId } from "../types";
 
 /**
@@ -302,12 +303,8 @@ export function resolveRoughIn(slotId: SlotId, appliance: Appliance | undefined)
     // face, rotated about Y).
     if (host.frame) {
       const { origin, rotationY, depth } = host.frame;
-      const cos = Math.cos(rotationY);
-      const sin = Math.sin(rotationY);
-      const turn = (lx: number, lz: number): [number, number] => [
-        origin[0] + lx * cos + lz * sin,
-        origin[1] - lx * sin + lz * cos,
-      ];
+      const turned = { position: [origin[0], 0, origin[1]], rotationY };
+      const turn = (lx: number, lz: number): [number, number] => toPlan(turned, lx, lz);
       const localZ = point.z === "rear" ? -depth / 2 + size[2] / 2 : depth / 2 - size[2] / 2;
       const [px, pz] = turn(along, localZ);
       const corners = [
@@ -319,11 +316,11 @@ export function resolveRoughIn(slotId: SlotId, appliance: Appliance | undefined)
       const xs = corners.map((c) => c[0]);
       const zs = corners.map((c) => c[1]);
       // A quarter turn swaps which world axis the fitting's width lies along.
-      const quarter = Math.abs(sin) > 0.5;
+      const [sizeX, sizeZ] = sizeOnPlan(rotationY, size[0], size[2]);
       resolved.push({
         point,
         position: [px, y, pz],
-        size: quarter ? [size[2], size[1], size[0]] : size,
+        size: [sizeX, size[1], sizeZ],
         host: {
           id: host.id,
           min: [Math.min(...xs), host.band[0], Math.min(...zs)],
@@ -340,17 +337,9 @@ export function resolveRoughIn(slotId: SlotId, appliance: Appliance | undefined)
         ? host.run.centre - ROOM.counterDepth / 2 + size[2] / 2
         : host.run.centre + ROOM.counterDepth / 2 - size[2] / 2;
 
-    const position: [number, number, number] =
-      host.run.axis === "x" ? [along, y, across] : [across, y, along];
-
-    const min: [number, number, number] =
-      host.run.axis === "x"
-        ? [host.along[0], host.band[0], host.run.centre - ROOM.counterDepth / 2]
-        : [host.run.centre - ROOM.counterDepth / 2, host.band[0], host.along[0]];
-    const max: [number, number, number] =
-      host.run.axis === "x"
-        ? [host.along[1], host.band[1], host.run.centre + ROOM.counterDepth / 2]
-        : [host.run.centre + ROOM.counterDepth / 2, host.band[1], host.along[1]];
+    const position = onAxis(host.run.axis, along, across, y);
+    const min = onAxis(host.run.axis, host.along[0], host.run.centre - ROOM.counterDepth / 2, host.band[0]);
+    const max = onAxis(host.run.axis, host.along[1], host.run.centre + ROOM.counterDepth / 2, host.band[1]);
 
     resolved.push({
       point,

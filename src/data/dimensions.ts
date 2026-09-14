@@ -12,6 +12,7 @@ import {
 } from "./room";
 import { SLOT_BY_ID } from "./slots";
 import { towerVents } from "./towerVent";
+import { onAxis } from "./frame";
 import type { Appliance, SlotId } from "../types";
 
 export interface Dimension {
@@ -247,8 +248,7 @@ function fridgeClearance(): Dimension[] {
   const { run, from, to } = clearance;
   const filler = { widthIn: clearance.widthIn };
   const across = run.centre + ROOM.counterDepth / 2 + 0.2;
-  const at = (along: number): [number, number, number] =>
-    run.axis === "x" ? [along, 0.03, across] : [across, 0.03, along];
+  const at = (along: number): [number, number, number] => onAxis(run.axis, along, across, 0.03);
 
   return [
     {

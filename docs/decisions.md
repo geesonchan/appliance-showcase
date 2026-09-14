@@ -1389,7 +1389,8 @@ written into geometry instead of read from `ROOM`.
 - **E is also stopped by `CORE_SLOTS`.** *(Found round 49, not changed.)* Every
   available package still has to name `slot-microwave` and `slot-wine`, and E's
   island has neither, so E's package entry will not load until that changes.
-  Its configuration round has to take it up.
+  Its configuration round has to take it up. *Changed in round 50 (D22): there
+  is no list of core slots; a package declares its own.*
 - **Until E, nobody can pick the island hood.** *(Round 45.)* HMIB42WS could be
   picked from the hood alternatives in packages B and D on the live site: the
   list offered every hood and refused only on width, and both slots are 42".
@@ -1584,6 +1585,95 @@ dashed box that had been clicked beside the refrigerator in earlier rounds was
 MD24BS's outlet, drawn there by the island fallback; after round 43 it is in the
 island, and there is nothing at that spot to click. `islandRoughIn.test.ts` now
 covers package C's island too.
+
+## D22 · Which way a thing faces is recorded, and written in one place
+
+**Decided:** 2026-09-14 (round 50), Leo.
+
+**What the round-49 sweep actually found.** Sixteen places got an island, or an
+island turned across the room, wrong. Five of them did the right turn, written
+out again. **The other eleven did no turn at all:** they guessed which way a thing
+faced from its proportions or from how big its turn was, or they assumed the back
+wall. So it is not only a missing shared function. The cabinet boxes and the
+slots had no notion of "which way I face", and the island had only ever been
+right where it happened to lie the way the runs do. Both are needed: one place
+that turns a point, which fixes the five, and a facing recorded where a thing is
+made, which fixes the eleven.
+
+**Fixing without that makes more.** Round 49 fixed the floor riser and added two
+new copies of the turn, and the three places fixed by then — the hood centring,
+the island rough-in points, the riser — used three different spellings. So the
+shared representation comes first, or every round of fixes adds two.
+
+**The order.** One step a round:
+1. **The frame module, and every box recording its facing** — behaviour
+   unchanged, no screenshots. Every place that turned a point by hand moves onto
+   it, the three already-fixed ones included; a guard test fails on any new one;
+   and a package's slots become the ones it declares.
+2. **What is wrong today:**
+   - the plan thumbnail's width and depth;
+   - the install view's leader lines;
+   - the island's doors;
+   - the wall-anchor of the utility runs;
+   - the island aisle dimension;
+   - the island branch of rule 4's landing check;
+   - the fly-in angle.
+3. **The hood over the island:** its duct outlet and duct run, the service trunks,
+   hanging it over an island cooktop at all, and the rough-in hosts an island slot
+   cannot find today. This is `slot-hood` hung from the ceiling, done here because
+   this step has the frame module to do it with.
+
+Then package E's configuration. *(Leo: E before these would be a package that
+generates and is drawn wrong everywhere, found one at a time in the full scene —
+the most expensive way this project has worked.)*
+
+**A fly-in is stored relative to the machine's front.** *(Leo.)* `bestView`
+means "from a little off the machine's face". An absolute azimuth only means
+that while everything faces the back wall. Round 49's cooktop took the
+microwave's 210°, was blocked, and was hand-set to 240° — that hand-setting was
+this turn done by hand. In step 2 every slot's angle is worked out again as the
+front plus an offset, so a new machine takes the offset. **Acceptance for it is
+separate:** a fly-in screenshot of every slot in every package, reported apart
+from the other step-2 fixes.
+
+**Step 1, done in round 50.**
+- `src/data/frame.ts`. A run and the island are strips laid along an axis:
+  `onAxis`, `alongOf`/`acrossOf`, `sizeOnAxis`, `stripFacing`, `faceRotation`,
+  `alongIsToTheRight`. A machine is turned by `rotationY`: `toPlan`/`toWorld`,
+  `toLocal`, `outward`, `facingOf`, `sizeOnPlan`. One turn formula, held to
+  three.js's own by `frame.test.ts`.
+- Moved onto it, with nothing drawn differently:
+  - the cabinet boxes, the island boxes and their tops (`cabinets.ts`,
+    `counter.ts`);
+  - the placements and `islandPoint`/`islandAcross` (`layoutTemplate.ts`);
+  - the hood centring and the island's facing and aisle checks
+    (`layoutRules.ts`);
+  - the hinge, trim-kit and return-wall code (`room.ts`);
+  - the rough-in points, run and island alike (`roughIn.ts`);
+  - the tower vent, the floor riser, the refrigerator clearance dimension;
+  - the pin anchors, the label keep-outs and the fly-in target.
+- Every `CabinetBox` has `facing`, set where the box is made. A run's boxes face
+  the room. An island's face the cook's side, except the carcass behind an
+  opening that faces the seats. Doors still guess until step 2.
+- `orientationGuard.test.ts` scans `src` for a turn written by hand, a branch on
+  an axis, a turn through three.js, a turn read by its size, and a facing guessed
+  from proportions.
+  - Run first against the code before migration, it failed on fourteen files.
+  - That run also showed two holes in its own patterns, both closed: a turn with
+    brackets inside its arguments, and a bare `axis === "x"`.
+  - What is left is listed exactly: four files and eight hits for step 2, and
+    `islandFor`'s two, where the orientation parameter becomes an axis. A count
+    that is off either way fails, so a site moved without its entry being cut
+    fails too.
+  - **It cannot see an assumed back wall** — `hoodOutlet`'s `backZ`, the duct
+    run's `-ROOM.halfZ`, the island aisle dimension, the hood placed on the
+    range's run. Those are named for steps 2 and 3, not detected.
+- **A package's slots are the ones it declares.** The schema's list of core
+  slots is gone. What the L template cannot build without is the template's to
+  say, by name: `TEMPLATE_NEEDS`, today the range, the hood and the dishwasher.
+  Step 3 turns the first two into "a cooking surface, and a hood over it".
+  Package D with no microwave drawer and no wine column loads, builds and passes
+  every rule.
 
 ## Open items
 

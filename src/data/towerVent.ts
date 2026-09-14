@@ -1,5 +1,6 @@
 import { RUNS, ft } from "./room";
 import { SLOT_BY_ID } from "./slots";
+import { toLocal, toWorld as turnToWorld } from "./frame";
 import type { SlotId } from "../types";
 
 /**
@@ -68,10 +69,7 @@ export interface TowerVent {
 
 /** A point in a slot's own frame — +x across it, +z out of the wall — in the room. */
 function toWorld(slotId: SlotId, x: number, y: number, z: number): [number, number, number] {
-  const slot = SLOT_BY_ID[slotId];
-  const cos = Math.cos(slot.rotationY);
-  const sin = Math.sin(slot.rotationY);
-  return [slot.position[0] + x * cos + z * sin, y, slot.position[2] - x * sin + z * cos];
+  return turnToWorld(SLOT_BY_ID[slotId], x, y, z);
 }
 
 /**
@@ -130,12 +128,8 @@ export function towerVents(): TowerVent[] {
  */
 export function ventInSlot(vent: Pick<TowerVent, "slot" | "position" | "depthIn">) {
   const slot = SLOT_BY_ID[vent.slot];
-  const dx = vent.position[0] - slot.position[0];
-  const dz = vent.position[2] - slot.position[2];
-  const cos = Math.cos(slot.rotationY);
-  const sin = Math.sin(slot.rotationY);
   // The inverse of `toWorld`'s turn.
-  const localZ = dx * sin + dz * cos;
+  const localZ = toLocal(slot, vent.position[0], vent.position[2]).out;
   const centreFromBackIn = (localZ + ft(slot.cutout.d) / 2) * 12;
   return {
     heightIn: vent.position[1] * 12,

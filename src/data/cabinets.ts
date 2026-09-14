@@ -1,6 +1,7 @@
 import type { SlotId } from "../types";
 import { HOOD_CABINET } from "./insertHood";
-import { islandAcross, islandHasCooktop, islandPoint } from "./layoutTemplate";
+import { islandAcross, islandAlong, islandHasCooktop, islandPoint } from "./layoutTemplate";
+import { axisIndex, extentsOnAxis, onAxis, sizeOnAxis, stripFacing, type Facing } from "./frame";
 import { COOKTOP_CABINET } from "./cooktop";
 import { PACKAGE_SLOTS } from "./packages";
 import { SLOT_BY_ID } from "./slots";
@@ -70,6 +71,14 @@ export interface CabinetBox {
    * island box on the working side opens the other way. Round 49.
    */
   front?: -1 | 1;
+  /**
+   * Which way the box's front faces, recorded where it is made (D22, round 50).
+   * A run's boxes face the room; an island's face the side a cook works from,
+   * except those on the seating side. Recorded so nothing has to guess it from
+   * the box's proportions. Doors still guess until step 2; `front` is the
+   * cooktop drawer base's stopgap until then.
+   */
+  facing: Facing;
   /** Centre of the box, in feet. */
   position: [number, number, number];
   /** Full extents, in feet. */
@@ -165,13 +174,17 @@ function onRun(
   extra: Partial<CabinetBox> = {},
 ): CabinetBox {
   const across = run.centre + offset;
-  const size: [number, number, number] =
-    run.axis === "x"
-      ? [span(along), span(y), depth]
-      : [depth, span(y), span(along)];
-  const position: [number, number, number] =
-    run.axis === "x" ? [mid(along), mid(y), across] : [across, mid(y), mid(along)];
-  return { id, kind, position, size, run: run.id, ...extra };
+  const [sizeX, sizeZ] = sizeOnAxis(run.axis, span(along), depth);
+  return {
+    id,
+    kind,
+    position: onAxis(run.axis, mid(along), across, mid(y)),
+    size: [sizeX, span(y), sizeZ],
+    run: run.id,
+    // A run's cabinetry faces the room, away from the wall it stands on.
+    facing: stripFacing(run.axis, 1),
+    ...extra,
+  };
 }
 
 /**
@@ -495,8 +508,9 @@ function stackOn(run: CabinetRun, box: CabinetBox): CabinetBox[] {
 
   const height = ROOM.stackTop - top;
   const sixteenths = (feet: number) => Math.round(feet * 12 * 16) / 16;
-  const widthIn = sixteenths(run.axis === "x" ? box.size[0] : box.size[2]);
-  const depthIn = sixteenths(run.axis === "x" ? box.size[2] : box.size[0]);
+  const extents = extentsOnAxis(run.axis, box.size[0], box.size[2]);
+  const widthIn = sixteenths(extents.along);
+  const depthIn = sixteenths(extents.across);
   const heightIn = sixteenths(height);
   const board = widthIn < CABINET_STANDARDS.widthIn.min;
   const module: CabinetModule = board
@@ -533,7 +547,7 @@ export function standOffFromWall(
   inches: number = TOWER_VENT.bridgeStandOffIn,
 ): CabinetBox {
   const off = ft(inches);
-  const axis = box.run === "left" ? 0 : 2;
+  const axis = axisIndex(box.facing.axis);
   const size = [...box.size] as [number, number, number];
   const position = [...box.position] as [number, number, number];
   size[axis] -= off;
@@ -600,7 +614,7 @@ function buildCabinets(): CabinetBox[] {
  * cabinet go on the perimeter instead.
  */
 function islandBoxes(): Omit<CabinetBox, "run">[] {
-  const along = ISLAND.axis === "x" ? ISLAND.x : ISLAND.z;
+  const along = islandAlong(ISLAND);
   const across = islandAcross(ISLAND);
 
   /**
@@ -617,16 +631,19 @@ function islandBoxes(): Omit<CabinetBox, "run">[] {
     acrossSpan: readonly [number, number],
     height: number,
     extra: Partial<Omit<CabinetBox, "run">> = {},
-  ): Omit<CabinetBox, "run"> => ({
-    id,
-    kind: "base",
-    position: islandPoint(ISLAND, mid(alongSpan), mid(acrossSpan), height / 2),
-    size:
-      ISLAND.axis === "x"
-        ? [span(alongSpan), height, span(acrossSpan)]
-        : [span(acrossSpan), height, span(alongSpan)],
-    ...extra,
-  });
+  ): Omit<CabinetBox, "run"> => {
+    const [sizeX, sizeZ] = sizeOnAxis(ISLAND.axis, span(alongSpan), span(acrossSpan));
+    return {
+      id,
+      kind: "base",
+      position: islandPoint(ISLAND, mid(alongSpan), mid(acrossSpan), height / 2),
+      size: [sizeX, height, sizeZ],
+      // The side a cook works from, unless the box is on the seating side:
+      // `extra` says so for the carcass behind an opening that faces the seats.
+      facing: stripFacing(ISLAND.axis, -1),
+      ...extra,
+    };
+  };
 
   /**
    * Under a cooktop, a drawer base on the working side and a carcass behind it.
@@ -651,7 +668,7 @@ function islandBoxes(): Omit<CabinetBox, "run">[] {
           ISLAND.cooktop,
           [ISLAND.working + ROOM.counterDepth, across[1]],
           BASE_BOX[1],
-          { outline: "island", slot: "slot-cooktop" },
+          { outline: "island", slot: "slot-cooktop", facing: stripFacing(ISLAND.axis, 1) },
         ),
       ]
     : [];
@@ -686,7 +703,7 @@ function islandBoxes(): Omit<CabinetBox, "run">[] {
       ISLAND.microwave,
       [ISLAND.working + ROOM.counterDepth, across[1]],
       BASE_BOX[1],
-      { outline: "island", slot: "slot-microwave" },
+      { outline: "island", slot: "slot-microwave", facing: stripFacing(ISLAND.axis, 1) },
     ),
     // Behind the wine cabinet, on the working side. Its enclosure too.
     box(
@@ -795,6 +812,7 @@ function unionBox(id: string, boxes: CabinetBox[]): CabinetBox {
     kind: boxes[0].kind,
     slot: boxes[0].slot,
     run: boxes[0].run,
+    facing: boxes[0].facing,
     position: [axes[0].centre, axes[1].centre, axes[2].centre],
     size: [axes[0].extent, axes[1].extent, axes[2].extent],
   };

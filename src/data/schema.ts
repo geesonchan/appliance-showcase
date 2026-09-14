@@ -52,21 +52,12 @@ export const slotIdSchema = z.enum([
   "slot-cooktop",
 ]);
 
-/** The slots every package fills. Anything else is a package's own. */
-export const CORE_SLOTS = [
-  "slot-fridge",
-  "slot-hood",
-  "slot-dishwasher",
-  "slot-microwave",
-  "slot-wine",
-] as const;
-
-/**
- * And a cooking surface, which is one of these. A range on the back run was the
- * only one until package E put a cooktop in the island (round 49), so "every
- * package has slot-range" became "every package has somewhere to cook".
- */
-export const COOKING_SLOTS = ["slot-range", "slot-cooktop"] as const;
+// There is no list of slots every package has. A package declares its own
+// (`packageSchema.slots`), and what the L template cannot build without is the
+// template's to say, by name, when it is asked to (`TEMPLATE_NEEDS` in
+// layoutTemplate.ts). The list that used to be here asked every package for a
+// microwave drawer and a wine cabinet, and package E's island has neither.
+// D22, round 50.
 
 export const finishSchema = z.enum([
   "stainless",
@@ -328,18 +319,12 @@ export const schemeSchema = z.object({
   nameKey: z.string().min(1),
   conceptKey: z.string().min(1),
   palette: z.array(z.string().regex(/^#[0-9A-Fa-f]{6}$/)).min(1),
-  /**
-   * The six core slots, and nothing else required: a scheme is the first
-   * kitchen, and the slots only a larger package has are that package's to fill.
-   */
+  /** The models the scheme opens with, one per slot it names. */
   defaultSelection: z
     .partialRecord(slotIdSchema, z.string().min(1))
-    .refine(
-      (selection) =>
-        CORE_SLOTS.every((core) => selection[core]) &&
-        COOKING_SLOTS.some((cooking) => selection[cooking]),
-      { message: "a scheme has to fill the core slots and a cooking surface" },
-    ),
+    .refine((selection) => Object.keys(selection).length > 0, {
+      message: "a scheme names at least one model",
+    }),
   /** The blower specified with the hood, when the hood needs one. */
   defaultBlower: z.string().min(1).nullable().default(null),
 });
@@ -540,13 +525,8 @@ export const packageSchema = z
      */
     columnOrder: z.array(slotIdSchema).nullable().default(null),
   })
-  .refine(
-    (p) =>
-      !p.available ||
-      (CORE_SLOTS.every((core) => p.slots.some((slot) => slot.slotId === core)) &&
-        COOKING_SLOTS.some((cooking) => p.slots.some((slot) => slot.slotId === cooking))),
-    {
-    message: "an available package has to fill the core slots and a cooking surface",
+  .refine((p) => !p.available || p.slots.length > 0, {
+    message: "an available package declares its slots",
     path: ["slots"],
   })
   .refine((p) => new Set(p.slots.map((s) => s.slotId)).size === p.slots.length, {
@@ -572,7 +552,7 @@ export const appliancesFileSchema = z.object({
 
 export const slotsFileSchema = z.object({
   _meta: metaSchema,
-  slots: z.array(slotRecordSchema).min(CORE_SLOTS.length),
+  slots: z.array(slotRecordSchema).min(1),
 });
 
 export const schemesFileSchema = z.object({

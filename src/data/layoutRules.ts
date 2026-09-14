@@ -14,6 +14,8 @@ import {
 } from "./room";
 import { PACKAGE_SLOTS } from "./packages";
 import { SLOT_BY_ID } from "./slots";
+import { islandAcross } from "./layoutTemplate";
+import { acrossOf, axisIndex, extentsOnAxis, otherAxis, outward } from "./frame";
 import type { Appliance, Slot, SlotId } from "../types";
 
 /**
@@ -432,10 +434,9 @@ export function checkLayout(
         fail("d11-4", "hood is not centred over the range");
       }
     } else {
-      const along = island.axis === "x" ? 0 : 2;
       for (const [axis, where] of [
-        [along, "along"],
-        [2 - along, "across"],
+        [axisIndex(island.axis), "along"],
+        [axisIndex(otherAxis(island.axis)), "across"],
       ] as const) {
         const off = Math.abs(hood[axis] - cooktop[axis]);
         if (off > 1e-6) {
@@ -599,9 +600,10 @@ export function checkLayout(
     // which coordinate says "toward the runs" is the island's own, not the
     // room's. The rule is the same one either way: they face opposite ways,
     // and the drawer faces the side the cook works from.
-    const across = island.axis === "x" ? 2 : 0;
-    const facing = island.axis === "x" ? Math.cos : Math.sin;
-    if (Math.abs(facing(microwave.rotationY) - facing(wine.rotationY)) < 1e-6) {
+    const across = axisIndex(otherAxis(island.axis));
+    /** How far a machine faces across the island: toward the seats is +1. */
+    const facingAcross = (slot: Slot) => acrossOf(island.axis, ...outward(slot.rotationY));
+    if (Math.abs(facingAcross(microwave) - facingAcross(wine)) < 1e-6) {
       fail("d11-7", "the microwave and the wine cabinet face the same way");
     }
     if (microwave.position[across] > wine.position[across]) {
@@ -614,10 +616,11 @@ export function checkLayout(
     // an island along the back wall, the left run for one turned across it.
     // Counter edge to counter edge (D20, round 39): the run's top laps 1" past
     // its cabinets, and the island's does on its working side.
-    const run = runs.find((r) => r.id === (island.axis === "x" ? "back" : "left"))!;
+    // The run the island is parallel to is the one it stands off.
+    const run = runs.find((r) => r.axis === island.axis)!;
     const lap = ROOM.counterOverhang;
     const front = run.centre + ROOM.counterDepth / 2 + lap;
-    const aisle = inches((island.axis === "x" ? island.z[0] : island.x[0]) - lap - front);
+    const aisle = inches(islandAcross(island)[0] - lap - front);
     if (aisle < LAYOUT_LIMITS.aisleIn - 1e-6) {
       fail(
         "d11-7",
@@ -631,8 +634,8 @@ export function checkLayout(
   // edge of that overhang to the end of the room. An island with none has
   // nobody sitting at it and passes; package E's is the first that will not.
   if (island.present && island.overhangIn > 0) {
-    const edge = (island.axis === "x" ? island.z[1] : island.x[1]) + island.overhangIn / 12;
-    const end = island.axis === "x" ? ROOM.halfZ : ROOM.halfX;
+    const edge = islandAcross(island)[1] + island.overhangIn / 12;
+    const end = extentsOnAxis(island.axis, ROOM.halfX, ROOM.halfZ).across;
     const behind = inches(end - edge);
     if (behind < LAYOUT_LIMITS.seatingAisleIn - 1e-6) {
       fail(

@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { applianceBox, flushOffset } from "../data/applianceBox";
 import { SLOT_ORDER } from "../data/catalogue";
 import { SLOT_BY_ID, isOmitted } from "../data/slots";
+import { toPlan } from "../data/frame";
 import type { Appliance, SlotId } from "../types";
 import type { KeepOut } from "./pinLayout";
 
@@ -29,9 +30,8 @@ export function useApplianceCorners(selection: Record<SlotId, Appliance>) {
         for (const sx of [-0.5, 0.5]) {
           for (const sy of [0, 1]) {
             for (const sz of [-0.5, 0.5]) {
-              const local = new THREE.Vector3(sx * box.w, box.y + sy * box.h, dz + sz * box.d);
-              local.applyAxisAngle(new THREE.Vector3(0, 1, 0), slot.rotationY);
-              points.push(local.add(new THREE.Vector3(...slot.position)));
+              const [x, z] = toPlan(slot, sx * box.w, dz + sz * box.d);
+              points.push(new THREE.Vector3(x, slot.position[1] + box.y + sy * box.h, z));
             }
           }
         }

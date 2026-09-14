@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { ROOM, SLOT_BY_ID, ft } from "../data/slots";
+import { outward } from "../data/frame";
 import { useIsMobile } from "../hooks/useIsMobile";
 import { useAppStore } from "../store/useAppStore";
 
@@ -202,8 +203,9 @@ export function CameraRig() {
       slot.position[2],
     );
     // Pull the focus point out in front of the appliance so it sits centre-frame.
-    target.x += Math.sin(slot.rotationY) * 1.6;
-    target.z += Math.cos(slot.rotationY) * 1.6;
+    const [outX, outZ] = outward(slot.rotationY);
+    target.x += outX * 1.6;
+    target.z += outZ * 1.6;
     // Straight to the angle the slot declares. See docs/decisions.md D1.
     startTween(
       target,

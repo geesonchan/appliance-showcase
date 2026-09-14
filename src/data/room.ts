@@ -17,6 +17,7 @@ import {
 } from "./roomShell";
 import type { ResolvedWindow } from "./windows";
 import type { FixtureId, SlotId } from "../types";
+import { alongIsToTheRight, onAxis, sizeOnAxis } from "./frame";
 
 export * from "./roomShell";
 export { PARAM_LIMITS, DEFAULT_PARAMS } from "./layoutTemplate";
@@ -153,8 +154,7 @@ export function hingeAwayFrom(slotId: SlotId, neighbour: SlotId): -1 | 1 {
   const other = run?.segments.find((s) => s.slot === neighbour);
   if (!run || !mine || !other) return 1;
   const furtherAlong = other.from > mine.from;
-  const alongIsToTheRight = run.axis === "x";
-  return furtherAlong === alongIsToTheRight ? -1 : 1;
+  return furtherAlong === alongIsToTheRight(run.axis) ? -1 : 1;
 }
 
 /**
@@ -180,8 +180,7 @@ export function trimKitBeside(slotId: SlotId): { side: -1 | 1; widthIn: number }
     const neighbour = run.segments[at + step];
     const kit = neighbour?.modules.find((module) => module.kind === "spacer");
     if (!kit) continue;
-    const alongIsToTheRight = run.axis === "x";
-    const side = (step > 0) === alongIsToTheRight ? 1 : -1;
+    const side = (step > 0) === alongIsToTheRight(run.axis) ? 1 : -1;
     return { side, widthIn: kit.widthIn };
   }
   return null;
@@ -221,7 +220,7 @@ export function trimKitsBeside(slotId: SlotId): { side: -1 | 1; widthIn: number 
   for (const step of [-1, 1] as const) {
     const kit = run.segments[at + step]?.modules.find((module) => module.kind === "spacer");
     if (!kit) continue;
-    const side = (step > 0) === (run.axis === "x") ? 1 : -1;
+    const side = (step > 0) === alongIsToTheRight(run.axis) ? 1 : -1;
     kits.push({ side, widthIn: kit.widthIn });
   }
   return kits;
@@ -273,15 +272,11 @@ export function fridgeReturnWall(): {
   const face = run.segments[run.segments.length - 1].to + thickness / 2;
   const back = run.centre - ROOM.counterDepth / 2;
   const mid = back + depth / 2;
-  return run.axis === "x"
-    ? {
-        position: [face, ROOM.wallHeight / 2, mid],
-        size: [thickness, ROOM.wallHeight, depth],
-      }
-    : {
-        position: [mid, ROOM.wallHeight / 2, face],
-        size: [depth, ROOM.wallHeight, thickness],
-      };
+  const [sizeX, sizeZ] = sizeOnAxis(run.axis, thickness, depth);
+  return {
+    position: onAxis(run.axis, face, mid, ROOM.wallHeight / 2),
+    size: [sizeX, ROOM.wallHeight, sizeZ],
+  };
 }
 
 /**

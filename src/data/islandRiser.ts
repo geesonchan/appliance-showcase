@@ -1,4 +1,5 @@
 import { ft } from "./room";
+import { sizeOnPlan, toPlan } from "./frame";
 
 /** How far behind an island machine its services come up through the floor. */
 export const ISLAND_RISER_BEHIND_IN = 6;
@@ -18,14 +19,7 @@ export function islandRiser(slot: {
   position: readonly [number, number, number];
   rotationY: number;
 }): { x: number; z: number; box: [number, number, number] } {
-  const [x, , z] = slot.position;
-  const sin = Math.sin(slot.rotationY);
-  const cos = Math.cos(slot.rotationY);
-  const behind = ft(ISLAND_RISER_BEHIND_IN);
-  const facesX = Math.abs(sin) > Math.abs(cos);
-  return {
-    x: x - sin * behind,
-    z: z - cos * behind,
-    box: facesX ? [ft(2), ft(4.5), ft(3)] : [ft(3), ft(4.5), ft(2)],
-  };
+  const [x, z] = toPlan(slot, 0, -ft(ISLAND_RISER_BEHIND_IN));
+  const [boxX, boxZ] = sizeOnPlan(slot.rotationY, ft(3), ft(2));
+  return { x, z, box: [boxX, ft(4.5), boxZ] };
 }

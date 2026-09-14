@@ -1,6 +1,7 @@
 import { bowlExtent, FIXTURE_BY_ID } from "./fixtures";
 import { ROOM, RUNS, ft, type CabinetRun } from "./room";
-import { islandAcross, type IslandLayout } from "./layoutTemplate";
+import { islandAcross, islandAlong, type IslandLayout } from "./layoutTemplate";
+import { acrossOf, alongOf, sizeOnAxis } from "./frame";
 import type { Appliance } from "../types";
 
 /** A point on the floor plan, in world feet. */
@@ -63,8 +64,8 @@ export function counterOutline(
    */
   island?: IslandTop,
 ): CounterOutline {
-  const left = runs.find((run) => run.axis === "z")!;
-  const back = runs.find((run) => run.axis === "x")!;
+  const left = runs.find((run) => run.id === "left")!;
+  const back = runs.find((run) => run.id === "back")!;
 
   // Back edges sit on the walls; front edges stand proud by the overhang.
   const xBack = left.centre - ROOM.counterDepth / 2;
@@ -131,7 +132,7 @@ export interface IslandTop {
  */
 function islandTop(top: IslandTop): CounterPiece {
   const { layout } = top;
-  const along = layout.axis === "x" ? layout.x : layout.z;
+  const along = islandAlong(layout);
   const across = islandAcross(layout);
   const lap = ROOM.counterOverhang;
   const outline = rect(
@@ -152,8 +153,8 @@ function islandTop(top: IslandTop): CounterPiece {
  */
 export function islandCooktopHole({ layout, slot, appliance }: IslandTop): Point2[] {
   const [x, , z] = slot.position;
-  const alongAt = layout.axis === "x" ? x : z;
-  const acrossAt = layout.axis === "x" ? z : x;
+  const alongAt = alongOf(layout.axis, x, z);
+  const acrossAt = acrossOf(layout.axis, x, z);
   const halfW = ft(appliance?.cutoutWidthIn ?? slot.cutout.w) / 2;
   const halfD = ft(appliance?.cutoutDepthIn ?? slot.cutout.d) / 2;
   return rect([alongAt - halfW, alongAt + halfW], [acrossAt - halfD, acrossAt + halfD], layout.axis);
@@ -270,19 +271,13 @@ function rect(
   across: readonly [number, number],
   axis: "x" | "z",
 ): Point2[] {
-  if (axis === "x") {
-    return [
-      [along[0], across[0]],
-      [along[1], across[0]],
-      [along[1], across[1]],
-      [along[0], across[1]],
-    ];
-  }
+  // The same corners in the same order either way: x first, then z.
+  const [xs, zs] = sizeOnAxis(axis, along, across);
   return [
-    [across[0], along[0]],
-    [across[1], along[0]],
-    [across[1], along[1]],
-    [across[0], along[1]],
+    [xs[0], zs[0]],
+    [xs[1], zs[0]],
+    [xs[1], zs[1]],
+    [xs[0], zs[1]],
   ];
 }
 
