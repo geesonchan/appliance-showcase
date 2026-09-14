@@ -14,13 +14,28 @@ import type { Appliance, Slot, SlotId } from "../types";
  * three feet of it. A microwave drawer's outlet is on the back wall of its own
  * opening, 4" in and 14-5/8" up; a dishwasher's power, water and drain are all
  * in the *sink* cabinet, not its own. Those are the numbers an installer needs,
- * and they come off each model's drawing rather than from a rule.
+ * and they come from each model's own entry rather than from a rule — each
+ * point saying whether off a drawing, from site practice, or inferred (D21).
  *
  * A model with no entry falls back to the generic heights and says so.
  */
 const parsed = parseDataFile(roughInFileSchema, roughInFile, "data/rough-in.json");
 
 export const ROUGH_IN = parsed.roughIn;
+
+/**
+ * Whether a connection is drawn as a grey dashed outline rather than a solid
+ * fitting (D21, round 41). A figure off a drawing is solid; site practice, an
+ * inference and a figure the drawing leaves unclear are dashed, so a salesperson
+ * can point at it and say it is to be confirmed. A point nobody has classified
+ * yet keeps the solid look it had.
+ */
+export const isDashed = (point: RoughInPoint) =>
+  point.provenance !== null && point.provenance !== "drawing";
+
+/** The callout for a connection, which says where its figures come from. */
+export const roughInCalloutKey = (point: RoughInPoint) =>
+  `roughIn.callout.${point.provenance ?? "unclassified"}`;
 
 export const roughInFor = (appliance: Appliance | undefined) =>
   appliance ? (ROUGH_IN[appliance.id] ?? null) : null;

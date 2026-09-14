@@ -447,9 +447,10 @@ export function checkLayout(
     }
   }
 
-  // D11 rule 8: the dishwasher's services all land in the sink base. This is
-  // the physical fact rule 5 is a consequence of — the dishwasher is beside the
-  // sink because that is the cabinet its power, water and drain are in.
+  // D11 rule 8 (rule 9 in decisions.md): the dishwasher's services all land in
+  // the sink base. This is the physical fact rule 5 is a consequence of — the
+  // dishwasher is beside the sink because that is the cabinet its power, water
+  // and drain are in. Leo's site practice, not a drawing (round 41).
   const dishwasherModel = selection?.["slot-dishwasher"];
   const points = dishwasherModel ? (roughInFor(dishwasherModel)?.points ?? []) : [];
   const stray = points.filter((point) => point.location !== "under-sink");

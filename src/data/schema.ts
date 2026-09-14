@@ -601,6 +601,15 @@ export const roughInPointSchema = z.object({
   /** A drain's high loop peaks here, measured from the floor. */
   highLoopApexIn: inches.nullable().default(null),
   note: z.string().nullable().default(null),
+  /**
+   * Where this point's figures come from (D21). `drawing`: the manufacturer's
+   * drawing in docs/reference. `site`: Leo's site practice. `inferred`: on no
+   * drawing. `uncertain`: on the drawing, but it cannot be read with certainty.
+   * A point takes its weakest figure. Null: not yet classified.
+   */
+  provenance: z.enum(["drawing", "site", "inferred", "uncertain"]).nullable().default(null),
+  /** Which of its figures come from where, when they are not all one. */
+  basis: z.string().nullable().default(null),
 });
 
 export const roughInFileSchema = z.object({

@@ -2,7 +2,7 @@
   "_meta": {
     "generatedBy": "hand written from manufacturer installation drawings",
     "updatedAt": "2026-09-06",
-    "provenance": "Positions are read off each model's own installation manual, not from a general rule. Coordinates are relative to that appliance's opening: x from the left side panel, y up from the opening floor, z either the rear wall or the front edge. A model with no entry here falls back to the room's generic rough-in heights and is marked as such under ?debug=1."
+    "provenance": "Positions are per model, not from a general rule, and each point says where its figures come from in `provenance` (drawing, site, inferred, uncertain; null is not yet classified) with `basis` where they are not all one — docs/decisions.md D21. Coordinates are relative to that appliance's opening: x from the left side panel, y up from the opening floor, z either the rear wall or the front edge. A model with no entry here falls back to the room's generic rough-in heights and is marked as such under ?debug=1."
   },
   "roughIn": {
     "thermador-ph36hws": {
@@ -32,7 +32,9 @@
           "x": 6,
           "y": 6,
           "z": "rear",
-          "note": "Receptacle in the neighbouring cabinet, near the floor"
+          "note": "Receptacle in the neighbouring cabinet, near the floor",
+          "provenance": "inferred",
+          "basis": "In an adjacent cabinet is on the drawing (A, recommended). 6\" in and 6\" up — near the floor — are not."
         },
         {
           "type": "water",
@@ -40,7 +42,9 @@
           "x": 12,
           "y": 6,
           "z": "rear",
-          "note": "Ice maker supply, same cabinet as the receptacle"
+          "note": "Ice maker supply, same cabinet as the receptacle",
+          "provenance": "inferred",
+          "basis": "In an adjacent cabinet is on the drawing (recommended). 12\" in and 6\" up are not."
         },
         {
           "type": "service-channel",
@@ -53,7 +57,9 @@
             7.25,
             2
           ],
-          "note": "Service channel across the back of the opening, 7-1/4\" tall"
+          "note": "Service channel across the back of the opening, 7-1/4\" tall",
+          "provenance": "inferred",
+          "basis": "Up to 7-1/4\" tall is on the drawing (B, area for water and electric routing). Running the whole 36\" of the opening, and 2\" deep, are not."
         }
       ]
     },
@@ -66,7 +72,9 @@
           "x": 4,
           "y": 14.625,
           "z": "rear",
-          "note": "Outlet on the back wall of the opening, left of centre"
+          "note": "Outlet on the back wall of the opening, left of centre",
+          "provenance": "uncertain",
+          "basis": "4\" and 14-5/8\" are on the drawing (A). Whether the outlet is on the rear wall or the side panel cannot be read from the isometric; Leo is reading the manual's text."
         },
         {
           "type": "anti-tip",
@@ -79,7 +87,9 @@
             3.5,
             1.5
           ],
-          "note": "Anti-tip bracket, top rear of the opening"
+          "note": "Anti-tip bracket, top rear of the opening",
+          "provenance": "drawing",
+          "basis": null
         }
       ]
     },
@@ -92,7 +102,9 @@
           "x": 6,
           "y": 6,
           "z": "rear",
-          "note": "Receptacle in the sink base, not in the dishwasher opening"
+          "note": "Receptacle in the sink base, not in the dishwasher opening",
+          "provenance": "site",
+          "basis": "Leo's site practice: in a US kitchen a dishwasher's three connections are brought to the sink base. The manual page shows them fed through the adjacent cabinet without naming it. 6\" in and 6\" up are not on it."
         },
         {
           "type": "water",
@@ -100,7 +112,9 @@
           "x": 12,
           "y": 8,
           "z": "rear",
-          "note": "Hot water shut-off valve in the sink base"
+          "note": "Hot water shut-off valve in the sink base",
+          "provenance": "site",
+          "basis": "Leo's site practice, as for the power. 12\" in and 8\" up are not on the manual page."
         },
         {
           "type": "drain",
@@ -109,7 +123,9 @@
           "y": 10,
           "z": "rear",
           "highLoopApexIn": 38,
-          "note": "Drain to the sink base, run as a high loop"
+          "note": "Drain to the sink base, run as a high loop",
+          "provenance": "inferred",
+          "basis": "The sink base is Leo's site practice. The 38\" high-loop apex is on no drawing in the repository and where it came from is not known: to confirm."
         },
         {
           "type": "air-gap",
@@ -122,7 +138,9 @@
             3,
             2
           ],
-          "note": "Air gap at the counter, above the sink base"
+          "note": "Air gap at the counter, above the sink base",
+          "provenance": "inferred",
+          "basis": "On no drawing. An inspection item in California; Leo is checking the local code for the figure."
         }
       ]
     },

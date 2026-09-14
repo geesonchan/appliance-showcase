@@ -1580,9 +1580,61 @@ async function captureRound40(browser) {
   await desktop.close();
 }
 
+/**
+ * Round 41: a line says where its figure comes from (D21).
+ *
+ * Package A in the install view, flown in on the three machines whose points
+ * were classified: the dishwasher, every point dashed — site practice and
+ * inference; the microwave drawer, the outlet dashed (the drawing is unclear)
+ * and the anti-tip block solid; and the refrigerator, all three dashed.
+ */
+async function captureRound41(browser) {
+  const desktop = await browser.newContext({ viewport: DESKTOP, deviceScaleFactor: 2 });
+  const page = await desktop.newPage();
+  const open = async () => {
+    await page.goto(baseUrl, { waitUntil: "load", timeout: 120000 });
+    await page.waitForSelector("canvas", { timeout: 120000 });
+    await settle(page, 3200);
+  };
+  const fromList = async (name) => {
+    const back = page.getByRole("button", { name: "All appliances" }).first();
+    if (await back.isVisible()) {
+      await back.click();
+      await settle(page, 900);
+    }
+    const item = page.locator(`aside [data-panel="list"] button`, { hasText: name }).first();
+    if (!(await item.isVisible())) {
+      await page.click(`button[data-rail="left"]`);
+      await settle(page, 700);
+    }
+    await item.click();
+    await settle(page, 2400);
+  };
+
+  for (const [name, label] of [
+    ["Dishwasher", "dishwasher"],
+    ["Microwave", "microwave"],
+    ["Refrigerator", "fridge"],
+  ]) {
+    await open();
+    await fromList(name);
+    await click(page, "Install");
+    await settle(page, 1800);
+    await page.screenshot({ path: `${outDir}/desktop-a-${label}-install.png` });
+  }
+  await desktop.close();
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round41") {
+    await captureRound41(browser);
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round40") {
     await captureRound40(browser);

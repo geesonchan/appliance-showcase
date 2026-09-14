@@ -1,7 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { APPLIANCE_BY_ID } from "./catalogue";
 import { checkLayout } from "./layoutRules";
-import { hasGenericRoughIn, resolveRoughIn, roughInFor, roughInSentence } from "./roughIn";
+import {
+  hasGenericRoughIn,
+  isDashed,
+  resolveRoughIn,
+  roughInCalloutKey,
+  roughInFor,
+  roughInSentence,
+} from "./roughIn";
+import en from "../i18n/en.json";
+import zh from "../i18n/zh.json";
 import { ROOM } from "./room";
 import { SLOT_ORDER } from "./catalogue";
 import type { Appliance, SlotId } from "../types";
@@ -135,7 +144,71 @@ describe("D11 rule 8 · the dishwasher's services are in the sink base", () => {
       ...model("bosch-shv78cm3n"),
       id: "stray-dishwasher",
     } as Appliance;
-    // The stray id has no entry, so nothing to check: the rule reads drawings.
+    // The stray id has no entry, so nothing to check: the rule reads rough-in
+    // entries.
     expect(checkLayout(undefined, { "slot-dishwasher": strayed })).toEqual([]);
+  });
+});
+
+describe("D21 · a line says where its figure comes from", () => {
+  const FIRST_BATCH: Record<string, Record<string, string>> = {
+    "thermador-t36bt120ns": { power: "inferred", water: "inferred", "service-channel": "inferred" },
+    "thermador-md24bs": { power: "uncertain", "anti-tip": "drawing" },
+    "bosch-shv78cm3n": { power: "site", water: "site", drain: "inferred", "air-gap": "inferred" },
+  };
+
+  it.each(Object.entries(FIRST_BATCH))("classifies every point of %s as Leo gave it", (id, expected) => {
+    const points = roughInFor(model(id))!.points;
+    expect(Object.fromEntries(points.map((p) => [p.type, p.provenance]))).toEqual(expected);
+    for (const point of points) {
+      // Anything short of a drawing says which of its figures are from where.
+      if (point.provenance !== "drawing") expect(point.basis, `${id} ${point.type}`).toBeTruthy();
+    }
+  });
+
+  it("draws a drawing's figure solid and everything else dashed", () => {
+    const md24bs = roughInFor(model("thermador-md24bs"))!.points;
+    expect(isDashed(md24bs.find((p) => p.type === "anti-tip")!)).toBe(false);
+    expect(isDashed(md24bs.find((p) => p.type === "power")!)).toBe(true);
+    for (const point of roughInFor(model("bosch-shv78cm3n"))!.points) {
+      expect(isDashed(point), point.type).toBe(true);
+    }
+    // Not yet classified keeps the solid look it had.
+    const hood = roughInFor(model("thermador-ph36hws"))!.points[0];
+    expect(hood.provenance).toBeNull();
+    expect(isDashed(hood)).toBe(false);
+  });
+
+  it("has a callout, in both languages, that names the source", () => {
+    const kinds = ["drawing", "site", "inferred", "uncertain", null] as const;
+    for (const provenance of kinds) {
+      const key = roughInCalloutKey({ ...roughInFor(model("thermador-md24bs"))!.points[0], provenance });
+      expect((en as Record<string, string>)[key], key).toBeTruthy();
+      expect((zh as Record<string, string>)[key], key).toBeTruthy();
+      if (provenance !== "drawing" && provenance !== null) {
+        expect((en as Record<string, string>)[key]).toMatch(/to confirm/);
+      }
+    }
+  });
+
+  // Classifying a point is not a licence to move it.
+  it("leaves every position in the first batch where it was", () => {
+    const at = (id: string) =>
+      roughInFor(model(id))!.points.map((p) => [p.type, p.location, p.x, p.y, p.z, p.size, p.highLoopApexIn]);
+    expect(at("thermador-t36bt120ns")).toEqual([
+      ["power", "adjacent-cabinet-right", 6, 6, "rear", null, null],
+      ["water", "adjacent-cabinet-right", 12, 6, "rear", null, null],
+      ["service-channel", "in-cutout", "center", "bottom", "rear", [36, 7.25, 2], null],
+    ]);
+    expect(at("thermador-md24bs")).toEqual([
+      ["power", "in-cutout", 4, 14.625, "rear", null, null],
+      ["anti-tip", "in-cutout", "center", "top", "rear", [6, 3.5, 1.5], null],
+    ]);
+    expect(at("bosch-shv78cm3n")).toEqual([
+      ["power", "under-sink", 6, 6, "rear", null, null],
+      ["water", "under-sink", 12, 8, "rear", null, null],
+      ["drain", "under-sink", 18, 10, "rear", null, 38],
+      ["air-gap", "under-sink", 24, "top", "rear", [2, 3, 2], null],
+    ]);
   });
 });

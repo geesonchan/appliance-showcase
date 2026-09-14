@@ -1,14 +1,13 @@
 import { useMemo } from "react";
 import * as THREE from "three";
 import { SLOT_ORDER } from "../data/catalogue";
-import { resolveRoughIn, roughInFor, roughInSentence, type ResolvedPoint } from "../data/roughIn";
+import { isDashed, resolveRoughIn, roughInCalloutKey, roughInSentence, type ResolvedPoint } from "../data/roughIn";
 import { ROOM, ft, isOmitted } from "../data/slots";
 import { formatDimension } from "../data/dimensions";
 import { towerVents } from "../data/towerVent";
 import { useAppStore } from "../store/useAppStore";
 import { useSelection } from "../store/useSelection";
 import { UTILITY_COLORS } from "./materials";
-import type { SlotId } from "../types";
 
 /** Which of the four service colours a connection reads as. */
 const COLOUR: Record<string, string> = {
@@ -22,14 +21,22 @@ const COLOUR: Record<string, string> = {
   "service-channel": "#6B7268",
 };
 
+/** A connection whose figures are not off a drawing: grey, whatever the service. */
+const UNCONFIRMED = "#8E928B";
+const DASH = { dashSize: ft(1.2), gapSize: ft(0.8) };
+
 /**
- * The connections each model actually needs, where its own drawing puts them.
+ * The connections each model actually needs, where its own entry puts them.
  *
- * Drawn inside whichever box the manual says: the microwave's outlet in its own
+ * Drawn inside whichever box the entry says: the microwave's outlet in its own
  * opening, the dishwasher's power, water and drain in the *sink* base two
  * cabinets away. That last one is not a detail — it is the physical reason the
  * dishwasher has to be next to the sink, and drawing it in the dishwasher's own
  * opening would be a lie an installer finds on site.
+ *
+ * How each is drawn says where its figures come from (D21): a drawing's figure
+ * is a solid fitting in the service's colour, anything else a grey dashed
+ * outline, and the callout names which.
  *
  * A short leader runs out to the front of the cabinet so the fitting can be
  * seen and clicked through a wireframed carcass.
@@ -84,11 +91,10 @@ export function RoughInLayer() {
       {points.map(({ slotId, resolved }, i) => (
         <Fitting
           key={`${slotId}-${resolved.point.type}-${i}`}
-          slotId={slotId}
           resolved={resolved}
           onSelect={() => {
             const { where, at } = roughInSentence(resolved.point);
-            showToast("roughIn.callout", {
+            showToast(roughInCalloutKey(resolved.point), {
               type: resolved.point.type,
               where,
               at,
@@ -100,20 +106,10 @@ export function RoughInLayer() {
   );
 }
 
-function Fitting({
-  slotId,
-  resolved,
-  onSelect,
-}: {
-  slotId: SlotId;
-  resolved: ResolvedPoint;
-  onSelect: () => void;
-}) {
-  const selection = useSelection();
-  const colour = COLOUR[resolved.point.type] ?? UTILITY_COLORS.power120;
+function Fitting({ resolved, onSelect }: { resolved: ResolvedPoint; onSelect: () => void }) {
+  const dashed = isDashed(resolved.point);
+  const colour = dashed ? UNCONFIRMED : (COLOUR[resolved.point.type] ?? UTILITY_COLORS.power120);
   const [x, y, z] = resolved.position;
-  const source = roughInFor(selection[slotId])?.sourceUrl;
-  void source;
 
   // The leader: out of the carcass toward the room, so it is visible and
   // clickable through a wireframe.
@@ -125,8 +121,30 @@ function Fitting({
     } else {
       to.x = resolved.host.max[0] + ft(4);
     }
-    return new THREE.BufferGeometry().setFromPoints([from, to]);
-  }, [x, y, z, resolved.host]);
+    const line = new THREE.LineSegments(
+      new THREE.BufferGeometry().setFromPoints([from, to]),
+      dashed
+        ? new THREE.LineDashedMaterial({ color: colour, ...DASH })
+        : new THREE.LineBasicMaterial({ color: colour, transparent: true, opacity: 0.7 }),
+    );
+    line.computeLineDistances();
+    line.raycast = () => null;
+    return line;
+  }, [x, y, z, resolved.host, dashed, colour]);
+
+  // A dashed fitting's outline. The box inside it stays, faint, so there is
+  // still something to click.
+  const outline = useMemo(() => {
+    if (!dashed) return null;
+    const edges = new THREE.LineSegments(
+      new THREE.EdgesGeometry(new THREE.BoxGeometry(...resolved.size)),
+      new THREE.LineDashedMaterial({ color: colour, dashSize: ft(0.5), gapSize: ft(0.35) }),
+    );
+    edges.position.set(x, y, z);
+    edges.computeLineDistances();
+    edges.raycast = () => null;
+    return edges;
+  }, [dashed, colour, x, y, z, resolved.size]);
 
   return (
     <group
@@ -137,14 +155,19 @@ function Fitting({
       onPointerOver={() => (document.body.style.cursor = "pointer")}
       onPointerOut={() => (document.body.style.cursor = "auto")}
     >
-      <mesh position={[x, y, z]}>
+      <mesh position={[x, y, z]} userData={{ roughIn: resolved.point.type, dashed }}>
         <boxGeometry args={resolved.size} />
-        <meshStandardMaterial color={colour} metalness={0.2} roughness={0.5} />
+        {dashed ? (
+          <meshBasicMaterial color={colour} transparent opacity={0.18} depthWrite={false} />
+        ) : (
+          <meshStandardMaterial color={colour} metalness={0.2} roughness={0.5} />
+        )}
       </mesh>
-      <lineSegments geometry={lead} raycast={() => null}>
-        <lineBasicMaterial color={colour} transparent opacity={0.7} />
-      </lineSegments>
-      {resolved.highLoopY !== null && <HighLoop at={resolved.position} apex={resolved.highLoopY} colour={colour} />}
+      {outline && <primitive object={outline} />}
+      <primitive object={lead} />
+      {resolved.highLoopY !== null && (
+        <HighLoop at={resolved.position} apex={resolved.highLoopY} colour={colour} dashed={dashed} />
+      )}
     </group>
   );
 }
@@ -153,30 +176,49 @@ function Fitting({
  * A drain's high loop: up to its apex and back down.
  *
  * The apex height is the whole point of the detail — it is what stops the sink
- * draining back into the dishwasher, and it is a number an inspector checks.
+ * draining back into the dishwasher, and it is a number an inspector checks. So
+ * where that number is not off a drawing the loop is a dashed line, not a pipe.
  */
 function HighLoop({
   at,
   apex,
   colour,
+  dashed,
 }: {
   at: [number, number, number];
   apex: number;
   colour: string;
+  dashed: boolean;
 }) {
-  const geometry = useMemo(() => {
+  const curve = useMemo(() => {
     const [x, y, z] = at;
-    const curve = new THREE.CatmullRomCurve3([
+    return new THREE.CatmullRomCurve3([
       new THREE.Vector3(x, y, z),
       new THREE.Vector3(x + ft(3), apex, z + ft(1)),
       new THREE.Vector3(x + ft(6), apex, z + ft(2)),
       new THREE.Vector3(x + ft(8), Math.max(y, ROOM.toeKick), z + ft(3)),
     ]);
-    return new THREE.TubeGeometry(curve, 20, ft(0.8), 6, false);
   }, [at, apex]);
 
+  const dashedLine = useMemo(() => {
+    if (!dashed) return null;
+    const line = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints(curve.getPoints(32)),
+      new THREE.LineDashedMaterial({ color: colour, ...DASH }),
+    );
+    line.computeLineDistances();
+    line.raycast = () => null;
+    return line;
+  }, [dashed, curve, colour]);
+
+  const tube = useMemo(
+    () => (dashed ? null : new THREE.TubeGeometry(curve, 20, ft(0.8), 6, false)),
+    [dashed, curve],
+  );
+
+  if (dashedLine) return <primitive object={dashedLine} />;
   return (
-    <mesh geometry={geometry}>
+    <mesh geometry={tube!}>
       <meshStandardMaterial color={colour} metalness={0.2} roughness={0.55} />
     </mesh>
   );

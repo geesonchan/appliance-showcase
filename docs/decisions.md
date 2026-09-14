@@ -436,8 +436,15 @@ each one has a test with a case that breaks it.
 9. **The dishwasher's power, water and drain all land in the sink base.** This
    is not a separate preference — it is the physical fact rule 5 is a
    consequence of. The dishwasher goes beside the sink because that is the
-   cabinet its three connections are in, and the checker reads the model's own
-   installation drawing to say so rather than taking it on trust.
+   cabinet its three connections are in, and the checker reads the model's
+   rough-in entry to say so rather than taking it on trust.
+   *Amended 2026-09-14 (round 41), Leo: the source is site practice, not a
+   drawing.* In a US kitchen a dishwasher's power, water and drain are brought
+   to the sink base as standard. The one Bosch page in `docs/reference/` shows
+   the hoses and cord fed through the adjacent cabinet without saying that
+   cabinet is the sink base. The rule does not change; its source does, and the
+   dishwasher's points are drawn dashed accordingly (D21). The checker's code
+   calls this rule `d11-8`.
 
 10. **The sink has counter on both sides and stands clear of the corner.** One
     side is at least 24" and the other at least 18"; the dishwasher counts as
@@ -1287,6 +1294,53 @@ written into geometry instead of read from `ROOM`.
   overhang. **None of A-D's default rooms had to change:** every package's own
   room still takes every single switch without growing a wall. That is the test
   that holds D18's slack, and it passed as it stands.
+
+## D21 · A line says where its figure comes from
+
+**Decided:** 2026-09-14 (round 41), Leo.
+
+In the install view a connection is drawn by where its figures come from. A
+figure off the manufacturer's drawing is a solid fitting in the service's
+colour. Site practice, an inference, and a figure the drawing leaves unclear
+are a grey dashed outline and leader, and clicking one says which: "site
+practice, not a drawing — to confirm", "inferred, not on any drawing — to
+confirm", "the drawing is unclear here — to confirm".
+
+**Why.** In front of a customer a dashed line is one the salesperson can point
+at and say they will confirm, which is better than a line that looks certain
+and is wrong. An installer who sees one goes to the manual.
+
+**How it is recorded.** Each point in `data/rough-in.json` carries `provenance`
+— `drawing`, `site`, `inferred` or `uncertain` — and `basis`, which says which
+of its figures come from where when they are not all one. A point takes its
+weakest figure.
+
+**First batch, round 41. No position changed.**
+- Bosch SHV78CM3N. Power and water in the sink base: `site` (Leo). The drain in
+  the sink base is site practice too, but its 38" high-loop apex is on no
+  drawing and nobody knows where 38 came from: `inferred`, to confirm. The air
+  gap: `inferred`; it is an inspection item in California and Leo is checking
+  the local code.
+- MD24BS. The outlet's 4" and 14-5/8" are on the drawing, but whether it is on
+  the rear wall or the side panel cannot be read from the isometric: `uncertain`,
+  and Leo is reading the manual's text. The anti-tip block, top rear,
+  6" x 3-1/2" x 1-1/2": `drawing`.
+- T36BT120NS. The receptacle and the water in an adjacent cabinet are on the
+  drawing; 6" in and 6" up are not: `inferred`. The service channel is up to
+  7-1/4" tall on the drawing, but running the whole 36" of the opening is not:
+  `inferred`.
+
+**Not yet classified.** Every other model's points — PH36HWS, PCG366W,
+MEM301WS, PODS302B, T18IW100SP, VCIN36WS — have `provenance: null` and keep the
+solid look. Until they are classified, a solid line means "from a drawing, or
+not yet reviewed". The trunks along the walls in the utility layer are the
+room's generic runs, not a model's figures, and are not part of this.
+
+**What this forbids:** drawing a figure that is not off a drawing the same way
+as one that is, once it has been classified; changing a position to make a line
+solid.
+
+## Open items
 
 Registered, not scheduled. None of these is a round of its own.
 
