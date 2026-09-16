@@ -1,4 +1,5 @@
 import { LAYOUT_LIMITS, ROOM, ft } from "./room";
+import { hoodBodyHeightFt } from "./hood";
 import type { Appliance, Slot } from "../types";
 
 /**
@@ -66,7 +67,13 @@ const dropsIn = (appliance: Appliance) =>
 
 export function applianceBox(slot: Slot, appliance: Appliance): ApplianceBox {
   const w = pick(appliance.widthIn, appliance.cutoutWidthIn, slot.cutout.w);
-  const h = pick(appliance.heightIn, appliance.cutoutHeightIn, slot.cutout.h);
+  // A hood's body is asked of `hood.ts`, because a hung one is its canopy and
+  // not the collapsed assembly the catalogue lists. Round 55. Everything else
+  // is the machine's own height.
+  const h =
+    slot.id === "slot-hood"
+      ? hoodBodyHeightFt(slot, appliance)
+      : pick(appliance.heightIn, appliance.cutoutHeightIn, slot.cutout.h);
   // The envelope, which for a freestanding machine is the depth with its doors
   // shut: the doors are part of the box rather than panels hung off a carcass,
   // and the published figure is measured from the wall with its rear spacers

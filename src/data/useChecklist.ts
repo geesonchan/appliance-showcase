@@ -38,8 +38,22 @@ export interface Checklist {
 export function useChecklist(): Checklist {
   const selection = useSelection();
   const blower = useSelectedBlower();
+  return useMemo(() => checklistFor(selection, blower), [selection, blower]);
+}
 
-  return useMemo(() => {
+/**
+ * The checklist for a selection, with no React in it.
+ *
+ * Pulled out in round 55 so the rule that every finding names a slot **this
+ * package actually has** can be held to by a test rather than by a crash: the
+ * panel groups its lines by slot and looks each one up, so a line filed under a
+ * machine the room does not contain took the whole right-hand column down.
+ */
+export function checklistFor(
+  selection: Record<SlotId, Appliance>,
+  blower: Appliance | null,
+): Checklist {
+  {
     const context = packageContext(selection["slot-hood"], blower, selection["slot-range"]);
     const findings = [
       ...SLOT_ORDER.flatMap((slotId) =>
@@ -73,7 +87,7 @@ export function useChecklist(): Checklist {
       blockers: findings.filter((f) => f.severity === "blocker").length,
       warnings: findings.filter((f) => f.severity === "warning").length,
     };
-  }, [selection, blower]);
+  }
 }
 
 /**
@@ -388,18 +402,30 @@ function columnDoorPanel(selection: Record<SlotId, Appliance>): Finding[] {
  * and says which two it is between.
  */
 function columnKit(): Finding[] {
-  const spacers = RUNS.flatMap((run) => run.segments)
+  const segments = RUNS.flatMap((run) => run.segments);
+  const spacers = segments
     .flatMap((segment) => segment.modules)
     .filter((module) => module.kind === "spacer");
   const spacer = spacers[0];
   if (!spacer) return [];
+
+  // Filed under a column the kit is actually between, which is not always the
+  // wine column: package D's bank happens to end with one and this line named
+  // it outright, so package E — a freezer and a refrigerator, no wine — filed
+  // the line under a machine that was not in the room. Round 55.
+  const at = segments.findIndex((segment) => segment.modules.includes(spacer));
+  const joined =
+    [segments[at - 1], segments[at + 1], segments[at]].find(
+      (segment) => segment?.slot && SLOT_BY_ID[segment.slot],
+    ) ?? null;
+  if (!joined?.slot) return [];
 
   return [
     {
       ruleId: "column-kit",
       severity: "info",
       messageKey: "rule.columnKit",
-      slot: "slot-wine",
+      slot: joined.slot,
       params: { model: spacer.code, gapIn: spacer.widthIn, count: spacers.length },
     },
   ];

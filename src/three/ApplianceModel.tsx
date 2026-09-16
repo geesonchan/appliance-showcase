@@ -108,6 +108,10 @@ export function ApplianceModel({ slot, appliance }: ApplianceModelProps) {
   return (
     <group
       name={"appliance-" + slot}
+      // Which machine this is, for anything walking up the tree: the sight-line
+      // fade asks it so that the appliance being looked at is never faded off
+      // its own sight line. Round 55.
+      userData={{ slot, appliance: true }}
       position={def.position}
       rotation={[0, def.rotationY, 0]}
       onClick={handleClick}

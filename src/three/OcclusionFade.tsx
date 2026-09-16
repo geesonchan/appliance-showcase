@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 import { SLOT_BY_ID, ft } from "../data/slots";
+import { toLocal } from "../data/frame";
+import type { SlotId } from "../types";
 import { anchorFor } from "./pinAnchor";
 import { DEBUG } from "../debug";
 import { useAppStore } from "../store/useAppStore";
@@ -18,10 +20,71 @@ const CADENCE = 4;
 /** Sample offsets across the appliance's own face, as a fraction of it. */
 const GRID = [-0.6, 0, 0.6];
 /**
- * Groups whose meshes may be faded off a sight line. The appliances never are
- * on a sight line; in install mode they step back as a whole instead.
+ * Groups whose meshes may be faded off a sight line.
+ *
+ * Round 55: the appliances are among them. They were left out because in
+ * packages A to D nothing but joinery ever stands between the camera and a
+ * machine — and then package E hung a 42" hood in the middle of the room, and
+ * flying to the combination oven behind it put the hood squarely across its
+ * face, solid, in the shot that is meant to sell the oven.
+ *
+ * ⚠️ **Not in install mode.** There the whole appliance layer has already
+ * stepped back to 0.12 and takes no clicks (`applyInstallFade`), and that write
+ * and this one would each restore what the other saved. Install mode fades them
+ * further than this does, so there is nothing to add and a conflict to avoid.
  */
-const LAYERS = ["kitchen-shell", "cabinet-layer", "fixture-layer"];
+const SIGHT_LINE_LAYERS = ["kitchen-shell", "cabinet-layer", "fixture-layer"];
+const APPLIANCE_LAYER = "appliance-layer";
+
+/**
+ * Whether a thing a ray met is really in the way of the machine being looked at.
+ *
+ * For joinery, meeting the ray is enough: a cabinet on the line is between the
+ * camera and the appliance, and that is the whole of it. **For another machine
+ * it is not enough**, because two machines standing side by side in one bank
+ * are in the same plane, and a ray aimed across the face of one grazes the
+ * other. Round 55 found it the moment appliances were cast against at all:
+ * flying to package D's refrigerator turned the freezer column beside it to
+ * glass, and a bank of columns with one of them see-through reads as broken.
+ *
+ * So a machine is in the way only when it stands **clear in front of** the
+ * selected machine — measured **in that machine's own frame**, out of the face
+ * it opens by, and not along the camera's axis. The first draft measured along
+ * the ray and it was not enough: the view is a 45-degree isometric, so a column
+ * two feet to one side is already a foot and a half nearer the camera, and the
+ * freezer beside package D's refrigerator went to glass anyway. How far in
+ * front one machine stands of another is a fact about the room; how far along
+ * a ray it lies is a fact about where the camera happens to be.
+ *
+ * `outFt` is how far the other machine stands out of the selected one's face —
+ * zero for one beside it in the same bank, five feet for a hood hung over an
+ * island in front of an oven on the wall.
+ */
+export function blocksSightLine(
+  isAppliance: boolean,
+  outFt: number,
+  ownDepthFt: number,
+): boolean {
+  if (!isAppliance) return true;
+  return outFt > ownDepthFt;
+}
+
+/** Whether a mesh belongs to a machine rather than to the joinery. */
+export function isAppliance(object: THREE.Object3D): boolean {
+  let node: THREE.Object3D | null = object;
+  while (node) {
+    if (node.userData?.appliance === true) return true;
+    node = node.parent;
+  }
+  return false;
+}
+
+/** Which groups a sight line is cast against, in a given render mode. */
+export function sightLineLayers(renderMode: string): string[] {
+  return renderMode === "install"
+    ? SIGHT_LINE_LAYERS
+    : [...SIGHT_LINE_LAYERS, APPLIANCE_LAYER];
+}
 /** What an appliance's install-mode material drops to. */
 const INSTALL_APPLIANCE_OPACITY = 0.12;
 /** A mesh that takes no clicks. */
@@ -149,9 +212,11 @@ export function OcclusionFade() {
       return;
     }
 
-    const layers = LAYERS.map((name) => scene.getObjectByName(name)).filter(
-      (group): group is THREE.Object3D => !!group && group.visible,
-    );
+    const layers = sightLineLayers(renderMode)
+      .map((name) => scene.getObjectByName(name))
+      .filter(
+        (group): group is THREE.Object3D => !!group && group.visible,
+      );
     if (layers.length === 0) return;
 
     const slot = SLOT_BY_ID[selectedSlot];
@@ -160,6 +225,7 @@ export function OcclusionFade() {
     right.set(1, 0, 0).applyQuaternion(camera.quaternion);
     up.set(0, 1, 0).applyQuaternion(camera.quaternion);
 
+    const ownDepth = ft(slot.cutout.d);
     const halfW = ft(slot.cutout.w) / 2;
     const halfH = ft(slot.cutout.h) / 2;
     anchor.set(slot.position[0], slot.position[1] + halfH, slot.position[2]);
@@ -180,7 +246,16 @@ export function OcclusionFade() {
       for (const { object } of raycaster.intersectObjects(layers, true)) {
         const mesh = object as THREE.Mesh;
         if (!mesh.isMesh) continue;
-        // An appliance's own enclosure is not in its way.
+        // A machine beside the one being looked at is not in front of it.
+        const other = owningSlot(mesh);
+        const standing = other && other !== selectedSlot ? SLOT_BY_ID[other as SlotId] : undefined;
+        const out = standing
+          ? toLocal(slot, standing.position[0], standing.position[2]).out
+          : 0;
+        if (!blocksSightLine(isAppliance(mesh), out, ownDepth)) continue;
+        // An appliance's own enclosure is not in its way — nor, now that the
+        // appliances are cast against, is the machine itself. Round 55: the
+        // group carries `userData.slot` so this finds it.
         if (owningSlot(mesh) === selectedSlot) continue;
         const material = mesh.material;
         if (Array.isArray(material)) continue;
@@ -239,7 +314,7 @@ function boxName(object: THREE.Object3D): string {
 }
 
 /** Walk up the parents looking for the slot a box belongs to. */
-function owningSlot(object: THREE.Object3D): string | undefined {
+export function owningSlot(object: THREE.Object3D): string | undefined {
   let node: THREE.Object3D | null = object;
   while (node) {
     const slot = node.userData?.slot as string | undefined;

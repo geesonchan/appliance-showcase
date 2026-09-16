@@ -243,6 +243,28 @@ export function islandHoodParts(undersideIn: number, ceilingIn = ROOM.wallHeight
   };
 }
 
+/**
+ * How tall the hood's own body is, in feet: the part that is the machine.
+ *
+ * For a canopy against a wall that is what the catalogue sells it as. For a
+ * hood hung over an island it is **the canopy alone** — HMIB42WS's `heightIn`
+ * of 30" is the assembly collapsed for shipping, and the canopy is 2-3/4" of
+ * it (D20). Round 55: three things read "the top of the hood" off that 30" —
+ * the duct outlet, the damper above it and the selection outline — and all
+ * three were 27-1/4" out. One cause, one answer, asked here.
+ */
+export function hoodBodyHeightFt(slot: Slot, appliance: Appliance | undefined): number {
+  if (slot.id === "slot-hood" && slot.mount === "island") {
+    return ft(ISLAND_HOOD.canopyThicknessIn);
+  }
+  // The same three-way fall-back `applianceBox` uses everywhere else: the body,
+  // then the cutout, then the opening. Round 55's first draft left the middle
+  // one out and `applianceBox.test.ts` caught it on AK7136AS-BF, an
+  // under-cabinet hood that publishes 7-3/8" as a cutout height and no body
+  // height — it was drawn at the opening's 18".
+  return ft(appliance?.heightIn ?? appliance?.cutoutHeightIn ?? slot.cutout.h);
+}
+
 /** True when this model hangs its own duct cover rather than living under a box. */
 export const isChimney = (appliance: Appliance | undefined) =>
   !!appliance?.installType.some((type) => type === "chimney" || type === "wall-mount");
@@ -286,11 +308,7 @@ export function hoodOutlet(slot: Slot, appliance: Appliance | undefined): HoodOu
       : toPlan(slot, 0, -depthFt / 2 + ft(outlet.fromWallIn));
 
   return {
-    position: [
-      x,
-      slot.position[1] + ft(appliance?.heightIn ?? slot.cutout.h),
-      z,
-    ],
+    position: [x, slot.position[1] + hoodBodyHeightFt(slot, appliance), z],
     widthFt: ft(outlet.widthIn),
     depthFt: ft(outlet.depthIn),
     widthIn: outlet.widthIn,

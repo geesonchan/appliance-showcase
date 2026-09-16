@@ -1980,9 +1980,79 @@ async function captureRound53(browser) {
   await desktop.close();
 }
 
+/**
+ * Round 55: the sight-line fade now reaches the appliances, so the shots that
+ * can change are the fly-ins. Overview and install for the room, then three
+ * machines per package flown in on, before and after, for a pixel diff.
+ */
+async function captureRound55(browser) {
+  const desktop = await browser.newContext({ viewport: DESKTOP, deviceScaleFactor: 2 });
+  const page = await desktop.newPage();
+  const press = (label) =>
+    page.evaluate((text) => {
+      const b = [...document.querySelectorAll("button")].find((c) => c.textContent.trim() === text);
+      b?.click();
+      return Boolean(b);
+    }, label);
+  const open = async () => {
+    await page.goto(`${baseUrl}?quality=high`, { waitUntil: "load", timeout: 120000 });
+    await page.waitForSelector("canvas", { timeout: 120000 });
+    await settle(page, 3400);
+  };
+  const toPackage = async (code) => {
+    await page.locator(`[data-segment="package"] button`, { hasText: code }).first().click();
+    await settle(page, 3200);
+  };
+  const fromList = async (name) => {
+    const back = page.getByRole("button", { name: "All appliances" }).first();
+    if (await back.isVisible()) {
+      await back.click();
+      await settle(page, 900);
+    }
+    const item = page.locator(`aside [data-panel="list"] button`, { hasText: name }).first();
+    if (!(await item.isVisible())) {
+      await page.click(`button[data-rail="left"]`);
+      await settle(page, 700);
+    }
+    await item.click();
+    await settle(page, 2600);
+  };
+
+  // Slot labels, which every package shares, rather than model names.
+  const sets = [
+    ["a", "A", ["Range", "Dishwasher", "Refrigerator"]],
+    ["b", "B", ["Range", "Dishwasher", "Refrigerator"]],
+    ["c", "C", ["Range", "Dishwasher", "Refrigerator"]],
+    ["d", "D", ["Coffee machine", "Dishwasher", "Refrigerator"]],
+  ];
+  for (const [label, code, machines] of sets) {
+    await open();
+    await toPackage(code);
+    await page.screenshot({ path: `${outDir}/desktop-${label}-overview.png` });
+    if (!(await press("Install"))) throw new Error("no Install button");
+    await settle(page, 2400);
+    await page.screenshot({ path: `${outDir}/desktop-${label}-install.png` });
+    if (!(await press("Materials"))) throw new Error("no Materials button");
+    await settle(page, 2000);
+    for (const name of machines) {
+      await fromList(name);
+      const file = name.toLowerCase().replace(/[^a-z]+/g, "-");
+      await page.screenshot({ path: `${outDir}/desktop-${label}-fly-${file}.png` });
+    }
+  }
+  await desktop.close();
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round55") {
+    await captureRound55(browser);
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round53") {
     await captureRound53(browser);

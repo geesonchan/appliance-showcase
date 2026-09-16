@@ -1357,6 +1357,22 @@ written into geometry instead of read from `ROOM`.
   outer end of the wall. The order is stated by what each column is next to,
   never as left and right, so it holds on either leg: 18 + 5/8 + 30 + 3/4 +
   3/4 = 50-1/8".
+  - ⚠️ **In the data that is `columnOrder: ["slot-freezer", "slot-fridge"]`,
+    which reads the opposite way round from the sentence above.** Round 55
+    measured it: the array's *first* entry comes out at the far end of the run,
+    so writing it the way the sentence reads — refrigerator first — puts the
+    freezer next to the landing, which is backwards. The schema calls the array
+    "left to right as you face them". Recorded because the sentence and the
+    array disagree to the eye and the next person will write it from the
+    sentence.
+  - **What the wall has to be is not this figure.** The bank is 50-1/8" and the
+    whole leg's cabinetry — corner, landing, panels, kit, both columns — comes
+    to **107-1/8"**. But the wall itself has to be at least **163"**, because
+    the island and its two aisles take 55-7/8" of it, and that is the binding
+    constraint. *(Leo, round 55: the earlier estimate of "125-140 inches of
+    tall wall" folded those two into one figure. They are two. The cabinetry is
+    107-1/8"; the wall length is settled by the island, and is worked out
+    separately.)* The other leg, carrying the sink, needs **168"**.
 - **Landings on the island** are D11 rule 4's island branch: 15" and 12" along
   the island's length.
 - **Aisles:** 48" on the cooking side, between the perimeter run and the
@@ -1364,6 +1380,14 @@ written into geometry instead of read from `ROOM`.
   hood; 44" behind the seating. Package E does not use rule 7's single 42".
 - **The seating overhang is 15"**, which needs steel support brackets, and the
   install list says so. 12" is the alternative.
+  - ⚠️ **In the prototype it looks perfectly fine, and that is the problem.**
+    *(Leo, round 55.)* Fifteen inches of 1-1/2" top with nothing under it reads
+    as an ordinary breakfast bar — nobody looking at it thinks a part is
+    missing. So the picture is quietly telling a customer that it installs like
+    that, while 3cm quartz is good for about 10"-12" unsupported. **The picture
+    and the list may not both be silent**: either the brackets are drawn, or the
+    line is on the install list. Drawing nothing and listing nothing is the one
+    combination that misleads.
 - **The island hood's height is worked out, never a constant.** The underside
   is at max(the cooking surface plus the manual's minimum clearance, 66") off
   the floor. The HMIB42WS manual gives 30" over the cooking surface for gas and
@@ -2100,6 +2124,67 @@ acceptance are report two, next round.)*
   - The hood's callout still hangs at the island counter, 5' under the hood, as
     §"package E" already records.
 
+**Round 55, the first of four before package E is configured.** Three things
+that had to be fixed before E could even be looked at without a patch, all three
+found by the round-54 prototype rather than by any test.
+
+- **A rule does not report against a slot the package has not declared.** The
+  install checklist groups its lines by slot and looks each one up by name, so a
+  line filed under a machine the room does not contain is `undefined.labelKey`
+  — **the whole right-hand column, gone**. The line was the COMBIKIT between two
+  refrigeration columns, filed under `slot-wine` outright because package D's
+  bank happens to end with a wine column; E's bank is a freezer and a
+  refrigerator. It is now filed under a column the kit is actually between.
+  `checklistSlots.test.ts` holds every package to it, E's shape included,
+  because the four that ship all happen to contain the slots their rules name
+  and would never show it. `useChecklist` grew a plain `checklistFor` so the
+  test can ask without React.
+- **A hung hood's body is its canopy, and three things stop disagreeing about
+  it.** HMIB42WS's catalogue `heightIn` is 30", the assembly collapsed for
+  shipping; the canopy is 2-3/4" of that (D20). `hoodBodyHeightFt` says so once,
+  and the duct outlet (was 102", now 74-3/4", the canopy's actual top), the
+  damper (was 110-3/8" — *through* a 108-1/2" ceiling — now inside the room) and
+  the install outline (was a 30" box round a 2-3/4" canopy) all follow it.
+  **One cause, one fix, three symptoms**, and the third had been carried as its
+  own open item since round 47.
+  - ⚠️ The first draft dropped the middle term of the height fall-back and
+    `applianceBox.test.ts` caught it on AK7136AS-BF, an under-cabinet hood that
+    publishes a cutout height and no body height. The existing suite earning its
+    keep on a change that never looked near it.
+- **The sight-line fade reaches the appliances.** It was written for joinery,
+  because in A to D nothing but joinery ever stands between the camera and a
+  machine. E hangs a 42" hood in the middle of the room, and flying to the
+  combination oven behind it put the hood flat across the oven's face, solid, in
+  the shot that sells the oven.
+  - ⚠️ **Not in install mode**, where the whole appliance layer has already
+    stepped back and taken no clicks: the two writes would each restore what the
+    other saved.
+  - ⚠️ **And "in the way" is measured in the machine's own frame, not along the
+    camera's axis.** The first draft used the distance along the ray and it was
+    not enough — the view is a 45-degree isometric, so a column two feet to one
+    side is already a foot and a half nearer the camera, and package D's freezer
+    went to glass beside its refrigerator. **How far in front one machine stands
+    of another is a fact about the room; how far along a ray it lies is a fact
+    about where the camera happens to be.** A machine is in the way when it
+    stands further out of the selected machine's face than that machine is deep:
+    the hood five feet in front of the oven fades, the column flush beside
+    another does not.
+  - Measured after: **all twenty shots of packages A to D unchanged, to the
+    pixel** — the three fly-ins per package included, which are the shots that
+    could have moved. In the prototype, flying to the combination oven now fades
+    `hood-island` and flying to the hood fades neither it nor anything of its
+    own.
+
+**And a limitation of the template, recorded so it is not mistaken for a
+design.** `inRunGroup` puts **every** tower marked `beside: "run"` on the one
+leg `coffeeLeg` names. Packages A to D have at most one such tower, so it never
+showed; package E has two — a 30" combination oven and the coffee cabinet — and
+they are welded to the same leg. With both on the left leg, together with the
+column bank, E asks for 176-1/8" of wall and is refused (the refusal does offer
+the fix, `coffeeLeg: "back"`). **E therefore puts both on the back leg, and that
+is a constraint it is working around, not a decision about where they belong.**
+*(Leo, round 55: splitting them across two legs is not being built now.)*
+
 ## Open items
 
 Registered, not scheduled. None of these is a round of its own.
@@ -2157,12 +2242,15 @@ Registered, not scheduled. None of these is a round of its own.
   slot is at the end of a tall bank with cabinets round it, which is not the
   same case. It deserves a test of its own. *(Noted 2026-09-14, round 46, Leo:
   not now.)*
-- **The install view's outline round an island hood is a 30" box.** The outline
-  round every appliance is a box its catalogue `heightIn` tall, and HMIB42WS's is
-  the collapsed 30", so in the view that exists to explain installation the
-  outline is ten times the 2-3/4" canopy it surrounds. Round 46 drew the hood
-  itself right and left this. *(Noted 2026-09-14, round 47, Leo: the next round
-  or the one after.)*
+- ~~**The install view's outline round an island hood is a 30" box.** The
+  outline round every appliance is a box its catalogue `heightIn` tall, and
+  HMIB42WS's is the collapsed 30", so in the view that exists to explain
+  installation the outline is ten times the 2-3/4" canopy it surrounds.~~
+  **Fixed in round 55, and it was never its own bug** *(Leo)*: it is the third
+  symptom of one cause. Three things read "the top of the hood" off that 30" —
+  the duct outlet, the damper above it, and this outline — and all three were
+  27-1/4" out. `hoodBodyHeightFt` answers it once. *(Noted 2026-09-14, round 47;
+  closed 2026-09-16, round 55.)*
 - **Two rule numbers do not say which rule failed.** Rule 7's facing check and
   both aisle checks all fail as `d11-7`, and rule 9 fails as `d11-8` (above).
   Sort both out when rule 7 is rewritten for E, when it may become four checks.
