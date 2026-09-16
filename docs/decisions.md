@@ -1711,6 +1711,15 @@ acceptance are report two, next round.)*
     square opening, a box as wide as it is deep, a turn of zero — a case like
     that passes whether the code is right or not. A test case is picked for
     being lopsided, or it proves nothing.
+    **And check the assertion ran (Leo).** A test that looks as if it covers a
+    case and a test that got as far as checking it are two different things.
+    The toe-kick test put its three facts in one loop over the runs. Run against
+    the old code, it failed on the left run — the far end — and the loop
+    stopped there, so the back run's two assertions that the kick breaks exactly
+    at the range never executed against the old code. They ran and passed only
+    after the fix. A red result says the first failing assertion failed; it
+    says nothing about the ones after it. Same kind of trap as the square
+    openings: something that reads as coverage and is not.
   - Rough-in leader lines (`leaderEnd`): out of the face the host opens by.
   - The wall anchor (`wallAnchor`): none for an island slot. Gas and water to an
     island slot are not drawn — no island slot has either yet; step 3.
@@ -1761,6 +1770,63 @@ acceptance are report two, next round.)*
   pixels changed. Under 0.6% changed elsewhere, at the board edges and the
   island's doors. The red over "Drag to rotate" in the diff is the hint text
   fading at a different moment, not the scene.
+
+**Step 2, report two, round 51: a fly-in is relative to the machine's front.**
+- **What the stored figure means now.** `bestView.azimuth` is how many degrees
+  off the machine's front the camera comes in. Positive leans toward the far
+  end of what the machine stands on — the run or the island — which is away
+  from the room's inside corner, +x along the back run and +z along the left
+  one. Negative leans toward that corner. The machine's own turn is added in
+  `flyInAzimuth` (`src/data/flyIn.ts`). Pitch is unchanged.
+- **The default offset is 45°, toward the far end** (`FLY_IN_OFFSET_DEG`; a slot
+  that leaves the azimuth out gets it). A new machine takes it and is only set by
+  hand if its screenshot shows a reason.
+  - 45° is the default overview's own angle, 45° round from the back wall, so a
+    fly-in at 45° off a back-wall machine is the overview turned to face it.
+  - Seven of the eleven angles hand-set before this were 40° to 55° off their
+    machine's front.
+  - Toward the far end because that is where the room is open. Toward the
+    inside corner the camera looks across the tall units that finish the other
+    run.
+- **This round named a rule that was already being followed.** *(Leo.)* Read
+  against the machine's front and the far end of its run, the angles hand-set
+  over a dozen rounds turn out to be the same judgement each time: 45 degrees
+  for a refrigerator whether it stands on the left wall or the back one, 40 for
+  the range, 55 for the dishwasher. They were set by eye, one at a time, with no
+  words for what they had in common, so each new machine was tuned from scratch.
+  Only two figures were a compromise rather than a judgement — package B's
+  dishwasher and package D's wine column — and only because one absolute number
+  had to serve two orientations at once. So this is not twenty-odd angles
+  re-decided; it is a name for what was there.
+- **The rule does not depend on which way the room faces.** "Off the machine's
+  front, positive toward the far end of what it stands on" is written in the
+  machine's own terms and the strip's, never in the room's compass. It holds
+  when the L is mirrored, when the island turns across the room, and it will
+  hold for the U-shaped and galley templates without being defined again.
+- **Nearly every hand-set angle was this rule already.** Read against the
+  machine's front and the far end of its run, a back-wall and a left-wall
+  refrigerator stored as 45 are both 45° toward the far end. So is the range's
+  40, the dishwasher's 55 on the back run, the island wine cabinet's 20. Those
+  figures did not change, and neither did the view in the package that set
+  them.
+- **Recomputed to a new figure, same view where it was set:** the island
+  microwave drawer, 210 → -30 (30° toward the inside corner, as it was with the
+  island along the back wall); the second dishwasher, 55 → 35 (package D's left
+  run, as it was); the cooktop, 240 → -60 (no package has one; round 49's
+  prototype angle with the island along the back wall).
+- **Views that change**, because one absolute number had served two
+  orientations:
+  - package A's island microwave drawer and wine cabinet with the island turned
+    across the room — before, 60° and 70° off their fronts; now 30° and 20°, as
+    along the back wall;
+  - package B's dishwasher on the left run, 35° → 55° off, as on the back run;
+  - package D's wine column on the left run, 70° → 20° off, the wine slot's own
+    figure.
+- `flyIn.test.ts` ran red on the old absolute angle for the island pair and the
+  dishwasher; the refrigerator and "the camera is in front of every machine"
+  passed on it as well, as they should. Each red test failed on its first
+  assertion, the angle off the front, so its second — the side it leans to —
+  did not run against the old code.
 
 ## Open items
 

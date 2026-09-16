@@ -211,7 +211,7 @@
         "duct": null
       },
       "bestView": {
-        "azimuth": 240,
+        "azimuth": -60,
         "pitch": 45
       },
       "labelOffset": {
@@ -252,7 +252,7 @@
         "duct": null
       },
       "bestView": {
-        "azimuth": 210,
+        "azimuth": -30,
         "pitch": 24
       },
       "labelOffset": {
@@ -464,7 +464,7 @@
         "duct": null
       },
       "bestView": {
-        "azimuth": 55,
+        "azimuth": 35,
         "pitch": 26
       },
       "labelOffset": {

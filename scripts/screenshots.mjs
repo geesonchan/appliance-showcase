@@ -1771,9 +1771,97 @@ async function captureRound50(browser) {
   await desktop.close();
 }
 
+/**
+ * Round 51: the fly-in of every slot in every package (D22 step 2, report two).
+ *
+ * One folder per group — A, B, C, D, and A again with the island turned across
+ * the room for its two island machines — and one shot per slot, in the order
+ * the appliance list gives them, named by that order and the slot's own label.
+ * The angles are a view somebody has to look at: a changed camera changes the
+ * whole picture, so these are for Leo's eye, not for a pixel diff.
+ */
+async function captureRound51(browser) {
+  const desktop = await browser.newContext({ viewport: DESKTOP, deviceScaleFactor: 2 });
+  const page = await desktop.newPage();
+  const open = async () => {
+    await page.goto(baseUrl, { waitUntil: "load", timeout: 120000 });
+    await page.waitForSelector("canvas", { timeout: 120000 });
+    await settle(page, 3200);
+  };
+  const press = (label) =>
+    page.evaluate((text) => {
+      const button = [...document.querySelectorAll("button")].find(
+        (candidate) => candidate.textContent.trim() === text,
+      );
+      button?.click();
+      return Boolean(button);
+    }, label);
+  const toList = async () => {
+    const back = page.getByRole("button", { name: "All appliances" }).first();
+    if (await back.isVisible()) {
+      await back.click();
+      await settle(page, 900);
+    }
+    const items = page.locator(`aside [data-panel="list"] button`);
+    if (!(await items.first().isVisible())) {
+      await page.click(`button[data-rail="left"]`);
+      await settle(page, 700);
+    }
+    return items;
+  };
+  const slug = (text) =>
+    text
+      .replace(/^\s*\d+\s*/, "")
+      .split(/\s{2,}|\n/)[0]
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+
+  const groups = [
+    ["A", "A", null, null],
+    ["A-across", "A", "Across the room", /Microwave|Wine/],
+    ["B", "B", null, null],
+    ["C", "C", null, null],
+    ["D", "D", null, null],
+  ];
+  for (const [group, code, turn, onlyMatching] of groups) {
+    const dir = `${outDir}/${group}`;
+    await mkdir(dir, { recursive: true });
+    await open();
+    await page.locator(`[data-segment="package"] button`, { hasText: code }).first().click();
+    await settle(page, 3000);
+    if (turn) {
+      if (!(await press(turn))) throw new Error(`no "${turn}" button`);
+      await settle(page, 3000);
+    }
+    let items = await toList();
+    const count = await items.count();
+    for (let i = 0; i < count; i += 1) {
+      items = await toList();
+      const item = items.nth(i);
+      const text = (await item.innerText()).trim();
+      if (onlyMatching && !onlyMatching.test(text)) continue;
+      await item.click();
+      await settle(page, 2600);
+      const name = `${String(i + 1).padStart(2, "0")}-${slug(text)}.png`;
+      await page.screenshot({ path: `${dir}/${name}` });
+      console.log(`${group}/${name}`);
+    }
+  }
+  await desktop.close();
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round51") {
+    await captureRound51(browser);
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round50") {
     await captureRound50(browser);

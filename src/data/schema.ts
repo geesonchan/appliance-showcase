@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { FLY_IN_OFFSET_DEG } from "./flyIn";
 
 /**
  * Runtime schemas for everything under `data/`.
@@ -267,13 +268,19 @@ export const slotRecordSchema = z.object({
   labelKey: z.string().min(1),
   cutout: z.object({ w: inches, h: inches, d: inches }),
   /**
-   * Where the fly-in views this slot from: azimuth measured like the default
-   * isometric view, pitch above the floor plane, both in degrees. Every slot
-   * declares one, because "the default angle happens to work" is a fact about
-   * this room's geometry and stops being true the moment a template moves it.
+   * Where the fly-in views this slot from, in degrees. Pitch is above the floor
+   * plane. Azimuth is how far off the machine's front the camera comes in:
+   * positive leans toward the far end of the run or island the machine stands
+   * on (away from the room's inside corner), negative toward that corner, and
+   * the machine's own turn is added (`flyInAzimuth`). So one figure is the same
+   * view of the machine on either wall and with its island either way round.
+   * Leave it out and it is `FLY_IN_OFFSET_DEG`, 45.
+   *
+   * Round 51 (D22): it used to be an absolute azimuth, the same view only while
+   * every machine faced the back wall.
    */
   bestView: z.object({
-    azimuth: z.number().min(-360).max(360),
+    azimuth: z.number().min(-180).max(180).default(FLY_IN_OFFSET_DEG),
     pitch: z.number().min(5).max(80),
   }),
   /**

@@ -4,6 +4,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { ROOM, SLOT_BY_ID, ft } from "../data/slots";
 import { outward } from "../data/frame";
+import { flyInAzimuth } from "../data/flyIn";
 import { useIsMobile } from "../hooks/useIsMobile";
 import { useAppStore } from "../store/useAppStore";
 
@@ -206,13 +207,14 @@ export function CameraRig() {
     const [outX, outZ] = outward(slot.rotationY);
     target.x += outX * 1.6;
     target.z += outZ * 1.6;
-    // Straight to the angle the slot declares. See docs/decisions.md D1.
+    // Straight to the angle the slot declares, off the machine's own front and
+    // turned with it (`flyInAzimuth`, D22). See docs/decisions.md D1.
     startTween(
       target,
       11,
       fitZoom * 1.7,
       FLY_MS,
-      THREE.MathUtils.degToRad(slot.bestView.azimuth),
+      flyInAzimuth(slot),
       THREE.MathUtils.degToRad(slot.bestView.pitch),
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
