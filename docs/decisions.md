@@ -1132,6 +1132,16 @@ which commit the runner *thought* it was building, while the asset hashes are
 the bundle itself — and it needs no browser. Read the footer as well when a
 browser is already open; neither replaces waiting for the run.
 
+⚠️ **Build at the commit you pushed, or one chunk will never match.** The
+footer's commit is a `define` (`__COMMIT__` in `vite.config.ts`), so it is
+compiled into the main chunk and changes its hash. Round 52 ran its build
+*before* committing, and three of four files matched while `index-*.js` did
+not — which looks exactly like a deploy that did not land. Rebuilding at `HEAD`
+after the push made all four identical. So: push, wait for the run, `npm run
+build` again, then compare. The vendor chunks (`react-*`, `three-*`) and the CSS
+do not carry the commit and match either way, which is what makes the odd one
+out readable rather than alarming.
+
 **What this forbids:** reporting a push as finished work; a local suite that is
 a subset of CI's without saying so; a build that cannot be identified from the
 page it serves.
