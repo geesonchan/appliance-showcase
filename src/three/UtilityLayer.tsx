@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import { CABINET_STANDARDS, ROOM, SLOTS, ft } from "../data/slots";
 import { FIXTURES } from "../data/fixtures";
-import { ductRoute, hoodCabinetFloor, hoodOutlet, outletSize } from "../data/hood";
+import { ceilingStub, ductCallout, ductRoute, hoodCabinetFloor, hoodOutlet } from "../data/hood";
 import { deriveUtilities } from "../data/utilities";
 import { useAppStore } from "../store/useAppStore";
 import { useSelection, useSelectedBlower } from "../store/useSelection";
@@ -14,7 +14,7 @@ import { wallBehind } from "../data/roomWalls";
 import { RUN_BY_ID } from "../data/room";
 import { wallAnchor } from "../data/wallAnchor";
 import type { Appliance, ServicePoint, SlotId, UtilityType, Utilities } from "../types";
-import { UNREVIEWED, UTILITY_COLORS, UTILITY_RADIUS_IN } from "./materials";
+import { UNCONFIRMED, UNREVIEWED, UTILITY_COLORS, UTILITY_RADIUS_IN } from "./materials";
 
 const UP = new THREE.Vector3(0, 1, 0);
 const DUCT = CABINET_STANDARDS.hood;
@@ -101,6 +101,27 @@ function Fitting({
   );
 }
 
+
+/**
+ * A foot of duct past the ceiling, dashed: the configuration is in the hood's
+ * guide, its place over the canopy is inferred. Round 58.
+ */
+function CeilingStub({ from, to }: { from: [number, number, number]; to: [number, number, number] }) {
+  // Keyed on the figures, not the arrays: the route hands back fresh arrays on
+  // every render, and a new line each time is a new geometry each time.
+  const [x, y0, z] = from;
+  const y1 = to[1];
+  const line = useMemo(() => {
+    const drawn = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(x, y0, z), new THREE.Vector3(x, y1, z)]),
+      new THREE.LineDashedMaterial({ color: UNCONFIRMED, dashSize: ft(0.25), gapSize: ft(0.18) }),
+    );
+    drawn.computeLineDistances();
+    drawn.userData = { tier: "unconfirmed" };
+    return drawn;
+  }, [x, y0, z, y1]);
+  return <primitive object={line} />;
+}
 
 /**
  * A service that comes up through the floor, for a machine in the island.
@@ -482,13 +503,15 @@ function DuctRuns({
         const { runsUp, end, inlineAt } = ductRoute(slot, outlet, collarY, duct.route);
         const cutout = { w: outlet.widthFt, d: outlet.depthFt };
         const cabinetFloor = hoodCabinetFloor();
+        const callout = ductCallout(slot, duct.route);
+        const stub = ceilingStub(slot, outlet, duct.route);
 
         return (
           <group
             key={slot.id}
             onClick={(event) => {
               event.stopPropagation();
-              showToast("duct.callout", { size: outletSize() });
+              showToast(callout.key, callout.vars);
             }}
             onPointerOver={() => (document.body.style.cursor = "pointer")}
             onPointerOut={() => (document.body.style.cursor = "auto")}
@@ -520,6 +543,9 @@ function DuctRuns({
               color={UTILITY_COLORS.duct}
               hollow
             />
+            {/* On through the ceiling, where the hood's own guide shows it:
+                dashed grey, D21's reviewed-but-inferred tier. Round 58. */}
+            {stub && <CeilingStub from={stub.from} to={stub.to} />}
             {place === "inline" && (
               <Fitting
                 position={inlineAt}

@@ -2296,6 +2296,69 @@ is a constraint it is working around, not a decision about where they belong.**
     ordinary default: the arithmetic took one 1" lap off instead of two. The
     rule itself measures it correctly.
 
+**Round 58, the third of four: a duct that goes through the ceiling says so.**
+
+- **Look in the manual for the part before proposing it.** *(Leo, round 58.)*
+  The first idea for an island hood's duct cover was a trim ring where it meets
+  the ceiling — "there is usually one there". HMIB42WS's guide has no such part:
+  a template on the ceiling, a support structure screwed to it, and the upper
+  duct cover slid up that structure and fixed to it, so the cover meets the
+  ceiling directly. The ring would have been a part invented from general
+  building sense and drawn as though it came with the machine. **Knowing what
+  is usually at a place is not knowing what this model puts there.** Before
+  proposing a part, find it in the model's own documents; if it is not there,
+  say so and draw nothing for it.
+  - And it would not have worked either: the view looks down on the room, so a
+    ring at the top of the cover reads as a slightly wider cap, which does not
+    say "ceiling" any more than the bare cover does.
+- **`through-ceiling` is a route.** The geometry did not need it — an island
+  hood's duct already ran up whatever it was told (round 52) — but three pieces
+  of text were driven by the route and all three were wrong:
+  - **the spec card** said "Up through cabinet". Package C's said so on the live
+    site, looked at in round 58: HMCB30WS, a chimney hood with its cover running
+    to the ceiling and no cabinet anywhere over it. It now says "Up through the
+    ceiling";
+  - **the duct's callout** said "cabinet floor needs a cutout; the duct passes
+    through the cabinet". Over an island it now says through the ceiling to the
+    roof, 8" round, a metal vent cover where it leaves the house, and cites
+    HMIB42WS's guide, page 12. For C it says the duct rises inside the chimney
+    cover to the ceiling and there is no cabinet to cut — and cites nothing
+    further, see below;
+  - **the outlet size** over an island was the wall canopy's rectangular collar.
+    HMIB42WS's guide gives an 8" round transition, and that is what it says now.
+- **Package C's value is `through-ceiling`, and its source is thinner than the
+  island hood's.** HMCB30WS's sheet (the only HMCB30WS document in the repo,
+  page 2 of 3) draws the chimney cover to the ceiling — 30"-42" from the
+  canopy's underside to the top of the chimney, an extension kit for ceilings to
+  12' — and it has no cabinet over it. It does not state a duct route. The
+  generic Thermador ducting sheet shows a wall hood ducted straight up through
+  the ceiling as a configuration. A chimney hood could also turn its duct out
+  through the wall inside its cover, and nothing in the repo rules that out; if
+  HMCB30WS's installation guide says so, this is a value to change, not a third
+  route to add.
+- **The foot of duct past the ceiling is drawn for a hood over an island only.**
+  Dashed grey, D21's reviewed-but-inferred tier: the configuration is in the
+  guide, and that the duct rises from the middle of the canopy follows from the
+  cover being centred rather than being drawn there. C's duct stops at the
+  ceiling as before, because the one document that would show where it goes
+  next is not in the repo — and so package C's install view did not change.
+- **A hood over an island declared up through a cabinet or out through a wall is
+  thrown where it is placed** (`assertHoodRoute`). Round 52 had sent such a duct
+  up anyway, silently. Eighteen existing tests were refused by it at once, every
+  one with the check's own message: island hoods built from package A's hood
+  slot, which is `up-through-cabinet`. They now declare the route their guide
+  shows.
+- **Materials mode draws nothing new**, as settled.
+- **Measured.** Twenty shots of A to D, live against local, `?quality=high` on
+  both sides: nineteen unchanged to the pixel, and package C's install view off
+  by **3 pixels, none by more than 32 levels**, on the anti-aliased edge of the
+  Materials button — an HTML control over the canvas, not the room. Two local
+  runs of identical code differ by 3 pixels in the same band of that button, so
+  it is the button's edge and not this change. C's spec card, read on the local
+  build: "8\" · Up through the ceiling · 600 CFM". In the prototype, E's card
+  says the same and its install view shows the dashed foot of duct above the
+  cover.
+
 ## Open items
 
 Registered, not scheduled. None of these is a round of its own.
@@ -2417,3 +2480,12 @@ Registered, not scheduled. None of these is a round of its own.
   sentence, which described the order by what each column stood next to; it has
   been rewritten. No code changed. *(Noted round 56; closed 2026-09-17, round
   57.)*
+- **Switching to a package with more machines throws, on the live site.**
+  *(Found in round 58; pre-existing, not fixed in it.)* `PinProjector` builds
+  its per-slot layout array once, sized to the package the page opened on —
+  `useMemo(() => SLOT_ORDER.map(...), [])` — and a later package with more slots
+  writes past its end: `Cannot set properties of undefined (setting 'dotX')`.
+  Reproduced on the production site by switching from package A (six machines)
+  to D (ten). It is thrown inside the frame loop, so what it does to D's later
+  pins needs looking at before it is fixed; the fix itself is to size the array
+  to the package the room is built to.

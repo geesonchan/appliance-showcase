@@ -349,8 +349,11 @@ export function hoodCabinetFloor(): number | null {
  * over the range is read off the run, the same way the cabinet floor is.
  */
 export const outletSize = () => {
-  const duct = SLOT_BY_ID["slot-hood"].utilities.duct;
-  return housed() && duct
+  const hood = SLOT_BY_ID["slot-hood"];
+  const duct = hood.utilities.duct;
+  // A hood over an island leaves through an 8" round transition (HMIB42WS's
+  // guide, page 11), not the wall canopy's rectangular collar. Round 58.
+  return (housed() || hood.mount === "island") && duct
     ? `${duct.diameterIn}" round`
     : `${CABINET_STANDARDS.hood.outlet.widthIn}" × ${CABINET_STANDARDS.hood.outlet.depthIn}"`;
 };
@@ -403,4 +406,81 @@ export function ductRoute(
       part(slot.position[2], wall.z),
     ],
   };
+}
+
+/**
+ * What a click on the duct says, in the room it is in.
+ *
+ * Round 58. It used to say "the cabinet floor needs a cutout; the duct passes
+ * through the cabinet" whatever the hood hung under, which was wrong for package
+ * C's chimney hood — no cabinet over it — and for any hood over an island.
+ *
+ * - A hood hung over an island: through the ceiling to the roof, 8" round, and
+ *   a metal vent cover where it leaves the house. HMIB42WS's guide, pages 11-12:
+ *   "venting through the ceiling", an 8" round transition and 8" round duct,
+ *   "always install a metal vent cover where the ductwork exits the house".
+ * - A chimney hood against a wall: the duct rises inside the chimney cover to
+ *   the ceiling, which HMCB30WS's sheet draws (30"-42" from the canopy's
+ *   underside to the top of the chimney, extension kit to 12' ceilings). Its
+ *   installation guide is not in `docs/reference/`, so nothing past the
+ *   ceiling is claimed for it.
+ */
+export function ductCallout(
+  slot: Slot,
+  route: string,
+): { key: string; vars: Record<string, string | number> } {
+  if (route !== "through-ceiling") return { key: "duct.callout", vars: { size: outletSize() } };
+  return slot.mount === "island"
+    ? { key: "duct.calloutCeiling", vars: { size: outletSize() } }
+    : { key: "duct.calloutChimney", vars: { size: outletSize() } };
+}
+
+/** How far past the ceiling the install view carries a duct going through it, in feet. */
+const CEILING_STUB = ft(12);
+
+/**
+ * The piece of duct drawn past the ceiling, where a hood's own guide shows one.
+ *
+ * Round 58. The scene draws no ceiling, and does not try to draw what is above
+ * one: this is a foot of 8" duct straight up past 108-1/2", enough to say the
+ * duct goes on through. Only for a hood hung over an island, whose guide shows
+ * the configuration; package C's chimney hood also goes through the ceiling,
+ * but its guide is not in the repo, so its duct stops at the ceiling as before.
+ *
+ * Dashed grey — D21's reviewed-but-not-off-a-drawing tier. The configuration
+ * is in the guide; that the duct rises from the middle of the canopy is not
+ * drawn there, it follows from the cover being centred (D20, round 52).
+ */
+export function ceilingStub(
+  slot: Slot,
+  outlet: HoodOutlet,
+  route: string,
+): { from: [number, number, number]; to: [number, number, number]; tier: "unconfirmed" } | null {
+  if (route !== "through-ceiling" || slot.mount !== "island") return null;
+  const [x, , z] = outlet.position;
+  return {
+    from: [x, ROOM.wallHeight, z],
+    to: [x, ROOM.wallHeight + CEILING_STUB, z],
+    tier: "unconfirmed",
+  };
+}
+
+/**
+ * A hood's duct route has to be one its mounting can have.
+ *
+ * Round 58, Leo. A hood hung over an island has no cabinet over it and no wall
+ * behind it, so `up-through-cabinet` and `back-wall` are mistakes in the data,
+ * and a mistake in the data is thrown where it is found rather than drawn.
+ * Round 52 had quietly sent such a duct up anyway; this says so instead.
+ */
+export function assertHoodRoute(slot: Slot): void {
+  if (slot.id !== "slot-hood" || slot.mount !== "island") return;
+  const route = slot.utilities.duct?.route;
+  if (route === "up-through-cabinet" || route === "back-wall") {
+    throw new Error(
+      `slot-hood hangs over the island and its duct is declared ${route}: ` +
+        "there is no cabinet over it and no wall behind it. " +
+        "Declare through-ceiling, as its guide does, or recirc.",
+    );
+  }
 }

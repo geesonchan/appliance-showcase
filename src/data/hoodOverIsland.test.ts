@@ -53,6 +53,10 @@ const islandHoodSlot = (base: PackageSlot): PackageSlot => ({
   // The hood is hung off the cooking surface, and this one's is the island's
   // counter: 36" to the top, with the glass a quarter proud of it (D20).
   builtForCooktopIn: 36,
+  // Ducted as its guide shows. Round 58: an island hood may not be declared up
+  // through a cabinet or out through a wall, and A's hood slot, which this is
+  // built from, is up-through-cabinet.
+  utilities: { gas: null, power: null, duct: { diameterIn: 8, route: "through-ceiling" } },
 });
 
 function islandCooking(): Package {

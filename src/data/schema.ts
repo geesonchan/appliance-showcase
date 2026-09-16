@@ -253,7 +253,9 @@ export const utilitiesSchema = z.object({
   duct: z
     .object({
       diameterIn: z.union([z.literal(6), z.literal(8), z.literal(10)]),
-      route: z.enum(["up-through-cabinet", "back-wall", "recirc"]),
+      // `through-ceiling` since round 58: a chimney hood's cover and an island
+      // hood's run up to the ceiling with no cabinet over them.
+      route: z.enum(["up-through-cabinet", "back-wall", "recirc", "through-ceiling"]),
     })
     .nullable(),
 });
@@ -463,7 +465,7 @@ export const packageSlotSchema = z.object({
       duct: z
         .object({
           diameterIn: z.union([z.literal(6), z.literal(8), z.literal(10)]),
-          route: z.enum(["up-through-cabinet", "back-wall", "recirc"]),
+          route: z.enum(["up-through-cabinet", "back-wall", "recirc", "through-ceiling"]),
         })
         .nullable()
         .default(null),

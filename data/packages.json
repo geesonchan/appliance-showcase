@@ -209,7 +209,13 @@
           "category": "hood",
           "widthIn": 30,
           "installType": "chimney",
-          "builtForCooktopIn": 36
+          "builtForCooktopIn": 36,
+          "utilities": {
+            "duct": {
+              "diameterIn": 8,
+              "route": "through-ceiling"
+            }
+          }
         },
         {
           "slotId": "slot-dishwasher",

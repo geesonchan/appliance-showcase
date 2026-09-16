@@ -3,7 +3,7 @@ import type { PackageSlot, Slot, SlotId, SlotRecord } from "../types";
 import { PACKAGE_SLOTS } from "./packages";
 import { CABINET_STANDARDS, OMITTED_SLOTS, ROOM, SLOT_PLACEMENT, ft } from "./room";
 import { parseDataFile, slotsFileSchema } from "./schema";
-import { ISLAND_HOOD } from "./hood";
+import { ISLAND_HOOD, assertHoodRoute } from "./hood";
 
 export { ft, CABINET_STANDARDS, ROOM, RUN, RUNS, RUN_BY_ID, PANEL, FRIDGE_OPENING, HOOD_OPENING, ISLAND, OMITTED_SLOTS, isOmitted } from "./room";
 
@@ -99,7 +99,9 @@ function place(record: SlotRecord): Slot {
   // clearance over a cooking surface it is nowhere near. Round 52, D22 step 3.
   if (placement.mount === "island") {
     const at = ft(ISLAND_HOOD.undersideIn);
-    return { ...record, ...placement, position: [x, at, z] as [number, number, number] };
+    const hung = { ...record, ...placement, position: [x, at, z] as [number, number, number] };
+    assertHoodRoute(hung);
+    return hung;
   }
   if (record.builtForCooktopIn === null) return { ...record, ...placement };
   const { aboveCooktopMinIn, chimneyReachIn } = CABINET_STANDARDS.hood;

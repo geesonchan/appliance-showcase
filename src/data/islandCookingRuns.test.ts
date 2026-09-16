@@ -45,7 +45,9 @@ function packageE(columnOrder: string[]): Package {
         depthIn: null,
         utilities: { gas: null, power: { voltage: 240, amps: 50, dedicated: true }, duct: null },
       },
-      { ...hood, widthIn: 42, installType: "island", builtForCooktopIn: 36 },
+      // Ducted as HMIB42WS's guide shows; an island hood may not be declared
+      // up through a cabinet or out through a wall (round 58).
+      { ...hood, widthIn: 42, installType: "island", builtForCooktopIn: 36, utilities: { gas: null, power: null, duct: { diameterIn: 8, route: "through-ceiling" } } },
     ],
     defaultSelection: {
       "slot-freezer": byModel("T18IF900SP").id,
