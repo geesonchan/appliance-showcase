@@ -176,6 +176,13 @@ export const LAYOUT_LIMITS = {
    */
   aisleIn: 42,
   /**
+   * The same aisle where the island has a cooktop in it: somebody is standing
+   * at the burners under the hood, with the oven tower opposite and its door
+   * down. Counter edge to counter edge, like the 42" it replaces there. Leo,
+   * D20; held by the rule and by a refusal since round 56.
+   */
+  cooktopAisleIn: 48,
+  /**
    * Behind an island's seating overhang, from its edge to the end of the room.
    * Leo, round 38. Checked only where there is an overhang to sit at, so A-D,
    * which have none, pass it as they are.

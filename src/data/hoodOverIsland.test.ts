@@ -2,9 +2,9 @@ import { afterAll, describe, expect, it } from "vitest";
 import appliancesFile from "../../data/appliances.json";
 import { flushOffset } from "./applianceBox";
 import { ISLAND_HOOD, islandHoodParts } from "./hood";
-import { setActivePackage, setLayoutParams, setLayoutParamsGrowing } from "./layoutState";
-import { DEFAULT_PARAMS } from "./layoutTemplate";
-import { DEFAULT_PACKAGE, PACKAGE_BY_ID } from "./packages";
+import { setActivePackage, setLayoutParamsGrowing } from "./layoutState";
+import { resetRoom } from "./testRoom";
+import { PACKAGE_BY_ID } from "./packages";
 import { REQUESTED_PARAMS, RUNS, ft } from "./room";
 import { ISLAND, SLOT_BY_ID } from "./slots";
 import type { Appliance, Package, PackageSlot } from "../types";
@@ -68,6 +68,9 @@ function islandCooking(): Package {
   return {
     ...a,
     id: ID,
+    // Round 56: a cooktop island has a 48" aisle (D20), and choosing a
+    // package whose island has a cooktop at the ordinary 42" is now refused.
+    defaultLayout: { ...a.defaultLayout, aisleIn: 48 },
     slots: [
       ...a.slots.filter((slot) => !dropped.has(slot.slotId)),
       cooktopSlot,
@@ -83,8 +86,7 @@ function islandCooking(): Package {
 
 function build(islandOrientation: "parallel" | "perpendicular") {
   PACKAGE_BY_ID[ID] = islandCooking();
-  setActivePackage(DEFAULT_PACKAGE.id);
-  setLayoutParams(DEFAULT_PARAMS);
+  resetRoom();
   const active = setActivePackage(ID);
   expect(active.ok, JSON.stringify(active)).toBe(true);
   const result = setLayoutParamsGrowing({
@@ -97,8 +99,7 @@ function build(islandOrientation: "parallel" | "perpendicular") {
 }
 
 afterAll(() => {
-  setActivePackage(DEFAULT_PACKAGE.id);
-  setLayoutParams(DEFAULT_PARAMS);
+  resetRoom();
   delete PACKAGE_BY_ID[ID];
 });
 
@@ -159,8 +160,7 @@ describe.each(["parallel", "perpendicular"] as const)(
 describe("what a template cannot be built without", () => {
   it("accepts a package whose cooking surface is a cooktop", () => {
     PACKAGE_BY_ID[ID] = islandCooking();
-    setActivePackage(DEFAULT_PACKAGE.id);
-    setLayoutParams(DEFAULT_PARAMS);
+    resetRoom();
     expect(setActivePackage(ID).ok).toBe(true);
   });
 
@@ -181,8 +181,7 @@ describe("what a template cannot be built without", () => {
         Object.entries(base.defaultSelection).filter(([slot]) => slot !== slotId),
       ),
     };
-    setActivePackage(DEFAULT_PACKAGE.id);
-    setLayoutParams(DEFAULT_PARAMS);
+    resetRoom();
     try {
       setActivePackage(missing);
       return null;
@@ -190,8 +189,7 @@ describe("what a template cannot be built without", () => {
       return String(error);
     } finally {
       delete PACKAGE_BY_ID[missing];
-      setActivePackage(DEFAULT_PACKAGE.id);
-      setLayoutParams(DEFAULT_PARAMS);
+      resetRoom();
     }
   };
 

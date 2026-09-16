@@ -1224,6 +1224,17 @@ pixels moved one or two. In round 53 that one pass turned "13% changed, cause
 unknown" into a settled answer, and it would have done the same for any other
 whole-frame cause. Do not go looking for the cause first.
 
+**The first real regression the diff caught.** *(Leo, round 55.)* Until round
+55 every diff in this project confirmed something already expected — zero where
+nothing should move, a change where a change was made. In round 55 the
+sight-line fade was extended to the appliances, the unit suite was green, and
+of the twenty shots of A to D **one** had changed: package D's fly-in on its
+refrigerator, 2.3% of the frame, the freezer column beside it turned to glass.
+Nothing else in the process would have seen it — no test covers what a fly-in
+looks like, and nobody looks at D's refrigerator fly-in by eye after a change
+about an island hood. **It would have shipped.** That is the case for diffing
+every round, including the rounds where the answer is expected to be zero.
+
 Two more things that look like a change and are not, both met in round 53:
 
 - **The mode toast.** "White model · Read cabinet volumes and rough openings"
@@ -1367,12 +1378,18 @@ written into geometry instead of read from `ROOM`.
     sentence.
   - **What the wall has to be is not this figure.** The bank is 50-1/8" and the
     whole leg's cabinetry — corner, landing, panels, kit, both columns — comes
-    to **107-1/8"**. But the wall itself has to be at least **163"**, because
-    the island and its two aisles take 55-7/8" of it, and that is the binding
-    constraint. *(Leo, round 55: the earlier estimate of "125-140 inches of
-    tall wall" folded those two into one figure. They are two. The cabinetry is
-    107-1/8"; the wall length is settled by the island, and is worked out
-    separately.)* The other leg, carrying the sink, needs **168"**.
+    to **107-1/8"**. But the wall itself is settled by the island standing
+    across it: at least **157"** — this entry's own figure below, 25 + 48 + 40
+    + 44. *(Leo, round 55: the earlier estimate of "125-140 inches of tall wall"
+    folded those two into one figure. They are two. The cabinetry is 107-1/8";
+    the wall length is the island's, and is worked out separately.)* The other
+    leg, carrying the sink, needs **168"**.
+    - ⚠️ **Round 55 wrote 163" here, and it was wrong.** Round 54's prototype
+      built E's island out of A-D's 36" default cabinets and the ordinary 42"
+      aisle, and 163" is what that island needs. This entry says E's is **24"
+      of cabinet and 40" of counter**, and round 56 gave a cooktop island its
+      48" aisle; with both, the generator refuses 156" and builds 157", which is
+      D20's own arithmetic. Corrected in round 56.
 - **Landings on the island** are D11 rule 4's island branch: 15" and 12" along
   the island's length.
 - **Aisles:** 48" on the cooking side, between the perimeter run and the
@@ -1867,6 +1884,16 @@ acceptance are report two, next round.)*
     square opening, a box as wide as it is deep, a turn of zero — a case like
     that passes whether the code is right or not. A test case is picked for
     being lopsided, or it proves nothing.
+    **The same trap one level up: the packages that ship.** *(Leo, round 55.)*
+    A test run over "every package" is only as good as the coincidences those
+    packages happen not to have. All four contain every slot their rules name,
+    so a rule that files a line under `slot-wine` whatever the room holds passed
+    over all four, every run. Round 55's checklist test built a package to
+    E's shape — two columns, no wine, no range — and it failed at once. **The
+    square openings were a coincidence in the dimensions; this was a
+    coincidence in the catalogue.** When a rule names a slot, a feature or a
+    count, build the package that lacks it rather than trusting that one of the
+    real ones will.
     **And check the assertion ran (Leo).** A test that looks as if it covers a
     case and a test that got as far as checking it are two different things.
     The toe-kick test put its three facts in one loop over the runs. Run against
@@ -2175,6 +2202,17 @@ found by the round-54 prototype rather than by any test.
     `hood-island` and flying to the hood fades neither it nor anything of its
     own.
 
+**Whose fact is it — the room's, or the camera's?** *(Leo, round 55, and wider
+than the fade.)* The rule that fixed it — **how far in front one machine stands
+of another is a fact about the room; how far along a ray it lies is a fact about
+where the camera happens to be** — is the same disease `frame.ts` was built to
+cure: a question that belongs in the machine's own frame, answered in the
+room's axes or the camera's. The sixteen places in round 49 answered "which way
+does this face" in the room's axes; the first draft of this fade answered "is
+this in the way" in the camera's. **Before any judgement of the kind — is it in
+the way, is it near, does it face — ask first whose fact it is.** If the answer
+would change when the camera moves, it was measured in the wrong place.
+
 **And a limitation of the template, recorded so it is not mistaken for a
 design.** `inRunGroup` puts **every** tower marked `beside: "run"` on the one
 leg `coffeeLeg` names. Packages A to D have at most one such tower, so it never
@@ -2184,6 +2222,56 @@ column bank, E asks for 176-1/8" of wall and is refused (the refusal does offer
 the fix, `coffeeLeg: "back"`). **E therefore puts both on the back leg, and that
 is a constraint it is working around, not a decision about where they belong.**
 *(Leo, round 55: splitting them across two legs is not being built now.)*
+
+**Round 56, the second of four: the configuration layer.** No package E in
+`packages.json` yet — only what its configuration will need.
+
+- **A package can say what its island is.** `defaultLayout` gains
+  `islandLengthIn`, `islandDepthIn`, `islandOverhangIn` and `aisleIn`. The
+  state layer already spread whatever `defaultLayout` held; what was missing was
+  the schema, and zod drops a key it does not name, so writing E's island into
+  the file would have been thrown away without a word.
+  - **The island figures belong to the package that names them.** Leaving a
+    package that named one for a package that does not puts the ordinary figure
+    back, so E's 15" overhang and 48" aisle do not follow the customer into
+    package A. Between two packages that name nothing — every switch among A to
+    D — the customer's island is left exactly as it was, as before.
+  - A to D name none of the four, and the twenty shots of them are unchanged
+    (below).
+- **The aisle in front of a cooktop is 48".** `LAYOUT_LIMITS.cooktopAisleIn`,
+  from this entry's D20. Held by the rule and by a refusal that offers 48" —
+  the refusal because the app never calls the rule, which is round 50's lesson
+  about the island landings.
+  - ⚠️ **And a hole in the rule, found on the way.** The aisle check sat inside
+    rule 7's block about the microwave drawer and the wine cabinet, which runs
+    only when the island carries both. Package B's prep island — its wine is a
+    column — never had its aisle checked, and an island with a cooktop and
+    nothing else would not have either. It now runs for every island. Every
+    package that ships passes it as built.
+- **Thirty-six older tests went red, and the cause was proved before a line of
+  them was touched.** Every one built a cooktop island at the ordinary 42". An
+  A/B with the new figure set back to 42 turned all thirty-six green and only
+  the four tests asserting 48 red, so the refusal was the whole of it. The
+  fixtures now declare their aisle.
+  - Five were not that simple, and it was the test harness. Tests reset the room
+    by *switching* to package A, and a switch can be refused — a room a previous
+    test had grown for a turned island would not take A's window evenly — and a
+    refused switch correctly stays where it was. The next line then set A's
+    parameters on the cooktop package, and the next "switch" to it did nothing.
+    It never mattered until a package's own defaults had to be re-applied.
+    `testRoom.ts`'s `resetRoom` is a reset nobody can refuse; the island tests
+    use it.
+- **Which way round a two-column bank stands, pinned on the left leg**, and the
+  two free-standing towers pinned on one leg, so lifting either is a change
+  somebody makes on purpose.
+- **Corrections to rounds 54 and 55.**
+  - E's island cabinets are **24"**, as this entry says. The round-54 prototype
+    used A to D's 36", and the 163" of wall it reported was that island's. With
+    D20's island and the 48" aisle the figure is **157"**, D20's own, and it is
+    corrected where round 55 wrote it.
+  - Round 55's report gave the prototype's cooking aisle as 43". It was 42", the
+    ordinary default: the arithmetic took one 1" lap off instead of two. The
+    rule itself measures it correctly.
 
 ## Open items
 
@@ -2288,3 +2376,26 @@ Registered, not scheduled. None of these is a round of its own.
   add those two machines' rough-in points from their guides, and only then fix
   this — the data is what makes the fix verifiable.** Fixing it first would be
   a change nothing could check. *(Leo, round 52.)*
+- **Does the island hood still cover the combination oven in the install
+  view?** *(Leo, round 55.)* The sight-line fade leaves install mode alone,
+  because there the whole appliance layer has already stepped back to 0.12 —
+  but install mode is exactly where E's oven tower has its services explained.
+  Once E generates with its own figures, take one install-view shot of the
+  combination oven and look before deciding whether install mode needs the fade
+  as well. At 0.12 the hood may already be see-through enough.
+  - **Looked at in round 56** (prototype, E at D20's figures): the hood is
+    ghosted at 0.12 along with every other machine, and the combination oven's
+    outline and the faces inside it read straight through it. It does not look
+    covered. Leo's to decide whether that settles it.
+- **A column bank's order does not hold on both legs.** *(Found in round 56;
+  Leo's to decide.)* `columnOrder` is "left to right as you face them", so the
+  same array reads toward the outer end on one leg and toward the corner on the
+  other. Package E's order is stated the other way — by what each column stands
+  next to, "so it holds on either leg" (D20) — and the two do not agree.
+  Measured: with `["slot-freezer", "slot-fridge"]` and the refrigerator on the
+  **left** leg the freezer is at the outer end, as D20 asks; with the
+  refrigerator switched to the **back** leg, which a customer can do, the same
+  array puts the refrigerator at the outer end and the freezer next to the
+  landing. Package D's order *is* stated left to right, so it is right on both.
+  Either the data grows a way to state an order from the landing outward, or
+  E's order is accepted as holding on the left leg only.

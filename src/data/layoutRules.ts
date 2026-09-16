@@ -630,20 +630,30 @@ export function checkLayout(
         "the microwave drawer should face the working side and the wine cabinet the seating side",
       );
     }
-    // The aisle between the island and the run it stands off: the back run for
-    // an island along the back wall, the left run for one turned across it.
-    // Counter edge to counter edge (D20, round 39): the run's top laps 1" past
-    // its cabinets, and the island's does on its working side.
+  }
+
+  // The aisle between the island and the run it stands off: the back run for
+  // an island along the back wall, the left run for one turned across it.
+  // Counter edge to counter edge (D20, round 39): the run's top laps 1" past
+  // its cabinets, and the island's does on its working side.
+  //
+  // Round 56: for every island, not only one carrying the microwave drawer and
+  // the wine cabinet. This used to sit inside that block, so package B's prep
+  // island never had its aisle checked, and an island with a cooktop in it and
+  // nothing else would not have either. And 48" in front of a cooktop (D20).
+  if (island.present) {
     // The run the island is parallel to is the one it stands off.
     const run = runs.find((r) => r.axis === island.axis)!;
     const lap = ROOM.counterOverhang;
     const front = run.centre + ROOM.counterDepth / 2 + lap;
     const aisle = inches(islandAcross(island)[0] - lap - front);
-    if (aisle < LAYOUT_LIMITS.aisleIn - 1e-6) {
+    const cooking = SLOT_BY_ID["slot-cooktop"]?.mount === "island";
+    const needIn = cooking ? LAYOUT_LIMITS.cooktopAisleIn : LAYOUT_LIMITS.aisleIn;
+    if (aisle < needIn - 1e-6) {
       fail(
         "d11-7",
         `${aisle.toFixed(1)}" aisle between the island and the ${run.id} run, ` +
-          `needs ${LAYOUT_LIMITS.aisleIn}"`,
+          `needs ${needIn}"${cooking ? " in front of a cooktop" : ""}`,
       );
     }
   }

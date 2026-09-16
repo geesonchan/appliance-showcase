@@ -290,6 +290,8 @@
   "refusal.outOfRange": "{param}的范围是 {min}\"–{max}\"，{value}\" 不在其中。",
   "refusal.offStep": "{param}从 {min}\" 起按 {step}\" 步进，{value}\" 落在 {below}\" 与 {above}\" 之间。",
   "refusal.oneLegBoth": "{leg}段放不下水槽和冰箱：单段上限 {maxIn}\"，这两样加上灶台已经超了。",
+  "refusal.cooktopAisle": "岛台上有灶，灶前通道要 {needIn}\"，有人站在罩子下面做饭。现在只有 {aisleIn}\"。",
+  "suggestion.cooktopAisle": "把通道放宽到 {value}\"",
   "refusal.cooktopIsland": "这套的电磁灶嵌在岛台台面上，没有岛台建不了。",
   "suggestion.cooktopIsland": "恢复岛台",
   "refusal.islandLong": "{islandIn}\" 的岛台放不下：旁边柜列留 {aisleIn}\" 通道后，{wallIn}\" 的墙只剩 {roomIn}\"。",

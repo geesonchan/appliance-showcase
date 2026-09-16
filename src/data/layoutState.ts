@@ -1,13 +1,14 @@
 import { rebuildCabinets } from "./cabinets";
 import { rebuildFixtures } from "./fixtures";
 import {
+  DEFAULT_PARAMS,
   PARAM_LIMITS,
   generateLayout,
   wallRequirement,
   type LayoutParams,
   type Refusal,
 } from "./layoutTemplate";
-import { PACKAGE, setPackage } from "./packages";
+import { PACKAGE, PACKAGE_BY_ID, setPackage } from "./packages";
 import { LAYOUT, REQUESTED_PARAMS, applyLayout } from "./room";
 import { rebuildSlots } from "./slots";
 
@@ -202,6 +203,9 @@ export function setLayoutParamsGrowing(params: LayoutParams): {
  * 30" range in a 36" hole — so the refusal comes back to be printed, and what
  * is standing stays standing and stays consistent.
  */
+/** The island figures a package's default room may name. */
+const ISLAND_FIELDS = ["islandLengthIn", "islandDepthIn", "islandOverhangIn", "aisleIn"] as const;
+
 export function setActivePackage(id: string): {
   ok: boolean;
   reasons: Refusal[];
@@ -217,14 +221,28 @@ export function setActivePackage(id: string): {
   // has the slack its switches need (round 34), and choosing it never shrinks a
   // room somebody has already made bigger.
   const defaults = PACKAGE.defaultLayout;
+  // The island a package names is that package's. Leaving it for one that
+  // names none puts the ordinary island back rather than carrying a 15"
+  // seating overhang and a 48" cooking aisle into a kitchen that has neither.
+  // A package that names nothing about its island, arriving from another that
+  // names nothing either, leaves the customer's island exactly as it was —
+  // which is every switch between A and D. Round 56.
+  const left = PACKAGE_BY_ID[previous]?.defaultLayout ?? {};
+  const released: Partial<LayoutParams> = {};
+  for (const key of ISLAND_FIELDS) {
+    if (left[key] !== undefined && defaults[key] === undefined) {
+      (released as Record<string, unknown>)[key] = DEFAULT_PARAMS[key];
+    }
+  }
   const arranged: LayoutParams = {
     ...asked,
+    ...released,
     ...defaults,
     backWallIn: Math.max(asked.backWallIn, defaults.backWallIn ?? 0),
     leftWallIn: Math.max(asked.leftWallIn, defaults.leftWallIn ?? 0),
   };
   const moved: Partial<LayoutParams> = {};
-  for (const key of Object.keys(defaults) as (keyof LayoutParams)[]) {
+  for (const key of [...Object.keys(defaults), ...Object.keys(released)] as (keyof LayoutParams)[]) {
     if (asked[key] !== arranged[key]) {
       (moved as Record<string, unknown>)[key] = arranged[key];
     }

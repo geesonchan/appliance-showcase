@@ -3,9 +3,9 @@ import { CABINETS } from "./cabinets";
 import { APPLIANCE_BY_ID, SLOT_ORDER } from "./catalogue";
 import { doorFace } from "./doorFace";
 import { FIXTURE_BY_ID } from "./fixtures";
-import { setActivePackage, setLayoutParams, setLayoutParamsGrowing } from "./layoutState";
-import { DEFAULT_PARAMS } from "./layoutTemplate";
-import { DEFAULT_PACKAGE, PACKAGE_BY_ID } from "./packages";
+import { setActivePackage, setLayoutParamsGrowing } from "./layoutState";
+import { resetRoom } from "./testRoom";
+import { PACKAGE_BY_ID } from "./packages";
 import { planFootprint } from "./planFootprint";
 import { ISLAND, REQUESTED_PARAMS, runForSlot } from "./room";
 import { leaderEnd, resolveRoughIn } from "./roughIn";
@@ -23,16 +23,14 @@ import { wallAnchor } from "./wallAnchor";
  * run a machine is on is which run's segments carry it.
  */
 afterAll(() => {
-  setActivePackage(DEFAULT_PACKAGE.id);
-  setLayoutParams(DEFAULT_PARAMS);
+  resetRoom();
 });
 
 const EPS = 1e-6;
 const inches = (feet: number) => feet * 12;
 
 function build(id: string, islandOrientation: "parallel" | "perpendicular") {
-  setActivePackage(DEFAULT_PACKAGE.id);
-  setLayoutParams(DEFAULT_PARAMS);
+  resetRoom();
   expect(setActivePackage(id).ok).toBe(true);
   expect(setLayoutParamsGrowing({ ...REQUESTED_PARAMS, islandOrientation }).ok).toBe(true);
   expect(ISLAND.present).toBe(true);
@@ -64,6 +62,9 @@ function registerCooktopPackage() {
   PACKAGE_BY_ID[COOKTOP_ID] = {
     ...d,
     id: COOKTOP_ID,
+    // Round 56: a cooktop island has a 48" aisle (D20), and choosing a
+    // package whose island has a cooktop at the ordinary 42" is now refused.
+    defaultLayout: { ...d.defaultLayout, aisleIn: 48 },
     slots: [
       ...d.slots.filter((slot) => slot.slotId !== "slot-microwave"),
       {
@@ -102,8 +103,7 @@ describe.each(["parallel", "perpendicular"] as const)(
       const across = inches(alongIsX ? got.h : got.w);
       expect([along, across]).toEqual([slot.cutout.w, slot.cutout.d]);
       // Leave the room on a package that still exists before removing this one.
-      setActivePackage(DEFAULT_PACKAGE.id);
-      setLayoutParams(DEFAULT_PARAMS);
+      resetRoom();
       delete PACKAGE_BY_ID[COOKTOP_ID];
     });
   },

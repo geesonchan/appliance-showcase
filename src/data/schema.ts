@@ -520,6 +520,16 @@ export const packageSchema = z
         // switches need. A floor, not a setting: see `setActivePackage`.
         backWallIn: z.number().positive().optional(),
         leftWallIn: z.number().positive().optional(),
+        // The island the package is designed around (round 56). Unlike the
+        // walls these are settings, not floors, and they belong to the package
+        // that names them: see `setActivePackage`. A package that says nothing
+        // about its island leaves the customer's alone. Package E's is a 72"
+        // island of 36" cabinets with a 15" seating overhang and a 48" aisle on
+        // the cooking side (D20).
+        islandLengthIn: z.number().positive().optional(),
+        islandDepthIn: z.number().positive().optional(),
+        islandOverhangIn: z.number().nonnegative().optional(),
+        aisleIn: z.number().positive().optional(),
       })
       .default({}),
     /**

@@ -7,8 +7,9 @@ import { fitCheck } from "./fit";
 import { islandRiser } from "./islandRiser";
 import { checkLayout } from "./layoutRules";
 import { setActivePackage, setLayoutParams, setLayoutParamsGrowing } from "./layoutState";
-import { DEFAULT_PARAMS, type IslandLayout } from "./layoutTemplate";
-import { DEFAULT_PACKAGE, PACKAGE_BY_ID } from "./packages";
+import { resetRoom } from "./testRoom";
+import { type IslandLayout } from "./layoutTemplate";
+import { PACKAGE_BY_ID } from "./packages";
 import { REQUESTED_PARAMS, RUNS } from "./room";
 import { ISLAND, SLOT_BY_ID } from "./slots";
 import type { Appliance, Package, PackageSlot } from "../types";
@@ -56,6 +57,9 @@ function withCooktop(): Package {
   return {
     ...d,
     id: ID,
+    // Round 56: a cooktop island has a 48" aisle (D20), and choosing a
+    // package whose island has a cooktop at the ordinary 42" is now refused.
+    defaultLayout: { ...d.defaultLayout, aisleIn: 48 },
     slots: [...d.slots.filter((slot) => slot.slotId !== "slot-microwave"), cooktopSlot],
     defaultSelection: { ...selection, "slot-cooktop": CIT367YG.id },
   };
@@ -63,8 +67,7 @@ function withCooktop(): Package {
 
 function build(islandOrientation: "parallel" | "perpendicular") {
   PACKAGE_BY_ID[ID] = withCooktop();
-  setActivePackage(DEFAULT_PACKAGE.id);
-  setLayoutParams(DEFAULT_PARAMS);
+  resetRoom();
   expect(setActivePackage(ID).ok).toBe(true);
   const result = setLayoutParamsGrowing({ ...REQUESTED_PARAMS, islandLengthIn: 72, islandOrientation });
   expect(result.ok, JSON.stringify(result.reasons)).toBe(true);
@@ -72,8 +75,7 @@ function build(islandOrientation: "parallel" | "perpendicular") {
 }
 
 afterAll(() => {
-  setActivePackage(DEFAULT_PACKAGE.id);
-  setLayoutParams(DEFAULT_PARAMS);
+  resetRoom();
   delete PACKAGE_BY_ID[ID];
 });
 
@@ -225,8 +227,7 @@ describe("a cooktop needs an island", () => {
 
 describe.each(["parallel", "perpendicular"] as const)("the island riser, island laid %s", (islandOrientation) => {
   it.each(["package-a", "package-c", "package-d"])("stands behind %s's island machines, not under them", (id) => {
-    setActivePackage(DEFAULT_PACKAGE.id);
-    setLayoutParams(DEFAULT_PARAMS);
+    resetRoom();
     expect(setActivePackage(id).ok).toBe(true);
     expect(setLayoutParamsGrowing({ ...REQUESTED_PARAMS, islandOrientation }).ok).toBe(true);
     let checked = 0;

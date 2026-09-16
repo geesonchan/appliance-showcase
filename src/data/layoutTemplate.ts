@@ -2510,6 +2510,30 @@ export function generateLayout(
   // A cooktop is set into the island's counter, so a room without an island has
   // nowhere to put it. A refusal, not a machine left out: the cooktop is the
   // kitchen's cooking surface, not one of the two it can do without. D20.
+  // And the aisle in front of it is 48", not rule 7's 42" (D20). A refusal as
+  // well as a rule, because the app never calls the rule: without this the
+  // aisle slider would take a cooktop island straight back to 42. Round 56.
+  if (
+    params.hasIsland &&
+    pkg.slots.some((slot) => slot.slotId === "slot-cooktop") &&
+    params.aisleIn < LAYOUT_LIMITS.cooktopAisleIn
+  ) {
+    return {
+      ok: false,
+      reasons: [
+        {
+          key: "refusal.cooktopAisle",
+          vars: { aisleIn: params.aisleIn, needIn: LAYOUT_LIMITS.cooktopAisleIn },
+          suggestion: {
+            key: "suggestion.cooktopAisle",
+            vars: { value: LAYOUT_LIMITS.cooktopAisleIn },
+            patch: { aisleIn: LAYOUT_LIMITS.cooktopAisleIn },
+          },
+        },
+      ],
+    };
+  }
+
   if (!params.hasIsland && pkg.slots.some((slot) => slot.slotId === "slot-cooktop")) {
     return {
       ok: false,

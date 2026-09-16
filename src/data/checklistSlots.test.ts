@@ -1,9 +1,9 @@
 import { afterAll, describe, expect, it } from "vitest";
 import appliancesFile from "../../data/appliances.json";
 import { checklistFor } from "./useChecklist";
-import { setActivePackage, setLayoutParams } from "./layoutState";
-import { DEFAULT_PARAMS } from "./layoutTemplate";
-import { DEFAULT_PACKAGE, PACKAGES, PACKAGE_BY_ID } from "./packages";
+import { setActivePackage } from "./layoutState";
+import { resetRoom } from "./testRoom";
+import { PACKAGES, PACKAGE_BY_ID } from "./packages";
 import { SLOT_BY_ID } from "./slots";
 import type { Appliance, Package, SlotId } from "../types";
 
@@ -44,6 +44,10 @@ function packageE(): Package {
       coffeeLeg: "back",
       backWallIn: 240,
       leftWallIn: 168,
+      // A cooktop island's aisle, since round 56, and D20's 24" island.
+      aisleIn: 48,
+      islandOverhangIn: 15,
+      islandDepthIn: 24,
     },
     slots: [
       { ...take(d, "slot-freezer"), widthIn: 18 },
@@ -78,14 +82,12 @@ function packageE(): Package {
 
 afterAll(() => {
   delete PACKAGE_BY_ID[E_ID];
-  setActivePackage(DEFAULT_PACKAGE.id);
-  setLayoutParams(DEFAULT_PARAMS);
+  resetRoom();
 });
 
 /** The findings for a package, once it is the room. */
 function findingsFor(id: string) {
-  setActivePackage(DEFAULT_PACKAGE.id);
-  setLayoutParams(DEFAULT_PARAMS);
+  resetRoom();
   const active = setActivePackage(id);
   expect(active.ok, `${id}: ${JSON.stringify(active)}`).toBe(true);
   const selection = Object.fromEntries(
