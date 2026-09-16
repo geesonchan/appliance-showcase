@@ -490,6 +490,31 @@ const TALL_ORDER: readonly SlotId[] = ["slot-microwave", "slot-wine", "slot-frid
 const COLUMN_SPACER = { code: "COMBIKIT10", widthIn: 0.625 } as const;
 
 /**
+ * What goes between two machines set into the same run: a board.
+ *
+ * D11 rule 15, round 53. Two rough openings side by side are two holes in a
+ * run, not two cabinets — a rough opening has no sides of its own — so with no
+ * island the microwave drawer and the wine cabinet butted with nothing between
+ * them at all. They share the run's structure, so one standard carcass side is
+ * the whole of what they need: 3/4", the same board a tall unit is finished
+ * with at each end.
+ *
+ * ⚠️ **This is not `LAYOUT_LIMITS.towerSpacer.panelIn`**, which is also 3/4".
+ * That figure is the side of an oven tower, and this is the divider between two
+ * machines in a base run. They agree today by coincidence of what a board is
+ * milled at; **changing one is not a reason to change the other**, and reusing
+ * either constant for the other's job would tie two decisions together that
+ * Leo makes separately.
+ *
+ * ⚠️ And it is not `COLUMN_SPACER` either. That is Thermador's kit between two
+ * refrigeration columns — a part number, hidden behind their doors, drawn only
+ * in the install view. This is joinery, it is ordered as a `panel`, and since
+ * round 50 a panel is drawn as a strip flush with the door faces: **a divider
+ * in a run is meant to be seen.**
+ */
+const RUN_DIVIDER = { widthIn: 0.75, heightIn: CABINET_STANDARDS.base.boxHeightIn } as const;
+
+/**
  * How far off the floor a tall unit's opening starts.
  *
  * The package's own figure for anything that stands on the floor of its
@@ -1699,11 +1724,26 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
    * the wrong thing. What is left out is said, on the checklist and beside the
    * appliance count, rather than quietly missing.
    */
-  const spare = params.hasIsland
+  const spareSlots = params.hasIsland
     ? []
-    : SPARE_SLOTS.filter((slot) => isSpare(spec[slot]) && !omitted.includes(slot)).map((slot) =>
-        opening(slot, slot.replace("slot-", "")),
-      );
+    : SPARE_SLOTS.filter((slot) => isSpare(spec[slot]) && !omitted.includes(slot));
+  // A board between each neighbouring pair, and none beside a machine that has
+  // no neighbour: package D moves only its microwave drawer and gets none.
+  const spare = spareSlots.flatMap((slot, index) => {
+    const hole = opening(slot, slot.replace("slot-", ""));
+    if (index === 0) return [hole];
+    return [
+      fixed(
+        `spare-divider-${index}`,
+        RUN_DIVIDER.widthIn,
+        "counter",
+        M(`PNL${RUN_DIVIDER.widthIn}`, "panel", RUN_DIVIDER.widthIn, {
+          heightIn: RUN_DIVIDER.heightIn,
+        }),
+      ),
+      hole,
+    ];
+  });
 
   /**
    * A tall unit standing in the run on its own: package D's coffee cabinet.

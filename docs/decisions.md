@@ -510,6 +510,70 @@ each one has a test with a case that breaks it.
     after the oven beside the cooking surface. It goes on whichever leg
     `coffeeLeg` names, and a leg that will not take it is refused with the bill
     and the other leg offered.
+15. **Two machines set into the same run have a board between them: 3/4".**
+    *(Leo, round 53.)* A rough opening is a hole in a run, not a cabinet with
+    sides of its own, so two of them side by side is two machines with nothing
+    between at all — which is what the microwave drawer and the wine cabinet
+    were when an island was turned off and they moved onto the refrigerator's
+    leg. Measured, the gap between them was 0.0000".
+    - **Three-quarters, not an inch and a half.** These two are set into
+      openings in one run and share its structure; they are not two free-standing
+      cabinets that each need their own side. One standard carcass side is the
+      whole of what the job asks for, and 3/4" is the same board a tall unit is
+      finished with at each end.
+    - **Ordered as a `panel`**, which since round 50 records `face: "strip"` and
+      is drawn flush with the door faces. **A divider in a run is meant to be
+      seen** — which is the plainest difference from the column kit below.
+    - ⚠️ **Its own constant**, `RUN_DIVIDER` in `layoutTemplate.ts`, **not
+      `LAYOUT_LIMITS.towerSpacer.panelIn`.** That figure is also 3/4" and is the
+      side of an oven tower. The two agree today by coincidence of what a board
+      is milled at, and **changing one is not a reason to change the other**;
+      reusing either for the other's job ties two decisions together that are
+      made separately. The constant says so where it is defined.
+    - **When it bites.** Only when the pair is actually placed, which is when
+      the refrigerator's leg reaches the bill: 159" before this rule, **159-3/4"
+      after**. Below that both machines are left out rather than the room being
+      refused, which is D11's existing and intended behaviour and is not changed
+      here.
+    - **What it costs: nothing, with one exception worth naming.** D18's
+      auto-lengthening never fires for this — turning the island off does not
+      refuse, it omits — and the wall slider steps 6", so a room dragged up from
+      144" lands on 162" either way. ⚠️ **The exception is a room set to exactly
+      159" or 160" by URL**: it flips from "both machines" to "both omitted",
+      and it is the whole pair at once, not one of them. Leo, round 53:
+      acceptable.
+
+**What Thermador asks between two column machines is a different question, and
+it is not this rule.** *(Leo, round 53. Two cases, not to be mixed.)*
+
+- **(a) Columns standing hard against each other, as a bank.**
+  - cold beside cold: **nothing is needed** — no heater kit on the current
+    models, and what you see is two metal fronts side by side with no cabinet
+    door between them. This is what `COLUMN_SPACER`'s 5/8" kit is, and it is
+    enough.
+  - hot beside cold: **at least 1-3/16" (30 mm) clear between the two
+    machines.**
+- **(b) Two machines set into the same run** — rule 15 above, a 3/4" board,
+  and it has nothing to do with whether either of them is hot.
+
+⚠️ **The 1-3/16" is recorded and deliberately not implemented.** Nothing
+triggers it today: package D's bank is freezer + refrigerator + wine and
+package E's is an 18" freezer + a 30" refrigerator, so every column in the
+catalogue's banks refrigerates and the 5/8" kit is the right part for all of
+them. It would first matter the day somebody puts an oven or a steam column
+into a bank. **Do not implement it now, and do not move D's or E's columns
+because of it.**
+
+⚠️ **And it does not compare with 5/8" directly.** The 1-3/16" is *clear space
+between the two machines*; the 5/8" is *the thickness of a divider*. They
+measure different things, and reading "1-3/16 > 5/8, so the kit is too thin" is
+reading two different quantities off one number line.
+
+⚠️ **Source: Leo, from a Thermador installation drawing. The drawing was not in
+the session where this was written down and has not been read here.** It is
+Leo's figure with a drawing behind it, which is a stronger footing than most —
+but before anything is built on it, the drawing itself goes into
+`docs/reference/` and this note says which sheet and which dimension.
 
 **A window is a fact of the building, not a fitting.** It is a layout
 parameter — which wall, where along it, how wide, how high, how far off the
@@ -1131,6 +1195,28 @@ the code in front of me.** It is the stronger check of the two — the footer sa
 which commit the runner *thought* it was building, while the asset hashes are
 the bundle itself — and it needs no browser. Read the footer as well when a
 browser is already open; neither replaces waiting for the run.
+
+⚠️ **Pin `?quality=high` on both sides of a pixel diff.** *(Round 53.)* The
+render tier starts high on a desktop and is **measured from the frame rate**,
+so a slower start drops it — and the live site loads over the network while the
+local one does not. Round 53 measured the same change three times and got
+0.212%, then 13.012%, then 0.212% again; the 13% was every shaded pixel in the
+room shifting a level or two, with the thing actually being looked at unchanged
+underneath it. Two loads of the *live* page at the same wait differed from each
+other by 12.8% for the same reason. `initialQuality` in `useAppStore.ts` takes
+`?quality=`, and its own comment says it is there for screenshots. Use it.
+
+Two more things that look like a change and are not, both met in round 53:
+
+- **The mode toast.** "White model · Read cabinet volumes and rough openings"
+  fades on its own, so a shot taken 2s after the click has it and one taken 5s
+  after does not — 1% of the frame, at the bottom, nowhere near the scene.
+  Wait it out rather than masking it.
+- **Read the amplitude, not just the count.** A diff of a real change is a
+  small number of pixels differing by a lot; a diff of a tier or a fade is a
+  huge number differing by one or two levels. Bucketing the differences by
+  size separates them in one pass, and it is what turned "13% changed, cause
+  unknown" into a settled answer.
 
 ⚠️ **Build at the commit you pushed, or one chunk will never match.** The
 footer's commit is a `define` (`__COMMIT__` in `vite.config.ts`), so it is

@@ -1932,9 +1932,64 @@ async function captureRound52(browser) {
   await desktop.close();
 }
 
+/**
+ * Round 53: the board between the two machines when there is no island.
+ *
+ * Packages A and C, island off, the refrigerator's leg on the slider's next
+ * stop above the pair's bill (162"), which is where the two machines are
+ * actually placed. Overview for the room, then flown in on the microwave
+ * drawer, which is the left of the pair — that is where 3/4" is visible at all.
+ */
+async function captureRound53(browser) {
+  const desktop = await browser.newContext({ viewport: DESKTOP, deviceScaleFactor: 2 });
+  const page = await desktop.newPage();
+  const press = (label) =>
+    page.evaluate((text) => {
+      const button = [...document.querySelectorAll("button")].find(
+        (candidate) => candidate.textContent.trim() === text,
+      );
+      button?.click();
+      return Boolean(button);
+    }, label);
+
+  for (const [label, code] of [["a", "A"], ["c", "C"]]) {
+    // `quality=high` pinned on both sides of the diff. It is measured from the
+    // frame rate otherwise, so a slower start drops the tier and every shaded
+    // pixel in the room shifts a level or two — 13% of the frame changed, none
+    // of it the thing being looked at. Round 53.
+    await page.goto(`${baseUrl}?island=none&left=162&quality=high`, {
+      waitUntil: "load",
+      timeout: 120000,
+    });
+    await page.waitForSelector("canvas", { timeout: 120000 });
+    await settle(page, 3200);
+    if (code !== "A") {
+      await page.locator(`[data-segment="package"] button`, { hasText: code }).first().click();
+      await settle(page, 3200);
+    }
+    await page.screenshot({ path: `${outDir}/desktop-${label}-no-island.png` });
+    if (!(await press("Install"))) throw new Error("no Install button");
+    await settle(page, 2400);
+    await page.screenshot({ path: `${outDir}/desktop-${label}-no-island-install.png` });
+    if (!(await press("White model"))) throw new Error("no White model button");
+    // Long enough for the mode toast to have gone: round 53's first pair of
+    // shots differed by 1% because the live one still had it on screen.
+    await settle(page, 5200);
+    await page.screenshot({ path: `${outDir}/desktop-${label}-no-island-white.png` });
+  }
+  await desktop.close();
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round53") {
+    await captureRound53(browser);
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round52") {
     await captureRound52(browser);
