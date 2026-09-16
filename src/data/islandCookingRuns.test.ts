@@ -2,13 +2,14 @@ import { describe, expect, it } from "vitest";
 import appliancesFile from "../../data/appliances.json";
 import { DEFAULT_PARAMS, generateLayout, type LayoutParams } from "./layoutTemplate";
 import { PACKAGE_BY_ID } from "./packages";
+import { toLocal } from "./frame";
 import type { Appliance, Package } from "../types";
 
 /**
  * Package E's two runs, before package E exists. Round 56.
  *
  * Two things the configuration will rely on and that nothing else pins down:
- * which way round a two-column bank stands, and where two towers that both
+ * which way round a bank of columns stands, and where two towers that both
  * stand on their own in a run can go. Both are measured on a package built to
  * E's shape, because no package that ships has a freezer beside a refrigerator
  * without a wine column after them, or two free-standing towers.
@@ -85,28 +86,45 @@ const built = (pkg: Package, params: LayoutParams) => {
 };
 
 /**
- * D20: the refrigerator column next to the landing, the freezer column at the
- * outer end of the wall. In the data that is `["slot-freezer", "slot-fridge"]`,
- * which reads the other way round from the sentence — the array is left to
- * right as you face the bank, and on the left leg the outer end is on your left.
+ * The order of a bank is absolute, and it is Leo's site practice (D20, round
+ * 57): **as you face the columns, a freezer stands to the left of the
+ * refrigerator and a wine column to its right.** `columnOrder` is that list,
+ * left to right. The same on either leg — which is why this is asked in the
+ * refrigerator's own frame and on both legs, and not as "next to the landing"
+ * or "at the outer end", which is how D20 used to put it and which reads the
+ * other way round once the refrigerator is on the back wall.
  */
-describe("a freezer and a refrigerator column on the left leg", () => {
-  it("stands the freezer at the outer end and the refrigerator next to the landing", () => {
-    const layout = built(packageE(["slot-freezer", "slot-fridge"]), eRoom());
-    const run = layout.runs.find((r) => r.segments.some((s) => s.slot === "slot-freezer"))!;
-    expect(run.id).toBe("left");
-    const freezer = run.segments.findIndex((s) => s.slot === "slot-freezer");
-    const fridge = run.segments.findIndex((s) => s.slot === "slot-fridge");
-    // Segments run from the corner outward, so the higher index is further out.
-    expect(freezer).toBeGreaterThan(fridge);
+const sideOf = (layout: ReturnType<typeof built>, slot: string, of: string) => {
+  const reference = layout.slots[of as keyof typeof layout.slots]!;
+  const other = layout.slots[slot as keyof typeof layout.slots]!;
+  // A machine's local +x is the right hand of somebody facing it.
+  return toLocal(reference, other.position[0], other.position[2]).across < 0 ? "left" : "right";
+};
+
+describe.each([
+  ["left", { fridgeEnd: "left", sinkLeg: "back", coffeeLeg: "back" }],
+  ["back", { fridgeEnd: "back", sinkLeg: "left", coffeeLeg: "left", leftWallIn: 216 }],
+] as const)("a freezer and a refrigerator column, the refrigerator on the %s leg", (_leg, legs) => {
+  it("stands the freezer to the left of the refrigerator as you face them", () => {
+    const layout = built(packageE(["slot-freezer", "slot-fridge"]), eRoom(legs));
+    expect(sideOf(layout, "slot-freezer", "slot-fridge")).toBe("left");
   });
 
-  it("would stand them the wrong way round if the array were written as the sentence reads", () => {
-    const layout = built(packageE(["slot-fridge", "slot-freezer"]), eRoom());
-    const run = layout.runs.find((r) => r.segments.some((s) => s.slot === "slot-freezer"))!;
-    const freezer = run.segments.findIndex((s) => s.slot === "slot-freezer");
-    const fridge = run.segments.findIndex((s) => s.slot === "slot-fridge");
-    expect(fridge).toBeGreaterThan(freezer);
+  it("follows the list: written the other way round, the freezer is on the right", () => {
+    const layout = built(packageE(["slot-fridge", "slot-freezer"]), eRoom(legs));
+    expect(sideOf(layout, "slot-freezer", "slot-fridge")).toBe("right");
+  });
+});
+
+describe.each([
+  ["left", { fridgeEnd: "left", sinkLeg: "back", coffeeLeg: "left" }],
+  ["back", { fridgeEnd: "back", sinkLeg: "left", coffeeLeg: "left" }],
+] as const)("package D's three columns, the refrigerator on the %s leg", (_leg, legs) => {
+  it("stands the freezer to its left and the wine column to its right", () => {
+    const d = PACKAGE_BY_ID["package-d"];
+    const layout = built(d, { ...DEFAULT_PARAMS, ...d.defaultLayout, ...legs, backWallIn: 240, leftWallIn: 216 });
+    expect(sideOf(layout, "slot-freezer", "slot-fridge")).toBe("left");
+    expect(sideOf(layout, "slot-wine", "slot-fridge")).toBe("right");
   });
 });
 

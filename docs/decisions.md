@@ -1363,19 +1363,28 @@ written into geometry instead of read from `ROOM`.
 
 **Registered:** 2026-09-13 (round 36), Leo's answers before any of it is built.
 
-- **The column group** is a refrigerator column and a freezer column. The
-  refrigerator column stands next to the landing and the freezer column at the
-  outer end of the wall. The order is stated by what each column is next to,
-  never as left and right, so it holds on either leg: 18 + 5/8 + 30 + 3/4 +
-  3/4 = 50-1/8".
-  - ⚠️ **In the data that is `columnOrder: ["slot-freezer", "slot-fridge"]`,
-    which reads the opposite way round from the sentence above.** Round 55
-    measured it: the array's *first* entry comes out at the far end of the run,
-    so writing it the way the sentence reads — refrigerator first — puts the
-    freezer next to the landing, which is backwards. The schema calls the array
-    "left to right as you face them". Recorded because the sentence and the
-    array disagree to the eye and the next person will write it from the
-    sentence.
+- **The column group** is a freezer column and a refrigerator column, **left to
+  right as you face them: freezer, then refrigerator.** 18 + 5/8 + 30 + 3/4 +
+  3/4 = 50-1/8". In the data, `columnOrder: ["slot-freezer", "slot-fridge"]`,
+  which says exactly that.
+  - **The order is absolute, and it is Leo's site practice.** *(Leo, round 57.)*
+    Across every package: **a freezer column always stands to the left of the
+    refrigerator column, and a wine column always to its right** — package D is
+    freezer, refrigerator, wine. It is the same whichever leg the refrigerator
+    is on, because it is how it is said on site: an installer is told "the wine
+    goes to the right of the fridge", never "the wine goes at the end furthest
+    from the landing".
+  - ⚠️ **This entry used to state it the other way**, by what each column stood
+    next to — "the refrigerator next to the landing, the freezer at the outer
+    end of the wall" — and claimed that made it hold on either leg. It did the
+    opposite: on the left leg the outer end is on your left and the sentence
+    agreed with the rule, but with the refrigerator switched to the back leg the
+    outer end is on your right, and the sentence read the freezer to the wrong
+    side. **That was a fault in the wording, not in the rule or in the code**:
+    measured in round 57, the freezer stands to the left of the refrigerator on
+    both legs, in E's shape and in package D, and D's wine to its right. Round
+    56 had carried the sentence's reading into an open item and a test; both are
+    corrected.
   - **What the wall has to be is not this figure.** The bank is 50-1/8" and the
     whole leg's cabinetry — corner, landing, panels, kit, both columns — comes
     to **107-1/8"**. But the wall itself is settled by the island standing
@@ -2028,6 +2037,18 @@ acceptance are report two, next round.)*
   machine's own terms and the strip's, never in the room's compass. It holds
   when the L is mirrored, when the island turns across the room, and it will
   hold for the U-shaped and galley templates without being defined again.
+  - ⚠️ **"Relative is sturdier than absolute" is not a rule to apply
+    everywhere.** *(Leo, round 57.)* It was right here because a fly-in angle
+    is the code's own representation of a view, and nobody outside the code
+    says it in any terms at all. Round 56 nearly applied it to the order of a
+    column bank — "state it from the landing outward, so it holds on either
+    leg" — and that would have been wrong: the order of a bank is a site
+    practice, it is absolute, and making it relative would have put into the
+    data a notion that does not exist on site. **The test is how the thing is
+    said where it is done.** An installer is told "the wine goes to the right
+    of the fridge", not "the wine goes at the end furthest from the landing".
+    Where a rule is somebody's practice, write it the way they say it; where it
+    is the code's own device, choose whatever holds up best.
 - **Nearly every hand-set angle was this rule already.** Read against the
   machine's front and the far end of its run, a back-wall and a left-wall
   refrigerator stored as 45 are both 45° toward the far end. So is the range's
@@ -2261,9 +2282,11 @@ is a constraint it is working around, not a decision about where they belong.**
     It never mattered until a package's own defaults had to be re-applied.
     `testRoom.ts`'s `resetRoom` is a reset nobody can refuse; the island tests
     use it.
-- **Which way round a two-column bank stands, pinned on the left leg**, and the
-  two free-standing towers pinned on one leg, so lifting either is a change
-  somebody makes on purpose.
+- **Which way round a two-column bank stands**, and the two free-standing
+  towers pinned on one leg, so lifting either is a change somebody makes on
+  purpose. *(Round 57: the bank test was written against D20's old "next to
+  the landing" wording and only on the left leg; it now states the order left
+  to right, as the rule is, on both legs and for package D as well.)*
 - **Corrections to rounds 54 and 55.**
   - E's island cabinets are **24"**, as this entry says. The round-54 prototype
     used A to D's 36", and the 163" of wall it reported was that island's. With
@@ -2387,15 +2410,10 @@ Registered, not scheduled. None of these is a round of its own.
     ghosted at 0.12 along with every other machine, and the combination oven's
     outline and the faces inside it read straight through it. It does not look
     covered. Leo's to decide whether that settles it.
-- **A column bank's order does not hold on both legs.** *(Found in round 56;
-  Leo's to decide.)* `columnOrder` is "left to right as you face them", so the
-  same array reads toward the outer end on one leg and toward the corner on the
-  other. Package E's order is stated the other way — by what each column stands
-  next to, "so it holds on either leg" (D20) — and the two do not agree.
-  Measured: with `["slot-freezer", "slot-fridge"]` and the refrigerator on the
-  **left** leg the freezer is at the outer end, as D20 asks; with the
-  refrigerator switched to the **back** leg, which a customer can do, the same
-  array puts the refrigerator at the outer end and the freezer next to the
-  landing. Package D's order *is* stated left to right, so it is right on both.
-  Either the data grows a way to state an order from the landing outward, or
-  E's order is accepted as holding on the left leg only.
+- ~~**A column bank's order does not hold on both legs.**~~ **Closed in round
+  57: there was no inconsistency.** *(Leo.)* The order is absolute — freezer
+  left of the refrigerator, wine right of it, as you face them — and
+  `columnOrder` says exactly that on either leg. What disagreed was D20's old
+  sentence, which described the order by what each column stood next to; it has
+  been rewritten. No code changed. *(Noted round 56; closed 2026-09-17, round
+  57.)*
