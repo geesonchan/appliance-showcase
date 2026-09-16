@@ -1748,6 +1748,17 @@ acceptance are report two, next round.)*
     after the fix. A red result says the first failing assertion failed; it
     says nothing about the ones after it. Same kind of trap as the square
     openings: something that reads as coverage and is not.
+    **Round 52 hit it again** — `backWall.test.ts`'s "ends on the left wall"
+    failed on its first line, the duct's end, so the two lines after it, about
+    where a blower in that run sits, never ran against the old code. Twice in
+    three rounds, so it is not bad luck: **it is what a multi-assertion `it()`
+    does.** *(Leo, round 52.)* The rule from here: **an `it()` with several
+    assertions only ever proves its first failing one.** Where more than one of
+    them is the point, either split them into separate `it()`s — which is the
+    default, and what the toe-kick test should have been — or say explicitly,
+    when reporting the red run, which assertions were reached and which were
+    not. Never report "this case failed on the old code" as though the whole
+    case had been exercised.
   - Rough-in leader lines (`leaderEnd`): out of the face the host opens by.
   - The wall anchor (`wallAnchor`): none for an island slot. Gas and water to an
     island slot are not drawn — no island slot has either yet; step 3.
@@ -1912,8 +1923,17 @@ acceptance are report two, next round.)*
   riser. Power already asked `islandRiser`; gas and water asked `wallAnchor`,
   got nothing and **drew nothing**, so an island slot with a gas cooktop or a
   prep sink would have been a machine with no services at all in the view that
-  exists to explain services. No island slot has either yet, which is why it
-  never showed.
+  exists to explain services.
+  - **Nothing showed because nothing asked.** The island's three machines are a
+    microwave drawer, a wine cabinet and an induction cooktop, and not one of
+    them takes gas or water — so the layer drew its `null` and no screenshot
+    could ever have caught it. **After E it stops being hypothetical:** a gas
+    cooktop in an island and a prep sink in an island are both ordinary, and the
+    first one specified would have been a machine with no services drawn. Worth
+    recording as the shape of the bug rather than as a line of code: *a branch
+    that returns nothing is invisible until the case that needs it exists*, and
+    those are found by asking what a package could ask for, not by looking at
+    what it does ask for. *(Leo, round 52.)*
 - **The new guard, and what it still cannot see.** *(Leo: confirm it is red
   before listing the exceptions.)* Every read of `ROOM.halfX`/`halfZ` outside
   `roomWalls.ts` fails, and the reads that are genuinely about the room's *size*
@@ -1924,6 +1944,15 @@ acceptance are report two, next round.)*
     machine's own coordinate — `slot.position[2] - depth/2` — and no pattern
     over spelling would have found it.** This narrows the hole; it does not
     close it.
+  - **And that kind cannot be tested for at all.** *(Leo, round 52.)* A line
+    that reads as the machine's own frame — its position, its depth, its own
+    half — and quietly means the room's, because the machine has only ever
+    faced one way, is indistinguishable from a correct line by any rule over
+    the text. **It is found by reading the code and by prototyping, and by
+    nothing else.** So do not look for a cleverer pattern when one of these
+    turns up: look at what the line would give for a machine turned a quarter,
+    and build the case that shows it. Both guards are floors under the review,
+    not substitutes for it.
 - **Nothing in packages A to D moved.** The overview and the install view of all
   four, live against local, pixel by pixel: **zero pixels changed in all eight**.
   That is the expected answer and not a weak one — every site fixed is on a wall
@@ -1934,12 +1963,23 @@ acceptance are report two, next round.)*
   - The page **crashed**: `dimensions.ts` set its whole chain out from the range
     segment on the back run, and there was no range. It now sets out from
     whichever cooking surface the package has, in that machine's own frame when
-    it is in the island. **Where an island's dimension chain belongs is Leo's,
-    and this is not an answer to it** — it is what makes the overlay draw.
-  - Two figures in that chain are wrong over an island and are **left wrong,
-    for E**: the cooking-surface height reads 4" rather than the glass at
-    36-1/4", so the clearance under the canopy reads 68" instead of 35-3/4",
-    and the note beside it still quotes the gas minimum at an induction hob.
+    it is in the island — which made the overlay draw, hanging in the middle of
+    the room, and was never an answer to where it belongs.
+  - **Where an island's chain goes, settled.** *(Leo, round 52.)* **Against the
+    island's working-side edge**, not floating in the room. The reason is what
+    the lines are for: rule 4's island landings are 18" and 18", a figure
+    settled on purpose, and when a customer asks whether there is room either
+    side of the burners these lines are the answer. Drawn against the edge they
+    mean what they mean against a wall, so nobody has to learn a second reading.
+    ⚠️ **And they turn with the island** — through `frame.ts`, not a second
+    copy of the turn. Not yet built.
+  - **Two figures in that chain are wrong over an island. They are known, and
+    they are deliberately left for E** *(Leo)* — **not a new bug for the next
+    person to chase**: the cooking-surface height reads 4" instead of the glass
+    at 36-1/4", so the clearance under the canopy reads 68" instead of 35-3/4",
+    and the note beside it still quotes the gas minimum (30"-40") at an
+    induction hob. Nothing ships with them: no package has an island cooktop, so
+    A to D take the range branch unchanged, which the zero-pixel diff shows.
   - The hood's callout still hangs at the island counter, 5' under the hood, as
     §"package E" already records.
 
@@ -2039,4 +2079,7 @@ Registered, not scheduled. None of these is a round of its own.
   Still open from that sweep: **a rough-in point that is not in its cutout is
   dropped for an island slot** (`roughIn.ts`). Nothing in the catalogue has one
   yet — HMIB42WS and CIT367YG have no `rough-in.json` entry at all — so there
-  was nothing to hold a fix to this round.
+  was nothing to hold a fix to this round. **The order is therefore: build E,
+  add those two machines' rough-in points from their guides, and only then fix
+  this — the data is what makes the fix verifiable.** Fixing it first would be
+  a change nothing could check. *(Leo, round 52.)*
