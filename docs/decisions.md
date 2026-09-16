@@ -1206,6 +1206,24 @@ underneath it. Two loads of the *live* page at the same wait differed from each
 other by 12.8% for the same reason. `initialQuality` in `useAppStore.ts` takes
 `?quality=`, and its own comment says it is there for screenshots. Use it.
 
+⚠️ **Which means every earlier live-against-local diff carried this noise.**
+*(Leo, round 53.)* Round 52 reported eight shots at zero pixels changed with
+the tier unpinned. **Those zeros are true** — a global wash cannot subtract
+itself to nothing, so both sides plainly landed on the same tier — **but they
+landed there by luck, not by method.** Read the earlier rounds' figures that
+way: a zero still means no change, while a small non-zero one that was
+explained away may have been the tier rather than the thing. Pin it from here.
+
+**Read the amplitude before drawing any conclusion.** *(Leo, round 53: this is
+the more general of the two, because the next global noise will not be the
+quality tier.)* The standard step, whenever a diff comes back bigger than
+expected: **bucket the changed pixels by how far each one moved** — 1-2 levels,
+3-8, 9-32, over 32 — and only then say what happened. A real change is a few
+pixels moved a long way; a tier, a fade, an exposure shift is a great many
+pixels moved one or two. In round 53 that one pass turned "13% changed, cause
+unknown" into a settled answer, and it would have done the same for any other
+whole-frame cause. Do not go looking for the cause first.
+
 Two more things that look like a change and are not, both met in round 53:
 
 - **The mode toast.** "White model · Read cabinet volumes and rough openings"
@@ -1845,6 +1863,19 @@ acceptance are report two, next round.)*
     when reporting the red run, which assertions were reached and which were
     not. Never report "this case failed on the old code" as though the whole
     case had been exercised.
+
+    **And ask the assertion about the thing under test, not about its side
+    effects.** *(Leo, round 53.)* Round 53's rule was "two machines set into one
+    run get a board between them", and the first draft of its lopsided case
+    asserted "no 3/4" panel stands against the lone microwave drawer". That
+    failed — correctly — because package D's coffee cabinet has a 3/4" side of
+    its own and it does stand there. **The room was right and the test was wrong
+    about the room.** What says the thing meant is "no `spare-divider` part was
+    ordered": it names what the rule makes, and nothing else in the kitchen can
+    satisfy it or break it. A test written against a side effect fails when
+    something unrelated produces the same effect — and, worse the other way
+    round, passes when the part is missing and something else supplies the look
+    of it.
   - Rough-in leader lines (`leaderEnd`): out of the face the host opens by.
   - The wall anchor (`wallAnchor`): none for an island slot. Gas and water to an
     island slot are not drawn — no island slot has either yet; step 3.
