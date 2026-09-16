@@ -2,13 +2,16 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import { CABINET_STANDARDS, ROOM, SLOTS, ft } from "../data/slots";
 import { FIXTURES } from "../data/fixtures";
-import { hoodCabinetFloor, hoodOutlet, outletSize } from "../data/hood";
+import { ductRoute, hoodCabinetFloor, hoodOutlet, outletSize } from "../data/hood";
 import { deriveUtilities } from "../data/utilities";
 import { useAppStore } from "../store/useAppStore";
 import { useSelection, useSelectedBlower } from "../store/useSelection";
 import { effectiveCfm } from "../data/ventilation";
 import { resolveRoughIn } from "../data/roughIn";
-import { islandRiser } from "../data/islandRiser";
+import { serviceRoute } from "../data/serviceRoute";
+import { alongOf, facingOf, onAxis, otherAxis, sizeOnPlan, stripFacing } from "../data/frame";
+import { wallBehind } from "../data/roomWalls";
+import { RUN_BY_ID } from "../data/room";
 import { wallAnchor } from "../data/wallAnchor";
 import type { Appliance, ServicePoint, SlotId, UtilityType, Utilities } from "../types";
 import { UNREVIEWED, UTILITY_COLORS, UTILITY_RADIUS_IN } from "./materials";
@@ -100,24 +103,58 @@ function Fitting({
 
 
 /**
- * Island slots have no wall to run along. Their services come up through the
- * floor inside the cabinet, which is what the install view draws: a riser from
- * the slab, no trunk. The route under the slab is not modelled, because
- * nothing in this scene knows where it goes.
+ * A service that comes up through the floor, for a machine in the island.
+ *
+ * The riser from the slab to where the machine takes it, and the fitting on the
+ * end of it. The route under the slab is not modelled, because nothing in this
+ * scene knows where it goes. Round 52 (D22 step 3): gas and water use it too,
+ * so an island slot with either is drawn rather than left out.
  */
-const isIsland = (slot: ServicePoint) => slot.mount === "island";
+function FloorService({
+  at,
+  to,
+  radius,
+  color,
+  fitting = true,
+}: {
+  at: { x: number; z: number; box: [number, number, number] };
+  to: number;
+  radius: number;
+  color: string;
+  fitting?: boolean;
+}) {
+  return (
+    <group>
+      <Pipe from={[at.x, 0, at.z]} to={[at.x, to, at.z]} radius={radius} color={color} />
+      {fitting && <Fitting position={[at.x, to, at.z]} size={at.box} color={color} />}
+    </group>
+  );
+}
 
-/** Every service enters at the back wall, far right. */
-const entry = (standoff: number) => ({
-  x: ROOM.halfX - ft(4),
-  z: -ROOM.halfZ + standoff,
-});
+/** The wall a run's machines back onto. */
+const wallOf = (run: typeof RUN_BY_ID.back) => wallBehind(stripFacing(run.axis, 1));
 
-/** Inside corner where the back wall meets the left wall. */
-const corner = (standoff: number) => ({
-  x: -ROOM.halfX + standoff,
-  z: -ROOM.halfZ + standoff,
-});
+/**
+ * Every service enters on the back run's wall, at its open end.
+ *
+ * Which wall the meter is on is a fact about the house, so it is named — the
+ * back run's. Where along it is the room's own far end, four feet back from the
+ * corner, and that is the one figure here that is still the room's rather than
+ * a run's. Round 52 (D22 step 3).
+ */
+const entry = (standoff: number) => {
+  const wall = wallOf(RUN_BY_ID.back);
+  const [x, , z] = onAxis(otherAxis(wall.axis), ROOM.halfX - ft(4), wall.at + standoff);
+  return { x, z };
+};
+
+/** Inside corner, where the two runs' walls meet. */
+const corner = (standoff: number) => {
+  const back = wallOf(RUN_BY_ID.back);
+  const left = wallOf(RUN_BY_ID.left);
+  const [x, , z] = onAxis(otherAxis(back.axis), left.at + standoff, back.at + standoff);
+  return { x, z };
+};
 
 /**
  * A trunk route from the service entry to a slot, at a fixed height. Runs stay
@@ -179,12 +216,23 @@ function GasRuns({ effective }: { effective: Record<string, Utilities> }) {
       {SLOTS.map((slot) => {
         const gas = effective[slot.id].gas;
         if (!gas) return null;
-        const a = wallAnchor(slot, STANDOFF.default);
-        // No island slot has gas yet. Running it up through the floor is D22's
-        // step 3, with the rest of what an island hood needs; until then an
-        // island slot is not drawn a trunk to a wall it is not on.
-        if (!a) return null;
+        const route = serviceRoute(slot, STANDOFF.default);
         const riserTop = ft(26);
+        // An island slot is on no wall: the gas comes up through the slab
+        // inside the cabinet, the same way its power does. Round 52, D22 step 3.
+        if (route.kind === "floor") {
+          return (
+            <FloorService
+              key={slot.id}
+              at={route}
+              to={riserTop}
+              radius={r}
+              color={UTILITY_COLORS.gas}
+              fitting={gas.shutoff}
+            />
+          );
+        }
+        const a = route;
         return (
           <group key={slot.id}>
             <Trunk
@@ -242,10 +290,10 @@ function PowerRuns({
         const trunkY = is240 ? HEIGHT.power240Trunk : HEIGHT.power120;
         const outletY = is240 ? connectionHeight(slot) : HEIGHT.power120;
 
-        const a = wallAnchor(slot, STANDOFF.default);
-        if (!a || isIsland(slot)) {
+        const route = serviceRoute(slot, STANDOFF.default);
+        if (route.kind === "floor") {
           // Behind the appliance, whichever way its door faces.
-          const riser = islandRiser(slot);
+          const riser = route;
           return (
             <group key={slot.id}>
               <Pipe
@@ -263,9 +311,12 @@ function PowerRuns({
           );
         }
 
-        const box: [number, number, number] = a.onLeftWall
-          ? [ft(2), ft(4.5), ft(3)]
-          : [ft(3), ft(4.5), ft(2)];
+        const a = route;
+        // A receptacle box lies flat on its wall: 3" across the machine's face
+        // and 2" out of it, turned with the machine rather than guessed from
+        // which wall it is. Round 52.
+        const [boxX, boxZ] = sizeOnPlan(slot.rotationY, ft(3), ft(2));
+        const box: [number, number, number] = [boxX, ft(4.5), boxZ];
 
         // A hard-wired oven's junction box is where its own sheet puts it, in
         // the cabinet beside the tower, not behind the machine (round 39): the
@@ -278,7 +329,12 @@ function PowerRuns({
           : undefined;
         if (wired) {
           const [px, py, pz] = wired.position;
-          const foot: [number, number, number] = a.onLeftWall ? [a.x, trunkY, pz] : [px, trunkY, a.z];
+          // Along the wall to under that cabinet, then up: the wall's own
+          // along-coordinate comes from the box, its across from the trunk.
+          const wall = wallBehind(facingOf(slot.rotationY));
+          const strip = otherAxis(wall.axis);
+          const [fx, , fz] = onAxis(strip, alongOf(strip, px, pz), alongOf(wall.axis, a.x, a.z));
+          const foot: [number, number, number] = [fx, trunkY, fz];
           return (
             <group key={slot.id}>
               <Trunk points={trunkPoints(slot, trunkY)} radius={radius} color={color} />
@@ -322,10 +378,22 @@ function WaterRuns({ effective }: { effective: Record<string, Utilities> }) {
       {points.map((slot) => {
         const w = effective[slot.id]?.water;
         if (!w) return null;
-        const supply = wallAnchor(slot, STANDOFF.default);
-        // As with gas: no island slot has water yet, and a floor route to one is
-        // D22's step 3.
-        if (!supply) return null;
+        const route = serviceRoute(slot, STANDOFF.default);
+        // As with gas: an island slot's supply and drain come up through the
+        // floor rather than along a wall it is not on. Round 52, D22 step 3.
+        if (route.kind === "floor") {
+          return (
+            <FloorService
+              key={slot.id}
+              at={route}
+              to={HEIGHT.water}
+              radius={w.drain ? r * 1.5 : r}
+              color={UTILITY_COLORS.water}
+              fitting={Boolean(w.supply)}
+            />
+          );
+        }
+        const supply = route;
         return (
           <group key={slot.id}>
             {w.supply && (
@@ -408,15 +476,12 @@ function DuctRuns({
             ? "remote"
             : "integral";
 
-        const roof = ROOM.wallHeight;
-        const wall = -ROOM.halfZ;
-        const runsUp = duct.route !== "back-wall";
-        const end: [number, number, number] = runsUp ? [x, roof, z] : [x, collarY, wall];
+        // Up through the ceiling, or out through the wall this hood is
+        // actually against — which used to be the back wall whatever it hung
+        // on. Round 52, D22 step 3.
+        const { runsUp, end, inlineAt } = ductRoute(slot, outlet, collarY, duct.route);
         const cutout = { w: outlet.widthFt, d: outlet.depthFt };
         const cabinetFloor = hoodCabinetFloor();
-        const inlineAt: [number, number, number] = runsUp
-          ? [x, collarY + (roof - collarY) * 0.62, z]
-          : [x, collarY, slot.position[2] + (wall - slot.position[2]) * 0.62];
 
         return (
           <group

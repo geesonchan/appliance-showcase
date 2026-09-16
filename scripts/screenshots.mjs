@@ -1852,9 +1852,96 @@ async function captureRound51(browser) {
   await desktop.close();
 }
 
+/**
+ * Round 52: the four back-wall assumptions, and the hood over an island.
+ *
+ * Two sets. The first is every package's overview and install view, before and
+ * after, for a pixel diff: the four sites this round fixed are all on a wall
+ * the app cannot yet put a machine on, so the answer should be no change at
+ * all, and a diff is the only way to say so rather than hope so.
+ *
+ * The second is the prototype — `?islandCookProto=1`, package A with its
+ * cooking moved into the island — which is a thing that has never been drawn
+ * and so is looked at rather than diffed.
+ */
+async function captureRound52(browser) {
+  const desktop = await browser.newContext({ viewport: DESKTOP, deviceScaleFactor: 2 });
+  const page = await desktop.newPage();
+  const open = async (query = "") => {
+    await page.goto(baseUrl + query, { waitUntil: "load", timeout: 120000 });
+    await page.waitForSelector("canvas", { timeout: 120000 });
+    await settle(page, 3200);
+  };
+  const press = (label) =>
+    page.evaluate((text) => {
+      const button = [...document.querySelectorAll("button")].find(
+        (candidate) => candidate.textContent.trim() === text,
+      );
+      button?.click();
+      return Boolean(button);
+    }, label);
+  const toPackage = async (code) => {
+    await page.locator(`[data-segment="package"] button`, { hasText: code }).first().click();
+    await settle(page, 3000);
+  };
+  const fromList = async (name) => {
+    const back = page.getByRole("button", { name: "All appliances" }).first();
+    if (await back.isVisible()) {
+      await back.click();
+      await settle(page, 900);
+    }
+    const item = page.locator(`aside [data-panel="list"] button`, { hasText: name }).first();
+    if (!(await item.isVisible())) {
+      await page.click(`button[data-rail="left"]`);
+      await settle(page, 700);
+    }
+    await item.click();
+    await settle(page, 2400);
+  };
+
+  for (const code of ["A", "B", "C", "D"]) {
+    await open();
+    await toPackage(code);
+    const label = code.toLowerCase();
+    await page.screenshot({ path: `${outDir}/desktop-${label}-overview.png` });
+    if (!(await press("Install"))) throw new Error("no Install button");
+    await settle(page, 2400);
+    await page.screenshot({ path: `${outDir}/desktop-${label}-install.png` });
+  }
+
+  if (process.env.PROTO === "1") {
+    await open("?islandCookProto=1");
+    await page.screenshot({ path: `${outDir}/proto-overview.png` });
+    if (!(await press("Install"))) throw new Error("no Install button");
+    await settle(page, 2400);
+    await page.screenshot({ path: `${outDir}/proto-install.png` });
+    if (!(await press("Materials"))) throw new Error("no Materials button");
+    await settle(page, 1600);
+    await fromList("Hood");
+    await page.screenshot({ path: `${outDir}/proto-hood-flyin.png` });
+    await fromList("Cooktop");
+    await page.screenshot({ path: `${outDir}/proto-cooktop-flyin.png` });
+    await open("?islandCookProto=1&islandOrientation=perpendicular");
+    if (!(await press("Across the room"))) throw new Error("no turn button");
+    await settle(page, 3000);
+    await page.screenshot({ path: `${outDir}/proto-across-overview.png` });
+    if (!(await press("Install"))) throw new Error("no Install button");
+    await settle(page, 2400);
+    await page.screenshot({ path: `${outDir}/proto-across-install.png` });
+  }
+  await desktop.close();
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const browser = await chromium.launch();
+
+  if (only === "round52") {
+    await captureRound52(browser);
+    await browser.close();
+    console.log(`Wrote screenshots to ${outDir}/`);
+    return;
+  }
 
   if (only === "round51") {
     await captureRound51(browser);

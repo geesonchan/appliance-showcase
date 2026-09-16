@@ -39,8 +39,13 @@ const PATTERNS: { name: string; pattern: RegExp }[] = [
   },
 ];
 
-/** Where turns are allowed to be written: the one place that writes them. */
+/**
+ * Where turns are allowed to be written: the one place that writes them, and
+ * the half of it that also knows how big the room is (`roomWalls.ts`, round 52
+ * — `frame.ts` cannot import the room without a load-time cycle).
+ */
 const FRAME_MODULE = "src/data/frame.ts";
+const FRAME_MODULES = [FRAME_MODULE, "src/data/roomWalls.ts"];
 
 /**
  * What is still written by hand, and the step that takes it (D22). Counts are
@@ -124,7 +129,7 @@ describe("nothing outside frame.ts works out which way a thing faces", () => {
   const found = new Map<string, string[]>();
   for (const path of files) {
     const file = relative(ROOT, path).split(sep).join("/");
-    if (file === FRAME_MODULE) continue;
+    if (FRAME_MODULES.includes(file)) continue;
     const hits = scan(readFileSync(path, "utf8"));
     if (hits.length > 0) found.set(file, hits);
   }
@@ -156,5 +161,72 @@ describe("nothing outside frame.ts works out which way a thing faces", () => {
     // D22: step 2 took the four that were wrong today. Nothing is allowed to be
     // added back here as a tolerance; a new site is migrated, not listed.
     expect(PENDING).toEqual({});
+  });
+});
+
+/**
+ * The room's own size, read outside the module that turns a facing into a wall.
+ *
+ * Round 52, D22 step 3, and Leo's: the first guard cannot see an assumed back
+ * wall, because `-ROOM.halfZ` is spelled the same whether it means "the wall
+ * behind this machine" or "the far end of the floor". So this one flags every
+ * read of the room's half-extents outside `roomWalls.ts`, and the reads that
+ * are genuinely about the room's *size* are listed below, exactly, one entry
+ * per file. Run against the code before this round it fails on `wallAnchor.ts`
+ * and `UtilityLayer.tsx` — the two sites this step fixed.
+ *
+ * **What it still cannot see.** A back written as the machine's own coordinate
+ * rather than the room's: `hoodOutlet` measured its duct from
+ * `slot.position[2] - depth/2`, the third site this step fixed, and no pattern
+ * over spelling would have caught it. This narrows the hole; it does not close
+ * it.
+ */
+const ROOM_SIZE = /ROOM\.half[XZ]/g;
+
+/** Where the room's walls are turned into a plane, which is the only place that may. */
+const WALL_MODULE = "src/data/roomWalls.ts";
+
+/**
+ * Reads of the room's size that are about its size. Exact counts, both ways, so
+ * a site that goes and one that arrives both fail. `roomShell.ts` is where the
+ * two values are set.
+ */
+const ROOM_SIZE_ALLOWED: Record<string, { hits: number; why: string }> = {
+  "src/data/roomShell.ts": { hits: 2, why: "setRoomSize: the walls the layout was generated for" },
+  "src/data/layoutRules.ts": { hits: 2, why: "how far the island's own axis runs before the room ends" },
+  "src/three/CameraRig.tsx": { hits: 2, why: "the box the camera frames" },
+  "src/three/KitchenShell.tsx": { hits: 6, why: "the walls and the floor themselves" },
+  "src/three/Lights.tsx": { hits: 2, why: "where a window's sun stands outside the room" },
+  "src/three/WindowLayer.tsx": { hits: 2, why: "the plane a window is cut in" },
+  "src/three/UtilityLayer.tsx": { hits: 1, why: "entry: how far along the back wall the meter is" },
+  "src/ui/LeftPanel.tsx": { hits: 2, why: "the room's size, written out for the reader" },
+  "src/ui/PlanThumbnail.tsx": { hits: 4, why: "the plan's own extents and origin" },
+};
+
+describe("nothing outside roomWalls.ts decides where a wall is", () => {
+  const files = sources(join(ROOT, "src"));
+  const found = new Map<string, number>();
+  for (const path of files) {
+    const file = relative(ROOT, path).split(sep).join("/");
+    if (file === WALL_MODULE) continue;
+    // Only code, the same way `scan` reads it: a comment may name a wall.
+    const text = readFileSync(path, "utf8")
+      .split(/\r?\n/)
+      .map((line) => line.replace(/\/\/.*$/, "").replace(/^\s*\*.*$/, ""))
+      .join("\n");
+    const hits = [...text.matchAll(ROOM_SIZE)].length;
+    if (hits > 0) found.set(file, hits);
+  }
+
+  it("finds no new reader of the room's size", () => {
+    const unexpected = [...found.keys()].filter((file) => !ROOM_SIZE_ALLOWED[file]);
+    expect(unexpected, unexpected.join("\n")).toEqual([]);
+  });
+
+  it("finds exactly what is listed, so the list cannot go stale", () => {
+    const wrong = Object.entries(ROOM_SIZE_ALLOWED)
+      .filter(([file, entry]) => (found.get(file) ?? 0) !== entry.hits)
+      .map(([file, entry]) => `${file}: allowed ${entry.hits}, found ${found.get(file) ?? 0}`);
+    expect(wrong, wrong.join("\n")).toEqual([]);
   });
 });

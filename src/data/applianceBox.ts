@@ -152,7 +152,13 @@ export function doorOverhang(
 }
 
 export function flushOffset(slot: Slot, depth: number, rearSpacerIn = 0): number {
-  if (slot.id === "slot-hood") return -(ROOM.counterDepth - depth) / 2;
+  // A hood hung over an island is centred on the cooking surface: there is no
+  // cabinet face to line its own front up with. Round 52, D22 step 3 — the
+  // formula below sets a canopy against a wall, and the prototype showed it
+  // pushing the hung one an inch and a half off its cooktop.
+  if (slot.id === "slot-hood") {
+    return slot.mount === "island" ? 0 : -(ROOM.counterDepth - depth) / 2;
+  }
   // A cooktop is centred on its drawer base, and so is the hole cut for it
   // (`islandCooktopHole` in counter.ts). Round 49.
   if (slot.id === "slot-cooktop") return 0;

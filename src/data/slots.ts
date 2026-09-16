@@ -3,6 +3,7 @@ import type { PackageSlot, Slot, SlotId, SlotRecord } from "../types";
 import { PACKAGE_SLOTS } from "./packages";
 import { CABINET_STANDARDS, OMITTED_SLOTS, ROOM, SLOT_PLACEMENT, ft } from "./room";
 import { parseDataFile, slotsFileSchema } from "./schema";
+import { ISLAND_HOOD } from "./hood";
 
 export { ft, CABINET_STANDARDS, ROOM, RUN, RUNS, RUN_BY_ID, PANEL, FRIDGE_OPENING, HOOD_OPENING, ISLAND, OMITTED_SLOTS, isOmitted } from "./room";
 
@@ -91,10 +92,16 @@ function place(record: SlotRecord): Slot {
   // A slot the package names and the layout did not place is a bug in the
   // generator, not a room: say which one rather than drawing it at the origin.
   if (!placement) throw new Error(`layout placed nothing for ${record.id}`);
-  if (record.id !== "slot-hood" || record.builtForCooktopIn === null) {
-    return { ...record, ...placement };
-  }
+  if (record.id !== "slot-hood") return { ...record, ...placement };
   const [x, , z] = placement.position;
+  // A hood hung over the island hangs at the height D20 settled — 72" off the
+  // floor, inside the 66"-76" a head and the drawing both allow — and not at a
+  // clearance over a cooking surface it is nowhere near. Round 52, D22 step 3.
+  if (placement.mount === "island") {
+    const at = ft(ISLAND_HOOD.undersideIn);
+    return { ...record, ...placement, position: [x, at, z] as [number, number, number] };
+  }
+  if (record.builtForCooktopIn === null) return { ...record, ...placement };
   const { aboveCooktopMinIn, chimneyReachIn } = CABINET_STANDARDS.hood;
   const clearanceIn = record.builtForCooktopIn + aboveCooktopMinIn;
   // A chimney hood's duct cover has to reach the ceiling, and it is rated for

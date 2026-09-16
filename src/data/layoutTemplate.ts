@@ -438,13 +438,19 @@ export const insetOf = (slot: PackageSlot) => (slot.enclosure ? PANEL : 0);
  * What the L template cannot build a kitchen without. D22, round 50.
  *
  * Not a list every package must fill — a package declares its own slots — but
- * what this template's arithmetic stands on: the range the back leg is laid out
- * round, the hood hung off that range, and the dishwasher the sink group is
- * packed with. A package without one is refused by name. Step 3 of the island
- * work, which hangs a hood over an island cooktop, changes the first two to
- * "a cooking surface, and a hood over it".
+ * what this template's arithmetic stands on: a cooking surface, the hood over
+ * it, and the dishwasher the sink group is packed with. A package without one
+ * is refused by name.
+ *
+ * Round 52 (D22 step 3): the cooking surface is a range on the back leg or a
+ * cooktop in the island, and either will do. It used to be the range alone, so
+ * package E's shape — the cooking on the island — could not be declared at all.
  */
-const TEMPLATE_NEEDS: readonly SlotId[] = ["slot-range", "slot-hood", "slot-dishwasher"];
+const TEMPLATE_NEEDS: readonly (SlotId | readonly SlotId[])[] = [
+  ["slot-range", "slot-cooktop"],
+  "slot-hood",
+  "slot-dishwasher",
+];
 
 const ROLES = {
   refrigerator: "tower",
@@ -1287,7 +1293,9 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
 
   // And what this template cannot build a kitchen without, whatever the
   // package declares. D22: the schema no longer has a list of core slots.
-  const missing = TEMPLATE_NEEDS.filter((slotId) => !spec[slotId]);
+  const missing = TEMPLATE_NEEDS.filter((need) =>
+    typeof need === "string" ? !spec[need] : !need.some((slotId) => spec[slotId]),
+  ).map((need) => (typeof need === "string" ? need : need.join(" or ")));
   if (missing.length > 0) {
     throw new Error(
       `layoutTemplate: ${pkg.id} declares no ${missing.join(", ")}, ` +
@@ -1597,6 +1605,10 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
     .filter((slot) => slot.beside === "range")
     .map((slot) => slot.slotId);
   const cookingBlock = (): Item[] => {
+    // Nothing cooks against the wall when the cooking surface is in the island:
+    // no opening, and no landings either side of it. Rule 4's island branch is
+    // what holds the landings there. Round 52, D22 step 3.
+    if (!spec["slot-range"]) return [];
     if (besideRange.length === 0) {
       return [
         gap("range-landing-left", landing.narrowIn, "d11-4", { shrink: "corner-to-range" }),
@@ -2335,8 +2347,12 @@ function placements(
     };
   };
 
-  const range = find((s) => s.slot === "slot-range");
-  const rangeAt = onRun(range.run, mid([range.segment.from, range.segment.to]));
+  /**
+   * The cooking surface the hood hangs over: a range on a run, or the island's
+   * cooktop. Round 52 (D22 step 3) — this was `slot-range` alone, so a package
+   * that cooked on the island threw on its way out of the generator.
+   */
+  const cookingOnARun = spec["slot-range"] ? find((s) => s.slot === "slot-range") : null;
   // A placeholder height: `slots.ts` hangs the canopy off the cooking surface
   // the wall was actually drilled for. See docs/decisions.md D13.
   const hoodY = ft(36.75 + CABINET_STANDARDS.hood.aboveCooktopMinIn);
@@ -2397,11 +2413,23 @@ function placements(
   const slots: Partial<Record<SlotId, SlotPlacement>> = {};
   for (const slot of Object.keys(spec) as SlotId[]) {
     if (slot === "slot-hood") {
-      slots[slot] = {
-        position: [rangeAt[0], hoodY, rangeAt[2]] as [number, number, number],
-        rotationY: facing(range.run),
-        mount: "wall" as const,
-      };
+      if (cookingOnARun) {
+        const at = onRun(cookingOnARun.run, mid([cookingOnARun.segment.from, cookingOnARun.segment.to]));
+        slots[slot] = {
+          position: [at[0], hoodY, at[2]] as [number, number, number],
+          rotationY: facing(cookingOnARun.run),
+          mount: "wall" as const,
+        };
+      } else {
+        // Hung from the ceiling over the island's cooktop: over the same point,
+        // facing the same way, so the canopy's own front is the cook's side and
+        // the fly-in reads off it. `slots.ts` sets the underside. D20, D22.
+        const over = islandSlot(island.cooktop, "working");
+        slots[slot] = {
+          ...over,
+          position: [over.position[0], hoodY, over.position[2]] as [number, number, number],
+        };
+      }
     } else if (slot === "slot-cooktop") {
       // In the island's counter, on the side the cook works from. D20.
       slots[slot] = islandSlot(island.cooktop, "working");

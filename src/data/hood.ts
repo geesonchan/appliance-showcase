@@ -1,4 +1,6 @@
 import { CABINET_STANDARDS, ROOM, RUNS, ft } from "./room";
+import { facingOf, toPlan } from "./frame";
+import { againstWall } from "./roomWalls";
 import { SLOT_BY_ID } from "./slots";
 import type { Appliance, Slot } from "../types";
 
@@ -197,6 +199,17 @@ export const ISLAND_HOOD = {
   cover: { widthIn: 13.25, depthIn: 14.875 },
   /** Bottom of the hood to the top of the duct cover, ducted. */
   spanIn: [30, 45.0625] as const,
+  /**
+   * How far the underside hangs off the floor. D20: under the 108-1/2" ceiling
+   * the drawing allows 63-7/16" to 78-1/2", and a head clears 66", so the band
+   * anyone may use is 66"-76" and the figure is 72".
+   *
+   * The band holds under this ceiling and no other: under an 8' ceiling the
+   * highest the drawing allows is 66", which is the head line with nothing
+   * over.
+   */
+  undersideIn: 72,
+  usableIn: [66, 76] as const,
 };
 
 export interface IslandHoodParts {
@@ -260,13 +273,23 @@ export interface HoodOutlet {
 export function hoodOutlet(slot: Slot, appliance: Appliance | undefined): HoodOutlet {
   const { outlet } = CABINET_STANDARDS.hood;
   const depthFt = ft(slot.cutout.d);
-  const backZ = slot.position[2] - depthFt / 2;
+  // Out of the canopy's own back face, not out of the back wall. The two are
+  // the same point for a hood on the back run and for no other, which is why
+  // this stood as `position[2] - depth/2` until round 52 (D22 step 3).
+  //
+  // A hood hung over an island has no back face to measure from: its duct
+  // cover is centred on the canopy (D20, round 46, and it is drawn that way),
+  // so the duct inside it is centred too.
+  const [x, z] =
+    slot.mount === "island"
+      ? [slot.position[0], slot.position[2]]
+      : toPlan(slot, 0, -depthFt / 2 + ft(outlet.fromWallIn));
 
   return {
     position: [
-      slot.position[0],
+      x,
       slot.position[1] + ft(appliance?.heightIn ?? slot.cutout.h),
-      backZ + ft(outlet.fromWallIn),
+      z,
     ],
     widthFt: ft(outlet.widthIn),
     depthFt: ft(outlet.depthIn),
@@ -319,3 +342,47 @@ const housed = () =>
   RUNS.some((run) =>
     run.uppers.some((bank) => bank.modules.some((module) => module.kind === "hood-cabinet")),
   );
+
+/**
+ * Where the duct goes once it is off the canopy, and where a blower in it sits.
+ *
+ * Two routes. Up through the cabinet above to the roof, which is every route
+ * but one; or straight out the back of the canopy through the wall behind it,
+ * which is `back-wall`. Round 52 (D22 step 3): this was written inside
+ * `UtilityLayer` with the back wall as the only wall a duct could go through,
+ * so a hood on the left run sent its duct across the kitchen to the far wall.
+ *
+ * Feet. `collarY` is the top of the transition off the canopy.
+ */
+export function ductRoute(
+  slot: Slot,
+  outlet: HoodOutlet,
+  collarY: number,
+  route: string,
+  ceiling = ROOM.wallHeight,
+): { runsUp: boolean; end: [number, number, number]; inlineAt: [number, number, number] } {
+  const x = outlet.position[0];
+  const z = outlet.position[2];
+  // A hood over an island backs onto nothing, so there is no wall route out of
+  // it whatever the model's duct says: it goes up, through the ceiling.
+  const runsUp = route !== "back-wall" || slot.mount === "island";
+  if (runsUp) {
+    return {
+      runsUp,
+      end: [x, ceiling, z],
+      inlineAt: [x, collarY + (ceiling - collarY) * 0.62, z],
+    };
+  }
+  // Through the wall the canopy's own back is against.
+  const wall = againstWall(facingOf(slot.rotationY), x, z);
+  const part = (from: number, to: number) => from + (to - from) * 0.62;
+  return {
+    runsUp,
+    end: [wall.x, collarY, wall.z],
+    inlineAt: [
+      part(slot.position[0], wall.x),
+      collarY,
+      part(slot.position[2], wall.z),
+    ],
+  };
+}

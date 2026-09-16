@@ -137,3 +137,4 @@ export function rotationOf(facing: Facing): number {
 export function sizeOnPlan(rotationY: number, width: number, depth: number): [number, number] {
   return facingOf(rotationY).axis === "z" ? [width, depth] : [depth, width];
 }
+

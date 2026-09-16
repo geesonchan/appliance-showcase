@@ -1114,6 +1114,24 @@ The site was a day behind and nothing said so.
    which build it is. A deploy that reports success and a page that reports the
    previous hash is a deploy that did not land.
 
+**How the link is checked, from round 52.** *(Leo.)* The footer is rendered by
+the bundle, so fetching the page's HTML and looking for the hash finds nothing —
+the check has to be one that can actually be run from a terminal rather than one
+that reads as if it were. **Compare the asset filenames the served HTML
+references against the ones `npm run build` just produced locally.** Vite names
+every chunk by a hash of its contents, so
+
+```
+curl -s <site> | grep -o -E 'assets/[A-Za-z0-9._-]+'
+```
+
+against `dist/assets/` is the same build or it is not, file by file, and it
+answers the question the footer was being asked for: **is the code on the link
+the code in front of me.** It is the stronger check of the two — the footer says
+which commit the runner *thought* it was building, while the asset hashes are
+the bundle itself — and it needs no browser. Read the footer as well when a
+browser is already open; neither replaces waiting for the run.
+
 **What this forbids:** reporting a push as finished work; a local suite that is
 a subset of CI's without saying so; a build that cannot be identified from the
 page it serves.
@@ -1788,6 +1806,24 @@ acceptance are report two, next round.)*
   - Toward the far end because that is where the room is open. Toward the
     inside corner the camera looks across the tall units that finish the other
     run.
+- **When the rule and the picture disagree, the rule does not move.** *(Leo,
+  round 52.)* A uniform rule will one day produce a view somebody does not
+  want — a camera that arrives looking through a bank of wall cabinets, a
+  window blowing out the exposure behind the machine. What happens then is
+  **that slot gets a hand-set azimuth of its own, and the reason is written
+  next to it**: "the wall cabinets by the window block the 45°", not a bare
+  number. The rule stays the default; the hand-set value is the exception; and
+  **an exception has a source, the same as every other figure in this
+  project**. What must not happen is the default being changed
+  to suit one slot — that moves every other machine to fix one picture, and the
+  reason is then recorded nowhere at all.
+  ⚠️ **This is written down precisely because it has never been used.** Round
+  51 looked at all thirty slots and hand-set none of them, so there is no
+  worked example to copy and nothing in the code that shows the shape of an
+  exception. **A rule is at its weakest before its first use:** the next person
+  to meet a slot that needs a different angle will be looking at one hand-set
+  value against a rule that has never had to bend, and the natural move is to
+  change the rule. It is the wrong one.
 - **This round named a rule that was already being followed.** *(Leo.)* Read
   against the machine's front and the far end of its run, the angles hand-set
   over a dozen rounds turn out to be the same judgement each time: 45 degrees
@@ -1827,6 +1863,75 @@ acceptance are report two, next round.)*
   passed on it as well, as they should. Each red test failed on its first
   assertion, the angle off the front, so its second — the side it leans to —
   did not run against the old code.
+
+**Step 3, round 52: the hood over the island, and the wall that was assumed.**
+- **`src/data/roomWalls.ts`, where a facing becomes a wall.** `wallBehind` takes
+  the way a thing faces and gives the wall it backs onto; `againstWall` gives
+  the point on that wall, level with the thing and standing off it. Written in
+  the facing's terms and not the room's, so a machine facing -z backs onto
+  +halfZ and the U-shaped and galley templates need no new rule.
+  - A module of its own rather than the bottom of `frame.ts`, and the reason is
+    a load-time cycle: `frame.ts` → `roomShell` → `layoutPolicy` → the rules
+    parser → `frame.ts`, which leaves the parser undefined and takes twenty test
+    files down. Everything about *which way* stays in `frame.ts`; this is the
+    one module that also knows how big the room is.
+- **The four sites, each with a case that fails on the old code first.** All
+  four are on a wall the app cannot put a machine on today, so none of them
+  could show in a screenshot; `backWall.test.ts` states them as the room and the
+  machine, never read back from the code.
+  - `hoodOutlet`: six inches out of *the canopy's own back face*, not six inches
+    off the back wall. A hood on the left run had its duct hole on the wrong
+    axis, half a foot out.
+  - `ductRoute` (lifted out of `UtilityLayer`): a `back-wall` duct goes through
+    the wall that hood is against. It used to go to `-ROOM.halfZ` whatever the
+    hood hung on, which for a hood on the left run is a duct across the kitchen.
+    And **a hood over an island runs up whatever its route says** — there is no
+    wall behind it, so the alternative is a duct into thin air.
+  - `wallAnchor`: the facing was already right after step 2; the wall was still
+    `-ROOM.halfX` or `-ROOM.halfZ` written out here.
+  - The hood is placed over **the cooking surface**, which is a range on a run
+    or the island's cooktop, and `TEMPLATE_NEEDS` now asks for "a range or a
+    cooktop, a hood, a dishwasher". A package with no range used to throw on its
+    way out of the generator, so package E's shape could not be declared at all.
+- **A hung hood's own figures.** Over the island it hangs at `undersideIn`, the
+  72" D20 settled, not at a clearance over a cooking surface three feet away;
+  and it is centred on the cooktop rather than offset to sit flush with a
+  cabinet face it is nowhere near. The second was the prototype's, not a test's.
+- **An island machine's services come up through the floor — all of them.**
+  `serviceRoute` is one answer for gas, water and power: a wall anchor, or the
+  riser. Power already asked `islandRiser`; gas and water asked `wallAnchor`,
+  got nothing and **drew nothing**, so an island slot with a gas cooktop or a
+  prep sink would have been a machine with no services at all in the view that
+  exists to explain services. No island slot has either yet, which is why it
+  never showed.
+- **The new guard, and what it still cannot see.** *(Leo: confirm it is red
+  before listing the exceptions.)* Every read of `ROOM.halfX`/`halfZ` outside
+  `roomWalls.ts` fails, and the reads that are genuinely about the room's *size*
+  are listed by file with an exact count, both ways, like the first guard's. Run
+  against the code before this round it fails on `wallAnchor.ts` and on
+  `UtilityLayer.tsx` at five where one is allowed.
+  - It catches two of this round's four. **`hoodOutlet`'s was written as the
+    machine's own coordinate — `slot.position[2] - depth/2` — and no pattern
+    over spelling would have found it.** This narrows the hole; it does not
+    close it.
+- **Nothing in packages A to D moved.** The overview and the install view of all
+  four, live against local, pixel by pixel: **zero pixels changed in all eight**.
+  That is the expected answer and not a weak one — every site fixed is on a wall
+  or an island the app cannot reach yet, so a change in those pictures would
+  have meant a change nobody asked for.
+- **What the prototype showed that the tests did not** (`?islandCookProto=1`,
+  package A with its cooking moved to the island; not committed).
+  - The page **crashed**: `dimensions.ts` set its whole chain out from the range
+    segment on the back run, and there was no range. It now sets out from
+    whichever cooking surface the package has, in that machine's own frame when
+    it is in the island. **Where an island's dimension chain belongs is Leo's,
+    and this is not an answer to it** — it is what makes the overlay draw.
+  - Two figures in that chain are wrong over an island and are **left wrong,
+    for E**: the cooking-surface height reads 4" rather than the glass at
+    36-1/4", so the clearance under the canopy reads 68" instead of 35-3/4",
+    and the note beside it still quotes the gas minimum at an induction hob.
+  - The hood's callout still hangs at the island counter, 5' under the hood, as
+    §"package E" already records.
 
 ## Open items
 
@@ -1915,8 +2020,13 @@ Registered, not scheduled. None of these is a round of its own.
     cabinet well off their fronts. The cooktop's 240 degrees was chosen because
     it happens to face the working side both ways.
 
-  Waiting for a hood on an island: the duct outlet and duct run assume the back
-  wall (`hoodOutlet`, `DuctRuns`); gas and water trunks to an island slot go to
-  a wall point (`wallAnchor`); a rough-in point that is not in its cutout is
-  dropped for an island slot (`roughIn.ts`); and the hood is placed on the
-  range's run (`placements`). *(Noted 2026-09-14, round 49.)*
+  ~~Waiting for a hood on an island: the duct outlet and duct run assume the
+  back wall (`hoodOutlet`, `DuctRuns`); gas and water trunks to an island slot
+  go to a wall point (`wallAnchor`); and the hood is placed on the range's run
+  (`placements`).~~ **All four done in round 52, D22 step 3.** *(Noted
+  2026-09-14, round 49; closed 2026-09-15, round 52.)*
+
+  Still open from that sweep: **a rough-in point that is not in its cutout is
+  dropped for an island slot** (`roughIn.ts`). Nothing in the catalogue has one
+  yet — HMIB42WS and CIT367YG have no `rough-in.json` entry at all — so there
+  was nothing to hold a fix to this round.

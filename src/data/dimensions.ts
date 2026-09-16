@@ -12,7 +12,7 @@ import {
 } from "./room";
 import { SLOT_BY_ID } from "./slots";
 import { towerVents } from "./towerVent";
-import { onAxis } from "./frame";
+import { onAxis, toWorld } from "./frame";
 import type { Appliance, SlotId } from "../types";
 
 export interface Dimension {
@@ -67,17 +67,37 @@ export function dimensionsFor(
   selectedSlot: SlotId | null = null,
 ): Dimension[] {
   const backRun = RUN_BY_ID.back;
-  const range = SLOT_BY_ID["slot-range"];
   const hood = SLOT_BY_ID["slot-hood"];
   const { hood: hoodStd, upper } = CABINET_STANDARDS;
 
+  /**
+   * The cooking surface the chain is set out from: a range on the back run, or
+   * the island's cooktop where the package cooks there. Round 52 (D22 step 3):
+   * this was the range alone, and a package with none — package E's shape —
+   * took the whole overlay down with it.
+   */
+  const range = SLOT_BY_ID["slot-range"] ?? SLOT_BY_ID["slot-cooktop"];
+  const rangeSegment = RUNS.flatMap((run) => run.segments).find((s) => s.slot === "slot-range");
+
   // In front of the run's face, so the lines are not buried in the cabinets.
   const plane = backRun.centre + ROOM.counterDepth / 2 + 0.35;
-  // Left of the range opening, stepping outward so they read as a chain.
-  const rangeSegment = RUNS.flatMap((run) => run.segments).find((s) => s.slot === "slot-range")!;
-  const at = (step: number) => rangeSegment.from - 0.5 - step * 1.5;
+  /**
+   * A point on the chain: left of the cooking opening, stepping outward.
+   *
+   * Against a wall that is along the back run, which is where every package's
+   * chain is drawn and where it stays, to the inch. In the island it is the
+   * same chain in the machine's own frame — out of the face it opens by, and to
+   * its left — because there is no run to lay it against. Where an island's
+   * chain *should* go is Leo's to say; this is what makes the overlay draw at
+   * all rather than an answer to that.
+   */
+  const point = (step: number, y: number): [number, number, number] => {
+    const out = 0.5 + step * 1.5;
+    if (rangeSegment) return [rangeSegment.from - out, y, plane];
+    return toWorld(range, -(ft(range.cutout.w) / 2 + out), y, ROOM.counterDepth / 2 + 0.35);
+  };
 
-  const rangeAppliance = selection["slot-range"];
+  const rangeAppliance = selection["slot-range"] ?? selection["slot-cooktop"];
   // The cooking surface, not the machine's top: a range with a backguard is
   // sold at 47-7/8" and cooks at 36", and this line is the counter height.
   const cooktop = rangeAppliance
@@ -95,8 +115,8 @@ export function dimensionsFor(
     extra: Partial<Dimension> = {},
   ): Dimension => ({
     id,
-    from: [at(step), y0, plane],
-    to: [at(step), y1, plane],
+    from: point(step, y0),
+    to: point(step, y1),
     valueIn: Number(((y1 - y0) * 12).toFixed(3)),
     labelAt: 0.5,
     slots: [],
@@ -108,15 +128,15 @@ export function dimensionsFor(
     vertical("floor-to-counter", 2, 0, ROOM.counterHeight, { labelAt: 0.3 }),
     vertical("floor-to-cooktop", 1, 0, cooktop, {
       labelAt: 0.62,
-      slots: ["slot-range", "slot-hood"],
+      slots: ["slot-range", "slot-cooktop", "slot-hood"],
     }),
     vertical("cooktop-to-canopy", 0, cooktop, hoodBottom, {
       noteKey: "dimension.clearanceRange",
       noteVars: { min: hoodStd.aboveCooktopMinIn, max: hoodStd.aboveCooktopMaxIn },
-      slots: ["slot-range", "slot-hood"],
+      slots: ["slot-range", "slot-cooktop", "slot-hood"],
     }),
     vertical("canopy-height", 0, hoodBottom, hoodBottom + canopy, {
-      slots: ["slot-range", "slot-hood"],
+      slots: ["slot-range", "slot-cooktop", "slot-hood"],
     }),
     vertical("counter-to-uppers", 4, ROOM.counterHeight, ROOM.upperBottom, {
       noteKey: "dimension.standard",
