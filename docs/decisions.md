@@ -597,6 +597,30 @@ width are then built of the same boxes and finish the same way. Where no
 position within those six inches does it, the room is refused with the
 arithmetic and the way out is a narrower window.
 
+*Amended 2026-09-17 (round 60): the window moves an eighth of an inch at a
+time, not a quarter.* The two gaps are held to within an eighth of each other,
+and a slide moves their difference by twice the step, so a quarter-inch step
+could never finish a wall that started the difference at an odd number of
+quarters: package A in D's room, with D's 178-7/8" left wall held, was refused
+at every back wall from 216" to 232" ending in 1/4 or 3/4 and built at every
+whole and half inch, and narrowing the window from 36" to 30" did not help.
+The step is now the tolerance (`fitWindow`). **What it changed**, over 3,200
+rooms — each package's own room, six arrangements across a sweep of both walls,
+and an eighth-inch sweep of each wall:
+- **208 rooms that were refused now build**, all with the two gaps exactly equal
+  (A 64, B 80, C 64, D none).
+- **172 rooms that built already have their window an eighth of an inch
+  over** (A 53, B 66, C 53, D none), every one on a wall ending in an odd
+  eighth. The two gaps are an eighth apart before and after, within the
+  tolerance either way; the new place is simply the one the search, nearest
+  the middle first, now reaches first.
+- **Nothing on a whole or half inch moved, and none of the four packages' own
+  rooms did.** A, C and D's windows are in the back wall; B's is in the left,
+  where its sink is.
+- Package D was refused in none of these rooms and nothing of D's moved, which
+  is why switching to D always worked and switching away from its room did not
+  (D18, round 60). Why D's layout escapes the fault was not looked into.
+
 **Rule 12, extended 2026-09-12 (round 30), Leo: a group of columns.** Where a
 package stands its refrigeration as separate columns, they are one group at the
 end of one leg and nothing is put between them. Left to right as you face them
@@ -1235,6 +1259,46 @@ looks like, and nobody looks at D's refrigerator fly-in by eye after a change
 about an island hood. **It would have shipped.** That is the case for diffing
 every round, including the rounds where the answer is expected to be zero.
 
+**Two bugs can hide each other, so a fix is diffed again after it is made.**
+*(Leo, round 59.)* The throw in `PinProjector` stopped one frame being drawn
+on a switch into D, and that frame happened to be the one in which the shadow
+map's single refresh was spent on the room being taken down. With the throw,
+the refresh fell on a later frame and the shadows were right; take the throw
+away and 641 pixels of stale shadow appeared. Nothing about the shadows had
+changed — the first bug had been covering the second. **The reason to look at
+the pictures again after fixing something is not only that the fix may break
+something; it is that the fix may uncover something that was already broken.**
+A fix that removes an error, a skipped frame, an early return or an exception
+is exactly the kind that can do it.
+
+**A fallback that behaves strangely: ask first what it was put in to get
+round.** *(Leo, round 60.)* Switching from D to A shrank the room from
+224-1/4" x 178-7/8" to 147" x 105", smaller than A's own default room. The
+shrinking was done by the last fallback in `setActivePackage`, which sizes both
+walls to the bare minimum a package's legs need. It looked like a second bug.
+It was not: the fallback was added in the round that laid out package D
+(2026-09-12), and its comment names the case it was for — "D's 175-1/4" left
+wall … B's window will not sit evenly in it". **175-1/4" ends in a quarter**,
+and so does 224-1/4". Both refusals were one fault in the window search (D11
+rule 13, round 60), and the fallback was a plaster over the first of them. **We
+were not fixing two bugs; we were fixing one bug and the plaster put on it.**
+The general form: when a fallback, a special case or a retry does something
+odd, find what it was written to avoid. That thing may be the real problem, and
+it may still be there — here it was, and it had been shrinking rooms and
+growing walls by an eighth of an inch (D18, round 60) ever since.
+
+**Find the pattern with a sweep, then look in the code for why.** *(Leo, round
+60.)* What settled the window was not reading `fitWindow` but a sweep: package
+A in D's room, the left wall held, the back wall stepped a quarter inch at a
+time from 216" to 232". **Every whole and half inch built; every 1/4 and 3/4
+was refused.** That pattern is the answer on its own — a step that cannot land
+on odd quarters — before a line of the code is read. Narrowing the window from
+36" to 30" at D's walls was refused at every width, which ruled out "the window
+is too wide". Only then was the code read, and it said the same: a quarter-inch
+slide against an eighth-inch tolerance. Keep that order. A sweep over the input
+that shows a clean pattern names the kind of fault; the code then has one
+question to answer instead of many.
+
 Two more things that look like a change and are not, both met in round 53:
 
 - **The mode toast.** "White model · Read cabinet volumes and rough openings"
@@ -1315,6 +1379,29 @@ evenly in its wall counts as length since round 35 too: the two banks each side
 of it finish on what the wall leaves, and that wall grows an eighth of an inch
 at a time until they match (D's left wall builds at 178-7/8" where 178-3/4"
 would not).
+
+⚠️ **Amended 2026-09-17 (round 60): the eighth of an inch was a bug.** The
+window slid a quarter inch at a time looking for two gaps within an eighth of
+each other. Each slide moves the two gaps' difference by half an inch, so a
+wall that starts the difference at an odd number of quarters can never come
+within the eighth, and the room was refused — or, here, grown an eighth so the
+difference became even. **"D's left wall builds at 178-7/8" where 178-3/4"
+would not" was that fault, not a fact about the room.** With an eighth-inch
+step (D11 rule 13, round 60) 178-3/4" builds, the columns go onto the back leg
+growing only the back wall, and the customer is no longer told "Left wall
+lengthened from 178¾″ to 178⅞″ to fit the refrigerator on that leg" — a figure
+and a reason that were both wrong. The test that held the eighth
+(`autoGrow.test.ts`, round 35) now holds 178-3/4".
+- **Package D's default left wall is still 178-7/8".** It builds either way and
+  nothing on screen changes. The paragraph below still gives the eighth as the
+  reason for it; the reason is gone. Whether the default goes back to
+  178-3/4" is Leo's.
+- **The same fault shrank rooms.** Package D's 224-1/4" back wall refused A's
+  and C's window, and the last fallback in `setActivePackage` sized both walls
+  to those packages' bare minimum instead: D to A gave 147" x 105", D to C 141"
+  x 105", against this entry's own rule that choosing a package never shortens
+  a room. With the eighth-inch step, D to A, B and C all keep D's room. The
+  fallback itself is next round's (Open items).
 
 **The wall sliders are not switches.** Dragging one is asking for that length,
 and a length the room will not build at is refused on its own terms, as before.
@@ -2573,8 +2660,12 @@ Registered, not scheduled. None of these is a round of its own.
   - Nothing else is sized to the package the page opened on: every other
     `useMemo`/`useRef` with no dependencies was read, and everything else that
     walks `SLOT_ORDER` does so on each render.
-- **A package switch that moved no wall says the room grew.** *(Found round 59;
-  Leo: fix next round, not after E.)* Switching from D to B shows "Package B
+- ~~**A package switch that moved no wall says the room grew.**~~ **Fixed in
+  round 60**: `setActivePackage` returns the walls that actually grew (`grown`)
+  apart from everything else it adjusted, and only those raise the toast. A
+  switch that grows nothing also takes down an earlier growth toast, whose Undo
+  would otherwise have gone back past the package now on screen. *(Found round
+  59; Leo: fix next round, not after E.)* Switching from D to B shows "Package B
   needs a longer run: the room is now 224.3″ across the back and 178.9″ down
   the left", with Undo, and not an inch of wall has changed — those are D's
   walls. The customer reads a sentence that is not true, on one of the most
@@ -2586,6 +2677,37 @@ Registered, not scheduled. None of these is a round of its own.
   growing. For the record, the first switch to B from A's default room does
   grow the back wall to 202-3/8″, and that toast is true; switching back to B
   from A or from C after that said nothing, because a room is never shrunk.
+- **The last fallback in `setActivePackage` shortens walls.** *(Found round 60;
+  Leo: next round.)* When a package refuses a room for a reason that is not
+  length, it sets both walls to what the package's legs need at their bare
+  minimum — A's 147" x 105" from D's 224-1/4" x 178-7/8" — ignoring the room on
+  screen, resetting a wall that had nothing wrong with it, and never checking
+  the result against the room it replaces. That breaks D18: choosing a package
+  never shortens a room. It was put in to get round the window fault fixed in
+  round 60, so nothing known reaches it now. **The fix, Leo:** never shorten a
+  wall; take the feasible room nearest the one on screen and no shorter on
+  either wall; where there is none, refuse and stay on the package, which is
+  the refusal path that already exists.
+  - ⚠️ **With nothing reaching it, a change there cannot be checked.** So that
+    round first builds a room that really does reach the fallback, confirms
+    what the new code does in it, and only then changes it. If no such room
+    can be built, it says so, and this stays recorded and unchanged.
+- **Day after a round trip through night is not the day the page opened on.**
+  *(Found round 60; Leo: not urgent, but record what it costs.)* Package A,
+  mouse clicks, `?quality=high`: the room as it opens in day and the same room
+  after Night then Day differ by 134,558 pixels — 118,000 of them by 8 levels
+  or less, 3,536 by more than 32 — along every edge and over the grain of the
+  floor and the steel. The same after 4 seconds and after 15, so it is not the
+  fade still running; the canvas is 1144 x 844 throughout; and the code before
+  round 59 does exactly the same, so it is not the shadow refresh. The cause
+  was not found. By its look it is antialiasing or texture sampling, not a
+  shadow.
+  - ⚠️ **What it costs.** Any screenshot taken after the page has been through
+    night — a set that shoots night and then carries on in day, or compares a
+    day shot taken after a night one with a fresh page — carries 134,558 pixels
+    of difference that no change made. **Whoever meets it first will read it
+    as something they broke.** Until it is fixed: shoot day before night, or
+    compare day with day on pages that have both been through night.
 - **The smoke suite's `-t` exemption does not take effect.** *(Found round 59;
   Leo: not urgent.)* `filtered` looks for `-t` in `process.argv`, and every
   filtered run in round 59 still ended with "N of 27 smoke tests actually ran"

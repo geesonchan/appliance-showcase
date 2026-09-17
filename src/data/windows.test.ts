@@ -210,6 +210,33 @@ describe("a window is a hole nothing hangs in front of", () => {
   });
 
   /**
+   * Round 60. The window used to slide a quarter inch at a time looking for
+   * two gaps within an eighth of each other. A quarter-inch slide moves one gap
+   * up by a quarter and the other down by a quarter, so their difference moves
+   * by half an inch a step: a wall that leaves it an odd number of quarters
+   * could never come within an eighth. With package D's 178-7/8" left wall,
+   * every back wall from 216" to 232" ending in 1/4 or 3/4 was refused — D's
+   * own 224-1/4" among them, which is what shrank the room on a switch from D
+   * to A — and every whole and half inch built. Whether a given length is
+   * caught depends on where its bank's remainder falls: 168-1/4" in A's own
+   * room built before the fix as well, and is kept as the case that was never
+   * broken. Whole and half inches are what every other test here uses, so the
+   * samples are the lopsided ones.
+   */
+  it.each([168.25, 216.75, 224.25])("builds package A under a window on a %s\" back wall", (backWallIn) => {
+    activate(DEFAULT_PACKAGE.id);
+    const result = setLayoutParams({ ...DEFAULT_PARAMS, backWallIn });
+    expect(result.reasons.map((reason) => reason.key)).toEqual([]);
+  });
+
+  it.each([168.25, 216.75, 224.25])("leaves the same gap each side of the window on a %s\" back wall", (backWallIn) => {
+    activate(DEFAULT_PACKAGE.id);
+    expect(setLayoutParams({ ...DEFAULT_PARAMS, backWallIn }).ok, "the room has to build to be measured").toBe(true);
+    const [gaps] = casingGaps();
+    expect(Math.abs(gaps.before! - gaps.after!)).toBeLessThanOrEqual(0.125 + 1e-6);
+  });
+
+  /**
    * And nothing over the head of one either: the wall carries on to the top
    * line, and no bank is hung in the strip between the window and the ceiling.
    */

@@ -471,7 +471,9 @@ export const useAppStore = create<AppState>((set, get) => ({
         selectedSlot: null,
         // A package that needed a longer wall got one. The room is the
         // customer's, so the change is announced rather than slipped in.
-        toast: result.adjusted
+        // Only a wall that grew: the package's own arrangement moving the sink
+        // to the other leg is not the room getting bigger (round 60).
+        toast: result.grown
           ? {
               id: ++toastId,
               key: "toast.roomGrew",
@@ -485,7 +487,13 @@ export const useAppStore = create<AppState>((set, get) => ({
               },
               undo: built ? before : undefined,
             }
-          : s.toast,
+          : // A toast that offers Undo is about the room before this switch —
+            // "Package D needs a longer run", and Undo back to where D came
+            // from — and is not true of the package now on screen. Anything
+            // else, a mode hint, is left to finish.
+            s.toast?.undo
+            ? null
+            : s.toast,
       };
     });
   },

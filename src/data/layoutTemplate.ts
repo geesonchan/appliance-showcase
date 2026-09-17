@@ -2890,16 +2890,23 @@ function fitWindow(
   const after = Math.min(...edges.filter((edge) => edge >= reserved[1] - 1e-6), stop);
   const middle = ((before + after) / 2 - centre(window.along)) * 12;
 
-  // Six inches either way of where it started, quarter inch at a time,
-  // nearest the middle of the stretch first. A quarter inch because that is
-  // the resolution the rest of the run is drawn to, and because the difference
-  // between the two banks either side is what has to come out even — the
-  // window's own position to the nearest three inches is not the point, it is
-  // only the usual way of getting there.
+  // Six inches either way of where it started, an eighth at a time, nearest
+  // the middle of the stretch first. The difference between the two banks
+  // either side is what has to come out even — the window's own position to
+  // the nearest three inches is not the point, it is only the usual way of
+  // getting there.
+  //
+  // An eighth, the same as the tolerance `evenBeside` holds the two gaps to.
+  // Round 60: this was a quarter. A slide moves one gap up and the other down
+  // by the step, so their difference moves by twice it, and a quarter-inch
+  // step left any wall whose difference started at an odd number of quarters
+  // stuck a quarter out — refused. Package D's 224-1/4" back wall was one, and
+  // the fallback in `setActivePackage` that shrank the room on a switch from D
+  // to A was put in to get round the same refusal on a 175-1/4" wall.
   const limit = WINDOW.sinkOffsetIn;
   const ideal = Math.max(-limit, Math.min(limit, Number.isFinite(middle) ? middle : 0));
   const offsets: number[] = [ideal];
-  for (let step = 0.25; step <= limit * 2; step += 0.25) {
+  for (let step = 0.125; step <= limit * 2; step += 0.125) {
     for (const offIn of [ideal + step, ideal - step]) {
       if (offIn >= -limit - 1e-6 && offIn <= limit + 1e-6) offsets.push(offIn);
     }

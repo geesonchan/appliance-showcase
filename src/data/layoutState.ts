@@ -209,7 +209,15 @@ const ISLAND_FIELDS = ["islandLengthIn", "islandDepthIn", "islandOverhangIn", "a
 export function setActivePackage(id: string): {
   ok: boolean;
   reasons: Refusal[];
+  /** Everything the switch changed from the room asked for: arrangement and walls. */
   adjusted?: Partial<LayoutParams>;
+  /**
+   * Only the walls that came out longer than they were. Round 60: a package's
+   * own arrangement — B's sink on the left leg — is an adjustment, not the room
+   * growing, and the store used to announce any adjustment as growth, so D's
+   * room chosen as B said "the room is now 224.3″ × 178.9″" with no wall moved.
+   */
+  grown?: Partial<Pick<LayoutParams, "backWallIn" | "leftWallIn">>;
 } {
   const previous = PACKAGE.id;
   if (previous === id) return { ok: true, reasons: [] };
@@ -248,10 +256,19 @@ export function setActivePackage(id: string): {
     }
   }
 
+  // Which walls a room that built came out longer than the room asked for.
+  const grownFrom = (built: LayoutParams) => {
+    const grown: Partial<Pick<LayoutParams, "backWallIn" | "leftWallIn">> = {};
+    for (const key of ["backWallIn", "leftWallIn"] as const) {
+      if (built[key] > asked[key]) grown[key] = built[key];
+    }
+    return Object.keys(grown).length > 0 ? { grown } : {};
+  };
+
   const result = setLayoutParams(arranged);
   if (result.ok) {
     return Object.keys(moved).length > 0
-      ? { ok: true, reasons: [], adjusted: moved }
+      ? { ok: true, reasons: [], adjusted: moved, ...grownFrom(arranged) }
       : result;
   }
 
@@ -274,7 +291,9 @@ export function setActivePackage(id: string): {
   }
   if (Object.keys(walls).length > 0) {
     const grown = setLayoutParams({ ...arranged, ...walls });
-    if (grown.ok) return { ok: true, reasons: [], adjusted: { ...moved, ...walls } };
+    if (grown.ok) {
+      return { ok: true, reasons: [], adjusted: { ...moved, ...walls }, ...grownFrom({ ...arranged, ...walls }) };
+    }
   }
 
   // A room shaped for another package can refuse this one for a reason that
@@ -288,7 +307,9 @@ export function setActivePackage(id: string): {
   };
   if (asksFor.backWallIn !== arranged.backWallIn || asksFor.leftWallIn !== arranged.leftWallIn) {
     const sized = setLayoutParams({ ...arranged, ...asksFor });
-    if (sized.ok) return { ok: true, reasons: [], adjusted: { ...moved, ...asksFor } };
+    if (sized.ok) {
+      return { ok: true, reasons: [], adjusted: { ...moved, ...asksFor }, ...grownFrom({ ...arranged, ...asksFor }) };
+    }
   }
 
   setPackage(previous);

@@ -230,11 +230,12 @@ describe("a package's own room", () => {
     expect(store().layoutParams.fridgeEnd).toBe("back");
     expect(store().layoutParams.sinkLeg).toBe("left");
     expect(store().layoutParams.backWallIn).toBe(207.5);
-    expect(store().layoutParams.leftWallIn).toBe(178.875);
-    expect(store().toast?.lines?.map((line) => line.vars?.wallKey)).toEqual([
-      "toast.wall.back",
-      "toast.wall.left",
-    ]);
+    // Round 60: the left wall stays at 178-3/4". Until then it grew an eighth,
+    // to 178-7/8", and the toast said it was for the refrigerator. It was for
+    // the window, which slid a quarter inch at a time and could not come out
+    // even on a wall that left its two gaps an odd number of quarters apart.
+    expect(store().layoutParams.leftWallIn).toBe(178.75);
+    expect(store().toast?.lines?.map((line) => line.vars?.wallKey)).toEqual(["toast.wall.back"]);
   });
 
   it("never shrinks a room somebody made bigger when a package is chosen", () => {
@@ -257,6 +258,47 @@ describe("a package's own room", () => {
     expect(store().layoutParams.leftWallIn).toBe(leftIn);
     // And the wall that was shorter than D asks for is brought up to it.
     expect(store().layoutParams.backWallIn).toBeGreaterThanOrEqual(d.defaultLayout.backWallIn!);
+  });
+
+  /**
+   * Round 60, Leo. Choosing a package can change the room two ways: its own
+   * arrangement (B puts the sink on the left leg and the refrigerator on the
+   * back) and the length of a wall. Only the second is the room growing. From
+   * D's room to B, not an inch of wall moves, and the app used to say "Package B
+   * needs a longer run: the room is now 224.3″ across the back and 178.9″ down
+   * the left" — D's own walls.
+   */
+  it("says nothing about the room growing when choosing a package moves no wall", () => {
+    openPackage("package-d");
+    store().setPackageId("package-b");
+    expect(store().packageId).toBe("package-b");
+    expect(store().toast).toBeNull();
+  });
+
+  it("takes down the last package's growth toast when the next choice grows nothing", () => {
+    // A to D grows the room and says so; B straight after grows nothing. D's
+    // sentence, and its Undo back to A, are not about the room on screen.
+    openPackage("package-a");
+    store().setPackageId("package-d");
+    expect(store().toast?.key).toBe("toast.roomGrew");
+    store().setPackageId("package-b");
+    expect(store().toast).toBeNull();
+  });
+
+  it("keeps D's walls when choosing B from D's room", () => {
+    const d = openPackage("package-d");
+    store().setPackageId("package-b");
+    expect({ back: store().layoutParams.backWallIn, left: store().layoutParams.leftWallIn }).toEqual({
+      back: d.backWallIn,
+      left: d.leftWallIn,
+    });
+  });
+
+  it("still says so when choosing B from A's room really lengthens the back wall, arrangement and all", () => {
+    openPackage("package-a");
+    store().setPackageId("package-b");
+    expect(store().toast?.key).toBe("toast.roomGrew");
+    expect(store().toast?.vars).toMatchObject({ backIn: 202.4, leftIn: 144 });
   });
 
   it("offers Undo when choosing a package grew the room, and puts back the package and the room", () => {
