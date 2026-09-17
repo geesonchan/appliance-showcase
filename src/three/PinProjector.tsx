@@ -104,10 +104,13 @@ export function PinProjector() {
   const origin = useMemo(() => new THREE.Vector3(), []);
 
   // Reused every frame; the projector runs inside the render loop and must not
-  // allocate.
+  // allocate. One box per anchor, so it is sized with them: a package switch
+  // re-renders this instance with the new package's slots before the room's key
+  // remounts it, and a list sized to the package the page opened on was written
+  // past its end in that frame (round 59).
   const layout = useMemo(
-    () => SLOT_ORDER.map(() => ({ x: 0, y: 0, dotX: 0, dotY: 0, w: 0, h: 0, hidden: true })),
-    [],
+    () => anchors.map(() => ({ x: 0, y: 0, dotX: 0, dotY: 0, w: 0, h: 0, hidden: true })),
+    [anchors.length],
   );
   const appliances = useMemo<KeepOut[]>(() => [], []);
   const overlay = useMemo<KeepOut[]>(() => [], []);

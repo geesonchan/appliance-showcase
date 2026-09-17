@@ -1257,9 +1257,33 @@ build` again, then compare. The vendor chunks (`react-*`, `three-*`) and the CSS
 do not carry the commit and match either way, which is what makes the odd one
 out readable rather than alarming.
 
+⚠️ **A click from script is not a click.** *(Leo, round 59.)* `button.click()`,
+`$eval(..., b => b.click())` and a dispatched click event go down a different
+path through the page from a mouse, a tap or a key press, and **what one of
+them shows says nothing about the other**. Round 58 reported "switching from A
+to D throws, on the live site" from a script click. Measured in round 59, on
+the live site before the fix: a mouse click, a tap and a key press, three times
+each, **no error at all**, and none with the CPU slowed six times either; a
+script click, **nine times out of nine**. So what round 58 found was an edge
+case that the test tooling triggers, not a bug a customer can meet. Why the two
+paths differ is not established.
+- **The irony is where the script click came from.** It was adopted as a
+  workaround, because Playwright's own click hangs on its stability check while
+  a WebGL page draws slowly. The workaround brought in a class of false
+  positives of its own.
+- **From here: a problem that only reproduces under a script click gets one
+  question before anything else — can a real person's input cause it?**
+  Repeat it with a mouse click, a tap and a key press, and report what the
+  customer sees from those, not from the script.
+- It cuts both ways, and round 59 met both: a test that clicks with the mouse
+  can pass over a fault a script click shows, and a fix can change what a
+  script-clicked screenshot looks like while leaving a mouse-clicked one
+  untouched (D22, round 59). Say which input a result came from.
+
 **What this forbids:** reporting a push as finished work; a local suite that is
 a subset of CI's without saying so; a build that cannot be identified from the
-page it serves.
+page it serves; stating what a customer sees from a result only a script click
+produced.
 
 ## D18 · A switch never refuses for want of wall
 
@@ -1936,6 +1960,21 @@ acceptance are report two, next round.)*
     something unrelated produces the same effect — and, worse the other way
     round, passes when the part is missing and something else supplies the look
     of it.
+
+    **And the same assertion can give the opposite answer with a different
+    input.** *(Leo, round 59.)* The round-59 smoke test "throws nothing going
+    from A to D" was first written the way every other smoke test clicks, with
+    Playwright's mouse, and run against the old code as this entry asks. **It
+    was green** — on the code with the bug in it. Only after measuring that a
+    mouse never triggers the throw and a script click always does was it
+    rewritten to click from script, and then it was red on the old code with
+    the very error, `setting 'dotX'`. Nothing in the assertion changed; the
+    click did. So "run it on the old code first" is necessary and is not enough
+    on its own: when a green run on the old code is a surprise, ask what the
+    test does differently from the thing that showed the fault, before
+    believing the fault is not there. It is also why the five older smoke
+    tests that switch into D and assert no errors never caught it (D17, round
+    59).
   - Rough-in leader lines (`leaderEnd`): out of the face the host opens by.
   - The wall anchor (`wallAnchor`): none for an island slot. Gas and water to an
     island slot are not drawn — no island slot has either yet; step 3.
@@ -2462,17 +2501,20 @@ Registered, not scheduled. None of these is a round of its own.
   add those two machines' rough-in points from their guides, and only then fix
   this — the data is what makes the fix verifiable.** Fixing it first would be
   a change nothing could check. *(Leo, round 52.)*
-- **Does the island hood still cover the combination oven in the install
+- ~~**Does the island hood still cover the combination oven in the install
   view?** *(Leo, round 55.)* The sight-line fade leaves install mode alone,
   because there the whole appliance layer has already stepped back to 0.12 —
   but install mode is exactly where E's oven tower has its services explained.
   Once E generates with its own figures, take one install-view shot of the
   combination oven and look before deciding whether install mode needs the fade
-  as well. At 0.12 the hood may already be see-through enough.
+  as well. At 0.12 the hood may already be see-through enough.~~
   - **Looked at in round 56** (prototype, E at D20's figures): the hood is
     ghosted at 0.12 along with every other machine, and the combination oven's
     outline and the faces inside it read straight through it. It does not look
-    covered. Leo's to decide whether that settles it.
+    covered.
+  - **Closed in round 59: install mode does not get the fade.** *(Leo.)* Round
+    56's prototype is the reason: with the hood stepped back to 0.12, the
+    combination oven's outline and doors read through it.
 - ~~**A column bank's order does not hold on both legs.**~~ **Closed in round
   57: there was no inconsistency.** *(Leo.)* The order is absolute — freezer
   left of the refrigerator, wine right of it, as you face them — and
@@ -2480,7 +2522,7 @@ Registered, not scheduled. None of these is a round of its own.
   sentence, which described the order by what each column stood next to; it has
   been rewritten. No code changed. *(Noted round 56; closed 2026-09-17, round
   57.)*
-- **Switching to a package with more machines throws, on the live site.**
+- ~~**Switching to a package with more machines throws, on the live site.**
   *(Found in round 58; pre-existing, not fixed in it.)* `PinProjector` builds
   its per-slot layout array once, sized to the package the page opened on —
   `useMemo(() => SLOT_ORDER.map(...), [])` — and a later package with more slots
@@ -2488,4 +2530,64 @@ Registered, not scheduled. None of these is a round of its own.
   Reproduced on the production site by switching from package A (six machines)
   to D (ten). It is thrown inside the frame loop, so what it does to D's later
   pins needs looking at before it is fixed; the fix itself is to size the array
-  to the package the room is built to.
+  to the package the room is built to.~~ **Fixed in round 59**: the boxes are
+  sized with the anchors they belong to (`[anchors.length]`).
+  - **What it did, measured on the live site before the fix.** Once per switch
+    into D, never on a switch out of it or among A, B and C. For under a
+    second — the room rebuilding — D's last four labels were not yet placed and
+    not shown; then all ten were placed, shown, and followed the camera. The
+    projector sits under the room's `key`, so the switch remounts it with boxes
+    of the right length; the throw is in the old instance, which re-renders
+    with D's slots in between.
+  - ⚠️ **A person could not cause it: an edge case the test tooling
+    triggers, not a product bug.** *(Leo, round 59; the general rule is in
+    D17.)* A mouse click, a tap and a key press on the package switch, three
+    times each, never threw — and not with the CPU slowed six times either. A
+    click fired from script inside the page (`element.click()`, a dispatched
+    click event, from a timer too) threw nine times out of nine. Round 58's
+    reproduction was a script click. **Why the two inputs differ is not
+    established.** The five older smoke tests that switch into D and assert no
+    errors all click with Playwright's mouse, which is why none caught it; the
+    new one clicks from script (D22, round 59).
+  - ⚠️ **The throw was hiding a second race, and it was real: fixed in the same
+    round.** The shadow map is refreshed once per room. The refresh used to be
+    asked for by `StaticShadowMap` with `layoutVersion` in its dependencies,
+    read from the store *outside* the room's `key`. A store update reaches that
+    component first; the room under the key is swapped only when `Scene`
+    re-renders and hands the Canvas its new children. **A frame drawn between
+    the two spent the one refresh before the new room was mounted**, and the
+    new room kept those shadows. On a script-clicked switch the throwing frame
+    had been skipping that draw, so it never showed; with the throw gone, D kept
+    641 pixels of stale shadow edge (the tap's shadow on the counter, a strip on
+    the floor, a knob on the rangetop), up to 55 levels, the same on three runs
+    out of three. A mouse click leaves no such frame and was never affected.
+    - **Why it had to be fixed and not left** *(Leo)*: every screenshot script
+      here switches packages from script, so a fixed 641-pixel difference would
+      have sat in every later diff of D and had to be explained each round.
+    - **The fix:** the room's refresh is asked for by `RoomShadowRefresh`,
+      mounted *inside* the key, so its effect runs when the new room mounts and
+      not before (`Scene.tsx`). A lighting change still refreshes it from
+      `StaticShadowMap`. The smoke test "draws the same room whether the switch
+      was clicked with the mouse or from script" was red on the code between
+      the two fixes — 641 pixels, its one assertion — and passes with both.
+  - Nothing else is sized to the package the page opened on: every other
+    `useMemo`/`useRef` with no dependencies was read, and everything else that
+    walks `SLOT_ORDER` does so on each render.
+- **A package switch that moved no wall says the room grew.** *(Found round 59;
+  Leo: fix next round, not after E.)* Switching from D to B shows "Package B
+  needs a longer run: the room is now 224.3″ across the back and 178.9″ down
+  the left", with Undo, and not an inch of wall has changed — those are D's
+  walls. The customer reads a sentence that is not true, on one of the most
+  frequent things they do. The cause: `setActivePackage` returns `adjusted`
+  whenever any of the package's `defaultLayout` fields differs from the room
+  (B moves the sink and the refrigerator to the other legs), and the store turns
+  any `adjusted` into `toast.roomGrew`. The fix is to tell a change of
+  arrangement from a change of wall length and only call the second one
+  growing. For the record, the first switch to B from A's default room does
+  grow the back wall to 202-3/8″, and that toast is true; switching back to B
+  from A or from C after that said nothing, because a room is never shrunk.
+- **The smoke suite's `-t` exemption does not take effect.** *(Found round 59;
+  Leo: not urgent.)* `filtered` looks for `-t` in `process.argv`, and every
+  filtered run in round 59 still ended with "N of 27 smoke tests actually ran"
+  and exit code 1 however its tests went — most likely because the file runs in
+  a vitest worker whose `argv` does not carry the flag, which was not checked. A fault in a guard of our own; a full run is unaffected.

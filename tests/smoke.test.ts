@@ -14,7 +14,7 @@ const MOBILE = { width: 390, height: 844 };
  * Change the number when a test is added or removed. A run filtered with -t
  * runs fewer on purpose, and is the one exception.
  */
-const EXPECTED_TESTS = 25;
+const EXPECTED_TESTS = 28;
 let testsRun = 0;
 const filtered = process.argv.some((arg) => arg === "-t" || arg.startsWith("--testNamePattern"));
 beforeEach(() => {
@@ -919,6 +919,114 @@ describe("pin labels and the scene controls", () => {
       expect(errors).toEqual([]);
       await page.context().close();
     }
+  });
+});
+
+describe("switching to a package with more machines", () => {
+  /**
+   * Round 59. The pin projector's per-label boxes were sized once, to the
+   * package the page opened on, and a switch from A's six machines to D's ten
+   * wrote past the end of them: `Cannot set properties of undefined (setting
+   * 'dotX')`, once per switch. The room's key remounts the projector a moment
+   * later, which is why nothing stayed wrong on screen.
+   *
+   * ⚠️ **Clicked from inside the page, on purpose.** A click through
+   * Playwright's mouse, a tap or a key press never threw, on the live site or
+   * locally, at full speed or with the CPU slowed six times; a `click()` or a
+   * dispatched click event from script threw every time. Every other test here
+   * clicks with the mouse, which is why none of the ones that switch into D and
+   * assert no errors ever caught it. The input that reproduces it is the one
+   * to test with.
+   *
+   * Two tests, because they are two facts: the error is the bug; the ten
+   * labels are what a customer sees, and they were right before the fix too.
+   */
+  const switchFromScript = (page: Page, id: string) =>
+    page.$eval(`[data-segment="package"] button[data-value="${id}"]`, (button) =>
+      (button as HTMLButtonElement).click(),
+    );
+
+  it("throws nothing going from A to D", async () => {
+    const { page, errors } = await openPage(DESKTOP);
+    await switchFromScript(page, "package-d");
+    await page.waitForTimeout(3000);
+    expect(errors).toEqual([]);
+    await page.context().close();
+  });
+
+  it("places and shows every one of D's ten labels", async () => {
+    const { page } = await openPage(DESKTOP);
+    await switchFromScript(page, "package-d");
+    await page.waitForTimeout(3000);
+    const labels = await page.$$eval("[data-pin-label]", (els) =>
+      els.map((el) => ({
+        slot: el.getAttribute("data-pin-label"),
+        placed: (el as HTMLElement).style.transform !== "",
+        shown: (el as HTMLElement).style.opacity === "1",
+      })),
+    );
+    expect(labels.map((label) => label.slot)).toHaveLength(10);
+    expect(labels.filter((label) => !label.placed || !label.shown)).toEqual([]);
+    await page.context().close();
+  });
+
+  /**
+   * Round 59, found by fixing the throw above. The shadow map is refreshed
+   * once per room, and the refresh used to be asked for by a component outside
+   * the room's key, which hears of a switch before the new room is mounted. A
+   * frame drawn in that gap spent the refresh on the old room. The throw had
+   * been skipping that frame; without it, a script-clicked switch into D kept
+   * 641 pixels of stale shadow edge that a mouse-clicked one does not.
+   *
+   * So the two inputs are held to the same picture. `?quality=high` pins the
+   * render tier, which otherwise follows the frame rate; the top bar is left
+   * out, where focus and hover differ by input; and the room-grew toast is
+   * waited out.
+   */
+  it("draws the same room whether the switch was clicked with the mouse or from script", async () => {
+    const shoot = async (how: "mouse" | "script") => {
+      const { page } = await openPage(DESKTOP, false, "?quality=high");
+      await page.waitForTimeout(5000);
+      if (how === "script") await switchFromScript(page, "package-d");
+      else await page.locator(`[data-segment="package"] button[data-value="package-d"]`).click();
+      await page.waitForTimeout(24000);
+      const png = await page.screenshot({ clip: { x: 0, y: 60, width: 1440, height: 840 } });
+      await page.context().close();
+      return png.toString("base64");
+    };
+    const mouse = await shoot("mouse");
+    const script = await shoot("script");
+
+    // Decoded and compared in a page, so a failure says how much differs.
+    const differing = await (async () => {
+      const context = await browser.newContext();
+      const page = await context.newPage();
+      const count = await page.evaluate(
+        async ([a, b]) => {
+          const load = async (data: string) => {
+            const image = new Image();
+            image.src = `data:image/png;base64,${data}`;
+            await image.decode();
+            const canvas = document.createElement("canvas");
+            canvas.width = image.width;
+            canvas.height = image.height;
+            const context = canvas.getContext("2d")!;
+            context.drawImage(image, 0, 0);
+            return context.getImageData(0, 0, image.width, image.height).data;
+          };
+          const [pa, pb] = [await load(a), await load(b)];
+          let n = 0;
+          for (let i = 0; i < pa.length; i += 4) {
+            if (pa[i] !== pb[i] || pa[i + 1] !== pb[i + 1] || pa[i + 2] !== pb[i + 2]) n += 1;
+          }
+          return n;
+        },
+        [mouse, script],
+      );
+      await context.close();
+      return count;
+    })();
+    expect(differing, "pixels that differ between a mouse-clicked and a script-clicked switch into D").toBe(0);
   });
 });
 

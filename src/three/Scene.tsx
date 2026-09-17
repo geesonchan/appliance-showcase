@@ -28,15 +28,34 @@ import { UtilityLayer } from "./UtilityLayer";
 function StaticShadowMap() {
   const gl = useThree((s) => s.gl);
   const lighting = useAppStore((s) => s.lighting);
-  // A rebuilt room casts different shadows, so the one refresh has to happen
-  // after the new geometry is mounted as well as after a lighting change.
-  const layoutVersion = useAppStore((s) => s.layoutVersion);
 
   useEffect(() => {
     gl.shadowMap.autoUpdate = false;
     gl.shadowMap.needsUpdate = true;
-  }, [gl, lighting, layoutVersion]);
+  }, [gl, lighting]);
 
+  return null;
+}
+
+/**
+ * A rebuilt room casts different shadows, so the one refresh has to happen
+ * after the new geometry is mounted. It is mounted inside the room's own key,
+ * so its effect runs when that room does, and not before.
+ *
+ * Round 59: it used to be `layoutVersion` in `StaticShadowMap`'s dependencies,
+ * read from the store outside the key. A store update reaches that component
+ * first; the room under the key is only swapped once `Scene` re-renders and
+ * hands the Canvas its new children. When a frame is drawn between the two —
+ * a switch clicked from script leaves that gap, a mouse click does not — the
+ * refresh was spent on the old room and the new one kept its shadows: 641
+ * pixels of shadow edge on package D. The frame that threw in `PinProjector`
+ * had been skipping that draw, which is why it never showed before.
+ */
+function RoomShadowRefresh() {
+  const gl = useThree((s) => s.gl);
+  useEffect(() => {
+    gl.shadowMap.needsUpdate = true;
+  }, [gl]);
   return null;
 }
 
@@ -85,6 +104,7 @@ export function Scene() {
             about what happened — but the Canvas and the camera rig stay
             outside it, so the view does not jump while you drag a slider. */}
         <group key={layoutVersion}>
+          <RoomShadowRefresh />
           <KitchenShell />
           <CabinetLayer />
           <FixtureLayer />
