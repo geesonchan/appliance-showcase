@@ -214,10 +214,12 @@ describe("a package's own room", () => {
   it("opens package D with the walls every one of its switches needs", () => {
     const room = openPackage("package-d");
     // The coffee cabinet on the back wall needs 224-1/4" of it; the columns on
-    // the back leg need 207-1/2" there and an eighth more left wall than the
-    // return wall's 178-3/4", for the window to sit evenly.
+    // the back leg need 207-1/2" there. The left wall is the return wall's
+    // 178-3/4". Round 35 to 60 it was 178-7/8", an eighth more "for the window
+    // to sit evenly" — which was the quarter-inch window step, not the room
+    // (D18, round 61).
     expect(room.backWallIn).toBe(224.25);
-    expect(room.leftWallIn).toBe(178.875);
+    expect(room.leftWallIn).toBe(178.75);
   });
 
   it("grows rather than refuses the columns onto the back leg, window and all", () => {

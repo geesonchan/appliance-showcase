@@ -77,11 +77,15 @@ function wallsFor(reason: Refusal): Partial<Record<WallKey, number>> | null {
     return WALL_KEYS.includes(key) && Number.isFinite(needIn) ? { [key]: needIn } : null;
   }
   // A window that will not sit evenly in its wall. The two banks each side of it
-  // finish on whatever the wall leaves, and an eighth of an inch more wall is
-  // what evens them out — round 35 found package D refused at a 178-3/4" left
-  // wall and building at 178-7/8". So that wall grows an eighth at a time until
-  // it does, which is the same cure as any other length and a better one than
-  // the refusal's own offer to narrow the window.
+  // finish on whatever the wall leaves, so the wall grows an eighth at a time
+  // until they match, which is the same cure as any other length and a better
+  // one than the refusal's own offer to narrow the window.
+  //
+  // Round 35's example of it — package D refused at a 178-3/4" left wall and
+  // building at 178-7/8" — was not a fact about the room: the window was
+  // searched a quarter inch at a time against an eighth-inch tolerance, and
+  // 178-3/4" builds since round 60. This path stays for the walls that really
+  // do leave the two banks uneven.
   if (reason.key === "refusal.windowGap") {
     const leg = String(reason.vars.wallKey ?? "").replace("leg.", "");
     const wall = leg === "back" ? "backWallIn" : leg === "left" ? "leftWallIn" : null;

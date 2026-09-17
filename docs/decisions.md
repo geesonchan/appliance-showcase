@@ -1287,6 +1287,29 @@ odd, find what it was written to avoid. That thing may be the real problem, and
 it may still be there — here it was, and it had been shrinking rooms and
 growing walls by an eighth of an inch (D18, round 60) ever since.
 
+**A number that cannot say exactly why it is that number may be working round
+a bug.** *(Leo, round 61.)* One fault in the window search — a quarter-inch
+step against an eighth-inch tolerance — passed itself off as **two** settled
+decisions and one sentence to a customer, and each of them looked reasonable
+on its own:
+- the fallback in `setActivePackage` that sizes both walls to a package's
+  minimum, written in the round that laid out package D (2026-09-12) to get
+  past a 175-1/4" wall, and found to be a plaster in round 60;
+- **package D's default left wall of 178-7/8"**, recorded in round 35 as "the
+  columns on the back leg need the eighth of an inch", found in round 60 when
+  the fix made a test that held it go red, and changed back in round 61;
+- and the toast a customer read while it happened: "Left wall lengthened from
+  178¾″ to 178⅞″ to fit the refrigerator on that leg" — the figure and the
+  reason both invented by the code, and neither true.
+
+**Where a figure cannot be given an exact reason, record that it cannot.** An
+eighth of an inch "for the window to sit evenly" reads like a reason and is
+not one: nothing says why an eighth, or why that wall. The honest entry would
+have been "178-7/8" because 178-3/4" is refused and we do not know what makes
+the difference" — which is a question somebody would have pulled at, where a
+plausible sentence is one nobody ever reads again. **The explanation outlives
+the bug**: this one stood for twenty-six rounds and had a test holding it.
+
 **Find the pattern with a sweep, then look in the code for why.** *(Leo, round
 60.)* What settled the window was not reading `fitWindow` but a sweep: package
 A in D's room, the left wall held, the back wall stepped a quarter inch at a
@@ -1392,10 +1415,13 @@ growing only the back wall, and the customer is no longer told "Left wall
 lengthened from 178¾″ to 178⅞″ to fit the refrigerator on that leg" — a figure
 and a reason that were both wrong. The test that held the eighth
 (`autoGrow.test.ts`, round 35) now holds 178-3/4".
-- **Package D's default left wall is still 178-7/8".** It builds either way and
-  nothing on screen changes. The paragraph below still gives the eighth as the
-  reason for it; the reason is gone. Whether the default goes back to
-  178-3/4" is Leo's.
+- **Package D's default left wall is back to 178-3/4"** *(Leo, round 61)*, the
+  return wall's own figure. It was 178-7/8" from round 35 to round 60 for a
+  reason that turned out not to exist, and **a number left standing after its
+  reason is struck out reads as though it had another one**. The eighth is
+  history now rather than a live figure with a crossed-out explanation. Its
+  cost was D's own screenshots moving an eighth of an inch, which is the round
+  that changed it saying so.
 - **The same fault shrank rooms.** Package D's 224-1/4" back wall refused A's
   and C's window, and the last fallback in `setActivePackage` sized both walls
   to those packages' bare minimum instead: D to A gave 147" x 105", D to C 141"
@@ -1412,9 +1438,11 @@ switches a salesperson actually flips never make it grow. Checked over every
 switch in every package: A 168" x 144" (the largest need is 159" x 126"), B
 202-3/8" x 144" (199-3/8" x 126"), C 168" x 144" (153" x 126"), all unchanged;
 D 201-3/4" x 178-3/4" in round 34, its left wall up from 175-1/4" for the return
-wall's clearance, and 224-1/4" x 178-7/8" since round 35, when every switch
+wall's clearance, and 224-1/4" x 178-7/8" from round 35, when every switch
 became buildable: the coffee cabinet on the back wall needs the 224-1/4", and
-the columns on the back leg the eighth of an inch. The spare inches are handed to the landings in the reverse of the
+the columns on the back leg were held to need the eighth of an inch. **The
+eighth was the window bug, and the left wall is 178-3/4" again since round
+61.** The spare inches are handed to the landings in the reverse of the
 shrink order, as D13 already does. A package's default walls are a floor:
 choosing it never shortens a room somebody has made bigger.
 
