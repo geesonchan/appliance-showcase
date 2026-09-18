@@ -12,7 +12,7 @@ import { PROTRUSION_DATUM } from "./rules";
 import { CABINET_STANDARDS } from "./roomShell";
 import { SLOT_BY_ID } from "./slots";
 import { deriveUtilities } from "./utilities";
-import { effectiveCfm, needsMakeupAir } from "./ventilation";
+import { effectiveCfm } from "./ventilation";
 import type { Appliance } from "../types";
 
 const range = SLOT_BY_ID["slot-range"];
@@ -128,14 +128,6 @@ describe("blowers", () => {
   it("ignores the blower when the hood has its own", () => {
     expect(effectiveCfm(integrated300, external)).toBe(300);
     expect(effectiveCfm(integrated600, external)).toBe(600);
-  });
-
-  it("decides makeup air from whichever part moves the air", () => {
-    // A hood with no blower yet moves no air at all.
-    expect(needsMakeupAir(separate, null)).toBe(false);
-    expect(needsMakeupAir(separate, internal)).toBe(true);
-    expect(needsMakeupAir(integrated300, null)).toBe(false);
-    expect(needsMakeupAir(integrated600, null)).toBe(true);
   });
 
   it("sizes the duct from the effective CFM, not the hood's own", () => {

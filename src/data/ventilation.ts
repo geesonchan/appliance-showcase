@@ -5,7 +5,9 @@ import type { Appliance } from "../types";
  *
  * Most high-end hoods ship without a blower, and the ones that do carry no CFM
  * of their own: the number that matters — for duct sizing, and for whether
- * Title 24 wants makeup air — comes from the blower that was specified with it.
+ * makeup air is raised — comes from the blower that was specified with it. The
+ * makeup-air threshold itself is the `makeup-air` rule's, in data/rules.json,
+ * and nowhere else (round 65).
  * See docs/decisions.md D6.
  */
 export function effectiveCfm(
@@ -15,15 +17,6 @@ export function effectiveCfm(
   if (!hood) return null;
   if (hood.blower === "required") return blower?.requires.cfm ?? null;
   return hood.requires.cfm;
-}
-
-/** Whether the package needs makeup air, from whichever part moves the air. */
-export function needsMakeupAir(
-  hood: Appliance | undefined,
-  blower: Appliance | null,
-): boolean {
-  const cfm = effectiveCfm(hood, blower);
-  return cfm !== null && cfm >= 400;
 }
 
 /**

@@ -259,10 +259,10 @@ export function convert(
         amps: numberOrNull(row.amps),
         gasBTU: numberOrNull(row.gasBTU),
         water: toBoolean(row.water),
+        // No makeup-air flag: whether a package raises makeup air is the
+        // `makeup-air` rule's, on the airflow the package actually moves
+        // (round 65). The sheet's makeupAirRequired column is not read.
         cfm,
-        // Title 24: a hood at or above 400 CFM needs makeup air. Honour an
-        // explicit yes in the sheet, otherwise derive it.
-        makeupAirRequired: toBoolean(row.makeupAirRequired) || (cfm !== null && cfm >= 400),
       },
     });
 

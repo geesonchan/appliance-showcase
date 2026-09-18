@@ -294,6 +294,38 @@ that has a CFM. So:
 **A hood that needs a blower and has none is a blocker**, not a warning: it is
 not an installable specification.
 
+**Makeup air: what the line may say, and where each part of it comes from.**
+*(Amended round 65, Leo.)* A package whose blower moves 400 CFM or more gets
+one line on the install checklist, the hood's spec card and the quote — in all
+four packages as they open (A, B and D at 1,000 CFM, C at 600). Until round 65
+it read "California Title 24 requires makeup air" / "加州 Title 24 要求补风系统".
+Taken apart, by source:
+- **"A high-CFM hood may need makeup air": sourced.** Both hood guides in
+  `docs/reference/` — `HMIB42WS_Installation.pdf` and `vcin36gws-manual.pdf` —
+  say local building codes may require makeup air above a specified CFM, that
+  the figure varies from place to place, and that the owner and installer
+  determine what applies. VCIN36GWS also offers a relay for a makeup-air
+  damper. Neither gives a figure or names a code.
+- **The 400 CFM threshold: no source.** Written when the project was
+  scaffolded (2026-09-05); the original brief says only "≥400 CFM → 加州需
+  makeup air 系统". Kept, as the only figure there is, until Leo has checked
+  California's own.
+- **"California Title 24": no source**, written at the same time, and never in
+  this file. Title 24 is California's building code as a whole, and which part
+  of it — if any — sets this is exactly what has not been checked.
+- **"requires": stronger than any source.** The guides say *may* require.
+
+So the line now says what the guides say — "local building codes may require
+makeup air at this airflow. The limit varies from place to place; to be
+confirmed by the owner and the installer" / "当地建筑规范可能要求加装补风系统。
+门槛因地而异，由业主和安装方确认" — and names no code. A code goes back in when it
+has been read. **The threshold lives in one place**, the `makeup-air` rule's
+condition in `data/rules.json` (D7: a merchant's figure, changed without a
+release). Three other copies were deleted in round 65, none of which anything
+read: `thresholds.makeupAirCfm`, `needsMakeupAir()` in `ventilation.ts` (called
+only by a test), and the importer's `makeupAirRequired` flag with its own
+`>= 400` (the sheet's column of that name is no longer read).
+
 ---
 
 ## D7 · Rules are data; availability is code
@@ -1367,6 +1399,19 @@ check trusted before it had been seen to fail. Round 64 did it again on
 purpose: the comparison that proved deleting the fallback changed nothing was
 first run against round 62's code, where it found exactly the nineteen
 switches it should.
+
+**Words a customer reads need a source as much as a figure does.** *(Leo,
+round 65.)* The project's first rule is that a rule has a source — a drawing,
+or Leo's site practice, and which. From the project's first day (2026-09-05) to round
+65 a sentence stood on the quote, the install checklist and the hood's spec card, in every package as
+it opens, naming a code ("California Title 24") and a certainty ("requires")
+that nothing in the repository supports; the only sources, two hood guides,
+say "may", give no figure and name no code. **Source checks had only ever
+been run on geometry — never on the text put in front of the customer**, which
+is the part a customer takes away and the part the salesperson is answerable
+for. From here, any sentence that goes on a quote or a checklist is held to
+the same rule as a dimension: where it comes from is written down, and where
+nothing supports it, it says no more than the sources do.
 
 **Find the pattern with a sweep, then look in the code for why.** *(Leo, round
 60.)* What settled the window was not reading `fitWindow` but a sweep: package
@@ -2826,6 +2871,15 @@ Registered, not scheduled. None of these is a round of its own.
     round first builds a room that really does reach the fallback, confirms
     what the new code does in it, and only then changes it. If no such room
     can be built, it says so, and this stays recorded and unchanged.
+- **Makeup air: the code and the figure are Leo's to check.** *(Round 65.)*
+  The line names no code and says "may" (D6, round 65); the 400 CFM threshold
+  stays as the only figure there is. Once California's requirement has been
+  read, the threshold goes into the `makeup-air` rule — the one place it is
+  decided — and the code goes back into the line with where it was read.
+- **The gas pipe threshold is written twice, the same way makeup air was.**
+  *(Found round 65, not changed.)* The `gas-pipe-size` rule's own condition
+  holds 65,000 BTU, and `thresholds.gasPipeUpsizeBTU` holds it again, read by
+  nothing. One copy, when somebody next touches it.
 - **Day after a round trip through night is not the day the page opened on.**
   *(Found round 60; Leo: not urgent, but record what it costs.)* Package A,
   mouse clicks, `?quality=high`: the room as it opens in day and the same room

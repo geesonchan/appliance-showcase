@@ -61,7 +61,6 @@ const rulesFileSchema = z.object({
   rules: z.array(ruleSchema).min(1),
   thresholds: z.object({
     gasPipeUpsizeBTU: z.number().positive(),
-    makeupAirCfm: z.number().positive(),
     duct: z
       .array(
         z.object({

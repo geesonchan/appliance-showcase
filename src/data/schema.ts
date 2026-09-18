@@ -223,7 +223,6 @@ export const applianceSchema = z.object({
     gasBTU: z.number().positive().nullable(),
     water: z.boolean(),
     cfm: z.number().positive().nullable(),
-    makeupAirRequired: z.boolean(),
   }),
 }).refine((appliance) => appliance.category === "blower" || appliance.widthIn !== null, {
   message: "widthIn is required for everything except a blower",

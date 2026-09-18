@@ -125,7 +125,7 @@
   "rule.gasLineMissing": "No gas at this slot; {btu} BTU needs a new line",
   "rule.gasPipeSize": "{btu} BTU total, so the run wants {pipe} pipe",
   "rule.blowerMissing": "This hood ships without a blower; one must be specified",
-  "rule.makeupAir": "{cfm} CFM: California Title 24 requires makeup air",
+  "rule.makeupAir": "{cfm} CFM: local building codes may require makeup air at this airflow. The limit varies from place to place; to be confirmed by the owner and the installer",
   "rule.ductSize": "{cfm} CFM, so the duct wants {duct}\"",
   "rule.integratedPanels": "Integrated: cabinetry needs door panels and hinge clearance",
   "rule.otrConflict": "Over-the-range microwave takes the hood's place",

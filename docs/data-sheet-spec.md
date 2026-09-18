@@ -64,9 +64,8 @@ docs/decisions.md D4.
 | `requires.gasBTU` | gasBTU | Blank → `null`. |
 | `requires.voltage` | voltage | `240` or `120`; anything else reads as 120. |
 | `requires.amps` | amps | Blank → `null`. |
-| `requires.cfm` | cfm | Blank → `null`. |
+| `requires.cfm` | cfm | Blank → `null`. Whether a package raises makeup air is decided from the airflow it actually moves, by the `makeup-air` rule in `data/rules.json`; the sheet's `makeupAirRequired` column is not read since round 65 (decisions.md D6). |
 | `requires.water` | water | `true` / `yes` / `y` / `1`, case-insensitive. |
-| `requires.makeupAirRequired` | makeupAirRequired | An explicit yes, **or** derived: `cfm >= 400` (California Title 24). |
 | `msrpUSD` | msrpUSD | `$` and `,` stripped, rounded to whole dollars. Blank **or zero** → `null`: a zero in the inventory means nobody has set a price, not that the model is free. Counted as `no msrpUSD`. |
 | `leadTimeWeeks` | leadTimeWeeks | Blank → `null`. |
 | `sourceUrl` | sourceUrl | A URL, or `null` when blank. Counted as `no sourceUrl`; it does not fail the import. |

@@ -50,7 +50,6 @@ export function appliance(overrides: Partial<Appliance> & { id: string }): Appli
       gasBTU: null,
       water: false,
       cfm: null,
-      makeupAirRequired: false,
       ...overrides.requires,
     },
   };
@@ -61,26 +60,26 @@ export const FIXTURES = {
   gasRange36: appliance({
     id: "gas-range-36",
     fuel: "gas",
-    requires: { voltage: 120, amps: 15, gasBTU: 119500, water: false, cfm: null, makeupAirRequired: false },
+    requires: { voltage: 120, amps: 15, gasBTU: 119500, water: false, cfm: null },
   }),
   gasRangeSmallBtu: appliance({
     id: "gas-range-small-btu",
     fuel: "gas",
-    requires: { voltage: 120, amps: 15, gasBTU: 61000, water: false, cfm: null, makeupAirRequired: false },
+    requires: { voltage: 120, amps: 15, gasBTU: 61000, water: false, cfm: null },
   }),
   inductionRange30: appliance({
     id: "induction-range-30",
     fuel: "induction",
     widthIn: 30,
     cutoutWidthIn: 30,
-    requires: { voltage: 240, amps: 40, gasBTU: null, water: false, cfm: null, makeupAirRequired: false },
+    requires: { voltage: 240, amps: 40, gasBTU: null, water: false, cfm: null },
   }),
   dualFuelRange48: appliance({
     id: "dual-fuel-range-48",
     fuel: "dual",
     widthIn: 48,
     cutoutWidthIn: 48,
-    requires: { voltage: 240, amps: 30, gasBTU: 130000, water: false, cfm: null, makeupAirRequired: false },
+    requires: { voltage: 240, amps: 30, gasBTU: 130000, water: false, cfm: null },
   }),
 
   hoodNeedsBlower: appliance({
@@ -105,7 +104,7 @@ export const FIXTURES = {
     cutoutWidthIn: 36,
     cutoutHeightIn: 18,
     cutoutDepthIn: 24,
-    requires: { voltage: 120, amps: 15, gasBTU: null, water: false, cfm: 300, makeupAirRequired: false },
+    requires: { voltage: 120, amps: 15, gasBTU: null, water: false, cfm: 300 },
   }),
   hoodIntegrated600: appliance({
     id: "hood-integrated-600",
@@ -117,7 +116,7 @@ export const FIXTURES = {
     cutoutWidthIn: 36,
     cutoutHeightIn: 18,
     cutoutDepthIn: 24,
-    requires: { voltage: 120, amps: 15, gasBTU: null, water: false, cfm: 600, makeupAirRequired: true },
+    requires: { voltage: 120, amps: 15, gasBTU: null, water: false, cfm: 600 },
   }),
   blower600: appliance({
     id: "blower-600",
@@ -130,7 +129,7 @@ export const FIXTURES = {
     cutoutWidthIn: null,
     cutoutHeightIn: null,
     cutoutDepthIn: null,
-    requires: { voltage: 120, amps: 15, gasBTU: null, water: false, cfm: 600, makeupAirRequired: true },
+    requires: { voltage: 120, amps: 15, gasBTU: null, water: false, cfm: 600 },
   }),
   blower1300: appliance({
     id: "blower-1300",
@@ -143,7 +142,7 @@ export const FIXTURES = {
     cutoutWidthIn: null,
     cutoutHeightIn: null,
     cutoutDepthIn: null,
-    requires: { voltage: 120, amps: 15, gasBTU: null, water: false, cfm: 1300, makeupAirRequired: true },
+    requires: { voltage: 120, amps: 15, gasBTU: null, water: false, cfm: 1300 },
   }),
 
   fridgeBuiltIn: appliance({
@@ -190,7 +189,7 @@ export const FIXTURES = {
     cutoutWidthIn: 24,
     cutoutHeightIn: 34,
     cutoutDepthIn: 24,
-    requires: { voltage: 120, amps: 15, gasBTU: null, water: true, cfm: null, makeupAirRequired: false },
+    requires: { voltage: 120, amps: 15, gasBTU: null, water: true, cfm: null },
   }),
   wine: appliance({
     id: "wine-undercounter",

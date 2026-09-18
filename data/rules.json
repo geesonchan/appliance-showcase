@@ -329,7 +329,6 @@
   ],
   "thresholds": {
     "gasPipeUpsizeBTU": 65000,
-    "makeupAirCfm": 400,
     "duct": [
       {
         "maxCfm": 400,

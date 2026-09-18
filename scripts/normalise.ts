@@ -29,7 +29,6 @@ export interface RawRow {
   amps: string;
   cfm: string;
   water: string;
-  makeupAirRequired: string;
   /** Hoods only: "integrated" or "required". */
   blower: string;
   /** Optional: the flat top of a wedge canopy, where the duct comes off. */

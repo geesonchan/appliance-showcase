@@ -142,14 +142,6 @@ describe("the rest of the normalisation", () => {
     expect(toInstallType("4 Burner", "Gas Range", "30")).toEqual(["freestanding"]);
   });
 
-  it("derives makeup air from CFM at the Title 24 threshold", () => {
-    const { appliances } = run();
-    const byModel = (model: string) => appliances.find((item) => item.model === model)!;
-    expect(byModel("ZSA-E36CS").requires.makeupAirRequired).toBe(true); // 600
-    expect(byModel("PRH9-136SS").requires.makeupAirRequired).toBe(false); // 300
-    expect(byModel("PM390").requires.makeupAirRequired).toBe(false); // 390
-  });
-
   it("leaves blank dimensions as null rather than zero", () => {
     const { appliances } = run();
     const insert = appliances.find((item) => item.model === "PM390")!;

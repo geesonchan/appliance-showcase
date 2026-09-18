@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import en from "../i18n/en.json";
+import zh from "../i18n/zh.json";
 import { FIXTURES } from "./testFixtures";
 import { SLOT_BY_ID } from "./slots";
 import {
@@ -81,6 +83,36 @@ describe("§3.5.4 rules", () => {
   it("makeup-air: 600 CFM triggers it, 300 does not", () => {
     expect(firePackage(FIXTURES.hoodNeedsBlower, FIXTURES.blower600)).toContain("makeup-air");
     expect(firePackage(FIXTURES.hoodIntegrated300, null)).not.toContain("makeup-air");
+  });
+
+  // Round 65: moved here from `needsMakeupAir`, a second copy of the threshold
+  // the app never called. The rule is the one place it is decided.
+  it("makeup-air: a hood with no blower chosen yet moves no air and raises nothing", () => {
+    expect(firePackage(FIXTURES.hoodNeedsBlower, null)).not.toContain("makeup-air");
+  });
+
+  it("makeup-air: a hood with its own 600 CFM blower raises it", () => {
+    expect(firePackage(FIXTURES.hoodIntegrated600, null)).toContain("makeup-air");
+  });
+
+  /**
+   * Round 65, Leo. The line is printed on the quote, the install checklist and
+   * the hood's spec card, in every package. It used to say "California Title
+   * 24 requires makeup air": a code nobody had checked and a certainty no
+   * source gives. The two hood guides in docs/reference/ (HMIB42WS,
+   * VCIN36GWS) say local codes *may* require it above a figure that varies from
+   * place to place, for the owner and installer to confirm. The line says that,
+   * and names no code until one has been checked.
+   */
+  it("makeup-air: says codes may require it, as the hood guides do", () => {
+    expect(en["rule.makeupAir"]).toMatch(/may require/);
+    expect(zh["rule.makeupAir"]).toMatch(/可能要求/);
+  });
+
+  it("makeup-air: names no code, and does not say it is required", () => {
+    for (const text of [en["rule.makeupAir"], zh["rule.makeupAir"]]) {
+      expect(text).not.toMatch(/Title 24|IRC|CMC|M1503|requires/);
+    }
   });
 
   it("integrated-lead-time: an integrated fridge, but not a built-in one", () => {
