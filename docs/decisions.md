@@ -1357,6 +1357,17 @@ flagged exactly the nineteen known cases — each a single eighth — and nothin
 else. A check that finds nothing only means something once it has been seen to
 find what it is for.
 
+*(Leo, round 64, the general form.)* **A detector that says "nothing wrong"
+has to be shown catching something known to be wrong first, or it may simply
+catch nothing.** It is "a test must be able to fail" applied to the tools that
+check the tests. This project has been misled by the opposite more than once
+— a sample of three groups out of 14,135 that looked fine, an `it()` that
+stopped at its first failing assertion three times — and every one was a
+check trusted before it had been seen to fail. Round 64 did it again on
+purpose: the comparison that proved deleting the fallback changed nothing was
+first run against round 62's code, where it found exactly the nineteen
+switches it should.
+
 **Find the pattern with a sweep, then look in the code for why.** *(Leo, round
 60.)* What settled the window was not reading `fitWindow` but a sweep: package
 A in D's room, the left wall held, the back wall stepped a quarter inch at a
@@ -1489,7 +1500,8 @@ and a reason that were both wrong. The test that held the eighth
   to those packages' bare minimum instead: D to A gave 147" x 105", D to C 141"
   x 105", against this entry's own rule that choosing a package never shortens
   a room. With the eighth-inch step, D to A, B and C all keep D's room. The
-  fallback itself is next round's (Open items).
+  fallback itself was deleted in round 64 (Open items): nothing it did was
+  ever right.
 
 **The wall sliders are not switches.** Dragging one is asking for that length,
 and a length the room will not build at is refused on its own terms, as before.
@@ -2781,9 +2793,20 @@ Registered, not scheduled. None of these is a round of its own.
   growing. For the record, the first switch to B from A's default room does
   grow the back wall to 202-3/8″, and that toast is true; switching back to B
   from A or from C after that said nothing, because a room is never shrunk.
-- **The last fallback in `setActivePackage` shortens walls.** *(Found round 60.
-  Round 62 looked for a room that reaches it; round 63 fixed what it found.
-  **Leo, round 63: it is to be deleted in round 64, not rewritten.**)* Over
+- ~~**The last fallback in `setActivePackage` shortens walls.**~~ **Deleted in
+  round 64.** It was a plaster put on in the round that laid package D out
+  (2026-09-12), for a refusal on a 175-1/4" wall that "was not length at all".
+  **Every room it ever rescued was a precision fault** — the quarter-inch window
+  step (round 60) and the sink-to-window tolerance written twice (round 63) —
+  and once both were fixed it rescued none, while each rescue had shortened a
+  room against D18. **Proved by outcome, not by count:** 142,494 package
+  switches from 47,498 rooms were run through the real `setActivePackage`
+  before and after, recording built or refused and every parameter of the room
+  it ended in; the two records are identical byte for byte. The same
+  comparison run against round 62's code finds exactly the nineteen switches
+  that changed in round 63, so it can see a difference when there is one.
+  *(Found round 60. Round 62 looked for a room that reaches it; round 63 fixed
+  what it found. Leo, round 63: delete, do not rewrite.)* Over
   142,494 package switches from 47,498 rooms, it rescued nineteen, all of them
   the sink-to-window tolerance fault fixed in round 63; after that fix it
   rescues none, and every switch that reaches it is refused anyway. Its whole

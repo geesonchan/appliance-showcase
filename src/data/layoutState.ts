@@ -4,7 +4,6 @@ import {
   DEFAULT_PARAMS,
   PARAM_LIMITS,
   generateLayout,
-  wallRequirement,
   type LayoutParams,
   type Refusal,
 } from "./layoutTemplate";
@@ -300,22 +299,13 @@ export function setActivePackage(id: string): {
     }
   }
 
-  // A room shaped for another package can refuse this one for a reason that
-  // is not length at all: package D's left wall is long enough for
-  // package B's sink leg, and B's window will not sit evenly in it. Choosing a
-  // package is still choosing the kitchen, so it gets the room it asks for —
-  // both walls at what its own legs want — before the switch is given up.
-  const asksFor: Partial<LayoutParams> = {
-    backWallIn: wallRequirement(arranged, "back").wantedIn,
-    leftWallIn: wallRequirement(arranged, "left").wantedIn,
-  };
-  if (asksFor.backWallIn !== arranged.backWallIn || asksFor.leftWallIn !== arranged.leftWallIn) {
-    const sized = setLayoutParams({ ...arranged, ...asksFor });
-    if (sized.ok) {
-      return { ok: true, reasons: [], adjusted: { ...moved, ...asksFor }, ...grownFrom({ ...arranged, ...asksFor }) };
-    }
-  }
-
+  // Round 64: there used to be one more try here — both walls set to what the
+  // package's legs need at their bare minimum — added on 2026-09-12 for a
+  // refusal on a 175-1/4" wall that "was not length at all". Every room it ever
+  // rescued was a precision fault in the window checks (rounds 60 and 63), it
+  // rescued none once those were fixed, and what it did rescue it shortened,
+  // against D18's rule that choosing a package never shortens a room. A package
+  // that will not take the room on screen is refused, and the room stays.
   setPackage(previous);
   setLayoutParams(asked);
   return { ok: false, reasons: result.reasons };
