@@ -235,6 +235,14 @@ its word. How a machine installs comes from its manual, into `PUBLISHED_SPECS`;
 CIT367YG's `drop-in` is the first to arrive that way since PCG366W's `rangetop`
 (round 50). Not changed.
 
+*Round 67:* the "eight" above was a count typed in when this was written, and
+it has moved — CIT367YG left the bucket when it became `drop-in`. How many rows
+are a default `freestanding` today is a count to run, not a figure to keep: the
+rows of `data/appliances.json` whose `installType` is exactly
+`["freestanding"]`. The fix for any one of them, and why it is not a word
+added to Feature, is written where the importer is described:
+docs/data-sheet-spec.md, **Install form**.
+
 ## D5 · The kitchen is a rangetop, an island, and no wall oven
 
 **Decided:** 2026-09-05 (M2), from Leo's read of the catalogue.
@@ -1408,12 +1416,12 @@ judged, and both callers ask it.
 **Every place this shape has turned up so far** *(Leo, round 66; rounds as the
 repository has them)* — one rule, written more than once:
 
-| Found | The rule | Copies | Now |
-|---|---|---|---|
-| rounds 45-46 | does this model go in this slot | `suitsPackageSlot` (switching packages) and `offeredFor` + width (the list) | **still two**, recorded in D20 as deliberate for now |
-| round 62 | the sink within six inches of its window | `fitWindow` and `windowRefusals`, with different tolerances | one, `sinkFromWindow` (round 63) |
-| round 65 | makeup air above 400 CFM | the rule's condition, `thresholds.makeupAirCfm`, `needsMakeupAir()`, the importer's flag — only the first read | one, the rule's condition (round 65) |
-| round 65 | a gas pipe upsized above 65,000 BTU | the `gas-pipe-size` rule's condition and `thresholds.gasPipeUpsizeBTU` — only the first read | **still two**, in Open items |
+| Found | The rule | Copies | Now | When it bites |
+|---|---|---|---|---|
+| rounds 45-46 | does this model go in this slot | `suitsPackageSlot` (switching packages) and `offeredFor` + width (the list) | **still two**, recorded in D20 as deliberate for now | **the day a third judgement of the same question is written** — a new place that asks "can this model go here" and writes its own answer instead of calling one of these. Join the two then, rather than adding the third. |
+| round 62 | the sink within six inches of its window | `fitWindow` and `windowRefusals`, with different tolerances | one, `sinkFromWindow` (round 63) | — |
+| round 65 | makeup air above 400 CFM | the rule's condition, `thresholds.makeupAirCfm`, `needsMakeupAir()`, the importer's flag — only the first read | one, the rule's condition (round 65) | — |
+| round 65 | a gas pipe upsized above 65,000 BTU | the `gas-pipe-size` rule's condition and `thresholds.gasPipeUpsizeBTU` — only the first read | **still two**, in Open items | **the day somebody changes the figure** and edits `thresholds`, the copy that is named like the setting: nothing changes on screen, because the rule reads its own. |
 
 Round 60's quarter-inch window step is a near relative rather than a member:
 one rule, but its search and its judgement worked to different resolutions.

@@ -309,3 +309,23 @@ describe("CSV parsing", () => {
     expect(rows[0].Model).toBe('36" Column');
   });
 });
+
+/**
+ * The example summary in docs/data-sheet-spec.md is this fixture's real output.
+ *
+ * Round 67, Leo. The spec's example had been typed in by hand — "read 38 rows,
+ * exported 24, skipped 14" — and had drifted to a fixture that now reads 45,
+ * exports 34 and skips 11, with different buckets under both. A figure typed
+ * into a document goes stale the day its source moves, and nothing says so.
+ * So the block between the two markers is held to what `formatSummary` prints
+ * for the fixture: change the fixture or the summary's wording, and this fails
+ * with the text to paste in.
+ */
+describe("the documented import summary", () => {
+  it("is exactly what the fixture prints", () => {
+    const doc = readFileSync("docs/data-sheet-spec.md", "utf8").replace(/\r\n/g, "\n");
+    const block = /<!-- import-summary:fixture:start -->\n```\n([\s\S]*?)\n```\n<!-- import-summary:fixture:end -->/.exec(doc);
+    expect(block, "the markers round the example in docs/data-sheet-spec.md").not.toBeNull();
+    expect(block![1]).toBe(formatSummary(run().summary));
+  });
+});
