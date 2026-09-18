@@ -1322,6 +1322,21 @@ slide against an eighth-inch tolerance. Keep that order. A sweep over the input
 that shows a clean pattern names the kind of fault; the code then has one
 question to answer instead of many.
 
+**A large change that "should be expected" is proved, not explained.** *(Leo,
+round 61.)* Moving package D's default left wall an eighth of an inch changed
+6.8%, 5.4% and 9.4% of D's three shots. "The room shifted under a camera that
+frames it" was a good explanation — and this was the round whose lesson is that
+good explanations outlive the bugs under them. So it was proved instead: the
+new build, asked by URL for the old wall (`?left=178.875`), drew D against the
+live site at **0 pixels** in the overview and the install view. The whole
+difference was the wall, and nothing else had moved with it. **The method:
+put the one thing that was meant to change back to its old value, run the new
+code, and see whether the diff goes to zero.** If it does, the change is what
+was meant; if it does not, what is left over is the thing nobody meant. Use it
+whenever a diff is big and the reason for it sounds right. `?back=`, `?left=`,
+`?island=` and the rest of `readParams` in `room.ts` are there for exactly
+this.
+
 Two more things that look like a change and are not, both met in round 53:
 
 - **The mode toast.** "White model · Read cabinet volumes and rough openings"
@@ -2075,6 +2090,20 @@ acceptance are report two, next round.)*
     something unrelated produces the same effect — and, worse the other way
     round, passes when the part is missing and something else supplies the look
     of it.
+
+    **A test can guard the bug instead of stopping it.** *(Leo, round 61.)*
+    `autoGrow.test.ts` held package D's left wall growing from 178-3/4" to
+    178-7/8" when its columns went onto the back leg — `toBe(178.875)` — from
+    round 35. That growth was the window bug (D18, rounds 60 and 61). For
+    twenty-six rounds the test did not stop the bug; **it protected it**, and
+    the fix was the first thing to turn it red. **A test locks in the behaviour
+    of the day, not the right behaviour.** An expected value that came from
+    "that is what it ran as" rather than "that is what it has to be" becomes
+    the bug's bodyguard. So, when writing one: can the figure be given a
+    reason? If it can, write the reason next to it. If it cannot, say so in the
+    comment — **"source: measured, reason unknown"** — so that whoever turns it
+    red knows it was never a requirement. The same rule as a figure in this
+    file with no reason behind it (D17, round 61).
 
     **And the same assertion can give the opposite answer with a different
     input.** *(Leo, round 59.)* The round-59 smoke test "throws nothing going
