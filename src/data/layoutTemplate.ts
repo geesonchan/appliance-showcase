@@ -26,6 +26,7 @@ import {
   lowestSillIn,
   reservedFor,
   resolveWindow,
+  sinkFromWindow,
   slideWindow,
   wallFor,
   type ResolvedWindow,
@@ -2878,7 +2879,6 @@ function fitWindow(
 ): ResolvedWindow | null {
   const centre = (span: readonly [number, number]) => (span[0] + span[1]) / 2;
   const sink = leg.segments.find((segment) => segment.fixture === "fixture-sink");
-  const sinkAt = sink ? centre([sink.from, sink.to]) : null;
 
   // The middle of the stretch this window is in, which is where two equal
   // banks come from.
@@ -2917,10 +2917,7 @@ function fitWindow(
     // stretch's own arithmetic put it, and rounding it is what makes the two
     // banks either side come out a sixteenth different and the gaps uneven.
     const moved = Math.abs(offIn) < 1e-6 ? window : slideWindow(window, offIn);
-    if (sinkAt !== null) {
-      const off = Math.abs((centre(moved.along) - sinkAt) * 12);
-      if (off > WINDOW.sinkOffsetIn + 1e-6) continue;
-    }
+    if (sink && !sinkFromWindow(sink, moved).near) continue;
     if (evenBeside(moved, leg)) return moved;
   }
   return null;
@@ -3054,10 +3051,8 @@ function windowRefusals(
     if (!params.sinkUnderWindow) continue;
     const sink = leg.find((segment) => segment.fixture === "fixture-sink");
     if (!sink) continue;
-    const offIn = Math.abs(
-      ((sink.from + sink.to) / 2 - (window.along[0] + window.along[1]) / 2) * 12,
-    );
-    if (offIn > WINDOW.sinkOffsetIn) {
+    const { offIn, near } = sinkFromWindow(sink, window);
+    if (!near) {
       reasons.push({
         key: "refusal.sinkFromWindow",
         vars: {

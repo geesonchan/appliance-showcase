@@ -97,6 +97,27 @@ export const DEFAULT_WINDOW: WindowOpening = {
 const mid = (segment: RunSegment) => (segment.from + segment.to) / 2;
 
 /**
+ * How far a sink's middle stands from a window's, in inches, and whether that
+ * is near enough to call the sink under the window.
+ *
+ * One judgement, one implementation (round 63). It used to be written twice:
+ * where the window is placed (`fitWindow`, within six inches and a millionth)
+ * and where the room is judged (`windowRefusals`, within six inches exactly).
+ * An offset worked in feet and multiplied by twelve comes out 6.000...1 for a
+ * window placed at six inches, so the second refused what the first had just
+ * accepted — package B with a lazy susan, one left wall in every three inches.
+ * The same shape as the two slot filters of round 46 (D20): a rule checked in
+ * two places drifts apart in its tolerance, its step or its rounding.
+ */
+export function sinkFromWindow(
+  sink: { from: number; to: number },
+  window: { along: readonly [number, number] },
+): { offIn: number; near: boolean } {
+  const offIn = Math.abs(((sink.from + sink.to) / 2 - (window.along[0] + window.along[1]) / 2) * 12);
+  return { offIn, near: offIn <= WINDOW.sinkOffsetIn + 1e-6 };
+}
+
+/**
  * Which wall a window is in.
  *
  * Its own, unless it has no figure of its own — a window that is defined as

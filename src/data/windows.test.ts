@@ -237,6 +237,29 @@ describe("a window is a hole nothing hangs in front of", () => {
   });
 
   /**
+   * Round 63. How far the sink may stand from its window was checked in two
+   * places: where the window is placed (`fitWindow`, within six inches and a
+   * millionth) and where the room is judged (`windowRefusals`, within six
+   * inches exactly). A window placed at six inches, measured in feet times
+   * twelve, came out 6.000...1 and the second check refused what the first had
+   * just accepted. Package B with a lazy susan refused one left wall in every
+   * 3" — 155-7/8", 158-7/8" … 176-7/8" — and built every eighth either side of
+   * each.
+   */
+  it.each([158.875, 170.875, 176.875])("builds package B with a lazy susan on a %s\" left wall", (leftWallIn) => {
+    const base = activate("package-b");
+    const result = setLayoutParams({ ...base, cornerType: "lazy-susan", leftWallIn });
+    expect(result.reasons.map((reason) => reason.key)).toEqual([]);
+  });
+
+  it("builds package B with a lazy susan on the eighths either side of those walls, as it always did", () => {
+    const base = activate("package-b");
+    for (const leftWallIn of [158.75, 159, 170.75, 171]) {
+      expect(setLayoutParams({ ...base, cornerType: "lazy-susan", leftWallIn }).ok, `${leftWallIn}`).toBe(true);
+    }
+  });
+
+  /**
    * And nothing over the head of one either: the wall carries on to the top
    * line, and no bank is hung in the strip between the window and the ceiling.
    */

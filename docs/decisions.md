@@ -597,6 +597,13 @@ width are then built of the same boxes and finish the same way. Where no
 position within those six inches does it, the room is refused with the
 arithmetic and the way out is a narrower window.
 
+*Amended round 63: the six inches between the sink and its window are judged
+in one place,* `sinkFromWindow` in `windows.ts`, which placing the window and
+refusing the room both ask. They used to be two checks with two tolerances,
+and a window placed at six inches was refused for being over six: package B
+with a lazy susan at left walls of 155-7/8", 158-7/8" … 176-7/8", one in every
+three inches, and every eighth either side of each built (D17, round 63).
+
 *Amended 2026-09-17 (round 60): the window moves an eighth of an inch at a
 time, not a quarter.* The two gaps are held to within an eighth of each other,
 and a slide moves their difference by twice the step, so a quarter-inch step
@@ -1309,6 +1316,46 @@ have been "178-7/8" because 178-3/4" is refused and we do not know what makes
 the difference" — which is a question somebody would have pulled at, where a
 plausible sentence is one nobody ever reads again. **The explanation outlives
 the bug**: this one stood for twenty-six rounds and had a test holding it.
+
+**One rule checked in two places will drift apart — the third time in one
+fallback.** *(Leo, round 63.)* The same fallback in `setActivePackage`, three
+rounds, three precision faults:
+- **round 60**: `fitWindow` slid the window a quarter inch at a time against
+  an eighth-inch tolerance, and walls ending in 1/4 or 3/4 were refused;
+- **round 61**: package D's default left wall of 178-7/8" was that same fault
+  recorded as a design decision;
+- **round 63**: whether the sink stands within six inches of its window was
+  checked twice — `fitWindow` placed the window at six inches and a
+  millionth, `windowRefusals` judged the room at six inches exactly, and a
+  six worked in feet and multiplied by twelve came out 6.000...1. Package B
+  with a lazy susan refused one left wall in every three inches, and the
+  fallback turned those refusals into rooms cut to 214-3/8" x 120".
+
+**The third is the same shape as rounds 45-46**, where switching packages and
+the alternatives list judged "does this model go in this slot" with two pieces
+of code that disagreed (D20). That time the rule was written down — the next
+change joins them rather than adding a third — and it was met again anyway,
+in a different part of the code. **The general form: a rule checked in two
+places sooner or later disagrees with itself — in its tolerance, its step, or
+its rounding — and the disagreement shows up as a refusal nobody can explain.**
+So the fix is never to make the two copies agree for now (an `1e-6` added to
+the one that lacked it would have done that); it is to have one copy.
+`sinkFromWindow` in `windows.ts` is now the only place the six inches are
+judged, and both callers ask it.
+
+**A whole population is checked by a script, not sampled by eye.** *(Leo,
+round 63.)* Round 62 looked at a sample of the 14,135 package switches that are
+refused and saw real geometry. After three precision faults in the same code a
+sample is not enough, so every one of them was classified automatically: from
+each refused switch, the room is stepped an eighth at a time along each wall,
+and the refused run it sits in is measured. A run that ends within an inch
+both ways, on either wall, is an isolated refusal — the signature of a
+precision fault; a longer one is a real limit. **All 14,135 are continuous.**
+And the detector was checked before it was believed: run on the code before
+the fix, with the fallback taken out so that its rescues show as refusals, it
+flagged exactly the nineteen known cases — each a single eighth — and nothing
+else. A check that finds nothing only means something once it has been seen to
+find what it is for.
 
 **Find the pattern with a sweep, then look in the code for why.** *(Leo, round
 60.)* What settled the window was not reading `fitWindow` but a sweep: package
@@ -2734,8 +2781,15 @@ Registered, not scheduled. None of these is a round of its own.
   growing. For the record, the first switch to B from A's default room does
   grow the back wall to 202-3/8″, and that toast is true; switching back to B
   from A or from C after that said nothing, because a room is never shrunk.
-- **The last fallback in `setActivePackage` shortens walls.** *(Found round 60;
-  Leo: next round.)* When a package refuses a room for a reason that is not
+- **The last fallback in `setActivePackage` shortens walls.** *(Found round 60.
+  Round 62 looked for a room that reaches it; round 63 fixed what it found.
+  **Leo, round 63: it is to be deleted in round 64, not rewritten.**)* Over
+  142,494 package switches from 47,498 rooms, it rescued nineteen, all of them
+  the sink-to-window tolerance fault fixed in round 63; after that fix it
+  rescues none, and every switch that reaches it is refused anyway. Its whole
+  record of success is two precision faults (rounds 60 and 63). The deletion is
+  to be proved by running the same switches again and finding every outcome
+  unchanged. What follows is the entry as it stood: When a package refuses a room for a reason that is not
   length, it sets both walls to what the package's legs need at their bare
   minimum — A's 147" x 105" from D's 224-1/4" x 178-7/8" — ignoring the room on
   screen, resetting a wall that had nothing wrong with it, and never checking

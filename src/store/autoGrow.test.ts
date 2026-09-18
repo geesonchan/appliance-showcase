@@ -303,6 +303,23 @@ describe("a package's own room", () => {
     expect(store().toast?.vars).toMatchObject({ backIn: 202.4, leftIn: 144 });
   });
 
+  /**
+   * Round 63. The same refusal, met on a switch: A's room with a lazy susan and
+   * a 158-7/8" left wall, chosen as B, was refused at that wall for the sink
+   * standing "6" from the window, 6" allowed", and the last fallback in
+   * `setActivePackage` then sized the room to B's bare minimum — the left wall
+   * from 158-7/8" to 120".
+   */
+  it("keeps the left wall when choosing B from a lazy-susan room at 158-7/8\"", () => {
+    openPackage("package-a");
+    store().setLayout({ cornerType: "lazy-susan", leftWallIn: 158.875 });
+    expect(store().layoutIssues).toEqual([]);
+    store().dismissToast();
+    store().setPackageId("package-b");
+    expect(store().packageId).toBe("package-b");
+    expect(store().layoutParams.leftWallIn).toBe(158.875);
+  });
+
   it("offers Undo when choosing a package grew the room, and puts back the package and the room", () => {
     const room = openPackage("package-a");
     const selection = store().selection;
