@@ -96,24 +96,53 @@ describe("§3.5.4 rules", () => {
   });
 
   /**
-   * Round 65, Leo. The line is printed on the quote, the install checklist and
-   * the hood's spec card, in every package. It used to say "California Title
-   * 24 requires makeup air": a code nobody had checked and a certainty no
-   * source gives. The two hood guides in docs/reference/ (HMIB42WS,
-   * VCIN36GWS) say local codes *may* require it above a figure that varies from
-   * place to place, for the owner and installer to confirm. The line says that,
-   * and names no code until one has been checked.
+   * Rounds 65 and 66, Leo. The line is printed on the quote, the install
+   * checklist and the hood's spec card, in every package. It used to say
+   * "California Title 24 requires makeup air": the wrong code for the figure
+   * and a certainty nothing supports. Checked by Leo in round 66 (secondary
+   * sources, not the code's own text — D6): the 400 CFM is the California
+   * Mechanical Code's §505; Title 24 has a separate floor-area requirement; and
+   * whether any of it applies depends on the home's combustion appliances and
+   * floor area, which this app does not know. So the line is a reminder, never
+   * a verdict. One test per language and per point, so each can be seen red on
+   * its own.
    */
-  it("makeup-air: says codes may require it, as the hood guides do", () => {
-    expect(en["rule.makeupAir"]).toMatch(/may require/);
-    expect(zh["rule.makeupAir"]).toMatch(/可能要求/);
-  });
+  const MAKEUP_AIR = {
+    en: {
+      hedged: /Codes may require makeup air/,
+      cmc: /California Mechanical Code §505(?![.\d])/,
+      contacts: /HVAC contractor and local building department/,
+      unverified: /all-electric|electric homes? (are|is) exempt/i,
+    },
+    zh: {
+      hedged: /规范可能要求/,
+      cmc: /加州机械规范（CMC）第 505 节(?![.\d])/,
+      contacts: /暖通承包商及当地建筑部门/,
+      unverified: /全电/,
+    },
+  } as const;
+  const LINES = { en: en["rule.makeupAir"], zh: zh["rule.makeupAir"] };
 
-  it("makeup-air: names no code, and does not say it is required", () => {
-    for (const text of [en["rule.makeupAir"], zh["rule.makeupAir"]]) {
-      expect(text).not.toMatch(/Title 24|IRC|CMC|M1503|requires/);
-    }
-  });
+  for (const lang of ["en", "zh"] as const) {
+    it(`makeup-air, ${lang}: says codes may require it, never that they do`, () => {
+      expect(LINES[lang]).toMatch(MAKEUP_AIR[lang].hedged);
+    });
+
+    it(`makeup-air, ${lang}: gives the 400 CFM to CMC §505, with no subsection`, () => {
+      expect(LINES[lang]).toMatch(MAKEUP_AIR[lang].cmc);
+    });
+
+    it(`makeup-air, ${lang}: sends the customer to the HVAC contractor and the building department`, () => {
+      expect(LINES[lang]).toMatch(MAKEUP_AIR[lang].contacts);
+    });
+
+    // Unverified in round 66: whether California keeps the IRC/IMC exemption
+    // for an all-electric home. Until it is read in the code, the line says
+    // "depends on the combustion appliances" and nothing more.
+    it(`makeup-air, ${lang}: does not say an all-electric home is exempt`, () => {
+      expect(LINES[lang]).not.toMatch(MAKEUP_AIR[lang].unverified);
+    });
+  }
 
   it("integrated-lead-time: an integrated fridge, but not a built-in one", () => {
     expect(fire("slot-fridge", FIXTURES.fridgeIntegrated)).toContain("integrated-lead-time");

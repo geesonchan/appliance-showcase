@@ -295,36 +295,66 @@ that has a CFM. So:
 not an installable specification.
 
 **Makeup air: what the line may say, and where each part of it comes from.**
-*(Amended round 65, Leo.)* A package whose blower moves 400 CFM or more gets
-one line on the install checklist, the hood's spec card and the quote — in all
-four packages as they open (A, B and D at 1,000 CFM, C at 600). Until round 65
-it read "California Title 24 requires makeup air" / "加州 Title 24 要求补风系统".
-Taken apart, by source:
-- **"A high-CFM hood may need makeup air": sourced.** Both hood guides in
-  `docs/reference/` — `HMIB42WS_Installation.pdf` and `vcin36gws-manual.pdf` —
-  say local building codes may require makeup air above a specified CFM, that
-  the figure varies from place to place, and that the owner and installer
-  determine what applies. VCIN36GWS also offers a relay for a makeup-air
-  damper. Neither gives a figure or names a code.
-- **The 400 CFM threshold: no source.** Written when the project was
-  scaffolded (2026-09-05); the original brief says only "≥400 CFM → 加州需
-  makeup air 系统". Kept, as the only figure there is, until Leo has checked
-  California's own.
-- **"California Title 24": no source**, written at the same time, and never in
-  this file. Title 24 is California's building code as a whole, and which part
-  of it — if any — sets this is exactly what has not been checked.
-- **"requires": stronger than any source.** The guides say *may* require.
+*(Amended rounds 65 and 66, Leo.)* A package whose blower moves 400 CFM or
+more gets one line on the install checklist, the hood's spec card and the
+quote — in all four packages as they open (A, B and D at 1,000 CFM, C at 600).
+From the project's first day to round 64 it read "California Title 24 requires
+makeup air". Since round 66:
 
-So the line now says what the guides say — "local building codes may require
-makeup air at this airflow. The limit varies from place to place; to be
-confirmed by the owner and the installer" / "当地建筑规范可能要求加装补风系统。
-门槛因地而异，由业主和安装方确认" — and names no code. A code goes back in when it
-has been read. **The threshold lives in one place**, the `makeup-air` rule's
-condition in `data/rules.json` (D7: a merchant's figure, changed without a
-release). Three other copies were deleted in round 65, none of which anything
-read: `thresholds.makeupAirCfm`, `needsMakeupAir()` in `ventilation.ts` (called
-only by a test), and the importer's `makeupAirRequired` flag with its own
-`>= 400` (the sheet's column of that name is no longer read).
+> {cfm} CFM. Codes may require makeup air at this airflow. California
+> Mechanical Code §505 calls for makeup air above 400 CFM; Title 24 may also
+> apply based on floor area. Whether it is required depends on the home's
+> combustion appliances and floor area — confirm with your HVAC contractor and
+> local building department.
+
+> {cfm} CFM。此风量下规范可能要求配置补风系统。加州机械规范（CMC）第 505 节规定
+> 400 CFM 以上需补风；Title 24 另有按房屋面积计算的要求。是否必须，取决于住宅内的
+> 燃烧设备类型和面积，请与暖通承包商及当地建筑部门确认。
+
+**Where each part comes from.**
+- **That a high-CFM hood may need makeup air**: both hood guides in
+  `docs/reference/`, `HMIB42WS_Installation.pdf` and `vcin36gws-manual.pdf` —
+  local codes may require it above a figure that varies from place to place,
+  for the owner and installer to determine. VCIN36GWS offers a relay for a
+  makeup-air damper. Neither gives a figure or names a code.
+- **400 CFM: the California Mechanical Code (CMC), section 505**, whose source
+  is the same provision in the IRC and the IMC. **Written as "§505" and no
+  further**: secondary sources give it as 505.1 or as 505.2 (the second is the
+  IMC's numbering), and the CMC's own text has not been read.
+- **Title 24 is two different things, and the old line ran them together.**
+  Part 6, §150.0(o), governs the exhaust itself — at least 100 CFM, at most 3
+  sones, HVI-certified, ducted outside — not makeup air. Separately, Title 24
+  has a makeup-air requirement worked from floor area: the two largest exhaust
+  fans together above 15 CFM per 100 square feet.
+- **How it was checked**: by Leo in round 66, from public secondary sources,
+  not the codes' own text. San Francisco's amendments have not been checked;
+  "confirm with … local building department" in the line is what covers that.
+- The round-65 version, "local building codes may require…", said only what
+  the guides say. It was right in direction and is replaced because Leo's
+  check gives the code and the figure.
+
+**It is a reminder, not a verdict — and must stay one.** *(Leo, round 66.)*
+Whether makeup air is required is not something this app can decide. The 400
+CFM rule bites only where the house has a naturally drafted fuel-burning
+appliance; a house whose combustion appliances are all direct-vent or power-
+vented is outside it, and the 15 CFM per 100 square feet rule likewise applies
+only where a naturally drafted appliance is inside the house's pressure
+boundary. Deciding it needs the water heater, the furnace, the fireplace and
+the floor area — and this app knows only the hood's CFM. So the line says
+"may", names the codes, and sends the customer to the people who can see the
+house. **Do not try to make this rule answer "required" or "not required".**
+- A counter-intuitive point, recorded because it is easy to get backwards: the
+  floor-area rule is far stricter than 400 CFM. A 2,000 sq ft house allows the
+  two largest fans 300 CFM together, and the hoods this app shows are mostly
+  1,000 CFM. "Makeup air above 400" can be the lenient reading in a house with
+  gas appliances, not the strict one.
+
+**The threshold lives in one place**, the `makeup-air` rule's condition in
+`data/rules.json` (D7: a merchant's figure, changed without a release). Three
+other copies were deleted in round 65, none of which anything read:
+`thresholds.makeupAirCfm`, `needsMakeupAir()` in `ventilation.ts` (called only
+by a test), and the importer's `makeupAirRequired` flag with its own `>= 400`
+(the sheet's column of that name is no longer read).
 
 ---
 
@@ -1374,6 +1404,21 @@ So the fix is never to make the two copies agree for now (an `1e-6` added to
 the one that lacked it would have done that); it is to have one copy.
 `sinkFromWindow` in `windows.ts` is now the only place the six inches are
 judged, and both callers ask it.
+
+**Every place this shape has turned up so far** *(Leo, round 66; rounds as the
+repository has them)* — one rule, written more than once:
+
+| Found | The rule | Copies | Now |
+|---|---|---|---|
+| rounds 45-46 | does this model go in this slot | `suitsPackageSlot` (switching packages) and `offeredFor` + width (the list) | **still two**, recorded in D20 as deliberate for now |
+| round 62 | the sink within six inches of its window | `fitWindow` and `windowRefusals`, with different tolerances | one, `sinkFromWindow` (round 63) |
+| round 65 | makeup air above 400 CFM | the rule's condition, `thresholds.makeupAirCfm`, `needsMakeupAir()`, the importer's flag — only the first read | one, the rule's condition (round 65) |
+| round 65 | a gas pipe upsized above 65,000 BTU | the `gas-pipe-size` rule's condition and `thresholds.gasPipeUpsizeBTU` — only the first read | **still two**, in Open items |
+
+Round 60's quarter-inch window step is a near relative rather than a member:
+one rule, but its search and its judgement worked to different resolutions.
+Two of the four are still open. The table is here so that the next one found
+is added to it rather than rediscovered.
 
 **A whole population is checked by a script, not sampled by eye.** *(Leo,
 round 63.)* Round 62 looked at a sample of the 14,135 package switches that are
@@ -2871,11 +2916,10 @@ Registered, not scheduled. None of these is a round of its own.
     round first builds a room that really does reach the fallback, confirms
     what the new code does in it, and only then changes it. If no such room
     can be built, it says so, and this stays recorded and unchanged.
-- **Makeup air: the code and the figure are Leo's to check.** *(Round 65.)*
-  The line names no code and says "may" (D6, round 65); the 400 CFM threshold
-  stays as the only figure there is. Once California's requirement has been
-  read, the threshold goes into the `makeup-air` rule — the one place it is
-  decided — and the code goes back into the line with where it was read.
+- ~~**Makeup air: the code and the figure are Leo's to check.**~~ **Checked by
+  Leo in round 66** and written into D6: CMC §505 for the 400 CFM, Title 24's
+  floor-area requirement beside it, from secondary sources. The threshold did
+  not move. *(Round 65.)*
 - **The gas pipe threshold is written twice, the same way makeup air was.**
   *(Found round 65, not changed.)* The `gas-pipe-size` rule's own condition
   holds 65,000 BTU, and `thresholds.gasPipeUpsizeBTU` holds it again, read by

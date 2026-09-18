@@ -129,7 +129,7 @@
   "rule.gasLineMissing": "此槽位无燃气；{btu} BTU 需新增燃气管",
   "rule.gasPipeSize": "合计 {btu} BTU，管路需 {pipe}",
   "rule.blowerMissing": "此油烟机不含风机，须另行选配",
-  "rule.makeupAir": "{cfm} CFM：当地建筑规范可能要求加装补风系统。门槛因地而异，由业主和安装方确认",
+  "rule.makeupAir": "{cfm} CFM。此风量下规范可能要求配置补风系统。加州机械规范（CMC）第 505 节规定 400 CFM 以上需补风；Title 24 另有按房屋面积计算的要求。是否必须，取决于住宅内的燃烧设备类型和面积，请与暖通承包商及当地建筑部门确认。",
   "rule.ductSize": "{cfm} CFM，排气管需 {duct}\"",
   "rule.integratedPanels": "全嵌入式：橱柜需预留门板与铰链空间",
   "rule.otrConflict": "灶上型微波炉占用了油烟机的位置",
