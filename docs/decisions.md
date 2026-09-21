@@ -1725,6 +1725,30 @@ written into geometry instead of read from `ROOM`.
     and the list may not both be silent**: either the brackets are drawn, or the
     line is on the install list. Drawing nothing and listing nothing is the one
     combination that misleads.
+  - **Built in round 68: concealed steel plate, and a line on the list.**
+    *(Leo: the support is concealed steel plate — his site practice.)*
+    - **The list says it.** Any island top reaching more than 10" past its
+      cabinets on the seating side gets a warning on the install checklist
+      and the quote: stone is commonly taken to carry about 10"-12"
+      unsupported, so this top needs concealed steel support plates — a line
+      on the quote. It is filed under a machine that stands in the island (the
+      cooktop in E), never the hood hung over it, because a line has to name a
+      slot the room has (round 55). `overhang.ts`, `useChecklist.ts`.
+    - **The finished room shows nothing, because nothing shows.** Concealed
+      plate is under the stone; drawing it in the finished room would be
+      drawing something a customer will never see. The install view draws
+      the part of the top that needs carrying — the whole length of the top,
+      from the cabinets' seating face out to the edge, on the stone's underside
+      — dashed grey, D21's reviewed-but-not-a-drawing tier. **The plates
+      themselves are not drawn**: how many, how wide and how far under the
+      cabinets they run has no source here, and a part drawn to invented
+      figures is the trim ring of round 58 again.
+    - **Sources, kept apart.** 10"-12" for 3cm quartz: secondary trade
+      experience (this entry), not a fabricator's figure; the lower end is
+      taken, so 10"-12" itself asks, since at those figures the answer is the
+      question. Concealed plate: Leo's site practice. The countertop finish is
+      not read — an oak top gets the same line — because the finish is a
+      picture on this app, not a structural choice.
 - **The island hood's height is worked out, never a constant.** The underside
   is at max(the cooking surface plus the manual's minimum clearance, 66") off
   the floor. The HMIB42WS manual gives 30" over the cooking surface for gas and
@@ -2510,7 +2534,13 @@ acceptance are report two, next round.)*
     induction hob. Nothing ships with them: no package has an island cooktop, so
     A to D take the range branch unchanged, which the zero-pixel diff shows.
   - The hood's callout still hangs at the island counter, 5' under the hood, as
-    §"package E" already records.
+    §"package E" already records. *Fixed in round 68*: the island's anchor —
+    0.7' over the counter, which keeps a machine set in the island readable
+    from both sides — is for machines in the island. A hood hung over it
+    takes the top corners of its own canopy like any wall machine
+    (`pinAnchor.ts`, through `applianceBox` and `toPlan`), and `applianceBox`
+    already has the canopy at 2-3/4" rather than the catalogue's 30"
+    (round 55).
 
 **Round 55, the first of four before package E is configured.** Three things
 that had to be fixed before E could even be looked at without a patch, all three

@@ -22,7 +22,12 @@ import type { Appliance, SlotId } from "../types";
 export function pinAnchors(slotId: SlotId, appliance: Appliance | undefined): THREE.Vector3[] {
   const slot = SLOT_BY_ID[slotId];
 
-  if (slot.mount === "island") {
+  // A hood hung over the island is not in it. Round 68: it took the island's
+  // anchor — the counter, 0.7' up — and its label hung five feet under the
+  // canopy. It takes the corners of its own canopy like any other machine, and
+  // `applianceBox` already knows a hung canopy is 2-3/4" deep, not the 30"
+  // the catalogue lists (round 55).
+  if (slot.mount === "island" && slotId !== "slot-hood") {
     return [new THREE.Vector3(slot.position[0], ROOM.counterHeight + 0.7, slot.position[2])];
   }
 

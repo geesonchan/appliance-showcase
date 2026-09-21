@@ -12,6 +12,7 @@ import { KitchenShell } from "./KitchenShell";
 import { Lights } from "./Lights";
 import { ModuleLabelProjector } from "./ModuleLabelProjector";
 import { OcclusionFade } from "./OcclusionFade";
+import { OverhangSupport } from "./OverhangSupport";
 import { PinProjector } from "./PinProjector";
 import { QualityGuard } from "./QualityGuard";
 import { RoughInLayer } from "./RoughInLayer";
@@ -114,6 +115,7 @@ export function Scene() {
           <UtilityLayer type="water" />
           <UtilityLayer type="duct" />
           <RoughInLayer />
+          <OverhangSupport />
           <OcclusionFade />
           {/* Order matters: the dimension figures are placed first and the
               pins avoid wherever they landed. */}

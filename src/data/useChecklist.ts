@@ -20,6 +20,7 @@ import { CHIMNEY, chimneyParts, isChimney } from "./hood";
 import { ISLAND, LAYOUT_LIMITS, LAYOUT_PARAMS, OMITTED_SLOTS, RUNS } from "./room";
 import { formatDimension } from "./dimensions";
 import { OVEN_GRILLE, towerVents } from "./towerVent";
+import { overhangSupportZone } from "./overhang";
 import type { Appliance, SlotId } from "../types";
 
 export interface Checklist {
@@ -111,6 +112,37 @@ function installParts(selection: Record<SlotId, Appliance>): Finding[] {
     ...steamOven(selection),
     ...towerVent(selection),
     ...coffeeCabinet(selection),
+    ...overhangSupport(),
+  ];
+}
+
+/**
+ * A seating overhang the stone will not carry on its own. D20, round 68.
+ *
+ * In the finished room it looks like any breakfast bar, which is the problem:
+ * the support is concealed steel plate under the top, so the picture says
+ * nothing, and this line is what stops the quote saying nothing too.
+ *
+ * Filed under a machine that stands in the island — the cooktop, in package
+ * E — because a line has to name a slot the room has (round 55). Not the hood:
+ * it hangs over the island, it is not in it. An island with no machine in it
+ * files it under the cooking surface, which every package has.
+ */
+function overhangSupport(): Finding[] {
+  const zone = overhangSupportZone(ISLAND);
+  if (!zone) return [];
+  const inIsland = SLOT_ORDER.find(
+    (slot) => slot !== "slot-hood" && SLOT_BY_ID[slot].mount === "island" && !OMITTED_SLOTS.includes(slot),
+  );
+  const slot = inIsland ?? SLOT_ORDER.find((s) => s === "slot-cooktop" || s === "slot-range")!;
+  return [
+    {
+      ruleId: "overhang-support",
+      severity: "warning",
+      messageKey: "rule.overhangSupport",
+      slot,
+      params: { overhang: formatDimension(zone.overhangIn) },
+    },
   ];
 }
 
