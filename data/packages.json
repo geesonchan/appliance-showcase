@@ -2,7 +2,7 @@
   "_meta": {
     "generatedBy": "seed data, hand written",
     "updatedAt": "2026-09-08",
-    "provenance": "Package A is the six slots the app has always had, written down. Package C is Leo's round-16 note: 30\" freestanding range, 30\" chimney hood, 36\" freestanding counter-depth refrigerator standing at the end of a run, 24\" dishwasher, microwave drawer and wine cabinet. Package B is registered so its id and its place in the tier order are fixed; its slots are Leo's to write. The defaultSelection for C is picked from the catalogue by category, width and install type and is a stand-in until Leo supplies the models — every one of them is a real record in data/appliances.json, none is invented. Package B is Leo's round-20 note: a 36\" gas rangetop under a custom hood cabinet with a VCIN36GWS insert liner in it, and three tall units in one run — the built-in refrigerator outermost, an 18\" wine column beside it and a 30\" combination oven inside them. Its microwave slot carries a wall oven and its wine slot a column, so neither migrates to or from A and C's drawer and cooler; the island, if there is one, is a prep island with no appliance in it."
+    "provenance": "Package A is the six slots the app has always had, written down. Package C is Leo's round-16 note: 30\" freestanding range, 30\" chimney hood, 36\" freestanding counter-depth refrigerator standing at the end of a run, 24\" dishwasher, microwave drawer and wine cabinet. Package B is registered so its id and its place in the tier order are fixed; its slots are Leo's to write. The defaultSelection for C is picked from the catalogue by category, width and install type and is a stand-in until Leo supplies the models — every one of them is a real record in data/appliances.json, none is invented. Package B is Leo's round-20 note: a 36\" gas rangetop under a custom hood cabinet with a VCIN36GWS insert liner in it, and three tall units in one run — the built-in refrigerator outermost, an 18\" wine column beside it and a 30\" combination oven inside them. Its microwave slot carries a wall oven and its wine slot a column, so neither migrates to or from A and C's drawer and cooler; the island, if there is one, is a prep island with no appliance in it. Package E is D20's island-cooking kitchen, configured in round 69: an 18\" freezer and a 30\" refrigerator column (freezer on the left), a 30\" combination oven and the coffee cabinet each standing on their own on the back leg, a 24\" dishwasher by the sink, and a 36\" induction cooktop in a 72\" x 24\" island with a 15\" seating overhang, under a 42\" island hood hung at 72\". Its default room is 180\" x 168\": 180\" so the corner can be a lazy susan without the back wall growing (D18's slack), 168\" as D20 set it, which a coffee cabinet moved to the left leg grows to 176-1/8\" (Leo, round 69)."
   },
   "packages": [
     {
@@ -408,6 +408,143 @@
         "slot-freezer",
         "slot-fridge",
         "slot-wine"
+      ]
+    },
+    {
+      "id": "package-e",
+      "name": {
+        "en": "Package E",
+        "zh": "套餐 E"
+      },
+      "code": "E",
+      "tier": 5,
+      "available": true,
+      "slots": [
+        {
+          "slotId": "slot-freezer",
+          "category": "freezer",
+          "widthIn": 18,
+          "heightIn": 84,
+          "depthIn": 25,
+          "installType": "column",
+          "tallUnit": true,
+          "enclosure": true,
+          "panelReady": false
+        },
+        {
+          "slotId": "slot-fridge",
+          "category": "refrigerator",
+          "widthIn": 30,
+          "heightIn": 84,
+          "depthIn": 25,
+          "installType": "column",
+          "tallUnit": true,
+          "enclosure": true,
+          "panelReady": false
+        },
+        {
+          "slotId": "slot-microwave",
+          "category": "wall-oven",
+          "widthIn": 30,
+          "heightIn": 48.5,
+          "installType": "combo",
+          "tallUnit": true,
+          "beside": "run",
+          "enclosure": true,
+          "panelReady": false,
+          "bestView": {
+            "azimuth": 45,
+            "pitch": 26
+          },
+          "utilities": {
+            "gas": null,
+            "power": {
+              "voltage": 240,
+              "amps": 50,
+              "dedicated": true
+            },
+            "duct": null
+          }
+        },
+        {
+          "slotId": "slot-coffee",
+          "category": "coffee",
+          "widthIn": 24,
+          "heightIn": 17.75,
+          "installType": "built-in",
+          "tallUnit": true,
+          "beside": "run",
+          "sillIn": 42,
+          "enclosure": false,
+          "panelReady": false
+        },
+        {
+          "slotId": "slot-dishwasher",
+          "category": "dishwasher",
+          "widthIn": 24,
+          "installType": "freestanding",
+          "tallUnit": false,
+          "enclosure": false
+        },
+        {
+          "slotId": "slot-cooktop",
+          "category": "cooktop",
+          "widthIn": 36,
+          "installType": "drop-in",
+          "tallUnit": false,
+          "enclosure": false,
+          "utilities": {
+            "gas": null,
+            "power": {
+              "voltage": 240,
+              "amps": 50,
+              "dedicated": true
+            },
+            "duct": null
+          }
+        },
+        {
+          "slotId": "slot-hood",
+          "category": "hood",
+          "widthIn": 42,
+          "installType": "island",
+          "builtForCooktopIn": 36,
+          "tallUnit": false,
+          "enclosure": false,
+          "utilities": {
+            "gas": null,
+            "power": null,
+            "duct": {
+              "diameterIn": 8,
+              "route": "through-ceiling"
+            }
+          }
+        }
+      ],
+      "defaultSelection": {
+        "slot-freezer": "thermador-t18if900sp",
+        "slot-fridge": "thermador-t30ir905sp",
+        "slot-microwave": "thermador-mem301ws",
+        "slot-coffee": "thermador-tcm24ps",
+        "slot-dishwasher": "bosch-shv78cm3n",
+        "slot-cooktop": "thermador-cit367yg",
+        "slot-hood": "thermador-hmib42ws"
+      },
+      "defaultBlower": null,
+      "defaultLayout": {
+        "sinkLeg": "back",
+        "fridgeEnd": "left",
+        "coffeeLeg": "back",
+        "backWallIn": 180,
+        "leftWallIn": 168,
+        "islandLengthIn": 72,
+        "islandDepthIn": 24,
+        "islandOverhangIn": 15,
+        "aisleIn": 48
+      },
+      "columnOrder": [
+        "slot-freezer",
+        "slot-fridge"
       ]
     }
   ]

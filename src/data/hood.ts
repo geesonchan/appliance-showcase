@@ -210,6 +210,13 @@ export const ISLAND_HOOD = {
    */
   undersideIn: 72,
   usableIn: [66, 76] as const,
+  /**
+   * The underside at least this far over the cooking surface, for gas and for
+   * electric or induction alike: HMIB42WS's guide, page 9 (D20). The guide
+   * gives no maximum, so the drawing quotes none — the 30"-40" beside a wall
+   * canopy is that canopy's drawing, not this one's.
+   */
+  aboveCookingSurfaceMinIn: 30,
 };
 
 export interface IslandHoodParts {

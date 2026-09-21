@@ -73,10 +73,19 @@ export function fitCheck(slot: Slot, appliance: Appliance): FitResult {
     // machine built into cabinetry and a fact about one that is not. A rangetop
     // is *meant* to stand 1-1/2" out: that is where its controls are, and it is
     // on the install list as a clearance rather than here as an overrun.
+    //
+    // Nor is there anything to stand proud of under a hood hung over an
+    // island: no wall, no cabinet face, no enclosure to fur out. Round 69 —
+    // package E's checklist said "3\" deeper than the opening" under one.
     depthOverIn:
-      depth === null || dropsIntoCounter(appliance) ? null : depth - protrusionDatumIn(slot),
+      depth === null || dropsIntoCounter(appliance) || hungOverAnIsland(slot)
+        ? null
+        : depth - protrusionDatumIn(slot),
   };
 }
+
+/** A hood hung from the ceiling over an island: nothing round it to measure against. */
+const hungOverAnIsland = (slot: Slot) => slot.id === "slot-hood" && slot.mount === "island";
 
 /**
  * How far a machine's face stands from the wall behind it, in inches.

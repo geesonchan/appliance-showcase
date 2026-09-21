@@ -18,7 +18,7 @@ import {
   isSteamOven,
 } from "./columnModel";
 import { CHIMNEY, chimneyParts, isChimney } from "./hood";
-import { ISLAND, LAYOUT_LIMITS, LAYOUT_PARAMS, OMITTED_SLOTS, RUNS } from "./room";
+import { ISLAND, LAYOUT_LIMITS, LAYOUT_PARAMS, OMITTED_SLOTS, ROOM, RUNS } from "./room";
 import { formatDimension } from "./dimensions";
 import { OVEN_GRILLE, towerVents } from "./towerVent";
 import { overhangSupportZone } from "./overhang";
@@ -117,6 +117,7 @@ function installParts(selection: Record<SlotId, Appliance>, counter: CounterFini
     ...towerVent(selection),
     ...coffeeCabinet(selection),
     ...overhangSupport(counter),
+    ...islandHoodCoverKit(selection),
   ];
 }
 
@@ -137,6 +138,33 @@ function installParts(selection: Record<SlotId, Appliance>, counter: CounterFini
  * judgement and nothing more — 15" wants carrying — because nothing here says
  * what wood carries, and a customer who picked oak should not read "stone".
  */
+/**
+ * CHXTHMIB, the telescopic duct cover for HMIB42WS, as a line to confirm. D20.
+ *
+ * Decided in round 37 and not built until round 69. The drawing puts a 72"
+ * underside under this ceiling inside the standard covers' 30"-45-1/16"; the
+ * guide's text says the standard covers fill an 8' ceiling and CHXTHMIB
+ * reaches 9'-12', and the ceiling here is half an inch over 9'. The two do not
+ * agree, so the kit goes on the quote marked to confirm with Thermador. The
+ * importer skips anything named a kit (D4), so this line is a rule's.
+ */
+function islandHoodCoverKit(selection: Record<SlotId, Appliance>): Finding[] {
+  const hood = selection["slot-hood"];
+  if (SLOT_BY_ID["slot-hood"]?.mount !== "island" || hood?.model !== "HMIB42WS") return [];
+  // The guide's own figures, pages 12 and 18: the supplied covers for an 8'
+  // ceiling, CHXTHMIB for 9'-12'. Only past 8' is there anything to ask.
+  if (ROOM.wallHeight <= 8 + 1e-9) return [];
+  return [
+    {
+      ruleId: "island-hood-cover-kit",
+      severity: "warning",
+      messageKey: "rule.islandHoodCoverKit",
+      slot: "slot-hood",
+      params: { ceiling: formatDimension(ROOM.wallHeight * 12) },
+    },
+  ];
+}
+
 function overhangSupport(counter: CounterFinish): Finding[] {
   const zone = overhangSupportZone(ISLAND);
   if (!zone) return [];

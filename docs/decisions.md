@@ -507,9 +507,22 @@ each one has a test with a case that breaks it.
    further and you are carrying dripping plates across the floor.
 6. **The refrigerator has at least 15" of counter on its door side**, to land
    what you just took out.
-7. **The island's two openings face opposite ways**: the microwave drawer to the
-   working side, the wine cabinet to the seating side (already D5), with a 42"
-   aisle to the perimeter run.
+7. **An island stands clear of the run and of the room, and its openings face
+   the people who use them.** *(Rewritten round 69 for package E; the first
+   form was about the microwave drawer and the wine cabinet alone.)* Three
+   checks, each failing under its own code:
+   - **`d11-7-aisle`** — the aisle between the island and the perimeter run,
+     counter edge to counter edge (D20): 42", and 48" in front of a cooktop.
+   - **`d11-7-seating`** — behind a seating overhang, 44" to the end of the
+     room. An island with no overhang has nobody sitting at it and passes.
+   - **`d11-7-facing`** — where the island carries both a microwave drawer and
+     a wine cabinet, they face opposite ways: the drawer to the working side,
+     the wine cabinet to the seating side (already D5). An island without both
+     has nothing to face and passes.
+
+   Until round 69 all three failed as `d11-7`, which said "rule 7" and not
+   which check; on package E, whose island has neither machine, only the two
+   aisles apply, and both hold.
 8. **The corner is continuous.** A lazy susan is a 36" square that belongs to
    both legs: the other leg starts exactly where its square stops, with no gap
    and no overlap, and the wall corner cabinet does the same at its own 24".
@@ -528,7 +541,7 @@ each one has a test with a case that breaks it.
    the hoses and cord fed through the adjacent cabinet without saying that
    cabinet is the sink base. The rule does not change; its source does, and the
    dishwasher's points are drawn dashed accordingly (D21). The checker's code
-   calls this rule `d11-8`.
+   called this rule `d11-8` until round 69; it is `d11-9`, as numbered here.
 
 10. **The sink has counter on both sides and stands clear of the corner.** One
     side is at least 24" and the other at least 18"; the dishwasher counts as
@@ -1611,6 +1624,13 @@ and a reason that were both wrong. The test that held the eighth
   fallback itself was deleted in round 64 (Open items): nothing it did was
   ever right.
 
+**Package E has one switch without slack, by name.** *(Leo, round 69.)* Its
+room is 180" x 168"; moving its coffee cabinet to the left leg asks 176-1/8"
+and grows the wall, rather than every E room opening eight inches deeper for one
+rare switch (D20, round 69). And E refuses a room with no island whatever the
+walls — its cooktop is in the island — which is a refusal by design, not for
+want of wall. `autoGrow.test.ts` names both, with the reasons.
+
 **The wall sliders are not switches.** Dragging one is asking for that length,
 and a length the room will not build at is refused on its own terms, as before.
 
@@ -1898,7 +1918,48 @@ written into geometry instead of read from `ROOM`.
 - **Rule 7 does nothing on E, and has to be rewritten.** It says which way the
   island faces from its microwave drawer and wine cabinet, and E's island has
   neither. *(Leo says this was registered in round 36; this file had no entry
-  for it until round 48.)* Not rewritten yet.
+  for it until round 48.)* *Rewritten in round 69 (D11 rule 7).* Measured
+  first, it did nothing wrong on E — the facing check skips an island without
+  both machines, and both aisles hold at E's figures — so the rewrite is its
+  text and its codes. What *did* fail on E was **rule 4**, below.
+- **Package E, configured in round 69.** In `data/packages.json`, with D20's
+  figures: an 18" freezer and a 30" refrigerator column, freezer on the left,
+  as one 50-1/8" bank; a 30" combination oven and the coffee cabinet each
+  standing on its own on the back leg; a 24" dishwasher by the sink; a 36"
+  induction cooktop in a 72" x 24" island with a 15" seating overhang and a 48"
+  aisle; a 42" island hood hung at 72".
+  - **Its room: 180" x 168".** *(Leo, round 69.)* D18 asks a package's own room
+    to take every single switch without growing; D20 set E's room 168" deep.
+    The two disagree on two switches: a lazy susan asks 180" of back wall, and
+    the coffee cabinet moved to the left leg — taking the combination oven with
+    it, since both towers stand on one leg (round 55) — asks 176-1/8" of left
+    wall. The back wall is 180", so the corner switch has its slack; the left
+    wall stays at D20's 168", and that one switch grows it, with its toast and
+    its Undo. `autoGrow.test.ts` names it, with this reason.
+  - **No separate blower.** HMIB42WS carries its own (integrated, 600 CFM).
+    Every hand-built E before this — five, in five test files — had carried
+    package D's VTN2FZ along from the package it was copied from, which would
+    have put a blower E does not take on its quote. There is one E now, in the
+    data, and the tests take it from there (D17: one rule, one copy).
+  - **The 18" freezer column is the package's slot width.** Its door is drawn
+    from the 18" wine column's panel drawing, which is closer than D's 24" but
+    is still an inference (the T18IF900SP panel drawing is not in
+    `docs/reference/`).
+  - **Rule 4 held a hood over an island to a range.** Its island branch looked
+    for `slot-range` standing on the island — an early prototype's shape — and
+    otherwise failed "no range on any run". So E failed rule 4 outright, and its
+    hood was never checked for centring. It now asks the island's cooktop, where
+    there is no range on a run: the same order the template hangs a hood in.
+    Round 48's four centring cases, which stood the cooktop in `slot-range`
+    because `slot-cooktop` did not exist yet, were moved onto a room that cooks
+    in the island (`islandRule4.test.ts`).
+  - **CHXTHMIB, decided in round 37 and built in round 69.** The conditional
+    line this entry has carried since round 37 was not in the code. It is now:
+    a line under the hood, to confirm with Thermador, wherever HMIB42WS hangs
+    under a ceiling over 8'.
+  - **Not done, and not needed to go live** *(Leo)*: HMIB42WS's and CIT367YG's
+    rough-in points. Without them the install view draws the island's services
+    in the not-yet-reviewed tier, which is the true state.
 - **`slot-cooktop`, built in round 49.** *(Scope from Leo, round 48.)* No
   package has one yet; it was looked at by putting CIT367YG in place of package
   D's island microwave drawer in a prototype that was then removed.
@@ -2290,6 +2351,16 @@ acceptance are report two, next round.)*
     round, passes when the part is missing and something else supplies the look
     of it.
 
+    *Round 69, twice.* A test that a hood slid 6" along E's island fails as
+    `d11-4` passed on the old code — because the old code failed every E room
+    as `d11-4`, "no range on any run", and the check under test was never
+    reached. Asked by its message, "off centre along the island", it went red.
+    And a test that two island openings facing the same way fail as
+    `d11-7-facing` went red on the old code for a different reason than the
+    code's name: the old check returned nothing at all, because it read the
+    room's own slots and ignored the ones it was given. A red run is worth
+    reading for *why* it is red.
+
     **A test can guard the bug instead of stopping it.** *(Leo, round 61.)*
     `autoGrow.test.ts` held package D's left wall growing from 178-3/4" to
     178-7/8" when its columns went onto the back leg — `toBe(178.875)` — from
@@ -2551,6 +2622,15 @@ acceptance are report two, next round.)*
     and the note beside it still quotes the gas minimum (30"-40") at an
     induction hob. Nothing ships with them: no package has an island cooktop, so
     A to D take the range branch unchanged, which the zero-pixel diff shows.
+    *Fixed in round 69, before E went live* (Leo: a customer would see a gas
+    figure over an induction hob at once). The chain chose its cooking surface
+    by `SLOT_BY_ID["slot-range"] ?? ...`, and `SLOT_BY_ID` holds every slot
+    whether the package has it or not, so E's cooktop was measured against a
+    range that was not in the room. It now takes a range on a run first and the
+    island's cooktop otherwise; the glass reads 36-1/4" and the clearance
+    35-3/4"; and the note is the island hood's own — 30" minimum, gas or
+    induction, HMIB42WS's guide page 9 — with no maximum, because the guide
+    gives none.
   - The hood's callout still hangs at the island counter, 5' under the hood, as
     §"package E" already records. *Fixed in round 68*: the island's anchor —
     0.7' over the counter, which keeps a machine set in the island readable
@@ -2766,7 +2846,8 @@ Registered, not scheduled. None of these is a round of its own.
   history before round 38 — when the suite started asserting that all 25
   tests ran — is not proof they passed. Read the exit code from vitest itself.
   *(Noted 2026-09-13, round 39, Leo.)*
-- **D11 rule 9 is `d11-8` in the code.** The rule that a dishwasher's power,
+- ~~**D11 rule 9 is `d11-8` in the code.**~~ **Renumbered in round 69**, with
+  rule 7's rewrite, as this item asked. The rule that a dishwasher's power,
   water and drain land in the sink base is number 9 in this file and fails as
   `d11-8` in `layoutRules.ts`, where the comment calls it rule 8. The numbering
   here is the authority; the code has not been renumbered, so a finding shown
@@ -2813,7 +2894,8 @@ Registered, not scheduled. None of these is a round of its own.
   the duct outlet, the damper above it, and this outline — and all three were
   27-1/4" out. `hoodBodyHeightFt` answers it once. *(Noted 2026-09-14, round 47;
   closed 2026-09-16, round 55.)*
-- **Two rule numbers do not say which rule failed.** Rule 7's facing check and
+- ~~**Two rule numbers do not say which rule failed.**~~ **Done in round 69**:
+  `d11-7-facing`, `d11-7-aisle`, `d11-7-seating`, `d11-9` (D11 rule 7). Rule 7's facing check and
   both aisle checks all fail as `d11-7`, and rule 9 fails as `d11-8` (above).
   Sort both out when rule 7 is rewritten for E, when it may become four checks.
   *(Noted 2026-09-14, round 48, Leo: not a round of its own.)*
@@ -3001,3 +3083,12 @@ Registered, not scheduled. None of these is a round of its own.
   filtered run in round 59 still ended with "N of 27 smoke tests actually ran"
   and exit code 1 however its tests went — most likely because the file runs in
   a vitest worker whose `argv` does not carry the flag, which was not checked. A fault in a guard of our own; a full run is unaffected.
+- **Every rough-in sentence is English in Chinese.** *(Found round 69, in E's
+  Chinese screenshots; not changed.)* `roughInSentence` (`roughIn.ts`) writes
+  where a connection is and how far along — "in the base cabinet beside the
+  tower — open its door to see it", "3" from the left side, at the top" — as
+  English strings, and the install checklist, the rough-in list and the
+  callouts all pass them straight into Chinese lines. Not E's: every package's
+  Chinese install view has done it since the rough-in points were drawn, and
+  it is on the live site now. It wants i18n keys for the locations and the
+  measurement phrases, and a test that no Chinese line carries them in English.

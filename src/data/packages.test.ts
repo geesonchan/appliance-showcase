@@ -66,7 +66,11 @@ describe("the packages on offer", () => {
         // 29-7/8": the nominal is the opening, the published figure is the
         // machine, and the difference is the filler. More than an inch of it
         // is a different cabinet, not a scribe.
-        expect(chosen.widthIn, `${entry.id}: ${slotId} default is too wide`).toBeLessThanOrEqual(
+        // A cooktop drops into the stone and its glass laps over it: CIT367YG's
+        // glass is 37" and its hole 34-3/4" (D4, a drop-in's cutout is the hole
+        // in the counter). What has to fit the 36" slot is the hole. Round 69.
+        const measured = chosen.category === "cooktop" ? (chosen.cutoutWidthIn ?? chosen.widthIn) : chosen.widthIn;
+        expect(measured, `${entry.id}: ${slotId} default is too wide`).toBeLessThanOrEqual(
           slot.widthIn,
         );
         // An insert liner is the exception, and it is not a filler question:

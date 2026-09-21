@@ -1870,7 +1870,7 @@ function requirementFor(
     if (clearance > minimumIn) {
       items.push({
         widthIn: clearance - minimumIn,
-        rule: "d11-7",
+        rule: "d11-7-aisle",
         labelKey: "requirement.islandClearance",
       });
       minimumIn = clearance;

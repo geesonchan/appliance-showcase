@@ -22,7 +22,27 @@ import { useAppStore } from "./useAppStore";
 const store = () => useAppStore.getState();
 const WALLS = ["backWallIn", "leftWallIn"] as const;
 const LEG = { backWallIn: "back", leftWallIn: "left" } as const;
-const PACKAGES = ["package-a", "package-b", "package-c", "package-d"];
+const PACKAGES = ["package-a", "package-b", "package-c", "package-d", "package-e"];
+
+/**
+ * The one single switch a package's own room is allowed not to have slack
+ * for, and why. Round 69, Leo: package E opens at 180" x 168" — 180" so the
+ * corner can go to a lazy susan without growing, 168" as D20 set the room.
+ * Moving its coffee cabinet to the left leg takes the combination oven with it
+ * (both towers stand on one leg, round 55) onto the leg with the column bank,
+ * and that asks 176-1/8"; the wall grows, with its toast and its Undo, rather
+ * than every E room opening eight inches deeper for one rare switch.
+ */
+const GROWS_FROM_OWN_ROOM: Record<string, string[]> = { "package-e": ["coffeeLeg"] };
+
+/**
+ * Switches a package refuses whatever the walls, with the one reason it gives.
+ * Package E cooks in the island, so it has no room without one (D20,
+ * `refusal.cooktopIsland`): growing a wall is not the answer to that.
+ */
+const REFUSED_BY_DESIGN: Record<string, Record<string, string>> = {
+  "package-e": { hasIsland: "refusal.cooktopIsland" },
+};
 const flip = <T,>(value: T, a: T, b: T) => (value === a ? b : a);
 
 /** Every discrete switch in the layout panel, flipped from where the room is. */
@@ -82,11 +102,18 @@ describe("a switch that needs more wall", () => {
         const where = `${id} ${name}`;
         const wants = asked(room, patch);
         store().setLayout(patch);
-        if (extreme(wants)) {
+        const byDesign = REFUSED_BY_DESIGN[id]?.[name];
+        if (byDesign) {
+          expect(store().layoutIssues.map((r) => r.key), where).toEqual([byDesign]);
+        } else if (extreme(wants)) {
           // Refused, with the reason it always gave, and the room left standing.
           expect(store().layoutIssues.map((r) => r.key), where).toContain("refusal.wallShort");
           expect(store().toast?.key, where).not.toBe("toast.wallGrew");
           refused.push(where);
+        } else if (GROWS_FROM_OWN_ROOM[id]?.includes(name)) {
+          // Allowed to grow, and it must: built, with the growth announced.
+          expect(store().layoutIssues, where).toEqual([]);
+          expect(store().toast?.key, where).toBe("toast.wallGrew");
         } else {
           expect(store().layoutIssues, where).toEqual([]);
           // The package's room already has the slack this switch needs.
@@ -123,6 +150,12 @@ describe("a switch that needs more wall", () => {
         store().dismissToast();
         store().setLayout(patch);
 
+        const byDesign = REFUSED_BY_DESIGN[id]?.[name];
+        if (byDesign) {
+          expect(store().layoutIssues.map((r) => r.key), where).toEqual([byDesign]);
+          store().setLayout(tight);
+          continue;
+        }
         if (extreme(wants)) {
           expect(store().layoutIssues.map((r) => r.key), where).toContain("refusal.wallShort");
           store().setLayout(tight);

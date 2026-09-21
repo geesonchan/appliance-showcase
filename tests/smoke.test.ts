@@ -886,7 +886,7 @@ describe("pin labels and the scene controls", () => {
       [MOBILE, true],
     ] as const) {
       const { page, errors } = await openPage(viewport, isMobile);
-      for (const code of ["A", "B", "C", "D"]) {
+      for (const code of ["A", "B", "C", "D", "E"]) {
         await page.locator(`[data-segment="package"] button`, { hasText: code }).first().click();
         await page.waitForTimeout(2200);
         const where = `package ${code} at ${viewport.width}px`;
@@ -1071,7 +1071,7 @@ describe("side rails", () => {
       } else {
         await page.click(`button[data-rail="left"]`);
       }
-      for (const code of ["A", "B", "C", "D"]) {
+      for (const code of ["A", "B", "C", "D", "E"]) {
         await page.locator(`[data-segment="package"] button`, { hasText: code }).first().click();
         await page.waitForTimeout(1500);
         const where = `package ${code} at ${viewport.width}px`;

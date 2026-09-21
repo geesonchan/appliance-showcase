@@ -1,12 +1,11 @@
 import { describe, expect, it } from "vitest";
-import appliancesFile from "../../data/appliances.json";
 import { DEFAULT_PARAMS, generateLayout, type LayoutParams } from "./layoutTemplate";
 import { PACKAGE_BY_ID } from "./packages";
 import { toLocal } from "./frame";
-import type { Appliance, Package } from "../types";
+import type { Package } from "../types";
 
 /**
- * Package E's two runs, before package E exists. Round 56.
+ * Package E's two runs. Round 56, before package E existed; on E itself since round 69.
  *
  * Two things the configuration will rely on and that nothing else pins down:
  * which way round a bank of columns stands, and where two towers that both
@@ -15,50 +14,16 @@ import type { Appliance, Package } from "../types";
  * without a wine column after them, or two free-standing towers.
  */
 
-const CATALOGUE = (appliancesFile as unknown as { appliances: Appliance[] }).appliances;
-const byModel = (model: string) => CATALOGUE.find((entry) => entry.model === model)!;
 
 function packageE(columnOrder: string[]): Package {
-  const a = PACKAGE_BY_ID["package-a"];
-  const d = PACKAGE_BY_ID["package-d"];
-  const b = PACKAGE_BY_ID["package-b"];
-  const take = (pkg: Package, slotId: string) => pkg.slots.find((s) => s.slotId === slotId)!;
-  const hood = take(a, "slot-hood");
+  // Package E itself since round 69, with the column order the case asks for.
+  // It was built here by hand out of A, B and D until E was configured; one
+  // copy of E now, in data/packages.json (D17).
   return {
-    ...d,
+    ...PACKAGE_BY_ID["package-e"],
     id: "test-island-cooking-runs",
     columnOrder: columnOrder as Package["columnOrder"],
-    slots: [
-      { ...take(d, "slot-freezer"), widthIn: 18 },
-      take(d, "slot-fridge"),
-      { ...take(b, "slot-microwave"), beside: "run" },
-      { ...take(d, "slot-coffee"), standsOver: null },
-      take(a, "slot-dishwasher"),
-      {
-        ...hood,
-        slotId: "slot-cooktop",
-        category: "cooktop",
-        widthIn: 36,
-        installType: "drop-in",
-        builtForCooktopIn: null,
-        heightIn: null,
-        depthIn: null,
-        utilities: { gas: null, power: { voltage: 240, amps: 50, dedicated: true }, duct: null },
-      },
-      // Ducted as HMIB42WS's guide shows; an island hood may not be declared
-      // up through a cabinet or out through a wall (round 58).
-      { ...hood, widthIn: 42, installType: "island", builtForCooktopIn: 36, utilities: { gas: null, power: null, duct: { diameterIn: 8, route: "through-ceiling" } } },
-    ],
-    defaultSelection: {
-      "slot-freezer": byModel("T18IF900SP").id,
-      "slot-fridge": byModel("T30IR905SP").id,
-      "slot-microwave": byModel("MEM301WS").id,
-      "slot-coffee": byModel("TCM24PS").id,
-      "slot-dishwasher": byModel("SHV78CM3N").id,
-      "slot-cooktop": byModel("CIT367YG").id,
-      "slot-hood": byModel("HMIB42WS").id,
-    },
-  } as Package;
+  };
 }
 
 /**

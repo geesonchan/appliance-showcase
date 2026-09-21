@@ -1,5 +1,4 @@
 import { afterAll, describe, expect, it } from "vitest";
-import appliancesFile from "../../data/appliances.json";
 import packagesFile from "../../data/packages.json";
 import { setActivePackage, setLayoutParams } from "./layoutState";
 import { resetRoom } from "./testRoom";
@@ -7,7 +6,7 @@ import { DEFAULT_PARAMS } from "./layoutTemplate";
 import { DEFAULT_PACKAGE, PACKAGES, PACKAGE_BY_ID } from "./packages";
 import { ISLAND, REQUESTED_PARAMS } from "./room";
 import { packagesFileSchema, parseDataFile } from "./schema";
-import type { Appliance, Package } from "../types";
+import type { Package } from "../types";
 
 /**
  * A package can say what its island is, as well as where its walls are.
@@ -25,64 +24,14 @@ import type { Appliance, Package } from "../types";
  * E's aisle into a kitchen that has neither.
  */
 
-const CATALOGUE = (appliancesFile as unknown as { appliances: Appliance[] }).appliances;
-const byModel = (model: string) => CATALOGUE.find((entry) => entry.model === model)!;
 const E_ID = "test-default-layout-island";
 
 /** Package E's shape, with its island figures in its own default room. */
 function packageE(): Package {
-  const a = PACKAGE_BY_ID["package-a"];
-  const d = PACKAGE_BY_ID["package-d"];
-  const b = PACKAGE_BY_ID["package-b"];
-  const take = (pkg: Package, slotId: string) => pkg.slots.find((s) => s.slotId === slotId)!;
-  const hood = take(a, "slot-hood");
-  return {
-    ...d,
-    id: E_ID,
-    columnOrder: ["slot-freezer", "slot-fridge"],
-    defaultLayout: {
-      sinkLeg: "back",
-      fridgeEnd: "left",
-      coffeeLeg: "back",
-      backWallIn: 240,
-      leftWallIn: 168,
-      islandLengthIn: 72,
-      // D20: "for E that is a 24\" cabinet and 40\" of counter".
-      islandDepthIn: 24,
-      islandOverhangIn: 15,
-      aisleIn: 48,
-    },
-    slots: [
-      { ...take(d, "slot-freezer"), widthIn: 18 },
-      take(d, "slot-fridge"),
-      { ...take(b, "slot-microwave"), beside: "run" },
-      { ...take(d, "slot-coffee"), standsOver: null },
-      take(a, "slot-dishwasher"),
-      {
-        ...hood,
-        slotId: "slot-cooktop",
-        category: "cooktop",
-        widthIn: 36,
-        installType: "drop-in",
-        builtForCooktopIn: null,
-        heightIn: null,
-        depthIn: null,
-        utilities: { gas: null, power: { voltage: 240, amps: 50, dedicated: true }, duct: null },
-      },
-      // Ducted as HMIB42WS's guide shows; an island hood may not be declared
-      // up through a cabinet or out through a wall (round 58).
-      { ...hood, widthIn: 42, installType: "island", builtForCooktopIn: 36, utilities: { gas: null, power: null, duct: { diameterIn: 8, route: "through-ceiling" } } },
-    ],
-    defaultSelection: {
-      "slot-freezer": byModel("T18IF900SP").id,
-      "slot-fridge": byModel("T30IR905SP").id,
-      "slot-microwave": byModel("MEM301WS").id,
-      "slot-coffee": byModel("TCM24PS").id,
-      "slot-dishwasher": byModel("SHV78CM3N").id,
-      "slot-cooktop": byModel("CIT367YG").id,
-      "slot-hood": byModel("HMIB42WS").id,
-    },
-  } as Package;
+  // Package E itself since round 69 — one copy of E, in data/packages.json
+  // (D17) — in the 240" room these cases were written in.
+  const e = PACKAGE_BY_ID["package-e"];
+  return { ...e, id: E_ID, defaultLayout: { ...e.defaultLayout, backWallIn: 240 } };
 }
 
 afterAll(() => {
@@ -113,13 +62,24 @@ describe("the data file can say what a package's island is", () => {
 
   it("leaves every package that ships without one", () => {
     // A to D say nothing about their islands, so choosing one of them cannot
-    // have changed: the new fields are absent, not defaulted.
-    for (const pkg of PACKAGES) {
+    // have changed: the new fields are absent, not defaulted. E names its own
+    // (round 69), below.
+    for (const pkg of PACKAGES.filter((entry) => entry.id !== "package-e")) {
       const layout = pkg.defaultLayout as Record<string, unknown>;
       for (const key of ["islandLengthIn", "islandDepthIn", "islandOverhangIn", "aisleIn"]) {
         expect(layout[key], `${pkg.id}.${key}`).toBeUndefined();
       }
     }
+  });
+
+  it("gives package E the island D20 settled: 72 by 24, a 15-inch overhang, a 48-inch aisle", () => {
+    const layout = PACKAGES.find((entry) => entry.id === "package-e")!.defaultLayout;
+    expect({
+      length: layout.islandLengthIn,
+      depth: layout.islandDepthIn,
+      overhang: layout.islandOverhangIn,
+      aisle: layout.aisleIn,
+    }).toEqual({ length: 72, depth: 24, overhang: 15, aisle: 48 });
   });
 });
 

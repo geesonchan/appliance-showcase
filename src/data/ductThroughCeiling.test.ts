@@ -35,60 +35,19 @@ const E_ID = "test-duct-through-ceiling";
 
 /** Package E's shape, its island hood ducted the way its guide shows. */
 function packageE(route: string): Package {
-  const a = PACKAGE_BY_ID["package-a"];
-  const d = PACKAGE_BY_ID["package-d"];
-  const b = PACKAGE_BY_ID["package-b"];
-  const take = (pkg: Package, slotId: string) => pkg.slots.find((s) => s.slotId === slotId)!;
-  const hood = take(a, "slot-hood");
+  // Package E itself since round 69 — one copy of E, in data/packages.json
+  // (D17) — in the 240" room these cases were written in.
+  // The route is the case's: the hood slot declares it.
+  const e = PACKAGE_BY_ID["package-e"];
   return {
-    ...d,
+    ...e,
     id: E_ID,
-    columnOrder: ["slot-freezer", "slot-fridge"],
-    defaultLayout: {
-      sinkLeg: "back",
-      fridgeEnd: "left",
-      coffeeLeg: "back",
-      backWallIn: 240,
-      leftWallIn: 168,
-      islandLengthIn: 72,
-      islandDepthIn: 24,
-      islandOverhangIn: 15,
-      aisleIn: 48,
-    },
-    slots: [
-      { ...take(d, "slot-freezer"), widthIn: 18 },
-      take(d, "slot-fridge"),
-      { ...take(b, "slot-microwave"), beside: "run" },
-      { ...take(d, "slot-coffee"), standsOver: null },
-      take(a, "slot-dishwasher"),
-      {
-        ...hood,
-        slotId: "slot-cooktop",
-        category: "cooktop",
-        widthIn: 36,
-        installType: "drop-in",
-        builtForCooktopIn: null,
-        heightIn: null,
-        depthIn: null,
-        utilities: { gas: null, power: { voltage: 240, amps: 50, dedicated: true }, duct: null },
-      },
-      {
-        ...hood,
-        widthIn: 42,
-        installType: "island",
-        builtForCooktopIn: 36,
-        utilities: { gas: null, power: null, duct: { diameterIn: 8, route } },
-      },
-    ],
-    defaultSelection: {
-      "slot-freezer": byModel("T18IF900SP").id,
-      "slot-fridge": byModel("T30IR905SP").id,
-      "slot-microwave": byModel("MEM301WS").id,
-      "slot-coffee": byModel("TCM24PS").id,
-      "slot-dishwasher": byModel("SHV78CM3N").id,
-      "slot-cooktop": byModel("CIT367YG").id,
-      "slot-hood": byModel("HMIB42WS").id,
-    },
+    defaultLayout: { ...e.defaultLayout, backWallIn: 240 },
+    slots: e.slots.map((slot) =>
+      slot.slotId === "slot-hood"
+        ? { ...slot, utilities: { gas: null, power: null, duct: { diameterIn: 8, route } } }
+        : slot,
+    ),
   } as Package;
 }
 

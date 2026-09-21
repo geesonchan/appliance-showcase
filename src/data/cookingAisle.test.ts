@@ -1,12 +1,11 @@
 import { afterAll, describe, expect, it } from "vitest";
-import appliancesFile from "../../data/appliances.json";
 import { setActivePackage, setLayoutParams } from "./layoutState";
 import { resetRoom } from "./testRoom";
 import { checkLayout } from "./layoutRules";
 import { DEFAULT_PARAMS, generateLayout, type IslandLayout, type LayoutParams } from "./layoutTemplate";
 import { PACKAGE_BY_ID } from "./packages";
 import { ISLAND, LAYOUT_LIMITS, RUNS } from "./room";
-import type { Appliance, Package } from "../types";
+import type { Package } from "../types";
 
 /**
  * The aisle in front of a cooktop is 48 inches. Round 56, from D20.
@@ -26,65 +25,13 @@ import type { Appliance, Package } from "../types";
  * — would not have either.
  */
 
-const CATALOGUE = (appliancesFile as unknown as { appliances: Appliance[] }).appliances;
-const byModel = (model: string) => CATALOGUE.find((entry) => entry.model === model)!;
 const E_ID = "test-cooking-aisle";
 
 function packageE(): Package {
-  const a = PACKAGE_BY_ID["package-a"];
-  const d = PACKAGE_BY_ID["package-d"];
-  const b = PACKAGE_BY_ID["package-b"];
-  const take = (pkg: Package, slotId: string) => pkg.slots.find((s) => s.slotId === slotId)!;
-  const hood = take(a, "slot-hood");
-  return {
-    ...d,
-    id: E_ID,
-    columnOrder: ["slot-freezer", "slot-fridge"],
-    // With its own aisle: without it, choosing the package applies the
-    // ordinary 42" and is refused by the very rule this file is about.
-    defaultLayout: {
-      sinkLeg: "back",
-      fridgeEnd: "left",
-      coffeeLeg: "back",
-      backWallIn: 240,
-      leftWallIn: 168,
-      islandLengthIn: 72,
-      // D20: "for E that is a 24\" cabinet and 40\" of counter".
-      islandDepthIn: 24,
-      islandOverhangIn: 15,
-      aisleIn: 48,
-    },
-    slots: [
-      { ...take(d, "slot-freezer"), widthIn: 18 },
-      take(d, "slot-fridge"),
-      { ...take(b, "slot-microwave"), beside: "run" },
-      { ...take(d, "slot-coffee"), standsOver: null },
-      take(a, "slot-dishwasher"),
-      {
-        ...hood,
-        slotId: "slot-cooktop",
-        category: "cooktop",
-        widthIn: 36,
-        installType: "drop-in",
-        builtForCooktopIn: null,
-        heightIn: null,
-        depthIn: null,
-        utilities: { gas: null, power: { voltage: 240, amps: 50, dedicated: true }, duct: null },
-      },
-      // Ducted as HMIB42WS's guide shows; an island hood may not be declared
-      // up through a cabinet or out through a wall (round 58).
-      { ...hood, widthIn: 42, installType: "island", builtForCooktopIn: 36, utilities: { gas: null, power: null, duct: { diameterIn: 8, route: "through-ceiling" } } },
-    ],
-    defaultSelection: {
-      "slot-freezer": byModel("T18IF900SP").id,
-      "slot-fridge": byModel("T30IR905SP").id,
-      "slot-microwave": byModel("MEM301WS").id,
-      "slot-coffee": byModel("TCM24PS").id,
-      "slot-dishwasher": byModel("SHV78CM3N").id,
-      "slot-cooktop": byModel("CIT367YG").id,
-      "slot-hood": byModel("HMIB42WS").id,
-    },
-  } as Package;
+  // Package E itself since round 69 — one copy of E, in data/packages.json
+  // (D17) — in the 240" room these cases were written in.
+  const e = PACKAGE_BY_ID["package-e"];
+  return { ...e, id: E_ID, defaultLayout: { ...e.defaultLayout, backWallIn: 240 } };
 }
 
 /**
@@ -158,7 +105,7 @@ function nudged(island: IslandLayout, towardRunIn: number): IslandLayout {
 
 const aisleFailures = () =>
   checkLayout(RUNS, undefined, nudged(ISLAND, 3)).filter(
-    (problem) => problem.code === "d11-7" && problem.message.includes("aisle"),
+    (problem) => problem.code === "d11-7-aisle",
   );
 
 describe("the rule checks the aisle of every island, not only one carrying the two machines", () => {

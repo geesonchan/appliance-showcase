@@ -351,10 +351,39 @@ export function checkLayout(
 
   // D11 rule 4: the range sits on a straight run with landing on both sides,
   // and the hood over it is at least as wide.
+  //
+  // Round 69: the cooking surface is a range on a run or a cooktop in the
+  // island (TEMPLATE_NEEDS asks for one of the two). The check used to look
+  // only for `slot-range`, failing "no range on any run" for package E, and it
+  // held an island hood to `slot-range` standing on the island — an early
+  // prototype's shape — so E's hood was never checked at all.
   const range = locate(runs, "slot-range");
-  if (!range) {
-    fail("d11-4", "no range on any run");
-  } else {
+  const cooktop = slots["slot-cooktop"]?.mount === "island" ? slots["slot-cooktop"] : null;
+  if (!range && !cooktop) {
+    fail("d11-4", "no cooking surface: no range on a run and no cooktop in the island");
+  }
+  // The hood hangs over the island's cooktop only where there is no range on a
+  // run: the template hangs it over a range first (`placements`), so a room
+  // with both — a range on the wall and a cooktop in the island — has its hood
+  // on the wall, and is held to the range below.
+  if (cooktop && !range) {
+    const cooktopW = cooktop.cutout.w;
+    const hoodW = slots["slot-hood"].cutout.w;
+    if (hoodW < cooktopW) fail("d13-hood-width", `hood is ${hoodW}" over a ${cooktopW}" cooktop`);
+    // Hung straight over it (D20): centred along the island and across it,
+    // which of x and z is which following the way the island is turned.
+    const hood = slots["slot-hood"].position;
+    for (const [axis, where] of [
+      [axisIndex(island.axis), "along"],
+      [axisIndex(otherAxis(island.axis)), "across"],
+    ] as const) {
+      const off = Math.abs(hood[axis] - cooktop.position[axis]);
+      if (off > 1e-6) {
+        fail("d11-4", `hood is ${inches(off).toFixed(2)}" off centre ${where} the island`);
+      }
+    }
+  }
+  if (range) {
     // A cooking surface wants landing on both sides and they are not equal:
     // one wide, one narrow. Which side is which is the generator's business —
     // the check is that the pair is there, so it takes the better of the two
@@ -422,27 +451,11 @@ export function checkLayout(
     const hoodW = slots["slot-hood"].cutout.w;
     if (hoodW < rangeW) fail("d13-hood-width", `hood is ${hoodW}" over a ${rangeW}" range`);
     // And centred on it. Against a wall that is along the run, which is x: the
-    // range is only ever on the back leg. Over an island the hood hangs from the
-    // ceiling straight over the cooktop (D20), so it is centred along the island
-    // and across it, and which of x and z is which follows the way the island is
-    // turned. Comparing x alone let a hood slid along an island turned across
-    // the room pass (round 48).
-    const cooktop = slots["slot-range"].position;
-    const hood = slots["slot-hood"].position;
-    if (slots["slot-range"].mount !== "island") {
-      if (Math.abs(hood[0] - cooktop[0]) > 1e-6) {
-        fail("d11-4", "hood is not centred over the range");
-      }
-    } else {
-      for (const [axis, where] of [
-        [axisIndex(island.axis), "along"],
-        [axisIndex(otherAxis(island.axis)), "across"],
-      ] as const) {
-        const off = Math.abs(hood[axis] - cooktop[axis]);
-        if (off > 1e-6) {
-          fail("d11-4", `hood is ${inches(off).toFixed(2)}" off centre ${where} the island`);
-        }
-      }
+    // range is only ever on the back leg. (A hood over an island is checked
+    // against the island's cooktop, above; round 48 found the x-only compare
+    // letting a hood slid along an island turned across the room pass.)
+    if (Math.abs(slots["slot-hood"].position[0] - slots["slot-range"].position[0]) > 1e-6) {
+      fail("d11-4", "hood is not centred over the range");
     }
   }
 
@@ -487,7 +500,7 @@ export function checkLayout(
     }
   }
 
-  // D11 rule 8 (rule 9 in decisions.md): the dishwasher's services all land in
+  // D11 rule 9: the dishwasher's services all land in
   // the sink base. This is the physical fact rule 5 is a consequence of — the
   // dishwasher is beside the sink because that is the cabinet its power, water
   // and drain are in. Leo's site practice, not a drawing (round 41).
@@ -496,7 +509,7 @@ export function checkLayout(
   const stray = points.filter((point) => point.location !== "under-sink");
   if (stray.length > 0) {
     fail(
-      "d11-8",
+      "d11-9",
       `the dishwasher's ${stray.map((p) => p.type).join(", ")} ` +
         `${stray.length === 1 ? "does" : "do"} not land in the sink base`,
     );
@@ -609,11 +622,11 @@ export function checkLayout(
   // column stands it in the tall bank, and the island is then a prep island
   // with nothing to face either way.
   const islandCarries = (["slot-microwave", "slot-wine"] as const).every(
-    (slotId) => SLOT_BY_ID[slotId]?.mount === "island",
+    (slotId) => slots[slotId]?.mount === "island",
   );
   if (island.present && islandCarries) {
-    const microwave = SLOT_BY_ID["slot-microwave"];
-    const wine = SLOT_BY_ID["slot-wine"];
+    const microwave = slots["slot-microwave"];
+    const wine = slots["slot-wine"];
     // Turned a quarter round, the two faces are on x rather than on z — so
     // which coordinate says "toward the runs" is the island's own, not the
     // room's. The rule is the same one either way: they face opposite ways,
@@ -622,11 +635,11 @@ export function checkLayout(
     /** How far a machine faces across the island: toward the seats is +1. */
     const facingAcross = (slot: Slot) => acrossOf(island.axis, ...outward(slot.rotationY));
     if (Math.abs(facingAcross(microwave) - facingAcross(wine)) < 1e-6) {
-      fail("d11-7", "the microwave and the wine cabinet face the same way");
+      fail("d11-7-facing", "the microwave and the wine cabinet face the same way");
     }
     if (microwave.position[across] > wine.position[across]) {
       fail(
-        "d11-7",
+        "d11-7-facing",
         "the microwave drawer should face the working side and the wine cabinet the seating side",
       );
     }
@@ -647,11 +660,11 @@ export function checkLayout(
     const lap = ROOM.counterOverhang;
     const front = run.centre + ROOM.counterDepth / 2 + lap;
     const aisle = inches(islandAcross(island)[0] - lap - front);
-    const cooking = SLOT_BY_ID["slot-cooktop"]?.mount === "island";
+    const cooking = slots["slot-cooktop"]?.mount === "island";
     const needIn = cooking ? LAYOUT_LIMITS.cooktopAisleIn : LAYOUT_LIMITS.aisleIn;
     if (aisle < needIn - 1e-6) {
       fail(
-        "d11-7",
+        "d11-7-aisle",
         `${aisle.toFixed(1)}" aisle between the island and the ${run.id} run, ` +
           `needs ${needIn}"${cooking ? " in front of a cooktop" : ""}`,
       );
@@ -667,7 +680,7 @@ export function checkLayout(
     const behind = inches(end - edge);
     if (behind < LAYOUT_LIMITS.seatingAisleIn - 1e-6) {
       fail(
-        "d11-7",
+        "d11-7-seating",
         `${behind.toFixed(1)}" behind the island's seating, needs ${LAYOUT_LIMITS.seatingAisleIn}"`,
       );
     }

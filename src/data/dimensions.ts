@@ -12,6 +12,7 @@ import {
 } from "./room";
 import { SLOT_BY_ID } from "./slots";
 import { towerVents } from "./towerVent";
+import { ISLAND_HOOD } from "./hood";
 import { onAxis, toWorld } from "./frame";
 import type { Appliance, SlotId } from "../types";
 
@@ -75,9 +76,17 @@ export function dimensionsFor(
    * the island's cooktop where the package cooks there. Round 52 (D22 step 3):
    * this was the range alone, and a package with none — package E's shape —
    * took the whole overlay down with it.
+   *
+   * Round 69: and it chose by `SLOT_BY_ID["slot-range"] ?? ...`, which is the
+   * range whatever the package holds — `SLOT_BY_ID` has every slot — so over
+   * E's island it measured the cooktop against a range that was not in the
+   * room and read 4". The same order the template hangs the hood in, and rule
+   * 4 checks it in: a range on a run first, the island's cooktop otherwise.
    */
-  const range = SLOT_BY_ID["slot-range"] ?? SLOT_BY_ID["slot-cooktop"];
   const rangeSegment = RUNS.flatMap((run) => run.segments).find((s) => s.slot === "slot-range");
+  const onIsland = !rangeSegment && SLOT_BY_ID["slot-cooktop"]?.mount === "island";
+  const cookingSlot: SlotId = onIsland ? "slot-cooktop" : "slot-range";
+  const range = SLOT_BY_ID[cookingSlot];
 
   // In front of the run's face, so the lines are not buried in the cabinets.
   const plane = backRun.centre + ROOM.counterDepth / 2 + 0.35;
@@ -97,12 +106,19 @@ export function dimensionsFor(
     return toWorld(range, -(ft(range.cutout.w) / 2 + out), y, ROOM.counterDepth / 2 + 0.35);
   };
 
-  const rangeAppliance = selection["slot-range"] ?? selection["slot-cooktop"];
+  const rangeAppliance = selection[cookingSlot];
   // The cooking surface, not the machine's top: a range with a backguard is
   // sold at 47-7/8" and cooks at 36", and this line is the counter height.
-  const cooktop = rangeAppliance
-    ? cooktopHeight(rangeAppliance, applianceBox(range, rangeAppliance))
-    : ft(range.cutout.h);
+  // A cooktop set into the island is its glass, measured off the floor: its
+  // box stands where it is set, and its own height is only the body. D20.
+  const cooktop = !rangeAppliance
+    ? ft(range.cutout.h)
+    : onIsland
+      ? (() => {
+          const box = applianceBox(range, rangeAppliance);
+          return range.position[1] + box.y + box.h;
+        })()
+      : cooktopHeight(rangeAppliance, applianceBox(range, rangeAppliance));
   const hoodBottom = hood.position[1];
   const hoodAppliance = selection["slot-hood"];
   const canopy = hoodAppliance ? applianceBox(hood, hoodAppliance).h : ft(hood.cutout.h);
@@ -131,8 +147,17 @@ export function dimensionsFor(
       slots: ["slot-range", "slot-cooktop", "slot-hood"],
     }),
     vertical("cooktop-to-canopy", 0, cooktop, hoodBottom, {
-      noteKey: "dimension.clearanceRange",
-      noteVars: { min: hoodStd.aboveCooktopMinIn, max: hoodStd.aboveCooktopMaxIn },
+      // A wall canopy's drawing gives gas 30"-40"; an island hood's guide gives
+      // 30" for gas and induction alike and no maximum. Round 69.
+      ...(hood.mount === "island"
+        ? {
+            noteKey: "dimension.clearanceMinIsland",
+            noteVars: { min: ISLAND_HOOD.aboveCookingSurfaceMinIn },
+          }
+        : {
+            noteKey: "dimension.clearanceRange",
+            noteVars: { min: hoodStd.aboveCooktopMinIn, max: hoodStd.aboveCooktopMaxIn },
+          }),
       slots: ["slot-range", "slot-cooktop", "slot-hood"],
     }),
     vertical("canopy-height", 0, hoodBottom, hoodBottom + canopy, {

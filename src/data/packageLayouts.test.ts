@@ -223,8 +223,11 @@ function inside([x, z]: readonly [number, number], outline: readonly (readonly [
  * still that slab.
  */
 function expectStoneOverEveryCabinet(id: string, where: string) {
-  const range = APPLIANCE_BY_ID[PACKAGE_BY_ID[id].defaultSelection["slot-range"]!];
-  const standsOnTheFloor = range.installType.some((type) => /freestanding/i.test(type));
+  // Package E has no range (round 69): nothing on its walls stands on the
+  // floor in place of a worktop, so every base cabinet there carries stone.
+  const rangeId = PACKAGE_BY_ID[id].defaultSelection["slot-range"];
+  const range = rangeId ? APPLIANCE_BY_ID[rangeId] : undefined;
+  const standsOnTheFloor = !!range && range.installType.some((type) => /freestanding/i.test(type));
   const { pieces } = counterOutline(RUNS, range);
 
   for (const run of RUNS) {
@@ -561,8 +564,18 @@ describe("what is over the cooking surface", () => {
     setLayoutParams(DEFAULT_PARAMS);
   });
 
-  it("is the wall, in every package", () => {
-    for (const entry of BUILDABLE_PACKAGES) {
+  // Round 69: the packages whose cooking surface is a range on a wall. Package
+  // E cooks in the island under a hood hung from the ceiling; that it is the
+  // only one left out is asserted, so a package that loses its range some
+  // other way is not skipped without anybody saying so.
+  const withRange = () => BUILDABLE_PACKAGES.filter((entry) => entry.defaultSelection["slot-range"]);
+  it("leaves out only package E, which cooks in the island", () => {
+    const without = BUILDABLE_PACKAGES.filter((entry) => !entry.defaultSelection["slot-range"]).map((e) => e.id);
+    expect(without).toEqual(["package-e"]);
+  });
+
+  it("is the wall, in every package with a range", () => {
+    for (const entry of withRange()) {
       activate(entry.id);
       const slot = SLOT_BY_ID["slot-range"];
       const range = APPLIANCE_BY_ID[entry.defaultSelection["slot-range"]!];
@@ -595,7 +608,7 @@ describe("what is over the cooking surface", () => {
   });
 
   it("draws no panel of its own above the machine either", () => {
-    for (const entry of BUILDABLE_PACKAGES) {
+    for (const entry of withRange()) {
       activate(entry.id);
       const slot = SLOT_BY_ID["slot-range"];
       const range = APPLIANCE_BY_ID[entry.defaultSelection["slot-range"]!];
@@ -1467,8 +1480,16 @@ describe("no island, in every package", () => {
     setLayoutParams(DEFAULT_PARAMS);
   });
 
+  // A package that cooks in the island is refused a room with none (D20,
+  // `refusal.cooktopIsland`): there is nowhere to put the cooktop. Round 69.
+  it("refuses package E a room with no island, and says why", () => {
+    const base = activate("package-e");
+    const result = setLayoutParams({ ...base, hasIsland: false });
+    expect(result.reasons.map((reason) => reason.key)).toEqual(["refusal.cooktopIsland"]);
+  });
+
   it("builds without them rather than refusing, and passes every rule doing it", () => {
-    for (const entry of BUILDABLE_PACKAGES) {
+    for (const entry of BUILDABLE_PACKAGES.filter((e) => !e.slots.some((slot) => slot.slotId === "slot-cooktop"))) {
       const id = entry.id;
       const base = activate(id);
       // A package whose two island machines are an 84" column and a tall oven

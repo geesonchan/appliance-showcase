@@ -56,7 +56,7 @@ describe("the island aisle, counter edge to counter edge", () => {
     activate("package-a");
     const closer: IslandLayout = { ...ISLAND, z: [ISLAND.z[0] - 1 / 12, ISLAND.z[1] - 1 / 12] };
     expect(workingAisleIn(closer)).toBeCloseTo(LAYOUT_LIMITS.aisleIn - 1, 6);
-    expect(codes(closer)).toContain("d11-7");
+    expect(codes(closer)).toContain("d11-7-aisle");
     // By the old measure, carcass to carcass, this island still had 43".
     expect(inches(closer.z[0] - RUN_BY_ID.back.centre - ROOM.counterDepth / 2)).toBeCloseTo(43, 6);
   });
@@ -83,6 +83,6 @@ describe("the aisle behind an island's seating", () => {
     const seating = (island: IslandLayout) =>
       checkLayout(RUNS, undefined, island).filter((v) => v.message.includes("seating"));
     expect(seating(seated(15, LAYOUT_LIMITS.seatingAisleIn))).toEqual([]);
-    expect(seating(seated(15, LAYOUT_LIMITS.seatingAisleIn - 1)).map((v) => v.code)).toEqual(["d11-7"]);
+    expect(seating(seated(15, LAYOUT_LIMITS.seatingAisleIn - 1)).map((v) => v.code)).toEqual(["d11-7-seating"]);
   });
 });

@@ -87,7 +87,7 @@ describe("package E's 15\" overhang on the install checklist", () => {
   });
 
   it("says nothing in any package with no overhang", () => {
-    const withLine = BUILDABLE_PACKAGES.filter((entry) => {
+    const withLine = BUILDABLE_PACKAGES.filter((entry) => !entry.defaultLayout.islandOverhangIn).filter((entry) => {
       resetRoom();
       setActivePackage(entry.id);
       return supportLines(entry.id).length > 0;
@@ -183,5 +183,44 @@ describe("the island hood's label", () => {
     const cooktop = APPLIANCE_BY_ID[PACKAGE_BY_ID[E_ID].defaultSelection["slot-cooktop"] as string];
     const [anchor] = pinAnchors("slot-cooktop", cooktop);
     expect(anchor.y).toBeCloseTo(ROOM.counterHeight + 0.7, 9);
+  });
+});
+
+/**
+ * D20's conditional line for the island hood's duct cover. Round 69.
+ *
+ * Recorded since round 37 and never built: HMIB42WS's drawing puts a 72"
+ * underside under a 108-1/2" ceiling inside the standard covers' span, but its
+ * text says the standard covers fill an 8' ceiling and the CHXTHMIB kit
+ * reaches 9'-12' — and 108-1/2" is half an inch over 9'. So the kit is a line
+ * on the quote, marked to confirm with Thermador. The importer skips anything
+ * named a kit, so it comes from here, not from the catalogue.
+ */
+describe("the island hood's duct-cover kit", () => {
+  const kitLines = (id: string) => {
+    const { selection, blower } = selectionOf(id);
+    return checklistFor(selection, blower).findings.filter((f) => f.ruleId === "island-hood-cover-kit");
+  };
+
+  it("puts CHXTHMIB on package E's list, to confirm", () => {
+    openE();
+    expect(kitLines(E_ID)).toHaveLength(1);
+  });
+
+  it("files it under the hood", () => {
+    openE();
+    expect(kitLines(E_ID)[0]?.slot).toBe("slot-hood");
+  });
+
+  it("puts it on no package whose hood is on a wall", () => {
+    const onAWall = BUILDABLE_PACKAGES.filter(
+      (entry) => entry.slots.find((slot) => slot.slotId === "slot-hood")?.installType !== "island",
+    );
+    const withLine = onAWall.filter((entry) => {
+      resetRoom();
+      setActivePackage(entry.id);
+      return kitLines(entry.id).length > 0;
+    }).map((entry) => entry.id);
+    expect(withLine).toEqual([]);
   });
 });
