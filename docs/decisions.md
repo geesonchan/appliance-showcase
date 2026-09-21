@@ -1493,6 +1493,16 @@ whenever a diff is big and the reason for it sounds right. `?back=`, `?left=`,
 `?island=` and the rest of `readParams` in `room.ts` are there for exactly
 this.
 
+**What not to run at the same time.** *(Round 69.)*
+- **Tests and screenshots, not together.** A set of thirty shots is past ten
+  minutes on its own, and a machine busy with both makes each one's timing
+  worse and its failures about the machine.
+- **No build while the smoke suite runs.** The suite serves `dist/`, and a
+  build rewrites it underneath: round 68 built a prototype while the suite
+  was half way, so that run tested some mix of two builds and was thrown
+  away. It was run again on a clean build. The same kind of mistake as the
+  first — two jobs that share something, run as if they did not.
+
 Two more things that look like a change and are not, both met in round 53:
 
 - **The mode toast.** "White model · Read cabinet volumes and rough openings"
@@ -1744,11 +1754,19 @@ written into geometry instead of read from `ROOM`.
       cabinets they run has no source here, and a part drawn to invented
       figures is the trim ring of round 58 again.
     - **Sources, kept apart.** 10"-12" for 3cm quartz: secondary trade
-      experience (this entry), not a fabricator's figure; the lower end is
-      taken, so 10"-12" itself asks, since at those figures the answer is the
-      question. Concealed plate: Leo's site practice. The countertop finish is
-      not read — an oak top gets the same line — because the finish is a
-      picture on this app, not a structural choice.
+      experience (this entry), not a fabricator's figure. Concealed plate:
+      Leo's site practice.
+    - **Why the lower end, 10".** *(Leo, round 69.)* The line is "to
+      check", not a refusal. A line raised that turns out unneeded costs one
+      conversation; a line missed costs an item missing from the quote. So
+      10"-12" itself asks.
+    - **The words follow the top; the judgement does not.** *(Leo, round
+      69.)* Round 68's line named stone and quoted 10"-12" whatever the top
+      was, so a customer who picked oak read about stone. 15" of any top
+      wants carrying, so the line is raised the same; but for quartz and
+      marble it says stone, 10"-12" and concealed steel plate, and for oak
+      only that the top needs support under it — nothing here says what wood
+      carries (D17: words a customer reads say no more than is known).
 - **The island hood's height is worked out, never a constant.** The underside
   is at max(the cooking surface plus the manual's minimum clearance, 66") off
   the floor. The HMIB42WS manual gives 30" over the cooking surface for gas and

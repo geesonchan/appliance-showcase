@@ -4,6 +4,7 @@ import { SLOT_BY_ID } from "./slots";
 import { evaluateSlot, packageContext, type Finding } from "./rules";
 import { resolveRoughIn, roughInSentence } from "./roughIn";
 import { useSelection, useSelectedBlower } from "../store/useSelection";
+import { useAppStore, type CounterFinish } from "../store/useAppStore";
 import { applianceBox } from "./applianceBox";
 import {
   COLUMN_DOOR_PANELS,
@@ -39,7 +40,9 @@ export interface Checklist {
 export function useChecklist(): Checklist {
   const selection = useSelection();
   const blower = useSelectedBlower();
-  return useMemo(() => checklistFor(selection, blower), [selection, blower]);
+  // What the top is made of changes what the overhang line may say. Round 69.
+  const counter = useAppStore((s) => s.finishes.counter);
+  return useMemo(() => checklistFor(selection, blower, counter), [selection, blower, counter]);
 }
 
 /**
@@ -53,6 +56,7 @@ export function useChecklist(): Checklist {
 export function checklistFor(
   selection: Record<SlotId, Appliance>,
   blower: Appliance | null,
+  counter: CounterFinish = "quartz-white",
 ): Checklist {
   {
     const context = packageContext(selection["slot-hood"], blower, selection["slot-range"]);
@@ -81,7 +85,7 @@ export function checklistFor(
       // Parts the room needs that no rule decides: a chimney that will not
       // reach this ceiling on its own takes an extension, and the number is
       // the room's rather than the model's.
-      ...installParts(selection),
+      ...installParts(selection, counter),
     ];
     return {
       findings,
@@ -99,7 +103,7 @@ export function checklistFor(
  * where that belongs: it is not a rule anybody can fail, it is a part somebody
  * has to order.
  */
-function installParts(selection: Record<SlotId, Appliance>): Finding[] {
+function installParts(selection: Record<SlotId, Appliance>, counter: CounterFinish): Finding[] {
   return [
     ...noIslandFallback(),
     ...fridgeDoorClearance(),
@@ -112,7 +116,7 @@ function installParts(selection: Record<SlotId, Appliance>): Finding[] {
     ...steamOven(selection),
     ...towerVent(selection),
     ...coffeeCabinet(selection),
-    ...overhangSupport(),
+    ...overhangSupport(counter),
   ];
 }
 
@@ -127,8 +131,13 @@ function installParts(selection: Record<SlotId, Appliance>): Finding[] {
  * E — because a line has to name a slot the room has (round 55). Not the hood:
  * it hangs over the island, it is not in it. An island with no machine in it
  * files it under the cooking surface, which every package has.
+ *
+ * Round 69, Leo: the words follow the top. Quartz and marble are stone, and
+ * the line quotes stone's 10"-12" and the concealed plate. An oak top gets the
+ * judgement and nothing more — 15" wants carrying — because nothing here says
+ * what wood carries, and a customer who picked oak should not read "stone".
  */
-function overhangSupport(): Finding[] {
+function overhangSupport(counter: CounterFinish): Finding[] {
   const zone = overhangSupportZone(ISLAND);
   if (!zone) return [];
   const inIsland = SLOT_ORDER.find(
@@ -139,7 +148,7 @@ function overhangSupport(): Finding[] {
     {
       ruleId: "overhang-support",
       severity: "warning",
-      messageKey: "rule.overhangSupport",
+      messageKey: counter === "wood-oak" ? "rule.overhangSupportWood" : "rule.overhangSupport",
       slot,
       params: { overhang: formatDimension(zone.overhangIn) },
     },

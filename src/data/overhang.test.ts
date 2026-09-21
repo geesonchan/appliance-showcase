@@ -1,4 +1,6 @@
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
+import en from "../i18n/en.json";
+import zh from "../i18n/zh.json";
 import { APPLIANCE_BY_ID } from "./catalogue";
 import { setActivePackage, setLayoutParams } from "./layoutState";
 import { OVERHANG_SUPPORT, needsOverhangSupport, overhangSupportZone } from "./overhang";
@@ -91,6 +93,43 @@ describe("package E's 15\" overhang on the install checklist", () => {
       return supportLines(entry.id).length > 0;
     }).map((entry) => entry.id);
     expect(withLine).toEqual([]);
+  });
+});
+
+/**
+ * Round 69, Leo. The line names stone and quotes 10"-12", and an oak top is
+ * neither: a customer who picked oak was told about stone. The judgement does
+ * not change — 15" of any top wants carrying — but the words may not say more
+ * than is known (round 65), and nothing here says what wood carries.
+ */
+describe("the overhang line, by what the top is made of", () => {
+  const keyFor = (counter: "quartz-white" | "marble-veined" | "wood-oak") => {
+    const { selection, blower } = selectionOf(E_ID);
+    return checklistFor(selection, blower, counter).findings.find((f) => f.ruleId === "overhang-support")
+      ?.messageKey;
+  };
+
+  it("quotes stone and its 10-12\" for a quartz top", () => {
+    openE();
+    expect(keyFor("quartz-white")).toBe("rule.overhangSupport");
+  });
+
+  it("quotes stone and its 10-12\" for a marble top", () => {
+    openE();
+    expect(keyFor("marble-veined")).toBe("rule.overhangSupport");
+  });
+
+  it("says only that an oak top needs support", () => {
+    openE();
+    expect(keyFor("wood-oak")).toBe("rule.overhangSupportWood");
+  });
+
+  it("names no stone and no figure for wood, in English", () => {
+    expect(en["rule.overhangSupportWood"]).not.toMatch(/stone|10|12|steel/i);
+  });
+
+  it("names no stone and no figure for wood, in Chinese", () => {
+    expect(zh["rule.overhangSupportWood"]).not.toMatch(/石|10|12|钢/);
   });
 });
 
