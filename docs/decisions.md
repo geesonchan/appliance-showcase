@@ -1527,6 +1527,25 @@ this.
   away. It was run again on a clean build. The same kind of mistake as the
   first — two jobs that share something, run as if they did not.
 
+⚠️ **Vitest's exit code goes into a file of its own, and nothing runs after it
+that could overwrite it.** *(Leo, round 70.)* The same trap has now been met
+in three forms, each time reading the exit code of something that was not
+vitest:
+- **Round 37:** output piped through `grep` — a pipe's status is its last
+  command's. Every test had been skipped and the run read as passed.
+- **Round 69:** output piped through `tail`. One smoke test of 28 failed, the
+  run read as passed, and which test it was is lost for good (Open items).
+- **Round 70:** output written to a file, no pipe — and `; echo "smoke=$?"` at
+  the end of a command run in the background. The background task reported the
+  `echo`'s exit code, 0, over a suite that had failed. It was caught only
+  because the result was read from the file and not from the task's status.
+
+A reminder did not hold twice, so this is a rule: `npx vitest run ... >
+out.txt 2>&1; echo $? > exit.txt`, with `exit.txt` read as the result — the
+`echo` there writes vitest's code and nothing comes after it. No pipe, no
+`&&`/`;` tail whose own status could be taken for the suite's, and a task's
+"exit code 0" is not read as the suite passing.
+
 Two more things that look like a change and are not, both met in round 53:
 
 - **The mode toast.** "White model · Read cabinet volumes and rough openings"
@@ -3136,7 +3155,31 @@ Registered, not scheduled. None of these is a round of its own.
   kept; the rerun passed 28 of 28. The failure is not known and cannot now be
   found. This is the pipe of round 37 again (above): since round 70 test
   output goes to a file, never through a pipe, and the exit code is read from
-  vitest itself.
+  vitest itself (D17: the exit code goes into a file of its own).
+  - **Very likely the mouse-and-script smoke test, the next entry.** *(Leo,
+    round 70.)*
+- **"Draws the same room whether the switch was clicked with the mouse or from
+  script" goes red now and then.** *(Round 70, Leo.)* The smoke test holds a
+  mouse-clicked and a script-clicked switch into package D to the same picture,
+  to the pixel. In round 70's five full runs it was red twice — by 1,147 and by
+  63 pixels, both on the geometry fix's code and neither with anything kept to
+  look at — and green three times: round 69's code once, the geometry fix once,
+  the geometry fix with the translation once. Code with the fix in it went
+  2 red, 2 green; round 69's, 1 green; too few runs to tell them apart. Run on
+  its own, step for step, nine pairs on the geometry fix gave three that
+  differed by 40 pixels each, one level at most, all on the edges of the
+  bottom toolbar and the compass button — a translucent, blurred HTML bar over
+  the canvas — and three pairs on round 69's code none.
+  - **It now keeps the evidence.** A red saves the mouse picture, the script
+    picture and the difference in `test-results/mouse-script/`, and its message
+    says by how many levels at most and within what box. Proved on a forced
+    failure (the script side sent to C) before it was trusted.
+  - **The next time it is red, look at the pictures before deciding anything.**
+    If every differing pixel is on the toolbar, take the toolbar out of the
+    screenshot — that is not loosening the test: it holds the room, and the
+    toolbar is HTML laid over the canvas. If any is in the room, stop and
+    report.
+  - Round 69's red whose cause was lost (above) was very likely this test.
 - **The layout checker's failure messages are English strings built in code.**
   *(Round 70, Leo: record, do not change.)* Every `fail(code, message)` in
   `layoutRules.ts` builds its message as an English template ("sink has only

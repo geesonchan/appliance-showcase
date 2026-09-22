@@ -1,3 +1,4 @@
+import { mkdirSync, writeFileSync } from "node:fs";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { chromium, type Browser, type Page } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
@@ -997,11 +998,12 @@ describe("switching to a package with more machines", () => {
     const mouse = await shoot("mouse");
     const script = await shoot("script");
 
-    // Decoded and compared in a page, so a failure says how much differs.
-    const differing = await (async () => {
+    // Decoded and compared in a page, so a failure says how much differs, by
+    // how many levels at most, and where.
+    const result = await (async () => {
       const context = await browser.newContext();
       const page = await context.newPage();
-      const count = await page.evaluate(
+      const found = await page.evaluate(
         async ([a, b]) => {
           const load = async (data: string) => {
             const image = new Image();
@@ -1012,21 +1014,65 @@ describe("switching to a package with more machines", () => {
             canvas.height = image.height;
             const context = canvas.getContext("2d")!;
             context.drawImage(image, 0, 0);
-            return context.getImageData(0, 0, image.width, image.height).data;
+            return { width: image.width, height: image.height, data: context.getImageData(0, 0, image.width, image.height).data };
           };
           const [pa, pb] = [await load(a), await load(b)];
+          const { width, height } = pa;
+          // The difference, drawn red over a dimmed copy of the script picture.
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const context = canvas.getContext("2d")!;
+          const out = context.createImageData(width, height);
           let n = 0;
-          for (let i = 0; i < pa.length; i += 4) {
-            if (pa[i] !== pb[i] || pa[i + 1] !== pb[i + 1] || pa[i + 2] !== pb[i + 2]) n += 1;
+          let max = 0;
+          let box = [width, height, -1, -1];
+          for (let i = 0; i < pa.data.length; i += 4) {
+            const d = Math.max(
+              Math.abs(pa.data[i] - pb.data[i]),
+              Math.abs(pa.data[i + 1] - pb.data[i + 1]),
+              Math.abs(pa.data[i + 2] - pb.data[i + 2]),
+            );
+            const differs = d > 0;
+            out.data[i] = differs ? 255 : pb.data[i] / 3;
+            out.data[i + 1] = differs ? 40 : pb.data[i + 1] / 3;
+            out.data[i + 2] = differs ? 40 : pb.data[i + 2] / 3;
+            out.data[i + 3] = 255;
+            if (!differs) continue;
+            n += 1;
+            max = Math.max(max, d);
+            const x = (i / 4) % width;
+            const y = Math.floor(i / 4 / width);
+            box = [Math.min(box[0], x), Math.min(box[1], y), Math.max(box[2], x), Math.max(box[3], y)];
           }
-          return n;
+          context.putImageData(out, 0, 0);
+          const diff = canvas.toDataURL("image/png").split(",")[1];
+          return { n, max, box, diff };
         },
         [mouse, script],
       );
       await context.close();
-      return count;
+      return found;
     })();
-    expect(differing, "pixels that differ between a mouse-clicked and a script-clicked switch into D").toBe(0);
+
+    // Round 70: a red here used to leave nothing but a count, and one such red
+    // in round 69 was lost altogether. A failure now keeps both pictures and
+    // the difference, and says where it is. The box is in the screenshot's own
+    // pixels; it starts 60 below the top of the page, under the top bar.
+    let evidence = "";
+    if (result.n > 0) {
+      const dir = `test-results/mouse-script/${new Date().toISOString().replace(/[:.]/g, "-")}`;
+      mkdirSync(dir, { recursive: true });
+      writeFileSync(`${dir}/mouse.png`, Buffer.from(mouse, "base64"));
+      writeFileSync(`${dir}/script.png`, Buffer.from(script, "base64"));
+      writeFileSync(`${dir}/diff.png`, Buffer.from(result.diff, "base64"));
+      const [x0, y0, x1, y1] = result.box;
+      evidence = ` — up to ${result.max} levels, within x ${x0}-${x1}, y ${y0}-${y1}; pictures in ${dir}`;
+    }
+    expect(
+      result.n,
+      `pixels that differ between a mouse-clicked and a script-clicked switch into D${evidence}`,
+    ).toBe(0);
   });
 });
 
