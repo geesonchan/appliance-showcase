@@ -75,7 +75,7 @@ export function checklistFor(
           slot: slotId,
           params: {
             type: resolved.point.type,
-            ...roughInSentence(resolved.point),
+            ...roughInSentence(resolved),
           },
         })),
       ),

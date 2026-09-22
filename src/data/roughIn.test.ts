@@ -109,7 +109,8 @@ describe("the numbers off the drawings", () => {
   });
 
   it("names where each connection is, in the terms a manual uses", () => {
-    const outlet = roughInFor(model("thermador-md24bs"))!.points[0];
+    const outlet = resolveRoughIn("slot-microwave", model("thermador-md24bs"))[0];
+    expect(outlet.point).toBe(roughInFor(model("thermador-md24bs"))!.points[0]);
     const said = roughInSentence(outlet);
     expect(said.where).toBe("rear wall of the opening");
     expect(said.at).toContain('4"');

@@ -1446,10 +1446,33 @@ repository has them)* — one rule, written more than once:
 | round 62 | the sink within six inches of its window | `fitWindow` and `windowRefusals`, with different tolerances | one, `sinkFromWindow` (round 63) | — |
 | round 65 | makeup air above 400 CFM | the rule's condition, `thresholds.makeupAirCfm`, `needsMakeupAir()`, the importer's flag — only the first read | one, the rule's condition (round 65) | — |
 | round 65 | a gas pipe upsized above 65,000 BTU | the `gas-pipe-size` rule's condition and `thresholds.gasPipeUpsizeBTU` — only the first read | **still two**, in Open items | **the day somebody changes the figure** and edits `thresholds`, the copy that is named like the setting: nothing changes on screen, because the rule reads its own. |
+| round 70 | which side of its box a rough-in figure is measured from, and which side a neighbouring cabinet is on | the point's position (`resolveRoughIn`) and its sentence (`roughInSentence`), each worked out from the data on its own | one: `resolveRoughIn` decides `sides` through `frame.ts`'s `alongIsToTheRight`, places the point by it, and the sentence reads it (round 70) | **it had bitten, on the live site, both ways.** The drawing took "further along the run" for right, which on the left run is the installer's left: A's refrigerator socket was drawn 6" from the cabinet's right side under a line saying left, and a sink moved to the left leg had all four dishwasher points mirrored. The sentence wrote "from the left side" beside every tower, where B's, D's and E's cabinets stand on the tower's left and the drawing measured from its right. A quote sends an electrician to the wrong side of a cabinet. |
 
 Round 60's quarter-inch window step is a near relative rather than a member:
-one rule, but its search and its judgement worked to different resolutions.
-Two of the four are still open. The table is here so that the next one found
+one rule, but its search and its judgement worked to different resolutions,
+and it is counted with them (the fifth time, as Leo numbers them).
+
+**The sixth, round 70, is the same shape with a fact in place of a
+threshold** *(Leo)*. The data records one thing — how far from which side —
+and two derivations read it: one placed the point, one wrote its sentence. They
+went wrong separately, one on the left run and one beside a tower, and each
+looked right on its own. It is held now by `roughInSides.test.ts`, which checks
+for every package in every arrangement it builds that the sentence the quote
+prints and the point the room draws agree, working out left and right without
+asking the code.
+
+⚠️ **A script that looked, fooled; the test that replaced it, not.** *(Round
+70, Leo.)* The first script written to find the left-and-right fault judged
+four of package D's arrangements right — "5 of 9 correct" — because there the
+cabinet beside the oven tower is 6" wide and 3" from its left is 3" from its
+right. All nine were wrong. The permanent test, `roughInSides.test.ts`, does
+not ask how far a point is from a side; it asks which side meets the machine,
+and it found all nine. **That is the worth of turning a probe into a test:**
+the probe answered the question it was written with, once, on the data it
+happened to meet; the test states the rule, and a coincidence in the data
+cannot pass it.
+
+Two of the six are still open. The table is here so that the next one found
 is added to it rather than rediscovered.
 
 **A whole population is checked by a script, not sampled by eye.** *(Leo,
@@ -2312,6 +2335,17 @@ from the other step-2 fixes.
     would raise nothing. *(Leo, round 50: after step 3, see whether the guard
     can take a rule that reading a back-wall constant outside `frame.ts` fails.
     Not now.)*
+  - **Nor can it see "further along the run is to the right".** *(Round 70,
+    Leo.)* It recognises a hand-written sine and cosine and a branch on an
+    axis; it does not recognise code that simply adds a distance to a run's
+    lower end and calls that end the left. That is true on the back run and
+    backwards on the left run, and `roughIn.ts` did exactly that for every
+    rough-in figure and every "cabinet to the left/right" from the day the left
+    run existed until round 70 — while `alongIsToTheRight` sat in `frame.ts`,
+    tested and unused. The guard passed it throughout. **What catches this is
+    a test that states the answer from outside the code** (here
+    `roughInSides.test.ts`) **or a review that asks what a line gives on the
+    other run.**
 - **A package's slots are the ones it declares.** The schema's list of core
   slots is gone. What the L template cannot build without is the template's to
   say, by name: `TEMPLATE_NEEDS`, today the range, the hood and the dishwasher.
@@ -2857,6 +2891,44 @@ is a constraint it is working around, not a decision about where they belong.**
   says the same and its install view shows the dashed foot of duct above the
   cover.
 
+**A rough-in point's left and right are the installer's, and are worked out
+once.** *(Round 70, Leo.)* Left and right are said standing in the room facing
+the cabinet, because that is how they are said on site (round 57's test: how
+is this order spoken where it is built?) — not "the tower side", not "further
+along the run".
+- `resolveRoughIn` decides a point's `sides` — the side its figure is measured
+  from, and for a neighbour's cabinet which side of the machine that cabinet is
+  on — through `alongIsToTheRight`, places the point by them, and hands them on.
+  `roughInSentence` reads them and never works them out again. Round 70 found
+  the two had been separate derivations, each wrong in its own place (D17's
+  table, sixth row).
+- **Measured from:** in the machine's own opening and in the sink base, the
+  left side panel, as a manual dimensions it. **In a neighbour's cabinet** —
+  `adjacent-cabinet-left/right` and `beside-tower` — **the side that meets the
+  machine.** Beside a tower that was already the rule and only the sentence was
+  wrong. For the other neighbour's cabinets it is new, and inferred: of the
+  three points that use one (T36BT120NS's socket and water, PCG366W's socket,
+  T18IW100SP's socket), none has a drawing that says which side the figure is
+  from. T36BT120NS's drawing has "in an adjacent cabinet" and sketches the
+  socket just past the opening's side wall; near the machine is what adjacent
+  is for; and it keeps the point by the machine when the cabinet on the other
+  side is the one taken, which package A does with its refrigerator on the back
+  run. The provenance stays `inferred`, with the reason in the point's `basis`.
+- **A neighbour on the wrong side is said as it is.** Where the side the data
+  names has no cabinet, `pickNeighbour` takes the other side's, and the
+  sentence now names the side it took.
+- Held by `roughInSides.test.ts`: every package, every arrangement it builds
+  (sink leg, refrigerator end, coffee leg, island orientation), every point —
+  the side the sentence measures from is the side the point is that far from;
+  the cabinet it names is on that side; a neighbour's figure is from the side
+  that meets the machine; and the point is inside its box. It works out left
+  and right from the run's wall, not from the code. On round 69's code it
+  failed 64 of its checks, each for a reason read and accounted for.
+  - ⚠️ **Symmetry hid half of it once already.** The first script written to
+    look for this judged four of D's arrangements right, because there the
+    cabinet beside the tower is 6" wide and 3" from either side is the same
+    point. The test does not ask how far; it asks which side meets the machine.
+
 ## Open items
 
 Registered, not scheduled. None of these is a round of its own.
@@ -3180,6 +3252,46 @@ Registered, not scheduled. None of these is a round of its own.
     toolbar is HTML laid over the canvas. If any is in the room, stop and
     report.
   - Round 69's red whose cause was lost (above) was very likely this test.
+- **Package B's neighbouring-cabinet points are drawn outside the cabinet.**
+  *(Found round 70 by `roughInSides.test.ts`; Leo: fix next round — it is the
+  live default.)*
+  On B as it opens, the refrigerator's socket and water are said to be "in the
+  cabinet to the right" and drawn 3" and 9" past a 3" tall board
+  (`back-tall-outer`), and the wine column's socket 3" past another
+  (`back-tall-inner`); with the refrigerator on the left leg they land past a
+  5/8" spacer. `pickNeighbour` takes the nearest segment that is not an
+  appliance, and a board or a spacer is not an appliance. **Not the left-and-
+  right fault fixed in the same round:** it happens on the back run, where left
+  and right were already right, and it stayed after that fix. It is on the live
+  site, and on B's quote the refrigerator's two lines name a cabinet that is a
+  3" board. The test carries the three points as a known exception, and fails
+  the day they are inside their box, so the exception goes with the fix.
+  - **The rule for the fix, Leo's site practice:** *"如果条件允许，插座和进水口都是
+    安装在靠近机器的、有橱柜的一侧。"* — where there is a cabinet, the socket
+    and the water go on the side of the machine that has one, near the
+    machine. Two layers: (a) the cabinet must be a real one — a column spacer
+    (COMBIKIT), a tall board or a filler is not; (b) in it, the figure is from
+    the side that meets the machine (already so since round 70).
+  - **Where there is none — B's refrigerator.** Checked in round 70 over every
+    arrangement: on either leg, one side is a 5/8" spacer and then the wine
+    column, the other a 3" board and the end of the run. No real cabinet, so
+    "if conditions allow" does not hold. *(Leo, round 70:)* the socket goes
+    behind the refrigerator, T36BT120NS sheet p. 4's alternative (B), with a
+    checklist line that it must be switchable at a breaker (source: the sheet);
+    the water goes behind it too (source: Leo's site practice). Both marked as
+    what is done when conditions do not allow, in the grey dashed tier.
+  - Next round, with the D oven below.
+- **In some arrangements the "base cabinet beside the tower" is 6" wide.**
+  *(Noticed round 70.)* D with its coffee cabinet on the back leg (four
+  arrangements) puts the oven's junction box in `back-tower-clearance-0`, a
+  6" filler between the range and the tower: there is no real cabinet on
+  either side of the oven. *(Leo, round 70:)* it goes at the back of the
+  drawer under the oven's opening. PODS302B's sheet, p. 2, allows the box
+  above, beneath, left or right of the unit — "beneath" is the source; and not
+  above, because the cabinet over a steam oven has an open back and the gap
+  behind it is where the steam goes up (Leo's judgement; D11 rule 12). Next
+  round. (Round 70's first report of this cited the MEM301WS manual; D's oven
+  is PODS302B.)
 - **The layout checker's failure messages are English strings built in code.**
   *(Round 70, Leo: record, do not change.)* Every `fail(code, message)` in
   `layoutRules.ts` builds its message as an English template ("sink has only

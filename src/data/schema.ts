@@ -590,10 +590,21 @@ export const packagesFileSchema = z.object({
  * x from the left side panel, y up from the opening floor, z either the rear
  * wall or the front edge. That is how a manual dimensions them, and it is the
  * only frame that survives the cabinet moving.
+ *
+ * Left is the left of somebody standing facing the box. In a neighbour's
+ * cabinet (`adjacent-cabinet-*`, `beside-tower`) x is instead from the side
+ * that meets the machine: no drawing here gives a figure in a neighbour's
+ * cabinet, and "the cabinet next to it" means near the machine, wherever the
+ * cabinet turns out to be (round 70, D22). `roughIn.ts` works out which side
+ * that is once, and the drawing and the sentence both read it.
  */
 export const roughInPointSchema = z.object({
   type: z.enum(["power", "water", "gas", "duct", "drain", "anti-tip", "air-gap", "service-channel"]),
-  /** Which box it is in: this appliance's opening, or a neighbour's. */
+  /**
+   * Which box it is in: this appliance's opening, or a neighbour's. A
+   * neighbour's left or right is the installer's, facing it; where that side
+   * has no cabinet the other side's is taken, and the sentence says so.
+   */
   location: z.enum([
     "in-cutout",
     "adjacent-cabinet-left",

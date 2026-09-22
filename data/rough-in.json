@@ -2,7 +2,7 @@
   "_meta": {
     "generatedBy": "hand written from manufacturer installation drawings",
     "updatedAt": "2026-09-06",
-    "provenance": "Positions are per model, not from a general rule, and each point says where its figures come from in `provenance` (drawing, site, inferred, uncertain; null is not yet classified) with `basis` where they are not all one — docs/decisions.md D21. Coordinates are relative to that appliance's opening: x from the left side panel, y up from the opening floor, z either the rear wall or the front edge. A model with no entry here falls back to the room's generic rough-in heights and is marked as such under ?debug=1."
+    "provenance": "Positions are per model, not from a general rule, and each point says where its figures come from in `provenance` (drawing, site, inferred, uncertain; null is not yet classified) with `basis` where they are not all one — docs/decisions.md D21. Coordinates are relative to that appliance's opening: x from the left side panel (left as you face it; in a neighbour's cabinet, from the side that meets the appliance — D22, round 70), y up from the opening floor, z either the rear wall or the front edge. A model with no entry here falls back to the room's generic rough-in heights and is marked as such under ?debug=1."
   },
   "roughIn": {
     "thermador-ph36hws": {
@@ -34,7 +34,7 @@
           "z": "rear",
           "note": "Receptacle in the neighbouring cabinet, near the floor",
           "provenance": "inferred",
-          "basis": "In an adjacent cabinet is on the drawing (A, recommended). 6\" in and 6\" up — near the floor — are not."
+          "basis": "In an adjacent cabinet is on the drawing (A, recommended). 6\" in and 6\" up — near the floor — are not, and nor is which side of that cabinet the 6\" is from. Measured from the side that meets the refrigerator (round 70): the drawing's sketch puts the socket just past the opening's side wall, and near the machine is what \"adjacent\" is for; it also keeps the socket by the refrigerator when the cabinet on the other side is the one taken."
         },
         {
           "type": "water",
@@ -44,7 +44,7 @@
           "z": "rear",
           "note": "Ice maker supply, same cabinet as the receptacle",
           "provenance": "inferred",
-          "basis": "In an adjacent cabinet is on the drawing (recommended). 12\" in and 6\" up are not."
+          "basis": "In an adjacent cabinet is on the drawing (recommended). 12\" in and 6\" up are not, and nor is which side of that cabinet the 12\" is from: from the side that meets the refrigerator, as the receptacle (round 70)."
         },
         {
           "type": "service-channel",

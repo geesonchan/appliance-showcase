@@ -91,7 +91,7 @@ export function RoughInList() {
                         >
                           {t(SLOT_BY_ID[item.slotId].labelKey)} · {item.resolved.point.type}
                           <span className="block text-[10px] text-ink-muted/80">
-                            {roughInSentence(item.resolved.point).where}
+                            {roughInSentence(item.resolved).where}
                           </span>
                         </button>
                       </li>

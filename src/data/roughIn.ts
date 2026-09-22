@@ -5,7 +5,16 @@ import { hoodBridgeBand } from "./cabinets";
 import { ROOM, RUNS, carries, ft, type CabinetRun, type RunSegment } from "./room";
 import { parseDataFile, roughInFileSchema, type RoughInPoint } from "./schema";
 import { SLOT_BY_ID } from "./slots";
-import { axisIndex, facingOf, onAxis, sizeOnPlan, stripFacing, toPlan, type Facing } from "./frame";
+import {
+  alongIsToTheRight,
+  axisIndex,
+  facingOf,
+  onAxis,
+  sizeOnPlan,
+  stripFacing,
+  toPlan,
+  type Facing,
+} from "./frame";
 import type { Appliance, Slot, SlotId } from "../types";
 
 /**
@@ -81,9 +90,23 @@ export interface ResolvedPoint {
    * way that box faces — the side a leader line leaves it by.
    */
   host: { id: string; min: [number, number, number]; max: [number, number, number]; facing: Facing };
+  /**
+   * Left and right as an installer says them, standing facing the box: which
+   * side a figure across it is measured from, and which side of the machine the
+   * neighbouring cabinet is on (null where the point is not in one).
+   *
+   * Worked out once, where the point is placed, and read by the sentence — so
+   * what the list says and what the room draws are one derivation, not two.
+   * Round 70: they were two, and on the left run the drawing measured from the
+   * corner end, which faces the installer's right, while the sentence said left.
+   */
+  sides: { measuredFrom: Side; cabinet: Side | null };
   /** A drain's high loop, when it has one, in world feet. */
   highLoopY: number | null;
 }
+
+/** An installer's left or right, facing the box. */
+export type Side = "left" | "right";
 
 /**
  * Where a point's leader line ends: 4" out of the face its host opens by, so
@@ -111,6 +134,8 @@ interface HostBox {
   band: readonly [number, number];
   /** For the cabinet beside a tower: which end of `along` meets the tower. */
   nearEnd?: 0 | 1;
+  /** For a neighbour's cabinet: which way along the run it lies from the machine. */
+  step?: -1 | 1;
   /**
    * For an opening on no wall run — an island slot — the opening's own frame:
    * `along` and `band` are then local, across the face from its left edge and
@@ -254,27 +279,35 @@ function hostFor(slot: Slot, appliance: Appliance, point: RoughInPoint): HostBox
     };
   }
 
-  // A neighbour on the same run. "Left" and "right" are read along the run from
-  // the corner outward, which is the order the segments are already in.
-  const step = point.location === "adjacent-cabinet-left" ? -1 : 1;
-  const neighbour = pickNeighbour(found!.run.segments, found!.index, step);
+  // A neighbour on the same run, on the installer's left or right. Round 70:
+  // this used to read "right" as further from the corner, which is the
+  // installer's right on the back run and their left on the left run.
+  const toRight = alongIsToTheRight(found!.run.axis) ? 1 : -1;
+  const step = point.location === "adjacent-cabinet-left" ? -toRight : toRight;
+  const neighbour = pickNeighbour(found!.run.segments, found!.index, step as -1 | 1);
   if (!neighbour) return null;
   return {
-    id: neighbour.id,
+    id: neighbour.segment.id,
     run: found!.run,
-    along: [neighbour.from, neighbour.to] as const,
+    along: [neighbour.segment.from, neighbour.segment.to] as const,
     band: [0, ROOM.counterHeight - ROOM.counterThickness] as const,
+    step: neighbour.step,
   };
 }
 
 /** The nearest carcass on one side; an opening is not somewhere to put a valve. */
-function pickNeighbour(segments: RunSegment[], index: number, step: -1 | 1) {
+function pickNeighbour(
+  segments: RunSegment[],
+  index: number,
+  step: -1 | 1,
+): { segment: RunSegment; step: -1 | 1 } | null {
   for (let i = index + step; i >= 0 && i < segments.length; i += step) {
-    if (segments[i].kind !== "appliance") return segments[i];
+    if (segments[i].kind !== "appliance") return { segment: segments[i], step };
   }
   // Nothing that way: take the other side rather than dropping the connection.
-  for (let i = index - step; i >= 0 && i < segments.length; i -= step) {
-    if (segments[i].kind !== "appliance") return segments[i];
+  const back = -step as -1 | 1;
+  for (let i = index + back; i >= 0 && i < segments.length; i += back) {
+    if (segments[i].kind !== "appliance") return { segment: segments[i], step: back };
   }
   return null;
 }
@@ -293,20 +326,38 @@ export function resolveRoughIn(slotId: SlotId, appliance: Appliance | undefined)
     if (!host) continue;
 
     const size = (point.size ?? DEFAULT_SIZE).map(ft) as [number, number, number];
-    // Beside a tower, a figure is measured from the end of the cabinet that
-    // meets the tower, whichever side of it that cabinet is on.
+
+    // Left and right as the installer facing the box says them. Along a run
+    // that is `frame.ts`'s answer: further along is their right on the back
+    // run and their left on the left run. An island opening is measured in the
+    // machine's own frame, whose +x is the right of somebody facing it.
+    const toRight = host.frame ? 1 : alongIsToTheRight(host.run.axis) ? 1 : -1;
+    const endOn = (side: Side) => ((side === "left") === toRight > 0 ? host.along[0] : host.along[1]);
+    const inward = (side: Side) => (side === "left" ? toRight : -toRight);
+    const sideOf = (step: -1 | 1): Side => (step === toRight ? "right" : "left");
+
+    // In the machine's own opening, or the sink base, the figure is from the
+    // left side panel, as a manual dimensions it. In a neighbour's cabinet or
+    // the one beside a tower it is from the side that meets the machine — the
+    // installer's left or right depending on which side of the machine that
+    // cabinet stands (round 70; see schema.ts).
+    const cabinet: Side | null = host.step === undefined ? null : sideOf(host.step);
+    const measuredFrom: Side =
+      host.nearEnd !== undefined
+        ? sideOf(host.nearEnd === 0 ? -1 : 1)
+        : cabinet !== null
+          ? cabinet === "right"
+            ? "left"
+            : "right"
+          : "left";
+
     const along =
-      host.nearEnd !== undefined && typeof point.x === "number"
-        ? host.nearEnd === 0
-          ? host.along[0] + ft(point.x)
-          : host.along[1] - ft(point.x)
-        : point.x === "left"
-        ? host.along[0] + size[0] / 2
-        : point.x === "right"
-          ? host.along[1] - size[0] / 2
-          : point.x === "center"
-            ? (host.along[0] + host.along[1]) / 2
-            : host.along[0] + ft(point.x);
+      point.x === "center"
+        ? (host.along[0] + host.along[1]) / 2
+        : point.x === "left" || point.x === "right"
+          ? endOn(point.x) + (inward(point.x) * size[0]) / 2
+          : endOn(measuredFrom) + inward(measuredFrom) * ft(point.x);
+    const sides = { measuredFrom, cabinet };
 
     const y =
       point.y === "bottom"
@@ -346,6 +397,7 @@ export function resolveRoughIn(slotId: SlotId, appliance: Appliance | undefined)
           max: [Math.max(...xs), host.band[1], Math.max(...zs)],
           facing: facingOf(rotationY),
         },
+        sides,
         highLoopY: point.highLoopApexIn === null ? null : ft(point.highLoopApexIn),
       });
       continue;
@@ -367,6 +419,7 @@ export function resolveRoughIn(slotId: SlotId, appliance: Appliance | undefined)
       size,
       // A run's cabinetry opens to the room.
       host: { id: host.id, min, max, facing: stripFacing(host.run.axis, 1) },
+      sides,
       highLoopY: point.highLoopApexIn === null ? null : ft(point.highLoopApexIn),
     });
   }
@@ -392,8 +445,12 @@ const inch = (value: number) => {
  *
  * The numbers are the ones off the drawing; the words say which box they are
  * measured in, because "4 inches from the side" means nothing without it.
+ *
+ * Left and right are the ones the point was placed by (`sides`), never worked
+ * out again here (round 70).
  */
-export function roughInSentence(point: RoughInPoint): { where: string; at: string } {
+export function roughInSentence(resolved: ResolvedPoint): { where: string; at: string } {
+  const { point, sides } = resolved;
   const where =
     point.location === "in-cutout"
       ? point.z === "rear"
@@ -405,12 +462,10 @@ export function roughInSentence(point: RoughInPoint): { where: string; at: strin
           ? "in the cabinet above"
           : point.location === "beside-tower"
             ? "in the base cabinet beside the tower — open its door to see it"
-            : point.location === "adjacent-cabinet-left"
-            ? "in the cabinet to the left"
-            : "in the cabinet to the right";
+            : `in the cabinet to the ${sides.cabinet}`;
 
   const parts: string[] = [];
-  if (typeof point.x === "number") parts.push(`${inch(point.x)} from the left side`);
+  if (typeof point.x === "number") parts.push(`${inch(point.x)} from the ${sides.measuredFrom} side`);
   else if (point.x !== "center") parts.push(`at the ${point.x}`);
   if (typeof point.y === "number") parts.push(`${inch(point.y)} up`);
   else parts.push(`at the ${point.y}`);
