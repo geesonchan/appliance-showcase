@@ -1,4 +1,5 @@
 import type { Refusal, RequirementItem } from "../data/room";
+import { sayWith } from "../i18n";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
 
@@ -13,21 +14,8 @@ import { useAppStore } from "../store/useAppStore";
  */
 export function useRefusalText() {
   const t = useT();
-  /**
-   * Values whose names end in `Key` are themselves keys — the generator has no
-   * language, so it names the string rather than writing it.
-   */
-  return (key: string, vars: Record<string, string | number>) => {
-    const resolved: Record<string, string | number> = {};
-    for (const [name, value] of Object.entries(vars)) {
-      if (name.endsWith("Key") && typeof value === "string") {
-        resolved[name.slice(0, -3)] = t(value);
-      } else {
-        resolved[name] = value;
-      }
-    }
-    return t(key, resolved);
-  };
+  // Values whose names end in `Key` are themselves keys (`sayWith`).
+  return (key: string, vars: Record<string, string | number>) => sayWith(t, key, vars);
 }
 
 /** One line of the bill: a width, and the cabinet or rule that asks for it. */

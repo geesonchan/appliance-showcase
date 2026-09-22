@@ -476,6 +476,24 @@ tests: what is held is the wording that was reviewed. The file stays marked
 machine-translated as a whole; a listed key is the exception. The first entries
 are the makeup-air line in both languages (D6, round 66).
 
+**Approved is not one thing, so the list says which.** *(Round 70, Leo.)* Each
+entry carries an `approval`: **`written`** is Leo's own wording — the makeup-air
+line, which he wrote — and **`read`** is copy generated to his template that he
+then went through line by line, which is the round-70 rough-in vocabulary: the
+kinds of connection, the boxes, the measurement phrases, the line that composes
+them and the left-and-right note. Both are approved and both are locked; a
+person reading the list later should be able to tell which they are looking at
+without asking.
+
+⚠️ **Three kinds of connection are named in English on the Chinese page, and
+it is not a missed translation.** *(Leo, round 70, from site.)* "air gap",
+"anti-tip" and "service channel" stay English in `zh.json`. Installers here say
+them in English, and a customer showing the Chinese quote to one has to be able
+to point at the same words. Every other kind — 电源, 进水, 排水, 燃气, 排风管 —
+is Chinese. `roughInChinese.test.ts` takes exactly those three out before it
+checks that no Chinese rough-in line carries a Latin letter, so the exception
+cannot quietly widen. **Do not "fix" them.**
+
 ---
 
 ## D11 · The cabinet layout rules
@@ -1447,6 +1465,7 @@ repository has them)* — one rule, written more than once:
 | round 65 | makeup air above 400 CFM | the rule's condition, `thresholds.makeupAirCfm`, `needsMakeupAir()`, the importer's flag — only the first read | one, the rule's condition (round 65) | — |
 | round 65 | a gas pipe upsized above 65,000 BTU | the `gas-pipe-size` rule's condition and `thresholds.gasPipeUpsizeBTU` — only the first read | **still two**, in Open items | **the day somebody changes the figure** and edits `thresholds`, the copy that is named like the setting: nothing changes on screen, because the rule reads its own. |
 | round 70 | which side of its box a rough-in figure is measured from, and which side a neighbouring cabinet is on | the point's position (`resolveRoughIn`) and its sentence (`roughInSentence`), each worked out from the data on its own | one: `resolveRoughIn` decides `sides` through `frame.ts`'s `alongIsToTheRight`, places the point by it, and the sentence reads it (round 70) | **it had bitten, on the live site, both ways.** The drawing took "further along the run" for right, which on the left run is the installer's left: A's refrigerator socket was drawn 6" from the cabinet's right side under a line saying left, and a sink moved to the left leg had all four dishwasher points mirrored. The sentence wrote "from the left side" beside every tower, where B's, D's and E's cabinets stand on the tower's left and the drawing measured from its right. A quote sends an electrician to the wrong side of a cabinet. |
+| round 70 | a var whose name ends in `Key` is itself a message key, and fills the placeholder without `Key` | written twice — `useRefusalText` (the checklist) and the toast in `SceneControls` — and **missing** in the spec card and in `buildQuote` | one, `sayWith` in `src/i18n/index.ts`, used by all four (round 70) | **it had bitten, on the live site.** Package A (or B, C, D) with no island and a left wall long enough to take the microwave drawer and the wine cabinet prints "on the {microwaveLeg} leg … the {wineLeg} leg" on the spec card and the quote, while the checklist beside them says "left". Found only because the rough-in words moved onto keys and had to go through all four. |
 
 Round 60's quarter-inch window step is a near relative rather than a member:
 one rule, but its search and its judgement worked to different resolutions,
@@ -1461,6 +1480,10 @@ for every package in every arrangement it builds that the sentence the quote
 prints and the point the room draws agree, working out left and right without
 asking the code.
 
+**The seventh, the same round, is the convention that says how a line's
+words are looked up** *(Leo)*: two copies and two places with none. The
+copies agreed; the places without one printed the placeholder.
+
 ⚠️ **A script that looked, fooled; the test that replaced it, not.** *(Round
 70, Leo.)* The first script written to find the left-and-right fault judged
 four of package D's arrangements right — "5 of 9 correct" — because there the
@@ -1472,8 +1495,19 @@ the probe answered the question it was written with, once, on the data it
 happened to meet; the test states the rule, and a coincidence in the data
 cannot pass it.
 
-Two of the six are still open. The table is here so that the next one found
+Two of the seven are still open. The table is here so that the next one found
 is added to it rather than rediscovered.
+
+**An exception written into a test is broken on purpose before it is
+trusted.** *(Leo, round 70.)* An exception is the easiest thing in a test to
+write too wide, and a test that lets through more than it says still passes.
+So whenever one goes in, something the exception must *not* cover is changed
+to see the test go red. Round 70: `roughInChinese.test.ts` lets "air gap",
+"anti-tip" and "service channel" stay English on the Chinese page; with 电源
+changed to "power" it failed in all fifteen of its cases, which is what proves
+the hole is only three words wide. The same as the rule above for detectors —
+a thing that says "no problem" first shows it can find one — applied to the
+part of a test that says "except".
 
 **A whole population is checked by a script, not sampled by eye.** *(Leo,
 round 63.)* Round 62 looked at a sample of the 14,135 package switches that are
@@ -3212,7 +3246,38 @@ Registered, not scheduled. None of these is a round of its own.
   filtered run in round 59 still ended with "N of 27 smoke tests actually ran"
   and exit code 1 however its tests went — most likely because the file runs in
   a vitest worker whose `argv` does not carry the flag, which was not checked. A fault in a guard of our own; a full run is unaffected.
-- **Every rough-in sentence is English in Chinese.** *(Found round 69, in E's
+- ~~**Every rough-in sentence is English in Chinese.**~~ **Fixed in round 70**:
+  `roughInWords` names the words — `typeKey`, `whereKey`, `atKey` and the inch
+  figures — and each page says them in its own language through `sayWith`. Where
+  in the box is one whole phrase per combination of side and height, so Chinese
+  has its own order ("距右侧 3"、靠顶部") rather than English words in English
+  order. `roughInChinese.test.ts` holds every Chinese rough-in line on the
+  checklist, the quote and the callouts to no Latin letter, per package, and was
+  red on the round-70 geometry code in all fifteen. ⚠️ **One exception, and only
+  one:** "air gap", "anti-tip" and "service channel" stay English on the Chinese
+  page. Installers say them in English, and a customer showing the quote to one
+  has to be able to point at the same words *(Leo, from site)*; the test takes
+  out exactly those three and fails on any other Latin letter; `roughInEnglish.test.ts`
+  holds the English, word for word, to what round 69 printed, but for the 38
+  lines the geometry fix changed on purpose, each listed with its reason.
+  - **The checklist and the quote now say which way left is** *(Leo)*: a line
+    at the top of both, "Left and right are as you face the cabinet." /
+    "左右均以面对柜子为准。" The whole of round 70's geometry fault was which
+    side left is seen from, and the reader of a quote was never told. It is a
+    new line; no existing English sentence changed for it.
+  - Leo's changes to the Chinese, round 70 — to go into `reviewed.json` once he
+    has confirmed the table: "距底" kept (a height is from the floor of its box, not
+    the room's), "上方柜内" rather than "上方吊柜内" (the English says only
+    "cabinet above", and over B's and D's hoods it is the hood housing), and a
+    colon in the checklist line to match the callouts.
+  - **Also fixed by it, and visible:** the `Key` convention for a line's vars
+    was written twice (checklist, toast) and not followed at all by the spec
+    card and the quote. `sayWith` is now the one copy, and all four use it. So
+    the one other line with keyed vars, "no island" (`rule.noIslandFallback`),
+    no longer prints `{microwaveLeg}` and `{wineLeg}` on the spec card and the
+    quote.
+
+  What follows is the entry as it stood: *(Found round 69, in E's
   Chinese screenshots; not changed.)* `roughInSentence` (`roughIn.ts`) writes
   where a connection is and how far along — "in the base cabinet beside the
   tower — open its door to see it", "3" from the left side, at the top" — as

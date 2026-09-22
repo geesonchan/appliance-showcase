@@ -48,7 +48,11 @@ describe("the rough-in list", () => {
       const callout = roughInCallout(item);
       expect((en as Record<string, string>)[callout.key], callout.key).toBeTruthy();
       expect((zh as Record<string, string>)[callout.key], callout.key).toBeTruthy();
-      expect(callout.vars.where, item.key).toBeTruthy();
+      // Round 70: the callout names its words by key; each part is in both.
+      for (const name of ["typeKey", "whereKey", "atKey"] as const) {
+        expect((en as Record<string, string>)[callout.vars[name]], `${item.key} ${name}`).toBeTruthy();
+        expect((zh as Record<string, string>)[callout.vars[name]], `${item.key} ${name}`).toBeTruthy();
+      }
     }
   });
 

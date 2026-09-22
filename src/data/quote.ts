@@ -4,6 +4,7 @@ import { fitCheck } from "./fit";
 import { formatUSD } from "./money";
 import { deriveUtilities } from "./utilities";
 import { effectiveCfm, formatCfm } from "./ventilation";
+import { sayWith } from "../i18n";
 
 /**
  * The configuration as a document.
@@ -156,7 +157,7 @@ export function buildQuote(input: QuoteInput): Quote {
       ruleId: finding.ruleId,
       severity: finding.severity,
       slot: finding.slot,
-      message: t(finding.messageKey, finding.params),
+      message: sayWith(t, finding.messageKey, finding.params),
     })),
   };
 }

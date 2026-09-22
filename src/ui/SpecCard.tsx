@@ -8,6 +8,7 @@ import { DebugBadge } from "./DebugBadge";
 import { useChecklist } from "../data/useChecklist";
 import { effectiveCfm, formatCfm } from "../data/ventilation";
 import { DEBUG } from "../debug";
+import { sayWith } from "../i18n";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
 import { useSelectedBlower, useSelection } from "../store/useSelection";
@@ -191,7 +192,7 @@ export function SpecCard() {
                       title={t(`checklist.${finding.severity}`)}
                     />
                     <span>
-                      {t(finding.messageKey, finding.params)}
+                      {sayWith(t, finding.messageKey, finding.params)}
                       {DEBUG && (
                         <span className="ml-1.5 font-mono text-[9px] text-ink-muted/60">
                           {finding.ruleId}

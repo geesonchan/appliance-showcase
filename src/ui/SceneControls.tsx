@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { SLOT_BY_ID } from "../data/slots";
 import { useSelectedAppliance } from "../store/useSelection";
+import { sayWith } from "../i18n";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
 import type { RenderMode } from "../types";
@@ -190,16 +191,7 @@ export function Toast() {
   if (!toast) return null;
 
   // A value named `...Key` is a message key of its own: the wall, the reason.
-  const say = (key: string, vars?: Record<string, string | number>) =>
-    t(
-      key,
-      vars &&
-        Object.fromEntries(
-          Object.entries(vars).map(([name, value]) =>
-            name.endsWith("Key") ? [name.slice(0, -3), t(String(value))] : [name, value],
-          ),
-        ),
-    );
+  const say = (key: string, vars?: Record<string, string | number>) => sayWith(t, key, vars);
   const message = toast.lines
     ? toast.lines.map((line) => say(line.key, line.vars)).join(" ")
     : say(toast.key, toast.vars);

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import type { LineTier } from "../data/roughIn";
-import { roughInSentence } from "../data/roughIn";
+import { roughInWords } from "../data/roughIn";
 import { TIER_ORDER, listRoughIn, roughInCallout, type RoughInItem } from "../data/roughInList";
 import { SLOT_BY_ID } from "../data/slots";
 import { useT } from "../i18n/useT";
@@ -89,9 +89,9 @@ export function RoughInList() {
                             (active === item.key ? "text-accent" : "text-ink-muted")
                           }
                         >
-                          {t(SLOT_BY_ID[item.slotId].labelKey)} · {item.resolved.point.type}
+                          {t(SLOT_BY_ID[item.slotId].labelKey)} · {t(roughInWords(item.resolved).typeKey)}
                           <span className="block text-[10px] text-ink-muted/80">
-                            {roughInSentence(item.resolved).where}
+                            {t(roughInWords(item.resolved).whereKey)}
                           </span>
                         </button>
                       </li>

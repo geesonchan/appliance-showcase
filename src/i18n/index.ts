@@ -32,3 +32,33 @@ export function translate(lang: Lang, key: string, vars?: Record<string, string 
     name in vars ? String(vars[name]) : match,
   );
 }
+
+type Vars = Record<string, string | number>;
+
+/**
+ * A message whose vars may name other messages.
+ *
+ * A var whose name ends in `Key` is itself a key: it is looked up with the same
+ * plain vars and put in under the name without `Key` — `whereKey` fills
+ * `{where}`. Rules, the generator and the rough-in points have no language, so
+ * they name a string rather than write it, and each part of a line is a whole
+ * phrase in its own language rather than English words put in English order.
+ *
+ * One place for the convention (round 70). It used to be written twice, in the
+ * checklist and the toast, and the spec card and the quote did not follow it at
+ * all — so a line with a keyed var printed its placeholder there.
+ */
+export function sayWith(
+  t: (key: string, vars?: Vars) => string,
+  key: string,
+  vars?: Vars,
+): string {
+  if (!vars) return t(key);
+  const plain: Vars = {};
+  for (const [name, value] of Object.entries(vars)) if (!name.endsWith("Key")) plain[name] = value;
+  const resolved: Vars = { ...plain };
+  for (const [name, value] of Object.entries(vars)) {
+    if (name.endsWith("Key") && typeof value === "string") resolved[name.slice(0, -3)] = t(value, plain);
+  }
+  return t(key, resolved);
+}

@@ -67,6 +67,13 @@ export function InstallChecklist() {
         </span>
       </button>
 
+      {/* Round 70, Leo: which way left is. The whole of that round's fault was
+          the side left was seen from, and whoever reads the list was never told. */}
+      {open && findings.length > 0 && (
+        <p data-sides-note className="px-5 pb-3 text-[10px] leading-snug text-ink-muted">
+          {t("roughIn.sidesNote")}
+        </p>
+      )}
       {open && findings.length > 0 && (
         <ul className="space-y-3 px-5 pb-5">
           {[...bySlot.entries()].map(([slotId, group]) => (

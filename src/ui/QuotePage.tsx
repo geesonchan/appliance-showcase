@@ -121,6 +121,11 @@ export function QuotePage() {
             </p>
           )}
 
+          {/* Round 70, Leo: which way left is, for whoever the quote is handed to. */}
+          <p data-sides-note className="mb-3 text-[11px] leading-snug text-ink-muted">
+            {t("roughIn.sidesNote")}
+          </p>
+
           <ul className="space-y-px overflow-hidden rounded-sm border border-line bg-line">
             {quote.lines.map((line) => (
               <Row key={line.slot} line={line} quote={quote} />

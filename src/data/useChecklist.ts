@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { SLOT_ORDER } from "./catalogue";
 import { SLOT_BY_ID } from "./slots";
 import { evaluateSlot, packageContext, type Finding } from "./rules";
-import { resolveRoughIn, roughInSentence } from "./roughIn";
+import { resolveRoughIn, roughInWords } from "./roughIn";
 import { useSelection, useSelectedBlower } from "../store/useSelection";
 import { useAppStore, type CounterFinish } from "../store/useAppStore";
 import { applianceBox } from "./applianceBox";
@@ -73,10 +73,8 @@ export function checklistFor(
           severity: "info" as const,
           messageKey: "rule.roughIn",
           slot: slotId,
-          params: {
-            type: resolved.point.type,
-            ...roughInSentence(resolved),
-          },
+          // Keys and figures; each page says them in its own language.
+          params: roughInWords(resolved),
         })),
       ),
       // Package-wide findings are attributed to the hood, which is what they

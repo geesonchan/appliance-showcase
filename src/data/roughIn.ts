@@ -440,6 +440,17 @@ const inch = (value: number) => {
   return `${whole}-${n}/${d}"`;
 };
 
+/** The words of a rough-in line: message keys and the figures that go in them. */
+export interface RoughInWords {
+  [name: string]: string;
+  /** What the connection is: `roughIn.type.power`. */
+  typeKey: string;
+  /** Which box it is in: `roughIn.where.besideTower`. */
+  whereKey: string;
+  /** Where in that box, as one phrase: `roughIn.at.fromRight.top`. */
+  atKey: string;
+}
+
 /**
  * One line per connection, in the terms an installer would repeat back.
  *
@@ -448,27 +459,49 @@ const inch = (value: number) => {
  *
  * Left and right are the ones the point was placed by (`sides`), never worked
  * out again here (round 70).
+ *
+ * It names the words rather than writing them (round 70). Every part is a key —
+ * the rendering language fills `{type}`, `{where}` and `{at}` from `typeKey`,
+ * `whereKey` and `atKey` (`sayWith`) — and where in the box is one whole phrase
+ * per combination, so each language puts the side and the height in its own
+ * order: `3" from the right side, at the top`, `距右侧 3"、靠顶部`. It used to
+ * build the English in code, and every Chinese page printed it in English.
  */
-export function roughInSentence(resolved: ResolvedPoint): { where: string; at: string } {
+export function roughInWords(resolved: ResolvedPoint): RoughInWords {
   const { point, sides } = resolved;
   const where =
     point.location === "in-cutout"
       ? point.z === "rear"
-        ? "rear wall of the opening"
-        : "front of the opening"
+        ? "rearOfOpening"
+        : "frontOfOpening"
       : point.location === "under-sink"
-        ? "inside the sink base"
+        ? "sinkBase"
         : point.location === "above-cabinet"
-          ? "in the cabinet above"
+          ? "cabinetAbove"
           : point.location === "beside-tower"
-            ? "in the base cabinet beside the tower — open its door to see it"
-            : `in the cabinet to the ${sides.cabinet}`;
+            ? "besideTower"
+            : sides.cabinet === "left"
+              ? "cabinetLeft"
+              : "cabinetRight";
 
-  const parts: string[] = [];
-  if (typeof point.x === "number") parts.push(`${inch(point.x)} from the ${sides.measuredFrom} side`);
-  else if (point.x !== "center") parts.push(`at the ${point.x}`);
-  if (typeof point.y === "number") parts.push(`${inch(point.y)} up`);
-  else parts.push(`at the ${point.y}`);
+  const across =
+    typeof point.x === "number"
+      ? sides.measuredFrom === "left"
+        ? "fromLeft"
+        : "fromRight"
+      : point.x === "left"
+        ? "atLeft"
+        : point.x === "right"
+          ? "atRight"
+          : "center";
+  const up = typeof point.y === "number" ? "up" : point.y;
 
-  return { where, at: parts.join(", ") };
+  const words: RoughInWords = {
+    typeKey: `roughIn.type.${point.type}`,
+    whereKey: `roughIn.where.${where}`,
+    atKey: `roughIn.at.${across}.${up}`,
+  };
+  if (typeof point.x === "number") words.x = inch(point.x);
+  if (typeof point.y === "number") words.y = inch(point.y);
+  return words;
 }

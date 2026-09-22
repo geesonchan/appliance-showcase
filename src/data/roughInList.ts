@@ -3,7 +3,7 @@ import {
   lineTier,
   resolveRoughIn,
   roughInCalloutKey,
-  roughInSentence,
+  roughInWords,
   type LineTier,
   type ResolvedPoint,
 } from "./roughIn";
@@ -48,9 +48,9 @@ export function listRoughIn(selection: Partial<Record<SlotId, Appliance | undefi
 
 /** The callout a point shows, whether it is clicked in the room or picked in the list. */
 export function roughInCallout(item: RoughInItem) {
-  const { where, at } = roughInSentence(item.resolved);
+  // Keys, not words: the toast renders them in the page's language (`sayWith`).
   return {
     key: roughInCalloutKey(item.resolved.point),
-    vars: { type: item.resolved.point.type, where, at },
+    vars: roughInWords(item.resolved),
   };
 }

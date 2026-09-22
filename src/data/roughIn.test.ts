@@ -9,8 +9,9 @@ import {
   resolveRoughIn,
   roughInCalloutKey,
   roughInFor,
-  roughInSentence,
+  roughInWords,
 } from "./roughIn";
+import { sayWith, translate } from "../i18n";
 import en from "../i18n/en.json";
 import zh from "../i18n/zh.json";
 import { ROOM } from "./room";
@@ -111,10 +112,10 @@ describe("the numbers off the drawings", () => {
   it("names where each connection is, in the terms a manual uses", () => {
     const outlet = resolveRoughIn("slot-microwave", model("thermador-md24bs"))[0];
     expect(outlet.point).toBe(roughInFor(model("thermador-md24bs"))!.points[0]);
-    const said = roughInSentence(outlet);
-    expect(said.where).toBe("rear wall of the opening");
-    expect(said.at).toContain('4"');
-    expect(said.at).toContain('14-5/8"');
+    const words = roughInWords(outlet);
+    const en = (key: string, vars?: Record<string, string | number>) => translate("en", key, vars);
+    expect(en(words.whereKey)).toBe("rear wall of the opening");
+    expect(sayWith(en, "rule.roughIn", words)).toBe('power — rear wall of the opening, 4" from the left side, 14-5/8" up');
   });
 });
 

@@ -8,6 +8,7 @@ import { listRoughIn, type RoughInItem } from "./roughInList";
 import { SLOT_BY_ID } from "./slots";
 import { resetRoom } from "./testRoom";
 import { checklistFor } from "./useChecklist";
+import { translate } from "../i18n";
 import type { Appliance, SlotId } from "../types";
 
 /**
@@ -155,8 +156,10 @@ function pointsWithSentences(id: string) {
       (f) => f.ruleId === `rough-in:${item.slotId}:${item.resolved.point.type}:${index}`,
     );
     if (!finding?.params) throw new Error(`no checklist line for ${item.key}`);
-    const where = String(finding.params.where);
-    const at = String(finding.params.at);
+    // The English the page prints for each part (`sayWith` fills `{where}`
+    // from `whereKey` with the same figures).
+    const where = translate("en", String(finding.params.whereKey), finding.params);
+    const at = translate("en", String(finding.params.atKey), finding.params);
     return { item, where, at, label: `${item.slotId} ${item.resolved.point.type} ("${where}; ${at}")` };
   });
 }
