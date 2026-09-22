@@ -1,0 +1,15 @@
+{
+  "_about": "Copy Leo has read and approved, word for word as he approved it. reviewed.test.ts holds en.json and zh.json to these texts exactly, so changing an approved line turns the suite red until the new wording has been read again and entered here. The lock is deliberate: what it keeps is the wording that was reviewed, not whatever the line says now. zh.json as a whole stays marked machine-translated; a key listed here is the exception. docs/decisions.md D10 (round 70).",
+  "en": {
+    "rule.makeupAir": {
+      "text": "{cfm} CFM. Codes may require makeup air at this airflow. California Mechanical Code §505 calls for makeup air above 400 CFM; Title 24 may also apply based on floor area. Whether it is required depends on the home's combustion appliances and floor area — confirm with your HVAC contractor and local building department.",
+      "reviewed": "Leo, round 66 (decisions.md D6)"
+    }
+  },
+  "zh": {
+    "rule.makeupAir": {
+      "text": "{cfm} CFM。此风量下规范可能要求配置补风系统。加州机械规范（CMC）第 505 节规定 400 CFM 以上需补风；Title 24 另有按房屋面积计算的要求。是否必须，取决于住宅内的燃烧设备类型和面积，请与暖通承包商及当地建筑部门确认。",
+      "reviewed": "Leo, round 66 (decisions.md D6)"
+    }
+  }
+}

@@ -465,6 +465,17 @@ the UI state are marked rather than every string, so the interface stays
 readable; a coverage test fails if the two locales drift apart or a placeholder
 set stops matching.
 
+**Reviewed copy is locked to the words that were reviewed.** *(Round 70, Leo.)*
+`src/i18n/reviewed.json` lists the lines Leo has read and approved — the key
+**and the text as he approved it**, per language — and `reviewed.test.ts` fails
+unless `en.json` and `zh.json` say exactly that. A list of keys alone would stay
+green when somebody later edited an approved sentence; with the text in it, the
+edit turns red and the line has to be read again before it goes out. Locking
+"the wording at the time" is the point here, not the accident it is in other
+tests: what is held is the wording that was reviewed. The file stays marked
+machine-translated as a whole; a listed key is the exception. The first entries
+are the makeup-air line in both languages (D6, round 66).
+
 ---
 
 ## D11 · The cabinet layout rules
@@ -2904,20 +2915,47 @@ Registered, not scheduled. None of these is a round of its own.
   refused. Recorded, not changed. *(Round 48, Leo.)*
 - **One axis written in, found in round 49 and not fixed.** A sweep for
   positions and checks that assume one axis or the back wall, done with the
-  riser fix. Real now:
-  - `PlanThumbnail.tsx` swaps width and depth for any turned slot, so the
-    parallel island's microwave drawer is drawn sideways on the plan.
-  - The island aisle dimension (`dimensions.ts`) is drawn from the back run
-    even when the island is turned and its aisle is to the left run.
-  - Rough-in leader lines (`RoughInLayer.tsx`) run toward +x or +z, which for
-    an island opening is through the island.
-  - Island cabinet doors are drawn on the +x or +z face (`CabinetLayer.tsx`),
+  riser fix. Real now *(checked against the code and the tests in round 70,
+  item by item; four of the five were fixed in rounds 50-51 and this entry was
+  never updated)*:
+  - ~~`PlanThumbnail.tsx` swaps width and depth for any turned slot, so the
+    parallel island's microwave drawer is drawn sideways on the plan.~~
+    **Fixed in round 50** (`89237c3`): `planFootprint` turns the size with
+    `sizeOnPlan`. Held by `islandFacing.test.ts` — "draws the 36 inch cooktop
+    36 inches along the island, not across it" (the cooktop, because every
+    other island opening is square and passes either way) and "draws each
+    machine on the plan with its width along the run or the island it is on",
+    both with the island laid either way.
+  - **The island aisle dimension (`dimensions.ts`) is drawn from the back run
+    even when the island is turned and its aisle is to the left run. Still
+    open.** Checked in round 70 on package A with the island perpendicular:
+    the line runs from the back run's counter edge to the island's *end*
+    (z −47" to −5", at x −4"), not across the working aisle to the left run.
+    Its figure reads 42", and the aisle to the left run is 42" too — **by
+    coincidence**: both are the generator's one `clear`, so the number is right
+    and the line is drawn in the wrong place. No test turns the island for
+    this dimension.
+  - ~~Rough-in leader lines (`RoughInLayer.tsx`) run toward +x or +z, which for
+    an island opening is through the island.~~ **Fixed in round 50**
+    (`89237c3`): `leaderEnd` (`roughIn.ts`) runs out of the host's `facing`
+    face. Held by `islandFacing.test.ts` — "runs every island rough-in leader
+    out of the island on the side its machine opens to", A, C and D with the
+    island either way.
+  - ~~Island cabinet doors are drawn on the +x or +z face (`CabinetLayer.tsx`),
     so a working-side door faces into the island; `front` fixes it only for the
-    cooktop's drawer base.
-  - A fly-in's azimuth is not turned with the island, so on an island laid
+    cooktop's drawer base.~~ **Fixed in round 50** (`89237c3`): `doorFace`
+    reads the box's recorded `facing`, and the `front` stopgap went. Held by
+    `islandFacing.test.ts` — "draws every door on a face somebody can see", A,
+    C and D with the island either way.
+  - ~~A fly-in's azimuth is not turned with the island, so on an island laid
     across the room the camera arrives at the microwave drawer and the wine
     cabinet well off their fronts. The cooktop's 240 degrees was chosen because
-    it happens to face the working side both ways.
+    it happens to face the working side both ways.~~ **Fixed in round 51**
+    (`a2d1e3f`): `bestView.azimuth` is an offset from the machine's front,
+    turned with it (`flyInAzimuth`). Held by `flyIn.test.ts` — "flies in on
+    package A's island … the same way with the island along the back wall or
+    across the room" (microwave and wine) and "puts the camera in front of
+    every machine", A with the island either way.
 
   ~~Waiting for a hood on an island: the duct outlet and duct run assume the
   back wall (`hoodOutlet`, `DuctRuns`); gas and water trunks to an island slot
@@ -3092,3 +3130,15 @@ Registered, not scheduled. None of these is a round of its own.
   Chinese install view has done it since the rough-in points were drawn, and
   it is on the live site now. It wants i18n keys for the locations and the
   measurement phrases, and a test that no Chinese line carries them in English.
+- **A round-69 smoke failure whose cause is lost.** *(Round 69; recorded round
+  70, Leo.)* One smoke run in round 69 ended 27 passed, 1 failed. Its output
+  was piped to `tail`, so the exit code read 0 and which test failed was not
+  kept; the rerun passed 28 of 28. The failure is not known and cannot now be
+  found. This is the pipe of round 37 again (above): since round 70 test
+  output goes to a file, never through a pipe, and the exit code is read from
+  vitest itself.
+- **The layout checker's failure messages are English strings built in code.**
+  *(Round 70, Leo: record, do not change.)* Every `fail(code, message)` in
+  `layoutRules.ts` builds its message as an English template ("sink has only
+  …, needs …"). None reaches the page today — `checkLayout` is called only
+  from tests (checked round 70) — so a Chinese customer never sees one. If any is ever shown, it needs keys first.
