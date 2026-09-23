@@ -614,10 +614,28 @@ export const roughInPointSchema = z.object({
     // The base cabinet beside a tower, on whichever side has one — the landing
     // side where both do. `x` is measured from the side next to the tower.
     "beside-tower",
+    // The ceiling over the machine, where something hung from it is roughed in
+    // before the ceiling closes: the duct hole and the supply for an island
+    // hood. The box is the framing over the machine's own footprint, as deep as
+    // the 2x4 cross framing its guide asks for. Round 72.
+    "at-ceiling",
   ]),
   x: z.union([inches, z.enum(["left", "center", "right"])]),
   y: z.union([inches, z.enum(["bottom", "center", "top"])]),
-  z: z.enum(["rear", "front"]),
+  /**
+   * Which end of the box `y` is measured from: the floor of it, as a manual
+   * dimensions an opening, or down from its top where that is what the manual
+   * gives — CIT367YG's junction box is "approx. 12in" below the cooktop, and
+   * writing it as a height off the cabinet floor would hide where the figure
+   * came from. Round 72.
+   */
+  yFrom: z.enum(["floor", "top"]).default("floor"),
+  /**
+   * Against the back of the box, its front edge, or the middle of its depth —
+   * which is where an island hood's duct leaves, the housing being centred
+   * over the cooking surface (round 72).
+   */
+  z: z.enum(["rear", "front", "center"]),
   /** For a bracket or a channel rather than a point connection. */
   size: z.tuple([inches, inches, inches]).nullable().default(null),
   /** A drain's high loop peaks here, measured from the floor. */
@@ -650,7 +668,7 @@ export const roughInPointSchema = z.object({
       where: z.enum(["behind-machine", "drawer-below"]),
       x: z.union([inches, z.enum(["left", "center", "right"])]),
       y: z.union([inches, z.enum(["bottom", "center", "top"])]),
-      z: z.enum(["rear", "front"]),
+      z: z.enum(["rear", "front", "center"]),
       /** A message key for what must hold for this to be allowed, if anything. */
       conditionKey: z.string().nullable().default(null),
       provenance: z.enum(["drawing", "site", "inferred", "uncertain"]).nullable().default(null),

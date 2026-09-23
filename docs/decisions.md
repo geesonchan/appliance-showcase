@@ -3035,6 +3035,30 @@ far, both from the models' sheets:
   package in every arrangement: a point in a neighbour's cabinet is in a real
   cabinet, or it is one of these recorded ways out. A model that one day has
   neither turns the suite red rather than losing its line.
+
+**A machine on the island keeps its points, including the ones above it.**
+*(Round 72.)* `hostFor` looks a machine up among the wall runs; an island
+machine is in none of them, and every location but `in-cutout` returned null —
+silently, so the line was simply absent. Round 49's sweep found it and round 52
+set the order: the data first, then the fix, so that the fix has something to
+be held to. Package E's island hood supplied it.
+- **`at-ceiling`**, new this round: what has to be in place before the ceiling
+  closes, for something that hangs from it. The box is the machine's own
+  footprint, as deep as the 2x4 cross framing the hood's guide asks for between
+  the joists (HMIB42WS p. 13), turned with the machine on the island. The hood's
+  8" duct hole and its supply are both roughed in there — the guide's own
+  template marks the duct hole and the screw holes on the ceiling before
+  anything goes up (p. 14).
+- **`yFrom: "top"`**, also new: a height the manual gives downward stays
+  downward. CIT367YG's junction box is "approx. 12in" below the cooktop
+  (pp. 8-9); as a height off the cabinet floor it would have been a figure
+  nobody could check against the guide, and the sentence says "12" below the
+  top" so nobody measures from the wrong end.
+- **`z: "center"`**: the middle of a box's depth, which is where an island
+  hood's duct leaves it. Rear and front could not say it.
+- `islandRoughInHost.test.ts` holds E's hood at the ceiling and over the island,
+  its duct hole centred on it, E's cooktop's junction box 12" under the
+  countertop, and **every package drawing as many points as its models record**.
 - Held by `roughInSides.test.ts`: every package, every arrangement it builds
   (sink leg, refrigerator end, coffee leg, island orientation), every point —
   the side the sentence measures from is the side the point is that far from;
@@ -3084,9 +3108,19 @@ Registered, not scheduled. None of these is a round of its own.
   MFGS4030RS, HMCB30WS, SHX78CM5N and PRW24C01CG have none: they are not yet
   reviewed, not "the sheet has nothing". Three of them already have a drawing in
   `docs/reference/` — `t36ft820ns-spec.png`, `hmcb30ws-spec.png`,
-  `mfgs4030rs-front.png` — so their points can be read off and added. This is
-  work to do, not where it ends. *(Noted 2026-09-14, round 43, Leo: not this
-  round.)*
+  `mfgs4030rs-front.png`. This is work to do, not where it ends. *(Noted
+  2026-09-14, round 43, Leo: not this round.)*
+  - ⚠️ **Read in round 72: those three drawings carry no connection at all.**
+    T36FT820NS's is page 3 of a 4-page sheet — overall dimensions, the door
+    swing and the accessory list, and nothing electrical or plumbed.
+    MFGS4030RS's is a photograph with three overall figures on it.
+    HMCB30WS's gives the hood's dimensions and its chimney's, and the one
+    figure that might be a service — a 5" from the hood's left edge to a dot on
+    the back — is unlabelled, so it cannot be read as the duct or the supply
+    without guessing. **What C needs is the four installation manuals, which
+    are not in the repository** (the 43rd round's "their points can be read off"
+    was written from the file names, not from the drawings). Until then C's
+    five machines keep the generic runs, which say they are not reviewed.
 - **One click, two outcomes.** In round 44 a click at the same screen point on
   the refrigerator's water point, with the same fly-in, showed no callout in one
   run and the callout in the next. The cause was not found. Clicks work and the
@@ -3172,13 +3206,14 @@ Registered, not scheduled. None of these is a round of its own.
   (`placements`).~~ **All four done in round 52, D22 step 3.** *(Noted
   2026-09-14, round 49; closed 2026-09-15, round 52.)*
 
-  Still open from that sweep: **a rough-in point that is not in its cutout is
-  dropped for an island slot** (`roughIn.ts`). Nothing in the catalogue has one
-  yet — HMIB42WS and CIT367YG have no `rough-in.json` entry at all — so there
-  was nothing to hold a fix to this round. **The order is therefore: build E,
-  add those two machines' rough-in points from their guides, and only then fix
-  this — the data is what makes the fix verifiable.** Fixing it first would be
-  a change nothing could check. *(Leo, round 52.)*
+  ~~Still open from that sweep: **a rough-in point that is not in its cutout is
+  dropped for an island slot** (`roughIn.ts`).~~ **Fixed in round 72, in the
+  order round 52 set:** HMIB42WS's and CIT367YG's points went in first, and
+  the island hood's two are `at-ceiling` — not its own opening — so the fix had
+  something to be held to. `islandRoughInHost.test.ts` was red on round 71's
+  code with "slot-hood: 0 of 2 points", which is what the fault looked like:
+  silence. It now also holds every package to drawing as many points as its
+  models record, so nothing can vanish again. *(Leo, round 52; done round 72.)*
 - ~~**Does the island hood still cover the combination oven in the install
   view?** *(Leo, round 55.)* The sight-line fade leaves install mode alone,
   because there the whole appliance layer has already stepped back to 0.12 —

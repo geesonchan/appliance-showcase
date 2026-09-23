@@ -647,5 +647,115 @@
       "now": "power — at the back of the drawer under the opening, at the top",
       "why": "No cabinet on either side of D's oven tower with the coffee cabinet on the back leg - only a 6\" filler - so the junction box goes in the drawer under the opening: PODS302B sheet p. 2 allows beneath, and above is the gap the steam leaves by (Leo, round 71)."
     }
+  },
+  "addedInRound72": {
+    "package-e | as-it-opens | rough-in:slot-cooktop:power:0": {
+      "now": "power — rear wall of the opening, 12\" below the top",
+      "why": "CIT367YG had no entry in rough-in.json until round 72: its junction box hangs about 12in under the cooktop (guide pp. 8-9)."
+    },
+    "package-e | as-it-opens | rough-in:slot-hood:duct:0": {
+      "now": "duct — in the ceiling above, before it closes, at the bottom",
+      "why": "HMIB42WS had no entry until round 72: the 8in duct hole is roughed into the ceiling before it closes (guide pp. 10, 13, 14)."
+    },
+    "package-e | as-it-opens | rough-in:slot-hood:power:1": {
+      "now": "power — in the ceiling above, before it closes, 8\" from the left side, at the bottom",
+      "why": "HMIB42WS had no entry until round 72: the 120V supply is brought through the ceiling to the terminal box on the hood (guide pp. 4, 17)."
+    },
+    "package-e | back/left/left/parallel | rough-in:slot-cooktop:power:0": {
+      "now": "power — rear wall of the opening, 12\" below the top",
+      "why": "CIT367YG had no entry in rough-in.json until round 72: its junction box hangs about 12in under the cooktop (guide pp. 8-9)."
+    },
+    "package-e | back/left/left/parallel | rough-in:slot-hood:duct:0": {
+      "now": "duct — in the ceiling above, before it closes, at the bottom",
+      "why": "HMIB42WS had no entry until round 72: the 8in duct hole is roughed into the ceiling before it closes (guide pp. 10, 13, 14)."
+    },
+    "package-e | back/left/left/parallel | rough-in:slot-hood:power:1": {
+      "now": "power — in the ceiling above, before it closes, 8\" from the left side, at the bottom",
+      "why": "HMIB42WS had no entry until round 72: the 120V supply is brought through the ceiling to the terminal box on the hood (guide pp. 4, 17)."
+    },
+    "package-e | back/left/left/perpendicular | rough-in:slot-cooktop:power:0": {
+      "now": "power — rear wall of the opening, 12\" below the top",
+      "why": "CIT367YG had no entry in rough-in.json until round 72: its junction box hangs about 12in under the cooktop (guide pp. 8-9)."
+    },
+    "package-e | back/left/left/perpendicular | rough-in:slot-hood:duct:0": {
+      "now": "duct — in the ceiling above, before it closes, at the bottom",
+      "why": "HMIB42WS had no entry until round 72: the 8in duct hole is roughed into the ceiling before it closes (guide pp. 10, 13, 14)."
+    },
+    "package-e | back/left/left/perpendicular | rough-in:slot-hood:power:1": {
+      "now": "power — in the ceiling above, before it closes, 8\" from the left side, at the bottom",
+      "why": "HMIB42WS had no entry until round 72: the 120V supply is brought through the ceiling to the terminal box on the hood (guide pp. 4, 17)."
+    },
+    "package-e | back/left/back/parallel | rough-in:slot-cooktop:power:0": {
+      "now": "power — rear wall of the opening, 12\" below the top",
+      "why": "CIT367YG had no entry in rough-in.json until round 72: its junction box hangs about 12in under the cooktop (guide pp. 8-9)."
+    },
+    "package-e | back/left/back/parallel | rough-in:slot-hood:duct:0": {
+      "now": "duct — in the ceiling above, before it closes, at the bottom",
+      "why": "HMIB42WS had no entry until round 72: the 8in duct hole is roughed into the ceiling before it closes (guide pp. 10, 13, 14)."
+    },
+    "package-e | back/left/back/parallel | rough-in:slot-hood:power:1": {
+      "now": "power — in the ceiling above, before it closes, 8\" from the left side, at the bottom",
+      "why": "HMIB42WS had no entry until round 72: the 120V supply is brought through the ceiling to the terminal box on the hood (guide pp. 4, 17)."
+    },
+    "package-e | back/left/back/perpendicular | rough-in:slot-cooktop:power:0": {
+      "now": "power — rear wall of the opening, 12\" below the top",
+      "why": "CIT367YG had no entry in rough-in.json until round 72: its junction box hangs about 12in under the cooktop (guide pp. 8-9)."
+    },
+    "package-e | back/left/back/perpendicular | rough-in:slot-hood:duct:0": {
+      "now": "duct — in the ceiling above, before it closes, at the bottom",
+      "why": "HMIB42WS had no entry until round 72: the 8in duct hole is roughed into the ceiling before it closes (guide pp. 10, 13, 14)."
+    },
+    "package-e | back/left/back/perpendicular | rough-in:slot-hood:power:1": {
+      "now": "power — in the ceiling above, before it closes, 8\" from the left side, at the bottom",
+      "why": "HMIB42WS had no entry until round 72: the 120V supply is brought through the ceiling to the terminal box on the hood (guide pp. 4, 17)."
+    },
+    "package-e | left/back/left/parallel | rough-in:slot-cooktop:power:0": {
+      "now": "power — rear wall of the opening, 12\" below the top",
+      "why": "CIT367YG had no entry in rough-in.json until round 72: its junction box hangs about 12in under the cooktop (guide pp. 8-9)."
+    },
+    "package-e | left/back/left/parallel | rough-in:slot-hood:duct:0": {
+      "now": "duct — in the ceiling above, before it closes, at the bottom",
+      "why": "HMIB42WS had no entry until round 72: the 8in duct hole is roughed into the ceiling before it closes (guide pp. 10, 13, 14)."
+    },
+    "package-e | left/back/left/parallel | rough-in:slot-hood:power:1": {
+      "now": "power — in the ceiling above, before it closes, 8\" from the left side, at the bottom",
+      "why": "HMIB42WS had no entry until round 72: the 120V supply is brought through the ceiling to the terminal box on the hood (guide pp. 4, 17)."
+    },
+    "package-e | left/back/left/perpendicular | rough-in:slot-cooktop:power:0": {
+      "now": "power — rear wall of the opening, 12\" below the top",
+      "why": "CIT367YG had no entry in rough-in.json until round 72: its junction box hangs about 12in under the cooktop (guide pp. 8-9)."
+    },
+    "package-e | left/back/left/perpendicular | rough-in:slot-hood:duct:0": {
+      "now": "duct — in the ceiling above, before it closes, at the bottom",
+      "why": "HMIB42WS had no entry until round 72: the 8in duct hole is roughed into the ceiling before it closes (guide pp. 10, 13, 14)."
+    },
+    "package-e | left/back/left/perpendicular | rough-in:slot-hood:power:1": {
+      "now": "power — in the ceiling above, before it closes, 8\" from the left side, at the bottom",
+      "why": "HMIB42WS had no entry until round 72: the 120V supply is brought through the ceiling to the terminal box on the hood (guide pp. 4, 17)."
+    },
+    "package-e | left/back/back/parallel | rough-in:slot-cooktop:power:0": {
+      "now": "power — rear wall of the opening, 12\" below the top",
+      "why": "CIT367YG had no entry in rough-in.json until round 72: its junction box hangs about 12in under the cooktop (guide pp. 8-9)."
+    },
+    "package-e | left/back/back/parallel | rough-in:slot-hood:duct:0": {
+      "now": "duct — in the ceiling above, before it closes, at the bottom",
+      "why": "HMIB42WS had no entry until round 72: the 8in duct hole is roughed into the ceiling before it closes (guide pp. 10, 13, 14)."
+    },
+    "package-e | left/back/back/parallel | rough-in:slot-hood:power:1": {
+      "now": "power — in the ceiling above, before it closes, 8\" from the left side, at the bottom",
+      "why": "HMIB42WS had no entry until round 72: the 120V supply is brought through the ceiling to the terminal box on the hood (guide pp. 4, 17)."
+    },
+    "package-e | left/back/back/perpendicular | rough-in:slot-cooktop:power:0": {
+      "now": "power — rear wall of the opening, 12\" below the top",
+      "why": "CIT367YG had no entry in rough-in.json until round 72: its junction box hangs about 12in under the cooktop (guide pp. 8-9)."
+    },
+    "package-e | left/back/back/perpendicular | rough-in:slot-hood:duct:0": {
+      "now": "duct — in the ceiling above, before it closes, at the bottom",
+      "why": "HMIB42WS had no entry until round 72: the 8in duct hole is roughed into the ceiling before it closes (guide pp. 10, 13, 14)."
+    },
+    "package-e | left/back/back/perpendicular | rough-in:slot-hood:power:1": {
+      "now": "power — in the ceiling above, before it closes, 8\" from the left side, at the bottom",
+      "why": "HMIB42WS had no entry until round 72: the 120V supply is brought through the ceiling to the terminal box on the hood (guide pp. 4, 17)."
+    }
   }
 }

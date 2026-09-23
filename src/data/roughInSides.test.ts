@@ -3,7 +3,7 @@ import { APPLIANCE_BY_ID } from "./catalogue";
 import { setActivePackage, setLayoutParamsGrowing } from "./layoutState";
 import type { LayoutParams } from "./layoutTemplate";
 import { PACKAGES, PACKAGE_BY_ID } from "./packages";
-import { ISLAND, REQUESTED_PARAMS, RUNS, runForSlot } from "./room";
+import { REQUESTED_PARAMS, RUNS, runForSlot } from "./room";
 import { listRoughIn, type RoughInItem } from "./roughInList";
 import { SLOT_BY_ID } from "./slots";
 import { resetRoom } from "./testRoom";
@@ -90,13 +90,14 @@ function frontOf(item: RoughInItem): [number, number] {
   const where = run ? run.id : runForSlot(item.slotId);
   if (where === "back") return [0, 1];
   if (where === "left") return [1, 0];
-  // An island machine opens to the half of the island it stands in.
+  // On the island, which way the machine faces is recorded on the slot as a
+  // turn (D22): no turn faces +z, a quarter turn +x. Round 72 replaced "the
+  // half of the island it stands in" with this, because a hood hangs over the
+  // island rather than standing in a half of it, and at the middle the half
+  // read the wrong way. For the machines that do stand in one, the two agree.
   const slot = SLOT_BY_ID[item.slotId];
-  const alongIsX = ISLAND.x[1] - ISLAND.x[0] > ISLAND.z[1] - ISLAND.z[0];
-  const across = alongIsX ? ISLAND.z : ISLAND.x;
-  const at = alongIsX ? slot.position[2] : slot.position[0];
-  const sign = at < (across[0] + across[1]) / 2 ? -1 : 1;
-  return alongIsX ? [0, sign] : [sign, 0];
+  const round = (n: number) => Math.round(n * 1e6) / 1e6;
+  return [round(Math.sin(slot.rotationY)), round(Math.cos(slot.rotationY))];
 }
 
 /** Where things are across the installer's view: a coordinate that grows to their right, in inches. */

@@ -37,6 +37,8 @@ const WAS = round69.round69 as Record<string, string>;
 // line said, what it says now and why. The last layer that names a line wins.
 const LAYERS: Changed[] = [round69.changedInRound70 as Changed, round69.changedInRound71 as Changed];
 const CHANGED: Changed = Object.assign({}, ...LAYERS);
+/** Lines that did not exist in round 69, with what they say and why. */
+const ADDED = round69.addedInRound72 as Record<string, { now: string; why: string }>;
 
 const en = (key: string, vars?: Record<string, string | number>) => translate("en", key, vars);
 
@@ -80,7 +82,14 @@ describe.each(PACKAGES.map((pkg) => pkg.id))("%s's English rough-in lines", (id)
       const got = now.get(key);
       if (got !== want) wrong.push(`${key}\n    want: ${want}\n    got:  ${got ?? "(no such line)"}`);
     }
-    for (const key of now.keys()) if (!(key in WAS)) wrong.push(`${key}: a line round 69 did not print`);
+    for (const [key, line] of now) {
+      if (key in WAS) continue;
+      // A line round 69 did not print at all: a model that had no rough-in
+      // entry then. Each is recorded with what it says and why it is there.
+      const added = ADDED[key];
+      if (!added) wrong.push(`${key}: a line round 69 did not print, and it is not in the record of added lines`);
+      else if (added.now !== line) wrong.push(`${key}\n    want: ${added.now}\n    got:  ${line}`);
+    }
     expect(wrong, wrong.join("\n")).toEqual([]);
   });
 });

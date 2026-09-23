@@ -166,6 +166,13 @@ interface HostBox {
   frame?: { origin: readonly [number, number]; rotationY: number; depth: number };
 }
 
+/**
+ * How deep the ceiling box is: the 2x4 cross framing an island hood's guide
+ * asks for between the joists (HMIB42WS, p. 13), which is what the duct hole
+ * and the supply are roughed into before the ceiling closes.
+ */
+const CEILING_FRAMING = ft(3.5);
+
 const segmentsOf = (run: CabinetRun) => run.segments;
 
 function locate(slotId: SlotId): { run: CabinetRun; index: number } | null {
@@ -198,6 +205,33 @@ function hostFor(slot: Slot, appliance: Appliance, point: RoughInPoint): HostBox
     return null;
   }
 
+  // The ceiling over the machine: what has to be in place before it closes,
+  // for something that hangs from it. The box is the machine's own footprint,
+  // as deep as the 2x4 cross framing its guide asks for (round 72).
+  if (point.location === "at-ceiling") {
+    const halfW = ft(slot.cutout.w) / 2;
+    const band = [ROOM.wallHeight - CEILING_FRAMING, ROOM.wallHeight] as const;
+    if (found) {
+      const segment = found.run.segments[found.index];
+      return { id: `${slot.id}-ceiling`, run: found.run, along: [segment.from, segment.to] as const, band };
+    }
+    // On the island, in the machine's own frame, turned with it.
+    return {
+      id: `${slot.id}-ceiling`,
+      run: RUNS[0],
+      along: [-halfW, halfW] as const,
+      band,
+      frame: {
+        origin: [slot.position[0], slot.position[2]] as const,
+        rotationY: slot.rotationY,
+        depth: ft(slot.cutout.d),
+      },
+    };
+  }
+
+  // A machine on the island stands on no wall run, so a box that is a run's —
+  // a neighbour's cabinet, the sink base — cannot be found for it. Round 72:
+  // it says so rather than dropping the point, and `resolveRoughIn` throws.
   if (!found && point.location !== "in-cutout") return null;
 
   if (point.location === "in-cutout") {
@@ -446,8 +480,13 @@ export function resolveRoughIn(slotId: SlotId, appliance: Appliance | undefined)
         ]
       : [];
 
+    // A height is off the floor of the box, or down from its top where the
+    // manual gives it that way (`yFrom`, round 72).
+    const fromTop = "yFrom" in at && at.yFrom === "top";
     const y =
-      at.y === "bottom"
+      typeof at.y === "number" && fromTop
+        ? host.band[1] - ft(at.y)
+        : at.y === "bottom"
         ? host.band[0] + size[1] / 2
         : at.y === "top"
           ? host.band[1] - size[1] / 2
@@ -462,7 +501,8 @@ export function resolveRoughIn(slotId: SlotId, appliance: Appliance | undefined)
       const { origin, rotationY, depth } = host.frame;
       const turned = { position: [origin[0], 0, origin[1]], rotationY };
       const turn = (lx: number, lz: number): [number, number] => toPlan(turned, lx, lz);
-      const localZ = at.z === "rear" ? -depth / 2 + size[2] / 2 : depth / 2 - size[2] / 2;
+      const localZ =
+        at.z === "center" ? 0 : at.z === "rear" ? -depth / 2 + size[2] / 2 : depth / 2 - size[2] / 2;
       const [px, pz] = turn(along, localZ);
       const corners = [
         turn(host.along[0], -depth / 2),
@@ -492,11 +532,14 @@ export function resolveRoughIn(slotId: SlotId, appliance: Appliance | undefined)
       continue;
     }
 
-    // Rear means against the wall the run stands on.
+    // Rear means against the wall the run stands on; centre, the middle of the
+    // box's depth, which is where a hood's duct leaves it.
     const across =
-      at.z === "rear"
-        ? host.run.centre - ROOM.counterDepth / 2 + size[2] / 2
-        : host.run.centre + ROOM.counterDepth / 2 - size[2] / 2;
+      at.z === "center"
+        ? host.run.centre
+        : at.z === "rear"
+          ? host.run.centre - ROOM.counterDepth / 2 + size[2] / 2
+          : host.run.centre + ROOM.counterDepth / 2 - size[2] / 2;
 
     const position = onAxis(host.run.axis, along, across, y);
     const min = onAxis(host.run.axis, host.along[0], host.run.centre - ROOM.counterDepth / 2, host.band[0]);
@@ -576,7 +619,9 @@ export function roughInWords(resolved: ResolvedPoint): RoughInWords {
           ? "cabinetAbove"
           : point.location === "beside-tower"
             ? "besideTower"
-            : sides.cabinet === "left"
+            : point.location === "at-ceiling"
+              ? "atCeiling"
+              : sides.cabinet === "left"
               ? "cabinetLeft"
               : "cabinetRight";
 
@@ -592,7 +637,10 @@ export function roughInWords(resolved: ResolvedPoint): RoughInWords {
         : at.x === "right"
           ? "atRight"
           : "center";
-  const up = typeof at.y === "number" ? "up" : at.y;
+  // A height off the floor of the box reads "6\" up"; one the manual gives
+  // down from the top says so, or an installer measures from the wrong end.
+  const fromTop = "yFrom" in at && at.yFrom === "top";
+  const up = typeof at.y === "number" ? (fromTop ? "down" : "up") : at.y;
 
   const words: RoughInWords = {
     typeKey: `roughIn.type.${point.type}`,

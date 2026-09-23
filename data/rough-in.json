@@ -287,6 +287,50 @@
           "note": "120V 15A dedicated circuit; the electrical zone is behind the liner's top, inside the housing"
         }
       ]
+    },
+    "thermador-cit367yg": {
+      "sourceUrl": "docs/reference/CIT367YG_Installation.pdf",
+      "points": [
+        {
+          "type": "power",
+          "location": "in-cutout",
+          "x": "center",
+          "y": 12,
+          "yFrom": "top",
+          "z": "rear",
+          "size": [5, 5, 3],
+          "note": "240/208V, 50A, hard wired through the 39\" flexible conduit the cooktop comes with. The junction box hangs about 12\" below the cooktop and must be within 3 ft of its connection, reachable for service",
+          "provenance": "inferred",
+          "basis": "The 12\" below the cooktop, the 39\" conduit, the 3 ft reach and the 50A breaker are the guide's (p. 8 and the figure on p. 9). Which part of the cabinet under the cooktop the box is fixed to is not on it: drawn against the back, across the middle."
+        }
+      ]
+    },
+    "thermador-hmib42ws": {
+      "sourceUrl": "docs/reference/HMIB42WS_Installation.pdf",
+      "points": [
+        {
+          "type": "duct",
+          "location": "at-ceiling",
+          "x": "center",
+          "y": "bottom",
+          "z": "center",
+          "size": [8, 3.5, 8],
+          "note": "8\" round duct up through the ceiling. The guide's template marks the duct hole and the screw holes in the ceiling before the hood goes up",
+          "provenance": "drawing",
+          "basis": "The 8\" round transition is the guide's (p. 10), the hole in the ceiling and its being marked from the template are p. 14, and the 3-1/2\" depth is the 2x4 cross framing p. 13 asks for between the joists."
+        },
+        {
+          "type": "power",
+          "location": "at-ceiling",
+          "x": 8,
+          "y": "bottom",
+          "z": "center",
+          "size": [4, 3.5, 4],
+          "note": "120V 15A dedicated circuit, brought through the ceiling to the terminal box on the blower housing",
+          "provenance": "inferred",
+          "basis": "120 VAC 15 A and the home supply cable running through a strain relief into the terminal box are the guide's (p. 4 and p. 17); it gives no figure for where the cable leaves the ceiling. Drawn 8\" off centre so it clears the duct, inside the duct cover's footprint."
+        }
+      ]
     }
   }
 }
