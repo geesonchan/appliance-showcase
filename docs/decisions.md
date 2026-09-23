@@ -485,6 +485,16 @@ them and the left-and-right note. Both are approved and both are locked; a
 person reading the list later should be able to tell which they are looking at
 without asking.
 
+**A line for the customer says what is, not what we changed.** *(Leo, round
+71.)* The reader has never seen the previous version, so a sentence written as
+a change tells them about our work instead of about their kitchen. Round 71's
+Chinese said 该接点**改到**机器背后 — "moved to", which implies it used to be
+somewhere else — where the English says only "goes behind the appliance". It
+now says 设在. **Do not use 改到, 移到, 更新为 or their English equivalents in
+copy a customer reads**; the install history belongs in this file and in the
+commits. This is the same fault as round 65's makeup-air line in a different
+guise: the Chinese saying more than the English.
+
 ⚠️ **Three kinds of connection are named in English on the Chinese page, and
 it is not a missed translation.** *(Leo, round 70, from site.)* "air gap",
 "anti-tip" and "service channel" stay English in `zh.json`. Installers here say
