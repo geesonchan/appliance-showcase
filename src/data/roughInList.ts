@@ -1,6 +1,6 @@
 import { SLOT_ORDER } from "./catalogue";
 import {
-  lineTier,
+  tierOf,
   resolveRoughIn,
   roughInCalloutKey,
   roughInWords,
@@ -41,7 +41,7 @@ export function listRoughIn(selection: Partial<Record<SlotId, Appliance | undefi
           key: roughInKey(slotId, i),
           slotId,
           resolved,
-          tier: lineTier(resolved.point),
+          tier: tierOf(resolved),
         })),
   );
 }

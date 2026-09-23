@@ -68,14 +68,25 @@ export function checklistFor(
       // not rules — nothing decides whether they fire — they are the numbers
       // an installer repeats back.
       ...SLOT_ORDER.flatMap((slotId) =>
-        resolveRoughIn(slotId, selection[slotId]).map((resolved, i) => ({
-          ruleId: `rough-in:${slotId}:${resolved.point.type}:${i}`,
-          severity: "info" as const,
-          messageKey: "rule.roughIn",
-          slot: slotId,
-          // Keys and figures; each page says them in its own language.
-          params: roughInWords(resolved),
-        })),
+        resolveRoughIn(slotId, selection[slotId]).flatMap((resolved, i) => [
+          {
+            ruleId: `rough-in:${slotId}:${resolved.point.type}:${i}`,
+            severity: "info" as const,
+            messageKey: "rule.roughIn",
+            slot: slotId,
+            // Keys and figures; each page says them in its own language.
+            params: roughInWords(resolved),
+          },
+          // Where no side of the machine had a cabinet, the list says so, and
+          // says what has to hold for the way out to be allowed (round 71).
+          ...resolved.noCabinetNotes.map((key, note) => ({
+            ruleId: `rough-in:${slotId}:${resolved.point.type}:${i}:no-cabinet:${note}`,
+            severity: "warning" as const,
+            messageKey: key,
+            slot: slotId,
+            params: roughInWords(resolved),
+          })),
+        ]),
       ),
       // Package-wide findings are attributed to the hood, which is what they
       // are actually about.

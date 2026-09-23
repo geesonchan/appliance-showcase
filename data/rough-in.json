@@ -33,6 +33,15 @@
           "y": 6,
           "z": "rear",
           "note": "Receptacle in the neighbouring cabinet, near the floor",
+          "whenNoCabinet": {
+            "where": "behind-machine",
+            "x": "center",
+            "y": 6,
+            "z": "rear",
+            "conditionKey": "roughIn.condition.breaker",
+            "provenance": "drawing",
+            "basis": "Sheet p. 4: where the construction makes a socket in an adjacent cabinet impossible, the appliance may be connected to an outlet behind it (B), and that alternative is permissible only if the outlet can be switched off at a circuit breaker. Behind the appliance is the drawing's; across the middle and 6\" up are not, and put it in the routing area (B) the same drawing gives at the back of the opening."
+          },
           "provenance": "inferred",
           "basis": "In an adjacent cabinet is on the drawing (A, recommended). 6\" in and 6\" up — near the floor — are not, and nor is which side of that cabinet the 6\" is from. Measured from the side that meets the refrigerator (round 70): the drawing's sketch puts the socket just past the opening's side wall, and near the machine is what \"adjacent\" is for; it also keeps the socket by the refrigerator when the cabinet on the other side is the one taken."
         },
@@ -43,6 +52,15 @@
           "y": 6,
           "z": "rear",
           "note": "Ice maker supply, same cabinet as the receptacle",
+          "whenNoCabinet": {
+            "where": "behind-machine",
+            "x": "center",
+            "y": 6,
+            "z": "rear",
+            "conditionKey": null,
+            "provenance": "site",
+            "basis": "Leo, round 70: with no cabinet on either side of the refrigerator the water goes behind it. The sheet says only that the supply should be somewhere reachable after the appliance is installed; the position is Leo's."
+          },
           "provenance": "inferred",
           "basis": "In an adjacent cabinet is on the drawing (recommended). 12\" in and 6\" up are not, and nor is which side of that cabinet the 12\" is from: from the side that meets the refrigerator, as the receptacle (round 70)."
         },
@@ -195,7 +213,16 @@
           "z": "rear",
           "size": [4, 4, 2.5],
           "highLoopApexIn": null,
-          "note": "240V 40A hard wired. The sheet (p. 2, pods302b-spec.pdf) puts the junction box above, beneath, right or left of the unit within reach of the power cord — never behind it. Drawn in the base cabinet beside the tower, 3\" from its side, on the landing side where there is a cabinet both sides: open that cabinet's door to see it"
+          "note": "240V 40A hard wired. The sheet (p. 2, pods302b-spec.pdf) puts the junction box above, beneath, right or left of the unit within reach of the power cord — never behind it. Drawn in the base cabinet beside the tower, 3\" from its side, on the landing side where there is a cabinet both sides: open that cabinet's door to see it",
+          "whenNoCabinet": {
+            "where": "drawer-below",
+            "x": "center",
+            "y": "top",
+            "z": "rear",
+            "conditionKey": null,
+            "provenance": "site",
+            "basis": "Beneath the unit is on the sheet (p. 2, one of above / beneath / left / right). The back of the drawer under the opening is Leo, round 70, and so is not taking \"above\": the cabinet over a steam oven stands off the wall with an open back, and that gap is where the steam leaves (D11 rule 12)."
+          }
         }
       ]
     },

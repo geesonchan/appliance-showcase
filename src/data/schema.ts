@@ -632,6 +632,32 @@ export const roughInPointSchema = z.object({
   provenance: z.enum(["drawing", "site", "inferred", "uncertain"]).nullable().default(null),
   /** Which of its figures come from where, when they are not all one. */
   basis: z.string().nullable().default(null),
+  /**
+   * Where the connection goes when no side of the machine has a real cabinet.
+   *
+   * "If conditions allow, the socket and the water go on the side of the
+   * machine that has a cabinet, near the machine" (Leo, from site). Where they
+   * do not allow — a column bank whose neighbours are a 5/8" spacer and a 3"
+   * board — this says what is done instead, per model, because the answer is
+   * the model's: T36BT120NS's sheet allows the outlet behind the appliance if
+   * a breaker can switch it off; PODS302B's allows the box beneath the unit.
+   * Null where nothing is recorded, and `roughInCabinet.test.ts` fails if a
+   * room ever leaves such a point with nowhere to go. Round 71.
+   */
+  whenNoCabinet: z
+    .object({
+      /** Behind the machine, in its own opening; or the drawer under its opening. */
+      where: z.enum(["behind-machine", "drawer-below"]),
+      x: z.union([inches, z.enum(["left", "center", "right"])]),
+      y: z.union([inches, z.enum(["bottom", "center", "top"])]),
+      z: z.enum(["rear", "front"]),
+      /** A message key for what must hold for this to be allowed, if anything. */
+      conditionKey: z.string().nullable().default(null),
+      provenance: z.enum(["drawing", "site", "inferred", "uncertain"]).nullable().default(null),
+      basis: z.string().nullable().default(null),
+    })
+    .nullable()
+    .default(null),
 });
 
 export const roughInFileSchema = z.object({

@@ -121,28 +121,6 @@ function view(item: RoughInItem) {
 
 const outside = (v: ReturnType<typeof view>) => v.point < v.left - EPS_IN || v.point > v.rightEdge + EPS_IN;
 
-/**
- * Package B's neighbouring-cabinet points, drawn outside the box they are in.
- *
- * Found by this file in round 70 and not the left-and-right fault it was
- * written for: they stay outside with that fixed, on the back run as well as
- * the left. `pickNeighbour` takes any segment that is not an appliance, so
- * beside B's refrigerator and wine column it takes a 3" tall board or a 5/8"
- * spacer, and a figure of 6" or 12" lands past it. Recorded in decisions.md's
- * Open items; not fixed this round (Leo). The last test in this file fails once
- * they are inside, so this list goes when they are fixed.
- */
-const KNOWN_OUTSIDE = [
-  { packageId: "package-b", slotId: "slot-fridge", type: "power" },
-  { packageId: "package-b", slotId: "slot-fridge", type: "water" },
-  { packageId: "package-b", slotId: "slot-wine", type: "power" },
-] as const;
-
-const knownOutside = (id: string, item: RoughInItem) =>
-  KNOWN_OUTSIDE.some(
-    (k) => k.packageId === id && k.slotId === item.slotId && k.type === item.resolved.point.type,
-  );
-
 /** The room's rough-in points, each with the sentence the checklist prints for it. */
 function pointsWithSentences(id: string) {
   const pkg = PACKAGE_BY_ID[id];
@@ -222,7 +200,6 @@ describe.each(CASES)("%s, %s", (id, _name, arrangement) => {
     build(id, arrangement);
     const wrong: string[] = [];
     for (const { item, label } of pointsWithSentences(id)) {
-      if (knownOutside(id, item)) continue;
       const v = view(item);
       if (outside(v)) {
         wrong.push(
@@ -246,20 +223,6 @@ describe("the cabinet beside a tower, on the tower's left", () => {
       ({ item }) => item.slotId === "slot-oven" && item.resolved.point.location === "beside-tower",
     );
     expect(oven?.at).toBe('3" from the right side, at the top');
-  });
-});
-
-describe("the points known to be drawn outside their box", () => {
-  it("are still outside it, so the exception above is not left behind once they are fixed", () => {
-    const fixed: string[] = [];
-    for (const [id, , arrangement] of CASES) {
-      if (!KNOWN_OUTSIDE.some((k) => k.packageId === id)) continue;
-      build(id, arrangement);
-      for (const { item, label } of pointsWithSentences(id)) {
-        if (knownOutside(id, item) && !outside(view(item))) fixed.push(`${id}, ${describeArrangement(arrangement)}: ${label}`);
-      }
-    }
-    expect(fixed, fixed.join("\n")).toEqual([]);
   });
 });
 

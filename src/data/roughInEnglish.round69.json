@@ -495,5 +495,157 @@
       "now": "power — in the base cabinet beside the tower — open its door to see it, 3\" from the right side, at the top",
       "why": "The cabinet stands on the tower's left, so the side that meets the tower is its right: the sentence said left wherever the cabinet stood, while the point was drawn from the right (round 70)."
     }
+  },
+  "changedInRound71": {
+    "package-b | as-it-opens | rough-in:slot-fridge:power:0": {
+      "was": "power — in the cabinet to the right, 6\" from the left side, 6\" up",
+      "now": "power — behind the appliance, 6\" up",
+      "why": "No cabinet on either side of B's refrigerator - a 5/8\" column spacer and the wine column one way, a 3\" board and the end of the run the other - so the connection goes behind the appliance, T36BT120NS sheet p. 4's alternative for the socket and Leo's site practice for the water (round 71)."
+    },
+    "package-b | as-it-opens | rough-in:slot-fridge:water:1": {
+      "was": "water — in the cabinet to the right, 12\" from the left side, 6\" up",
+      "now": "water — behind the appliance, 6\" up",
+      "why": "No cabinet on either side of B's refrigerator - a 5/8\" column spacer and the wine column one way, a 3\" board and the end of the run the other - so the connection goes behind the appliance, T36BT120NS sheet p. 4's alternative for the socket and Leo's site practice for the water (round 71)."
+    },
+    "package-b | back/left/left/parallel | rough-in:slot-fridge:power:0": {
+      "was": "power — in the cabinet to the right, 6\" from the left side, 6\" up",
+      "now": "power — behind the appliance, 6\" up",
+      "why": "No cabinet on either side of B's refrigerator - a 5/8\" column spacer and the wine column one way, a 3\" board and the end of the run the other - so the connection goes behind the appliance, T36BT120NS sheet p. 4's alternative for the socket and Leo's site practice for the water (round 71)."
+    },
+    "package-b | back/left/left/parallel | rough-in:slot-fridge:water:1": {
+      "was": "water — in the cabinet to the right, 12\" from the left side, 6\" up",
+      "now": "water — behind the appliance, 6\" up",
+      "why": "No cabinet on either side of B's refrigerator - a 5/8\" column spacer and the wine column one way, a 3\" board and the end of the run the other - so the connection goes behind the appliance, T36BT120NS sheet p. 4's alternative for the socket and Leo's site practice for the water (round 71)."
+    },
+    "package-b | back/left/left/parallel | rough-in:slot-wine:power:0": {
+      "was": "power — in the cabinet to the left, 6\" from the right side, at the bottom",
+      "now": "power — in the cabinet to the right, 6\" from the left side, at the bottom",
+      "why": "The cabinet the data names is a 3\" board or a 5/8\" spacer, which is not a cabinet: the real one on the other side is used, and the sentence names the side it is on (round 71)."
+    },
+    "package-b | back/left/left/perpendicular | rough-in:slot-fridge:power:0": {
+      "was": "power — in the cabinet to the right, 6\" from the left side, 6\" up",
+      "now": "power — behind the appliance, 6\" up",
+      "why": "No cabinet on either side of B's refrigerator - a 5/8\" column spacer and the wine column one way, a 3\" board and the end of the run the other - so the connection goes behind the appliance, T36BT120NS sheet p. 4's alternative for the socket and Leo's site practice for the water (round 71)."
+    },
+    "package-b | back/left/left/perpendicular | rough-in:slot-fridge:water:1": {
+      "was": "water — in the cabinet to the right, 12\" from the left side, 6\" up",
+      "now": "water — behind the appliance, 6\" up",
+      "why": "No cabinet on either side of B's refrigerator - a 5/8\" column spacer and the wine column one way, a 3\" board and the end of the run the other - so the connection goes behind the appliance, T36BT120NS sheet p. 4's alternative for the socket and Leo's site practice for the water (round 71)."
+    },
+    "package-b | back/left/left/perpendicular | rough-in:slot-wine:power:0": {
+      "was": "power — in the cabinet to the left, 6\" from the right side, at the bottom",
+      "now": "power — in the cabinet to the right, 6\" from the left side, at the bottom",
+      "why": "The cabinet the data names is a 3\" board or a 5/8\" spacer, which is not a cabinet: the real one on the other side is used, and the sentence names the side it is on (round 71)."
+    },
+    "package-b | back/left/back/parallel | rough-in:slot-fridge:power:0": {
+      "was": "power — in the cabinet to the right, 6\" from the left side, 6\" up",
+      "now": "power — behind the appliance, 6\" up",
+      "why": "No cabinet on either side of B's refrigerator - a 5/8\" column spacer and the wine column one way, a 3\" board and the end of the run the other - so the connection goes behind the appliance, T36BT120NS sheet p. 4's alternative for the socket and Leo's site practice for the water (round 71)."
+    },
+    "package-b | back/left/back/parallel | rough-in:slot-fridge:water:1": {
+      "was": "water — in the cabinet to the right, 12\" from the left side, 6\" up",
+      "now": "water — behind the appliance, 6\" up",
+      "why": "No cabinet on either side of B's refrigerator - a 5/8\" column spacer and the wine column one way, a 3\" board and the end of the run the other - so the connection goes behind the appliance, T36BT120NS sheet p. 4's alternative for the socket and Leo's site practice for the water (round 71)."
+    },
+    "package-b | back/left/back/parallel | rough-in:slot-wine:power:0": {
+      "was": "power — in the cabinet to the left, 6\" from the right side, at the bottom",
+      "now": "power — in the cabinet to the right, 6\" from the left side, at the bottom",
+      "why": "The cabinet the data names is a 3\" board or a 5/8\" spacer, which is not a cabinet: the real one on the other side is used, and the sentence names the side it is on (round 71)."
+    },
+    "package-b | back/left/back/perpendicular | rough-in:slot-fridge:power:0": {
+      "was": "power — in the cabinet to the right, 6\" from the left side, 6\" up",
+      "now": "power — behind the appliance, 6\" up",
+      "why": "No cabinet on either side of B's refrigerator - a 5/8\" column spacer and the wine column one way, a 3\" board and the end of the run the other - so the connection goes behind the appliance, T36BT120NS sheet p. 4's alternative for the socket and Leo's site practice for the water (round 71)."
+    },
+    "package-b | back/left/back/perpendicular | rough-in:slot-fridge:water:1": {
+      "was": "water — in the cabinet to the right, 12\" from the left side, 6\" up",
+      "now": "water — behind the appliance, 6\" up",
+      "why": "No cabinet on either side of B's refrigerator - a 5/8\" column spacer and the wine column one way, a 3\" board and the end of the run the other - so the connection goes behind the appliance, T36BT120NS sheet p. 4's alternative for the socket and Leo's site practice for the water (round 71)."
+    },
+    "package-b | back/left/back/perpendicular | rough-in:slot-wine:power:0": {
+      "was": "power — in the cabinet to the left, 6\" from the right side, at the bottom",
+      "now": "power — in the cabinet to the right, 6\" from the left side, at the bottom",
+      "why": "The cabinet the data names is a 3\" board or a 5/8\" spacer, which is not a cabinet: the real one on the other side is used, and the sentence names the side it is on (round 71)."
+    },
+    "package-b | left/back/left/parallel | rough-in:slot-fridge:power:0": {
+      "was": "power — in the cabinet to the right, 6\" from the left side, 6\" up",
+      "now": "power — behind the appliance, 6\" up",
+      "why": "No cabinet on either side of B's refrigerator - a 5/8\" column spacer and the wine column one way, a 3\" board and the end of the run the other - so the connection goes behind the appliance, T36BT120NS sheet p. 4's alternative for the socket and Leo's site practice for the water (round 71)."
+    },
+    "package-b | left/back/left/parallel | rough-in:slot-fridge:water:1": {
+      "was": "water — in the cabinet to the right, 12\" from the left side, 6\" up",
+      "now": "water — behind the appliance, 6\" up",
+      "why": "No cabinet on either side of B's refrigerator - a 5/8\" column spacer and the wine column one way, a 3\" board and the end of the run the other - so the connection goes behind the appliance, T36BT120NS sheet p. 4's alternative for the socket and Leo's site practice for the water (round 71)."
+    },
+    "package-b | left/back/left/perpendicular | rough-in:slot-fridge:power:0": {
+      "was": "power — in the cabinet to the right, 6\" from the left side, 6\" up",
+      "now": "power — behind the appliance, 6\" up",
+      "why": "No cabinet on either side of B's refrigerator - a 5/8\" column spacer and the wine column one way, a 3\" board and the end of the run the other - so the connection goes behind the appliance, T36BT120NS sheet p. 4's alternative for the socket and Leo's site practice for the water (round 71)."
+    },
+    "package-b | left/back/left/perpendicular | rough-in:slot-fridge:water:1": {
+      "was": "water — in the cabinet to the right, 12\" from the left side, 6\" up",
+      "now": "water — behind the appliance, 6\" up",
+      "why": "No cabinet on either side of B's refrigerator - a 5/8\" column spacer and the wine column one way, a 3\" board and the end of the run the other - so the connection goes behind the appliance, T36BT120NS sheet p. 4's alternative for the socket and Leo's site practice for the water (round 71)."
+    },
+    "package-b | left/back/back/parallel | rough-in:slot-fridge:power:0": {
+      "was": "power — in the cabinet to the right, 6\" from the left side, 6\" up",
+      "now": "power — behind the appliance, 6\" up",
+      "why": "No cabinet on either side of B's refrigerator - a 5/8\" column spacer and the wine column one way, a 3\" board and the end of the run the other - so the connection goes behind the appliance, T36BT120NS sheet p. 4's alternative for the socket and Leo's site practice for the water (round 71)."
+    },
+    "package-b | left/back/back/parallel | rough-in:slot-fridge:water:1": {
+      "was": "water — in the cabinet to the right, 12\" from the left side, 6\" up",
+      "now": "water — behind the appliance, 6\" up",
+      "why": "No cabinet on either side of B's refrigerator - a 5/8\" column spacer and the wine column one way, a 3\" board and the end of the run the other - so the connection goes behind the appliance, T36BT120NS sheet p. 4's alternative for the socket and Leo's site practice for the water (round 71)."
+    },
+    "package-b | left/back/back/perpendicular | rough-in:slot-fridge:power:0": {
+      "was": "power — in the cabinet to the right, 6\" from the left side, 6\" up",
+      "now": "power — behind the appliance, 6\" up",
+      "why": "No cabinet on either side of B's refrigerator - a 5/8\" column spacer and the wine column one way, a 3\" board and the end of the run the other - so the connection goes behind the appliance, T36BT120NS sheet p. 4's alternative for the socket and Leo's site practice for the water (round 71)."
+    },
+    "package-b | left/back/back/perpendicular | rough-in:slot-fridge:water:1": {
+      "was": "water — in the cabinet to the right, 12\" from the left side, 6\" up",
+      "now": "water — behind the appliance, 6\" up",
+      "why": "No cabinet on either side of B's refrigerator - a 5/8\" column spacer and the wine column one way, a 3\" board and the end of the run the other - so the connection goes behind the appliance, T36BT120NS sheet p. 4's alternative for the socket and Leo's site practice for the water (round 71)."
+    },
+    "package-d | back/left/back/parallel | rough-in:slot-range:power:1": {
+      "was": "power — in the cabinet to the right, 6\" from the left side, at the bottom",
+      "now": "power — in the cabinet to the left, 6\" from the right side, at the bottom",
+      "why": "The cabinet the data names is a 3\" board or a 5/8\" spacer, which is not a cabinet: the real one on the other side is used, and the sentence names the side it is on (round 71)."
+    },
+    "package-d | back/left/back/parallel | rough-in:slot-oven:power:0": {
+      "was": "power — in the base cabinet beside the tower — open its door to see it, 3\" from the right side, at the top",
+      "now": "power — at the back of the drawer under the opening, at the top",
+      "why": "No cabinet on either side of D's oven tower with the coffee cabinet on the back leg - only a 6\" filler - so the junction box goes in the drawer under the opening: PODS302B sheet p. 2 allows beneath, and above is the gap the steam leaves by (Leo, round 71)."
+    },
+    "package-d | back/left/back/perpendicular | rough-in:slot-range:power:1": {
+      "was": "power — in the cabinet to the right, 6\" from the left side, at the bottom",
+      "now": "power — in the cabinet to the left, 6\" from the right side, at the bottom",
+      "why": "The cabinet the data names is a 3\" board or a 5/8\" spacer, which is not a cabinet: the real one on the other side is used, and the sentence names the side it is on (round 71)."
+    },
+    "package-d | back/left/back/perpendicular | rough-in:slot-oven:power:0": {
+      "was": "power — in the base cabinet beside the tower — open its door to see it, 3\" from the right side, at the top",
+      "now": "power — at the back of the drawer under the opening, at the top",
+      "why": "No cabinet on either side of D's oven tower with the coffee cabinet on the back leg - only a 6\" filler - so the junction box goes in the drawer under the opening: PODS302B sheet p. 2 allows beneath, and above is the gap the steam leaves by (Leo, round 71)."
+    },
+    "package-d | left/back/back/parallel | rough-in:slot-range:power:1": {
+      "was": "power — in the cabinet to the right, 6\" from the left side, at the bottom",
+      "now": "power — in the cabinet to the left, 6\" from the right side, at the bottom",
+      "why": "The cabinet the data names is a 3\" board or a 5/8\" spacer, which is not a cabinet: the real one on the other side is used, and the sentence names the side it is on (round 71)."
+    },
+    "package-d | left/back/back/parallel | rough-in:slot-oven:power:0": {
+      "was": "power — in the base cabinet beside the tower — open its door to see it, 3\" from the right side, at the top",
+      "now": "power — at the back of the drawer under the opening, at the top",
+      "why": "No cabinet on either side of D's oven tower with the coffee cabinet on the back leg - only a 6\" filler - so the junction box goes in the drawer under the opening: PODS302B sheet p. 2 allows beneath, and above is the gap the steam leaves by (Leo, round 71)."
+    },
+    "package-d | left/back/back/perpendicular | rough-in:slot-range:power:1": {
+      "was": "power — in the cabinet to the right, 6\" from the left side, at the bottom",
+      "now": "power — in the cabinet to the left, 6\" from the right side, at the bottom",
+      "why": "The cabinet the data names is a 3\" board or a 5/8\" spacer, which is not a cabinet: the real one on the other side is used, and the sentence names the side it is on (round 71)."
+    },
+    "package-d | left/back/back/perpendicular | rough-in:slot-oven:power:0": {
+      "was": "power — in the base cabinet beside the tower — open its door to see it, 3\" from the right side, at the top",
+      "now": "power — at the back of the drawer under the opening, at the top",
+      "why": "No cabinet on either side of D's oven tower with the coffee cabinet on the back leg - only a 6\" filler - so the junction box goes in the drawer under the opening: PODS302B sheet p. 2 allows beneath, and above is the gap the steam leaves by (Leo, round 71)."
+    }
   }
 }

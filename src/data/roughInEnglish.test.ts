@@ -33,7 +33,10 @@ afterAll(() => {
 
 type Changed = Record<string, { was: string; now: string; why: string }>;
 const WAS = round69.round69 as Record<string, string>;
-const CHANGED = round69.changedInRound70 as Changed;
+// Each round that changes a line on purpose adds its own layer, with what the
+// line said, what it says now and why. The last layer that names a line wins.
+const LAYERS: Changed[] = [round69.changedInRound70 as Changed, round69.changedInRound71 as Changed];
+const CHANGED: Changed = Object.assign({}, ...LAYERS);
 
 const en = (key: string, vars?: Record<string, string | number>) => translate("en", key, vars);
 
@@ -94,8 +97,17 @@ describe("the line round 70 adds", () => {
 });
 
 describe("the round-69 record", () => {
-  it("lists a reason for every line it says round 70 changed", () => {
-    const bare = Object.entries(CHANGED).filter(([key, c]) => !(key in WAS) || c.was !== WAS[key] || !c.why);
-    expect(bare.map(([key]) => key)).toEqual([]);
+  it("lists a reason for every line a later round changed", () => {
+    // Each layer's `was` is what the line said before that layer: round 69's
+    // text for the first, and the previous layer's `now` where it names it.
+    const bare: string[] = [];
+    let before: Record<string, string> = { ...WAS };
+    for (const layer of LAYERS) {
+      for (const [key, change] of Object.entries(layer)) {
+        if (!(key in before) || change.was !== before[key] || !change.why) bare.push(key);
+        before[key] = change.now;
+      }
+    }
+    expect(bare).toEqual([]);
   });
 });

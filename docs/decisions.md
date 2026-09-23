@@ -2196,6 +2196,16 @@ has one meaning:
   it, so it is drawn weaker than a dashed line and never looks more certain than
   one. Clicking a point in this tier says "not yet reviewed".
 
+**Amended 2026-09-23 (round 71), Leo: a point placed because the room left no
+choice is dashed, whatever its drawing says.** Where no side of a machine has a
+real cabinet, the point goes where the model's `whenNoCabinet` says (D22) — and
+that is drawn grey dashed even when the sheet itself gives the alternative, as
+T36BT120NS's socket behind the appliance does. A fallback taken because the
+room would not allow the recommendation is exactly "reviewed, to confirm": the
+figure is sound and whether it is what this kitchen should do is a conversation.
+`tierOf` in `roughIn.ts` decides it; `lineTier` still answers for the point's
+own provenance.
+
 *Amended the same round, Leo: three looks, not two.* The first version had two,
 and solid meant "from a drawing, or not yet reviewed" — one look with two
 opposite meanings. In the dishwasher's install view a solid generic trunk ran
@@ -2969,6 +2979,52 @@ along the run".
 - **A neighbour on the wrong side is said as it is.** Where the side the data
   names has no cabinet, `pickNeighbour` takes the other side's, and the
   sentence now names the side it took.
+
+**And the cabinet has to be a cabinet.** *(Leo, round 71, from site:)*
+
+> 如果条件允许，插座和进水口都是安装在靠近机器的、有橱柜的一侧。
+
+Two layers, and the code does both. **(a) The box picked is a real cabinet** —
+one with a door or drawers: `base`, `drawer-base`, `sink-base`, `corner`, or a
+`tall` one that holds no machine. A 5/8" column spacer (the COMBIKIT between
+two refrigeration columns), a 3" finished end panel and a filler are joinery,
+and `pickNeighbour` passes over them; a segment holding a machine stops the
+search, because past it is another machine's business. Until round 71 anything
+that was not an appliance would do, and package B's refrigerator had its socket
+drawn 6" past a 3" board — outside any box at all — on the live site.
+**(b) In that cabinet, the figure is from the side that meets the machine**
+(round 70, above).
+
+**Where neither side has one, the model's own data says what is done instead.**
+`whenNoCabinet` on the point (`schema.ts`): where it goes, its figures, its
+provenance, and a `conditionKey` for anything that has to hold. Two entries so
+far, both from the models' sheets:
+- **T36BT120NS**, package B's refrigerator, which stands in a column bank with
+  a spacer one side and a board the other in every arrangement B builds: the
+  socket goes **behind the appliance**, the sheet's own alternative (p. 4, B),
+  with the checklist adding that it is permissible only where a breaker can
+  switch the outlet off. The water goes behind it too — Leo's site practice,
+  the sheet saying only that it must be reachable afterwards.
+- **PODS302B**, package D's oven where the coffee cabinet is on the back leg
+  and the only thing beside the tower is a 6" filler: the junction box goes in
+  **the drawer under the opening**, which the sheet allows (p. 2: above,
+  beneath, left or right). Not above: the cabinet over a steam oven stands off
+  the wall with an open back, and that gap is the steam's way out (D11 rule 12).
+- ⚠️ **It is the way out, not the machine's address.** The code asks the room,
+  every time: a real cabinet on either side and the point goes in it. B's
+  refrigerator in an arrangement that gives it a cabinet would take the
+  cabinet. Written as "B's refrigerator goes behind itself" it would be wrong
+  the moment the customer moves something.
+- **A point placed this way is drawn in the reviewed-to-confirm tier** — grey
+  dashed — whatever its own provenance, and says so on the list: "No cabinet on
+  either side, so this connection goes behind the appliance." *(Leo, round 71.)*
+  T36BT120NS's socket is on its sheet and still dashed: what the drawing
+  allows in a room that does not allow the recommendation is a fallback, and
+  the install view should not show it as settled. `tierOf` in `roughIn.ts`.
+- **And nothing may quietly fall through.** `roughInCabinet.test.ts` holds every
+  package in every arrangement: a point in a neighbour's cabinet is in a real
+  cabinet, or it is one of these recorded ways out. A model that one day has
+  neither turns the suite red rather than losing its line.
 - Held by `roughInSides.test.ts`: every package, every arrangement it builds
   (sink leg, refrigerator end, coffee leg, island orientation), every point —
   the side the sentence measures from is the side the point is that far from;
@@ -3335,9 +3391,12 @@ Registered, not scheduled. None of these is a round of its own.
     toolbar is HTML laid over the canvas. If any is in the room, stop and
     report.
   - Round 69's red whose cause was lost (above) was very likely this test.
-- **Package B's neighbouring-cabinet points are drawn outside the cabinet.**
-  *(Found round 70 by `roughInSides.test.ts`; Leo: fix next round — it is the
-  live default.)*
+- ~~**Package B's neighbouring-cabinet points are drawn outside the cabinet.**~~
+  **Fixed in round 71**: only a real cabinet counts as one, and where neither
+  side has one the point goes where the model's `whenNoCabinet` says — B's
+  refrigerator behind the appliance (D22). The test's known exception was
+  deleted with the fix, as it was written to be. *(Found round 70 by
+  `roughInSides.test.ts`; Leo: fix next round — it is the live default.)*
   On B as it opens, the refrigerator's socket and water are said to be "in the
   cabinet to the right" and drawn 3" and 9" past a 3" tall board
   (`back-tall-outer`), and the wine column's socket 3" past another
@@ -3378,8 +3437,9 @@ Registered, not scheduled. None of these is a round of its own.
     really in, rather than writing a special case for a situation that the
     first fix may remove.
   - Next round, with the D oven below.
-- **In some arrangements the "base cabinet beside the tower" is 6" wide.**
-  *(Noticed round 70.)* D with its coffee cabinet on the back leg (four
+- ~~**In some arrangements the "base cabinet beside the tower" is 6" wide.**~~
+  **Fixed in round 71**: a 6" filler is not a cabinet, so D's oven box goes in
+  the drawer under its opening there (D22). *(Noticed round 70.)* D with its coffee cabinet on the back leg (four
   arrangements) puts the oven's junction box in `back-tower-clearance-0`, a
   6" filler between the range and the tower: there is no real cabinet on
   either side of the oven. *(Leo, round 70:)* it goes at the back of the

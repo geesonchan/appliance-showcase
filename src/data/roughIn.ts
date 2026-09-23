@@ -2,7 +2,7 @@ import appliancesFile from "../../data/appliances.json";
 import roughInFile from "../../data/rough-in.json";
 import { applianceBox } from "./applianceBox";
 import { hoodBridgeBand } from "./cabinets";
-import { ROOM, RUNS, carries, ft, type CabinetRun, type RunSegment } from "./room";
+import { PANEL, ROOM, RUNS, carries, ft, type CabinetRun, type ModuleKind, type RunSegment } from "./room";
 import { parseDataFile, roughInFileSchema, type RoughInPoint } from "./schema";
 import { SLOT_BY_ID } from "./slots";
 import {
@@ -68,6 +68,18 @@ export type LineTier = "confirmed" | "unconfirmed" | "unreviewed";
 export const lineTier = (point: RoughInPoint): LineTier =>
   point.provenance === null ? "unreviewed" : point.provenance === "drawing" ? "confirmed" : "unconfirmed";
 
+/**
+ * The tier a placed point is drawn in.
+ *
+ * Its provenance, except that a point placed by `whenNoCabinet` is never drawn
+ * solid: it is what is done when the room does not allow what the drawing
+ * recommends, and a grey dashed line is what "reviewed, to confirm" looks like
+ * (D21). T36BT120NS's socket behind the appliance is on the sheet and still
+ * dashed for that reason. *(Leo, round 71.)*
+ */
+export const tierOf = (resolved: ResolvedPoint): LineTier =>
+  resolved.noCabinet ? "unconfirmed" : lineTier(resolved.point);
+
 /** The callout for a connection, which says where its figures come from. */
 export const roughInCalloutKey = (point: RoughInPoint) =>
   `roughIn.callout.${point.provenance ?? "unreviewed"}`;
@@ -101,6 +113,16 @@ export interface ResolvedPoint {
    * corner end, which faces the installer's right, while the sentence said left.
    */
   sides: { measuredFrom: Side; cabinet: Side | null };
+  /**
+   * True where no side of the machine had a real cabinet and the point went
+   * where the model's `whenNoCabinet` says instead (round 71). Its figures are
+   * that entry's, its line is drawn in the reviewed-to-confirm tier whatever
+   * its provenance — it is the way out, not the rule — and the checklist says
+   * so in `noCabinetNotes`.
+   */
+  noCabinet: boolean;
+  /** Message keys for the checklist: why it is there, and what must hold. */
+  noCabinetNotes: string[];
   /** A drain's high loop, when it has one, in world feet. */
   highLoopY: number | null;
 }
@@ -254,9 +276,8 @@ function hostFor(slot: Slot, appliance: Appliance, point: RoughInPoint): HostBox
     const reach = (step: -1 | 1): number | null => {
       for (let i = found.index + step; i >= 0 && i < segments.length; i += step) {
         const segment = segments[i];
-        if (segment.kind === "counter") return i;
-        const board = segment.kind === "tall" && segment.modules.every((m) => m.kind === "panel");
-        if (!board) return null;
+        if (isCabinet(segment)) return i;
+        if (isMachine(segment)) return null;
       }
       return null;
     };
@@ -295,21 +316,72 @@ function hostFor(slot: Slot, appliance: Appliance, point: RoughInPoint): HostBox
   };
 }
 
-/** The nearest carcass on one side; an opening is not somewhere to put a valve. */
+/**
+ * A cabinet somebody can open: a box with a door or drawers.
+ *
+ * Round 71, Leo from site: *"如果条件允许，插座和进水口都是安装在靠近机器的、有
+ * 橱柜的一侧。"* — the socket and the water go on the side that has a cabinet.
+ * A 5/8" column spacer, a 3" finished end panel and a filler are joinery, not
+ * cabinets: until round 71 any of them could be picked, and package B's
+ * refrigerator had its socket drawn 6" past a 3" board, on the live site.
+ */
+const DOORED: ModuleKind[] = ["base", "drawer-base", "sink-base", "corner", "tall"];
+/** A segment that holds a machine is that machine, whatever it is built of. */
+const isMachine = (segment: RunSegment) =>
+  segment.kind === "appliance" || Boolean(segment.slot) || segment.modules.some((m) => m.slot);
+const isCabinet = (segment: RunSegment) =>
+  !isMachine(segment) && segment.modules.some((m) => DOORED.includes(m.kind));
+
+/** The nearest real cabinet on one side; joinery is passed over, a machine stops the search. */
 function pickNeighbour(
   segments: RunSegment[],
   index: number,
   step: -1 | 1,
 ): { segment: RunSegment; step: -1 | 1 } | null {
-  for (let i = index + step; i >= 0 && i < segments.length; i += step) {
-    if (segments[i].kind !== "appliance") return { segment: segments[i], step };
+  const look = (way: -1 | 1) => {
+    for (let i = index + way; i >= 0 && i < segments.length; i += way) {
+      if (isCabinet(segments[i])) return { segment: segments[i], step: way };
+      if (isMachine(segments[i])) return null;
+    }
+    return null;
+  };
+  // The side the drawing names first; then the other, rather than dropping the
+  // connection. Neither: `whenNoCabinet` in the model's data says what is done.
+  return look(step) ?? look(-step as -1 | 1);
+}
+
+/**
+ * The box a connection goes in when no side of the machine has a cabinet.
+ *
+ * Two places, both from the models' own sheets: behind the machine, in its own
+ * opening (T36BT120NS p. 4's alternative), and the drawer under a hung oven's
+ * opening (PODS302B p. 2's "beneath"). Round 71.
+ */
+function wayOutHost(slot: Slot, appliance: Appliance, point: RoughInPoint): HostBox | null {
+  const wayOut = point.whenNoCabinet;
+  if (!wayOut) return null;
+  if (wayOut.where === "behind-machine") {
+    // The machine's own opening, which is what `in-cutout` already finds.
+    return hostFor(slot, appliance, { ...point, location: "in-cutout" });
   }
-  // Nothing that way: take the other side rather than dropping the connection.
-  const back = -step as -1 | 1;
-  for (let i = index + back; i >= 0 && i < segments.length; i += back) {
-    if (segments[i].kind !== "appliance") return { segment: segments[i], step: back };
-  }
-  return null;
+
+  // The drawer under the opening: from the toe kick, or the machine standing
+  // under it, up to the opening's sill. `cabinets.ts` draws the same box.
+  const found = locate(slot.id);
+  if (!found) return null;
+  const segment = found.run.segments[found.index];
+  const module = segment.modules.find((m) => m.slot === slot.id);
+  if (!module) return null;
+  const sill = ft(module.sillIn ?? 0);
+  const floor = module.lowerSlot ? ft(SLOT_BY_ID[module.lowerSlot].cutout.h) : ROOM.toeKick;
+  if (sill <= floor) return null;
+  const inset = module.insetIn === undefined ? PANEL : ft(module.insetIn);
+  return {
+    id: `${segment.id}-base`,
+    run: found.run,
+    along: [segment.from + inset, segment.to - inset] as const,
+    band: [floor, sill] as const,
+  };
 }
 
 const DEFAULT_SIZE: [number, number, number] = [3, 3, 1.5];
@@ -322,8 +394,16 @@ export function resolveRoughIn(slotId: SlotId, appliance: Appliance | undefined)
 
   const resolved: ResolvedPoint[] = [];
   for (const point of entry.points) {
-    const host = hostFor(slot, appliance, point);
+    // A point in a neighbour's cabinet where no side has one: the model's data
+    // says what is done instead, and the point says so wherever it is shown
+    // (round 71). Its figures come from `whenNoCabinet`, not from the point.
+    const wantsCabinet =
+      point.location.startsWith("adjacent-cabinet") || point.location === "beside-tower";
+    const cabinetHost = hostFor(slot, appliance, point);
+    const wayOut = !cabinetHost && wantsCabinet ? point.whenNoCabinet : null;
+    const host = cabinetHost ?? (wayOut ? wayOutHost(slot, appliance, point) : null);
     if (!host) continue;
+    const at = wayOut ?? point;
 
     const size = (point.size ?? DEFAULT_SIZE).map(ft) as [number, number, number];
 
@@ -352,21 +432,28 @@ export function resolveRoughIn(slotId: SlotId, appliance: Appliance | undefined)
           : "left";
 
     const along =
-      point.x === "center"
+      at.x === "center"
         ? (host.along[0] + host.along[1]) / 2
-        : point.x === "left" || point.x === "right"
-          ? endOn(point.x) + (inward(point.x) * size[0]) / 2
-          : endOn(measuredFrom) + inward(measuredFrom) * ft(point.x);
+        : at.x === "left" || at.x === "right"
+          ? endOn(at.x) + (inward(at.x) * size[0]) / 2
+          : endOn(measuredFrom) + inward(measuredFrom) * ft(at.x);
     const sides = { measuredFrom, cabinet };
+    const noCabinet = Boolean(wayOut);
+    const noCabinetNotes = wayOut
+      ? [
+          wayOut.where === "drawer-below" ? "roughIn.noCabinet.drawerBelow" : "roughIn.noCabinet",
+          ...(wayOut.conditionKey ? [wayOut.conditionKey] : []),
+        ]
+      : [];
 
     const y =
-      point.y === "bottom"
+      at.y === "bottom"
         ? host.band[0] + size[1] / 2
-        : point.y === "top"
+        : at.y === "top"
           ? host.band[1] - size[1] / 2
-          : point.y === "center"
+          : at.y === "center"
             ? (host.band[0] + host.band[1]) / 2
-            : host.band[0] + ft(point.y);
+            : host.band[0] + ft(at.y);
 
     // An island opening: local across-the-face and back-from-the-face, turned
     // the way the slot is turned (the same frame the pins use: +Z out of the
@@ -375,7 +462,7 @@ export function resolveRoughIn(slotId: SlotId, appliance: Appliance | undefined)
       const { origin, rotationY, depth } = host.frame;
       const turned = { position: [origin[0], 0, origin[1]], rotationY };
       const turn = (lx: number, lz: number): [number, number] => toPlan(turned, lx, lz);
-      const localZ = point.z === "rear" ? -depth / 2 + size[2] / 2 : depth / 2 - size[2] / 2;
+      const localZ = at.z === "rear" ? -depth / 2 + size[2] / 2 : depth / 2 - size[2] / 2;
       const [px, pz] = turn(along, localZ);
       const corners = [
         turn(host.along[0], -depth / 2),
@@ -398,6 +485,8 @@ export function resolveRoughIn(slotId: SlotId, appliance: Appliance | undefined)
           facing: facingOf(rotationY),
         },
         sides,
+        noCabinet,
+        noCabinetNotes,
         highLoopY: point.highLoopApexIn === null ? null : ft(point.highLoopApexIn),
       });
       continue;
@@ -405,7 +494,7 @@ export function resolveRoughIn(slotId: SlotId, appliance: Appliance | undefined)
 
     // Rear means against the wall the run stands on.
     const across =
-      point.z === "rear"
+      at.z === "rear"
         ? host.run.centre - ROOM.counterDepth / 2 + size[2] / 2
         : host.run.centre + ROOM.counterDepth / 2 - size[2] / 2;
 
@@ -420,6 +509,8 @@ export function resolveRoughIn(slotId: SlotId, appliance: Appliance | undefined)
       // A run's cabinetry opens to the room.
       host: { id: host.id, min, max, facing: stripFacing(host.run.axis, 1) },
       sides,
+      noCabinet,
+      noCabinetNotes,
       highLoopY: point.highLoopApexIn === null ? null : ft(point.highLoopApexIn),
     });
   }
@@ -469,8 +560,13 @@ export interface RoughInWords {
  */
 export function roughInWords(resolved: ResolvedPoint): RoughInWords {
   const { point, sides } = resolved;
-  const where =
-    point.location === "in-cutout"
+  // Placed by `whenNoCabinet`: it says where it went, not where the drawing
+  // would rather have it (round 71).
+  const where = resolved.noCabinet
+    ? point.whenNoCabinet!.where === "behind-machine"
+      ? "behindMachine"
+      : "drawerBelow"
+    : point.location === "in-cutout"
       ? point.z === "rear"
         ? "rearOfOpening"
         : "frontOfOpening"
@@ -484,24 +580,26 @@ export function roughInWords(resolved: ResolvedPoint): RoughInWords {
               ? "cabinetLeft"
               : "cabinetRight";
 
+  // The figures are the way-out's where it was used, as the placing was.
+  const at = resolved.noCabinet ? point.whenNoCabinet! : point;
   const across =
-    typeof point.x === "number"
+    typeof at.x === "number"
       ? sides.measuredFrom === "left"
         ? "fromLeft"
         : "fromRight"
-      : point.x === "left"
+      : at.x === "left"
         ? "atLeft"
-        : point.x === "right"
+        : at.x === "right"
           ? "atRight"
           : "center";
-  const up = typeof point.y === "number" ? "up" : point.y;
+  const up = typeof at.y === "number" ? "up" : at.y;
 
   const words: RoughInWords = {
     typeKey: `roughIn.type.${point.type}`,
     whereKey: `roughIn.where.${where}`,
     atKey: `roughIn.at.${across}.${up}`,
   };
-  if (typeof point.x === "number") words.x = inch(point.x);
-  if (typeof point.y === "number") words.y = inch(point.y);
+  if (typeof at.x === "number") words.x = inch(at.x);
+  if (typeof at.y === "number") words.y = inch(at.y);
   return words;
 }
