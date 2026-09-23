@@ -1574,6 +1574,24 @@ whenever a diff is big and the reason for it sounds right. `?back=`, `?left=`,
 `?island=` and the rest of `readParams` in `room.ts` are there for exactly
 this.
 
+**The second way to zero it: shoot the same build twice.** *(Leo, round 70.)*
+Where nothing can be put back — the difference is not a parameter anybody set
+— take the pair again from one build, changing nothing between the two runs.
+**If one build against itself differs by the same amount as the comparison
+did — the same pixel count, the same number over the threshold, the same box —
+the difference belongs to the machine, not to the change.** Round 70: package
+A's install view differed between the live site and the local build by 2,851
+pixels, 166 of them by more than 32 levels, on the pin labels inside the room.
+Two runs of the same local build differed by exactly 2,851 and 166, in the same
+box, with every label's `transform` identical in both: what moves is which
+frame of the labels' fade the shot catches, not where they are.
+
+⚠️ **A difference inside the room is not waved away with an account of what it
+is made of.** "Those are HTML labels, not geometry" is an explanation, and the
+lesson of round 61 is that explanations outlive the bugs under them. Zero it
+one of the two ways — put the changed value back, or shoot the same build
+twice — or report it and stop.
+
 **What not to run at the same time.** *(Round 69.)*
 - **Tests and screenshots, not together.** A set of thirty shots is past ten
   minutes on its own, and a machine busy with both makes each one's timing
@@ -3345,6 +3363,20 @@ Registered, not scheduled. None of these is a round of its own.
     checklist line that it must be switchable at a breaker (source: the sheet);
     the water goes behind it too (source: Leo's site practice). Both marked as
     what is done when conditions do not allow, in the grey dashed tier.
+  - ⚠️ **Behind the machine is the way out, not B's refrigerator's address.**
+    *(Leo, round 70.)* The code has to tell the two states apart and say which
+    it is in: a real cabinet on a side → the point goes in it, measured from
+    the side that meets the machine; none on either side → behind the machine,
+    with the checklist saying why. Written as "B's refrigerator goes behind it"
+    it would stay behind the machine in an arrangement that does have a
+    cabinet, and the customer changes arrangements.
+  - ⚠️ **Order: fix `pickNeighbour` first, then look again.** *(Leo, round
+    70.)* B's points land outside their box because a 5/8" spacer was taken
+    for a cabinet; once only real cabinets count, B's refrigerator may turn
+    out to have none on either side — which is this case — or the picture may
+    change. Fix the cause, then see which of the two states each machine is
+    really in, rather than writing a special case for a situation that the
+    first fix may remove.
   - Next round, with the D oven below.
 - **In some arrangements the "base cabinet beside the tower" is 6" wide.**
   *(Noticed round 70.)* D with its coffee cabinet on the back leg (four
@@ -3357,6 +3389,14 @@ Registered, not scheduled. None of these is a round of its own.
   behind it is where the steam goes up (Leo's judgement; D11 rule 12). Next
   round. (Round 70's first report of this cited the MEM301WS manual; D's oven
   is PODS302B.)
+  - **The four together, in this order** *(Leo, round 70)*: `pickNeighbour`
+    takes only real cabinets; then B's refrigerator, in whichever of the two
+    states it is left in; then this; then the neighbour's measuring rule
+    written down with Leo's words as its source. All four move points on
+    screen, so the pixel diff goes over B as it opens — the refrigerator's and
+    the wine column's points — D's four coffee-on-the-back arrangements, and
+    one machine that does have a real cabinet either side, to see that both
+    states take the branch they should.
 - **The layout checker's failure messages are English strings built in code.**
   *(Round 70, Leo: record, do not change.)* Every `fail(code, message)` in
   `layoutRules.ts` builds its message as an English template ("sink has only
