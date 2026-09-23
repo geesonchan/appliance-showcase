@@ -1416,6 +1416,23 @@ odd, find what it was written to avoid. That thing may be the real problem, and
 it may still be there — here it was, and it had been shrinking rooms and
 growing walls by an eighth of an inch (D18, round 60) ever since.
 
+**A statement about what a document contains comes from having read it.**
+*(Leo, round 72.)* Round 43 wrote into Open items that three of package C's
+machines "already have a drawing in `docs/reference/`, so their points can be
+read off and added". Round 72 opened all three: T36FT820NS's is page 3 of a
+4-page sheet with the overall dimensions and the accessory list, MFGS4030RS's
+is a photograph with three figures on it, and HMCB30WS's has one unlabelled
+dot that could be a service or could be a fixing. **Not one connection among
+them.** The claim was made from the file names. A round was planned on it, and
+what C actually needs — four installation manuals nobody has — stayed
+invisible for twenty-nine rounds. **It is the same fault as a handoff brief
+written from the conversation rather than from the repository** — those said
+more than once that a decision was "written into D20" when nothing in the file
+said it, and round 70 had to report three such lines back. A statement and its
+source with an unread document in between. So: open the file, or write "not
+read yet". Round 72 moved the brief into the repository (`docs/HANDOFF.md`)
+for the same reason: written while reading the thing it describes.
+
 **A number that cannot say exactly why it is that number may be working round
 a bug.** *(Leo, round 61.)* One fault in the window search — a quarter-inch
 step against an eighth-inch tolerance — passed itself off as **two** settled
@@ -1815,7 +1832,7 @@ What it changed:
 **What this forbids:** a ceiling height per package or per room; 96 or 108.5
 written into geometry instead of read from `ROOM`.
 
-## D20 · Package E: island cooking — registered, not built
+## D20 · Package E: island cooking — built in round 69
 
 **Registered:** 2026-09-13 (round 36), Leo's answers before any of it is built.
 
@@ -2496,6 +2513,19 @@ acceptance are report two, next round.)*
     code's name: the old check returned nothing at all, because it read the
     room's own slots and ignored the ones it was given. A red run is worth
     reading for *why* it is red.
+
+    ⚠️ **An empty set satisfies everything: count it as well.** *(Leo, round
+    72.)* The shape is `expect(things.filter(isWrong)).toEqual([])` — which
+    passes when `things` itself is empty, and reads exactly like a test that
+    checked something. Round 72 wrote two of them about package E's island hood,
+    "its points are at the ceiling" and "its points are over the island", and
+    both were **green on the code that dropped every one of those points**. The
+    fault they were written for is the reason they passed. They now assert the
+    count in the same expectation — `{ points: 2, low: [] }` — and both went
+    red. **So: an assertion about a filtered set says how many went into the
+    filter.** This is the close relative of the assertion that never ran: one
+    looks like coverage and stopped early, the other looks like coverage and
+    had nothing to cover.
 
     **A test can guard the bug instead of stopping it.** *(Leo, round 61.)*
     `autoGrow.test.ts` held package D's left wall growing from 178-3/4" to
