@@ -137,7 +137,17 @@ describe("tower vent, by the machine's rearVent", () => {
 
   it("gives E's coffee machine a vent in the top of its opening, over its wine cooler", () => {
     activate("package-e");
-    expect(ventsOf("package-e").map((vent) => vent.slot)).toEqual(["slot-coffee"]);
+    expect(ventsOf("package-e").map((vent) => vent.slot)).toContain("slot-coffee");
+  });
+
+  /**
+   * Round 74: E's combination oven hangs at its handle's height (15" at the
+   * shared 54"), not on the floor, so it is a hung oven and takes round 32's
+   * vent like B's. Until round 74 it stood at 0" and had none.
+   */
+  it("gives E's combination oven a vent too, now it hangs off the floor", () => {
+    activate("package-e");
+    expect(ventsOf("package-e").map((vent) => vent.slot).sort()).toEqual(["slot-coffee", "slot-microwave"]);
   });
 
   it("cuts the coffee machine's where every other is cut: at the back of the shelf over the opening", () => {

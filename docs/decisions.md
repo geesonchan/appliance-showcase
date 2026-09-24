@@ -991,6 +991,37 @@ tall unit. So the coffee tower in D and in E breathes at the back as well, and
   `rule.coffeeRearVent`, `rule.coffeeGrille`. D's steam-oven lines are
   unchanged.
 
+**Amended 2026-09-24 (round 74), Leo: a combination oven hangs by its handle
+wherever its tower stands.** Round 20 cut B's tower so the microwave's handle
+lands at a height a hand reaches — the `microwaveHandleIn` parameter, 54" by
+default, "the chest of somebody six foot" — and worked the opening back from
+it. The code asked that only of a combination oven standing beside the range.
+E's stands on its own in the run (D20), so its opening fell to a default of 0",
+4-3/4" under MEM301WS's minimum (Open items, round 73; D17: E walks branches
+A-D never took).
+- **One mechanism, one figure.** Any combination oven in a tower is hung by
+  the same parameter, so E's opening is 15" at the shared 54", like B's: the
+  same machine at the same height in both packages. The toe kick and a drawer
+  box fill the 15" under it, as in B, and it takes round 32's vent in the top of
+  its opening (no open back: MEM301WS has no `rearVent`). A second figure,
+  52", came up for the same fact and was not written anywhere (D17's table,
+  round 74).
+- **The slider shows wherever a combination oven stands in a tower**, E's
+  included. Until round 74 the parameter set E's oven height with no control
+  on screen. D's steam oven has no microwave, and shows none.
+- **Where 39" comes from.** The handle is 39" up the machine's own front — the
+  figure the opening is worked back from. **Neither MEM301WS document in
+  `docs/reference/` prints it.** Round 20 measured it off the elevation by
+  scale (commit `60a3baa`, "off the elevation"), and so the lower handle's 22"
+  and the door bands. By D21 that is `inferred`, and `COMBO_OVEN` says so. The
+  4-3/4"-18" the opening is clamped to is printed (spec sheet p. 3, manual
+  §5.6).
+- `towerSill.test.ts`: every machine standing in a tower, in every package and
+  arrangement, has its opening inside the range its document gives, each
+  range written with its source. A model with no recorded range fails, so a
+  default nobody set cannot pass. It was red on round 73's code for E alone,
+  in all nine of its arrangements.
+
 **Scheme 01 as laid out.** Left wall, from the far end back to the corner:
 refrigerator tower, 15" landing, corner cabinet. Back wall, from the corner
 out: 18" counter, range with its hood, 18" counter, sink, dishwasher, counter to
@@ -1558,6 +1589,35 @@ that is in neither is added before the report goes out. The same family as a
 decision "written into D20" that was not (HANDOFF): a thing believed to be
 recorded is not recorded until it can be found.
 
+**Package E is the first to walk down branches nobody had taken.** *(Leo,
+round 73.)* One shape, met four times: code written while only A to D existed,
+correct for every case A to D could produce, and wrong the first time E asked
+it something they never did.
+- **Two towers welded to one leg** (round 55). `inRunGroup` put every tower
+  marked `beside: "run"` on the leg `coffeeLeg` names. A to D have at most one
+  such tower; E has two.
+- **The island hood's heights read off its collapsed body** (rounds 45, 55).
+  Every hood before HMIB42WS stood on a wall at its catalogue height; one hung
+  from the ceiling had its canopy, duct cover and outline worked out from a 30"
+  box that is the assembly folded for shipping.
+- **Rule 4 could not find a cooking surface** (round 69). Its island branch
+  looked for a range standing in the island, and E cooks on a cooktop, so every
+  E room failed as "no range on any run".
+- **The combination oven's height fell to 0"** (round 73). `sillFor` hangs a
+  combination oven by its microwave handle only when it stands beside the
+  range, as B's does. E's stands on its own in the run, so it fell through to a
+  default nobody set.
+
+**So when a package or a new combination is added, ask first: what does it put
+together that A to D never did?** List each one — a tower that is not beside
+the range, two of a kind of tower, a machine hung from the ceiling, a cooking
+surface in the island — and for each, find the code that answers it and read
+what it does. Where nothing handles it, run it in a prototype before building
+the package on it. The four above were each found late, one at a time, in the
+full scene, which is what D22's order was written to stop. This is the same
+lesson as the packages that ship hiding a coincidence (D22, round 55), seen
+from the other side: there the test data was too narrow, and here the code is.
+
 **A number that cannot say exactly why it is that number may be working round
 a bug.** *(Leo, round 61.)* One fault in the window search — a quarter-inch
 step against an eighth-inch tolerance — passed itself off as **two** settled
@@ -1618,6 +1678,7 @@ repository has them)* — one rule, written more than once:
 | round 65 | a gas pipe upsized above 65,000 BTU | the `gas-pipe-size` rule's condition and `thresholds.gasPipeUpsizeBTU` — only the first read | **still two**, in Open items | **the day somebody changes the figure** and edits `thresholds`, the copy that is named like the setting: nothing changes on screen, because the rule reads its own. |
 | round 70 | which side of its box a rough-in figure is measured from, and which side a neighbouring cabinet is on | the point's position (`resolveRoughIn`) and its sentence (`roughInSentence`), each worked out from the data on its own | one: `resolveRoughIn` decides `sides` through `frame.ts`'s `alongIsToTheRight`, places the point by it, and the sentence reads it (round 70) | **it had bitten, on the live site, both ways.** The drawing took "further along the run" for right, which on the left run is the installer's left: A's refrigerator socket was drawn 6" from the cabinet's right side under a line saying left, and a sink moved to the left leg had all four dishwasher points mirrored. The sentence wrote "from the left side" beside every tower, where B's, D's and E's cabinets stand on the tower's left and the drawing measured from its right. A quote sends an electrician to the wrong side of a cabinet. |
 | round 70 | a var whose name ends in `Key` is itself a message key, and fills the placeholder without `Key` | written twice — `useRefusalText` (the checklist) and the toast in `SceneControls` — and **missing** in the spec card and in `buildQuote` | one, `sayWith` in `src/i18n/index.ts`, used by all four (round 70) | **it had bitten, on the live site.** Package A (or B, C, D) with no island and a left wall long enough to take the microwave drawer and the wine cabinet prints "on the {microwaveLeg} leg … the {wineLeg} leg" on the spec card and the quote, while the checklist beside them says "left". Found only because the rough-in words moved onto keys and had to go through all four. |
+| round 74 | where a combination oven's microwave handle lands: "the chest of somebody six foot" | 54", the shared `microwaveHandleIn` default (round 20, commit `60a3baa`); and 52", which came with the round-74 brief for E's oven: Leo said "the chest of somebody six foot", and the conversation on the brief's side worked that out as 72" × 0.72 = 52", when round 20 had already settled 54" for the same words | **one**, 54" — caught before the second was written. 52" is in no file | **the first time this table prevented a copy rather than recording one after the fact.** The two figures were two estimates of one fact, and the 2" between them was a difference of method, not new information from site (Leo). Written in, E would have had its own package default of 52" beside B's shared 54", both justified by the same sentence. E takes the shared 54" instead: one parameter, and the same machine at the same height in B and E. |
 
 Round 60's quarter-inch window step is a near relative rather than a member:
 one rule, but its search and its judgement worked to different resolutions,
@@ -1647,7 +1708,8 @@ the probe answered the question it was written with, once, on the data it
 happened to meet; the test states the rule, and a coincidence in the data
 cannot pass it.
 
-Two of the seven are still open. The table is here so that the next one found
+Two of the seven are still open; the eighth row, round 74's, was stopped before
+it became a copy. The table is here so that the next one found
 is added to it rather than rediscovered.
 
 **An exception written into a test is broken on purpose before it is
@@ -3729,8 +3791,13 @@ Registered, not scheduled. None of these is a round of its own.
   representative. When there is an answer, write its source into rule 14's
   round-73 amendment. If the answer is no, that is a change to D and E, not
   a note.
-- **E's combination oven stands on the floor of its opening, under its
-  sheet's minimum sill.** *(Found round 73, not fixed: next round, Leo.)*
+- ~~**E's combination oven stands on the floor of its opening, under its
+  sheet's minimum sill.**~~ **Fixed in round 74** (D11 rule 12, round 74):
+  E's oven hangs from the same handle parameter as B's, at 15" with the shared
+  54". `towerSill.test.ts` holds every tower machine in every package and
+  arrangement to its document's range, and was red on round 73's code for E
+  alone, nine arrangements of nine. What follows is the entry as it stood:
+  *(Found round 73, not fixed: next round, Leo.)*
   MEM301WS's standard installation puts the opening 4-3/4" to 18" off the
   floor (`mem301ws-spec.pdf` p. 3; `mem301ws-manual.png` §5.6). In package E
   it starts at **0"** — 4-3/4" under the minimum, with no drawer under it —
@@ -3741,3 +3808,16 @@ Registered, not scheduled. None of these is a round of its own.
   73. The same condition keeps E's oven out of `towerVents` (a hung oven is one
   with its opening above the floor), so fixing the sill will also give it
   round 32's vent, and the diff should expect that.
+- **D's and E's coffee machine hangs higher than its manual advises.**
+  *(Found round 74, not changed: Leo decides.)* TCM24PS's installation
+  instructions, p. 11: "The appliance should not be installed too high
+  (approx. 37-7/16″ / 950 mm) to ensure that function parts, e.g. container or
+  brewing unit, can be removed without difficulty. The display should not be
+  located above eye level." Step 2's first drawing (p. 3) dimensions that
+  37-7/16" from the floor to the underside of the machine. D and E hang it at
+  **42"**, the `coffeeSillIn` default since package D was laid out, 4-9/16"
+  over, and the slider goes to 60". The manual's word is "approx." and
+  "should", with its reason given, so this is a figure to settle rather than a
+  hard limit. `towerSill.test.ts` carries D's and
+  E's 42" as its one exception, exactly those two at exactly 42", and fails the
+  day either moves, so the exception goes with whatever is decided.

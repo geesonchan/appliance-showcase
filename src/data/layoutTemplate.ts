@@ -526,11 +526,14 @@ const RUN_DIVIDER = { widthIn: 0.75, heightIn: CABINET_STANDARDS.base.boxHeightI
 export function sillFor(slot: PackageSlot, params: LayoutParams): number {
   // The coffee machine is hung where a cup is taken out, which is a parameter.
   if (slot.category === "coffee") return params.coffeeSillIn;
-  // A combination oven is hung from where its microwave handle lands. Any other
-  // oven beside the cooking surface has no microwave handle to reach for, and
-  // stands at the package's own figure — package D's steam oven at 12", the toe
-  // kick and one drawer (`steamOvenSillIn`).
-  if (slot.beside === "range" && slot.installType === "combo") {
+  // A combination oven is hung from where its microwave handle lands, wherever
+  // its tower stands — beside the range as in B, or on its own in the run as
+  // in E, with one parameter for both (round 74; until then only the one
+  // beside the range was asked, and E's fell to a sill of 0"). Any other oven
+  // has no microwave handle to reach for, and stands at the package's own
+  // figure — package D's steam oven at 12", the toe kick and one drawer
+  // (`steamOvenSillIn`).
+  if (slot.category === "wall-oven" && slot.installType === "combo") {
     return comboSillFor(params.microwaveHandleIn).sillIn;
   }
   return slot.sillIn;

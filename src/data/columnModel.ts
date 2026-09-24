@@ -27,7 +27,14 @@ import type { Appliance } from "../types";
  * get the height a person reaches to.
  */
 export const COMBO_OVEN = {
-  /** The microwave door's handle: the one a person uses most. */
+  /**
+   * The microwave door's handle: the one a person uses most.
+   *
+   * ⚠️ Scaled off the elevation, not a printed figure (D21: inferred). Neither
+   * mem301ws-spec.pdf nor mem301ws-manual.png prints a handle height; round 20
+   * measured it off the drawing ("off the elevation", commit 60a3baa). So is
+   * the lower oven's 22" below, and the door bands. Round 74.
+   */
   microwaveHandleIn: 39,
   /** The lower oven's. */
   ovenHandleIn: 22,

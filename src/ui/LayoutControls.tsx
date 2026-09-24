@@ -96,10 +96,12 @@ export function LayoutControls() {
   const specified = useActivePackage().entry.slots;
   // Whether this package has an oven tower to stand on one side or the other.
   const hasTower = specified.some((slot) => slot.beside === "range");
-  // A microwave handle to reach for is a combination oven's; package D's steam
-  // oven has none, and hangs at its own figure.
+  // A microwave handle to reach for is a combination oven's, in a tower beside
+  // the range or on its own in the run; package D's steam oven has none, and
+  // hangs at its own figure. Round 74: shown wherever the parameter decides a
+  // height on screen — it had been deciding E's with no control for it.
   const hasMicrowaveTower = specified.some(
-    (slot) => slot.beside === "range" && slot.installType === "combo",
+    (slot) => slot.category === "wall-oven" && slot.installType === "combo",
   );
   // And a coffee cabinet, which can go on either leg at a height somebody sets.
   const hasCoffee = specified.some((slot) => slot.category === "coffee");
