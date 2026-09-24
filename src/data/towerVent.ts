@@ -1,7 +1,7 @@
 import { RUNS, ft } from "./room";
 import { SLOT_BY_ID } from "./slots";
 import { toLocal, toWorld as turnToWorld } from "./frame";
-import type { SlotId } from "../types";
+import type { Appliance, SlotId } from "../types";
 
 /**
  * The vent a hung oven breathes through.
@@ -28,20 +28,23 @@ export const TOWER_VENT = {
    * Leo, round 37: the box directly over the oven, and the box stacked on it,
    * have open backs and do not touch the wall, so what comes up through the
    * vent has somewhere to go; round 38 gave it a grille to leave by. Round 39:
-   * only over a steam oven, and 3" is Leo's figure from site — a site value,
-   * not read off a drawing and not an inference.
+   * only over a steam oven; round 73: over any machine whose `rearVent` asks
+   * for it. 3" is Leo's figure from site — a site value, not read off a
+   * drawing and not an inference — and it clears the 1-3/8" TCM24PS's manual
+   * asks behind it (p. 11).
    */
   bridgeStandOffIn: 3,
 };
 
 /**
- * Where the air leaves: a grille in the top of the box stacked over a steam
- * oven, just under the crown. Leo, round 38.
+ * Where the air leaves: a grille in the top of the box stacked over a machine
+ * that breathes at its back, just under the crown. Leo, round 38.
  *
- * Only for a steam oven, and keyed on the machine rather than the tower. The
- * size is worked back from an area rather than read off a drawing: the
- * PODS302B sheet in `docs/reference/` states no ventilation requirement for
- * the cabinet at all.
+ * Keyed on the machine rather than the tower (`ventsAtRear`). The size is
+ * worked back from an area rather than read off a drawing: the PODS302B sheet
+ * in `docs/reference/` states no ventilation requirement for the cabinet at
+ * all. TCM24PS's manual gives one figure, a slot of at least 31 sq in where the
+ * machine sits under a décor panel (p. 11), and 6" x 28" is well past it.
  */
 export const OVEN_GRILLE = {
   heightIn: 6,
@@ -73,28 +76,39 @@ function toWorld(slotId: SlotId, x: number, y: number, z: number): [number, numb
 }
 
 /**
- * Every tower that hangs its machine off the floor, with the vent in its top.
+ * Whether a machine hung in a tower needs air at its back: open backs, the
+ * cabinets over it standing off the wall, and a grille under the crown.
  *
- * Read off the run rather than off a package, so B's combination oven and D's
- * steam oven get theirs from the same line: a tall unit whose opening starts
- * above the floor with nothing standing under it. A refrigerator column starts
- * on the floor; the coffee cabinet has a dishwasher in its bottom and a machine
- * that does not need one.
+ * Per model, from `rearVent` — TCM24PS because its manual asks for it (p. 11),
+ * PODS302B because Leo builds it that way (D11 rule 12, round 73). Until round
+ * 73 this was "is it a steam oven", which left the coffee machine out although
+ * its own manual asks for exactly this.
  */
-export function towerVents(): TowerVent[] {
+export const ventsAtRear = (appliance: Appliance | undefined) => Boolean(appliance?.rearVent);
+
+/**
+ * Every tower opening with a vent in its top, at the back.
+ *
+ * Read off the run, and asked of the machine in it. Two ways in:
+ * - an oven hung off the floor with nothing standing under it — B's
+ *   combination oven and D's steam oven by one line (round 32, Leo);
+ * - a machine whose `rearVent` asks for air at its back, whatever stands under
+ *   it — the coffee machine over D's dishwasher and E's wine cooler (round 73).
+ *
+ * A refrigerator column starts on the floor. A coffee machine is not an oven:
+ * until round 73 E's coffee cabinet, with nothing under it, was taken for a
+ * hung oven and given a vent under a solid-backed cabinet — a hole to nowhere.
+ */
+export function towerVents(selection: Partial<Record<SlotId, Appliance | undefined>>): TowerVent[] {
   const slots: SlotId[] = [];
   for (const run of RUNS) {
     for (const segment of run.segments) {
       for (const module of segment.modules) {
-        if (
-          module.kind === "tall" &&
-          module.slot &&
-          (module.sillIn ?? 0) > 0 &&
-          !module.lowerSlot &&
-          !slots.includes(module.slot)
-        ) {
-          slots.push(module.slot);
-        }
+        if (module.kind !== "tall" || !module.slot || (module.sillIn ?? 0) <= 0) continue;
+        if (slots.includes(module.slot)) continue;
+        const machine = selection[module.slot];
+        const hungOven = machine?.category === "wall-oven" && !module.lowerSlot;
+        if (hungOven || ventsAtRear(machine)) slots.push(module.slot);
       }
     }
   }

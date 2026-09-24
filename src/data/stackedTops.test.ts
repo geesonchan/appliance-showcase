@@ -1,14 +1,14 @@
 import { afterAll, describe, expect, it } from "vitest";
 import { CABINETS, standOffFromWall, type CabinetBox } from "./cabinets";
 import { APPLIANCES } from "./catalogue";
-import { isSteamOven } from "./columnModel";
 import { checkLayout } from "./layoutRules";
 import { setActivePackage, setLayoutParams } from "./layoutState";
 import { DEFAULT_PARAMS } from "./layoutTemplate";
 import { DEFAULT_PACKAGE, PACKAGE_BY_ID } from "./packages";
 import { CABINET_STANDARDS, ROOM } from "./room";
 import { SLOT_BY_ID } from "./slots";
-import { TOWER_VENT, towerVents } from "./towerVent";
+import { TOWER_VENT, towerVents, ventsAtRear } from "./towerVent";
+import { defaultSelectionOf } from "./testRoom";
 import type { Appliance, SlotId } from "../types";
 
 /**
@@ -151,7 +151,7 @@ describe("the cabinets over a hung oven", () => {
    */
   const standing = (_id: string, slotId: SlotId, appliance: Appliance) =>
     CABINETS.filter((box) => box.ventSlot === slotId).map((box) =>
-      isSteamOven(appliance) ? standOffFromWall(box) : box,
+      ventsAtRear(appliance) ? standOffFromWall(box) : box,
     );
 
   it("stands D's steam oven cabinets off the wall, and leaves B's combination oven against it", () => {
@@ -160,7 +160,7 @@ describe("the cabinets over a hung oven", () => {
       ["package-b", false],
     ] as const) {
       activate(id);
-      const [vent] = towerVents();
+      const vent = towerVents(defaultSelectionOf(id)).find((v) => v.slot !== "slot-coffee")!;
       expect(vent.bridgeStandOffIn).toBe(3);
       const appliance = APPLIANCES.find((a) => a.id === PACKAGE_BY_ID[id].defaultSelection[vent.slot])!;
       const boxes = standing(id, vent.slot, appliance);
@@ -177,10 +177,10 @@ describe("the cabinets over a hung oven", () => {
 
   it("follows the machine: a steam oven in B's tower stands off, a combination oven in D's does not", () => {
     activate("package-b");
-    const [b] = towerVents();
+    const b = towerVents(defaultSelectionOf("package-b")).find((v) => v.slot !== "slot-coffee")!;
     expect(bridgeProblems(standing("package-b", b.slot, APPLIANCES.find((a) => a.model === "PODS302B")!), b.slot)).toEqual([]);
     activate("package-d");
-    const [d] = towerVents();
+    const d = towerVents(defaultSelectionOf("package-d")).find((v) => v.slot !== "slot-coffee")!;
     expect(
       bridgeProblems(standing("package-d", d.slot, APPLIANCES.find((a) => a.model === "MEM301WS")!), d.slot),
     ).not.toEqual([]);
@@ -188,7 +188,7 @@ describe("the cabinets over a hung oven", () => {
 
   it("fails a box against the wall, or one standing out of the run", () => {
     activate("package-d");
-    const [vent] = towerVents();
+    const vent = towerVents(defaultSelectionOf("package-d")).find((v) => v.slot !== "slot-coffee")!;
     const bridge = standOffFromWall(
       CABINETS.find((box) => box.slot === vent.slot && box.id.endsWith("-bridge"))!,
     );

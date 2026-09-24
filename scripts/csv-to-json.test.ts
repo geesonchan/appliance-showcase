@@ -162,7 +162,11 @@ describe("the new families, end to end", () => {
     ["PCG366WL", "slot-range", "rangetop"],
     ["ICBSRT366", "slot-range", "rangetop"],
     ["ICBIC-30R", "slot-fridge", "column"],
-    ["PRW24C01CG", "slot-wine", "undercounter"],
+    // Its install type is its manual's since round 73 ("designed for either
+    // built-in, or freestanding installation", p. 6), in PUBLISHED_SPECS, which
+    // wins over the sheet's words (D4). The word "Undercounter" is still read,
+    // and T24UR915LS below still holds it.
+    ["PRW24C01CG", "slot-wine", "built-in"],
     ["VTN2FZ", "slot-hood", "internal"],
     ["T24UR915LS", "slot-fridge", "undercounter"],
     ["RB24S25MKIW1", "slot-fridge", "drawer"],

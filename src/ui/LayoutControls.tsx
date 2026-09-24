@@ -4,6 +4,7 @@ import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
 import { useActivePackage } from "../store/useSelection";
 import { comboHandleAt, comboSillFor } from "../data/columnModel";
+import { underCoffee } from "../data/layoutTemplate";
 import { RefusalNote } from "./RefusalNote";
 import { PanelSection, Segmented, Slider, Toggle } from "./primitives";
 
@@ -102,6 +103,8 @@ export function LayoutControls() {
   );
   // And a coffee cabinet, which can go on either leg at a height somebody sets.
   const hasCoffee = specified.some((slot) => slot.category === "coffee");
+  // What stands under it, which the caption names rather than assumes (round 73).
+  const underIt = underCoffee(specified);
   // And whether its hood is a liner that goes up inside joinery, which is the
   // only kind with a shape to choose.
   const hasHousing = specified.some(
@@ -267,7 +270,7 @@ export function LayoutControls() {
             label={t("panel.layout.coffeeSill")}
             value={params.coffeeSillIn}
             {...PARAM_LIMITS.coffeeSillIn}
-            caption={t("panel.layout.coffeeSill.caption", { sillIn: params.coffeeSillIn })}
+            caption={t(`panel.layout.coffeeSill.caption.${underIt}`, { sillIn: params.coffeeSillIn })}
             onChange={(coffeeSillIn) => setLayout({ coffeeSillIn })}
           />
         )}

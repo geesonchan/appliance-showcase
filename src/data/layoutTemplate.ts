@@ -537,6 +537,20 @@ export function sillFor(slot: PackageSlot, params: LayoutParams): number {
 }
 
 /**
+ * What stands under the coffee machine, read off the package rather than
+ * assumed: D's second dishwasher, E's wine cooler, or a plain cabinet where the
+ * coffee cabinet stands over nothing. Round 73 — the slider caption said
+ * "dishwasher under it" on package E, which has a cabinet there.
+ */
+export function underCoffee(slots: readonly PackageSlot[]): "dishwasher" | "wine" | "cabinet" {
+  const coffee = slots.find((slot) => slot.category === "coffee");
+  const lower = coffee?.standsOver ? slots.find((slot) => slot.slotId === coffee.standsOver) : undefined;
+  if (lower?.category === "dishwasher") return "dishwasher";
+  if (lower?.category === "wine") return "wine";
+  return "cabinet";
+}
+
+/**
  * Whether a slot is one of the two an island carries.
  *
  * The island's machines are the ones that are neither on the perimeter by

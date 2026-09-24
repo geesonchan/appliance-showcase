@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { SLOT_ORDER } from "./catalogue";
 import { SLOT_BY_ID } from "./slots";
 import { evaluateSlot, packageContext, type Finding } from "./rules";
-import { resolveRoughIn, roughInWords } from "./roughIn";
+import { resolveRoughIn, roughInFor, roughInWords } from "./roughIn";
 import { useSelection, useSelectedBlower } from "../store/useSelection";
 import { useAppStore, type CounterFinish } from "../store/useAppStore";
 import { applianceBox } from "./applianceBox";
@@ -15,12 +15,11 @@ import {
   isColumn,
   isCombo,
   isDouble,
-  isSteamOven,
 } from "./columnModel";
 import { CHIMNEY, chimneyParts, isChimney } from "./hood";
 import { ISLAND, LAYOUT_LIMITS, LAYOUT_PARAMS, OMITTED_SLOTS, ROOM, RUNS } from "./room";
 import { formatDimension } from "./dimensions";
-import { OVEN_GRILLE, towerVents } from "./towerVent";
+import { OVEN_GRILLE, towerVents, ventsAtRear, type TowerVent } from "./towerVent";
 import { overhangSupportZone } from "./overhang";
 import type { Appliance, SlotId } from "../types";
 
@@ -197,9 +196,56 @@ function overhangSupport(counter: CounterFinish): Finding[] {
  * the cabinetmaker cuts, so its size goes on the list; see `towerVent.ts`.
  */
 function towerVent(selection: Record<SlotId, Appliance>): Finding[] {
-  return towerVents().flatMap((vent): Finding[] => [
-    // Where that air leaves, for a steam oven only. Round 38.
-    ...(isSteamOven(selection[vent.slot])
+  return towerVents(selection).flatMap((vent): Finding[] => {
+    const machine = selection[vent.slot];
+    return machine?.category === "coffee" ? coffeeVent(vent, machine) : ovenVent(vent, machine);
+  });
+}
+
+/**
+ * The same three lines for the coffee machine, in its own words: its manual
+ * asks for the air at its back (TCM24PS p. 11), and a line that talked about
+ * "the oven" and "the steam oven" over a coffee machine would be read as a
+ * mistake by the one person who needs to believe it. Round 73.
+ */
+function coffeeVent(vent: TowerVent, machine: Appliance): Finding[] {
+  const breathes = ventsAtRear(machine);
+  return [
+    {
+      ruleId: `tower-vent:${vent.slot}`,
+      severity: "info" as const,
+      messageKey: "rule.coffeeTopVent",
+      slot: vent.slot,
+      params: { size: `${formatDimension(vent.widthIn)} × ${formatDimension(vent.depthIn)}` },
+    },
+    ...(breathes
+      ? [
+          {
+            ruleId: `tower-bridge:${vent.slot}`,
+            severity: "info" as const,
+            messageKey: "rule.coffeeRearVent",
+            slot: vent.slot,
+            params: { gap: formatDimension(vent.bridgeStandOffIn) },
+          },
+          {
+            ruleId: `oven-grille:${vent.slot}`,
+            severity: "info" as const,
+            messageKey: "rule.coffeeGrille",
+            slot: vent.slot,
+            params: {
+              size: `${formatDimension(OVEN_GRILLE.heightIn)} × ${formatDimension(OVEN_GRILLE.widthIn)}`,
+            },
+          },
+        ]
+      : []),
+  ];
+}
+
+function ovenVent(vent: TowerVent, machine: Appliance | undefined): Finding[] {
+  return [
+    // Where that air leaves, for a machine that breathes at its back — D's
+    // steam oven, on Leo's site practice. Round 38; data since round 73.
+    ...(ventsAtRear(machine)
       ? [
           {
             ruleId: `oven-grille:${vent.slot}`,
@@ -219,9 +265,9 @@ function towerVent(selection: Record<SlotId, Appliance>): Finding[] {
       slot: vent.slot,
       params: { size: `${formatDimension(vent.widthIn)} × ${formatDimension(vent.depthIn)}` },
     },
-    // And the way to it: the boxes over a steam oven have no backs and stand
+    // And the way to it: the boxes over such a machine have no backs and stand
     // off the wall. Anything else keeps a solid back against it. Round 39.
-    ...(isSteamOven(selection[vent.slot])
+    ...(ventsAtRear(machine)
       ? [
           {
             ruleId: `tower-bridge:${vent.slot}`,
@@ -232,7 +278,7 @@ function towerVent(selection: Record<SlotId, Appliance>): Finding[] {
           },
         ]
       : []),
-  ]);
+  ];
 }
 
 /**
@@ -296,6 +342,40 @@ function coffeeCabinet(selection: Record<SlotId, Appliance>): Finding[] {
       severity: "info",
       messageKey: "rule.coffeeDishwasher",
       slot: "slot-dishwasher-2",
+      params: {},
+    });
+  }
+  if (selection["slot-wine-2"]) {
+    lines.push({
+      ruleId: "coffee-wine",
+      severity: "info",
+      messageKey: "rule.coffeeWine",
+      slot: "slot-wine-2",
+      params: {},
+    });
+  }
+  // Whatever stands under the coffee machine, the gap up to it is a fixed
+  // panel, never a drawer: TCM24PS p. 9 (D11 rule 14, round 73).
+  const lower = RUNS.flatMap((run) => run.segments)
+    .flatMap((segment) => segment.modules)
+    .find((module) => module.slot === "slot-coffee")?.lowerSlot;
+  if (lower) {
+    lines.push({
+      ruleId: "coffee-gap-panel",
+      severity: "info",
+      messageKey: "rule.coffeeGapPanel",
+      slot: "slot-coffee",
+      params: {},
+    });
+  }
+  // A drain the machine works without is said to be optional, in so many
+  // words, rather than priced as needed or left out (Leo, round 73).
+  if (roughInFor(coffee)?.points.some((point) => point.type === "drain" && point.optional)) {
+    lines.push({
+      ruleId: "coffee-drain-optional",
+      severity: "info",
+      messageKey: "rule.coffeeDrainOptional",
+      slot: "slot-coffee",
       params: {},
     });
   }

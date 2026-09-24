@@ -320,24 +320,29 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
           onRun(run, `${segment.id}-panel-b`, "surround", [opening[1], along[1]], tall, ROOM.counterDepth, 0, { outline, slot: module.slot, module, face: "strip" }),
         );
       }
-      // Over a hung oven the box is marked with the oven it stands over, and so
-      // is the box stacked on it, which copies it. Whether the two stand off the
-      // wall with open backs and a grille depends on the machine in the slot —
-      // a steam oven does, anything else does not (D11 rule 12, round 39) — and
-      // that is the selection's business, so `standOffFromWall` is applied
-      // where the machine is known.
-      const hung = sill > 0 && !module.lowerSlot;
+      // Over an opening off the floor the box is marked with the machine it
+      // stands over, and so is the box stacked on it, which copies it. Whether
+      // the two stand off the wall with open backs and a grille depends on the
+      // machine in the slot — its `rearVent`, from its manual or Leo's site
+      // practice (D11 rule 12, round 73; a steam oven until then) — and that is
+      // the selection's business, so `standOffFromWall` is applied where the
+      // machine is known.
+      const offTheFloor = sill > 0;
       boxes.push(
         onRun(run, `${segment.id}-bridge`, "upper", opening, [head, tall[1]], ROOM.counterDepth, 0, {
           outline,
           slot: module.slot,
           module,
-          ...(hung && module.slot ? { ventSlot: module.slot } : {}),
+          ...(offTheFloor && module.slot ? { ventSlot: module.slot } : {}),
         }),
       );
-      // Where a machine stands on the floor under the opening — the dishwasher
-      // in the bottom of the coffee cabinet — the cabinetry starts on top of
-      // that machine's own opening: a drawer between it and the one above.
+      // Where a machine stands on the floor under the opening — D's second
+      // dishwasher, E's wine cooler, in the bottom of the coffee cabinet — the
+      // cabinetry starts on top of that machine's own opening, and what fills
+      // the gap up to the coffee machine is a fixed panel flush with the doors,
+      // not a drawer: TCM24PS's manual says not to install it directly above a
+      // cabinet drawer (p. 9), and the hoses run down behind the panel (D11
+      // rule 14, round 73). With nothing under the opening it is a cabinet.
       const floor = module.lowerSlot
         ? ft(SLOT_BY_ID[module.lowerSlot].cutout.h)
         : ROOM.toeKick;
@@ -347,6 +352,7 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
             outline,
             slot: module.slot,
             module,
+            ...(module.lowerSlot ? { face: "strip" as const } : {}),
           }),
         );
       }
@@ -588,9 +594,13 @@ function runBoxes(run: CabinetRun): CabinetBox[] {
   // either is a board behind nothing.
   let start = run.segments[0].from;
   for (const [i, segment] of run.segments.entries()) {
+    // And a machine standing on the floor in the bottom of a tower — the wine
+    // cooler under E's coffee machine, D's second dishwasher — stands on its
+    // own kick panel: PRW24C01CG breathes through the vent in its base, which
+    // must never be covered (its manual, pp. 6 and 13). Round 73.
     const breaks =
       segment.slot === "slot-range" ||
-      segment.modules.some((module) => module.kind === "tall-open");
+      segment.modules.some((module) => module.kind === "tall-open" || module.lowerSlot !== undefined);
     const last = i === run.segments.length - 1;
     // A break is exactly at the machine's side. The run's far end is not a
     // break: the last cabinet's side there is a finished end, which goes to the

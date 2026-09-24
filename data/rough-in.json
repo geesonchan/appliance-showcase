@@ -331,6 +331,66 @@
           "basis": "120 VAC 15 A and the home supply cable running through a strain relief into the terminal box are the guide's (p. 4 and p. 17); it gives no figure for where the cable leaves the ceiling. Drawn 8\" off centre so it clears the duct, inside the duct cover's footprint."
         }
       ]
+    },
+    "thermador-tcm24ps": {
+      "sourceUrl": "docs/reference/TCM24PS_Install_Manual.pdf",
+      "points": [
+        {
+          "type": "water",
+          "location": "adjacent-cabinet-right",
+          "x": 3,
+          "y": 18,
+          "z": "rear",
+          "note": "Shut-off valve for the coffee machine's water inlet hose, reachable once it is installed",
+          "provenance": "inferred",
+          "basis": "A cold-water connection with a shut-off valve that stays freely accessible, and a tap with a 1-1/16\" (26.4 mm) thread, are the manual's (p. 10). Leo, round 73, from site: the cabinet beside the coffee tower that has doors — on the back leg, the 24\" base between the tower and the sink base. 3\" from the side that meets the tower and 18\" up are not on any drawing. The coffee machine's points and the wine cooler's stand in one column 3\" in, at 12\", 18\", 24\" and 30\", because the cabinet beside a coffee tower can be as narrow as 9\" (package D, coffee on the left leg). The manual gives no length for the inlet hose."
+        },
+        {
+          "type": "drain",
+          "location": "adjacent-cabinet-right",
+          "x": 3,
+          "y": 24,
+          "z": "rear",
+          "optional": true,
+          "note": "Drain for the coffee machine, if it is connected",
+          "provenance": "inferred",
+          "basis": "Optional: Leo, round 73, from site — the machine works with it connected or not. Where it is connected the manual asks the connection to be at least 5-29/32\" (150 mm) below the machine's lower edge, within 39-3/8\" (1000 mm) of it, vented, with the hose sloping all the way and not extended (pp. 10-11). Leo, round 73, from site: the cabinet beside the coffee tower that has doors — on the back leg, the 24\" base between the tower and the sink base. 3\" in and 24\" up are not on any drawing: 24\" is 18\" under a 42\" opening, and the nearest point to the tower keeps the hose short."
+        },
+        {
+          "type": "power",
+          "location": "adjacent-cabinet-right",
+          "x": 3,
+          "y": 30,
+          "z": "rear",
+          "note": "Dedicated receptacle for the coffee machine's transformer",
+          "provenance": "inferred",
+          "basis": "A dedicated receptacle in an accessible cabinet adjacent to the coffee maker, never behind the appliance, freely accessible after installation, is the manual's (p. 12); the transformer's cord is 39\" (p. 12). Leo, round 73, from site: the cabinet beside the coffee tower that has doors — on the back leg, the 24\" base between the tower and the sink base. 3\" from the side that meets the tower and 30\" up are not on any drawing: the top of the column of points in that cabinet, above the drain."
+        }
+      ]
+    },
+    "zephyr-prw24c01cg": {
+      "sourceUrl": "docs/reference/PRW24C01CG_manual.pdf",
+      "points": [
+        {
+          "type": "power",
+          "location": "adjacent-cabinet-right",
+          "x": 3,
+          "y": 12,
+          "z": "rear",
+          "note": "Receptacle for the wine cooler, in the cabinet beside it",
+          "whenNoCabinet": {
+            "where": "behind-machine",
+            "x": "right",
+            "y": 6,
+            "z": "rear",
+            "conditionKey": null,
+            "provenance": "inferred",
+            "basis": "The manual draws the cooler under a counter with at least 1\" behind it for the plug, and its 72\" cable leaves at the back right (p. 14): behind it is what the manual's own installation does. At the right and 6\" up are not on any drawing."
+          },
+          "provenance": "inferred",
+          "basis": "In the cabinet beside it is Leo's site practice (round 71: if conditions allow, the socket goes on the side of the machine that has a cabinet, near the machine) — the manual only asks for an exclusive, easily accessible socket (p. 6) and gives the cable as 72\" from the back right (p. 14). Under E's coffee machine that is the 24\" base beside the tower (Leo, round 73). 3\" from the side that meets the machine and 12\" up are not on any drawing: low and near the machine, and inside the narrowest cabinet it is put in (12\", beside it in A's island)."
+        }
+      ]
     }
   }
 }

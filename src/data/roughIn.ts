@@ -2,12 +2,14 @@ import appliancesFile from "../../data/appliances.json";
 import roughInFile from "../../data/rough-in.json";
 import { applianceBox } from "./applianceBox";
 import { hoodBridgeBand } from "./cabinets";
-import { PANEL, ROOM, RUNS, carries, ft, type CabinetRun, type ModuleKind, type RunSegment } from "./room";
+import { ISLAND, PANEL, ROOM, RUNS, carries, ft, type CabinetRun, type ModuleKind, type RunSegment } from "./room";
 import { parseDataFile, roughInFileSchema, type RoughInPoint } from "./schema";
 import { SLOT_BY_ID } from "./slots";
 import {
   alongIsToTheRight,
+  alongOf,
   axisIndex,
+  extentsOnAxis,
   facingOf,
   onAxis,
   sizeOnPlan,
@@ -230,8 +232,12 @@ function hostFor(slot: Slot, appliance: Appliance, point: RoughInPoint): HostBox
   }
 
   // A machine on the island stands on no wall run, so a box that is a run's —
-  // a neighbour's cabinet, the sink base — cannot be found for it. Round 72:
-  // it says so rather than dropping the point, and `resolveRoughIn` throws.
+  // the sink base, the cabinet beside a tower — cannot be found for it. A
+  // neighbour's cabinet can: the island's own cabinets beside its opening
+  // (round 73, the first island model with a neighbour's point, PRW24C01CG).
+  if (!found && point.location.startsWith("adjacent-cabinet")) {
+    return islandNeighbour(slot, point.location === "adjacent-cabinet-left" ? "left" : "right");
+  }
   if (!found && point.location !== "in-cutout") return null;
 
   if (point.location === "in-cutout") {
@@ -382,6 +388,64 @@ function pickNeighbour(
   // The side the drawing names first; then the other, rather than dropping the
   // connection. Neither: `whenNoCabinet` in the model's data says what is done.
   return look(step) ?? look(-step as -1 | 1);
+}
+
+/**
+ * The island cabinet beside an island machine, on the installer's left or
+ * right as they face it — the other side's where that side has none, as
+ * `pickNeighbour` does on a run. Round 73.
+ *
+ * The island is built of its openings and the cabinets between them and its
+ * ends (`islandBoxes` in cabinets.ts), so a neighbour is the stretch of island
+ * from this opening to the next opening or the end. A stretch narrower than
+ * the narrowest base cabinet D13 lists (12") is a filler, not a cabinet — A's
+ * island has 6" at its ends — and is passed over the way a board is on a run.
+ *
+ * Measured in the machine's own frame, like an island opening: `along` is
+ * across its face from its centre, +x its right, so the figure is from the
+ * side that meets the machine (round 70).
+ */
+const NARROWEST_CABINET = ft(12);
+
+function islandNeighbour(slot: Slot, wanted: Side): HostBox | null {
+  if (!ISLAND.present || slot.mount !== "island") return null;
+  const island = extentsOnAxis(ISLAND.axis, ISLAND.x, ISLAND.z).along;
+  const openings = [ISLAND.microwave, ISLAND.wine, ISLAND.cooktop]
+    .filter(([from, to]) => to - from > 1e-9)
+    .map(([from, to]) => [from, to] as const);
+  const centre = alongOf(ISLAND.axis, slot.position[0], slot.position[2]);
+  const own = openings.find(([from, to]) => centre > from - 1e-9 && centre < to + 1e-9);
+  if (!own) return null;
+  // Which way along the island is the installer's right, facing the machine.
+  const [rx, rz] = toPlan({ position: [0, 0, 0], rotationY: slot.rotationY }, 1, 0);
+  const rightAlong = alongOf(ISLAND.axis, rx, rz) > 0 ? 1 : -1;
+
+  const stretch = (way: -1 | 1): readonly [number, number] | null => {
+    const from = way > 0 ? own[1] : own[0];
+    const next = openings
+      .map(([a, b]) => (way > 0 ? a : b))
+      .filter((edge) => (way > 0 ? edge > from + 1e-9 : edge < from - 1e-9));
+    const to = next.length ? (way > 0 ? Math.min(...next) : Math.max(...next)) : way > 0 ? island[1] : island[0];
+    return Math.abs(to - from) >= NARROWEST_CABINET - 1e-6 ? ([from, to] as const) : null;
+  };
+  const wantWay = (wanted === "right" ? rightAlong : -rightAlong) as -1 | 1;
+  const way = stretch(wantWay) ? wantWay : stretch(-wantWay as -1 | 1) ? (-wantWay as -1 | 1) : null;
+  if (way === null) return null;
+  const [from, to] = stretch(way)!;
+  // Into the machine's frame: across its face from its centre, +x its right.
+  const local = [from, to].map((edge) => (edge - centre) * rightAlong).sort((a, b) => a - b);
+  return {
+    id: `${slot.id}-island-${way * rightAlong > 0 ? "right" : "left"}`,
+    run: RUNS[0],
+    along: [local[0], local[1]] as const,
+    band: [0, ROOM.counterHeight - ROOM.counterThickness] as const,
+    step: (way * rightAlong) as -1 | 1,
+    frame: {
+      origin: [slot.position[0], slot.position[2]] as const,
+      rotationY: slot.rotationY,
+      depth: ft(slot.cutout.d),
+    },
+  };
 }
 
 /**
@@ -643,7 +707,9 @@ export function roughInWords(resolved: ResolvedPoint): RoughInWords {
   const up = typeof at.y === "number" ? (fromTop ? "down" : "up") : at.y;
 
   const words: RoughInWords = {
-    typeKey: `roughIn.type.${point.type}`,
+    // A connection that may be left out says so in its own name, wherever it
+    // is shown — list, callout, checklist, quote (round 73: TCM24PS's drain).
+    typeKey: `roughIn.type.${point.type}${point.optional ? ".optional" : ""}`,
     whereKey: `roughIn.where.${where}`,
     atKey: `roughIn.at.${across}.${up}`,
   };

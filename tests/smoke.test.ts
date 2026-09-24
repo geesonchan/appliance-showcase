@@ -772,9 +772,11 @@ describe("tower vent", () => {
         ).__towerVents(),
       );
 
-    for (const [code, slot] of [
-      ["B", "slot-microwave"],
-      ["D", "slot-oven"],
+    // D's coffee cabinet has one too since round 73: TCM24PS's manual asks for
+    // air at its back (p. 11). D11 rule 12.
+    for (const [code, slots] of [
+      ["B", ["slot-microwave"]],
+      ["D", ["slot-coffee", "slot-oven"]],
     ] as const) {
       await page.locator(`[data-segment="package"] button`, { hasText: code }).first().click();
       await page.waitForTimeout(1800);
@@ -782,7 +784,7 @@ describe("tower vent", () => {
       await setMode(page, "Materials");
       await page.waitForTimeout(600);
       const finished = await vents();
-      expect(finished.map((vent) => vent.slot), code).toEqual([slot]);
+      expect(finished.map((vent) => vent.slot).sort(), code).toEqual([...slots]);
       expect(finished.every((vent) => !vent.shown), `${code} in materials`).toBe(true);
 
       await setMode(page, "Install");
@@ -803,9 +805,10 @@ describe("tower vent", () => {
    */
   it("sits in the shelf over the opening, and nothing vent-like is under the tower", async () => {
     const { page, errors } = await openPage(DESKTOP, false, "?debug=1");
-    for (const [code, slot] of [
-      ["B", "slot-microwave"],
-      ["D", "slot-oven"],
+    // And D's coffee cabinet's, since round 73.
+    for (const [code, slots] of [
+      ["B", ["slot-microwave"]],
+      ["D", ["slot-coffee", "slot-oven"]],
     ] as const) {
       await page.locator(`[data-segment="package"] button`, { hasText: code }).first().click();
       await page.waitForTimeout(1800);
@@ -819,20 +822,22 @@ describe("tower vent", () => {
           }
         ).__towerVents(),
       );
-      expect(vents.map((vent) => vent.slot), code).toEqual([slot]);
+      expect(vents.map((vent) => vent.slot).sort(), code).toEqual([...slots]);
       for (const vent of vents) {
         expect(vent.shelfIn, `${code} has a cabinet over the opening`).not.toBeNull();
         expect(Math.abs(vent.yIn - (vent.shelfIn ?? 0)), `${code}: vent at ${vent.yIn}"`).toBeLessThan(0.05);
       }
-      const named = await page.evaluate(
-        (slot) =>
-          (window as unknown as { __ventNames: () => { name: string; slot: string | null }[] })
-            .__ventNames()
-            .filter((vent) => vent.slot === slot)
-            .map((vent) => vent.name),
-        slot,
-      );
-      expect(named, code).toEqual(["tower-vent"]);
+      for (const slot of slots) {
+        const named = await page.evaluate(
+          (slot) =>
+            (window as unknown as { __ventNames: () => { name: string; slot: string | null }[] })
+              .__ventNames()
+              .filter((vent) => vent.slot === slot)
+              .map((vent) => vent.name),
+          slot,
+        );
+        expect(named, `${code} ${slot}`).toEqual(["tower-vent"]);
+      }
 
       await setMode(page, "Materials");
       await page.waitForTimeout(600);

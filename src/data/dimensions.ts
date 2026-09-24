@@ -177,7 +177,7 @@ export function dimensionsFor(
     ...windowDimensions(),
     // The vent in the top of a hung oven's opening: a hole somebody cuts on
     // site, so its width is a figure on the drawing.
-    ...towerVents().map((vent) => ({
+    ...towerVents(selection).map((vent) => ({
       id: `tower-vent-${vent.slot}`,
       from: vent.front[0],
       to: vent.front[1],

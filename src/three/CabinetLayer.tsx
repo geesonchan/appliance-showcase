@@ -19,8 +19,7 @@ import { useIsMobile } from "../hooks/useIsMobile";
 import { cabinetPaint, useAppStore } from "../store/useAppStore";
 import { ft } from "../data/room";
 import { CABINET_DOOR_IN } from "../data/ovenTrim";
-import { isSteamOven } from "../data/columnModel";
-import { OVEN_GRILLE } from "../data/towerVent";
+import { OVEN_GRILLE, ventsAtRear } from "../data/towerVent";
 import { SCENE_COLORS, finish, type FinishToken, type SurfaceProps } from "./materials";
 import { Surface } from "./Surface";
 import { HoodCabinet } from "./HoodCabinet";
@@ -321,14 +320,15 @@ function CabinetSolid({ box }: { box: CabinetBox }) {
   // A corner susan wears one door across the corner rather than a flat front
   // on each leg. See docs/reference/lazy-susan-corner.svg.
   const corner = useMemo(() => diagonalDoor(box), [box]);
-  // The box stacked over a steam oven's cabinet breathes out through its door.
-  // Keyed on the machine in the slot, so a combination oven in the same tower
-  // gets a plain door. D11 rule 12, round 38.
+  // The box stacked over a machine that breathes at its back lets the air out
+  // through its door. Keyed on the machine in the slot — its `rearVent`, from
+  // its manual or Leo's site practice — so a combination oven in the same tower
+  // gets a plain door. D11 rule 12, round 38; data since round 73.
   const selection = useSelection();
   const grille =
     box.ventSlot !== undefined &&
     box.id.endsWith("-stack") &&
-    isSteamOven(selection[box.ventSlot]);
+    ventsAtRear(selection[box.ventSlot]);
 
   // The housing round an insert liner is cabinetry with a shape of its own:
   // three sections rather than a box, and no door on any of them. It is
@@ -496,13 +496,14 @@ function CounterSlab() {
 export function CabinetLayer() {
   const showCabinets = useAppStore((s) => s.showCabinets);
   const isMobile = useIsMobile();
-  // The cabinets over a steam oven stand off the wall with open backs, and which
-  // machine is in the slot is the selection's to say. D11 rule 12, round 39.
+  // The cabinets over a machine that breathes at its back stand off the wall
+  // with open backs, and which machine is in the slot is the selection's to
+  // say. D11 rule 12, round 39; `rearVent` since round 73.
   const selection = useSelection();
   const solids = useMemo(
     () =>
       CABINETS.map((box) =>
-        box.ventSlot !== undefined && isSteamOven(selection[box.ventSlot]) ? standOffFromWall(box) : box,
+        box.ventSlot !== undefined && ventsAtRear(selection[box.ventSlot]) ? standOffFromWall(box) : box,
       ),
     // CABINETS is rebuilt with the layout, which re-renders this layer.
     // eslint-disable-next-line react-hooks/exhaustive-deps

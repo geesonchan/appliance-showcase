@@ -632,6 +632,80 @@ each one has a test with a case that breaks it.
     after the oven beside the cooking surface. It goes on whichever leg
     `coffeeLeg` names, and a leg that will not take it is refused with the bill
     and the other leg offered.
+
+    *Amended 2026-09-23 (round 73), Leo: what stands under the coffee machine,
+    and what the machine's own manual says about it.* Package E puts an
+    undercounter wine cooler (PRW24C01CG) where D puts its second dishwasher.
+    The manual and the site practice do not say the same thing, and both are
+    written down here as they are.
+    - **TCM24PS's installation manual, page 9** (`TCM24PS_Install_Manual.pdf`,
+      the English page numbered en–9), word for word:
+      - "Do not install in the same cabinet with other appliances."
+      - "Do not install directly above a cabinet drawer. This appliance must
+        always be enclosed in its own cabinetry unless specified otherwise."
+      - "Do not place any heating or cooking appliance beneath the appliance."
+      - "Do not mount any appliance with fixed water connection over the fully
+        automatic coffee machine."
+      - "The appliance can be installed in combination with approved products.
+        Do not install in the same cutout with unapproved combinations."
+    - **The one combination the manual shows** is a warming drawer under the
+      machine: step 2's third drawing (page 3) and page 11, which asks a recess
+      of 23-1/4" (590 mm) when it is installed over one. A dishwasher and a wine
+      cooler are not named anywhere in it, as approved or as not.
+    - **Leo's site practice, in his words:** "单独一列柜子做一个 coffee
+      machine，不好看，也不实用。一般情况下，coffee machine 下面放洗碗机或者
+      under-counter wine cooler。" A column built for a coffee machine alone
+      looks wrong and wastes the space; what goes under it is a dishwasher or
+      an undercounter wine cooler.
+    - **Why the manual is not read at its narrowest.** Read at its narrowest,
+      "own cabinetry" and "approved products" would allow nothing under the
+      machine but a warming drawer, and that is not how these towers are built.
+      The reading taken is that the tall unit gives each machine an opening of
+      its own, the way the manual's own warming-drawer drawing is one carcass
+      with two openings. **That is a reading, not the manual's words.** The two
+      prohibitions that name a kind of machine are not in question: neither a
+      dishwasher nor a wine cooler heats, and neither stands *over* the coffee
+      machine. So D keeps its dishwasher and E takes the wine cooler. The
+      source for both is Leo's site practice, and whether either counts as an
+      approved combination is an Open item.
+    - **The drawer prohibition is followed as written.** It names a specific
+      thing not to do, which "approved combinations" does not. So the gap
+      between the lower machine and the coffee machine is a fixed panel, not a
+      drawer, in D as well as E (Leo, round 73; D had a drawer there on the
+      live site).
+
+    *Built in round 73.*
+    - **E's wine cooler is its own slot, `slot-wine-2`**, the way D's second
+      dishwasher is `slot-dishwasher-2`: the coffee cabinet `standsOver` it, and
+      the template stands it on the floor in the bottom of that tower. It is not
+      `slot-wine`, which is the island's spare: it moves onto a leg when the
+      room has no island, or leaves the room with it. Which models it offers is
+      the slot's `compatibleCategories`, the same answer every slot gives — no
+      new judgement of "can this model go here" was written (D17's table). On
+      the site it stands on the back leg in the 24" coffee tower. E's room is
+      unchanged: every arrangement builds at the same walls with it as without
+      it.
+    - **PRW24C01CG installs built-in or freestanding**, from its manual (p. 6),
+      in `PUBLISHED_SPECS`. It had been the importer's default `freestanding`
+      (D4's hazard).
+    - **No cabinet toe kick in front of it.** Its vent is in its own base and
+      must never be covered (manual pp. 6 and 13), so the run's toe kick stops
+      at a tower with a machine standing in its bottom. The machine stands on
+      the floor on its own kick panel. D's second dishwasher is the other such
+      machine and stands the same way. **This also corrects D** *(Leo, round
+      73)*: a dishwasher stands on the floor on its own kick panel just as the
+      wine cooler does, and the run's toe kick should never have passed in
+      front of it. D drew it that way on the live site until round 73.
+    - **The gap is a fixed panel:** the box between the lower machine and the
+      coffee opening is drawn `face: "strip"`, round 50's flush board, so it has
+      no door code and no reveal. It is 8" in both D and E as they open (34" to
+      42"). With nothing under the coffee machine it is still a cabinet.
+    - **The slider says what is under it:** "dishwasher", "wine cooler" or
+      "cabinet", read off the package (`underCoffee`). It said "dishwasher" on
+      E, over a cabinet.
+    - **On the list:** `rule.coffeeWine` (its vent and its 1" at the back for the
+      plug, manual pp. 6, 13, 14) and `rule.coffeeGapPanel` (the fixed panel,
+      TCM24PS p. 9).
 15. **Two machines set into the same run have a board between them: 3/4".**
     *(Leo, round 53.)* A rough opening is a hole in a run, not a cabinet with
     sides of its own, so two of them side by side is two machines with nothing
@@ -879,6 +953,43 @@ against the wall.
   whether they stand off is decided from the machine in that slot, so swapping
   D's steam oven for a combination oven puts the backs against the wall and
   takes the grille away.
+
+**Amended 2026-09-23 (round 73), Leo: the condition is the machine's own
+record, not "is it a steam oven".** TCM24PS's installation manual asks for
+exactly what round 39 gave the steam oven (p. 11): the cabinet's rear panel
+removed or a 19-11/16" x 15-3/4" (500 x 400 mm) opening cut, at least 1-3/8"
+(35 mm) between the wall and the unit's base or the rear panel above it, and a
+ventilation slot of at least 31 sq in (200 cm²) where it sits under a décor
+panel. Step 2's drawings (p. 3) show the air leaving through the top of the
+tall unit. So the coffee tower in D and in E breathes at the back as well, and
+"steam oven" was too narrow a trigger.
+- **Data, per model:** `rearVent` in `PUBLISHED_SPECS`, carried into
+  `data/appliances.json`, with its source and the reason in words. Two models
+  have it: **TCM24PS, `manual`** (p. 11), and **PODS302B, `site`** (Leo's
+  practice, rounds 37-39; its sheet states no ventilation requirement for the
+  cabinet). MEM301WS has none, so B's combination oven stays against the wall,
+  as round 39 decided. `ventsAtRear` in `towerVent.ts` is the one question.
+  `isSteamOven` is now only what draws a steam oven.
+- **Where the air leaves:** the crown closes the top of the tower to the
+  ceiling (D19), so it leaves the way D's steam oven's does. The boxes over the
+  coffee machine have open backs and stand off 3" (Leo's figure, past the
+  manual's 1-3/8"), and the 6" x 28" grille is in the stacked box's door (Leo,
+  round 73). The grille's net opening is well past the manual's 31 sq in; the
+  grille itself is site practice, not the manual's.
+- **The vent in the top of the opening** (round 32) is cut in two cases now:
+  an oven hung off the floor with nothing under it — round 32's own case — or
+  any machine whose `rearVent` asks for air at its back, whatever stands under
+  it. So the coffee machine over D's dishwasher and E's wine cooler has one.
+- **A fault this fixed, on the live site:** until round 73, E's coffee cabinet
+  had nothing under it and was taken for a hung oven. It got a vent in the top
+  of its opening under a cabinet with a solid back — a hole to nowhere — and a
+  checklist line talking about "the oven". A coffee machine is no longer read as
+  an oven. With no `rearVent` and nothing under it, it gets no vent
+  (`towerVent.test.ts` holds this, and it was red on the old condition).
+- **Its own words.** The coffee tower's three lines say "coffee machine", not
+  "oven" or "steam oven", and cite the manual: `rule.coffeeTopVent`,
+  `rule.coffeeRearVent`, `rule.coffeeGrille`. D's steam-oven lines are
+  unchanged.
 
 **Scheme 01 as laid out.** Left wall, from the far end back to the corner:
 refrigerator tower, 15" landing, corner cabinet. Back wall, from the corner
@@ -1432,6 +1543,20 @@ said it, and round 70 had to report three such lines back. A statement and its
 source with an unread document in between. So: open the file, or write "not
 read yet". Round 72 moved the brief into the repository (`docs/HANDOFF.md`)
 for the same reason: written while reading the thing it describes.
+
+**Something found during the work and meant for the report goes into the
+report or into Open items — checked, not remembered.** *(Leo, round 73.)*
+Halfway through round 73 a probe measured E's combination oven hanging 0" off
+the floor, under its sheet's 4-3/4" minimum. It was seen, meant to be
+reported, and then left out of both the final report and this file. Leo asked
+about it by name. The finding was real and on the live site; what failed was
+carrying it from the moment it was noticed to the page Leo reads. So: **before
+a report is finished, go back through the round and list every "this should be
+reported", "note this" and "not now" that came up — every probe result, every
+aside. Check each one against the report and against Open items.** Anything
+that is in neither is added before the report goes out. The same family as a
+decision "written into D20" that was not (HANDOFF): a thing believed to be
+recorded is not recorded until it can be found.
 
 **A number that cannot say exactly why it is that number may be working round
 a bug.** *(Leo, round 61.)* One fault in the window search — a quarter-inch
@@ -3101,6 +3226,65 @@ be held to. Package E's island hood supplied it.
     cabinet beside the tower is 6" wide and 3" from either side is the same
     point. The test does not ask how far; it asks which side meets the machine.
 
+**The coffee machine and the wine cooler under it, roughed in.** *(Round 73,
+Leo.)* Neither TCM24PS nor PRW24C01CG had an entry in `data/rough-in.json`, so
+D's and E's coffee machine drew no connection of its own in the view that exists
+to explain connections — a machine that must have water.
+- **The manual says the same as Leo's rule, for power.** TCM24PS, page 12, word
+  for word: "Plug transformer into dedicated receptacle in an accessible cabinet
+  adjacent to the coffee maker (depends on the built-in situation). Do not plug
+  into a receptacle behind the appliance." It is the first manual in this
+  repository that states Leo's round-71 rule itself — *"如果条件允许，插座和进水口
+  都是安装在靠近机器的、有橱柜的一侧"* — rather than only allowing it.
+- **What goes in the cabinet beside the tower** (on the back leg, the 24" base
+  between it and the sink base), all `adjacent-cabinet-right`, which takes the
+  other side where that one has no cabinet:
+  - **water**, required: a cold-water tap with a shut-off valve that stays
+    freely accessible (manual p. 10);
+  - **drain, optional**: the machine works with it or without it (Leo, from
+    site). A point marked `optional` in the data, and its words say
+    "drain (optional)" wherever it is shown. The list adds one line saying it
+    can be connected or left off, with the manual's conditions where it is: at
+    least 5-29/32" below the machine's lower edge, not extended (p. 10). It is
+    neither drawn as needed nor left out;
+  - **the transformer's receptacle**, dedicated (p. 12);
+  - **the wine cooler's socket**, by Leo's rule. Its manual asks only for an
+    exclusive, accessible socket (p. 6). Where no side has a cabinet, the way
+    out is behind it, which is the manual's own installation: 1" behind for the
+    plug, the 72" cable at the back right (p. 14).
+- **The figures are inferred**, and so is every point here: one column 3" from
+  the side that meets the tower, at 12" (wine), 18" (water), 24" (drain) and
+  30" (transformer). One column because the cabinet beside a coffee tower can
+  be as narrow as 9" (D, coffee on the left leg), and a model's figure has to fit
+  every room it is used in. `roughInSides.test.ts` found the first figures
+  (15" and 21" in) outside a 12" and a 9" box before anything shipped.
+- **The same wine cooler is A's and C's island wine cabinet**, so its socket
+  appears there too. The island is not a run, so a neighbour's cabinet on it
+  had never been looked for, and the point would have fallen to "no cabinet on
+  either side, behind the appliance" — untrue on an island that has an 18"
+  cabinet beside the opening. `islandNeighbour` (roughIn.ts) finds the island's
+  own cabinet beside an opening, in the machine's frame. Anything under 12",
+  D13's narrowest base cabinet, is a filler and is passed over (A's island has
+  6" at its ends). `roughInCabinet.test.ts` checks it against the island's
+  drawn boxes, not the code that placed it. **This changes A's and C's install
+  view and their lists by that one point.** It is the model's data, not a
+  choice about A or C.
+- **The hoses' way down, reported and not changed** (Leo decides). TCM24PS's
+  hoses leave the back of the machine and
+  go down through a 4-23/32" x 11-13/16" recess in the shelf under it (p. 11;
+  figures 7-8 on p. 4 show the connections at the back, low down — which
+  corner is on the spec sheet, which is not in the repository),
+  which is behind the fixed panel. At 42" the machine is above the worktop, so
+  the hoses cannot cross into the cabinet beside it at their own height. They
+  have to come down inside the tower, **behind the wine cooler**, to below the
+  worktop, and cross through the tower's 3/4" end board into that cabinet. So
+  three things share the space behind the wine cooler: the coffee machine's
+  1-3/8" air path, which runs up the back; the wine cooler's 1" for its plug
+  (p. 14); and the two hoses. The manual gives no hose diameter and no inlet
+  hose length, and says nothing about this combination. The drain's 39-3/8"
+  limit (p. 10) is met by a wide margin — about 18" down and 5" across to the
+  column in that cabinet.
+
 ## Open items
 
 Registered, not scheduled. None of these is a round of its own.
@@ -3537,3 +3721,23 @@ Registered, not scheduled. None of these is a round of its own.
   `layoutRules.ts` builds its message as an English template ("sink has only
   …, needs …"). None reaches the page today — `checkLayout` is called only
   from tests (checked round 70) — so a Chinese customer never sees one. If any is ever shown, it needs keys first.
+- **Is a dishwasher or a wine cooler under TCM24PS an approved combination?**
+  *(Round 73, Leo: not urgent.)* The manual allows the coffee machine "in
+  combination with approved products" and names only a warming drawer (D11
+  rule 14, round 73). D's dishwasher and E's wine cooler stand there on Leo's
+  site practice, not on the manual. Leo, as a dealer, can ask a Thermador
+  representative. When there is an answer, write its source into rule 14's
+  round-73 amendment. If the answer is no, that is a change to D and E, not
+  a note.
+- **E's combination oven stands on the floor of its opening, under its
+  sheet's minimum sill.** *(Found round 73, not fixed: next round, Leo.)*
+  MEM301WS's standard installation puts the opening 4-3/4" to 18" off the
+  floor (`mem301ws-spec.pdf` p. 3; `mem301ws-manual.png` §5.6). In package E
+  it starts at **0"** — 4-3/4" under the minimum, with no drawer under it —
+  where B's starts at 15". The cause: `sillFor` hangs a combination oven by its
+  microwave handle only when it stands `beside: "range"`. E's stands
+  `beside: "run"` (D20), so it takes the package slot's `sillIn`, which E does
+  not set and which defaults to 0. It is on the live site, unchanged by round
+  73. The same condition keeps E's oven out of `towerVents` (a hung oven is one
+  with its opening above the floor), so fixing the sill will also give it
+  round 32's vent, and the diff should expect that.

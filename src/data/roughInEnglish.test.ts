@@ -37,8 +37,17 @@ const WAS = round69.round69 as Record<string, string>;
 // line said, what it says now and why. The last layer that names a line wins.
 const LAYERS: Changed[] = [round69.changedInRound70 as Changed, round69.changedInRound71 as Changed];
 const CHANGED: Changed = Object.assign({}, ...LAYERS);
-/** Lines that did not exist in round 69, with what they say and why. */
-const ADDED = round69.addedInRound72 as Record<string, { now: string; why: string }>;
+/**
+ * Lines that did not exist in round 69, with what they say and why, one layer
+ * per round that added some: round 72's island machines, round 73's coffee
+ * machine and wine cooler.
+ */
+type Added = Record<string, { now: string; why: string }>;
+const ADDED: Added = Object.assign(
+  {},
+  round69.addedInRound72 as Added,
+  round69.addedInRound73 as Added,
+);
 
 const en = (key: string, vars?: Record<string, string | number>) => translate("en", key, vars);
 

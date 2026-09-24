@@ -48,6 +48,11 @@ export const slotIdSchema = z.enum([
   "slot-oven",
   "slot-coffee",
   "slot-dishwasher-2",
+  // Package E's undercounter wine cooler, in the bottom of the coffee cabinet
+  // where D has its second dishwasher (D11 rule 14, round 73). Its own slot
+  // rather than `slot-wine`, which is the island's spare and moves onto a leg
+  // or out of the room with it.
+  "slot-wine-2",
   // Package E's cooking surface: an induction cooktop set into the island's
   // counter on its working side, with a drawer base under it (D20).
   "slot-cooktop",
@@ -130,6 +135,23 @@ export const applianceSchema = z.object({
    * starts. Null falls back to the figure on the clearance drawing.
    */
   frontLipIn: inches.nullable().default(null),
+  /**
+   * A machine hung in a tower that needs air at its back: the tower's back is
+   * open behind it, the cabinets over it stand off the wall, and a grille in
+   * the stacked box's door lets the air out under the crown (D11 rule 12).
+   *
+   * Per model, and each one says where the requirement comes from — the
+   * machine's own manual, or Leo's site practice. Until round 73 this was
+   * decided by "is it a steam oven" in code, which left TCM24PS out although
+   * its manual asks for exactly this (p. 11). Null: nothing asks for it.
+   */
+  rearVent: z
+    .object({
+      source: z.enum(["manual", "site"]),
+      basis: z.string().min(1),
+    })
+    .nullable()
+    .default(null),
   /**
    * Ranges and cooktops: how many burners the machine has. What is on the
    * front of a range is not decoration — a customer counts the knobs — so the
@@ -650,6 +672,13 @@ export const roughInPointSchema = z.object({
   provenance: z.enum(["drawing", "site", "inferred", "uncertain"]).nullable().default(null),
   /** Which of its figures come from where, when they are not all one. */
   basis: z.string().nullable().default(null),
+  /**
+   * A connection that may be made or left out: TCM24PS's drain, which the
+   * machine works without (Leo, from site, round 73). Drawn like any other
+   * point, and its line says it is optional, so it is neither sold as needed
+   * nor left unmentioned.
+   */
+  optional: z.boolean().default(false),
   /**
    * Where the connection goes when no side of the machine has a real cabinet.
    *

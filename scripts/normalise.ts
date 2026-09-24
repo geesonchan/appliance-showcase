@@ -557,6 +557,13 @@ export const PUBLISHED_SPECS: Record<
     unverified?: true;
     doorConfig?: DoorConfig;
     doorSplit?: DoorSplit;
+    /**
+     * A machine hung in a tower that needs air at its back, and where that
+     * requirement comes from: its own manual, or Leo's site practice. The
+     * tower's back opens behind it, the cabinets over it stand off the wall,
+     * and a grille under the crown lets the air out (D11 rule 12, round 73).
+     */
+    rearVent?: { source: "manual" | "site"; basis: string };
   }
 > = {
   PRG366WH: { heightIn: 36.75, depthIn: 24.75, burners: 6 },
@@ -657,6 +664,32 @@ export const PUBLISHED_SPECS: Record<
     // Steam over convection: the sheet's type is "Steam Oven" and its feature
     // "Double Oven", and this override would otherwise drop the first.
     installType: ["double", "steam"],
+    // The open backs, the stand-off and the grille are Leo's, not the sheet's:
+    // it states no ventilation requirement for the cabinet (D11 rule 12,
+    // rounds 37-39). Round 73 moved the condition here from "is it a steam oven".
+    rearVent: {
+      source: "site",
+      basis:
+        "Leo's site practice (D11 rule 12, rounds 37-39): open backs over the steam oven, the cabinets standing off the wall, and a grille under the crown. The sheet (docs/reference/pods302b-spec.pdf) states no ventilation requirement for the cabinet.",
+    },
+  },
+  // Thermador TCM24PS, from docs/reference/TCM24PS_Install_Manual.pdf. Its own
+  // manual asks for air at its back (p. 11), and step 2 (p. 3) draws that air
+  // leaving through the top of the tall unit. Round 73.
+  TCM24PS: {
+    rearVent: {
+      source: "manual",
+      basis:
+        "Installation instructions p. 11: remove the cabinet's rear panel or cut a 19-11/16\" x 15-3/4\" (500 x 400 mm) opening; at least 1-3/8\" (35 mm) between the wall and the unit's base or the rear panel of the unit above; a ventilation slot of at least 31 sq in (200 cm²) where it sits under a décor panel. Step 2 (p. 3) draws the air leaving through the top of the tall unit.",
+    },
+  },
+  // Zephyr PRW24C01CG, from docs/reference/PRW24C01CG_manual.pdf. "Designed for
+  // either built-in, or freestanding installation" (p. 6). The sheet's words
+  // match nothing, so it came in as the importer's default `freestanding`
+  // (D4's hazard); package E builds it into the bottom of the coffee cabinet.
+  // Its front vent is in its own base (p. 13) and must never be covered (p. 6).
+  PRW24C01CG: {
+    installType: ["built-in", "freestanding"],
   },
   // Thermador T18IW100SP, from docs/reference/t18iw100sp-spec.pdf. 83-7/8" on
   // its legs retracted, 85-1/2" fully extended. Panel-ready: what is seen is

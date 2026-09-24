@@ -37,7 +37,9 @@ describe("the rough-in list", () => {
     activate("package-a");
     const items = listRoughIn(selectionOf("package-a"));
     const count = Object.fromEntries(TIER_ORDER.map((tier) => [tier, items.filter((i) => i.tier === tier).length]));
-    expect(count).toEqual({ confirmed: 1, unconfirmed: 8, unreviewed: 1 });
+    // Nine to confirm since round 73: PRW24C01CG's socket, in the island
+    // cabinet beside the wine cabinet, is inferred.
+    expect(count).toEqual({ confirmed: 1, unconfirmed: 9, unreviewed: 1 });
     expect(new Set(items.map((i) => i.key)).size).toBe(items.length);
     expect(items.find((i) => i.resolved.point.type === "anti-tip")?.tier).toBe("confirmed");
   });

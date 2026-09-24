@@ -76,8 +76,8 @@ export function RoughInLayer() {
   const layoutVersion = useAppStore((s) => s.layoutVersion);
   const vents = useMemo(() => {
     void layoutVersion;
-    return towerVents();
-  }, [layoutVersion]);
+    return towerVents(selection);
+  }, [layoutVersion, selection]);
 
   return (
     <group name="rough-in-layer" visible={install}>

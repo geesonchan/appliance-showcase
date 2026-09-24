@@ -22,7 +22,7 @@ afterAll(() => {
   setLayoutParams(DEFAULT_PARAMS);
 });
 
-describe.each(["package-a", "package-b", "package-c", "package-d"])("%s", (id) => {
+describe.each(["package-a", "package-b", "package-c", "package-d", "package-e"])("%s", (id) => {
   it("draws every filler and finished board as a strip, and nothing else as one", () => {
     setActivePackage(DEFAULT_PACKAGE.id);
     setLayoutParams(DEFAULT_PARAMS);
@@ -34,7 +34,10 @@ describe.each(["package-a", "package-b", "package-c", "package-d"])("%s", (id) =
       const board =
         box.module?.kind === "filler" ||
         box.module?.kind === "panel" ||
-        /-panel-[ab](-stack)?$/.test(box.id);
+        /-panel-[ab](-stack)?$/.test(box.id) ||
+        // The fixed panel between the coffee machine and the machine under it
+        // (TCM24PS p. 9: not above a drawer). D11 rule 14, round 73.
+        (box.id.endsWith("-base") && box.module?.lowerSlot !== undefined);
       if (board) boards += 1;
       const strip = box.face === "strip";
       if (board !== strip) {
@@ -43,5 +46,21 @@ describe.each(["package-a", "package-b", "package-c", "package-d"])("%s", (id) =
     }
     expect(boards, "no filler or board to check").toBeGreaterThan(0);
     expect(wrong).toEqual([]);
+  });
+});
+
+/**
+ * Round 73: under the coffee machine, between it and D's dishwasher or E's
+ * wine cooler, a fixed panel flush with the doors — not a drawer. TCM24PS's
+ * manual says not to install it directly above a cabinet drawer (p. 9). D had
+ * a drawer there on the live site.
+ */
+describe("the gap under the coffee machine", () => {
+  it.each(["package-d", "package-e"])("is a fixed panel in %s, not a drawer", (id) => {
+    setActivePackage(DEFAULT_PACKAGE.id);
+    setLayoutParams(DEFAULT_PARAMS);
+    expect(setActivePackage(id).ok).toBe(true);
+    const gap = CABINETS.filter((box) => box.slot === "slot-coffee" && box.id.endsWith("-base"));
+    expect(gap.map((box) => box.face ?? "a door")).toEqual(["strip"]);
   });
 });

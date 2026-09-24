@@ -757,5 +757,331 @@
       "now": "power — in the ceiling above, before it closes, 8\" from the left side, at the bottom",
       "why": "HMIB42WS had no entry until round 72: the 120V supply is brought through the ceiling to the terminal box on the hood (guide pp. 4, 17)."
     }
+  },
+  "addedInRound73": {
+    "package-a | as-it-opens | rough-in:slot-wine:power:0": {
+      "now": "power — in the cabinet to the left, 3\" from the right side, 12\" up",
+      "why": "PRW24C01CG had no entry in rough-in.json until round 73. Its socket goes in the island's own cabinet beside it (Leo's round-71 rule; an island neighbour since round 73); 3\" in and 12\" up are inferred."
+    },
+    "package-a | back/left/left/parallel | rough-in:slot-wine:power:0": {
+      "now": "power — in the cabinet to the left, 3\" from the right side, 12\" up",
+      "why": "PRW24C01CG had no entry in rough-in.json until round 73. Its socket goes in the island's own cabinet beside it (Leo's round-71 rule; an island neighbour since round 73); 3\" in and 12\" up are inferred."
+    },
+    "package-a | back/left/left/perpendicular | rough-in:slot-wine:power:0": {
+      "now": "power — in the cabinet to the right, 3\" from the left side, 12\" up",
+      "why": "PRW24C01CG had no entry in rough-in.json until round 73. Its socket goes in the island's own cabinet beside it (Leo's round-71 rule; an island neighbour since round 73); 3\" in and 12\" up are inferred."
+    },
+    "package-a | back/left/back/parallel | rough-in:slot-wine:power:0": {
+      "now": "power — in the cabinet to the left, 3\" from the right side, 12\" up",
+      "why": "PRW24C01CG had no entry in rough-in.json until round 73. Its socket goes in the island's own cabinet beside it (Leo's round-71 rule; an island neighbour since round 73); 3\" in and 12\" up are inferred."
+    },
+    "package-a | back/left/back/perpendicular | rough-in:slot-wine:power:0": {
+      "now": "power — in the cabinet to the right, 3\" from the left side, 12\" up",
+      "why": "PRW24C01CG had no entry in rough-in.json until round 73. Its socket goes in the island's own cabinet beside it (Leo's round-71 rule; an island neighbour since round 73); 3\" in and 12\" up are inferred."
+    },
+    "package-a | left/back/left/parallel | rough-in:slot-wine:power:0": {
+      "now": "power — in the cabinet to the left, 3\" from the right side, 12\" up",
+      "why": "PRW24C01CG had no entry in rough-in.json until round 73. Its socket goes in the island's own cabinet beside it (Leo's round-71 rule; an island neighbour since round 73); 3\" in and 12\" up are inferred."
+    },
+    "package-a | left/back/left/perpendicular | rough-in:slot-wine:power:0": {
+      "now": "power — in the cabinet to the right, 3\" from the left side, 12\" up",
+      "why": "PRW24C01CG had no entry in rough-in.json until round 73. Its socket goes in the island's own cabinet beside it (Leo's round-71 rule; an island neighbour since round 73); 3\" in and 12\" up are inferred."
+    },
+    "package-a | left/back/back/parallel | rough-in:slot-wine:power:0": {
+      "now": "power — in the cabinet to the left, 3\" from the right side, 12\" up",
+      "why": "PRW24C01CG had no entry in rough-in.json until round 73. Its socket goes in the island's own cabinet beside it (Leo's round-71 rule; an island neighbour since round 73); 3\" in and 12\" up are inferred."
+    },
+    "package-a | left/back/back/perpendicular | rough-in:slot-wine:power:0": {
+      "now": "power — in the cabinet to the right, 3\" from the left side, 12\" up",
+      "why": "PRW24C01CG had no entry in rough-in.json until round 73. Its socket goes in the island's own cabinet beside it (Leo's round-71 rule; an island neighbour since round 73); 3\" in and 12\" up are inferred."
+    },
+    "package-c | as-it-opens | rough-in:slot-wine:power:0": {
+      "now": "power — in the cabinet to the left, 3\" from the right side, 12\" up",
+      "why": "PRW24C01CG had no entry in rough-in.json until round 73. Its socket goes in the island's own cabinet beside it (Leo's round-71 rule; an island neighbour since round 73); 3\" in and 12\" up are inferred."
+    },
+    "package-c | back/left/left/parallel | rough-in:slot-wine:power:0": {
+      "now": "power — in the cabinet to the left, 3\" from the right side, 12\" up",
+      "why": "PRW24C01CG had no entry in rough-in.json until round 73. Its socket goes in the island's own cabinet beside it (Leo's round-71 rule; an island neighbour since round 73); 3\" in and 12\" up are inferred."
+    },
+    "package-c | back/left/left/perpendicular | rough-in:slot-wine:power:0": {
+      "now": "power — in the cabinet to the right, 3\" from the left side, 12\" up",
+      "why": "PRW24C01CG had no entry in rough-in.json until round 73. Its socket goes in the island's own cabinet beside it (Leo's round-71 rule; an island neighbour since round 73); 3\" in and 12\" up are inferred."
+    },
+    "package-c | back/left/back/parallel | rough-in:slot-wine:power:0": {
+      "now": "power — in the cabinet to the left, 3\" from the right side, 12\" up",
+      "why": "PRW24C01CG had no entry in rough-in.json until round 73. Its socket goes in the island's own cabinet beside it (Leo's round-71 rule; an island neighbour since round 73); 3\" in and 12\" up are inferred."
+    },
+    "package-c | back/left/back/perpendicular | rough-in:slot-wine:power:0": {
+      "now": "power — in the cabinet to the right, 3\" from the left side, 12\" up",
+      "why": "PRW24C01CG had no entry in rough-in.json until round 73. Its socket goes in the island's own cabinet beside it (Leo's round-71 rule; an island neighbour since round 73); 3\" in and 12\" up are inferred."
+    },
+    "package-c | left/back/left/parallel | rough-in:slot-wine:power:0": {
+      "now": "power — in the cabinet to the left, 3\" from the right side, 12\" up",
+      "why": "PRW24C01CG had no entry in rough-in.json until round 73. Its socket goes in the island's own cabinet beside it (Leo's round-71 rule; an island neighbour since round 73); 3\" in and 12\" up are inferred."
+    },
+    "package-c | left/back/left/perpendicular | rough-in:slot-wine:power:0": {
+      "now": "power — in the cabinet to the right, 3\" from the left side, 12\" up",
+      "why": "PRW24C01CG had no entry in rough-in.json until round 73. Its socket goes in the island's own cabinet beside it (Leo's round-71 rule; an island neighbour since round 73); 3\" in and 12\" up are inferred."
+    },
+    "package-c | left/back/back/parallel | rough-in:slot-wine:power:0": {
+      "now": "power — in the cabinet to the left, 3\" from the right side, 12\" up",
+      "why": "PRW24C01CG had no entry in rough-in.json until round 73. Its socket goes in the island's own cabinet beside it (Leo's round-71 rule; an island neighbour since round 73); 3\" in and 12\" up are inferred."
+    },
+    "package-c | left/back/back/perpendicular | rough-in:slot-wine:power:0": {
+      "now": "power — in the cabinet to the right, 3\" from the left side, 12\" up",
+      "why": "PRW24C01CG had no entry in rough-in.json until round 73. Its socket goes in the island's own cabinet beside it (Leo's round-71 rule; an island neighbour since round 73); 3\" in and 12\" up are inferred."
+    },
+    "package-d | as-it-opens | rough-in:slot-coffee:water:0": {
+      "now": "water — in the cabinet to the right, 3\" from the left side, 18\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-d | as-it-opens | rough-in:slot-coffee:drain:1": {
+      "now": "drain (optional) — in the cabinet to the right, 3\" from the left side, 24\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-d | as-it-opens | rough-in:slot-coffee:power:2": {
+      "now": "power — in the cabinet to the right, 3\" from the left side, 30\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-d | back/left/left/parallel | rough-in:slot-coffee:water:0": {
+      "now": "water — in the cabinet to the right, 3\" from the left side, 18\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-d | back/left/left/parallel | rough-in:slot-coffee:drain:1": {
+      "now": "drain (optional) — in the cabinet to the right, 3\" from the left side, 24\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-d | back/left/left/parallel | rough-in:slot-coffee:power:2": {
+      "now": "power — in the cabinet to the right, 3\" from the left side, 30\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-d | back/left/left/perpendicular | rough-in:slot-coffee:water:0": {
+      "now": "water — in the cabinet to the right, 3\" from the left side, 18\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-d | back/left/left/perpendicular | rough-in:slot-coffee:drain:1": {
+      "now": "drain (optional) — in the cabinet to the right, 3\" from the left side, 24\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-d | back/left/left/perpendicular | rough-in:slot-coffee:power:2": {
+      "now": "power — in the cabinet to the right, 3\" from the left side, 30\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-d | back/left/back/parallel | rough-in:slot-coffee:water:0": {
+      "now": "water — in the cabinet to the right, 3\" from the left side, 18\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-d | back/left/back/parallel | rough-in:slot-coffee:drain:1": {
+      "now": "drain (optional) — in the cabinet to the right, 3\" from the left side, 24\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-d | back/left/back/parallel | rough-in:slot-coffee:power:2": {
+      "now": "power — in the cabinet to the right, 3\" from the left side, 30\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-d | back/left/back/perpendicular | rough-in:slot-coffee:water:0": {
+      "now": "water — in the cabinet to the right, 3\" from the left side, 18\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-d | back/left/back/perpendicular | rough-in:slot-coffee:drain:1": {
+      "now": "drain (optional) — in the cabinet to the right, 3\" from the left side, 24\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-d | back/left/back/perpendicular | rough-in:slot-coffee:power:2": {
+      "now": "power — in the cabinet to the right, 3\" from the left side, 30\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-d | left/back/left/parallel | rough-in:slot-coffee:water:0": {
+      "now": "water — in the cabinet to the left, 3\" from the right side, 18\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-d | left/back/left/parallel | rough-in:slot-coffee:drain:1": {
+      "now": "drain (optional) — in the cabinet to the left, 3\" from the right side, 24\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-d | left/back/left/parallel | rough-in:slot-coffee:power:2": {
+      "now": "power — in the cabinet to the left, 3\" from the right side, 30\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-d | left/back/left/perpendicular | rough-in:slot-coffee:water:0": {
+      "now": "water — in the cabinet to the left, 3\" from the right side, 18\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-d | left/back/left/perpendicular | rough-in:slot-coffee:drain:1": {
+      "now": "drain (optional) — in the cabinet to the left, 3\" from the right side, 24\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-d | left/back/left/perpendicular | rough-in:slot-coffee:power:2": {
+      "now": "power — in the cabinet to the left, 3\" from the right side, 30\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-d | left/back/back/parallel | rough-in:slot-coffee:water:0": {
+      "now": "water — in the cabinet to the right, 3\" from the left side, 18\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-d | left/back/back/parallel | rough-in:slot-coffee:drain:1": {
+      "now": "drain (optional) — in the cabinet to the right, 3\" from the left side, 24\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-d | left/back/back/parallel | rough-in:slot-coffee:power:2": {
+      "now": "power — in the cabinet to the right, 3\" from the left side, 30\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-d | left/back/back/perpendicular | rough-in:slot-coffee:water:0": {
+      "now": "water — in the cabinet to the right, 3\" from the left side, 18\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-d | left/back/back/perpendicular | rough-in:slot-coffee:drain:1": {
+      "now": "drain (optional) — in the cabinet to the right, 3\" from the left side, 24\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-d | left/back/back/perpendicular | rough-in:slot-coffee:power:2": {
+      "now": "power — in the cabinet to the right, 3\" from the left side, 30\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-e | as-it-opens | rough-in:slot-coffee:water:0": {
+      "now": "water — in the cabinet to the right, 3\" from the left side, 18\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-e | as-it-opens | rough-in:slot-coffee:drain:1": {
+      "now": "drain (optional) — in the cabinet to the right, 3\" from the left side, 24\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-e | as-it-opens | rough-in:slot-coffee:power:2": {
+      "now": "power — in the cabinet to the right, 3\" from the left side, 30\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-e | as-it-opens | rough-in:slot-wine-2:power:0": {
+      "now": "power — in the cabinet to the right, 3\" from the left side, 12\" up",
+      "why": "The wine cooler under E's coffee machine is new in round 73: its socket is in the cabinet beside the tower (Leo, round 73); 3\" in and 12\" up are inferred."
+    },
+    "package-e | back/left/left/parallel | rough-in:slot-coffee:water:0": {
+      "now": "water — in the cabinet to the left, 3\" from the right side, 18\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-e | back/left/left/parallel | rough-in:slot-coffee:drain:1": {
+      "now": "drain (optional) — in the cabinet to the left, 3\" from the right side, 24\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-e | back/left/left/parallel | rough-in:slot-coffee:power:2": {
+      "now": "power — in the cabinet to the left, 3\" from the right side, 30\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-e | back/left/left/parallel | rough-in:slot-wine-2:power:0": {
+      "now": "power — in the cabinet to the left, 3\" from the right side, 12\" up",
+      "why": "The wine cooler under E's coffee machine is new in round 73: its socket is in the cabinet beside the tower (Leo, round 73); 3\" in and 12\" up are inferred."
+    },
+    "package-e | back/left/left/perpendicular | rough-in:slot-coffee:water:0": {
+      "now": "water — in the cabinet to the left, 3\" from the right side, 18\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-e | back/left/left/perpendicular | rough-in:slot-coffee:drain:1": {
+      "now": "drain (optional) — in the cabinet to the left, 3\" from the right side, 24\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-e | back/left/left/perpendicular | rough-in:slot-coffee:power:2": {
+      "now": "power — in the cabinet to the left, 3\" from the right side, 30\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-e | back/left/left/perpendicular | rough-in:slot-wine-2:power:0": {
+      "now": "power — in the cabinet to the left, 3\" from the right side, 12\" up",
+      "why": "The wine cooler under E's coffee machine is new in round 73: its socket is in the cabinet beside the tower (Leo, round 73); 3\" in and 12\" up are inferred."
+    },
+    "package-e | back/left/back/parallel | rough-in:slot-coffee:water:0": {
+      "now": "water — in the cabinet to the right, 3\" from the left side, 18\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-e | back/left/back/parallel | rough-in:slot-coffee:drain:1": {
+      "now": "drain (optional) — in the cabinet to the right, 3\" from the left side, 24\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-e | back/left/back/parallel | rough-in:slot-coffee:power:2": {
+      "now": "power — in the cabinet to the right, 3\" from the left side, 30\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-e | back/left/back/parallel | rough-in:slot-wine-2:power:0": {
+      "now": "power — in the cabinet to the right, 3\" from the left side, 12\" up",
+      "why": "The wine cooler under E's coffee machine is new in round 73: its socket is in the cabinet beside the tower (Leo, round 73); 3\" in and 12\" up are inferred."
+    },
+    "package-e | back/left/back/perpendicular | rough-in:slot-coffee:water:0": {
+      "now": "water — in the cabinet to the right, 3\" from the left side, 18\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-e | back/left/back/perpendicular | rough-in:slot-coffee:drain:1": {
+      "now": "drain (optional) — in the cabinet to the right, 3\" from the left side, 24\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-e | back/left/back/perpendicular | rough-in:slot-coffee:power:2": {
+      "now": "power — in the cabinet to the right, 3\" from the left side, 30\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-e | back/left/back/perpendicular | rough-in:slot-wine-2:power:0": {
+      "now": "power — in the cabinet to the right, 3\" from the left side, 12\" up",
+      "why": "The wine cooler under E's coffee machine is new in round 73: its socket is in the cabinet beside the tower (Leo, round 73); 3\" in and 12\" up are inferred."
+    },
+    "package-e | left/back/left/parallel | rough-in:slot-coffee:water:0": {
+      "now": "water — in the cabinet to the left, 3\" from the right side, 18\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-e | left/back/left/parallel | rough-in:slot-coffee:drain:1": {
+      "now": "drain (optional) — in the cabinet to the left, 3\" from the right side, 24\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-e | left/back/left/parallel | rough-in:slot-coffee:power:2": {
+      "now": "power — in the cabinet to the left, 3\" from the right side, 30\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-e | left/back/left/parallel | rough-in:slot-wine-2:power:0": {
+      "now": "power — in the cabinet to the left, 3\" from the right side, 12\" up",
+      "why": "The wine cooler under E's coffee machine is new in round 73: its socket is in the cabinet beside the tower (Leo, round 73); 3\" in and 12\" up are inferred."
+    },
+    "package-e | left/back/left/perpendicular | rough-in:slot-coffee:water:0": {
+      "now": "water — in the cabinet to the left, 3\" from the right side, 18\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-e | left/back/left/perpendicular | rough-in:slot-coffee:drain:1": {
+      "now": "drain (optional) — in the cabinet to the left, 3\" from the right side, 24\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-e | left/back/left/perpendicular | rough-in:slot-coffee:power:2": {
+      "now": "power — in the cabinet to the left, 3\" from the right side, 30\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-e | left/back/left/perpendicular | rough-in:slot-wine-2:power:0": {
+      "now": "power — in the cabinet to the left, 3\" from the right side, 12\" up",
+      "why": "The wine cooler under E's coffee machine is new in round 73: its socket is in the cabinet beside the tower (Leo, round 73); 3\" in and 12\" up are inferred."
+    },
+    "package-e | left/back/back/parallel | rough-in:slot-coffee:water:0": {
+      "now": "water — in the cabinet to the right, 3\" from the left side, 18\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-e | left/back/back/parallel | rough-in:slot-coffee:drain:1": {
+      "now": "drain (optional) — in the cabinet to the right, 3\" from the left side, 24\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-e | left/back/back/parallel | rough-in:slot-coffee:power:2": {
+      "now": "power — in the cabinet to the right, 3\" from the left side, 30\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-e | left/back/back/parallel | rough-in:slot-wine-2:power:0": {
+      "now": "power — in the cabinet to the right, 3\" from the left side, 12\" up",
+      "why": "The wine cooler under E's coffee machine is new in round 73: its socket is in the cabinet beside the tower (Leo, round 73); 3\" in and 12\" up are inferred."
+    },
+    "package-e | left/back/back/perpendicular | rough-in:slot-coffee:water:0": {
+      "now": "water — in the cabinet to the right, 3\" from the left side, 18\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-e | left/back/back/perpendicular | rough-in:slot-coffee:drain:1": {
+      "now": "drain (optional) — in the cabinet to the right, 3\" from the left side, 24\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-e | left/back/back/perpendicular | rough-in:slot-coffee:power:2": {
+      "now": "power — in the cabinet to the right, 3\" from the left side, 30\" up",
+      "why": "TCM24PS had no entry in rough-in.json until round 73: water, an optional drain and the transformer's receptacle in the cabinet beside the coffee tower (its manual pp. 10-12; the cabinet and the optional drain are Leo's, round 73). The figures are inferred."
+    },
+    "package-e | left/back/back/perpendicular | rough-in:slot-wine-2:power:0": {
+      "now": "power — in the cabinet to the right, 3\" from the left side, 12\" up",
+      "why": "The wine cooler under E's coffee machine is new in round 73: its socket is in the cabinet beside the tower (Leo, round 73); 3\" in and 12\" up are inferred."
+    }
   }
 }

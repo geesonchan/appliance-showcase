@@ -475,8 +475,17 @@
           "tallUnit": true,
           "beside": "run",
           "sillIn": 42,
+          "standsOver": "slot-wine-2",
           "enclosure": false,
           "panelReady": false
+        },
+        {
+          "slotId": "slot-wine-2",
+          "category": "wine",
+          "widthIn": 24,
+          "installType": "built-in",
+          "tallUnit": false,
+          "enclosure": false
         },
         {
           "slotId": "slot-dishwasher",
@@ -526,6 +535,7 @@
         "slot-fridge": "thermador-t30ir905sp",
         "slot-microwave": "thermador-mem301ws",
         "slot-coffee": "thermador-tcm24ps",
+        "slot-wine-2": "zephyr-prw24c01cg",
         "slot-dishwasher": "bosch-shv78cm3n",
         "slot-cooktop": "thermador-cit367yg",
         "slot-hood": "thermador-hmib42ws"

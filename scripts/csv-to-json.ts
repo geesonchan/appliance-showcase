@@ -229,6 +229,9 @@ export function convert(
       compatibleBlowers: toCompatibleBlowers(category, model),
       topDepthIn: category === "hood" ? toDimension(row.topDepthIn ?? "") : null,
       frontLipIn: published.frontLipIn ?? null,
+      // Whether the tower round it breathes at the back: the manual's or Leo's
+      // word, per model, never a column in the sheet (D11 rule 12, round 73).
+      rearVent: published.rearVent ?? null,
       widthIn,
       // The drawing first, then the sheet — same reason as the width.
       heightIn: published.heightIn ?? numberOrNull(row.Height) ?? null,

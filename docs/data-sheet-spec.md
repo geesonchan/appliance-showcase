@@ -84,6 +84,7 @@ docs/decisions.md D4.
 | `burners`, `cooktopIn`, `backguardIn` | `PUBLISHED_SPECS`, below. |
 | `depthWithDoorsIn`, `depthWithHandleIn`, `rearSpacerIn` | Likewise. |
 | `frontLipIn`, `doorSplit` | Likewise. (`doorConfig` and `topDepthIn` can come from the sheet too — see the tables above.) |
+| `rearVent` | `PUBLISHED_SPECS` only: a machine hung in a tower that needs air at its back, with `source` (`manual` or `site`) and the reason in words. Null on every other row. See decisions.md D11 rule 12, round 73. |
 | `compatibleBlowers` | `COMPATIBLE_BLOWERS` in `scripts/normalise.ts`, by hood model, from Thermador's ventilation accessory chart. Manufacturer compatibility rather than stock, so it is code, not a column. A hood that is not listed gets an empty list, and the app offers every blower in stock and says the list is unchecked. |
 
 ## What a drawing overrides: `PUBLISHED_SPECS`

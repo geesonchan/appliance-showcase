@@ -5,6 +5,7 @@ import { isSteamOven } from "./columnModel";
 import { setActivePackage, setLayoutParams } from "./layoutState";
 import { DEFAULT_PARAMS } from "./layoutTemplate";
 import { DEFAULT_PACKAGE, PACKAGE_BY_ID } from "./packages";
+import { ventsAtRear } from "./towerVent";
 import type { Appliance, SlotId } from "../types";
 
 /**
@@ -26,10 +27,14 @@ function activate(id: string) {
 
 const model = (name: string) => APPLIANCES.find((a) => a.model === name)!;
 
-/** The stacked boxes that carry a grille, for whatever machine `inSlot` puts in each tower. */
+/**
+ * The stacked boxes that carry a grille, for whatever machine `inSlot` puts in
+ * each tower. Since round 73 the machine's `rearVent` decides, as the scene
+ * does — PODS302B on Leo's practice, TCM24PS on its manual.
+ */
 const grilleBoxes = (inSlot: (slot: SlotId) => Appliance | undefined) =>
   CABINETS.filter(
-    (box) => box.ventSlot !== undefined && box.id.endsWith("-stack") && isSteamOven(inSlot(box.ventSlot)),
+    (box) => box.ventSlot !== undefined && box.id.endsWith("-stack") && ventsAtRear(inSlot(box.ventSlot)),
   );
 
 describe("the grille over a steam oven", () => {
@@ -48,9 +53,14 @@ describe("the grille over a steam oven", () => {
       activate(id);
       const selection = PACKAGE_BY_ID[id].defaultSelection;
       const inSlot = (slot: SlotId) => APPLIANCES.find((a) => a.id === selection[slot]);
-      expect(grilleBoxes(inSlot).length, id).toBe(count);
-      // Both towers have the stacked box it would go in; only the machine decides.
-      expect(CABINETS.filter((box) => box.ventSlot && box.id.endsWith("-stack")).length, id).toBe(1);
+      // The ovens' towers. D's coffee cabinet has its own since round 73, below.
+      const ovens = grilleBoxes(inSlot).filter((box) => box.ventSlot !== "slot-coffee");
+      expect(ovens.length, id).toBe(count);
+      // Both oven towers have the stacked box it would go in; only the machine decides.
+      expect(
+        CABINETS.filter((box) => box.ventSlot && box.ventSlot !== "slot-coffee" && box.id.endsWith("-stack")).length,
+        id,
+      ).toBe(1);
     }
   });
 
@@ -61,9 +71,25 @@ describe("the grille over a steam oven", () => {
     expect(grilleBoxes(() => model("PODS302B")).length).toBe(1);
   });
 
-  it("never puts one over a refrigerator column or the coffee cabinet", () => {
+  it("never marks the boxes over a refrigerator column", () => {
     activate("package-d");
     const slots = new Set(CABINETS.filter((box) => box.ventSlot).map((box) => box.ventSlot));
-    expect([...slots]).toEqual(["slot-oven"]);
+    expect([...slots].sort()).toEqual(["slot-coffee", "slot-oven"]);
+  });
+
+  /**
+   * Round 73: TCM24PS's manual asks for air at its back (p. 11), and the crown
+   * closes the top of the tower, so the coffee cabinet gets the same grille.
+   * Until round 73 it was "never over the coffee cabinet", keyed on steam.
+   */
+  it("puts one over the coffee machine in D and in E", () => {
+    const found: string[] = [];
+    for (const id of ["package-d", "package-e"]) {
+      activate(id);
+      const selection = PACKAGE_BY_ID[id].defaultSelection;
+      const inSlot = (slot: SlotId) => APPLIANCES.find((a) => a.id === selection[slot]);
+      found.push(...grilleBoxes(inSlot).filter((box) => box.ventSlot === "slot-coffee").map(() => id));
+    }
+    expect(found).toEqual(["package-d", "package-e"]);
   });
 });

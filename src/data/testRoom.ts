@@ -1,6 +1,19 @@
+import { APPLIANCE_BY_ID } from "./catalogue";
 import { setLayoutParams } from "./layoutState";
 import { DEFAULT_PARAMS } from "./layoutTemplate";
-import { DEFAULT_PACKAGE, setPackage } from "./packages";
+import { DEFAULT_PACKAGE, PACKAGE_BY_ID, setPackage } from "./packages";
+import type { Appliance, SlotId } from "../types";
+
+/**
+ * A package's own machines, slot by slot, as the page opens on it. For tests
+ * that ask the room a question whose answer depends on the machine in a slot —
+ * which tower breathes at its back, since round 73.
+ */
+export function defaultSelectionOf(id: string): Record<SlotId, Appliance> {
+  return Object.fromEntries(
+    Object.entries(PACKAGE_BY_ID[id].defaultSelection).map(([slot, model]) => [slot, APPLIANCE_BY_ID[model as string]]),
+  ) as Record<SlotId, Appliance>;
+}
 
 /**
  * Put the room back to package A's default kitchen, whatever it was before.

@@ -3,7 +3,9 @@ import { APPLIANCE_BY_ID } from "./catalogue";
 import { setActivePackage, setLayoutParamsGrowing } from "./layoutState";
 import type { LayoutParams } from "./layoutTemplate";
 import { PACKAGES, PACKAGE_BY_ID } from "./packages";
-import { REQUESTED_PARAMS, RUNS } from "./room";
+import { CABINETS } from "./cabinets";
+import { axisIndex } from "./frame";
+import { ISLAND, REQUESTED_PARAMS, RUNS } from "./room";
 import { listRoughIn, type RoughInItem } from "./roughInList";
 import { resetRoom } from "./testRoom";
 import { translate } from "../i18n";
@@ -68,6 +70,26 @@ const inANeighbour = (id: string) =>
   );
 
 const segmentOf = (hostId: string) => RUNS.flatMap((run) => run.segments).find((s) => s.id === hostId);
+
+/**
+ * On the island there are no run segments: a neighbour is one of the island's
+ * own cabinets (round 73). Worked out from the cabinet boxes the room draws —
+ * an island base box that belongs to no machine, at least 12" along the island
+ * (D13's narrowest base cabinet), with the point's host inside it.
+ */
+const islandCabinetOf = (item: RoughInItem) => {
+  const { min, max } = item.resolved.host;
+  const along = axisIndex(ISLAND.axis);
+  return CABINETS.find((box) => {
+    if (box.outline !== "island" || box.slot || box.kind !== "base") return false;
+    if (box.size[along] < 1 - 1e-6) return false;
+    return [0, 2].every(
+      (axis) =>
+        min[axis] >= box.position[axis] - box.size[axis] / 2 - 1e-6 &&
+        max[axis] <= box.position[axis] + box.size[axis] / 2 + 1e-6,
+    );
+  });
+};
 const label = (item: RoughInItem) => `${item.slotId} ${item.resolved.point.type}`;
 const en = (key: string, vars?: Record<string, string | number>) => translate("en", key, vars);
 const says = (item: RoughInItem) => en(roughInWords(item.resolved).whereKey);
@@ -79,7 +101,8 @@ describe.each(PACKAGES.map((pkg) => pkg.id))("%s", (id) => {
     for (const item of inANeighbour(id)) {
       if (item.resolved.noCabinet) continue; // the recorded way out, checked below
       const segment = segmentOf(item.resolved.host.id);
-      if (!segment) wrong.push(`${label(item)}: its box ${item.resolved.host.id} is not a run segment`);
+      if (!segment && islandCabinetOf(item)) continue;
+      if (!segment) wrong.push(`${label(item)}: its box ${item.resolved.host.id} is neither a run segment nor an island cabinet`);
       else if (!realCabinet(segment))
         wrong.push(
           `${label(item)}: ${segment.id} is [${segment.modules.map((m) => `${m.kind} ${m.widthIn}"`).join(", ")}]`,
