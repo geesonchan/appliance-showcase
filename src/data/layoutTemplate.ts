@@ -170,6 +170,28 @@ export const PARAM_LIMITS = {
   coffeeSillIn: { min: 36, max: 60, step: 1 },
 };
 
+/**
+ * Where the coffee machine's opening starts, off the floor. Round 75, Leo.
+ *
+ * TCM24PS's installation instructions, p. 11: "The appliance should not be
+ * installed too high (approx. 37-7/16″ / 950 mm) to ensure that function
+ * parts, e.g. container or brewing unit, can be removed without difficulty."
+ * Step 2's first drawing (p. 3) dimensions it from the floor to the underside
+ * of the recess — the same point `coffeeSillIn` measures. Leo, from site: the
+ * machine sits about counter height, and the counter is 36", so this is where
+ * it goes. It had been 42" since package D was laid out, 4-9/16" over.
+ *
+ * The slider still goes to 60": the manual says "approx." and "should", and
+ * gives a reason, so above it is a line on the list, not a refusal — the way
+ * the makeup-air line is a reminder (D6). It is raised once the opening is
+ * more than `adviseMarginIn` over: a first slider step above, 38", is 9/16"
+ * (14 mm) over a figure given as "approx." 950 mm, and is not "much higher".
+ */
+export const COFFEE_HEIGHT = {
+  manualIn: 37.4375,
+  adviseMarginIn: 1,
+};
+
 export const DEFAULT_PARAMS: LayoutParams = {
   backWallIn: 168,
   leftWallIn: 144,
@@ -186,7 +208,8 @@ export const DEFAULT_PARAMS: LayoutParams = {
   islandOrientation: "parallel",
   microwaveHandleIn: 54,
   coffeeLeg: "left",
-  coffeeSillIn: 42,
+  // TCM24PS's own figure, and Leo's counter height (round 75): COFFEE_HEIGHT.
+  coffeeSillIn: COFFEE_HEIGHT.manualIn,
   fridgeEndAbuts: "cabinet",
   sinkLeg: "back",
   windows: [DEFAULT_WINDOW],

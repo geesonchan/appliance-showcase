@@ -1,13 +1,14 @@
 import { afterAll, describe, expect, it } from "vitest";
 import { CABINETS } from "./cabinets";
-import { setActivePackage } from "./layoutState";
+import { setActivePackage, setLayoutParams } from "./layoutState";
 import { underCoffee } from "./layoutTemplate";
 import { PACKAGE_BY_ID } from "./packages";
-import { RUNS } from "./room";
+import { REQUESTED_PARAMS, RUNS } from "./room";
 import { resolveRoughIn, roughInWords } from "./roughIn";
 import { SLOT_BY_ID } from "./slots";
 import { defaultSelectionOf, resetRoom } from "./testRoom";
 import { translate } from "../i18n";
+import { checklistFor } from "./useChecklist";
 import type { SlotId } from "../types";
 
 /**
@@ -129,5 +130,46 @@ describe("A's island wine cabinet", () => {
     const selection = defaultSelectionOf("package-a");
     const [socket] = resolveRoughIn("slot-wine", selection["slot-wine"]);
     expect([socket?.noCabinet, socket?.host.id.includes("-island-")]).toEqual([false, true]);
+  });
+});
+
+/**
+ * Round 75: the coffee machine at TCM24PS's own height, and a reminder — not
+ * a refusal — when it is set much higher. One assertion each.
+ */
+describe("the coffee machine's height", () => {
+  const highLine = (sillIn: number) => {
+    open("package-e");
+    const params = { ...REQUESTED_PARAMS, coffeeSillIn: sillIn };
+    if (!setLayoutParams(params).ok) throw new Error(`E will not build at ${sillIn}"`);
+    return checklistFor(defaultSelectionOf("package-e"), null).findings.filter((f) => f.messageKey === "rule.coffeeHigh")
+      .length;
+  };
+
+  it("opens at 37-7/16 inches in E, the manual's figure", () => {
+    open("package-e");
+    expect(SLOT_BY_ID["slot-coffee"].position[1] * 12).toBeCloseTo(37.4375, 9);
+  });
+
+  it("leaves a 3-7/16 inch fixed panel over E's 34-inch wine cooler", () => {
+    open("package-e");
+    const panel = CABINETS.find((box) => box.slot === "slot-coffee" && box.id.endsWith("-base"))!;
+    expect(panel.size[1] * 12).toBeCloseTo(3.4375, 9);
+  });
+
+  it("says nothing at the manual's figure", () => {
+    expect(highLine(37.4375)).toBe(0);
+  });
+
+  it("says nothing one slider step over, 9/16 inch above an approx. figure", () => {
+    expect(highLine(38)).toBe(0);
+  });
+
+  it("raises the reminder more than an inch over", () => {
+    expect(highLine(39)).toBe(1);
+  });
+
+  it("still builds the room at the slider's top: a reminder, not a refusal", () => {
+    expect(highLine(60)).toBe(1);
   });
 });

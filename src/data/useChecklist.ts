@@ -18,6 +18,7 @@ import {
 } from "./columnModel";
 import { CHIMNEY, chimneyParts, isChimney } from "./hood";
 import { ISLAND, LAYOUT_LIMITS, LAYOUT_PARAMS, OMITTED_SLOTS, ROOM, RUNS } from "./room";
+import { COFFEE_HEIGHT } from "./layoutTemplate";
 import { formatDimension } from "./dimensions";
 import { OVEN_GRILLE, towerVents, ventsAtRear, type TowerVent } from "./towerVent";
 import { overhangSupportZone } from "./overhang";
@@ -322,7 +323,10 @@ function coffeeCabinet(selection: Record<SlotId, Appliance>): Finding[] {
   const coffee = selection["slot-coffee"];
   const slot = SLOT_BY_ID["slot-coffee"];
   if (!coffee || !slot) return [];
-  const sillIn = round8(slot.position[1] * 12);
+  const sillIn = slot.position[1] * 12;
+  // As fractions, the way a tape reads: the manual's 37-7/16" is not 37-1/2"
+  // (round8) and not 37.4375 (round 75). The message supplies the inch mark.
+  const inches = (value: number) => formatDimension(value).replace(/"$/, "");
   const lines: Finding[] = [
     {
       ruleId: "coffee-machine",
@@ -330,12 +334,23 @@ function coffeeCabinet(selection: Record<SlotId, Appliance>): Finding[] {
       messageKey: "rule.coffeeMachine",
       slot: "slot-coffee",
       params: {
-        sillIn,
-        headIn: round8(sillIn + slot.cutout.h),
+        sillIn: inches(sillIn),
+        headIn: inches(sillIn + slot.cutout.h),
         amps: slot.utilities.power?.amps ?? coffee.requires.amps ?? 15,
       },
     },
   ];
+  // Higher than the manual advises: a reminder, not a refusal (round 75,
+  // Leo). TCM24PS p. 11 says "approx." and "should", and gives its reason.
+  if (sillIn > COFFEE_HEIGHT.manualIn + COFFEE_HEIGHT.adviseMarginIn + 1e-6) {
+    lines.push({
+      ruleId: "coffee-high",
+      severity: "warning",
+      messageKey: "rule.coffeeHigh",
+      slot: "slot-coffee",
+      params: {},
+    });
+  }
   if (selection["slot-dishwasher-2"]) {
     lines.push({
       ruleId: "d11-14",

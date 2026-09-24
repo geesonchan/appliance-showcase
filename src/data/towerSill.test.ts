@@ -44,17 +44,6 @@ const ALLOWED: Record<string, Range> = {
 };
 
 /**
- * ⚠️ Known and reported, not fixed (round 74, Open items): D and E hang the
- * coffee machine at 42", over the manual's approx. 37-7/16". The exception is
- * exactly these, at exactly 42", and it fails the day either is in range, so
- * it goes with the fix.
- */
-const KNOWN: Record<string, number> = {
-  "package-d slot-coffee TCM24PS": 42,
-  "package-e slot-coffee TCM24PS": 42,
-};
-
-/**
  * How many machines each package stands in a tower: A its refrigerator; B its
  * refrigerator, combination oven and wine column; C none (its refrigerator
  * stands free, D11 rule 11); D three columns, the steam oven and the coffee
@@ -105,14 +94,10 @@ describe.each(PACKAGES.map((pkg) => pkg.id))("%s", (id) => {
       const model = PACKAGE_BY_ID[id].defaultSelection[slot];
       const name = model ? model.split("-").slice(1).join("-").toUpperCase() : "(none)";
       const range = ALLOWED[name];
-      const sillIn = Math.round(SLOT_BY_ID[slot].position[1] * 12 * 1000) / 1000;
+      const sillIn = SLOT_BY_ID[slot].position[1] * 12;
       const key = `${id} ${slot} ${name}`;
       if (!range) {
         wrong.push(`${key}: no allowed range recorded — add it, with its source`);
-        continue;
-      }
-      if (key in KNOWN) {
-        if (sillIn !== KNOWN[key]) wrong.push(`${key}: the known exception is at ${KNOWN[key]}", this is ${sillIn}"`);
         continue;
       }
       if (sillIn < range.min - 1e-6 || sillIn > range.max + 1e-6) {

@@ -432,6 +432,7 @@
   "rule.towerVent": "Cut a {size} vent in the top of the tower opening, along its back edge — not in the drawer or the toe kick under the oven, where it shows from the front",
   "rule.ovenGrille": "A {size} grille in the top of the cabinet stacked over the steam oven, just under the crown, for that air to leave by — sized from an area, not from a drawing",
   "rule.towerBridge": "The cabinets over the steam oven have open backs and stand {gap} off the wall, so what comes up through the vent reaches the grille",
+  "rule.coffeeHigh": "The manual advises against mounting it much higher than about 37-7/16\", so the water tank and brewing unit can be taken out easily.",
   "rule.coffeeTopVent": "Cut a {size} vent in the top of the coffee machine's opening, along its back edge, so its air reaches the gap behind the cabinets over it",
   "rule.coffeeRearVent": "The coffee machine needs air at its back (its manual, p. 11): the tower is open behind it, and the cabinets over it have open backs and stand {gap} off the wall — the manual asks at least 1-3/8\"",
   "rule.coffeeGrille": "A {size} grille in the door of the cabinet stacked over the coffee machine, just under the crown, for that air to leave by. The crown closes the top of the tower; the manual asks at least 31 sq in where the machine sits under a panel, and the grille is site practice",

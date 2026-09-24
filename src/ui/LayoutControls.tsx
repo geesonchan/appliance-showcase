@@ -5,6 +5,7 @@ import { useAppStore } from "../store/useAppStore";
 import { useActivePackage } from "../store/useSelection";
 import { comboHandleAt, comboSillFor } from "../data/columnModel";
 import { underCoffee } from "../data/layoutTemplate";
+import { formatDimension } from "../data/dimensions";
 import { RefusalNote } from "./RefusalNote";
 import { PanelSection, Segmented, Slider, Toggle } from "./primitives";
 
@@ -272,7 +273,11 @@ export function LayoutControls() {
             label={t("panel.layout.coffeeSill")}
             value={params.coffeeSillIn}
             {...PARAM_LIMITS.coffeeSillIn}
-            caption={t(`panel.layout.coffeeSill.caption.${underIt}`, { sillIn: params.coffeeSillIn })}
+            // As a tape reads it: the default is the manual's 37-7/16" (round 75).
+            format={formatDimension}
+            caption={t(`panel.layout.coffeeSill.caption.${underIt}`, {
+              sillIn: formatDimension(params.coffeeSillIn).replace(/"$/, ""),
+            })}
             onChange={(coffeeSillIn) => setLayout({ coffeeSillIn })}
           />
         )}

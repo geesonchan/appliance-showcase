@@ -623,9 +623,11 @@ function drawerProblems(fronts: { bottomIn: number; topIn: number }[], sillIn: n
 }
 
 describe("package D · the coffee cabinet", () => {
-  it("hangs the coffee machine 42 inches up by default, with the dishwasher on the floor under it", () => {
+  // Round 75: 37-7/16", TCM24PS's own figure (installation instructions p. 11)
+  // at Leo's counter height. It was 42" until then, 4-9/16" over the manual.
+  it("hangs the coffee machine 37-7/16 inches up by default, with the dishwasher on the floor under it", () => {
     activateD();
-    expect(inches(SLOT_BY_ID["slot-coffee"].position[1])).toBeCloseTo(42, 9);
+    expect(inches(SLOT_BY_ID["slot-coffee"].position[1])).toBeCloseTo(37.4375, 9);
     expect(SLOT_BY_ID["slot-dishwasher-2"].position[1]).toBe(0);
 
     // Both in the same 24" tower, centred on it.
@@ -636,7 +638,7 @@ describe("package D · the coffee cabinet", () => {
     expect(SLOT_BY_ID["slot-coffee"].position[along]).toBeCloseTo(mid(tower), 9);
   });
 
-  it("follows the height parameter, and fills between the two machines with a drawer", () => {
+  it("follows the height parameter, and fills between the two machines with a fixed panel (round 73)", () => {
     const base = activateD();
     for (const coffeeSillIn of [36, 48, 60]) {
       const where = `${coffeeSillIn}"`;

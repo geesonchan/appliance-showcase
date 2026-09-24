@@ -706,6 +706,62 @@ each one has a test with a case that breaks it.
     - **On the list:** `rule.coffeeWine` (its vent and its 1" at the back for the
       plug, manual pp. 6, 13, 14) and `rule.coffeeGapPanel` (the fixed panel,
       TCM24PS p. 9).
+
+    *Amended 2026-09-24 (round 75), Leo: the coffee machine opens 37-7/16" off
+    the floor.* It had been 42" since package D was laid out.
+    - **The source.** TCM24PS's installation instructions, p. 11: "The
+      appliance should not be installed too high (approx. 37-7/16″ / 950 mm) to
+      ensure that function parts, e.g. container or brewing unit, can be removed
+      without difficulty." And Leo, from site: "coffee machine 一般就在
+      countertop 的高度左右，一般 countertop 就是 36" 高，所以 37-7/16" 是合理的"
+      — the machine sits about counter height, and the counter is 36".
+    - **What it is measured to.** Step 2's first drawing (p. 3) runs the
+      37-7/16" from the floor line, plinth included, to the underside of the
+      17-3/4" recess. `coffeeSillIn` is the same: the floor to the bottom of
+      the machine's opening. No conversion. The figure is `COFFEE_HEIGHT` in
+      layoutTemplate.ts, and the default reads it, so it is written once.
+    - **What it leaves under it.** 37-7/16" less the 34" opening under it is
+      a **3-7/16" fixed panel**, in D (over the dishwasher) and in E (over the
+      wine cooler) alike; it was 8". Both lower openings are unchanged at
+      34". PRW24C01CG's manual asks at least 34" of opening (p. 14), and the
+      cooler is 33-7/8" with its legs in, up to 34-7/8" with them out (p. 13),
+      so in a 34" opening its legs stay within the first 1/8" of their travel.
+      The dishwasher's 34" is the slot's own; SHX78CM5N's opening height is
+      in no document in the repository.
+    - **The slider stays, and is not stopped.** Above the manual's figure the
+      list says, in Leo's words: "The manual advises against mounting it much
+      higher than about 37-7/16", so the water tank and brewing unit can be
+      taken out easily." / "手册建议安装高度不宜明显高于约 37-7/16"，以便取出
+      水箱和冲泡单元。" (`rule.coffeeHigh`, in `reviewed.json`, approval
+      `written`). The manual says "approx." and "should", and gives its reason.
+      So this is a reminder, as the makeup-air line is (D6), not a refusal.
+    - **Where "much higher" starts: more than 1" over** (`adviseMarginIn`),
+      which is the slider's 39" and up. *(Proposed in round 75, agreed by
+      Leo.)* The manual's own words are "approx. 950 mm". The first slider
+      step above it, 38", is only 9/16" (14 mm) over, which is inside that
+      "approx.", and so it is not "much higher". 39" is the first step that
+      is.
+    - **The spec sheet says something else, and the manual is taken.**
+      `TCM24PS_spec.pdf`, p. 2: "Recommended installation height 37-1/2-57"
+      (95-145 cm)." Read side by side:
+      - the sheet's figure is a *range*, 95 cm to 145 cm, called
+        "recommended". **Its drawing has no dimension line for it**, so what
+        it is measured to (the floor to the recess, to the machine, to its
+        spout?) cannot be read off the sheet;
+      - the manual's is one figure, 950 mm, drawn from the floor to the
+        underside of the recess, and it is a height **not to go much above**,
+        with the reason;
+      - both have 950 mm at one end, and they point opposite ways from it.
+        The sheet treats 950 mm as the *bottom* of a range and the manual
+        treats it as roughly the *top*.
+      The manual is taken because it is the installation document, it draws
+      its figure to a stated point, and it gives a reason; and because Leo's
+      site practice, counter height, agrees with it. **So 37-7/16" is not an
+      error to be corrected from the sheet's 37-1/2"-57".** Anybody who finds
+      the sheet should read this first.
+    - `towerSill.test.ts` no longer needs an exception: D's and E's coffee
+      machines are inside the manual's range, and the test is green with the
+      exception deleted, as it was built to be.
 15. **Two machines set into the same run have a board between them: 3/4".**
     *(Leo, round 53.)* A rough opening is a hole in a run, not a cabinet with
     sides of its own, so two of them side by side is two machines with nothing
@@ -1799,6 +1855,23 @@ pixels, 166 of them by more than 32 levels, on the pin labels inside the room.
 Two runs of the same local build differed by exactly 2,851 and 166, in the same
 box, with every label's `transform` identical in both: what moves is which
 frame of the labels' fade the shot catches, not where they are.
+
+**The third way: build the old code locally, and compare it with the new.**
+*(Leo, round 75.)* The first way (round 61) puts back the one value that was
+changed; the second (round 70) shoots one build twice. The third builds, on
+this machine, exactly the code the live site serves — its asset hashes
+matching the live page's — and compares that with the new build. It takes
+out everything that differs between the live site and the local server
+(network, fonts loading, timing), and what is left is the code. Round 75:
+package A differed from the live site by 2,977 pixels, every one of them in
+the text of the pin labels, and A has no coffee machine. Round 74's code,
+built locally (`index-CdyTh_xJ.js`, the live page's own file), against
+round 75's: **0 pixels** in A. So the change does not touch A, and the
+labels differ between the live site and a local server. Use it when a
+difference turns up somewhere the change cannot reach and neither the first
+nor the second way zeroes it. (`git stash`, build, shoot, `git stash pop`,
+build again — and check the rebuilt hash, so the new build is what is left
+served.)
 
 ⚠️ **A difference inside the room is not waved away with an account of what it
 is made of.** "Those are HTML labels, not geometry" is an explanation, and the
@@ -3346,6 +3419,15 @@ to explain connections — a machine that must have water.
   hose length, and says nothing about this combination. The drain's 39-3/8"
   limit (p. 10) is met by a wide margin — about 18" down and 5" across to the
   column in that cabinet.
+- **Leo, round 73: the route stays.** Behind the wine cooler is only a way
+  through — the plug's cord and the two hoses pass it, and there is no fitting
+  to make there. It is the installation Leo accepts.
+- **Round 75, from the spec sheet** (`TCM24PS_spec.pdf`, p. 1), which the
+  manual did not give: the water inlet hose is 65", stretching to 118"; the
+  drain hose is 67", with a 3/4" inlet. With the machine at 37-7/16" (D11 rule
+  14, round 75) rather than 42", the drain drops about 13-1/2" to the column in
+  the neighbouring cabinet, not 18" — still well past the 5-29/32" fall the
+  manual asks, and well inside both hoses.
 
 ## Open items
 
@@ -3808,8 +3890,11 @@ Registered, not scheduled. None of these is a round of its own.
   73. The same condition keeps E's oven out of `towerVents` (a hung oven is one
   with its opening above the floor), so fixing the sill will also give it
   round 32's vent, and the diff should expect that.
-- **D's and E's coffee machine hangs higher than its manual advises.**
-  *(Found round 74, not changed: Leo decides.)* TCM24PS's installation
+- ~~**D's and E's coffee machine hangs higher than its manual advises.**~~
+  **Settled in round 75** (D11 rule 14, round 75): the default is the
+  manual's 37-7/16", the slider stays free, and above it the list says so.
+  The spec sheet's different figure is reconciled there too. What follows is
+  the entry as it stood: *(Found round 74, not changed: Leo decides.)* TCM24PS's installation
   instructions, p. 11: "The appliance should not be installed too high
   (approx. 37-7/16″ / 950 mm) to ensure that function parts, e.g. container or
   brewing unit, can be removed without difficulty. The display should not be
@@ -3821,3 +3906,20 @@ Registered, not scheduled. None of these is a round of its own.
   hard limit. `towerSill.test.ts` carries D's and
   E's 42" as its one exception, exactly those two at exactly 42", and fails the
   day either moves, so the exception goes with whatever is decided.
+- **The coffee height slider cannot be dragged back to 37-7/16".** *(Found
+  round 75; Leo: next round.)* The slider steps a whole inch from 36", so
+  once it is moved it lands only on whole inches, and the manual's figure (D11
+  rule 14, round 75) comes back only by resetting the room. Dragging it up to
+  look and then back is the most natural thing to do in front of a customer.
+  The fix, Leo: within half an inch of 37-7/16" either way it snaps to that
+  figure, read from `COFFEE_HEIGHT` and not written again, and the label says
+  it is the maker's recommended height. The test first: from 37-7/16" to 40"
+  and back to anywhere between 37" and 38", the value is 37.4375.
+- **A difference that is only the shot's timing: the room-grew toast.**
+  *(Found round 73, reported round 75.)* Package D's overview, switched to from
+  A, differs by about 26,000 pixels between two shots of the same build. All
+  of it is the "Package D needs a longer run" toast across the bottom (y
+  740-787 at 1440 x 900): up in one shot, gone in the other. Nothing in the
+  room. Round 73 saw it and did not report it (D17, round 73). A screenshot
+  script that switches packages should wait the toast out or dismiss it before
+  shooting, as the mode toast is waited out (D17, round 53).
