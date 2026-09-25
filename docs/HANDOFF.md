@@ -58,16 +58,18 @@ every figure of it, is `data/packages.json`; D16 and D20 say how a package is
 put together and why E was built the way it was. **Do not copy those numbers
 anywhere**: the file is the one source, and the tests read it.
 
-### Where it stands (round 76)
+### Where it stands (round 77)
 
-- **All five packages are live.** Rounds 73–76 each shipped, and each was
+- **All five packages are live.** Rounds 73–77 each shipped, and each was
   checked against the live page's asset hashes after its workflow finished.
-- **The project is in real use.** Rounds 73–76 all came from Leo using package
+- **The project is in real use.** Rounds 73–77 all came from Leo using package
   E himself: a wine cooler under the coffee machine (73), E's combination oven
-  hanging at 0" (74), the coffee machine at its manual's height (75), and the
-  height slider that could not find that height again (76). New work comes
-  from what Leo and his colleagues meet in use, collected and sent a few at a
-  time. **Do not start new features on your own initiative.**
+  hanging at 0" (74), the coffee machine at its manual's height (75), the
+  height slider that could not find that height again (76), and bar stools at
+  the seating overhang, which on a phone read as a top nothing carried (77,
+  D20). New work comes from what Leo and his colleagues meet in use, collected
+  and sent a few at a time. **Do not start new features on your own
+  initiative.**
 - **Nothing is in progress.** The tree is clean at the last round's commit, and
   the Open items are registered, not scheduled.
 

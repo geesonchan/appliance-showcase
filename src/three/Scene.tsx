@@ -13,6 +13,7 @@ import { Lights } from "./Lights";
 import { ModuleLabelProjector } from "./ModuleLabelProjector";
 import { OcclusionFade } from "./OcclusionFade";
 import { OverhangSupport } from "./OverhangSupport";
+import { BarStools } from "./BarStools";
 import { PinProjector } from "./PinProjector";
 import { QualityGuard } from "./QualityGuard";
 import { RoughInLayer } from "./RoughInLayer";
@@ -116,6 +117,7 @@ export function Scene() {
           <UtilityLayer type="duct" />
           <RoughInLayer />
           <OverhangSupport />
+          <BarStools />
           <OcclusionFade />
           {/* Order matters: the dimension figures are placed first and the
               pins avoid wherever they landed. */}

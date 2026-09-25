@@ -5,6 +5,7 @@ import { SLOT_BY_ID, ft } from "../data/slots";
 import { toLocal } from "../data/frame";
 import type { SlotId } from "../types";
 import { anchorFor } from "./pinAnchor";
+import { FURNISHING_LAYER, furnishingHits } from "./barStoolMesh";
 import { DEBUG } from "../debug";
 import { useAppStore } from "../store/useAppStore";
 import { useSelection } from "../store/useSelection";
@@ -243,7 +244,13 @@ export function OcclusionFade() {
         .addScaledVector(forward, -BACKOFF);
       raycaster.set(origin, forward);
       raycaster.far = BACKOFF - EPSILON;
-      for (const { object } of raycaster.intersectObjects(layers, true)) {
+      // The stools take no ray of their own (round 77), so they are asked by
+      // their geometry, and fade like the joinery they stand at.
+      const met = [
+        ...raycaster.intersectObjects(layers, true),
+        ...furnishingHits(scene.getObjectByName(FURNISHING_LAYER), raycaster),
+      ];
+      for (const { object } of met) {
         const mesh = object as THREE.Mesh;
         if (!mesh.isMesh) continue;
         // A machine beside the one being looked at is not in front of it.

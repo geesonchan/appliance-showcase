@@ -2504,6 +2504,61 @@ written into geometry instead of read from `ROOM`.
   overhang. **None of A-D's default rooms had to change:** every package's own
   room still takes every single switch without growing a wall. That is the test
   that holds D18's slack, and it passed as it stands.
+- **Bar stools at the seating overhang, round 77.** *(Leo, from looking at E
+  on his phone.)* With nobody drawn at it, the 15" overhang read as a top the
+  cabinets fail to carry — a drawing mistake — because nothing said people sit
+  there. Measured first: the top stands 15" past the cabinets on the seating
+  side and 1" on the working side and both ends, with the island either way,
+  so the figure was right and only the picture was unclear. Round 68's three
+  are unchanged: nothing drawn for the plates in the finished room, the dashed
+  zone in the install view, the line on the checklist.
+  - **When.** Wherever the island has a seating overhang (`overhangIn > 0`),
+    whatever the package; A to D have none, so none. Not written as "E only".
+  - **How many.** The island's length ÷ 24", whole seats only: 3 at E's 72".
+    **The 72" is the cabinets' length** (`islandLengthIn`), not the top's,
+    which is 74" with the 1" lap each end. **24" a seat is a general trade
+    dimension**, the same one this entry used for "seats three at 24" each".
+  - **Height.** A counter-height stool's seat is 24"-26" off the floor, a
+    general trade dimension and no model's manual. 24" is taken, the lower end:
+    10-1/2" under the 34-1/2" underside of the top.
+  - **Where.** Spaced evenly along the island, the seat's centre 5" inside the
+    top's edge, and never nearer the cabinets than 1" (at 15" of overhang the
+    seat stands 3" off them). **The 5", the 1" and the 3" that follows are
+    display figures with no outside source**, chosen so a stool reads as pushed
+    under the top on a phone. So are the seat's 16" and its legs and footrest.
+    Worked in the island's own terms and turned through `frame.ts`
+    (`barStools.ts`); the seating side is the island's own `seating` record.
+  - **Furnishing, not product.** Not on the quote, not on the checklist, no
+    label, no pin. **Every stool mesh has its raycast switched off** (D2: a
+    hidden mesh or a line still takes a ray), so no click lands on one.
+  - **The sight-line fade still sees them — proved in a unit test only.** The
+    fade finds what is in the way by raycasting, which a stool no longer
+    answers, so the fade asks each stool's geometry through three.js's own
+    `Mesh.prototype.raycast` (`furnishingHits`). The unit test shows a ray
+    through a seat meets it that way and meets nothing through the mesh.
+    **In the scene it has never fired**: every one of E's eight fly-ins, with
+    the island either way, was flown by touch in round 77 and none of their
+    sight lines crosses a stool. Until one does, this path is tested and not
+    seen.
+  - **Two decisions beyond the brief (round 77, reported to Leo).** They hide
+    with the cabinet layer, because a stool standing at an island that is not
+    drawn is a stool in the middle of the floor. And they cast shadows in the
+    finished room, like everything else standing on the floor; the shadow is
+    part of the pixel difference in E's Materials shots.
+  - **Install view: no stools.** It explains services. Shot both ways in round
+    77: E's install view is the same to the pixel as before the stools, so the
+    dashed support zone is untouched and nothing stands over it.
+  - **Measured.** Phone portrait (390 x 844), touch input, `?quality=high`, the
+    live page's code built locally against the new code (D17's third way):
+    A to D in Materials and the white model, 0 pixels changed; E's Install view
+    both ways, 0; E's Materials and white model both ways, changed only at the
+    stools and their shadows.
+  - **The `three-*.js` chunk changed hash, and why is known.** Its code is byte
+    for byte the same; only its closing `export{...}` differs. `barStoolMesh.ts`
+    imports `Group`, `MeshStandardMaterial` and `CylinderGeometry` from three
+    by name, which the app's own code had never done (they were reached only
+    through R3F's JSX), so the chunk now exports three more names and Rollup
+    re-letters its export aliases.
 
 ## D21 · A line says where its figure comes from
 
@@ -3965,3 +4020,19 @@ Registered, not scheduled. None of these is a round of its own.
   room. Round 73 saw it and did not report it (D17, round 73). A screenshot
   script that switches packages should wait the toast out or dismiss it before
   shooting, as the mode toast is waited out (D17, round 53).
+  - *Round 77, met again with the mode toast:* the wait looked for "Install ·"
+    and the toast reads "Install mode · …", so one of two Install shots caught
+    it fading — 153,230 pixels, none over 32 levels, all in the bottom band.
+    With the wait matching "mode ·" the pair was 0. Match the toast's own
+    words, or wait on the element, not on a guess at its text.
+  - *(Leo, round 77.)* **A wait that matches the toast's text fails on the
+    Chinese page**, where none of those English words appear and the wait
+    returns at once. A screenshot script should wait for the toast element
+    itself to be gone. Not changed this round.
+- **On E with the island across the room, the "07 Cooktop" label sits over a
+  bar stool.** *(Round 77, Leo: not this round.)* The label has not moved —
+  its half away from the stool is unchanged to the pixel — but the stool now
+  stands behind it, and the phone view is more crowded there. Screenshot:
+  `docs/open-items/round-77-E-across-cooktop-label.png` (phone portrait,
+  390 x 844, Materials). Label placement would take stools into its
+  keep-outs, which it does not today.
