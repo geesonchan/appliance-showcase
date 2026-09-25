@@ -419,6 +419,7 @@
   "suggestion.coffeeLeg": "Put the coffee cabinet on the {leg} leg.",
   "panel.layout.coffee": "Coffee cabinet",
   "panel.layout.coffeeSill": "Coffee machine height",
+  "panel.layout.coffeeSill.recommended": "Manufacturer's recommended height",
   "panel.layout.coffeeSill.caption.dishwasher": "Machine starts {sillIn}\" off the floor; dishwasher under it",
   "panel.layout.coffeeSill.caption.wine": "Machine starts {sillIn}\" off the floor; wine cooler under it",
   "panel.layout.coffeeSill.caption.cabinet": "Machine starts {sillIn}\" off the floor; cabinet under it",

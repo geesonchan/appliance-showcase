@@ -4,7 +4,7 @@ import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
 import { useActivePackage } from "../store/useSelection";
 import { comboHandleAt, comboSillFor } from "../data/columnModel";
-import { underCoffee } from "../data/layoutTemplate";
+import { atCoffeeManualHeight, snapCoffeeSill, underCoffee } from "../data/layoutTemplate";
 import { formatDimension } from "../data/dimensions";
 import { RefusalNote } from "./RefusalNote";
 import { PanelSection, Segmented, Slider, Toggle } from "./primitives";
@@ -273,12 +273,25 @@ export function LayoutControls() {
             label={t("panel.layout.coffeeSill")}
             value={params.coffeeSillIn}
             {...PARAM_LIMITS.coffeeSillIn}
-            // As a tape reads it: the default is the manual's 37-7/16" (round 75).
+            // As a tape reads it. At the manual's 37-7/16" a line under the
+            // track says whose figure that is (round 76): on its own line, as
+            // the value beside the label it wrapped the label to three.
             format={formatDimension}
-            caption={t(`panel.layout.coffeeSill.caption.${underIt}`, {
-              sillIn: formatDimension(params.coffeeSillIn).replace(/"$/, ""),
-            })}
-            onChange={(coffeeSillIn) => setLayout({ coffeeSillIn })}
+            caption={
+              <>
+                {atCoffeeManualHeight(params.coffeeSillIn) && (
+                  <span className="block text-accent" data-coffee-recommended>
+                    {t("panel.layout.coffeeSill.recommended")}
+                  </span>
+                )}
+                {t(`panel.layout.coffeeSill.caption.${underIt}`, {
+                  sillIn: formatDimension(params.coffeeSillIn).replace(/"$/, ""),
+                })}
+              </>
+            }
+            // Within half an inch of the manual's figure it is the manual's
+            // figure, so dragging up and back finds it again (round 76).
+            onChange={(position) => setLayout({ coffeeSillIn: snapCoffeeSill(position) })}
           />
         )}
         {params.hasIsland && (

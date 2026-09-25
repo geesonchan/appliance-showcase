@@ -1,7 +1,7 @@
 import { afterAll, describe, expect, it } from "vitest";
 import { CABINETS } from "./cabinets";
 import { setActivePackage, setLayoutParams } from "./layoutState";
-import { underCoffee } from "./layoutTemplate";
+import { COFFEE_HEIGHT, DEFAULT_PARAMS, snapCoffeeSill, underCoffee } from "./layoutTemplate";
 import { PACKAGE_BY_ID } from "./packages";
 import { REQUESTED_PARAMS, RUNS } from "./room";
 import { resolveRoughIn, roughInWords } from "./roughIn";
@@ -171,5 +171,40 @@ describe("the coffee machine's height", () => {
 
   it("still builds the room at the slider's top: a reminder, not a refusal", () => {
     expect(highLine(60)).toBe(1);
+  });
+});
+
+/**
+ * Round 76: the coffee height slider snaps back to the manual's figure.
+ *
+ * Dragging up to look and back down is the natural thing to do in front of a
+ * customer, and the slider steps whole inches from 36", so without this it
+ * could never land on 37-7/16" again. Within half an inch of it either way the
+ * value is the manual's own (Leo). One assertion each.
+ */
+describe("the coffee height slider, dragged up and back", () => {
+  /** What the slider hands the room for each position it passes through. */
+  const drag = (positions: number[]) => positions.reduce<number>((_, at) => snapCoffeeSill(at), COFFEE_HEIGHT.manualIn);
+
+  it("comes back to 37-7/16 from 40, dropped at 37", () => {
+    expect(drag([38, 39, 40, 39, 38, 37])).toBe(37.4375);
+  });
+
+  it("comes back to 37-7/16 dropped anywhere between 37 and 37-15/16", () => {
+    expect([37, 37.25, 37.5, 37.75, 37.9375].map((at) => snapCoffeeSill(at))).toEqual([
+      37.4375, 37.4375, 37.4375, 37.4375, 37.4375,
+    ]);
+  });
+
+  it("leaves 38 as 38: more than half an inch over", () => {
+    expect(snapCoffeeSill(38)).toBe(38);
+  });
+
+  it("leaves 36 as 36: more than half an inch under", () => {
+    expect(snapCoffeeSill(36)).toBe(36);
+  });
+
+  it("snaps to the one figure the default reads, not a copy of it", () => {
+    expect(snapCoffeeSill(37)).toBe(DEFAULT_PARAMS.coffeeSillIn);
   });
 });

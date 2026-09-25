@@ -762,6 +762,27 @@ each one has a test with a case that breaks it.
     - `towerSill.test.ts` no longer needs an exception: D's and E's coffee
       machines are inside the manual's range, and the test is green with the
       exception deleted, as it was built to be.
+
+    *Amended 2026-09-24 (round 76), Leo: the slider snaps back to it.* The
+    slider steps whole inches from 36", so once moved it could never land on
+    37-7/16" again except by resetting the room — and dragging it up to look
+    and back down is the most natural thing to do in front of a customer.
+    - **Within half an inch either way, the value is the manual's**
+      (`COFFEE_HEIGHT.snapIn`, `snapCoffeeSill` in layoutTemplate.ts). On the
+      slider that is the 37" stop; 36" and 38" stay what they are. The figure
+      snapped to is `COFFEE_HEIGHT.manualIn`, the one the default reads.
+    - **At that height the panel says whose figure it is**, on a line of its
+      own under the track: "Manufacturer's recommended height" / "厂家建议高度".
+      The first version put it beside the value, and the label wrapped to
+      three lines; the value now reads just 37-7/16".
+    - **Held twice.** `coffeeTower.test.ts` gives the slider's positions to
+      the snap: up to 40" and back to 37", and anywhere between 37" and
+      37-15/16", comes back as 37.4375. With the snap taken out, the three
+      cases that expect it went red and the two that expect no snap stayed
+      green. And a smoke test drives the real slider on E with the keyboard
+      (real input, D17), three steps up to 40" and three back, and reads what
+      the panel prints. It was red on a build without the snap and green with
+      it.
 15. **Two machines set into the same run have a board between them: 3/4".**
     *(Leo, round 53.)* A rough opening is a hole in a run, not a cabinet with
     sides of its own, so two of them side by side is two machines with nothing
@@ -3906,8 +3927,9 @@ Registered, not scheduled. None of these is a round of its own.
   hard limit. `towerSill.test.ts` carries D's and
   E's 42" as its one exception, exactly those two at exactly 42", and fails the
   day either moves, so the exception goes with whatever is decided.
-- **The coffee height slider cannot be dragged back to 37-7/16".** *(Found
-  round 75; Leo: next round.)* The slider steps a whole inch from 36", so
+- ~~**The coffee height slider cannot be dragged back to 37-7/16".**~~
+  **Fixed in round 76** (D11 rule 14, round 76). What follows is the entry as
+  it stood: *(Found round 75; Leo: next round.)* The slider steps a whole inch from 36", so
   once it is moved it lands only on whole inches, and the manual's figure (D11
   rule 14, round 75) comes back only by resetting the room. Dragging it up to
   look and then back is the most natural thing to do in front of a customer.

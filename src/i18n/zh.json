@@ -420,6 +420,7 @@
   "suggestion.coffeeLeg": "把咖啡机柜放到{leg}段。",
   "panel.layout.coffee": "咖啡机柜",
   "panel.layout.coffeeSill": "咖啡机离地",
+  "panel.layout.coffeeSill.recommended": "厂家建议高度",
   "panel.layout.coffeeSill.caption.dishwasher": "咖啡机底边离地 {sillIn}″，下方为洗碗机",
   "panel.layout.coffeeSill.caption.wine": "咖啡机底边离地 {sillIn}″，下方为酒柜",
   "panel.layout.coffeeSill.caption.cabinet": "咖啡机底边离地 {sillIn}″，下方为柜子",

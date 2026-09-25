@@ -190,7 +190,26 @@ export const PARAM_LIMITS = {
 export const COFFEE_HEIGHT = {
   manualIn: 37.4375,
   adviseMarginIn: 1,
+  /**
+   * How close the slider has to come for the value to be the manual's own.
+   * Round 76, Leo: the slider steps whole inches from 36", so without this,
+   * a customer who drags it up to look and back down can never land on
+   * 37-7/16" again except by resetting the room.
+   */
+  snapIn: 0.5,
 };
+
+/**
+ * What the coffee height slider hands the room: the manual's 37-7/16" when
+ * the position is within half an inch of it, either way, and otherwise the
+ * position itself. Reads `COFFEE_HEIGHT` — there is no second copy.
+ */
+export function snapCoffeeSill(atIn: number): number {
+  return Math.abs(atIn - COFFEE_HEIGHT.manualIn) <= COFFEE_HEIGHT.snapIn + 1e-9 ? COFFEE_HEIGHT.manualIn : atIn;
+}
+
+/** True when the coffee machine stands at the manual's own height. */
+export const atCoffeeManualHeight = (sillIn: number) => Math.abs(sillIn - COFFEE_HEIGHT.manualIn) < 1e-9;
 
 export const DEFAULT_PARAMS: LayoutParams = {
   backWallIn: 168,

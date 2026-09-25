@@ -15,7 +15,7 @@ const MOBILE = { width: 390, height: 844 };
  * Change the number when a test is added or removed. A run filtered with -t
  * runs fewer on purpose, and is the one exception.
  */
-const EXPECTED_TESTS = 28;
+const EXPECTED_TESTS = 29;
 let testsRun = 0;
 const filtered = process.argv.some((arg) => arg === "-t" || arg.startsWith("--testNamePattern"));
 beforeEach(() => {
@@ -1138,5 +1138,42 @@ describe("side rails", () => {
       expect(errors).toEqual([]);
       await page.context().close();
     }
+  });
+});
+
+describe("the coffee height slider", () => {
+  /**
+   * Round 76, Leo: dragged up to look and back down, it finds the manual's
+   * 37-7/16" again rather than a whole inch beside it. Driven by the keyboard,
+   * which is real input (D17: a click from script is not a click), on the
+   * slider itself — its value read back from what the panel prints.
+   */
+  it("comes back to the manufacturer's height after going up to 40 inches and down again", async () => {
+    const { page, errors } = await openPage(DESKTOP);
+    await page.locator(`[data-segment="package"] button`, { hasText: "E" }).first().click();
+    await page.waitForTimeout(1800);
+    const control = page.locator("label", { hasText: "Coffee machine height" }).first();
+    const slider = control.locator(`input[type="range"]`);
+    await slider.focus();
+    // The value beside the label, and whether the line under the track says
+    // it is the manufacturer's height.
+    const shown = async () => ({
+      value: await control.locator("span").first().innerText(),
+      recommended: await control.locator("[data-coffee-recommended]").count(),
+    });
+
+    for (let i = 0; i < 3; i += 1) await page.keyboard.press("ArrowRight");
+    await page.waitForTimeout(300);
+    const up = await shown();
+    for (let i = 0; i < 3; i += 1) await page.keyboard.press("ArrowLeft");
+    await page.waitForTimeout(300);
+    const back = await shown();
+
+    expect({ up, back }).toEqual({
+      up: { value: 'Coffee machine height\n40"', recommended: 0 },
+      back: { value: 'Coffee machine height\n37-7/16"', recommended: 1 },
+    });
+    expect(errors).toEqual([]);
+    await page.context().close();
   });
 });
