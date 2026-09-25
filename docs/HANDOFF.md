@@ -58,6 +58,19 @@ every figure of it, is `data/packages.json`; D16 and D20 say how a package is
 put together and why E was built the way it was. **Do not copy those numbers
 anywhere**: the file is the one source, and the tests read it.
 
+### Where it stands (round 76)
+
+- **All five packages are live.** Rounds 73–76 each shipped, and each was
+  checked against the live page's asset hashes after its workflow finished.
+- **The project is in real use.** Rounds 73–76 all came from Leo using package
+  E himself: a wine cooler under the coffee machine (73), E's combination oven
+  hanging at 0" (74), the coffee machine at its manual's height (75), and the
+  height slider that could not find that height again (76). New work comes
+  from what Leo and his colleagues meet in use, collected and sent a few at a
+  time. **Do not start new features on your own initiative.**
+- **Nothing is in progress.** The tree is clean at the last round's commit, and
+  the Open items are registered, not scheduled.
+
 ---
 
 ## 3. Where things are
@@ -127,11 +140,28 @@ what to go and read.
 - **A figure that cannot say exactly why it is that figure** may be working
   round a bug; record that it cannot. D17.
 - **One rule is written once.** D17 carries the table of every time it was
-  written twice — seven so far, two still open.
+  written twice: eight rows, two still open. The eighth (round 74, 54" and 52"
+  for the same handle height) was stopped before the second copy was written.
 - **Visual changes are proved by pixel diff**, live against local, mouse
-  clicks, `?quality=high` pinned. A difference is zeroed one of two ways:
-  put the changed value back, or shoot the same build twice. **A difference
-  inside the room is never waved away with an explanation.** D17.
+  clicks, `?quality=high` pinned. A difference is zeroed one of three ways
+  (D17): put the changed value back (round 61), shoot the same build twice
+  (round 70), or build the live page's own code locally and compare it with
+  the new build, which leaves only the code's difference (round 75). **A
+  difference inside the room is never waved away with an explanation.**
+- **Package E was the first to reach branches A–D never did.** Four times now
+  (D17, round 73: "Package E is the first to walk down branches nobody had
+  taken"). Before adding a package or a new combination, list what it puts
+  together that nothing before it did, read the code that answers each, and
+  prototype what nothing handles.
+- **Anything found along the way and meant for the report goes into the report
+  or into Open items.** Before the report goes out, go back through the round
+  and check every probe result and every "note this" against both. D17, round
+  73.
+- **Where a manual and Leo's site practice disagree, write both down as they
+  are**, quoting the manual word for word and Leo in his own words, and say
+  which is followed and why. D11 rule 14's round-73 and round-75 amendments
+  are the worked examples: TCM24PS's "own cabinetry" against what goes under a
+  coffee machine, and its 37-7/16" against the spec sheet's 37-1/2"-57".
 - **A script click is not a click.** D17. Say which input a result came from.
 - **Tests**: a new rule gets a case that goes red on the old code, and you read
   *why* it is red; one assertion per `it()`; an assertion about a filtered set
@@ -170,7 +200,13 @@ list here:
 - **The T18IF900SP door panel drawing** — the 18" freezer column's panel is
   drawn from the 18" wine column's (D20).
 - **Thermador's column-spacing drawing** — the 1-3/16" clear between hot and
-  cold is recorded and deliberately not implemented (D11 rule 12).
+  cold is recorded and deliberately not implemented (D11, the round-53 note
+  after rule 15).
+- **The flush columns' own sheets** — T18IF900SP, T24IF905SP, T30IR905SP,
+  T24IW905SP. That they stand on the floor of an 84" niche is inferred from
+  their family's T18IW100SP sheet (`towerSill.test.ts`).
+- **SHX78CM5N's opening height** — the 34" under D's coffee machine is the
+  slot's own figure (D11 rule 14, round 75).
 - **HMCB30WS's installation manual** — package C's chimney route is an
   inference (D20).
 
