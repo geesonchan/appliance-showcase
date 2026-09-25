@@ -1652,6 +1652,22 @@ source with an unread document in between. So: open the file, or write "not
 read yet". Round 72 moved the brief into the repository (`docs/HANDOFF.md`)
 for the same reason: written while reading the thing it describes.
 
+**An idea from a conversation is not a registered item.** *(Leo, round 77.)*
+HANDOFF §8, "What is registered and not started", listed eight things. Three
+have a source here (D14's Run Composer; D22's two towers on separate legs, "not
+being built now"; U-shaped and galley layouts, mentioned in D22 and never
+registered). The other five — the airflow path as a third utility tier, a
+`roughInSide` field, exporting the rough-in list as an installation sheet,
+showing data completeness in the install view, glTF — were ideas said in
+passing in conversation, which Leo never decided to do. They were copied from
+brief to brief from v6 onward and then into HANDOFF, and each copy made them
+look more like work that had been agreed. **A "could consider later" becomes
+"registered, not started" by being copied, not by being decided.** They were
+deleted in round 77, not re-registered: they are not items, only things copied
+into the shape of one. So a source check goes down to this level too: for an
+item said to be planned, find where it was decided — a section here, or Open
+items — and not only where it was last written.
+
 **Something found during the work and meant for the report goes into the
 report or into Open items — checked, not remembered.** *(Leo, round 73.)*
 Halfway through round 73 a probe measured E's combination oven hanging 0" off
@@ -1785,8 +1801,9 @@ the probe answered the question it was written with, once, on the data it
 happened to meet; the test states the rule, and a coincidence in the data
 cannot pass it.
 
-Two of the seven are still open; the eighth row, round 74's, was stopped before
-it became a copy. The table is here so that the next one found
+Two of the seven are still open; the eighth, round 74's row, was stopped before
+it became a copy. The table has seven rows for those eight: round 60's has
+none of its own. The table is here so that the next one found
 is added to it rather than rediscovered.
 
 **An exception written into a test is broken on purpose before it is
@@ -3482,7 +3499,10 @@ Registered, not scheduled. None of these is a round of its own.
   `UtilityLayer`) are still flat duct-grey planes. Both are figures from site
   practice or a generic route, not from a drawing, so they belong in a tier and
   in the rough-in list. *(Noted 2026-09-14, round 42, Leo: not this round.)*
-- **Package C's rough-in is mostly unrecorded, and some of it can be.** Of C's
+- **Package C's rough-in is mostly unrecorded, and needs four installation
+  manuals that are not here.** *(Heading corrected round 77: it said "and
+  some of it can be", which round 72's note below disproved — the three
+  drawings carry no connection.)* Of C's
   six machines only MD24BS has an entry in `data/rough-in.json`. T36FT820NS,
   MFGS4030RS, HMCB30WS, SHX78CM5N and PRW24C01CG have none: they are not yet
   reviewed, not "the sheet has nothing". Three of them already have a drawing in

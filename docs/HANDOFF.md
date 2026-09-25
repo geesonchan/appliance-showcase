@@ -12,7 +12,7 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **round 76** (`docs/decisions.md` is the record of
+Covers the repository up to **round 77** (`docs/decisions.md` is the record of
 rounds; `git log` is the record of commits). It replaces the v1–v9 briefs that
 were pasted into chat.
 
@@ -140,8 +140,10 @@ what to go and read.
 - **A figure that cannot say exactly why it is that figure** may be working
   round a bug; record that it cannot. D17.
 - **One rule is written once.** D17 carries the table of every time it was
-  written twice: eight rows, two still open. The eighth (round 74, 54" and 52"
-  for the same handle height) was stopped before the second copy was written.
+  written twice: seven rows, for eight times it happened — round 60's
+  quarter-inch window step is counted as a near relative, the fifth, and has
+  no row of its own. Two are still open. The eighth (round 74, 54" and 52" for
+  the same handle height) was stopped before the second copy was written.
 - **Visual changes are proved by pixel diff**, live against local, mouse
   clicks, `?quality=high` pinned. A difference is zeroed one of three ways
   (D17): put the changed value back (round 61), shoot the same build twice
@@ -196,7 +198,8 @@ list here:
   cannot be recorded without them, and the three drawings that are in
   `docs/reference/` carry no connection at all (Open items; D17's round-72
   entry).
-- **T36IT100NP's own sheet** — the 84" it is drawn to is an inference (D13).
+- **T36IT100NP's own sheet** — the 84" it is drawn to is an inference (D4,
+  round 40).
 - **The T18IF900SP door panel drawing** — the 18" freezer column's panel is
   drawn from the 18" wine column's (D20).
 - **Thermador's column-spacing drawing** — the 1-3/16" clear between hot and
@@ -207,8 +210,8 @@ list here:
   their family's T18IW100SP sheet (`towerSill.test.ts`).
 - **SHX78CM5N's opening height** — the 34" under D's coffee machine is the
   slot's own figure (D11 rule 14, round 75).
-- **HMCB30WS's installation manual** — package C's chimney route is an
-  inference (D20).
+- **HMCB30WS's installation manual** — package C's duct route,
+  `through-ceiling`, is an inference (D22, round 58).
 
 What is inferred rather than read off a drawing is marked in the data itself:
 every rough-in point carries a `provenance`, and the install view draws the
@@ -219,11 +222,16 @@ figures in a point are the guide's and which are not.
 
 ## 8. What is registered and not started
 
-D20's tail and the Open items list them — U-shaped and galley layouts, the
-airflow path as a third utility tier, a `roughInSide` field, exporting the
-rough-in list as an installation sheet, showing data completeness in the
-install view, the two run towers on separate legs, a Run Composer, glTF.
-**Do not start one without Leo.**
+Three things, each with its source:
+- **A Run Composer** — registered in D14, before building it.
+- **The two run towers on separate legs** — D22, round 55: "splitting them
+  across two legs is not being built now".
+- **U-shaped and galley layouts** — only mentioned, in D22 (the fly-in rule
+  and `roomWalls.ts` are written so they would need no new rule). Never
+  registered as work.
+
+**Do not start one without Leo.** Anything else that sounds planned and is not
+in `docs/decisions.md` was not planned (D17, round 77).
 
 ---
 
