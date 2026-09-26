@@ -1,4 +1,4 @@
-import { alongOf, facingOf, otherAxis, toPlan } from "./frame";
+import { alongOf, facingOf, otherAxis, toPlan } from "./frame.ts";
 import type { Slot } from "../types";
 
 /**

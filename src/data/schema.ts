@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { FLY_IN_OFFSET_DEG } from "./flyIn";
+import { FLY_IN_OFFSET_DEG } from "./flyIn.ts";
 
 /**
  * Runtime schemas for everything under `data/`.
