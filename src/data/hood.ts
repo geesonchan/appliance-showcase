@@ -267,9 +267,40 @@ export function hoodBodyHeightFt(slot: Slot, appliance: Appliance | undefined): 
   // The same three-way fall-back `applianceBox` uses everywhere else: the body,
   // then the cutout, then the opening. Round 55's first draft left the middle
   // one out and `applianceBox.test.ts` caught it on AK7136AS-BF, an
-  // under-cabinet hood that publishes 7-3/8" as a cutout height and no body
-  // height — it was drawn at the opening's 18".
+  // under-cabinet hood that then carried 7-3/8" as a cutout height and no body
+  // height — it was drawn at the opening's 18". (Round 78 replaced it with
+  // AK7136BS-BF, whose 7-3/8" is a body height from its sheet.)
   return ft(appliance?.heightIn ?? appliance?.cutoutHeightIn ?? slot.cutout.h);
+}
+
+/**
+ * The hood the customer has chosen, as the data layer knows it. Round 78.
+ *
+ * The cabinets are built from the layout, not from the store, and the bridge
+ * over a canopy stands on the canopy's top — so they have to know which hood
+ * it is. The store sets it (`setHoodModel` in layoutState.ts) whenever the
+ * hood, the package or an undo changes it. Unset, a canopy is its slot's 18".
+ */
+let HOOD_MODEL: Appliance | undefined;
+export const hoodModel = () => HOOD_MODEL;
+export function recordHoodModel(appliance: Appliance | undefined) {
+  HOOD_MODEL = appliance;
+}
+
+/**
+ * The top of the canopy, in feet: where it hangs plus the model's own height.
+ *
+ * **The one answer** to "where is the top of the hood". Round 78: the bridge
+ * over it and the duct hole in the bridge's floor read the slot's 18", while
+ * the canopy and its duct collar were drawn at the model's own height — so a
+ * 7-3/8" Zephyr in package A hung with 10-5/8" of open wall between its top
+ * and the cabinet over it, and its collar under a hole cut in mid-air.
+ */
+export function hoodTopFt(
+  slot: Slot = SLOT_BY_ID["slot-hood"],
+  appliance: Appliance | undefined = HOOD_MODEL,
+): number {
+  return slot.position[1] + hoodBodyHeightFt(slot, appliance);
 }
 
 /** True when this model hangs its own duct cover rather than living under a box. */
@@ -315,7 +346,7 @@ export function hoodOutlet(slot: Slot, appliance: Appliance | undefined): HoodOu
       : toPlan(slot, 0, -depthFt / 2 + ft(outlet.fromWallIn));
 
   return {
-    position: [x, slot.position[1] + hoodBodyHeightFt(slot, appliance), z],
+    position: [x, hoodTopFt(slot, appliance), z],
     widthFt: ft(outlet.widthIn),
     depthFt: ft(outlet.depthIn),
     widthIn: outlet.widthIn,
@@ -345,7 +376,7 @@ export function hoodCabinetFloor(): number | null {
       ),
     ),
   );
-  return carries ? hood.position[1] + ft(hood.cutout.h) : null;
+  return carries ? hoodTopFt(hood) : null;
 }
 
 /**

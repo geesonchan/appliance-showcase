@@ -10,6 +10,8 @@ import {
 import { PACKAGE, PACKAGE_BY_ID, setPackage } from "./packages";
 import { LAYOUT, REQUESTED_PARAMS, applyLayout } from "./room";
 import { rebuildSlots } from "./slots";
+import { recordHoodModel } from "./hood";
+import type { Appliance } from "../types";
 
 /**
  * Changing the room, in the one order that leaves it consistent.
@@ -26,6 +28,20 @@ import { rebuildSlots } from "./slots";
  * take a range, a sink, a dishwasher and a tower" is the useful outcome; going
  * blank is not.
  */
+/**
+ * The hood the customer has chosen, which the bridge over it stands on.
+ *
+ * Round 78: the cabinet over a canopy starts at the canopy's own top, so a
+ * different hood is a different carcass. Nothing else in the room moves — the
+ * canopy still hangs off the surface the wall was drilled for (D13, D16) — so
+ * this re-cuts the cabinets and leaves the layout, the slots and the fittings
+ * as they are.
+ */
+export function setHoodModel(appliance: Appliance | undefined) {
+  recordHoodModel(appliance);
+  rebuildCabinets();
+}
+
 export function setLayoutParams(params: LayoutParams): { ok: boolean; reasons: Refusal[] } {
   const attempt = generateLayout(params);
 

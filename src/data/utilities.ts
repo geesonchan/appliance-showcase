@@ -1,4 +1,5 @@
 import type { Appliance, Slot, Utilities } from "../types";
+import { ductDiameterFor, gasPipeFor } from "./rules";
 
 /**
  * What the rough-in actually has to be for a given appliance in a given slot.
@@ -8,9 +9,8 @@ import type { Appliance, Slot, Utilities } from "../types";
  * view exists to show: swapping a gas range for induction should visibly drop
  * the gas line and turn the branch circuit into a 240V feeder.
  *
- * The two thresholds below are sizing conventions, not validation. M2 step 3
- * moves them into `data/rules.json` alongside the §3.5.4 checks so Leo can
- * maintain them.
+ * The gas pipe and the duct size are asked of `data/rules.json`, the same
+ * figures the checklist uses — one copy each (round 78, D17's table).
  */
 export function deriveUtilities(
   slot: Slot,
@@ -27,9 +27,8 @@ export function deriveUtilities(
       requires.gasBTU === null
         ? null
         : {
-            // A 1/2" line runs out of capacity around 65,000 BTU on a typical
-            // residential run.
-            pipeSize: requires.gasBTU > 65_000 ? '3/4"' : '1/2"',
+            // The `gas-pipe-size` rule's own threshold and pipe (round 78).
+            pipeSize: gasPipeFor(requires.gasBTU),
             shutoff: true,
           },
     power: {
@@ -44,8 +43,9 @@ export function deriveUtilities(
       slot.utilities.duct === null || cfm === null
         ? slot.utilities.duct
         : {
-            // 6" to 400 CFM, 8" to 600, 10" above that.
-            diameterIn: cfm > 600 ? 10 : cfm >= 400 ? 8 : 6,
+            // `thresholds.duct` in data/rules.json, the checklist's own figure
+            // (round 78). This read 8" at exactly 400 CFM where the table says 6".
+            diameterIn: ductDiameterFor(cfm)!,
             route: slot.utilities.duct.route,
           },
   };

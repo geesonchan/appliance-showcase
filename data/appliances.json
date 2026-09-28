@@ -1,7 +1,7 @@
 {
   "_meta": {
-    "generatedBy": "scripts/csv-to-json.ts from C:\\Users\\leoch\\Downloads\\showcase_export.csv",
-    "updatedAt": "2026-09-14",
+    "generatedBy": "scripts/csv-to-json.ts from showcase_export_0928.csv",
+    "updatedAt": "2026-09-28",
     "provenance": "Derived from the showcase_export tab of the 2026 AA Inventory Manager. Brand, Model, Appliance Type, Feature, Width, Depth, Height and Color come from Stock current; everything else is hand entered. Normalisation lives in scripts/normalise.ts, not in the sheet. verifiedAt is null until a row has been checked against its sourceUrl."
   },
   "appliances": [
@@ -1546,15 +1546,15 @@
       }
     },
     {
-      "id": "zephyr-ak7136as-bf",
+      "id": "zephyr-ak7136bs-bf",
       "slot": "slot-hood",
       "category": "hood",
       "brand": "Zephyr",
-      "model": "AK7136AS-BF",
+      "model": "AK7136BS-BF",
       "series": null,
       "msrpUSD": 799,
       "sourceUrl": "https://docs.zephyronline.com/docs/specs/gustb_spec.pdf",
-      "verifiedAt": "2026-09-08",
+      "verifiedAt": "2026-09-28",
       "installType": [
         "under-cabinet"
       ],
@@ -1565,7 +1565,7 @@
       "frontLipIn": null,
       "rearVent": null,
       "widthIn": 36,
-      "heightIn": null,
+      "heightIn": 7.375,
       "depthIn": null,
       "burners": null,
       "cooktopIn": null,
@@ -1576,7 +1576,7 @@
       "doorConfig": null,
       "doorSplit": null,
       "cutoutWidthIn": 36,
-      "cutoutHeightIn": 7.375,
+      "cutoutHeightIn": null,
       "cutoutDepthIn": 21,
       "finish": [
         "stainless"
@@ -1593,6 +1593,56 @@
         "gasBTU": null,
         "water": false,
         "cfm": 400
+      }
+    },
+    {
+      "id": "zephyr-ak7300as",
+      "slot": "slot-hood",
+      "category": "hood",
+      "brand": "Zephyr",
+      "model": "AK7300AS",
+      "series": null,
+      "msrpUSD": 1699,
+      "sourceUrl": "https://docs.zephyronline.com/docs/specs/tidal1a_spec.pdf",
+      "verifiedAt": "2026-09-25",
+      "installType": [
+        "under-cabinet"
+      ],
+      "fuel": null,
+      "blower": "integrated",
+      "compatibleBlowers": [],
+      "topDepthIn": null,
+      "frontLipIn": null,
+      "rearVent": null,
+      "widthIn": 30,
+      "heightIn": 11,
+      "depthIn": null,
+      "burners": null,
+      "cooktopIn": null,
+      "backguardIn": null,
+      "depthWithDoorsIn": null,
+      "depthWithHandleIn": null,
+      "rearSpacerIn": null,
+      "doorConfig": null,
+      "doorSplit": null,
+      "cutoutWidthIn": 30,
+      "cutoutHeightIn": null,
+      "cutoutDepthIn": 22.5,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": null,
+      "highlights": {
+        "en": [],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
+        "gasBTU": null,
+        "water": false,
+        "cfm": 700
       }
     },
     {
@@ -1655,7 +1705,7 @@
       "series": null,
       "msrpUSD": 7799,
       "sourceUrl": "https://media3.bsh-group.com/Documents/28068604_T18IW100SP-18-INCH-BUILT-IN-WINE-PRESERVATION-COLUMN-WITH-PRESENTER-Specifications.pdf",
-      "verifiedAt": "2026-09-08",
+      "verifiedAt": "2026-09-28",
       "installType": [
         "column",
         "built-in"

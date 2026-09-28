@@ -5,7 +5,7 @@ import {
   migrateSelection,
 } from "../data/catalogue";
 import { DEFAULT_PACKAGE, PACKAGE_BY_ID } from "../data/packages";
-import { setActivePackage, setLayoutParams, setLayoutParamsGrowing } from "../data/layoutState";
+import { setActivePackage, setHoodModel, setLayoutParams, setLayoutParamsGrowing } from "../data/layoutState";
 import { inchesSpoken } from "../data/inches";
 import type { LayoutParams, Refusal } from "../data/layoutTemplate";
 import { LAYOUT_ISSUES, REQUESTED_PARAMS } from "../data/room";
@@ -328,6 +328,10 @@ function initialQuality(): Quality {
   return window.matchMedia("(max-width: 767px)").matches ? "low" : "high";
 }
 
+// The cabinet over a canopy stands on the chosen hood's own top (round 78), so
+// the data layer is told which hood the page opens with before anything draws.
+setHoodModel(APPLIANCE_BY_ID[migrateSelection(DEFAULT_PACKAGE)["slot-hood"]]);
+
 export const useAppStore = create<AppState>((set, get) => ({
   lang: "en",
   layoutParams: REQUESTED_PARAMS,
@@ -428,8 +432,20 @@ export const useAppStore = create<AppState>((set, get) => ({
   // The mobile sheet is half height, so selecting an appliance leaves it open;
   // the fly-in happens in the half of the screen the sheet does not cover.
   selectSlot: (selectedSlot) => set({ selectedSlot }),
-  selectAppliance: (slot, applianceId) =>
-    set((s) => ({ selection: { ...s.selection, [slot]: applianceId } })),
+  selectAppliance: (slot, applianceId) => {
+    if (slot !== "slot-hood") {
+      set((s) => ({ selection: { ...s.selection, [slot]: applianceId } }));
+      return;
+    }
+    // A different hood is a different cabinet over it (round 78): the carcass
+    // is re-cut and the room redrawn. The layout, the camera and every other
+    // choice stay as they are.
+    setHoodModel(APPLIANCE_BY_ID[applianceId]);
+    set((s) => ({
+      selection: { ...s.selection, [slot]: applianceId },
+      layoutVersion: s.layoutVersion + 1,
+    }));
+  },
   selectBlower: (blowerId) => set({ blowerId }),
 
   /**
@@ -455,6 +471,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     set((s) => {
       const selection = migrateSelection(entry, s.selection, PACKAGE_BY_ID[s.packageId]);
       const hood = APPLIANCE_BY_ID[selection["slot-hood"]];
+      setHoodModel(hood);
       return {
         packageId,
         selection,
@@ -526,6 +543,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     // round; then the exact room and choices that were standing, which built
     // then and builds now.
     if (back.packageId !== get().packageId) setActivePackage(back.packageId);
+    setHoodModel(APPLIANCE_BY_ID[back.selection["slot-hood"]]);
     const result = setLayoutParams(back.layoutParams);
     set((s) => ({
       packageId: back.packageId,

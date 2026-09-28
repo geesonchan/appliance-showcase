@@ -328,19 +328,21 @@
     }
   ],
   "thresholds": {
-    "gasPipeUpsizeBTU": 65000,
     "duct": [
       {
         "maxCfm": 400,
-        "diameterIn": 6
+        "diameterIn": 6,
+        "basis": "No source found (round 78). The band has stood since the project's first rules file; no document in docs/reference/ gives it and nobody has said where it came from."
       },
       {
         "maxCfm": 600,
-        "diameterIn": 8
+        "diameterIn": 8,
+        "basis": "No source found (round 78). As the 6\" band. Leo's site practice allows 8\" at 1,000 CFM as uncommon (see the 10\" band), which is not a source for this band's 600 CFM edge."
       },
       {
         "maxCfm": null,
-        "diameterIn": 10
+        "diameterIn": 10,
+        "basis": "Two sources, side by side (round 78). The manufacturer: docs/reference/PH36HWS-Specifications.pdf p. 1, \"Diameter of Air Duct Top 10\\\"\", for a hood whose blowers are 700-1000 CFM. Leo's site practice, his words: \"1000CFM一般都是10\\\"直径，偶尔8\\\"直径也可以\"."
       }
     ]
   }

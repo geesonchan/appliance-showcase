@@ -1,5 +1,6 @@
 import type { SlotId } from "../types";
 import { HOOD_CABINET } from "./insertHood";
+import { hoodTopFt } from "./hood";
 import { islandAcross, islandAlong, islandHasCooktop, islandPoint } from "./layoutTemplate";
 import { axisIndex, extentsOnAxis, onAxis, sizeOnAxis, stripFacing, type Facing } from "./frame";
 import { COOKTOP_CABINET } from "./cooktop";
@@ -415,9 +416,8 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
  * stacks beside it. The scribe is over the stacks now.
  */
 export function hoodBridgeBand(): readonly [number, number] {
-  const hood = SLOT_BY_ID["slot-hood"];
-  const floor = hood.position[1] + ft(hood.cutout.h);
-  return [floor, ROOM.upperTop] as const;
+  // The canopy's own top, the model's height and not the slot's 18" (round 78).
+  return [hoodTopFt(), ROOM.upperTop] as const;
 }
 
 /** A bank of wall cabinets, likewise one box per module. */

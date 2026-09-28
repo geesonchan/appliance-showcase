@@ -227,7 +227,12 @@ function Trunk({
   );
 }
 
-/** The height an appliance actually lands its connection at. */
+/**
+ * The height a 240V appliance lands its connection at, when no model entry
+ * says otherwise. The 0.45 is a display figure with no outside source (it has
+ * stood since the first commit); a 120V connection, the hood's included, is
+ * drawn at `HEIGHT.power120` instead.
+ */
 const connectionHeight = (slot: ServicePoint) => slot.position[1] + ft(slot.cutout.h) * 0.45;
 
 function GasRuns({ effective }: { effective: Record<string, Utilities> }) {

@@ -116,6 +116,34 @@ import applies them **over** the sheet's own cells. Three things follow:
   tower is built to the standard one — neither the row nor the code is wrong,
   and the reason is written in the comment above the entry.
 
+## Under-cabinet hoods
+
+**An under-cabinet hood does not use the cutout columns.** *(Round 78, Leo.)*
+The three meanings decisions.md D4 gives a cutout — the cabinet opening for a
+built-in, the hole in the counter for a drop-in, the clear space for a hung
+hood — do not include a hood screwed under a cabinet: there is no hole, and the
+space it hangs in is the hood slot's, not the model's. So `cutoutHeightIn` is
+left blank for one, and its body height comes from its own sheet through
+`PUBLISHED_SPECS`, with the file and page named above the entry.
+
+**Why this is written down: AK7136AS-BF's 7-3/8".** Until round 78 the
+catalogue's Zephyr under-cabinet hood was AK7136AS-BF, with 7-3/8" in
+`cutoutHeightIn`, a blank `heightIn`, and `gustb_spec.pdf` as its
+`sourceUrl`. Two things were wrong with that, and neither showed:
+- **The file was not its file.** `docs/reference/gustb_spec.pdf` covers
+  AK7100BS-BF, AK7100BS290-BF, AK7136BS-BF and AK7136BS290-BF — not
+  AK7136AS-BF (docs/reference/README.md). So the 7-3/8" had no source for the
+  model it was on, however recently the row said it was checked.
+- **The figure was in the wrong column.** On that sheet's side view (p. 1),
+  7-3/8" is the body's own height, not an opening. The importer put it in
+  `cutoutHeightIn`, and the room — which draws a model at `heightIn`, then
+  `cutoutHeightIn`, then the slot — drew it as the body anyway, so the picture
+  was right by the fall-back and the data said something else.
+
+The row is now **AK7136BS-BF**, the model the sheet covers, with its
+`cutoutHeightIn` blank and 7-3/8" as `heightIn` in `PUBLISHED_SPECS` (p. 1).
+AK7300AS is the same: 11" from `tidal1a_spec.pdf` p. 1, cutout blank.
+
 ## Numbers
 
 Every numeric cell goes through one parser, so decimals and fractions are the

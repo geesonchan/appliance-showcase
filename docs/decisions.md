@@ -1367,6 +1367,48 @@ Both are checked by `checkLayout`, and the M3-3 generator has to satisfy both.
   remainder is the closing scribe. Anything more than 6" stops reading as a
   scribe and starts reading as a mistake.
 
+*Amended 2026-09-28 (round 78), Leo: the 30" has two sources, and they agree.*
+- **The manual**, `docs/reference/PH36HWS-Specifications.pdf` p. 1, package
+  A's hood, word for word: "Minimum Distance Above Gas / Electric Cooking
+  Surface 30" / 30"".
+- **Leo's site practice**: 30" from the cooking surface to the underside of
+  the canopy. He gives it as his practice and confirms it matches the manual.
+- The code's 30" (`aboveCooktopMinIn`) had only the clearance drawing's lower
+  end behind it until now. The Zephyr sheets give their own ranges, 24"-32"
+  (`gustb_spec.pdf`) and 24"-36" (`tidal1a_spec.pdf`), both "from the top of a
+  36" tall cooking surface"; over a gas range the 30" is the stricter, and it
+  is what is hung.
+
+*Amended 2026-09-28 (round 78), Leo: the cabinet over a canopy stands on the
+canopy's own top.* The canopy was drawn at the model's height, and its duct
+collar with it, but the bridge over it, the hole in the bridge's floor and a
+power point inside it read the hood slot's 18". A Zephyr AK7136BS-BF, 7-3/8"
+tall, in package A left 10-5/8" of bare wall between its top and the cabinet,
+with the duct hole cut in the air above its collar — on the live site, for
+anybody who picked it from the list. Now `hoodTopFt` in `hood.ts` is the one
+answer and all four read it.
+- **So choosing a hood re-cuts the room.** The cabinets are built from the
+  layout, and now also from the chosen hood (`setHoodModel`), so a new hood
+  redraws the room as a slider does. Checked before building: the other
+  machines, the layer switches, the render mode, the open panels and the camera
+  are kept (they live in the store, and the camera outside the room); on a
+  desktop the list rail scrolls back to its top, because it is keyed to the
+  room. Measured on a phone emulation with the CPU slowed four times, a room
+  rebuild stalls one frame for about half a second (533-783 ms, over four
+  island turns; the hood's own rebuild does less work than that).
+- **A rebuild leaves a faint wash over the whole room, and always has.** About
+  300,000 pixels on a phone shot, nearly all by 1-8 levels, against the room as
+  the page opened — the same on the code before this change after turning
+  the island and back (310,018) as after re-picking A's own hood on the new
+  code (305,404). So
+  it is a property of redrawing, not of this change; the hood swap is a new way
+  to reach it. With one rebuild on both sides first, the old and new pictures
+  of A with the Zephyr differ only over the hood (9,615 pixels in Materials,
+  8,647 in Install). Open items.
+- The 0.45 that places a 240V appliance's generic connection up its opening is
+  a display figure with no outside source; a 120V connection, the hood's, is
+  drawn at 42" (`HEIGHT.power120`) and never read the slot's 18".
+
 **Ducting**, from the ducting sheet — five installations, not five drawings of
 one:
 
@@ -1768,10 +1810,12 @@ repository has them)* — one rule, written more than once:
 | rounds 45-46 | does this model go in this slot | `suitsPackageSlot` (switching packages) and `offeredFor` + width (the list) | **still two**, recorded in D20 as deliberate for now | **the day a third judgement of the same question is written** — a new place that asks "can this model go here" and writes its own answer instead of calling one of these. Join the two then, rather than adding the third. |
 | round 62 | the sink within six inches of its window | `fitWindow` and `windowRefusals`, with different tolerances | one, `sinkFromWindow` (round 63) | — |
 | round 65 | makeup air above 400 CFM | the rule's condition, `thresholds.makeupAirCfm`, `needsMakeupAir()`, the importer's flag — only the first read | one, the rule's condition (round 65) | — |
-| round 65 | a gas pipe upsized above 65,000 BTU | the `gas-pipe-size` rule's condition and `thresholds.gasPipeUpsizeBTU` — only the first read | **still two**, in Open items | **the day somebody changes the figure** and edits `thresholds`, the copy that is named like the setting: nothing changes on screen, because the rule reads its own. |
+| round 65 | a gas pipe upsized above 65,000 BTU | the `gas-pipe-size` rule's condition and `thresholds.gasPipeUpsizeBTU` — only the first read | **one since round 78** — see that row: there was a third copy, and it was the one the quote printed | **the day somebody changes the figure** and edits `thresholds`, the copy that is named like the setting: nothing changes on screen, because the rule reads its own. |
 | round 70 | which side of its box a rough-in figure is measured from, and which side a neighbouring cabinet is on | the point's position (`resolveRoughIn`) and its sentence (`roughInSentence`), each worked out from the data on its own | one: `resolveRoughIn` decides `sides` through `frame.ts`'s `alongIsToTheRight`, places the point by it, and the sentence reads it (round 70) | **it had bitten, on the live site, both ways.** The drawing took "further along the run" for right, which on the left run is the installer's left: A's refrigerator socket was drawn 6" from the cabinet's right side under a line saying left, and a sink moved to the left leg had all four dishwasher points mirrored. The sentence wrote "from the left side" beside every tower, where B's, D's and E's cabinets stand on the tower's left and the drawing measured from its right. A quote sends an electrician to the wrong side of a cabinet. |
 | round 70 | a var whose name ends in `Key` is itself a message key, and fills the placeholder without `Key` | written twice — `useRefusalText` (the checklist) and the toast in `SceneControls` — and **missing** in the spec card and in `buildQuote` | one, `sayWith` in `src/i18n/index.ts`, used by all four (round 70) | **it had bitten, on the live site.** Package A (or B, C, D) with no island and a left wall long enough to take the microwave drawer and the wine cabinet prints "on the {microwaveLeg} leg … the {wineLeg} leg" on the spec card and the quote, while the checklist beside them says "left". Found only because the rough-in words moved onto keys and had to go through all four. |
 | round 74 | where a combination oven's microwave handle lands: "the chest of somebody six foot" | 54", the shared `microwaveHandleIn` default (round 20, commit `60a3baa`); and 52", which came with the round-74 brief for E's oven: Leo said "the chest of somebody six foot", and the conversation on the brief's side worked that out as 72" × 0.72 = 52", when round 20 had already settled 54" for the same words | **one**, 54" — caught before the second was written. 52" is in no file | **the first time this table prevented a copy rather than recording one after the fact.** The two figures were two estimates of one fact, and the 2" between them was a difference of method, not new information from site (Leo). Written in, E would have had its own package default of 52" beside B's shared 54", both justified by the same sentence. E takes the shared 54" instead: one parameter, and the same machine at the same height in B and E. |
+| round 78 | the duct diameter for an airflow | `thresholds.duct` in data/rules.json, read by the checklist's duct line; and a literal in `utilities.ts` (`cfm > 600 ? 10 : cfm >= 400 ? 8 : 6`), read by the quote, the spec card and the install view | **one**: `utilities.ts` asks `ductDiameterFor` (round 78) | **it had bitten, on the live site, at exactly 400 CFM**: the table says 6" up to 400 and the literal said 8" from 400, its own comment ("6\" to 400 CFM") agreeing with the table. Zephyr AK7136AS-BF, 400 CFM, in package A's hood list: the checklist said 6" and the quote 8". `thresholdCopies.test.ts` checks both at every band edge, and was red on the old code at 400. |
+| round 78 | a gas pipe upsized above 65,000 BTU — **the third copy** | the rule's condition and `thresholds.gasPipeUpsizeBTU` (round 65's row), and a literal `65_000` in `utilities.ts` that round 65 did not find — **the copy the quote, the spec card and the install view actually printed** | **one**: the rule's condition, asked through `gasPipeFor` in `rules.ts`, which runs the rule engine's own test; `thresholds.gasPipeUpsizeBTU` deleted (round 78) | **the day the rule's figure moved**: the checklist line would have followed it and the quote's pipe size would not. `thresholdCopies.test.ts` moves the rule's threshold to 90,000 and sees the quote follow; on the old code it did not. |
 
 Round 60's quarter-inch window step is a near relative rather than a member:
 one rule, but its search and its judgement worked to different resolutions,
@@ -1801,8 +1845,11 @@ the probe answered the question it was written with, once, on the data it
 happened to meet; the test states the rule, and a coincidence in the data
 cannot pass it.
 
-Two of the seven are still open; the eighth, round 74's row, was stopped before
-it became a copy. The table has seven rows for those eight: round 60's has
+Of the first seven, one is still open (the first row); the eighth, round 74's
+row, was stopped before it became a copy; the ninth and tenth, round 78's, are
+closed — round 65's gas row was never really closed, because a third copy it did
+not know about was the one being printed. The table has nine rows for those
+ten: round 60's has
 none of its own. The table is here so that the next one found
 is added to it rather than rediscovered.
 
@@ -3794,8 +3841,10 @@ Registered, not scheduled. None of these is a round of its own.
   Leo in round 66** and written into D6: CMC §505 for the 400 CFM, Title 24's
   floor-area requirement beside it, from secondary sources. The threshold did
   not move. *(Round 65.)*
-- **The gas pipe threshold is written twice, the same way makeup air was.**
-  *(Found round 65, not changed.)* The `gas-pipe-size` rule's own condition
+- ~~**The gas pipe threshold is written twice, the same way makeup air was.**~~
+  **One copy since round 78** (D17's table): it was three, and the third, a
+  literal in `utilities.ts`, was the one the quote printed. What follows is the
+  entry as it stood: *(Found round 65, not changed.)* The `gas-pipe-size` rule's own condition
   holds 65,000 BTU, and `thresholds.gasPipeUpsizeBTU` holds it again, read by
   nothing. One copy, when somebody next touches it.
 - **Day after a round trip through night is not the day the page opened on.**
@@ -4036,3 +4085,71 @@ Registered, not scheduled. None of these is a round of its own.
   `docs/open-items/round-77-E-across-cooktop-label.png` (phone portrait,
   390 x 844, Materials). Label placement would take stools into its
   keep-outs, which it does not today.
+- **A hood's own outlet against the duct the airflow table gives.** *(Round
+  78, Leo: record as data points; "the model's own outlet first" is the next
+  round, after 78 and before 79a.)* The duct drawn and quoted is the airflow
+  band in `data/rules.json`, one copy since round 78. Two hoods in the
+  catalogue disagree with it, both by their own sheets:
+  - **AK7136BS-BF**, 400 CFM: the page shows **6"**; its sheet
+    (`gustb_spec.pdf` p. 2) gives "7” Round or 3-1/4” x 10”" vertically and a
+    7" round damper. The duct is narrower than the outlet.
+  - **AK7300AS**, 700 CFM: the page shows **10"**; its sheet
+    (`tidal1a_spec.pdf` p. 2) gives "8” Round" vertically, "3-1/4” x 10” or
+    8” Round" horizontally. The duct is wider than the outlet.
+  - When a warning for airflow against the chosen outlet is built (79a
+    registers it, and does not build it), it follows Leo's words for 1,000
+    CFM: 10" is normal, 8" is acceptable but uncommon, smaller is not suitable.
+- **A hood at least as wide as the range under it — for the models, not only
+  the openings.** *(Round 78, Leo: registered, not this round. Source: Leo's
+  site practice. The sheets for PH36HWS, AK7136BS-BF and AK7300AS do not state
+  it; HMIB42WS's guide, p. 9, does, for an island hood.)* `d13-hood-width` in
+  `layoutRules.ts` compares the slots' openings, which are both 36" in every
+  package, and `checkLayout` runs only in tests; the hood list judges a model
+  against the hood's own opening. So in package A a 30" AK7300AS can be picked
+  over the 36" range, and nothing says so. **Order, Leo:** first join the two
+  existing judgements of "can this model go in this slot" — `suitsPackageSlot`
+  and `offeredFor` with the width check, D17's table, first row — and only
+  then add the judgement across slots (a hood's list depending on the range
+  chosen, and the range's on the hood). `availability.ts` can only close a
+  whole slot today, not mark one model in a list.
+- **A room rebuild leaves a faint wash over the whole picture.** *(Round 78,
+  measured, cause not found.)* On a phone shot, about 300,000 pixels differ
+  between the room as the page opened and the same room after any rebuild
+  that changes nothing — turning the island and back (310,018 on the code
+  before round 78), or re-picking the same hood (305,404 since round 78, when
+  picking a hood started to rebuild the room). Nearly all by 1-8 levels, over
+  every surface; by eye the floor grain, the stone and the edges look the
+  same. Like the day-after-night difference above, **whoever meets it first
+  will read it as something they broke**: compare a rebuilt room only with a
+  rebuilt room (put one rebuild on both sides of a diff), as round 78 did.
+- **A 120V machine's generic power point is drawn at 42", the hood's
+  included.** *(Round 78, found while checking the hood's point; not
+  changed.)* With no model entry, a 120V connection is drawn at
+  `HEIGHT.power120` whatever the machine, so a hood with no rough-in entry
+  has its point at 42", on the wall behind the range, not near the hood. It is
+  in the not-yet-reviewed tier (D21), which is the true state; whether a hood's
+  generic point should sit in the cabinet above, as PH36HWS's entry puts it, is
+  Leo's call.
+- **Registered rounds after 78, in Leo's order.** *(Leo, rounds 78-79; not
+  started.)*
+  1. **A hood's own outlet first.** The duct drawn and quoted follows the
+     model's own outlet where its sheet gives one, rather than only the
+     airflow band (the two data points above).
+  2. **79a: the cabinet over the hood opens, and shows the outlet.** Left and
+     right doors swinging open, at an angle to be chosen and marked "display
+     figure, no outside source"; only in Materials, never in the white model or
+     Install, and only once the hood is selected and flown to (D1: opening a
+     door moves no camera). The outlets are 3-1/4" x 10" rectangular and 6",
+     7", 8" and 10" round — Leo's site practice; **his own words for it are
+     still to be written in**, and whether a model's unsupported outlets are
+     listed as unsupported or left out is still his to choose. No door where
+     there is no cabinet over the hood: B, C and E. Display only: the outlet
+     chosen goes on neither the quote nor the checklist. The schema's duct
+     sizes (6, 8, 10) take 7" and 3-1/4" x 10". A warning for airflow against
+     the outlet is registered, not built (the item above).
+  3. **79b: the duct turning inside the cabinet**, left or right.
+  - **The 30" option in package A** (PRG304WH with AK7300AS) is paused. Its
+    reading (round 78) found that PRG304WH's height has no document of its own
+    here: `PUBLISHED_SPECS` gives it PRG366WH's figures, from a sheet that is
+    not in `docs/reference/` either.
+

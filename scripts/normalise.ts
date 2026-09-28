@@ -715,6 +715,15 @@ export const PUBLISHED_SPECS: Record<
     installType: ["insert"],
     blower: "required",
   },
+  // Zephyr AK7136BS-BF, from docs/reference/gustb_spec.pdf page 1, side view:
+  // the body is 7-3/8" tall. An under-cabinet hood has no opening, so the
+  // sheet's cutout height is left blank and the body height is here (round 78;
+  // docs/data-sheet-spec.md, "Under-cabinet hoods").
+  "AK7136BS-BF": { heightIn: 7.375 },
+  // Zephyr AK7300AS, from docs/reference/tidal1a_spec.pdf page 1, side view:
+  // the body is 11" tall. The 12-15/16" and 15-5/16" on the same view are to
+  // the top of the 8" and 10" duct transitions, not the body (round 78).
+  AK7300AS: { heightIn: 11 },
   // Thermador Freedom: two doors over a refrigerator drawer and a freezer
   // drawer. Sold as a four-door, which is what the Feature column tends to say.
   T36BT120NS: { doorConfig: "french-door-2-drawer", doorSplit: FREEDOM_SPLIT },

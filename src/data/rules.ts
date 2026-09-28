@@ -60,12 +60,13 @@ const rulesFileSchema = z.object({
   protrusionDatum: z.enum(["cabinetFace", "cutout"]).default("cabinetFace"),
   rules: z.array(ruleSchema).min(1),
   thresholds: z.object({
-    gasPipeUpsizeBTU: z.number().positive(),
     duct: z
       .array(
         z.object({
           maxCfm: z.number().positive().nullable(),
           diameterIn: z.union([z.literal(6), z.literal(8), z.literal(10)]),
+          /** Where the band comes from, in words; "no source found" says so. Round 78. */
+          basis: z.string().min(1),
         }),
       )
       .min(1),
@@ -96,6 +97,31 @@ export function ductDiameterFor(cfm: number | null): 6 | 8 | 10 | null {
     if (band.maxCfm === null || cfm <= band.maxCfm) return band.diameterIn;
   }
   return THRESHOLDS.duct[THRESHOLDS.duct.length - 1].diameterIn;
+}
+
+/** The gas line under 65,000 BTU, which no rule states: the rule only names the upsize. */
+const GAS_PIPE_BASE = '1/2"' as const;
+type GasPipe = '1/2"' | '3/4"';
+
+/**
+ * The gas line a machine drawing this many BTU needs.
+ *
+ * **Asked of the `gas-pipe-size` rule, not written again.** Round 78: the
+ * threshold stood in the rule's condition, in `thresholds.gasPipeUpsizeBTU`
+ * (read by nothing) and as a literal 65,000 in `utilities.ts` — which is the
+ * copy the quote, the spec card and the install view actually printed. The
+ * rule's own condition, run by the rule engine's own test, is now the only one;
+ * the pipe it names is its `pipe` parameter. The same shape as makeup air (D6).
+ */
+export function gasPipeFor(btu: number): GasPipe {
+  const rule = RULES.find((candidate) => candidate.id === "gas-pipe-size");
+  if (!rule) throw new Error("data/rules.json has no gas-pipe-size rule");
+  const upsized = rule.when
+    .filter((condition) => condition.fact === "appliance.requires.gasBTU")
+    .every((condition) => test(condition.op, btu, condition.value));
+  const pipe = String(rule.params.pipe);
+  if (pipe !== '1/2"' && pipe !== '3/4"') throw new Error(`gas-pipe-size names a pipe the schema has no size for: ${pipe}`);
+  return upsized ? pipe : GAS_PIPE_BASE;
 }
 
 interface Context {

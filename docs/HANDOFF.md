@@ -12,7 +12,7 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **round 77** (`docs/decisions.md` is the record of
+Covers the repository up to **round 78** (`docs/decisions.md` is the record of
 rounds; `git log` is the record of commits). It replaces the v1–v9 briefs that
 were pasted into chat.
 
@@ -58,20 +58,24 @@ every figure of it, is `data/packages.json`; D16 and D20 say how a package is
 put together and why E was built the way it was. **Do not copy those numbers
 anywhere**: the file is the one source, and the tests read it.
 
-### Where it stands (round 77)
+### Where it stands (round 78)
 
-- **All five packages are live.** Rounds 73–77 each shipped, and each was
+- **All five packages are live.** Rounds 73–78 each shipped, and each was
   checked against the live page's asset hashes after its workflow finished.
 - **The project is in real use.** Rounds 73–77 all came from Leo using package
   E himself: a wine cooler under the coffee machine (73), E's combination oven
   hanging at 0" (74), the coffee machine at its manual's height (75), the
   height slider that could not find that height again (76), and bar stools at
   the seating overhang, which on a phone read as a top nothing carried (77,
-  D20). New work comes from what Leo and his colleagues meet in use, collected
-  and sent a few at a time. **Do not start new features on your own
-  initiative.**
-- **Nothing is in progress.** The tree is clean at the last round's commit, and
-  the Open items are registered, not scheduled.
+  D20). Round 78 came from asking for a 30" option in A (paused): the reading
+  for it found two faults on the live site, the cabinet over a hood that is not
+  18" tall (D13) and two thresholds written more than once (D17's table). New
+  work comes from what Leo and his colleagues meet in use, collected and sent a
+  few at a time. **Do not start new features on your own initiative.**
+- **Nothing is in progress.** The tree is clean at the last round's commit.
+  Three rounds are registered, in Leo's order, in the Open items: a hood's own
+  outlet first, then 79a (the doors of the cabinet over the hood and the
+  outlet shown in it), then 79b. The 30" option in A is paused.
 
 ---
 
@@ -142,10 +146,11 @@ what to go and read.
 - **A figure that cannot say exactly why it is that figure** may be working
   round a bug; record that it cannot. D17.
 - **One rule is written once.** D17 carries the table of every time it was
-  written twice: seven rows, for eight times it happened — round 60's
+  written twice: nine rows, for ten times it happened — round 60's
   quarter-inch window step is counted as a near relative, the fifth, and has
-  no row of its own. Two are still open. The eighth (round 74, 54" and 52" for
-  the same handle height) was stopped before the second copy was written.
+  no row of its own. One is still open, the first. The eighth (round 74, 54"
+  and 52" for the same handle height) was stopped before the second copy was
+  written; round 78 found a third copy of one already marked closed.
 - **Visual changes are proved by pixel diff**, live against local, mouse
   clicks, `?quality=high` pinned. A difference is zeroed one of three ways
   (D17): put the changed value back (round 61), shoot the same build twice
@@ -231,6 +236,9 @@ Three things, each with its source:
 - **U-shaped and galley layouts** — only mentioned, in D22 (the fly-in rule
   and `roomWalls.ts` are written so they would need no new rule). Never
   registered as work.
+
+And the rounds Leo has queued, with what he decided for each: the last entry of
+the Open items, "Registered rounds after 78".
 
 **Do not start one without Leo.** Anything else that sounds planned and is not
 in `docs/decisions.md` was not planned (D17, round 77).
