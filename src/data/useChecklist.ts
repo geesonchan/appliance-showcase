@@ -59,7 +59,13 @@ export function checklistFor(
   counter: CounterFinish = "quartz-white",
 ): Checklist {
   {
-    const context = packageContext(selection["slot-hood"], blower, selection["slot-range"]);
+    const context = packageContext(
+      selection["slot-hood"],
+      blower,
+      selection["slot-range"],
+      // The island's cooktop: the cooking surface where a package has no range.
+      selection["slot-cooktop"],
+    );
     const findings = [
       ...SLOT_ORDER.flatMap((slotId) =>
         evaluateSlot(SLOT_BY_ID[slotId], selection[slotId], context),

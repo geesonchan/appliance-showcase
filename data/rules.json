@@ -150,6 +150,24 @@
       "scope": "package"
     },
     {
+      "id": "hood-narrower-than-cooking",
+      "severity": "warning",
+      "messageKey": "rule.hoodNarrow",
+      "when": [
+        {
+          "fact": "package.hoodNarrowerByIn",
+          "op": "gt",
+          "value": 1
+        }
+      ],
+      "params": {
+        "hood": "package.hoodWidthText",
+        "cooking": "package.cookingWidthText"
+      },
+      "scope": "package",
+      "basis": "Leo's site practice, round 79, his words: \"一般 Hood 宽度是大于等于炉头的宽度的\". A reminder, not a refusal. The 1\" allowance is a display figure with no outside source (Leo): hoods and cooking surfaces come in 30\", 36\" and 42\", six inches apart, so 1\" is clear of a nominal 30\" measured as 29-7/8\" and clear of the next size down. An insert liner counts as its housing, the hood slot's width."
+    },
+    {
       "id": "duct-size",
       "severity": "info",
       "messageKey": "rule.ductSize",

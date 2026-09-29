@@ -1294,6 +1294,23 @@ just under the 80% above.
 viewport, not 80%.** Configuration open by default is the round-31 decision,
 and 79.5% at 1440px is what it costs. The figure moves; the layout does not.
 
+**Amended 2026-09-28 (round 79), Leo: the appliance list prints the machine's
+width, and the opening beside it where they differ.** The list printed the
+opening alone — chosen as "the opening, not the price", which is this entry's
+point — and that was sound while every machine filled its opening. Round 78
+put a 30" hood in a 36" slot, and the list said 36". Now the first line prints
+the machine's own width, and the second line — brand · model — adds the
+opening where the two are more than 1/2" apart: `Zephyr · AK7300AS · 36"
+opening` / `36" 开口`. *(Leo, round 79.)* The model number is never cut: where
+the line is too narrow the brand gives way first and the opening drops to a
+line of its own. The first try put both figures on the first line, and
+"Ventilation hood" was cut to "Ventilation ...". The 1/2" is a display figure with no outside source
+(Leo): 35-15/16" in a 36" opening reads as one size, and a sixteenth would sit
+exactly on that case. Still a width, still no price. The quote's plain-text
+summary called the slot's opening "Rough opening", the label the spec card
+uses for what the model needs; it says "Slot opening" now, as the quote page
+already did.
+
 ---
 
 ## D13 · The dimensions a kitchen is actually built to
@@ -1408,6 +1425,56 @@ answer and all four read it.
 - The 0.45 that places a 240V appliance's generic connection up its opening is
   a display figure with no outside source; a 120V connection, the hood's, is
   drawn at 42" (`HEIGHT.power120`) and never read the slot's 18".
+
+*Amended 2026-09-28 (round 79), Leo: the strips beside a narrow wall hood are
+the wall cabinets', and a hood narrower than the cooking surface is said.*
+- **The strips.** A hood narrower than its slot — package A's 30" AK7300AS in
+  the 36" slot — leaves a gap each side, and it was filled the way a base
+  opening is: a block as deep as the run (24") on the run's centre line, as
+  tall as the hood's body. So two blocks stood a foot proud of the wall
+  cabinets beside the hood, and at full height in front of a canopy whose face
+  is 3". That drawing dates from 2026-09-06 (`5d5ecae`, `7b9fefa`) and round 78
+  did not change it; round 78 made it common, by putting a 30" hood in A's
+  list. **Leo's site practice:** a strip in the plane of the wall cabinets,
+  12" deep with its back on the wall, from the hood's underside to the floor of
+  the cabinet over it (`hoodSideFillers` in `hood.ts`). Wall hoods only; every
+  other slot's filler is unchanged. Checked by eye from near the front of A with
+  AK7300AS: both strips flush with the cabinets beside them, their bottoms on
+  the hood's underside, running up into the cabinet over it.
+- **An insert liner gets no strips** (Leo). It hangs in the opening of a
+  housing the cabinetmaker builds, and what is either side of it is the
+  housing.
+- **A fault on the live site, fixed along the way.** Packages B and D open with
+  VCIN36GWS, a 33-3/4" liner in a 42" housing, so the old base-cabinet fillers
+  were drawn 4-1/8" wide each side of it, 24" deep — and two small green blocks
+  showed below the housing, one each side, in both packages as they open. They
+  are gone. Nobody had asked for it; it showed in round 79's pixel diff of B's
+  and D's default views (B 2,024 and 11,681 pixels, D 1,426 and 8,838, Materials
+  and Install, all at the housing). Before and after:
+  `docs/fixes/round-79-B-housing-before-after.png`,
+  `docs/fixes/round-79-D-housing-before-after.png`.
+- **A hood narrower than the cooking surface under it gets a line, not a
+  refusal.** Leo's site practice, his words: "一般 Hood 宽度是大于等于炉头的
+  宽度的". The rule is `hood-narrower-than-cooking` in `data/rules.json`, a
+  package warning under the hood (D7), so it reaches the checklist, the spec
+  card and the quote and blocks nothing. Its wording is Leo's, locked in
+  `reviewed.json`; he took "with the customer" out, because the line can sit
+  on a quote a customer reads. The figures print as fractions, 29-7/8".
+  - **More than 1" narrower**, not any amount: a display figure with no
+    outside source (Leo). Hoods and cooking surfaces come in 30", 36" and 42",
+    six inches apart; 1" is clear of a nominal 30" measured as 29-7/8" and
+    clear of the next size down.
+  - **An insert liner is measured as its housing**, the hood slot's width
+    (Leo): the housing is what stands over the range. Measured as the 33-3/4"
+    liner, packages B and D would have raised the line as they open; with the
+    exception broken on purpose, their tests go red.
+  - The cooking surface is the range on a run, else the island's cooktop, as
+    rule 4 finds it. `d13-hood-width` in `layoutRules.ts` is not this: it
+    compares the slots' openings, for the layout, and runs only in tests.
+  - It does not judge which models the hood list offers, so it is not a third
+    copy of "can this model go in this slot" (D17's table, first row). The
+    registered item that would mark a narrow hood in the list is to read this
+    rule when it is built, not write its own.
 
 **Ducting**, from the ducting sheet — five installations, not five drawings of
 one:
@@ -4131,11 +4198,20 @@ Registered, not scheduled. None of these is a round of its own.
   generic point should sit in the cabinet above, as PH36HWS's entry puts it, is
   Leo's call.
 - **Registered rounds after 78, in Leo's order.** *(Leo, rounds 78-79; not
-  started.)*
+  started. Round 79 put the interface round first and moved the rest back.)*
+  0. **An interface round, plan first, with phone and desktop sketches.**
+     *(Leo, round 79, from using round 78 on a desktop.)* Two things in one:
+     - **Changing a machine is hidden.** It takes selecting the machine,
+       opening the list rail that starts closed, and picking the machine there
+       before any model is shown; a customer would not know it can be done.
+       Once a machine is selected, the middle of the screen should lead to its
+       models.
+     - **The settings panel on the right is too long** and wants regrouping.
   1. **A hood's own outlet first.** The duct drawn and quoted follows the
      model's own outlet where its sheet gives one, rather than only the
      airflow band (the two data points above).
-  2. **79a: the cabinet over the hood opens, and shows the outlet.** Left and
+  2. **79a: the cabinet over the hood opens, and shows the outlet** — after
+     the interface round's first item, which it builds on (Leo). Left and
      right doors swinging open, at an angle to be chosen and marked "display
      figure, no outside source"; only in Materials, never in the white model or
      Install, and only once the hood is selected and flown to (D1: opening a

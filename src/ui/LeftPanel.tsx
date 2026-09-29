@@ -1,6 +1,7 @@
 import { SCHEME, SCHEME_FALLBACKS, SLOT_ORDER } from "../data/catalogue";
 import { usePackageSummary } from "../data/packageSummary";
-import { formatInches } from "../data/fit";
+import { listWidth } from "../data/fit";
+import { formatDimension } from "../data/dimensions";
 import { ROOM, SLOT_BY_ID, isOmitted } from "../data/slots";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
@@ -82,6 +83,7 @@ export function LeftPanel() {
           const slot = SLOT_BY_ID[slotId];
           const appliance = selection[slotId];
           const active = selectedSlot === slotId;
+          const width = listWidth(appliance, slot);
           return (
             <li key={slotId}>
               <button
@@ -97,8 +99,11 @@ export function LeftPanel() {
                 <span className="w-5 shrink-0 self-start pt-px font-display text-[12px] tabular-nums text-ink-muted">
                   {String(index + 1).padStart(2, "0")}
                 </span>
-                {/* Two lines: what it is, with the opening it takes on the
-                    right; then which model, cut short rather than wrapped. */}
+                {/* Two lines. First, what it is and the machine's own width.
+                    Then which model, and the opening where it is not the
+                    machine's width (round 79, Leo). The model number is never
+                    cut: the brand gives way first, and the opening drops to a
+                    line of its own when the two do not fit side by side. */}
                 <span className="min-w-0 flex-1">
                   <span className="flex items-baseline gap-2">
                     <span className="flex min-w-0 flex-1 items-center gap-1.5 text-[13px] leading-[1.3] text-ink">
@@ -110,17 +115,26 @@ export function LeftPanel() {
                         />
                       )}
                     </span>
-                    {/* The opening, not the price. See docs/decisions.md D12. */}
+                    {/* A width, not the price (D12). */}
                     <span className="shrink-0 text-right text-[10px] tabular-nums text-ink-muted/80">
-                      {formatInches(slot.cutout.w)}
+                      {formatDimension(width.modelIn)}
                     </span>
                   </span>
                   {appliance && (
                     <span
-                      className="mt-0.5 block truncate text-[11px] leading-[1.3] text-ink-muted"
+                      className="mt-0.5 flex flex-wrap items-baseline gap-x-1 text-[11px] leading-[1.3] text-ink-muted"
                       title={`${appliance.brand} ${appliance.model}`}
                     >
-                      {appliance.brand} · {appliance.model}
+                      <span className="flex min-w-0 max-w-full items-baseline gap-x-1">
+                        <span className="min-w-0 truncate">{appliance.brand}</span>
+                        <span className="shrink-0">·</span>
+                        <span className="shrink-0 whitespace-nowrap">{appliance.model}</span>
+                      </span>
+                      {width.openingIn !== null && (
+                        <span className="whitespace-nowrap tabular-nums">
+                          · {t("list.openingOf", { opening: formatDimension(width.openingIn) })}
+                        </span>
+                      )}
                     </span>
                   )}
                 </span>
@@ -145,3 +159,4 @@ export function LeftPanel() {
     </div>
   );
 }
+

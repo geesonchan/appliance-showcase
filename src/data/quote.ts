@@ -181,7 +181,7 @@ export function formatQuote(
         (line.msrpUSD === null ? `  ${t("price.onRequest")}` : `  ${usd(line.msrpUSD)}`),
     );
     out.push(
-      `  ${t("spec.opening")} ${line.openingIn.w}" x ${line.openingIn.h}" x ${line.openingIn.d}"`,
+      `  ${t("spec.slotOpening")} ${line.openingIn.w}" x ${line.openingIn.h}" x ${line.openingIn.d}"`,
     );
     if (line.leadTimeWeeks !== null) {
       out.push(`  ${t("panel.package.lead")} ${t("panel.package.leadValue", { weeks: line.leadTimeWeeks })}`);

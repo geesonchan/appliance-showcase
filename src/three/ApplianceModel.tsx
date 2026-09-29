@@ -19,6 +19,7 @@ import {
   canopySolid,
   chimneyParts,
   hoodProfile,
+  hoodSideFillers,
   hoodTopDepthIn,
   islandHoodParts,
 } from "../data/hood";
@@ -158,7 +159,7 @@ export function ApplianceModel({ slot, appliance }: ApplianceModelProps) {
         <IslandTrim slot={slot} box={box} dz={dz} body={body} />
       )}
 
-      <Filler slot={slot} box={box} surface={cabinetSurface} trim={trim} />
+      <Filler slot={slot} appliance={appliance} box={box} surface={cabinetSurface} trim={trim} />
     </group>
   );
 }
@@ -172,11 +173,13 @@ export function ApplianceModel({ slot, appliance }: ApplianceModelProps) {
  */
 function Filler({
   slot,
+  appliance,
   box,
   surface: cabinet,
   trim,
 }: {
   slot: SlotId;
+  appliance: Appliance;
   box: ReturnType<typeof applianceBox>;
   surface: SurfaceProps;
   trim: SurfaceProps;
@@ -223,7 +226,25 @@ function Filler({
       </mesh>,
     );
   }
-  if (box.filler.eachSide > MIN) {
+  // Beside a wall hood the strip is the wall cabinets', not a base cabinet's:
+  // 12" deep against the wall, from the underside to the cabinet over it.
+  // Leo's site practice, round 79 (`hoodSideFillers`).
+  const hoodSides = slot === "slot-hood" ? hoodSideFillers(def, appliance) : null;
+  if (hoodSides) {
+    for (const side of [-1, 1]) {
+      pieces.push(
+        <mesh
+          key={"hood-side" + side}
+          position={[side * hoodSides.x, hoodSides.y, hoodSides.z]}
+          castShadow
+          userData={{ cabinetRole: true }}
+        >
+          <boxGeometry args={[hoodSides.widthFt, hoodSides.heightFt, hoodSides.depthFt]} />
+          <Mat s={cabinet} size={[hoodSides.widthFt, hoodSides.heightFt]} />
+        </mesh>,
+      );
+    }
+  } else if (slot !== "slot-hood" && box.filler.eachSide > MIN) {
     for (const side of [-1, 1]) {
       pieces.push(
         <mesh

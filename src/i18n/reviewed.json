@@ -275,6 +275,11 @@
       "text": "The manual advises against mounting it much higher than about 37-7/16\", so the water tank and brewing unit can be taken out easily.",
       "approval": "written",
       "reviewed": "Leo's wording, round 75: the line raised when the coffee machine's opening is set more than 1\" above TCM24PS's approx. 37-7/16\" (installation instructions p. 11). A reminder, not a refusal (decisions.md D11 rule 14, round 75)."
+    },
+    "rule.hoodNarrow": {
+      "text": "{hood}\" hood over a {cooking}\" cooking surface. A hood is normally at least as wide as the cooking surface under it — please confirm before ordering.",
+      "approval": "written",
+      "reviewed": "Leo's wording, round 79: he edited CC's draft and fixed this text, dropping \"with the customer\" because the line can appear on a quote a customer sees. Raised when the hood is more than 1\" narrower than the cooking surface under it; source Leo's site practice, \"一般 Hood 宽度是大于等于炉头的宽度的\" (decisions.md D13, round 79)."
     }
   },
   "zh": {
@@ -552,6 +557,11 @@
       "text": "手册建议安装高度不宜明显高于约 37-7/16\"，以便取出水箱和冲泡单元。",
       "approval": "written",
       "reviewed": "Leo's wording, round 75: the line raised when the coffee machine's opening is set more than 1\" above TCM24PS's approx. 37-7/16\" (installation instructions p. 11). A reminder, not a refusal (decisions.md D11 rule 14, round 75)."
+    },
+    "rule.hoodNarrow": {
+      "text": "油烟机宽 {hood}\"，灶具宽 {cooking}\"。油烟机宽度一般应大于或等于灶具宽度，下单前请确认。",
+      "approval": "written",
+      "reviewed": "Leo's wording, round 79: he edited CC's draft and fixed this text, dropping \"with the customer\" because the line can appear on a quote a customer sees. Raised when the hood is more than 1\" narrower than the cooking surface under it; source Leo's site practice, \"一般 Hood 宽度是大于等于炉头的宽度的\" (decisions.md D13, round 79)."
     }
   }
 }

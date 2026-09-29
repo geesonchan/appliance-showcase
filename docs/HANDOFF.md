@@ -12,7 +12,7 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **round 78** (`docs/decisions.md` is the record of
+Covers the repository up to **round 79** (`docs/decisions.md` is the record of
 rounds; `git log` is the record of commits). It replaces the v1–v9 briefs that
 were pasted into chat.
 
@@ -58,9 +58,9 @@ every figure of it, is `data/packages.json`; D16 and D20 say how a package is
 put together and why E was built the way it was. **Do not copy those numbers
 anywhere**: the file is the one source, and the tests read it.
 
-### Where it stands (round 78)
+### Where it stands (round 79)
 
-- **All five packages are live.** Rounds 73–78 each shipped, and each was
+- **All five packages are live.** Rounds 73–79 each shipped, and each was
   checked against the live page's asset hashes after its workflow finished.
 - **The project is in real use.** Rounds 73–77 all came from Leo using package
   E himself: a wine cooler under the coffee machine (73), E's combination oven
@@ -69,13 +69,17 @@ anywhere**: the file is the one source, and the tests read it.
   the seating overhang, which on a phone read as a top nothing carried (77,
   D20). Round 78 came from asking for a 30" option in A (paused): the reading
   for it found two faults on the live site, the cabinet over a hood that is not
-  18" tall (D13) and two thresholds written more than once (D17's table). New
+  18" tall (D13) and two thresholds written more than once (D17's table).
+  Round 79 came from Leo trying round 78 on a desktop: the strips beside a
+  narrow hood, the list's width, and a line when a hood is narrower than the
+  cooking surface (D12, D13). New
   work comes from what Leo and his colleagues meet in use, collected and sent a
   few at a time. **Do not start new features on your own initiative.**
 - **Nothing is in progress.** The tree is clean at the last round's commit.
-  Three rounds are registered, in Leo's order, in the Open items: a hood's own
-  outlet first, then 79a (the doors of the cabinet over the hood and the
-  outlet shown in it), then 79b. The 30" option in A is paused.
+  Four rounds are registered, in Leo's order, in the Open items: an interface
+  round (how a machine is changed, and the settings panel) with a plan first,
+  then a hood's own outlet, then 79a (the doors of the cabinet over the hood
+  and the outlet shown in it), then 79b. The 30" option in A is paused.
 
 ---
 

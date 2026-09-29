@@ -6,6 +6,7 @@ import { outletSize, hoodCabinetFloor } from "./hood";
 import { SLOT_BY_ID } from "./slots";
 import { parseDataFile, metaSchema } from "./schema";
 import { effectiveCfm } from "./ventilation";
+import { formatDimension } from "./dimensions";
 
 /**
  * The install rules from §3.5.4, plus the sizing thresholds that used to be
@@ -37,6 +38,8 @@ const ruleSchema = z.object({
   when: z.array(conditionSchema).min(1),
   /** Values interpolated into the message, as paths or literals. */
   params: z.record(z.string(), z.union([z.string(), z.number()])),
+  /** Where the rule and its figures come from, in words. Round 79. */
+  basis: z.string().min(1).optional(),
 });
 
 const rulesFileSchema = z.object({
@@ -149,6 +152,16 @@ interface Context {
      * that is not there is worse than saying nothing.
      */
     hoodHasCabinetAbove: boolean;
+    /**
+     * How much narrower the hood is than the cooking surface under it, in
+     * inches; null where either is missing. Round 79, Leo's site practice:
+     * "一般 Hood 宽度是大于等于炉头的宽度的". An insert liner counts as the
+     * housing built round it, which is what is seen and what the slot is.
+     */
+    hoodNarrowerByIn: number | null;
+    /** The two widths as a cabinetmaker writes them, 29-7/8, for the line. */
+    hoodWidthText: string | null;
+    cookingWidthText: string | null;
   };
 }
 
@@ -253,9 +266,18 @@ export function packageContext(
   hood: Appliance | undefined,
   blower: Appliance | null,
   range?: Appliance,
+  /** The island's cooktop, which is the cooking surface where there is no range. */
+  cooktop?: Appliance,
 ): Context["package"] {
   const cfm = effectiveCfm(hood, blower);
+  const hoodIn = hoodWidthIn(hood);
+  const cooking = range ?? cooktop;
+  const cookingIn = cooking ? (cooking.widthIn ?? cooking.cutoutWidthIn) : null;
+  const widthText = (value: number | null) => (value === null ? null : formatDimension(value).replace(/"$/, ""));
   return {
+    hoodNarrowerByIn: hoodIn === null || cookingIn === null ? null : cookingIn - hoodIn,
+    hoodWidthText: widthText(hoodIn),
+    cookingWidthText: widthText(cookingIn),
     blower,
     effectiveCfm: cfm,
     ductDiameterIn: ductDiameterFor(cfm),
@@ -263,6 +285,18 @@ export function packageContext(
     hoodOutletSize: outletSize(),
     hoodHasCabinetAbove: hoodCabinetFloor() !== null,
   };
+}
+
+/**
+ * How wide a hood is, as the rule about hood and cooking surface reads it.
+ * An insert liner is hidden in a housing the cabinetmaker builds, and the
+ * housing is what the hood is to anybody standing at the range: the slot's own
+ * width (42" in packages B and D, round 79, Leo).
+ */
+function hoodWidthIn(hood: Appliance | undefined): number | null {
+  if (!hood) return null;
+  if (hood.installType.includes("insert")) return SLOT_BY_ID["slot-hood"].cutout.w;
+  return hood.widthIn ?? hood.cutoutWidthIn;
 }
 
 /**

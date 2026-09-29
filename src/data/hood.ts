@@ -303,6 +303,51 @@ export function hoodTopFt(
   return slot.position[1] + hoodBodyHeightFt(slot, appliance);
 }
 
+/** Below half an inch a gap beside a machine is a scribe, not a panel (as `Filler` draws). */
+const SIDE_FILLER_MIN_IN = 0.5;
+
+/**
+ * The filler each side of a wall hood narrower than its slot. Round 79, Leo.
+ *
+ * **Leo's site practice:** a strip in the plane of the wall cabinets beside it —
+ * 12" deep, its back on the wall — running from the hood's underside up to the
+ * floor of the cabinet over it. Not a copy of a base cabinet's filler, which
+ * is what was drawn from 2026-09-06 to round 79: 24" deep and centred in the
+ * run, so a 30" AK7300AS in package A's 36" slot hung with two blocks standing
+ * a foot proud of the cabinets either side of it.
+ *
+ * In the slot's own frame, feet: `x` is each strip's centre either side of the
+ * middle, `y` and `z` its centre up from the hood's underside and out from the
+ * run's centre line. Null for a hood over an island, for an insert liner in its
+ * housing, and wherever the gap each side is under half an inch.
+ */
+export function hoodSideFillers(
+  slot: Slot,
+  appliance: Appliance | undefined,
+): { widthFt: number; heightFt: number; depthFt: number; x: number; y: number; z: number } | null {
+  if (slot.mount === "island" || !appliance) return null;
+  // An insert liner hangs in the opening of a housing the cabinetmaker builds
+  // (packages B and D): what is either side of it is the housing, not a gap to
+  // fill. Round 79, Leo — until then two blocks showed under B's and D's
+  // housings, the base-cabinet fillers poking through.
+  if (appliance.installType.includes("insert")) return null;
+  const modelIn = appliance.widthIn ?? appliance.cutoutWidthIn ?? slot.cutout.w;
+  const eachSideIn = (slot.cutout.w - modelIn) / 2;
+  if (eachSideIn < SIDE_FILLER_MIN_IN) return null;
+  // From the underside to the cabinet floor, which stands on the hood's top.
+  const heightFt = hoodTopFt(slot, appliance) - slot.position[1];
+  const depthFt = ROOM.upperDepth;
+  return {
+    widthFt: ft(eachSideIn),
+    heightFt,
+    depthFt,
+    x: ft(modelIn) / 2 + ft(eachSideIn) / 2,
+    y: heightFt / 2,
+    // The wall is the back of the run, half the counter depth behind its centre.
+    z: -ROOM.counterDepth / 2 + depthFt / 2,
+  };
+}
+
 /** True when this model hangs its own duct cover rather than living under a box. */
 export const isChimney = (appliance: Appliance | undefined) =>
   !!appliance?.installType.some((type) => type === "chimney" || type === "wall-mount");

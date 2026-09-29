@@ -148,3 +148,25 @@ export function requiredOpening(appliance: Appliance): {
     d: required(appliance.cutoutDepthIn, appliance.depthIn),
   };
 }
+
+/**
+ * Two widths closer than this read as one in the appliance list, in inches.
+ * A display figure with no outside source (Leo, round 79): 35-15/16" in a 36"
+ * opening is the same size to anybody reading a list, and a threshold of a
+ * sixteenth would sit exactly on that case.
+ */
+export const SAME_WIDTH_WITHIN_IN = 0.5;
+
+/**
+ * The width the appliance list prints for a slot: the machine's own, and the
+ * opening beside it only where the two differ. Round 79, Leo — the list used
+ * to print the opening alone, so a 30" hood in a 36" slot read as 36".
+ */
+export function listWidth(
+  appliance: Appliance | undefined,
+  slot: Slot,
+): { modelIn: number; openingIn: number | null } {
+  const modelIn = appliance ? (appliance.widthIn ?? appliance.cutoutWidthIn ?? slot.cutout.w) : slot.cutout.w;
+  const differs = Math.abs(modelIn - slot.cutout.w) > SAME_WIDTH_WITHIN_IN;
+  return { modelIn, openingIn: differs ? slot.cutout.w : null };
+}
