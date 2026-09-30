@@ -38,6 +38,16 @@ what it shows, on their own:
    front. Moving the camera to dodge an obstruction only trades it for a worse
    angle; the obstruction is what has to move.
 
+   *Amended 2026-09-30 (round 81): a rebuilt room is faded from its first
+   frame.* A rebuild — a new hood, a wall slider's step, the island turned —
+   mounts the fade afresh with the room, and the new cabinets start solid. It
+   used to wait for its fourth frame, and on the room's first frame the world
+   matrices are not yet worked out, so every cabinet that had been faded was
+   drawn solid for three renders (Open items, round 80). Now the first frame
+   of a new room brings the positions up to date once (`firstPass` in
+   `OcclusionFade.tsx`) and works the fade out at once; every later frame is
+   every fourth, as before. `tests/fadeRebuild.test.ts` holds it.
+
 **Forbidden:** switching render mode, toggling day/night, toggling a layer, or
 changing language must leave the camera pose bit-identical.
 
@@ -4199,8 +4209,57 @@ Registered, not scheduled. None of these is a round of its own.
   in the not-yet-reviewed tier (D21), which is the true state; whether a hood's
   generic point should sit in the cabinet above, as PH36HWS's entry puts it, is
   Leo's call.
-- **Changing the hood while the fade is on draws the faded cabinets solid for
-  three frames.** *(Leo: 第 78 轮在聊天里提出过，没有写进仓库 — raised in
+- ~~**Changing the hood while the fade is on draws the faded cabinets solid for
+  three frames.**~~ **Fixed in round 81** (D1, round 81), by F1 as Leo chose:
+  the new room's first frame works the fade out at once, after bringing the
+  positions up to date — once per rebuild, never on every frame.
+  - **The test first** (`tests/fadeRebuild.test.ts`, the round-80 probe
+    turned into a test: a hook from outside the app records, after every
+    render, which cabinet boxes were drawn faded, and counts every
+    `scene.updateMatrixWorld()` made outside a render). Three paths — changing
+    the hood, dragging the back wall slider, turning the island — each on a
+    desktop with the mouse, a phone with touch, and a phone slowed four times:
+    nine cases. **On the code before the fix all nine were red**, each for the
+    flash: three solid renders per rebuilt room (the slider's drag rebuilds
+    twice, so six). With the fix all nine are green: no solid render, the
+    positions updated exactly once per rebuild (1, 2, 1), and none in a quiet
+    second afterwards.
+  - ⚠️ **The first slider case was red for the wrong reason.** Dragged 40px on
+    the desktop, the wall moved five steps, the faded cabinets left the sight
+    line, and the last room had nothing faded to check — red only because the
+    positions were never updated. It now drags a step and a half, and was
+    confirmed red for the flash before the fix went in. The result says how
+    many rooms and boxes were checked, so a case that checks nothing cannot
+    pass (D22).
+  - **"Once per rebuild" was broken on purpose** — the update made on every
+    working-out of the fade — and the test went red: 51 updates in the run, 15
+    in the quiet second.
+  - **The whole suite**: `npm test` exit code 0, from its own file; 83 files,
+    2,344 tests (2,306 unit, 29 smoke, 9 new).
+  - **A–E pixel diff, D17's third way** (the code before the fix built
+    locally, `index-D1Q4Co5o.js`, the live page's; the fix,
+    `index-B4nnZS2T.js`; the same server and real input; `?quality=high`):
+    per package, the overview, the install view, the hood flown to, the camera
+    turned by hand until cabinets fade, and the island turned on the desktop;
+    the overview and the hood flown to on a phone. Every shot without a camera
+    drag is **0 pixels** between the two builds. The turned shots differ by as
+    much between two runs of one build as between the two builds — package A
+    shot twice more on each: 229 and 401 pixels within a build, 12 to 399
+    between builds — and E's two largest (121,152 and 56,201) are identical to
+    the pixel between two runs of the old build. So the settled pictures do
+    not change; what the fix changes is the three frames after a rebuild,
+    which the test holds.
+  - **Two things met while measuring, for whoever diffs next** (not changed):
+    the first set shot after a build differed from every later one in A's
+    desktop shots, by a whole-frame wash (152,251 pixels in the overview,
+    most by under 9 levels) that a second run of the same build did not have
+    — shoot a build twice and compare the later runs; and a shot taken after a
+    mouse drag varies from run to run, by a few hundred pixels to over 100,000
+    in E, with the camera where the drag and its damping leave it.
+  - **Also inferred, not measured**: in install mode the appliances step back
+    in the same frame, so the three frames in which a rebuilt room's machines
+    were drawn at their own opacity there should be gone too.
+  What follows is the entry as it stood: *(Leo: 第 78 轮在聊天里提出过，没有写进仓库 — raised in
   conversation in round 78 as a check to make, and never written into the
   repository. Measured in round 80, screenshots only; no code changed.)* The
   state: the hood selected and flown to, the camera turned by the customer
@@ -4241,6 +4300,28 @@ Registered, not scheduled. None of these is a round of its own.
     that predicts. By the same reading any rebuild while cabinets are faded
     should do the same — a wall slider, an island switch — but only the hood
     swap was measured.
+  - **Proved in round 81, and it was two causes, not one.** Three temporary
+    builds, none committed, each run through the same probe (package A,
+    desktop, mouse, PH36HWS to AK7300AS; the probe first shown to catch one
+    frame forced solid, and nothing else):
+
+    | Temporary change | New-room renders drawn solid |
+    |---|---|
+    | none (round 80, seven runs) | **3** |
+    | the fade worked out on every frame (`CADENCE` 1) | **1** — the first, seen in the pixels too |
+    | every frame, and `scene.updateMatrixWorld()` before the rays are cast | **0**, in two runs |
+
+    - **The second and third frames are the cadence**: the new fade waits for
+      its fourth frame, as read from the code.
+    - **The first frame is the room's positions.** On the new room's first
+      frame its objects' world matrices have not been worked out yet — three.js
+      does that inside the render, which comes after the fade — so the rays
+      meet nothing there and nothing can be faded, whatever the cadence. This
+      one the reading of the code did not predict.
+    - So the fix needs both: work the fade out on the new room's first frame,
+      and bring the positions up to date before it does. Either alone leaves a
+      solid frame or two. The experiment was reverted and the build was checked
+      back to the pushed one (`index-D1Q4Co5o.js`, the live page's).
   - **Why it matters now.** The interface round puts the models in the middle
     of the screen once a machine is selected, so a hood will be changed more
     often in exactly this state (Leo, round 80).
@@ -4276,7 +4357,7 @@ Registered, not scheduled. None of these is a round of its own.
        with no price; the prices taken off the list rail as well, per D12;
        models that do not fit folded into one line; the right panel as four
        tabs). **Round 81**: the fade flash (the entry above) — the experiment
-       first, then its fix, with all three paths tested. **Round 82**: the
+       first, then its fix, with all three paths tested. *Done in round 81.* **Round 82**: the
        model card, the truncation rule's test and one shared component for the
        model line. **Round 83**: the right panel's tabs, and the `Slider`
        warning. What each decides is written here when that round is built.

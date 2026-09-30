@@ -16,7 +16,10 @@ const FADED_OPACITY = 0.2;
 const BACKOFF = 60;
 /** Stop short of the appliance itself so its own enclosure is not caught. */
 const EPSILON = 0.35;
-/** Frames between recalculations. The camera moves; cabinets do not. */
+/**
+ * Frames between recalculations. The camera moves; cabinets do not. A new
+ * room's first frame is worked out at once (`firstPass`, round 81).
+ */
 const CADENCE = 4;
 /** Sample offsets across the appliance's own face, as a fraction of it. */
 const GRID = [-0.6, 0, 0.6];
@@ -178,6 +181,22 @@ export function OcclusionFade() {
   const pinAt = useMemo(() => new THREE.Vector3(), []);
   const faded = useRef(new Map<string, Saved>());
   const frame = useRef(0);
+  /**
+   * Whether this room's fade has been worked out yet.
+   *
+   * Round 81: a rebuild mounts this afresh under the room's key, and the new
+   * cabinets start solid. Waiting for the fourth frame drew them solid for
+   * three renders — a flash of every faded cabinet each time the hood was
+   * changed, a wall slider stepped or the island turned. So the first frame
+   * works the fade out at once. And on that frame the new room's world
+   * matrices are still unset — three.js works them out inside the render,
+   * which comes after this — so the rays would meet nothing; the positions are
+   * brought up to date first, on that one frame and never after, since every
+   * later render has already done it. Proved by experiment before the fix:
+   * every frame alone left one solid render, every frame with the positions
+   * updated left none (docs/decisions.md, Open items).
+   */
+  const firstPass = useRef(true);
   /** Under ?debug=1, what is currently being faded and why. */
   const report = (names: string[]) => {
     if (DEBUG) (window as unknown as { __faded?: string[] }).__faded = names;
@@ -204,7 +223,9 @@ export function OcclusionFade() {
 
   useFrame(() => {
     frame.current += 1;
-    if (frame.current % CADENCE !== 0) return;
+    const first = firstPass.current;
+    if (!first && frame.current % CADENCE !== 0) return;
+    firstPass.current = false;
 
     applyInstallFade(renderMode === "install");
 
@@ -219,6 +240,7 @@ export function OcclusionFade() {
         (group): group is THREE.Object3D => !!group && group.visible,
       );
     if (layers.length === 0) return;
+    if (first) scene.updateMatrixWorld();
 
     const slot = SLOT_BY_ID[selectedSlot];
     // Orthographic: every sight line runs along the camera's forward axis.
