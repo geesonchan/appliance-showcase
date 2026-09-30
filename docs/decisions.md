@@ -2035,6 +2035,16 @@ nor the second way zeroes it. (`git stash`, build, shoot, `git stash pop`,
 build again — and check the rebuilt hash, so the new build is what is left
 served.)
 
+**The first set shot after a build is not the one to compare.** *(Leo, round
+82, from round 81.)* In round 81 the first set of shots taken after building
+the old code differed from every later set of the same build — package A's
+five desktop shots, by a wash over the whole frame (152,251 pixels in the
+overview, most by under 9 levels) — and a second run of the same build did
+not have it. So: **shoot each build twice and compare the later runs**; if the
+first and second run of one build differ, that difference is the machine's,
+and the first run is set aside. It is the second way (shoot the same build
+twice) done by default rather than only when a diff comes back strange.
+
 ⚠️ **A difference inside the room is not waved away with an account of what it
 is made of.** "Those are HTML labels, not geometry" is an explanation, and the
 lesson of round 61 is that explanations outlive the bugs under them. Zero it
@@ -4249,16 +4259,20 @@ Registered, not scheduled. None of these is a round of its own.
     the pixel between two runs of the old build. So the settled pictures do
     not change; what the fix changes is the three frames after a rebuild,
     which the test holds.
-  - **Two things met while measuring, for whoever diffs next** (not changed):
-    the first set shot after a build differed from every later one in A's
-    desktop shots, by a whole-frame wash (152,251 pixels in the overview,
-    most by under 9 levels) that a second run of the same build did not have
-    — shoot a build twice and compare the later runs; and a shot taken after a
-    mouse drag varies from run to run, by a few hundred pixels to over 100,000
-    in E, with the camera where the drag and its damping leave it.
-  - **Also inferred, not measured**: in install mode the appliances step back
-    in the same frame, so the three frames in which a rebuilt room's machines
-    were drawn at their own opacity there should be gone too.
+  - **Two things met while measuring, for whoever diffs next**: the first set
+    shot after a build is not the one to compare — now D17's method, "The
+    first set shot after a build is not the one to compare" (round 82); and a
+    shot taken after a mouse drag varies from run to run, by a few hundred
+    pixels to over 100,000 in E, with the camera where the drag and its
+    damping leave it — the entry below registers what would let those be
+    compared exactly.
+  - **Install mode, inferred in round 81 and measured in round 82.** There the
+    cabinets are ghosted at 0.06, under the fade's 0.2, so they cannot flash;
+    the machines can — drawn at install mode's 0.22 until the fade steps them
+    back to 0.12. Six cases in `tests/fadeRebuild.test.ts` (the three paths,
+    desktop and phone) were **red on round 80's code** — three renders above
+    0.12 per rebuilt room, six for the slider's two — and are green now. The
+    file has fifteen cases.
   What follows is the entry as it stood: *(Leo: 第 78 轮在聊天里提出过，没有写进仓库 — raised in
   conversation in round 78 as a check to make, and never written into the
   repository. Measured in round 80, screenshots only; no code changed.)* The
@@ -4341,6 +4355,14 @@ Registered, not scheduled. None of these is a round of its own.
     vertical edges of the oven tower; nothing else changes after it. Not in A,
     C, D or E. Cause not looked into. *(Leo, round 80: recorded; not looked
     into this round.)*
+- **A fixed camera for screenshot diffs.** *(Leo, round 82: registered, not
+  built.)* A URL parameter used only for comparing screenshots, of the same
+  kind as `?quality=high` (D17), that sets the camera pose exactly — so a shot
+  taken with the camera turned can be compared to the pixel between two
+  builds, where today a real mouse drag leaves the camera wherever its timing
+  and damping put it (round 81: a few hundred pixels to over 100,000 between
+  two runs of one build). It must not be a way for a person to move the camera
+  (D1): only a screenshot asks for it, like `?quality=`.
 - **Registered rounds after 78, in Leo's order.** *(Leo, rounds 78-79; not
   started. Round 79 put the interface round first and moved the rest back.)*
   0. **An interface round, plan first, with phone and desktop sketches.**

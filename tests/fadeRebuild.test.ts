@@ -22,14 +22,16 @@ import { PREVIEW_URL } from "./globalSetup";
  * Three paths that rebuild the room (Leo, round 80): changing the hood,
  * dragging a wall slider, turning the island. Each on a desktop with the
  * mouse, on a phone with touch, and on a phone with the CPU slowed four times.
- * Real input throughout (D17: a click from script is not a click).
+ * Real input throughout (D17: a click from script is not a click). And the
+ * same three in install mode, desktop and phone (round 82), where what can
+ * flash is the machines rather than the cabinets.
  */
 
 const DESKTOP = { width: 1440, height: 900 };
 const PHONE = { width: 390, height: 844 };
 
 /** Same guard as the smoke suite: a run that tested nothing fails. */
-const EXPECTED_TESTS = 9;
+const EXPECTED_TESTS = 15;
 let testsRun = 0;
 const filtered = process.argv.some((arg) => arg === "-t" || arg.startsWith("--testNamePattern"));
 beforeEach(() => {
@@ -56,11 +58,13 @@ afterAll(async () => {
 interface Render {
   layer: string;
   faded: string[];
+  /** The most opaque see-through machine surface drawn, or -1 for none. */
+  machines: number;
 }
 
 /** Installed before the page's own scripts run. */
 function installHook() {
-  const trace = { renders: [] as { layer: string; faded: string[] }[], worldUpdates: 0, on: false };
+  const trace = { renders: [] as { layer: string; faded: string[]; machines: number }[], worldUpdates: 0, on: false };
   (window as unknown as { __rebuildTrace: typeof trace }).__rebuildTrace = trace;
   let inRender = false;
   const hook = new EventTarget();
@@ -93,6 +97,24 @@ function installHook() {
     return [...state].filter(([, faded]) => faded).map(([id]) => id);
   };
 
+  /**
+   * Install mode draws the machines see-through (0.22) and the fade steps them
+   * back further (0.12, round 42). The most opaque of them, per render.
+   */
+  const machineOpacity = (layer: Obj | undefined) => {
+    let most = -1;
+    const walk = (node: Obj) => {
+      if (!node.visible) return;
+      if (node.isMesh && node.material && !Array.isArray(node.material)) {
+        const m = node.material as { transparent: boolean; opacity: number };
+        if (m.transparent) most = Math.max(most, m.opacity);
+      }
+      for (const child of node.children) walk(child);
+    };
+    if (layer) walk(layer);
+    return most;
+  };
+
   hook.addEventListener("observe", (event) => {
     const detail = (event as CustomEvent).detail as {
       isWebGLRenderer?: boolean;
@@ -117,7 +139,13 @@ function installHook() {
           inRender = false;
         }
         const layer = scene.getObjectByName?.("cabinet-layer");
-        if (trace.on && layer) trace.renders.push({ layer: layer.uuid, faded: fadedBoxes(layer) });
+        if (trace.on && layer) {
+          trace.renders.push({
+            layer: layer.uuid,
+            faded: fadedBoxes(layer),
+            machines: machineOpacity(scene.getObjectByName?.("appliance-layer")),
+          });
+        }
       };
     }
   });
@@ -281,6 +309,33 @@ function flashes(renders: Render[]) {
   return { rebuilds: rebuilt.length, checked, fadedBoxesChecked, solidRenders };
 }
 
+/**
+ * The same per room, for the machines in install mode: a room's settled
+ * opacity is its last render's, and any earlier render drawing a machine more
+ * opaque than that is a flash.
+ */
+function machineFlashes(renders: Render[]) {
+  const rooms: Render[][] = [];
+  for (const render of renders) {
+    const last = rooms[rooms.length - 1];
+    if (last && last[0].layer === render.layer) last.push(render);
+    else rooms.push([render]);
+  }
+  const rebuilt = rooms.slice(1);
+  let checked = 0;
+  let above = 0;
+  const settled: number[] = [];
+  for (const room of rebuilt) {
+    if (room.length < 8) continue;
+    const end = room[room.length - 1].machines;
+    if (end < 0) continue;
+    checked += 1;
+    settled.push(end);
+    for (const render of room) if (render.machines > end + 1e-6) above += 1;
+  }
+  return { rebuilds: rebuilt.length, checked, settled, rendersAboveSettled: above };
+}
+
 /** Changing the hood from the list (desktop) or the sheet (phone). */
 async function swapHood(s: Session) {
   await fadedWithHood(s, "list");
@@ -329,6 +384,100 @@ const DEVICES = [
   ["on a phone with touch", true, 1],
   ["on a phone with touch, the CPU slowed four times", true, 4],
 ] as const;
+
+/**
+ * Install mode, then the hood selected by its label (its pins stay clickable
+ * there) and the list or the sheet opened as the path needs. No camera turn:
+ * the machines step back whatever is on the sight line.
+ */
+async function inInstall(s: Session, panel: "list" | "config") {
+  await press(s, s.page.getByRole("button", { name: "Install", exact: true }).first());
+  await s.page.waitForTimeout(1500);
+  await press(s, s.page.locator('[data-pin-label="slot-hood"]').first());
+  await s.page.waitForTimeout(2500);
+  if (s.phone) {
+    await press(s, s.page.getByRole("button", { name: panel === "list" ? "Appliances" : "Configure", exact: true }).first());
+  } else if (panel === "list") {
+    await press(s, s.page.getByRole("button", { name: "Appliances", exact: true }).first());
+  }
+  await s.page.waitForTimeout(1500);
+}
+
+const INSTALL_PATHS = [
+  [
+    "changing the hood",
+    async (s: Session) => {
+      await inInstall(s, "list");
+      return () => press(s, s.page.getByRole("button", { name: /AK7300AS/ }).filter({ visible: true }).first());
+    },
+  ],
+  [
+    "dragging the back wall slider",
+    async (s: Session) => {
+      await inInstall(s, "config");
+      const slider = s.page.locator("label", { hasText: "Back wall" }).first().locator('input[type="range"]');
+      await slider.scrollIntoViewIfNeeded();
+      return async () => {
+        const box = (await slider.boundingBox())!;
+        const { value, min, max, step } = await slider.evaluate((el: HTMLInputElement) => ({
+          value: Number(el.value),
+          min: Number(el.min),
+          max: Number(el.max),
+          step: Number(el.step) || 1,
+        }));
+        const x0 = box.x + ((value - min) / (max - min)) * box.width;
+        await drag(s, x0, box.y + box.height / 2, (1.5 * step * box.width) / (max - min));
+      };
+    },
+  ],
+  [
+    "turning the island",
+    async (s: Session) => {
+      await inInstall(s, "config");
+      const across = s.page.getByRole("button", { name: "Across the room", exact: true }).filter({ visible: true }).first();
+      await across.scrollIntoViewIfNeeded();
+      return () => press(s, across);
+    },
+  ],
+] as const;
+
+/**
+ * Round 82, Leo: the same in install mode. There the cabinets are ghosted at
+ * 0.06, already under the fade's 0.2, so the fade cannot make one visibly
+ * fainter and a cabinet has nothing to flash; what can flash is the machines,
+ * drawn at 0.22 until the fade steps them back to 0.12.
+ */
+describe("a room rebuilt in install mode", () => {
+  for (const [path, setUp] of INSTALL_PATHS) {
+    for (const [device, phone] of [
+      ["on a desktop with the mouse", false],
+      ["on a phone with touch", true],
+    ] as const) {
+      it(`draws no machine more solid than install mode leaves it, ${path}, ${device}`, async () => {
+        const s = await open(phone);
+        const action = await setUp(s);
+        const trace = await rebuild(s, 1, action);
+        const result = machineFlashes(trace.renders);
+        // eslint-disable-next-line no-console
+        console.log(`install, ${path}, ${device}:`, JSON.stringify(result));
+        expect({
+          rebuilt: result.rebuilds > 0,
+          roomsChecked: result.checked > 0,
+          settledAtTheFade: result.settled.every((opacity) => Math.abs(opacity - 0.12) < 1e-6),
+          rendersAboveSettled: result.rendersAboveSettled,
+          errors: s.errors,
+        }).toEqual({
+          rebuilt: true,
+          roomsChecked: true,
+          settledAtTheFade: true,
+          rendersAboveSettled: 0,
+          errors: [],
+        });
+        await s.page.context().close();
+      });
+    }
+  }
+});
 
 describe("a room rebuilt while cabinets are faded", () => {
   for (const [path, setUp] of PATHS) {
