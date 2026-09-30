@@ -1321,6 +1321,73 @@ summary called the slot's opening "Rough opening", the label the spec card
 uses for what the model needs; it says "Slot opening" now, as the quote page
 already did.
 
+**Amended 2026-09-30 (round 82), Leo: a selected machine shows its models in
+the middle of the scene.** From Leo's use of round 78 on a desktop — "如果客户
+不熟悉hood型号，会不知道可以有这些操作" — changing a machine took selecting it,
+opening the list rail that starts closed, and finding it there. The plan, its
+sketches and Leo's decisions are `docs/plans/round-80-interface-plan.md`
+(section 9); this is what round 82 built.
+- **The model card** (`ModelCard.tsx`), bottom centre of the scene, replaces
+  the small "View specs" card at the lower right, so there is one card on
+  screen, not two. The selected model, its width, View specs and a close; then
+  every model the opening takes, each with its width, brand · model and what
+  it needs to go in (filler, taller, deeper); a tap changes it. Every machine,
+  not only the hood.
+- **Its list is the list's.** `candidatesFor` (`src/data/candidates.ts`) is the
+  alternatives list's own `offeredFor` plus the per-row `fitCheck`, moved
+  unchanged, and both read it; a pick goes through the same store action. So
+  it is not a third answer to "can this model go in this slot" (D17's table,
+  first row, still the two). `candidates.test.ts` holds it to the old
+  computation in every package, and was red with every model forced to fit.
+- **What does not fit is folded** into one line, "N more don't fit this
+  opening" / "另有 N 款放不下", opened to list each with its reason. **The one
+  reason is width**: `fitCheck` refuses on width alone; how a model hangs keeps
+  it off the list altogether (round 45), and height and depth are mentioned,
+  never refused.
+- **Only one model**: "This is the only model shown for this opening" / "此开口
+  只展示这一款" (Leo) — also the alternatives list's line for it, which said
+  "No alternatives in the catalogue yet".
+- **No price on the card, and none in the list rail either** (Leo): the
+  alternatives and the blowers there showed a price each, which this entry
+  never allowed on the main screen. Prices stay on the spec card and the quote
+  page.
+- **A hood narrower than the cooking surface** shows the checklist's own line
+  on the card, `hood-narrower-than-cooking` read as it is (D13, round 79), not
+  judged again.
+- **Brand · model is one component**, `ModelLine`, in the appliance list, the
+  alternatives, the blowers and the card, so the round-79 rule is written once:
+  the model is never cut, the brand gives way first, the opening drops to its
+  own line. The alternatives had printed brand and model on two lines, with the
+  model the part that could be cut; now it cannot. `tests/modelLine.test.ts`
+  holds every copy on screen to the rule in both languages. At the rail's own
+  260px no row cuts its brand today, and the card's model chips are wide enough
+  that none does there either, so the test also narrows the rail (in the test
+  only) until 126 brands give way; with the model's `shrink-0` taken out on
+  purpose, it went red on every row.
+- **On a phone the card hides while the sheet is open** and comes back when it
+  closes; **on a desktop it stays with the list rail open** (Leo): the card is
+  the way in, the rail the detail.
+- **A toast goes to the top of the scene while the card is up** (Leo approved
+  it from the screenshots). Found by `tests/modelCard.test.ts`: the room-grew
+  message, up twenty seconds with its Undo, covered the card's last row when a
+  machine was picked just after a package switch.
+- **Its words are Leo's, locked in `reviewed.json`**: the four `card.*` lines,
+  `swap.noneOther`, and `swap.tooNarrow`'s Chinese. **挡板** is what the shop and
+  the installers call the filler board (Leo's site term), in place of the
+  machine translation's 填条; the other two Chinese lines that name that board
+  say 挡板 too — `rule.fillerNeeded` (was 填条) and `rule.fridgeDoorClearance`
+  (was "整高 filler") — changed for the term, their sentences not yet read
+  whole. 收口条 (the window's scribe), 封板 (the ceiling closing) and 侧板 (end
+  panels) are other parts and were left. 其它 became 其他 wherever it was (one
+  line, `swap.noneOther`).
+- **D1: the card moves no camera** — the pins stand where they were when it
+  closes, held by a test.
+- `tests/modelCard.test.ts`, sixteen cases: the card and the list offer the
+  same models, refused the same way, for every machine in every package, on a
+  desktop by mouse and on a phone by touch; a pick from the card is a pick from
+  the list; the narrow-hood line is the checklist's; one model, nothing folded;
+  the pins do not move; no pin label on the card; no toast on the card.
+
 ---
 
 ## D13 · The dimensions a kitchen is actually built to
@@ -2035,15 +2102,19 @@ nor the second way zeroes it. (`git stash`, build, shoot, `git stash pop`,
 build again — and check the rebuilt hash, so the new build is what is left
 served.)
 
-**The first set shot after a build is not the one to compare.** *(Leo, round
-82, from round 81.)* In round 81 the first set of shots taken after building
-the old code differed from every later set of the same build — package A's
-five desktop shots, by a wash over the whole frame (152,251 pixels in the
-overview, most by under 9 levels) — and a second run of the same build did
-not have it. So: **shoot each build twice and compare the later runs**; if the
-first and second run of one build differ, that difference is the machine's,
-and the first run is set aside. It is the second way (shoot the same build
-twice) done by default rather than only when a diff comes back strange.
+**Shoot each build twice; the two runs have to agree.** *(Leo, round 82,
+from rounds 81 and 82.)* A run of shots can come out different from another
+run of the same build by a wash over the whole frame — most pixels a few
+levels, none of it the change — and nothing says in advance which run it will
+be. Round 81: the **first** set after building the old code (package A's five
+desktop shots, 152,251 pixels in the overview, most under 9 levels); round 82:
+the old code's **second** set (the list rail open, every package, 108,104 to
+151,149 pixels; the phone overviews too), while its first set matched the new
+build to the pixel. So: **shoot each build twice, and the two must agree; if
+they do not, shoot a third time and take the two that agree.** A comparison is
+between runs that agree with their own build. It is the second way (shoot the
+same build twice) done by default rather than only when a diff comes back
+strange.
 
 ⚠️ **A difference inside the room is not waved away with an account of what it
 is made of.** "Those are HTML labels, not geometry" is an explanation, and the
@@ -4028,6 +4099,11 @@ Registered, not scheduled. None of these is a round of its own.
     toolbar is HTML laid over the canvas. If any is in the room, stop and
     report.
   - Round 69's red whose cause was lost (above) was very likely this test.
+  - **Round 82: red again, and done as written.** 63 pixels, at most 2
+    levels, every one on the edges of the bottom toolbar and its compass
+    button. Both shots now hide the toolbar and the hint line over it before
+    they are taken (`[data-pin-keep-out]`), so the room under them is compared
+    too. The whole suite was green with it.
 - ~~**Package B's neighbouring-cabinet points are drawn outside the cabinet.**~~
   **Fixed in round 71**: only a real cabinet counts as one, and where neither
   side has one the point goes where the model's `whenNoCabinet` says — B's
@@ -4259,9 +4335,10 @@ Registered, not scheduled. None of these is a round of its own.
     the pixel between two runs of the old build. So the settled pictures do
     not change; what the fix changes is the three frames after a rebuild,
     which the test holds.
-  - **Two things met while measuring, for whoever diffs next**: the first set
-    shot after a build is not the one to compare — now D17's method, "The
-    first set shot after a build is not the one to compare" (round 82); and a
+  - **Two things met while measuring, for whoever diffs next**: one run of a
+    build's shots can differ from another run of the same build — now D17's
+    method, "Shoot each build twice; the two runs have to agree" (round 82;
+    round 82 found it can be the second run, not only the first); and a
     shot taken after a mouse drag varies from run to run, by a few hundred
     pixels to over 100,000 in E, with the camera where the drag and its
     damping leave it — the entry below registers what would let those be
@@ -4355,6 +4432,19 @@ Registered, not scheduled. None of these is a round of its own.
     vertical edges of the oven tower; nothing else changes after it. Not in A,
     C, D or E. Cause not looked into. *(Leo, round 80: recorded; not looked
     into this round.)*
+- **After a package switch the camera stays where it was, and the new
+  package's labels can be faded out of reach.** *(Found round 82; Leo: record,
+  D1 is not changed; to be considered in the interface work.)* Flown in close
+  to a machine and then switched to another package, the camera stays put —
+  the pose is the user's (D1) — and from there most of the new package's pin
+  labels are faded (behind the room) and take no click; package E's cooktop
+  label, from A's microwave, could not be picked. A customer switching
+  packages in front of the salesperson meets it too. Reset view brings them
+  back.
+- **On a phone in Chinese, the "MT" chip sits over the "E" package button.**
+  *(Found round 82, on the live site as well; Leo: fix with round 83.)* The top
+  bar at 390px: the machine-translation chip is drawn over the last package
+  button.
 - **A fixed camera for screenshot diffs.** *(Leo, round 82: registered, not
   built.)* A URL parameter used only for comparing screenshots, of the same
   kind as `?quality=high` (D17), that sets the camera pose exactly — so a shot
@@ -4381,8 +4471,9 @@ Registered, not scheduled. None of these is a round of its own.
        tabs). **Round 81**: the fade flash (the entry above) — the experiment
        first, then its fix, with all three paths tested. *Done in round 81.* **Round 82**: the
        model card, the truncation rule's test and one shared component for the
-       model line. **Round 83**: the right panel's tabs, and the `Slider`
-       warning. What each decides is written here when that round is built.
+       model line. *Done in round 82* (D12, round 82). **Round 83**: the right
+       panel's tabs, the `Slider` warning, and the "MT" chip over "E" on a
+       Chinese phone. What each decides is written here when that round is built.
   1. **A hood's own outlet first.** The duct drawn and quoted follows the
      model's own outlet where its sheet gives one, rather than only the
      airflow band (the two data points above).

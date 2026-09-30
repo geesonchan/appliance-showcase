@@ -12,7 +12,7 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **round 81** (`docs/decisions.md` is the record of
+Covers the repository up to **round 82** (`docs/decisions.md` is the record of
 rounds; `git log` is the record of commits). It replaces the v1–v9 briefs that
 were pasted into chat.
 
@@ -58,7 +58,7 @@ every figure of it, is `data/packages.json`; D16 and D20 say how a package is
 put together and why E was built the way it was. **Do not copy those numbers
 anywhere**: the file is the one source, and the tests read it.
 
-### Where it stands (round 81)
+### Where it stands (round 82)
 
 - **All five packages are live.** Rounds 73–79 each shipped, and each was
   checked against the live page's asset hashes after its workflow finished.
@@ -80,7 +80,7 @@ anywhere**: the file is the one source, and the tests read it.
   `docs/plans/round-80-interface-plan.md` — a plan, not a decision record;
   Leo's decisions are its section 9. The interface work is three rounds, in
   Leo's order, in the Open items: 81 the fade flash (**done**, D1 round 81),
-  82 the model card, 83 the right panel's tabs; then a hood's own outlet,
+  82 the model card (**done**, D12 round 82), 83 the right panel's tabs; then a hood's own outlet,
   then 79a (the doors of the cabinet over the hood and the outlet shown in
   it), then 79b. The 30" option in A is paused.
 
@@ -100,6 +100,7 @@ anywhere**: the file is the one source, and the tests read it.
 | `src/i18n/` | `en.json`, `zh.json`, `reviewed.json` (copy Leo has approved, locked to his words), `index.ts` (`translate`, `sayWith`). |
 | `tests/smoke.test.ts` | The browser suite: a real build in a real browser. |
 | `tests/fadeRebuild.test.ts` | A rebuilt room draws no faded cabinet solid, frame by frame (D1, round 81). |
+| `tests/modelCard.test.ts`, `tests/modelLine.test.ts` | The model card against the list, and brand · model's layout rule (D12, round 82). |
 | `scripts/screenshots.mjs` | Screenshot sets by round. |
 
 Commands: `npm run dev`, `npm run build`, `npm run test:unit` (unit only,

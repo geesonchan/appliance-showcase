@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { SLOT_BY_ID } from "../data/slots";
-import { useSelectedAppliance } from "../store/useSelection";
 import { sayWith } from "../i18n";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
@@ -125,39 +123,6 @@ export function BottomBar() {
 }
 
 /**
- * The "View specs" affordance that appears at the lower right once the camera
- * has flown to an appliance, mirroring the reference product's "enter room".
- */
-export function SelectionCallout() {
-  const t = useT();
-  const selectedSlot = useAppStore((s) => s.selectedSlot);
-  const openSpec = useAppStore((s) => s.openSpec);
-  const appliance = useSelectedAppliance(selectedSlot ?? "slot-range");
-  if (!selectedSlot) return null;
-
-  const slot = SLOT_BY_ID[selectedSlot];
-
-  return (
-    <div className="pointer-events-auto absolute bottom-32 right-4 z-20 w-56 rounded-md border border-line bg-surface p-4 md:bottom-24">
-      <p className="tracking-label text-[9px] text-ink-muted">{t(slot.labelKey)}</p>
-      {appliance && (
-        <p className="mt-1 text-[13px] leading-snug text-ink">
-          {appliance.brand} {appliance.model}
-        </p>
-      )}
-      <button
-        type="button"
-        onClick={() => openSpec(selectedSlot)}
-        className="mt-3 flex w-full items-center justify-between text-[12px] font-medium text-accent transition-opacity hover:opacity-80"
-      >
-        {t("scene.enter")}
-        <span aria-hidden="true">→</span>
-      </button>
-    </div>
-  );
-}
-
-/**
  * Transient message shown on a render-mode switch, as in the reference.
  *
  * Also how the room says it grew to take a change (round 34), with an Undo that
@@ -169,6 +134,9 @@ export function Toast() {
   const toast = useAppStore((s) => s.toast);
   const dismissToast = useAppStore((s) => s.dismissToast);
   const undo = useAppStore((s) => s.undo);
+  const selectedSlot = useAppStore((s) => s.selectedSlot);
+  const sheetOpen = useAppStore((s) => s.mobilePanel !== "none");
+  const wide = typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
   const [visible, setVisible] = useState(false);
   const timers = useRef<number[]>([]);
 
@@ -190,6 +158,13 @@ export function Toast() {
 
   if (!toast) return null;
 
+  // Round 82: the model card sits where this did, bottom centre, and a toast
+  // raised just before a machine is picked — "the room is now …", up for
+  // twenty seconds with its Undo — covered the card's last row. While the card
+  // is up (a machine selected, and on a phone no sheet over it) the toast
+  // goes to the top of the scene, under the mode switch.
+  const cardUp = selectedSlot !== null && (!sheetOpen || wide);
+
   // A value named `...Key` is a message key of its own: the wall, the reason.
   const say = (key: string, vars?: Record<string, string | number>) => sayWith(t, key, vars);
   const message = toast.lines
@@ -202,7 +177,8 @@ export function Toast() {
       data-toast={toast.key}
       className={[
         toast.undo ? "pointer-events-auto" : "pointer-events-none",
-        "absolute bottom-28 left-1/2 z-20 flex w-max max-w-[min(92vw,560px)] -translate-x-1/2 items-center gap-3",
+        cardUp ? "top-16" : "bottom-28",
+        "absolute left-1/2 z-20 flex w-max max-w-[min(92vw,560px)] -translate-x-1/2 items-center gap-3",
         "rounded-2xl border border-line bg-ink px-4 py-2 text-[11px] leading-snug text-[#F7F5EF]",
         "transition-opacity duration-300",
         visible ? "opacity-100" : "opacity-0",

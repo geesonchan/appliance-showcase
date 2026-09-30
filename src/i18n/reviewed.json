@@ -280,6 +280,31 @@
       "text": "{hood}\" hood over a {cooking}\" cooking surface. A hood is normally at least as wide as the cooking surface under it — please confirm before ordering.",
       "approval": "written",
       "reviewed": "Leo's wording, round 79: he edited CC's draft and fixed this text, dropping \"with the customer\" because the line can appear on a quote a customer sees. Raised when the hood is more than 1\" narrower than the cooking surface under it; source Leo's site practice, \"一般 Hood 宽度是大于等于炉头的宽度的\" (decisions.md D13, round 79)."
+    },
+    "card.models": {
+      "text": "Models for this opening · {count}",
+      "approval": "read",
+      "reviewed": "Proposed in round 82 and approved by Leo unchanged (the model card; decisions.md D12)"
+    },
+    "card.moreRefused": {
+      "text": "{count} more don't fit this opening ›",
+      "approval": "written",
+      "reviewed": "Leo's own wording, round 82 (the model card; decisions.md D12)"
+    },
+    "card.hideRefused": {
+      "text": "Hide",
+      "approval": "read",
+      "reviewed": "Proposed in round 82 and approved by Leo unchanged (the model card; decisions.md D12)"
+    },
+    "card.details": {
+      "text": "Details in the list ›",
+      "approval": "read",
+      "reviewed": "Proposed in round 82 and approved by Leo unchanged (the model card; decisions.md D12)"
+    },
+    "swap.noneOther": {
+      "text": "This is the only model shown for this opening",
+      "approval": "written",
+      "reviewed": "Leo's own wording, round 82 (the model card; decisions.md D12)"
     }
   },
   "zh": {
@@ -562,6 +587,36 @@
       "text": "油烟机宽 {hood}\"，灶具宽 {cooking}\"。油烟机宽度一般应大于或等于灶具宽度，下单前请确认。",
       "approval": "written",
       "reviewed": "Leo's wording, round 79: he edited CC's draft and fixed this text, dropping \"with the customer\" because the line can appear on a quote a customer sees. Raised when the hood is more than 1\" narrower than the cooking surface under it; source Leo's site practice, \"一般 Hood 宽度是大于等于炉头的宽度的\" (decisions.md D13, round 79)."
+    },
+    "card.models": {
+      "text": "此开口可选型号 · {count}",
+      "approval": "written",
+      "reviewed": "Leo's own wording, round 82 (the model card; decisions.md D12)"
+    },
+    "card.moreRefused": {
+      "text": "另有 {count} 款放不下 ›",
+      "approval": "read",
+      "reviewed": "Proposed in round 82 and approved by Leo unchanged (the model card; decisions.md D12)"
+    },
+    "card.hideRefused": {
+      "text": "收起",
+      "approval": "read",
+      "reviewed": "Proposed in round 82 and approved by Leo unchanged (the model card; decisions.md D12)"
+    },
+    "card.details": {
+      "text": "在列表中查看详情 ›",
+      "approval": "written",
+      "reviewed": "Leo's own wording, round 82 (the model card; decisions.md D12)"
+    },
+    "swap.noneOther": {
+      "text": "此开口只展示这一款",
+      "approval": "written",
+      "reviewed": "Leo's own wording, round 82 (the model card; decisions.md D12)"
+    },
+    "swap.tooNarrow": {
+      "text": "每侧需 {delta} 挡板",
+      "approval": "written",
+      "reviewed": "Leo, round 82: 挡板 is what the shop and the installers call this board — his site term, in place of the machine translation's 填条 (decisions.md D12)"
     }
   }
 }

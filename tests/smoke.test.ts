@@ -301,10 +301,10 @@ describe("desktop", () => {
     await page.getByRole("button", { name: /^02 Range/ }).first().click();
     await page.waitForTimeout(1200);
     const boxBefore = await rangeBox();
-    const specBefore = await page
-      .getByRole("button", { name: "View specs" })
-      .locator("xpath=..")
-      .innerText();
+    // The model card names the machine selected (round 82; it was the small
+    // "View specs" card before).
+    const current = () => page.locator("[data-model-card] [data-model-line]").first().innerText();
+    const specBefore = await current();
 
     // Whatever the catalogue holds today, pick a candidate that is not the one
     // already specified. Keying this to a SKU would break on the next import.
@@ -313,9 +313,7 @@ describe("desktop", () => {
     await others.first().click();
     await page.waitForTimeout(1200);
 
-    expect(
-      await page.getByRole("button", { name: "View specs" }).locator("xpath=..").innerText(),
-    ).not.toBe(specBefore);
+    expect(await current()).not.toBe(specBefore);
     // A narrower range is drawn narrower: the model reads its own dimensions.
     const boxAfter = await rangeBox();
     expect(boxAfter!.w).not.toBe(boxBefore!.w);
@@ -523,14 +521,10 @@ describe("quote sheet", () => {
       await alternative.click();
       await page.waitForTimeout(900);
     }
-    // The callout names the appliance the camera flew to: "RANGE / Brand Model".
-    const callout = await page
-      .getByRole("button", { name: "View specs" })
-      .locator("xpath=..")
-      .innerText();
-    // "RANGE" / "Thermador PRG366WH" / "View specs" / "→"
-    const lines = callout.split("\n").map((line) => line.trim()).filter(Boolean);
-    const model = (lines[1] ?? "").split(" ").pop() ?? "";
+    // The model card names the appliance the camera flew to, "Brand · Model"
+    // (round 82; the small "View specs" card before it said "Brand Model").
+    const named = await page.locator("[data-model-card] [data-model-line]").first().innerText();
+    const model = named.replace(/\s+/g, " ").trim().split(" ").pop() ?? "";
 
     // The quote lives behind one entry in the top bar now, not in the room.
     expect(await page.getByRole("button", { name: "Request quote" }).count()).toBe(0);
@@ -996,6 +990,14 @@ describe("switching to a package with more machines", () => {
       if (how === "script") await switchFromScript(page, "package-d");
       else await page.locator(`[data-segment="package"] button[data-value="package-d"]`).click();
       await page.waitForTimeout(24000);
+      // Round 82: red again, 63 pixels up to 2 levels, every one on the edges
+      // of the bottom toolbar and its compass button — the translucent, blurred
+      // HTML bar over the canvas, as in round 70. As the Open item decided
+      // (Leo, round 70), the toolbar and the hint line over it are taken out of
+      // the picture: hidden in both shots, so the room under them is compared
+      // too. The test holds the room; they are not the room.
+      await page.addStyleTag({ content: "[data-pin-keep-out] { visibility: hidden !important; }" });
+      await page.waitForTimeout(500);
       const png = await page.screenshot({ clip: { x: 0, y: 60, width: 1440, height: 840 } });
       await page.context().close();
       return png.toString("base64");

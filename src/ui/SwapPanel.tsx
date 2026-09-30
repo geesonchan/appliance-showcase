@@ -1,10 +1,10 @@
-import { blowerListUnverified, blowersFor, offeredFor } from "../data/catalogue";
-import { slotsOf } from "../data/packages";
+import { blowerListUnverified, blowersFor } from "../data/catalogue";
+import { candidatesFor } from "../data/candidates";
 import { slotAvailability } from "../data/availability";
-import { fitCheck, formatInches, requiredOpening } from "../data/fit";
-import { formatPrice } from "../data/packageSummary";
+import { formatInches, requiredOpening, type FitResult } from "../data/fit";
 import { SLOT_BY_ID } from "../data/slots";
 import { DebugBadge } from "./DebugBadge";
+import { ModelLine } from "./ModelLine";
 import { SCHEME_FALLBACKS } from "../data/catalogue";
 import { formatCfm } from "../data/ventilation";
 import { useT } from "../i18n/useT";
@@ -23,9 +23,10 @@ export function SwapPanel({ slotId }: { slotId: SlotId }) {
   const t = useT();
   const slot = SLOT_BY_ID[slotId];
   // Only what hangs the way this package's slot hangs; width still refuses in
-  // the row rather than hiding it. Round 45.
+  // the row rather than hiding it. Round 45. The same list the model card
+  // shows, from the same function (round 82).
   const { entry } = useActivePackage();
-  const candidates = offeredFor(slotId, slotsOf(entry)[slotId]);
+  const candidates = candidatesFor(slotId, entry);
   const selectedId = useAppStore((s) => s.selection[slotId]);
   const selectAppliance = useAppStore((s) => s.selectAppliance);
   const selectSlot = useAppStore((s) => s.selectSlot);
@@ -84,11 +85,11 @@ export function SwapPanel({ slotId }: { slotId: SlotId }) {
       </div>
 
       <ul className={"pb-6 " + (unavailable ? "pointer-events-none opacity-40" : "")}>
-        {candidates.map((appliance) => (
+        {candidates.map(({ appliance, fit }) => (
           <CandidateRow
             key={appliance.id}
             appliance={appliance}
-            slotId={slotId}
+            fit={fit}
             selected={appliance.id === selectedId}
             disabled={unavailable}
             onSelect={() => selectAppliance(slotId, appliance.id)}
@@ -221,6 +222,7 @@ function BlowerSection() {
                 type="button"
                 onClick={() => selectBlower(option.id)}
                 aria-pressed={selected}
+                data-blower={option.id}
                 className={[
                   "flex w-full items-start gap-3 border-l-2 px-5 py-3 text-left transition-colors",
                   selected
@@ -230,7 +232,11 @@ function BlowerSection() {
               >
                 <span className="min-w-0 flex-1">
                   <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <span className="text-[13px] text-ink">{option.brand}</span>
+                    <ModelLine
+                      className="min-w-0 text-[13px] text-ink"
+                      brand={option.brand}
+                      model={option.model}
+                    />
                     {selected && (
                       <span className="rounded-full bg-accent px-1.5 py-px text-[9px] font-medium text-[#F7F5EF]">
                         {t("swap.selected")}
@@ -239,14 +245,11 @@ function BlowerSection() {
                     {option.verifiedAt === null && <DebugBadge labelKey="debug.unverified" />}
                   </span>
                   <span className="mt-0.5 block truncate text-[11px] text-ink-muted">
-                    {option.model} · {option.installType.join(", ")}
+                    {option.installType.join(", ")}
                     {option.requires.cfm !== null
                       ? ` · ${t("blower.cfm", { cfm: formatCfm(option.requires.cfm) })}`
                       : ""}
                   </span>
-                </span>
-                <span className="shrink-0 text-[11px] tabular-nums text-ink-muted">
-                  {formatPrice(option.msrpUSD, t("price.onRequest"))}
                 </span>
               </button>
             </li>
@@ -259,21 +262,18 @@ function BlowerSection() {
 
 function CandidateRow({
   appliance,
-  slotId,
+  fit,
   selected,
   disabled = false,
   onSelect,
 }: {
   appliance: Appliance;
-  slotId: SlotId;
+  fit: FitResult;
   selected: boolean;
   disabled?: boolean;
   onSelect: () => void;
 }) {
   const t = useT();
-  const fit = fitCheck(SLOT_BY_ID[slotId], appliance);
-  const tooDeep = fit.depthOverIn !== null && fit.depthOverIn > 0.05;
-  const tooTall = fit.heightOverIn !== null && fit.heightOverIn > 0.05;
   const blocked = disabled || !fit.fits;
 
   return (
@@ -283,6 +283,8 @@ function CandidateRow({
         disabled={blocked}
         onClick={onSelect}
         aria-pressed={selected}
+        data-candidate={appliance.id}
+        data-fits={fit.fits}
         className={[
           "flex w-full items-start gap-3 border-l-2 px-5 py-3 text-left transition-colors",
           blocked
@@ -293,8 +295,14 @@ function CandidateRow({
         ].join(" ")}
       >
         <span className="min-w-0 flex-1">
+          {/* Brand · model on one line, the model never cut (D12, round 79;
+              the one layout of it since round 82). No price: D12, round 82. */}
           <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span className="text-[13px] text-ink">{appliance.brand}</span>
+            <ModelLine
+              className="min-w-0 text-[13px] text-ink"
+              brand={appliance.brand}
+              model={appliance.model}
+            />
             {selected && (
               <span className="rounded-full bg-accent px-1.5 py-px text-[9px] font-medium text-[#F7F5EF]">
                 {t("swap.selected")}
@@ -302,36 +310,47 @@ function CandidateRow({
             )}
             {appliance.verifiedAt === null && <DebugBadge labelKey="debug.unverified" />}
           </span>
-          <span className="mt-0.5 block truncate text-[11px] text-ink-muted">
-            {appliance.model}
-          </span>
 
-          {!fit.fits && (
-            <span className="mt-1 block text-[11px] font-medium text-ink">
-              {t("swap.tooWide", { delta: formatInches(fit.widthOverIn) })}
-            </span>
-          )}
-          {fit.fits && fit.fillerEachSideIn !== null && fit.fillerEachSideIn > 0.05 && (
-            <span className="mt-1 block text-[11px] text-ink-muted">
-              {t("swap.tooNarrow", { delta: formatInches(fit.fillerEachSideIn) })}
-            </span>
-          )}
-          {fit.fits && tooTall && (
-            <span className="mt-1 block text-[11px] text-ink-muted">
-              {t("swap.tallNote", { delta: formatInches(fit.heightOverIn!) })}
-            </span>
-          )}
-          {fit.fits && tooDeep && (
-            <span className="mt-1 block text-[11px] text-ink-muted">
-              {t("swap.deepNote", { delta: formatInches(fit.depthOverIn!) })}
-            </span>
-          )}
-        </span>
-
-        <span className="shrink-0 text-[11px] tabular-nums text-ink-muted">
-          {formatPrice(appliance.msrpUSD, t("price.onRequest"))}
+          <FitNotes fit={fit} />
         </span>
       </button>
     </li>
+  );
+}
+
+/**
+ * What a model needs to go in this opening, in the row's words: too wide by
+ * so much, or the filler each side, or taller or deeper than the opening.
+ *
+ * One component since round 82, read by the alternatives list and the model
+ * card, so the two cannot word the same fit differently.
+ */
+export function FitNotes({ fit }: { fit: FitResult }) {
+  const t = useT();
+  const tooDeep = fit.depthOverIn !== null && fit.depthOverIn > 0.05;
+  const tooTall = fit.heightOverIn !== null && fit.heightOverIn > 0.05;
+  return (
+    <>
+      {!fit.fits && (
+        <span className="mt-1 block text-[11px] font-medium text-ink">
+          {t("swap.tooWide", { delta: formatInches(fit.widthOverIn) })}
+        </span>
+      )}
+      {fit.fits && fit.fillerEachSideIn !== null && fit.fillerEachSideIn > 0.05 && (
+        <span className="mt-1 block text-[11px] text-ink-muted">
+          {t("swap.tooNarrow", { delta: formatInches(fit.fillerEachSideIn) })}
+        </span>
+      )}
+      {fit.fits && tooTall && (
+        <span className="mt-1 block text-[11px] text-ink-muted">
+          {t("swap.tallNote", { delta: formatInches(fit.heightOverIn!) })}
+        </span>
+      )}
+      {fit.fits && tooDeep && (
+        <span className="mt-1 block text-[11px] text-ink-muted">
+          {t("swap.deepNote", { delta: formatInches(fit.depthOverIn!) })}
+        </span>
+      )}
+    </>
   );
 }

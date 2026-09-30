@@ -7,6 +7,7 @@ import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
 import { useSelection } from "../store/useSelection";
 import { DebugBadge } from "./DebugBadge";
+import { ModelLine } from "./ModelLine";
 import { SwapPanel } from "./SwapPanel";
 
 /** A length in feet as 16′10″, or 14′ when it is whole. */
@@ -121,21 +122,16 @@ export function LeftPanel() {
                     </span>
                   </span>
                   {appliance && (
-                    <span
-                      className="mt-0.5 flex flex-wrap items-baseline gap-x-1 text-[11px] leading-[1.3] text-ink-muted"
-                      title={`${appliance.brand} ${appliance.model}`}
-                    >
-                      <span className="flex min-w-0 max-w-full items-baseline gap-x-1">
-                        <span className="min-w-0 truncate">{appliance.brand}</span>
-                        <span className="shrink-0">·</span>
-                        <span className="shrink-0 whitespace-nowrap">{appliance.model}</span>
-                      </span>
-                      {width.openingIn !== null && (
-                        <span className="whitespace-nowrap tabular-nums">
-                          · {t("list.openingOf", { opening: formatDimension(width.openingIn) })}
-                        </span>
-                      )}
-                    </span>
+                    <ModelLine
+                      className="mt-0.5 text-[11px] text-ink-muted"
+                      brand={appliance.brand}
+                      model={appliance.model}
+                      opening={
+                        width.openingIn !== null
+                          ? t("list.openingOf", { opening: formatDimension(width.openingIn) })
+                          : null
+                      }
+                    />
                   )}
                 </span>
                 <span

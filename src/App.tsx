@@ -9,7 +9,8 @@ import { ModuleLabels } from "./ui/ModuleLabels";
 import { PinOverlay } from "./ui/PinOverlay";
 import { QuotePage } from "./ui/QuotePage";
 import { RightPanel } from "./ui/RightPanel";
-import { BottomBar, ModeSwitch, SelectionCallout, Toast } from "./ui/SceneControls";
+import { BottomBar, ModeSwitch, Toast } from "./ui/SceneControls";
+import { ModelCard } from "./ui/ModelCard";
 import { SpecCard } from "./ui/SpecCard";
 import { RailToggle } from "./ui/RailToggle";
 import { TopBar } from "./ui/TopBar";
@@ -100,7 +101,7 @@ export default function App() {
           <LayoutIssues />
           <ModuleLabels key={`modules-${layoutVersion}`} />
           <ModeSwitch />
-          <SelectionCallout />
+          <ModelCard />
           <BottomBar />
           <Toast />
           <MobileSheet />
