@@ -12,7 +12,7 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **round 79** (`docs/decisions.md` is the record of
+Covers the repository up to **round 80** (`docs/decisions.md` is the record of
 rounds; `git log` is the record of commits). It replaces the v1–v9 briefs that
 were pasted into chat.
 
@@ -58,7 +58,7 @@ every figure of it, is `data/packages.json`; D16 and D20 say how a package is
 put together and why E was built the way it was. **Do not copy those numbers
 anywhere**: the file is the one source, and the tests read it.
 
-### Where it stands (round 79)
+### Where it stands (round 80)
 
 - **All five packages are live.** Rounds 73–79 each shipped, and each was
   checked against the live page's asset hashes after its workflow finished.
@@ -75,11 +75,14 @@ anywhere**: the file is the one source, and the tests read it.
   cooking surface (D12, D13). New
   work comes from what Leo and his colleagues meet in use, collected and sent a
   few at a time. **Do not start new features on your own initiative.**
-- **Nothing is in progress.** The tree is clean at the last round's commit.
-  Four rounds are registered, in Leo's order, in the Open items: an interface
-  round (how a machine is changed, and the settings panel) with a plan first,
-  then a hood's own outlet, then 79a (the doors of the cabinet over the hood
-  and the outlet shown in it), then 79b. The 30" option in A is paused.
+- **Round 80 planned the interface round and built nothing.** It measured
+  the hood-swap fade flash (Open items) and wrote the plan,
+  `docs/plans/round-80-interface-plan.md` — a plan, not a decision record;
+  Leo's decisions are its section 9. The interface work is three rounds, in
+  Leo's order, in the Open items: 81 the fade flash, 82 the model card, 83 the
+  right panel's tabs; then a hood's own outlet, then 79a (the doors of the
+  cabinet over the hood and the outlet shown in it), then 79b. The 30" option
+  in A is paused.
 
 ---
 

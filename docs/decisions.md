@@ -3700,7 +3700,9 @@ Registered, not scheduled. None of these is a round of its own.
   every rerender. It came in on 2026-09-06 (`db0c9a8`, the feasible band under a
   wall slider), well before rounds 40-45, so it was not touched. The fix is to
   set `backgroundImage` instead of `background`. *(Noted 2026-09-14, round 45,
-  Leo.)*
+  Leo.)* *(Leo, round 80: fix it along the way when the interface round is
+  built, since regrouping the settings panel touches the sliders; not in the
+  plan stage.)*
 - **Is a freestanding refrigerator in package A's slot drawn right?** The list
   offers one (D20, round 46), and D11 rule 11 was written for package C, where
   the refrigerator stands at the end of a run with nothing built round it. A's
@@ -4197,6 +4199,67 @@ Registered, not scheduled. None of these is a round of its own.
   in the not-yet-reviewed tier (D21), which is the true state; whether a hood's
   generic point should sit in the cabinet above, as PH36HWS's entry puts it, is
   Leo's call.
+- **Changing the hood while the fade is on draws the faded cabinets solid for
+  three frames.** *(Leo: 第 78 轮在聊天里提出过，没有写进仓库 — raised in
+  conversation in round 78 as a check to make, and never written into the
+  repository. Measured in round 80, screenshots only; no code changed.)* The
+  state: the hood selected and flown to, the camera turned by the customer
+  until cabinets stand on the sight line and fade (D1; at the hood's own
+  fly-in angle nothing is faded in any package), then another hood picked from
+  the list.
+  - **Yes, it flashes.** The new room's first **three** renders draw every
+    cabinet that had been faded at full opacity, and the fourth fades them
+    again. Then they stay faded — the same boxes as before, but for one of
+    seven in E, where the sight line is worked out again on the new room; nothing is left
+    stuck either way, and the old room is never drawn solid on its way out.
+    Screenshots: `docs/open-items/round-80-hood-swap-fade-desktop-A.png`
+    (before, the solid frame, after) and
+    `docs/open-items/round-80-hood-swap-fade-phone-A-cpu4.png`.
+  - **Where it was seen.** Every package that has a hood to change to, and E,
+    whose one hood rebuilds the room when it is picked again (round 78): A
+    (PH36HWS to AK7300AS), B and D (VCIN36GWS to PH36HWS), C (HMCB30WS to
+    AK7300AS; PH36HWS is refused on width in C's list, and a refused row
+    rebuilds nothing and does not flash), E (HMIB42WS again) — three solid
+    renders in all five. Desktop 1440 x 900 with the mouse, and A on a phone
+    (390 x 844) with touch, at normal speed and with the CPU slowed four
+    times. From the first solid render to the first faded one: 64-159 ms on
+    the desktop across the seven runs (the capture itself slows the frames),
+    85 ms on the phone, 139 ms on the phone slowed four times — after the
+    rebuild's own stall. Real input throughout (D17); `?quality=high`.
+  - **How it was measured, and the detector checked first (D17).** A probe
+    outside the app hooked three.js's own devtools announcement, logged the
+    opacity of the faded boxes on every render, and copied the canvas right
+    after each render. Its first pixel detector, reading the canvas on a
+    separate animation frame, read black and found nothing — including a
+    frame forced solid on purpose. Moved to read right after the render, it
+    found exactly the one forced frame, and then the three.
+  - **Why, read from the code and not proved by changing it.** `OcclusionFade`
+    is mounted under the room's key (`Scene.tsx`), so a rebuild gives it new
+    cabinet materials, which start solid, and a fresh frame counter; it
+    recalculates every fourth frame (`CADENCE` in `OcclusionFade.tsx`). Three
+    solid renders every time, in every package and at every CPU speed, is what
+    that predicts. By the same reading any rebuild while cabinets are faded
+    should do the same — a wall slider, an island switch — but only the hood
+    swap was measured.
+  - **Why it matters now.** The interface round puts the models in the middle
+    of the screen once a machine is selected, so a hood will be changed more
+    often in exactly this state (Leo, round 80).
+  - **How it is to be fixed** *(Leo, round 80)*:
+    - **The cause is proved before the fix.** It is read from the code, so a
+      minimal experiment comes first — the fade worked out on every frame,
+      temporarily, to see whether the solid frames go — and only then the real
+      fix. The ways to fix it and what each costs are in
+      `docs/plans/round-80-interface-plan.md`, section 7.
+    - **Every path that rebuilds the room is covered**, and in the round that
+      fixes it each one is tested: changing the hood, dragging a wall slider,
+      turning the island.
+    - **The fix ships before the models are put in the middle of the screen,
+      or in the same round** — never the guidance first and the fix after.
+  - **An aside, seen and not explained.** In B, about two seconds after the
+    swap, one frame changes 402 pixels by more than 32 levels along the
+    vertical edges of the oven tower; nothing else changes after it. Not in A,
+    C, D or E. Cause not looked into. *(Leo, round 80: recorded; not looked
+    into this round.)*
 - **Registered rounds after 78, in Leo's order.** *(Leo, rounds 78-79; not
   started. Round 79 put the interface round first and moved the rest back.)*
   0. **An interface round, plan first, with phone and desktop sketches.**
@@ -4207,6 +4270,16 @@ Registered, not scheduled. None of these is a round of its own.
        Once a machine is selected, the middle of the screen should lead to its
        models.
      - **The settings panel on the right is too long** and wants regrouping.
+     - *Planned in round 80 and split into three rounds by Leo* — the plan,
+       with the sketches, is `docs/plans/round-80-interface-plan.md`; Leo's
+       decisions are its section 9 (a model card in the middle of the scene,
+       with no price; the prices taken off the list rail as well, per D12;
+       models that do not fit folded into one line; the right panel as four
+       tabs). **Round 81**: the fade flash (the entry above) — the experiment
+       first, then its fix, with all three paths tested. **Round 82**: the
+       model card, the truncation rule's test and one shared component for the
+       model line. **Round 83**: the right panel's tabs, and the `Slider`
+       warning. What each decides is written here when that round is built.
   1. **A hood's own outlet first.** The duct drawn and quoted follows the
      model's own outlet where its sheet gives one, rather than only the
      airflow band (the two data points above).
