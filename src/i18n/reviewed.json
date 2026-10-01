@@ -305,6 +305,16 @@
       "text": "This is the only model shown for this opening",
       "approval": "written",
       "reviewed": "Leo's own wording, round 82 (the model card; decisions.md D12)"
+    },
+    "rule.fillerNeeded": {
+      "text": "Needs {filler}\" of filler each side",
+      "approval": "read",
+      "reviewed": "Leo read it in round 82 and approved it unchanged (decisions.md D12, round 82)"
+    },
+    "rule.fridgeDoorClearance": {
+      "text": "A full-height {gapIn}\" filler between the refrigerator and the wall, so its door opens 90°. Optional door stop (part no. {doorStop}).",
+      "approval": "written",
+      "reviewed": "Leo's own wording, round 82: the door stop given as a part number (decisions.md D12, round 82)"
     }
   },
   "zh": {
@@ -617,6 +627,16 @@
       "text": "每侧需 {delta} 挡板",
       "approval": "written",
       "reviewed": "Leo, round 82: 挡板 is what the shop and the installers call this board — his site term, in place of the machine translation's 填条 (decisions.md D12)"
+    },
+    "rule.fillerNeeded": {
+      "text": "两侧各需 {filler}\" 挡板",
+      "approval": "written",
+      "reviewed": "Leo's own wording, round 82: 挡板, his site term (decisions.md D12, round 82)"
+    },
+    "rule.fridgeDoorClearance": {
+      "text": "冰箱与墙之间需 {gapIn}\" 整高挡板，冰箱门才能开到 90°。门挡（配件号 {doorStop}）为选配。",
+      "approval": "written",
+      "reviewed": "Leo's own wording, round 82, replacing a line that mixed English into Chinese; 整高, not 从地面到顶: the board is as tall as the refrigerator's cabinet, not to the ceiling (decisions.md D12, round 82)"
     }
   }
 }

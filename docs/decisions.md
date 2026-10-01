@@ -1376,8 +1376,13 @@ sketches and Leo's decisions are `docs/plans/round-80-interface-plan.md`
   the installers call the filler board (Leo's site term), in place of the
   machine translation's 填条; the other two Chinese lines that name that board
   say 挡板 too — `rule.fillerNeeded` (was 填条) and `rule.fridgeDoorClearance`
-  (was "整高 filler") — changed for the term, their sentences not yet read
-  whole. 收口条 (the window's scribe), 封板 (the ceiling closing) and 侧板 (end
+  (was "整高 filler") — and Leo then read both whole, in both languages, and
+  locked them: "两侧各需 {filler}" 挡板"; and the refrigerator line rewritten in
+  Chinese, which had mixed English into it, with its door stop given as a part
+  number in both languages. **整高, not "from the floor to the top"** (Leo): the
+  board is as tall as the refrigerator's cabinet, not up to the ceiling. The
+  drawing's own note there, "door swing / 开门空隙", names the gap, not the
+  board, and stays. 收口条 (the window's scribe), 封板 (the ceiling closing) and 侧板 (end
   panels) are other parts and were left. 其它 became 其他 wherever it was (one
   line, `swap.noneOther`).
 - **D1: the card moves no camera** — the pins stand where they were when it

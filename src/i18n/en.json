@@ -246,7 +246,7 @@
   "roughIn.at.center.down": "{y} below the top",
   "rule.chimneyTooLow": "Only {riseIn}\" from the canopy to the ceiling; the chimney is {sectionIn}\" collapsed and will not shorten",
   "rule.chimneyExtension": "Chimney extension {model} — the duct cover reaches {riseIn}\" here, {overIn}\" past what it covers on its own",
-  "rule.fridgeDoorClearance": "A full-height {gapIn}\" filler between the refrigerator and the wall, so its door opens 90°. Optional door stop {doorStop}.",
+  "rule.fridgeDoorClearance": "A full-height {gapIn}\" filler between the refrigerator and the wall, so its door opens 90°. Optional door stop (part no. {doorStop}).",
   "rule.noIslandFallback": "No island: the microwave drawer is in the base beside the range on the {microwaveLeg} leg, and the wine cabinet finishes the {wineLeg} leg",
   "rule.noIslandOmitted": "No island: wine cooler and microwave drawer omitted; add an island or lengthen the left wall to include them.",
   "rule.ventOutside": "Ducted to the outside only — this liner cannot be recirculated",
