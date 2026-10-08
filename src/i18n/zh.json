@@ -255,6 +255,8 @@
   "rule.columnDoorPanel": "不锈钢门板：{handleless}（无把手）或 {handleReady}（预留把手）",
   "rule.ovenDoorSwing": "下烤箱门全开时向前伸 {reachIn}″，前方需留净空",
   "rule.rangetopClearance": "炉面到上方不防火柜体 36″，加防火衬板可 30″；两侧到可燃墙 ≥5″，后方 6″，装 10″ 低背板可 0″",
+  "rule.antiTip": "防倾支架：灶推入到位前，先固定在灶后方的地面或墙上；推入后，灶的后脚要卡进支架。",
+  "rule.rangetopCornerSupports": "柜内在 Rangetop 开孔的角部下方加 2\" × 4\" 木方支撑，承托灶的重量（142 磅）。",
   "toast.roomGrew": "{package} 需要更长的柜列：房间已调整为后墙 {backIn}″、左墙 {leftIn}″。",
   "toast.wallGrew": "{wall}已从 {fromIn} 加长到 {toIn}，以容纳{reason}。",
   "toast.wall.back": "后墙",

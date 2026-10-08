@@ -343,6 +343,36 @@
       ],
       "params": {},
       "scope": "slot"
+    },
+    {
+      "id": "range-anti-tip",
+      "severity": "info",
+      "messageKey": "rule.antiTip",
+      "when": [
+        {
+          "fact": "machine.standsOnTheFloor",
+          "op": "eq",
+          "value": true
+        }
+      ],
+      "params": {},
+      "scope": "slot",
+      "basis": "Leo's site practice, round 83: every range that stands on the floor, freestanding or slide-in, gets an anti-tip bracket. PRG366WH's installation manual is to come into docs/reference/ and give the bracket's own position."
+    },
+    {
+      "id": "rangetop-corner-supports",
+      "severity": "info",
+      "messageKey": "rule.rangetopCornerSupports",
+      "when": [
+        {
+          "fact": "appliance.installType",
+          "op": "includes",
+          "value": "rangetop"
+        }
+      ],
+      "params": {},
+      "scope": "slot",
+      "basis": "PCG366W's sheet, docs/reference/pcg366w-spec.pdf p. 3: a 2\"x4\" (51 x 102 mm) corner support in the cabinet under the rangetop's cutout. The sheet gives the rangetop's weight as 142 lb (p. 1)."
     }
   ],
   "thresholds": {

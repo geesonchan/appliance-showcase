@@ -5,7 +5,8 @@ import {
   migrateSelection,
 } from "../data/catalogue";
 import { DEFAULT_PACKAGE, PACKAGE_BY_ID } from "../data/packages";
-import { setActivePackage, setHoodModel, setLayoutParams, setLayoutParamsGrowing } from "../data/layoutState";
+import { setActivePackage, setHoodModel, setLayoutParams, setLayoutParamsGrowing, setRangeModel } from "../data/layoutState";
+import { recordRangeModel } from "../data/cookingSurface";
 import { inchesSpoken } from "../data/inches";
 import type { LayoutParams, Refusal } from "../data/layoutTemplate";
 import { LAYOUT_ISSUES, REQUESTED_PARAMS } from "../data/room";
@@ -433,6 +434,22 @@ export const useAppStore = create<AppState>((set, get) => ({
   // the fly-in happens in the half of the screen the sheet does not cover.
   selectSlot: (selectedSlot) => set({ selectedSlot }),
   selectAppliance: (slot, applianceId) => {
+    if (slot === "slot-range") {
+      // A rangetop stands on a base cabinet and a range on the floor (round
+      // 83): changing one for the other changes what the run orders under it,
+      // so the room is generated again where it stands. A range for a range
+      // changes nothing in the run.
+      const result = setRangeModel(APPLIANCE_BY_ID[applianceId], get().packageId);
+      if (!result.ok) {
+        set({ layoutIssues: result.reasons });
+        return;
+      }
+      set((s) => ({
+        selection: { ...s.selection, [slot]: applianceId },
+        layoutVersion: result.rebuilt ? s.layoutVersion + 1 : s.layoutVersion,
+      }));
+      return;
+    }
     if (slot !== "slot-hood") {
       set((s) => ({ selection: { ...s.selection, [slot]: applianceId } }));
       return;
@@ -472,6 +489,10 @@ export const useAppStore = create<AppState>((set, get) => ({
       const selection = migrateSelection(entry, s.selection, PACKAGE_BY_ID[s.packageId]);
       const hood = APPLIANCE_BY_ID[selection["slot-hood"]];
       setHoodModel(hood);
+      // The range carried across installs the way the new slot does, so the
+      // run already stands right under it; recorded so the package's next
+      // rebuild reads the range on screen (round 83).
+      if (selection["slot-range"]) setRangeModel(APPLIANCE_BY_ID[selection["slot-range"]], packageId);
       return {
         packageId,
         selection,
@@ -544,6 +565,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     // then and builds now.
     if (back.packageId !== get().packageId) setActivePackage(back.packageId);
     setHoodModel(APPLIANCE_BY_ID[back.selection["slot-hood"]]);
+    recordRangeModel(back.packageId, APPLIANCE_BY_ID[back.selection["slot-range"]]);
     const result = setLayoutParams(back.layoutParams);
     set((s) => ({
       packageId: back.packageId,

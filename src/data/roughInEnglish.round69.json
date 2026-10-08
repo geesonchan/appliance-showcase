@@ -1083,5 +1083,97 @@
       "now": "power — in the cabinet to the right, 3\" from the left side, 12\" up",
       "why": "The wine cooler under E's coffee machine is new in round 73: its socket is in the cabinet beside the tower (Leo, round 73); 3\" in and 12\" up are inferred."
     }
+  },
+  "changedInRound83": {
+    "package-b | as-it-opens | rough-in:slot-range:gas:0": {
+      "was": "gas — rear wall of the opening, 11\" from the left side, 2\" up",
+      "now": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "why": "Round 83, Leo: the supply for PCG366W's gas goes low on the back wall of the drawer base under the rangetop (his site practice), a box of its own (location cabinet-below). Until round 83 the point was in-cutout, the rangetop's own 8\" body, so it was drawn and worded at the counter; the machine's inlet, 11\" from the left and 2\" from the back on its underside (sheet p. 4), is recorded apart."
+    },
+    "package-b | back/left/left/parallel | rough-in:slot-range:gas:0": {
+      "was": "gas — rear wall of the opening, 11\" from the left side, 2\" up",
+      "now": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "why": "Round 83, Leo: the supply for PCG366W's gas goes low on the back wall of the drawer base under the rangetop (his site practice), a box of its own (location cabinet-below). Until round 83 the point was in-cutout, the rangetop's own 8\" body, so it was drawn and worded at the counter; the machine's inlet, 11\" from the left and 2\" from the back on its underside (sheet p. 4), is recorded apart."
+    },
+    "package-b | back/left/left/perpendicular | rough-in:slot-range:gas:0": {
+      "was": "gas — rear wall of the opening, 11\" from the left side, 2\" up",
+      "now": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "why": "Round 83, Leo: the supply for PCG366W's gas goes low on the back wall of the drawer base under the rangetop (his site practice), a box of its own (location cabinet-below). Until round 83 the point was in-cutout, the rangetop's own 8\" body, so it was drawn and worded at the counter; the machine's inlet, 11\" from the left and 2\" from the back on its underside (sheet p. 4), is recorded apart."
+    },
+    "package-b | back/left/back/parallel | rough-in:slot-range:gas:0": {
+      "was": "gas — rear wall of the opening, 11\" from the left side, 2\" up",
+      "now": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "why": "Round 83, Leo: the supply for PCG366W's gas goes low on the back wall of the drawer base under the rangetop (his site practice), a box of its own (location cabinet-below). Until round 83 the point was in-cutout, the rangetop's own 8\" body, so it was drawn and worded at the counter; the machine's inlet, 11\" from the left and 2\" from the back on its underside (sheet p. 4), is recorded apart."
+    },
+    "package-b | back/left/back/perpendicular | rough-in:slot-range:gas:0": {
+      "was": "gas — rear wall of the opening, 11\" from the left side, 2\" up",
+      "now": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "why": "Round 83, Leo: the supply for PCG366W's gas goes low on the back wall of the drawer base under the rangetop (his site practice), a box of its own (location cabinet-below). Until round 83 the point was in-cutout, the rangetop's own 8\" body, so it was drawn and worded at the counter; the machine's inlet, 11\" from the left and 2\" from the back on its underside (sheet p. 4), is recorded apart."
+    },
+    "package-b | left/back/left/parallel | rough-in:slot-range:gas:0": {
+      "was": "gas — rear wall of the opening, 11\" from the left side, 2\" up",
+      "now": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "why": "Round 83, Leo: the supply for PCG366W's gas goes low on the back wall of the drawer base under the rangetop (his site practice), a box of its own (location cabinet-below). Until round 83 the point was in-cutout, the rangetop's own 8\" body, so it was drawn and worded at the counter; the machine's inlet, 11\" from the left and 2\" from the back on its underside (sheet p. 4), is recorded apart."
+    },
+    "package-b | left/back/left/perpendicular | rough-in:slot-range:gas:0": {
+      "was": "gas — rear wall of the opening, 11\" from the left side, 2\" up",
+      "now": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "why": "Round 83, Leo: the supply for PCG366W's gas goes low on the back wall of the drawer base under the rangetop (his site practice), a box of its own (location cabinet-below). Until round 83 the point was in-cutout, the rangetop's own 8\" body, so it was drawn and worded at the counter; the machine's inlet, 11\" from the left and 2\" from the back on its underside (sheet p. 4), is recorded apart."
+    },
+    "package-b | left/back/back/parallel | rough-in:slot-range:gas:0": {
+      "was": "gas — rear wall of the opening, 11\" from the left side, 2\" up",
+      "now": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "why": "Round 83, Leo: the supply for PCG366W's gas goes low on the back wall of the drawer base under the rangetop (his site practice), a box of its own (location cabinet-below). Until round 83 the point was in-cutout, the rangetop's own 8\" body, so it was drawn and worded at the counter; the machine's inlet, 11\" from the left and 2\" from the back on its underside (sheet p. 4), is recorded apart."
+    },
+    "package-b | left/back/back/perpendicular | rough-in:slot-range:gas:0": {
+      "was": "gas — rear wall of the opening, 11\" from the left side, 2\" up",
+      "now": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "why": "Round 83, Leo: the supply for PCG366W's gas goes low on the back wall of the drawer base under the rangetop (his site practice), a box of its own (location cabinet-below). Until round 83 the point was in-cutout, the rangetop's own 8\" body, so it was drawn and worded at the counter; the machine's inlet, 11\" from the left and 2\" from the back on its underside (sheet p. 4), is recorded apart."
+    },
+    "package-d | as-it-opens | rough-in:slot-range:gas:0": {
+      "was": "gas — rear wall of the opening, 11\" from the left side, 2\" up",
+      "now": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "why": "Round 83, Leo: the supply for PCG366W's gas goes low on the back wall of the drawer base under the rangetop (his site practice), a box of its own (location cabinet-below). Until round 83 the point was in-cutout, the rangetop's own 8\" body, so it was drawn and worded at the counter; the machine's inlet, 11\" from the left and 2\" from the back on its underside (sheet p. 4), is recorded apart."
+    },
+    "package-d | back/left/left/parallel | rough-in:slot-range:gas:0": {
+      "was": "gas — rear wall of the opening, 11\" from the left side, 2\" up",
+      "now": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "why": "Round 83, Leo: the supply for PCG366W's gas goes low on the back wall of the drawer base under the rangetop (his site practice), a box of its own (location cabinet-below). Until round 83 the point was in-cutout, the rangetop's own 8\" body, so it was drawn and worded at the counter; the machine's inlet, 11\" from the left and 2\" from the back on its underside (sheet p. 4), is recorded apart."
+    },
+    "package-d | back/left/left/perpendicular | rough-in:slot-range:gas:0": {
+      "was": "gas — rear wall of the opening, 11\" from the left side, 2\" up",
+      "now": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "why": "Round 83, Leo: the supply for PCG366W's gas goes low on the back wall of the drawer base under the rangetop (his site practice), a box of its own (location cabinet-below). Until round 83 the point was in-cutout, the rangetop's own 8\" body, so it was drawn and worded at the counter; the machine's inlet, 11\" from the left and 2\" from the back on its underside (sheet p. 4), is recorded apart."
+    },
+    "package-d | back/left/back/parallel | rough-in:slot-range:gas:0": {
+      "was": "gas — rear wall of the opening, 11\" from the left side, 2\" up",
+      "now": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "why": "Round 83, Leo: the supply for PCG366W's gas goes low on the back wall of the drawer base under the rangetop (his site practice), a box of its own (location cabinet-below). Until round 83 the point was in-cutout, the rangetop's own 8\" body, so it was drawn and worded at the counter; the machine's inlet, 11\" from the left and 2\" from the back on its underside (sheet p. 4), is recorded apart."
+    },
+    "package-d | back/left/back/perpendicular | rough-in:slot-range:gas:0": {
+      "was": "gas — rear wall of the opening, 11\" from the left side, 2\" up",
+      "now": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "why": "Round 83, Leo: the supply for PCG366W's gas goes low on the back wall of the drawer base under the rangetop (his site practice), a box of its own (location cabinet-below). Until round 83 the point was in-cutout, the rangetop's own 8\" body, so it was drawn and worded at the counter; the machine's inlet, 11\" from the left and 2\" from the back on its underside (sheet p. 4), is recorded apart."
+    },
+    "package-d | left/back/left/parallel | rough-in:slot-range:gas:0": {
+      "was": "gas — rear wall of the opening, 11\" from the left side, 2\" up",
+      "now": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "why": "Round 83, Leo: the supply for PCG366W's gas goes low on the back wall of the drawer base under the rangetop (his site practice), a box of its own (location cabinet-below). Until round 83 the point was in-cutout, the rangetop's own 8\" body, so it was drawn and worded at the counter; the machine's inlet, 11\" from the left and 2\" from the back on its underside (sheet p. 4), is recorded apart."
+    },
+    "package-d | left/back/left/perpendicular | rough-in:slot-range:gas:0": {
+      "was": "gas — rear wall of the opening, 11\" from the left side, 2\" up",
+      "now": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "why": "Round 83, Leo: the supply for PCG366W's gas goes low on the back wall of the drawer base under the rangetop (his site practice), a box of its own (location cabinet-below). Until round 83 the point was in-cutout, the rangetop's own 8\" body, so it was drawn and worded at the counter; the machine's inlet, 11\" from the left and 2\" from the back on its underside (sheet p. 4), is recorded apart."
+    },
+    "package-d | left/back/back/parallel | rough-in:slot-range:gas:0": {
+      "was": "gas — rear wall of the opening, 11\" from the left side, 2\" up",
+      "now": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "why": "Round 83, Leo: the supply for PCG366W's gas goes low on the back wall of the drawer base under the rangetop (his site practice), a box of its own (location cabinet-below). Until round 83 the point was in-cutout, the rangetop's own 8\" body, so it was drawn and worded at the counter; the machine's inlet, 11\" from the left and 2\" from the back on its underside (sheet p. 4), is recorded apart."
+    },
+    "package-d | left/back/back/perpendicular | rough-in:slot-range:gas:0": {
+      "was": "gas — rear wall of the opening, 11\" from the left side, 2\" up",
+      "now": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "why": "Round 83, Leo: the supply for PCG366W's gas goes low on the back wall of the drawer base under the rangetop (his site practice), a box of its own (location cabinet-below). Until round 83 the point was in-cutout, the rangetop's own 8\" body, so it was drawn and worded at the counter; the machine's inlet, 11\" from the left and 2\" from the back on its underside (sheet p. 4), is recorded apart."
+    }
   }
 }

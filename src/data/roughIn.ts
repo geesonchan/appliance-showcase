@@ -240,6 +240,20 @@ function hostFor(slot: Slot, appliance: Appliance, point: RoughInPoint): HostBox
   }
   if (!found && point.location !== "in-cutout") return null;
 
+  // The cabinet under a machine that drops into the counter (round 83): from
+  // the top of the toe kick to the machine's underside, along its segment.
+  if (point.location === "cabinet-below") {
+    const box = applianceBox(slot, appliance);
+    if (!found || box.y <= ROOM.toeKick) return null;
+    const segment = found.run.segments[found.index];
+    return {
+      id: `${slot.id}-below`,
+      run: found.run,
+      along: [segment.from, segment.to] as const,
+      band: [ROOM.toeKick, box.y] as const,
+    };
+  }
+
   if (point.location === "in-cutout") {
     const box = applianceBox(slot, appliance);
     const band = [box.y, box.y + box.h] as const;
@@ -673,6 +687,8 @@ export function roughInWords(resolved: ResolvedPoint): RoughInWords {
     ? point.whenNoCabinet!.where === "behind-machine"
       ? "behindMachine"
       : "drawerBelow"
+    : point.location === "cabinet-below"
+      ? "drawerBelow"
     : point.location === "in-cutout"
       ? point.z === "rear"
         ? "rearOfOpening"

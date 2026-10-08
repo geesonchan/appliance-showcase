@@ -1,6 +1,7 @@
 import { LAYOUT_LIMITS, ROOM, ft } from "./room";
 import { hoodBodyHeightFt } from "./hood";
 import type { Appliance, Slot } from "../types";
+import { dropsIntoCounter } from "./cookingSurface";
 
 /**
  * How big an appliance is, and where in its opening it sits.
@@ -42,17 +43,9 @@ function hangsFromTheTop(appliance: Appliance): boolean {
   );
 }
 
-/** A cooking surface with nothing under it but a cabinet. */
-export const isRangetop = (appliance: Appliance) =>
-  appliance.installType.includes("rangetop");
-
-/**
- * A cooking surface set into the stone: a rangetop, or a cooktop. Both drop
- * their cutout depth into the counter and have a drawer base under them rather
- * than anything of their own.
- */
-export const dropsIntoCounter = (appliance: Appliance) =>
-  isRangetop(appliance) || appliance.category === "cooktop";
+// Whether a cooking machine drops into the counter is asked in one place since
+// round 83, by the run, the counter and the placement here alike.
+export { dropsIntoCounter, isRangetop } from "./cookingSurface";
 
 /**
  * How far a rangetop drops into the counter, in feet.

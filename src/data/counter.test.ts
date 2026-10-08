@@ -134,11 +134,25 @@ describe("the slab is still one piece where the run is", () => {
     }
   });
 
-  it("stays one piece for a slide-in, which drops into the top", () => {
+  it("stays one piece for a rangetop, which drops into the top", () => {
     expect(setLayoutParams(DEFAULT_PARAMS).ok).toBe(true);
-    const { pieces } = counterOutline(RUNS, range(["slide-in"]));
-    expect(pieces).toHaveLength(1);
-    expect(isRectilinearL(pieces[0].outline)).toBe(true);
+    const { pieces } = counterOutline(RUNS, range(["rangetop"]));
+    expect({ pieces: pieces.length, l: isRectilinearL(pieces[0].outline) }).toEqual({ pieces: 1, l: true });
+  });
+
+  // Round 83, Leo's site practice: a slide-in stands on the floor between two
+  // cabinets, the stone stops at its two sides and nothing runs behind it; its
+  // top laps the stone each side. Until round 83 this case held the opposite —
+  // "stays one piece for a slide-in, which drops into the top".
+  it("stops at a slide-in's two sides, as at a freestanding range", () => {
+    expect(setLayoutParams(DEFAULT_PARAMS).ok).toBe(true);
+    const slideIn = counterOutline(RUNS, range(["slide-in"])).pieces.length;
+    const freestanding = counterOutline(RUNS, range(["freestanding"])).pieces.length;
+    expect({ slideIn, sameAsFreestanding: slideIn === freestanding, broken: slideIn > 1 }).toEqual({
+      slideIn: freestanding,
+      sameAsFreestanding: true,
+      broken: true,
+    });
   });
 
   it("keeps the sink's cutout a hole rather than a break", () => {

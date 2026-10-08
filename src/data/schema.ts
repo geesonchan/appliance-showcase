@@ -641,6 +641,12 @@ export const roughInPointSchema = z.object({
     // hood. The box is the framing over the machine's own footprint, as deep as
     // the 2x4 cross framing its guide asks for. Round 72.
     "at-ceiling",
+    // The cabinet under a machine that drops into the counter — a rangetop's
+    // drawer base — from the top of the toe kick to the machine's underside.
+    // Where its supply is roughed in, low on the cabinet's back wall (Leo,
+    // round 83); `in-cutout` is the machine's own box, which for a rangetop is
+    // its 8" body at the top of the opening. Round 83.
+    "cabinet-below",
   ]),
   x: z.union([inches, z.enum(["left", "center", "right"])]),
   y: z.union([inches, z.enum(["bottom", "center", "top"])]),
@@ -714,6 +720,26 @@ export const roughInFileSchema = z.object({
     z.object({
       sourceUrl: z.string().min(1),
       points: z.array(roughInPointSchema).min(1),
+      /**
+       * Where a connection is on the machine itself, recorded apart from
+       * where its supply is roughed in (Leo, round 83). They are two
+       * different places with two different sources: PCG366W's gas inlet is
+       * on the rangetop's underside, off its drawing, and the supply is low
+       * on the back wall of the cabinet under it, off Leo's site practice.
+       * One point holding both is how its data came to say "2 in up" in one
+       * field and "2 in off the wall" in its note.
+       */
+      inlets: z
+        .array(
+          z.object({
+            type: z.enum(["gas", "power", "water", "drain"]),
+            where: z.string().min(1),
+            fromLeftIn: inches.nullable().default(null),
+            fromRearIn: inches.nullable().default(null),
+            source: z.string().min(1),
+          }),
+        )
+        .default([]),
     }),
   ),
 });

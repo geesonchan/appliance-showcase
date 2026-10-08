@@ -1716,6 +1716,67 @@ into the generator; a package that adds an appliance the template has nowhere
 to stand (that is a loud failure, not a silent omission); a package switch that
 leaves the carcass and the data disagreeing.
 
+**Amended 2026-10-08 (round 83), Leo: what stands under a cooking surface is
+the chosen machine's to say, not the package's.** From Leo using package A: its
+pro range changed to the PCG366W rangetop on the model card, and the rangetop
+hung at counter height over an empty opening. The package's slot says how the
+package installs; a customer's swap on the card can change it, and the room
+has to follow.
+- **Leo's rule, from site: "Rangetop 下面一定要有底柜."** A rangetop always has
+  a base cabinet under it, in any package, whichever way the swap goes. The
+  PCG366W sheet draws a base cabinet under it (`pcg366w-spec.pdf` pp. 3 and
+  5) and does not say what is in it; **a drawer base for the pans is Leo's site
+  practice.** The code had said "Thermador's own drawing shows a drawer
+  base", which overstated the drawing (corrected in round 83).
+- **A slide-in stands on the floor** (Leo, from site): the counter stops at its
+  two sides, the machine stands between the cabinets, its top laps the stone
+  each side, and nothing runs behind it. The counter had treated a slide-in as
+  dropping in, a hole in a slab running over it.
+- **One answer, asked by all three** (D17's table): `dropsIntoCounter` in
+  `src/data/cookingSurface.ts`, a rangetop or a cooktop. The run orders a
+  drawer base under the cooking surface or leaves an opening by it; the
+  counter cuts a hole or stops at the machine's sides by it; the machine's
+  placement reads it. Never the word "freestanding", which the importer gives
+  to a row nothing else matched (D4) — PRG366WH and PRG304WH carry it that way.
+- **Choosing a range regenerates the room where it stands** (`setRangeModel`,
+  beside round 78's `setHoodModel`), only when the answer changes. The
+  opening is the slot's width either way, so no wall moves. A package switch
+  carries a range across only when it installs the way the new slot does
+  (`suitsPackageSlot`), so the new package's own range gives the same answer.
+  The fade does not flash on it (`fadeRebuild.test.ts`, "changing the range").
+- **An anti-tip bracket for every range that stands on the floor**, freestanding
+  or slide-in (`range-anti-tip`; Leo's site practice, his words locked in
+  `reviewed.json`). Its position waits for PRG366WH's installation manual
+  (Open items).
+- **2" x 4" corner supports under a rangetop** (`rangetop-corner-supports`;
+  `pcg366w-spec.pdf` p. 3, which draws one in a detail and gives no count;
+  the rangetop weighs 142 lb, p. 1). Locked in both languages; the Chinese
+  calls them **木方**, the shop's and the installers' word (Leo's site term).
+- **PCG366W's gas: the supply and the machine's inlet are recorded apart**
+  (Leo). The supply is low on the back wall of the drawer base under it —
+  Leo's site practice, drawn in the dashed tier (D21) in a box of its own,
+  `cabinet-below`, from the top of the toe kick to the machine's underside.
+  The inlet is on the rangetop's underside, 11" from the left and 2" from the
+  back (`pcg366w-spec.pdf` p. 4), under `inlets` in `data/rough-in.json`. The
+  point had said 2" up in its figures and 2" off the wall in its note, and was
+  `in-cutout`, which for a rangetop is its own 8" body — so packages B and D
+  drew and worded their gas supply at the counter on the live site. Their
+  English line is recorded as changed (`roughInEnglish.round69.json`,
+  `changedInRound83`).
+- **What the list offers is unchanged** (D20, round 46: the list does not
+  filter on install type). A hood narrower or lower than the package's surface
+  still warns (Leo, round 83: keep it).
+- Tests: `rangeJoinery.test.ts` — every package, every range it offers that
+  fits, and back to its own after each; red with the template's old copy put
+  back (A's rangetop with no cabinet, B's and D's floor ranges over a drawer
+  base) and with the counter's (the slide-in a hole in every package).
+  `tests/rangeSwap.test.ts` — the swap on the model card, desktop and phone;
+  red on round 82's build for A's rangetop and B's range. `rules.test.ts` —
+  the anti-tip line for a freestanding range and a slide-in and not for a
+  microwave the importer called freestanding; red when the rule read the word.
+  Four older tests held the slide-in as dropping in and were rewritten to the
+  rule (`counter.test.ts`, `layout.test.ts`).
+
 ## D17 · A push is not a deploy
 
 **Decided:** 2026-09-08 (round 21), Leo, after four failed deploys in a row.
@@ -1965,6 +2026,7 @@ repository has them)* — one rule, written more than once:
 | round 74 | where a combination oven's microwave handle lands: "the chest of somebody six foot" | 54", the shared `microwaveHandleIn` default (round 20, commit `60a3baa`); and 52", which came with the round-74 brief for E's oven: Leo said "the chest of somebody six foot", and the conversation on the brief's side worked that out as 72" × 0.72 = 52", when round 20 had already settled 54" for the same words | **one**, 54" — caught before the second was written. 52" is in no file | **the first time this table prevented a copy rather than recording one after the fact.** The two figures were two estimates of one fact, and the 2" between them was a difference of method, not new information from site (Leo). Written in, E would have had its own package default of 52" beside B's shared 54", both justified by the same sentence. E takes the shared 54" instead: one parameter, and the same machine at the same height in B and E. |
 | round 78 | the duct diameter for an airflow | `thresholds.duct` in data/rules.json, read by the checklist's duct line; and a literal in `utilities.ts` (`cfm > 600 ? 10 : cfm >= 400 ? 8 : 6`), read by the quote, the spec card and the install view | **one**: `utilities.ts` asks `ductDiameterFor` (round 78) | **it had bitten, on the live site, at exactly 400 CFM**: the table says 6" up to 400 and the literal said 8" from 400, its own comment ("6\" to 400 CFM") agreeing with the table. Zephyr AK7136AS-BF, 400 CFM, in package A's hood list: the checklist said 6" and the quote 8". `thresholdCopies.test.ts` checks both at every band edge, and was red on the old code at 400. |
 | round 78 | a gas pipe upsized above 65,000 BTU — **the third copy** | the rule's condition and `thresholds.gasPipeUpsizeBTU` (round 65's row), and a literal `65_000` in `utilities.ts` that round 65 did not find — **the copy the quote, the spec card and the install view actually printed** | **one**: the rule's condition, asked through `gasPipeFor` in `rules.ts`, which runs the rule engine's own test; `thresholds.gasPipeUpsizeBTU` deleted (round 78) | **the day the rule's figure moved**: the checklist line would have followed it and the quote's pipe size would not. `thresholdCopies.test.ts` moves the rule's threshold to 90,000 and sees the quote follow; on the old code it did not. |
+| round 83 | whether a cooking machine drops into the counter or stands on the floor | three, from the start: the run's cabinet under it (`layoutTemplate.ts`, from the *package's* slot, `installType === "rangetop"`); the counter's hole or cut (`counter.ts`, from the model, by the word "freestanding"); the machine's placement (`applianceBox.ts`, from the model, a rangetop or a cooktop) | **one**: `dropsIntoCounter` in `cookingSurface.ts`, which all three ask (round 83) | **it had bitten, on the live site, three ways**: package A with its range changed to the PCG366W rangetop hung the rangetop over an empty opening (Leo, from use); package B with its rangetop changed to a pro range drew the range inside B's drawer base; and a slide-in got a hole in a slab running over it. `rangeJoinery.test.ts` holds every package and every range it offers; each old copy put back on purpose turned it red. |
 
 Round 60's quarter-inch window step is a near relative rather than a member:
 one rule, but its search and its judgement worked to different resolutions,
@@ -1997,8 +2059,10 @@ cannot pass it.
 Of the first seven, one is still open (the first row); the eighth, round 74's
 row, was stopped before it became a copy; the ninth and tenth, round 78's, are
 closed — round 65's gas row was never really closed, because a third copy it did
-not know about was the one being printed. The table has nine rows for those
-ten: round 60's has
+not know about was the one being printed. The eleventh, round 83's, is closed,
+and is the first that started at three copies: one question answered from the
+package in one place and from the model, by two different tests, in the other
+two. The table has ten rows for those eleven: round 60's has
 none of its own. The table is here so that the next one found
 is added to it rather than rediscovered.
 
@@ -4447,9 +4511,67 @@ Registered, not scheduled. None of these is a round of its own.
   packages in front of the salesperson meets it too. Reset view brings them
   back.
 - **On a phone in Chinese, the "MT" chip sits over the "E" package button.**
-  *(Found round 82, on the live site as well; Leo: fix with round 83.)* The top
+  *(Found round 82, on the live site as well; Leo: fix with the right panel's
+  round, now round 84.)* The top
   bar at 390px: the machine-translation chip is drawn over the last package
   button.
+- **A model of another install type, for four more kinds of slot.** *(Found
+  round 83; Leo: each its own round, later.)* The list offers any model that
+  fits on width (D20, round 46), and round 83 made the cooking slot follow the
+  model chosen. Four other kinds of slot take models that install differently
+  from the package's slot, and what is drawn round them has not been checked:
+  - **Hoods**: A's under-cabinet slot takes an insert (VCIN36GWS) and a chimney
+    (HMCB30WS); B's and D's insert slots take under-cabinet hoods and a chimney;
+    C's chimney slot takes an under-cabinet hood. Round 78 made the cabinet
+    over a hood follow its height; housing, cabinet and chimney cover have not
+    been checked against its install type.
+  - **Refrigerators**: A's and B's built-in slots take a freestanding
+    counter-depth model and a column; C's counter-depth slot takes built-ins and
+    a column (and the older item above, a freestanding refrigerator in A).
+  - **Wine**: A's and C's freestanding slots take columns; D's column slot takes
+    PRW24C01CG; E's slot under the coffee machine takes a column.
+  - **Oven towers**: B's and E's combination-oven slot takes single, double and
+    steam ovens; D's double-oven slot takes a single and a combination oven.
+  - ⚠️ **Different in kind, not only in install** — B's and E's combination-oven
+    slot offers the over-the-range microwave JVM3160RFSS and the microwave drawer
+    MD24BS, because they fit on width. **Whether to allow these waits for Leo's
+    judgement from site; D20 round 46 does not decide it** (that was about a
+    machine installed differently, not a different machine).
+- **PRG366WH's installation manual, to come into `docs/reference/`.** *(Leo,
+  round 83.)* It is to give the anti-tip bracket's position (the line is on the
+  checklist from Leo's site practice; nothing is drawn for it yet) and the
+  range's own gas inlet. Its sheet is not in the repository either
+  (docs/reference/README.md).
+- **A shallower drawer where the gas is at the back of a drawer base.** *(Leo,
+  round 83: to confirm from his site practice before it goes on the list; not
+  this round.)* With a rangetop's gas supply low on the back wall of its drawer
+  base (D16, round 83), the drawer has to be made shallower to leave room for
+  the connection and its shut-off valve. Whether the install checklist says so
+  waits for Leo.
+- **A browser test that times out waiting for the page to draw.** *(Round 83,
+  cause not found.)* Twice in round 83 a page opened by a browser test never
+  showed its canvas within 60 seconds, so the case failed before any of its
+  checks ran: one run of `tests/rangeSwap.test.ts`, and one full `npm test`
+  (`tests/modelCard.test.ts`, package A on a desktop — sixteen of sixteen
+  passed when that file was run alone, and the whole suite passed when run
+  again, 2,412 of 2,412). Vitest runs the test files side by side, and five of
+  them now each start a browser on the GPU; a page starved while they share the
+  machine is the likely cause, and has not been shown. A full run that fails
+  this way is run again and the red one reported, never taken as green.
+  - **When it is taken up** *(Leo, round 83)*: first run the browser test files
+    one after another instead of side by side, to test the guess that they
+    are starving each other.
+- **A package whose own range is missing from the catalogue.** *(Round 83, not
+  changed.)* What the run stands under the cooking surface reads the package's
+  default range from the data when none has been chosen; if that model left the
+  catalogue, it finds none and leaves an opening, where the page falls back to
+  the cheapest candidate (D8). No package is in that state.
+  - **The fix to make when it is taken up** *(Leo, round 83)*: a check in the
+    import — if any package's default model is not in what the import
+    produced, the import stops with an error and does not write
+    `data/appliances.json` (the same way an unaccounted row stops it, D4).
+    Leo: an edit to the sheet has already once taken out a row it was not
+    meant to touch.
 - **A fixed camera for screenshot diffs.** *(Leo, round 82: registered, not
   built.)* A URL parameter used only for comparing screenshots, of the same
   kind as `?quality=high` (D17), that sets the camera pose exactly — so a shot
@@ -4476,9 +4598,10 @@ Registered, not scheduled. None of these is a round of its own.
        tabs). **Round 81**: the fade flash (the entry above) — the experiment
        first, then its fix, with all three paths tested. *Done in round 81.* **Round 82**: the
        model card, the truncation rule's test and one shared component for the
-       model line. *Done in round 82* (D12, round 82). **Round 83**: the right
-       panel's tabs, the `Slider` warning, and the "MT" chip over "E" on a
-       Chinese phone. What each decides is written here when that round is built.
+       model line. *Done in round 82* (D12, round 82). **Round 83** became the
+       cooking slot following the range chosen (Leo, from use; D16, round 83),
+       *done in round 83*. **Round 84**: the right panel's tabs, the `Slider`
+       warning, and the "MT" chip over "E" on a Chinese phone. What each decides is written here when that round is built.
   1. **A hood's own outlet first.** The duct drawn and quoted follows the
      model's own outlet where its sheet gives one, rather than only the
      airflow band (the two data points above).

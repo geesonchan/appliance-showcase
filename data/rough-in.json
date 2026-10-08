@@ -167,13 +167,15 @@
       "points": [
         {
           "type": "gas",
-          "location": "in-cutout",
+          "location": "cabinet-below",
           "x": 11,
           "y": 2,
           "z": "rear",
           "size": null,
           "highLoopApexIn": null,
-          "note": "1/2\" NPT inlet on the left rear underside, 11\" in from the left and 2\" off the wall; the 3/4\" manual shut-off goes where a hand can reach it from the front"
+          "note": "The supply, low on the back wall of the cabinet under the rangetop, with a manual shut-off a hand can reach from the front (sheet p. 4). The machine's own inlet is recorded apart, under inlets.",
+          "provenance": "site",
+          "basis": "Where the supply goes is Leo's site practice (round 83): low on the back wall of the base cabinet under the rangetop (location cabinet-below). 11 in from the left lines it up under the machine's inlet (sheet p. 4); 2 in up from the cabinet's floor is a display figure for low, with no outside source. Until round 83 the point was in-cutout, which for a rangetop is its own 8 in body, so it was drawn up at the counter. Until round 83 this point said 2 in up in its figures and 2 in off the wall in its note: the sheet's 2 in is the inlet's distance from the rangetop's back, not a height."
         },
         {
           "type": "power",
@@ -184,6 +186,15 @@
           "size": null,
           "highLoopApexIn": null,
           "note": "NEMA 5-15 within 3ft of the connection, out of the way of the rangetop itself"
+        }
+      ],
+      "inlets": [
+        {
+          "type": "gas",
+          "where": "underside of the rangetop, left rear",
+          "fromLeftIn": 11,
+          "fromRearIn": 2,
+          "source": "docs/reference/pcg366w-spec.pdf p. 4: 1/2 in NPT, 11 in from the left and 2 in from the back on a 36 in rangetop"
         }
       ]
     },

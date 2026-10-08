@@ -11,6 +11,7 @@ import { PACKAGE, PACKAGE_BY_ID, setPackage } from "./packages";
 import { LAYOUT, REQUESTED_PARAMS, applyLayout } from "./room";
 import { rebuildSlots } from "./slots";
 import { recordHoodModel } from "./hood";
+import { dropsIntoCounter, rangeModelFor, recordRangeModel } from "./cookingSurface";
 import type { Appliance } from "../types";
 
 /**
@@ -40,6 +41,39 @@ import type { Appliance } from "../types";
 export function setHoodModel(appliance: Appliance | undefined) {
   recordHoodModel(appliance);
   rebuildCabinets();
+}
+
+/**
+ * The range the customer has chosen, which decides what the run stands under it.
+ *
+ * Round 83: a rangetop drops into the stone and stands on a base cabinet; a
+ * range stands on the floor in an opening (`dropsIntoCounter`). Unlike a hood,
+ * which only re-cuts the cabinet over it (round 78), this changes what the run
+ * orders, so the room is generated again at the walls it stands at — the
+ * opening is the slot's width either way, so nothing moves along the run and
+ * no wall grows. Only when the answer changes: a range for a range, or a
+ * rangetop for a rangetop, leaves the room as it is.
+ *
+ * Refused, it would put the previous choice back and say why. No room in any
+ * package refuses it (`rangeJoinery.test.ts`).
+ */
+export function setRangeModel(
+  appliance: Appliance | undefined,
+  packageId: string = PACKAGE.id,
+): { ok: boolean; reasons: Refusal[]; rebuilt: boolean } {
+  const before = rangeModelFor(PACKAGE);
+  recordRangeModel(packageId, appliance);
+  if (packageId !== PACKAGE.id) return { ok: true, reasons: [], rebuilt: false };
+  const after = rangeModelFor(PACKAGE);
+  const same = !!before && !!after && dropsIntoCounter(before) === dropsIntoCounter(after);
+  if (same) return { ok: true, reasons: [], rebuilt: false };
+  const result = setLayoutParams(REQUESTED_PARAMS);
+  if (!result.ok) {
+    recordRangeModel(packageId, before);
+    setLayoutParams(REQUESTED_PARAMS);
+    return { ...result, rebuilt: false };
+  }
+  return { ...result, rebuilt: true };
 }
 
 export function setLayoutParams(params: LayoutParams): { ok: boolean; reasons: Refusal[] } {

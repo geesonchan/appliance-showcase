@@ -1,3 +1,4 @@
+import { dropsIntoCounter } from "./cookingSurface";
 import rulesFile from "../../data/rules.json";
 import { z } from "zod";
 import type { Appliance, Slot, SlotId } from "../types";
@@ -131,6 +132,14 @@ interface Context {
   appliance: Appliance;
   slot: Slot;
   fit: FitResult;
+  /**
+   * What the machine is, worked out once rather than read off a word. Round
+   * 83: a range standing on the floor — freestanding or slide-in — gets an
+   * anti-tip bracket, and "freestanding" in the data is often only the
+   * importer's default (D4), so the rule asks this, which is
+   * `dropsIntoCounter`, the same answer the run and the counter use.
+   */
+  machine: { standsOnTheFloor: boolean };
   package: {
     blower: Appliance | null;
     effectiveCfm: number | null;
@@ -168,7 +177,7 @@ interface Context {
 /** Resolve a dotted path, or return the value unchanged if it is a literal. */
 function resolve(context: Context, value: unknown): unknown {
   if (typeof value !== "string") return value;
-  if (!/^(appliance|slot|fit|package)\./.test(value)) return value;
+  if (!/^(appliance|slot|fit|package|machine)\./.test(value)) return value;
 
   let current: unknown = context;
   for (const key of value.split(".")) {
@@ -222,6 +231,7 @@ export function evaluateSlot(
     appliance,
     slot,
     fit: fitCheck(slot, appliance),
+    machine: { standsOnTheFloor: appliance.category === "range" && !dropsIntoCounter(appliance) },
     package: packageContext,
   };
 

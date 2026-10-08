@@ -1,3 +1,4 @@
+import { isRangetop } from "./cookingSurface";
 import { ft } from "./roomShell";
 import type { Appliance } from "../types";
 
@@ -208,7 +209,7 @@ export function rangeParts(
   const F = FREESTANDING_PROPORTIONS;
   const burners = burnerCount(appliance);
   const backguarded = hasBackguard(appliance);
-  const rangetop = appliance.installType.includes("rangetop");
+  const rangetop = isRangetop(appliance);
   const cooktop = cooktopHeight(appliance, box);
 
   const R = RANGETOP_PROPORTIONS;

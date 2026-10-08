@@ -35,7 +35,13 @@ type Changed = Record<string, { was: string; now: string; why: string }>;
 const WAS = round69.round69 as Record<string, string>;
 // Each round that changes a line on purpose adds its own layer, with what the
 // line said, what it says now and why. The last layer that names a line wins.
-const LAYERS: Changed[] = [round69.changedInRound70 as Changed, round69.changedInRound71 as Changed];
+const LAYERS: Changed[] = [
+  round69.changedInRound70 as Changed,
+  round69.changedInRound71 as Changed,
+  // Round 83: PCG366W's gas supply moved into the drawer base under the
+  // rangetop, low on its back wall (Leo's site practice).
+  round69.changedInRound83 as Changed,
+];
 const CHANGED: Changed = Object.assign({}, ...LAYERS);
 /**
  * Lines that did not exist in round 69, with what they say and why, one layer

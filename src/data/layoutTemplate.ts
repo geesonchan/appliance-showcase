@@ -14,6 +14,7 @@ import {
 } from "./roomShell";
 import type { FixtureId, Package, PackageSlot, SlotId } from "../types";
 import { PACKAGE, slotsOf } from "./packages";
+import { dropsIntoCounter, rangeModelFor } from "./cookingSurface";
 import { extentsOnAxis, faceRotation, onAxis, sizeOnAxis } from "./frame";
 import { LAYOUT_POLICY, shrinkRank, type ShrinkGroup } from "./layoutPolicy";
 import { comboSillFor } from "./columnModel";
@@ -1435,13 +1436,22 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
    *
    * A range is a machine standing on the floor between two cabinets: the run
    * leaves it an opening. A rangetop is a cooking surface dropped into the
-   * stone with a cabinet under it — Thermador's own drawing shows a drawer
-   * base — so the run orders that cabinet and the counter is what is cut.
+   * stone with a cabinet under it, so the run orders that cabinet and the
+   * counter is what is cut.
+   *
+   * Round 83: which it is, is the machine chosen's to say, not the package's
+   * (`rangeModelFor`). Leo's rule, from site: a rangetop always has a base
+   * cabinet under it, in any package, whichever way the swap goes. The
+   * PCG366W sheet draws a base cabinet under it (pcg366w-spec.pdf pp. 3 and 5)
+   * and does not say what is in it; a drawer base for the pans is Leo's site
+   * practice. (This comment used to say Thermador's drawing shows a drawer
+   * base. It shows a base cabinet.)
    */
   const cooking = (): Item => {
     const slot = spec["slot-range"];
     const widthIn = openingIn(slot);
-    if (slot.installType !== "rangetop") return opening("slot-range", "range");
+    const chosen = rangeModelFor(pkg);
+    if (!chosen || !dropsIntoCounter(chosen)) return opening("slot-range", "range");
     return fixed(
       "range",
       widthIn,

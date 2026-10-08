@@ -254,6 +254,8 @@
   "rule.columnDoorPanel": "Stainless door panel: {handleless} handleless, or {handleReady} handle-ready",
   "rule.ovenDoorSwing": "The lower oven door reaches {reachIn}\" into the room when it is open",
   "rule.rangetopClearance": "36\" from the cooking surface to an unprotected cabinet, 30\" with a flame-retardant liner; 5\" to a combustible side wall and 6\" behind, or 0\" with the 10\" backguard",
+  "rule.antiTip": "Anti-tip bracket: fix it to the floor or wall behind the range before sliding the range in; the rear leg must engage the bracket.",
+  "rule.rangetopCornerSupports": "2\" x 4\" corner supports in the cabinet under the rangetop, under the corners of its cutout, to carry it (142 lb).",
   "toast.roomGrew": "{package} needs a longer run: the room is now {backIn}″ across the back and {leftIn}″ down the left.",
   "toast.wallGrew": "{wall} lengthened from {fromIn} to {toIn} to fit {reason}.",
   "toast.wall.back": "Back wall",

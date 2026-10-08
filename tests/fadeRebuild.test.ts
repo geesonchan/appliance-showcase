@@ -31,7 +31,7 @@ const DESKTOP = { width: 1440, height: 900 };
 const PHONE = { width: 390, height: 844 };
 
 /** Same guard as the smoke suite: a run that tested nothing fails. */
-const EXPECTED_TESTS = 15;
+const EXPECTED_TESTS = 18;
 let testsRun = 0;
 const filtered = process.argv.some((arg) => arg === "-t" || arg.startsWith("--testNamePattern"));
 beforeEach(() => {
@@ -224,10 +224,12 @@ async function steady(s: Session) {
  * the way the path needs it, and then the camera turned by hand until cabinets
  * stand on the sight line and fade.
  */
-async function fadedWithHood(s: Session, panel: "list" | "config") {
-  await press(s, s.page.locator('[data-pin-label="slot-hood"]').first());
+async function fadedWithHood(s: Session, panel: "list" | "config" | "card", slot = "slot-hood") {
+  await press(s, s.page.locator(`[data-pin-label="${slot}"]`).first());
   await s.page.waitForTimeout(2500);
-  if (s.phone) {
+  if (panel === "card") {
+    // The model card: nothing to open, and on a phone a sheet would cover it.
+  } else if (s.phone) {
     await press(s, s.page.getByRole("button", { name: panel === "list" ? "Appliances" : "Configure", exact: true }).first());
   } else if (panel === "list") {
     await press(s, s.page.getByRole("button", { name: "Appliances", exact: true }).first());
@@ -373,10 +375,22 @@ async function turnIsland(s: Session) {
   return () => press(s, across);
 }
 
+/**
+ * Changing the range from the model card (round 83): A's pro range for the
+ * PCG366W rangetop, which puts a drawer base under it, so the room is
+ * generated again. Its own rebuild path, so its own case.
+ */
+async function swapRange(s: Session) {
+  await fadedWithHood(s, "card", "slot-range");
+  const chip = s.page.locator('[data-model-card] [data-candidate="thermador-pcg366w"]').first();
+  return () => press(s, chip);
+}
+
 const PATHS = [
   ["changing the hood", swapHood],
   ["dragging the back wall slider", dragBackWall],
   ["turning the island", turnIsland],
+  ["changing the range", swapRange],
 ] as const;
 
 const DEVICES = [

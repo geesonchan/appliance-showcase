@@ -1,3 +1,4 @@
+import { dropsIntoCounter } from "./cookingSurface";
 import { bowlExtent, FIXTURE_BY_ID } from "./fixtures";
 import { ROOM, RUNS, ft, type CabinetRun } from "./room";
 import { islandAcross, islandAlong, type IslandLayout } from "./layoutTemplate";
@@ -36,11 +37,14 @@ const RANGE_LIP_IN = 1;
  *
  * Two kinds of opening go through it, and they are not the same kind.
  *
- * An undermount sink and a slide-in range drop *into* the top: the stone
- * carries on all round them, and they are holes. A freestanding range does not
- * drop into anything — it stands on the floor between two runs of cabinets and
- * the stone stops at each side of it. That is not a hole, it is the end of one
- * slab and the start of the next, which is why this returns pieces.
+ * An undermount sink and a rangetop drop *into* the top: the stone carries on
+ * all round them, and they are holes. A range does not drop into anything — a
+ * freestanding one or a slide-in stands on the floor between two runs of
+ * cabinets and the stone stops at each side of it (a slide-in's top laps the
+ * stone each side; nothing runs behind it — Leo, round 83, which corrected
+ * this comment's "a slide-in range drops into the top"). That is not a hole,
+ * it is the end of one slab and the start of the next, which is why this
+ * returns pieces.
  *
  * The distinction is not pedantry. A hole that reaches the edge of its own
  * outline is not a hole: the triangulator quietly drops it and the slab comes
@@ -166,9 +170,14 @@ const runEnd = (run: CabinetRun) => run.segments[run.segments.length - 1].to;
 /** Same figure twice, to the tolerance a generated run is built to. */
 const near = (a: number, b: number) => Math.abs(a - b) < 1e-9;
 
-/** True when the machine specified stands on the floor rather than dropping in. */
-const standsOnTheFloor = (range?: Appliance) =>
-  !range || range.installType.some((type) => /freestanding/i.test(type));
+/**
+ * True when the machine specified stands on the floor rather than dropping in:
+ * a freestanding range, and a slide-in too — the stone stops at its two sides
+ * and nothing runs behind it (Leo, round 83). Until round 83 this read the word
+ * "freestanding", so a slide-in got a hole in a slab running over it. The one
+ * answer is `dropsIntoCounter`.
+ */
+const standsOnTheFloor = (range?: Appliance) => !range || !dropsIntoCounter(range);
 
 /**
  * Where a leg's stone is cut clean through, along the run.

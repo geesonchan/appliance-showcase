@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import en from "../i18n/en.json";
 import zh from "../i18n/zh.json";
-import { FIXTURES } from "./testFixtures";
+import { FIXTURES, appliance } from "./testFixtures";
 import { SLOT_BY_ID } from "./slots";
 import {
   RULES,
@@ -331,3 +331,54 @@ function firePackage2(hood: Appliance, range: Appliance | undefined) {
     "package",
   ).map((finding) => finding.ruleId);
 }
+
+/**
+ * Round 83. A range that stands on the floor gets an anti-tip bracket (Leo's
+ * site practice); a rangetop gets corner supports under its cutout (PCG366W's
+ * sheet, p. 3). "Stands on the floor" is what the machine is — a range that
+ * does not drop into the counter — not the word "freestanding", which the
+ * importer gives to rows nothing else matched (D4): a microwave marked
+ * freestanding is the case that tells the two apart.
+ */
+describe("the cooking machine's own install lines", () => {
+  const range = (id: string, installType: string[]) => appliance({ id, installType });
+  const lines = (a: Appliance) =>
+    fire("slot-range", a).filter((id) => id === "range-anti-tip" || id === "rangetop-corner-supports");
+
+  it("gives a freestanding range and a slide-in an anti-tip bracket, and nothing else of these", () => {
+    expect({
+      freestanding: lines(range("pro-range", ["freestanding"])),
+      slideIn: lines(range("slide-in", ["slide-in"])),
+    }).toEqual({ freestanding: ["range-anti-tip"], slideIn: ["range-anti-tip"] });
+  });
+
+  it("gives a rangetop corner supports and no anti-tip bracket", () => {
+    expect(lines(range("rangetop", ["rangetop"]))).toEqual(["rangetop-corner-supports"]);
+  });
+
+  it("gives neither to a cooktop or to a microwave the importer called freestanding", () => {
+    expect({
+      cooktop: lines(appliance({ id: "cooktop", category: "cooktop", installType: ["drop-in"] })),
+      microwave: fire("slot-microwave", appliance({ id: "otr", category: "microwave", installType: ["freestanding"] })).filter(
+        (id) => id === "range-anti-tip",
+      ),
+    }).toEqual({ cooktop: [], microwave: [] });
+  });
+});
+
+/**
+ * D7 asks every rule for a positive and a negative sample. The rangetop's
+ * clearance line had none until round 83, when the rangetop's corner supports
+ * were added beside it and the gap showed.
+ */
+describe("the rangetop's clearance line", () => {
+  it("fires for a rangetop and not for a range that stands on the floor", () => {
+    const has = (installType: string[]) =>
+      fire("slot-range", appliance({ id: `r-${installType[0]}`, installType })).includes("rangetop-clearance");
+    expect({ rangetop: has(["rangetop"]), freestanding: has(["freestanding"]), slideIn: has(["slide-in"]) }).toEqual({
+      rangetop: true,
+      freestanding: false,
+      slideIn: false,
+    });
+  });
+});

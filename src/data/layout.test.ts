@@ -468,11 +468,13 @@ describe("the run as Leo specified it", () => {
 });
 
 describe("the countertop is one slab that turns the corner", () => {
-  // Measured with a slide-in, which drops into the top: the run is unbroken,
-  // so the whole counter is one L. A freestanding range cuts it in two, and
-  // that is `counter.test.ts`'s business.
-  const slideIn = { ...TEST_APPLIANCES.gasRange36, installType: ["slide-in"] } as Appliance;
-  const counter = counterOutline(RUNS, slideIn);
+  // Measured with a rangetop, which drops into the top: the run is unbroken,
+  // so the whole counter is one L. A range standing on the floor — freestanding
+  // or, since round 83, slide-in — cuts it in two, and that is
+  // `counter.test.ts`'s business. (This was measured with a slide-in until
+  // round 83, when Leo's practice put a slide-in on the floor.)
+  const rangetop = { ...TEST_APPLIANCES.gasRange36, installType: ["rangetop"] } as Appliance;
+  const counter = counterOutline(RUNS, rangetop);
   const corner = counter.pieces[0];
 
   // The bug this replaced: a box per run left the square between the two legs

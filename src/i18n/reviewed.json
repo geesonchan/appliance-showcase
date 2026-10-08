@@ -315,6 +315,16 @@
       "text": "A full-height {gapIn}\" filler between the refrigerator and the wall, so its door opens 90°. Optional door stop (part no. {doorStop}).",
       "approval": "written",
       "reviewed": "Leo's own wording, round 82: the door stop given as a part number (decisions.md D12, round 82)"
+    },
+    "rule.antiTip": {
+      "text": "Anti-tip bracket: fix it to the floor or wall behind the range before sliding the range in; the rear leg must engage the bracket.",
+      "approval": "written",
+      "reviewed": "Leo's own wording, round 83: an anti-tip bracket for every range that stands on the floor, freestanding or slide-in; his site practice until PRG366WH's manual is in docs/reference (decisions.md D16, round 83)"
+    },
+    "rule.rangetopCornerSupports": {
+      "text": "2\" x 4\" corner supports in the cabinet under the rangetop, under the corners of its cutout, to carry it (142 lb).",
+      "approval": "read",
+      "reviewed": "Proposed in round 83 and approved by Leo unchanged: PCG366W's sheet p. 3 (decisions.md D16, round 83)"
     }
   },
   "zh": {
@@ -637,6 +647,16 @@
       "text": "冰箱与墙之间需 {gapIn}\" 整高挡板，冰箱门才能开到 90°。门挡（配件号 {doorStop}）为选配。",
       "approval": "written",
       "reviewed": "Leo's own wording, round 82, replacing a line that mixed English into Chinese; 整高, not 从地面到顶: the board is as tall as the refrigerator's cabinet, not to the ceiling (decisions.md D12, round 82)"
+    },
+    "rule.antiTip": {
+      "text": "防倾支架：灶推入到位前，先固定在灶后方的地面或墙上；推入后，灶的后脚要卡进支架。",
+      "approval": "written",
+      "reviewed": "Leo's own wording, round 83: an anti-tip bracket for every range that stands on the floor, freestanding or slide-in; his site practice until PRG366WH's manual is in docs/reference (decisions.md D16, round 83)"
+    },
+    "rule.rangetopCornerSupports": {
+      "text": "柜内在 Rangetop 开孔的角部下方加 2\" × 4\" 木方支撑，承托灶的重量（142 磅）。",
+      "approval": "written",
+      "reviewed": "Leo's own wording, round 83: 木方 is what the shop and the installers call these supports — his site term (decisions.md D16, round 83)"
     }
   }
 }
