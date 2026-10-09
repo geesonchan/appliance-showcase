@@ -24,7 +24,9 @@ type Kind = Pick<Appliance, "installType" | "category" | "widthIn" | "cutoutWidt
 
 /**
  * Up to this much either side of a machine is a scribe, not a board: nothing
- * is built for it. The same half inch `Filler` in ApplianceModel draws to.
+ * is built for it. The one figure: the range's fillers here, `Filler` in
+ * ApplianceModel, and the strips beside a hood (`hoodSideFillers`) all read it
+ * (round 85 joined the hood's own copy, D17's table, the twelfth).
  */
 export const SCRIBE_IN = 0.5;
 

@@ -12,7 +12,7 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **round 84** (`docs/decisions.md` is the record of
+Covers the repository up to **round 85** (`docs/decisions.md` is the record of
 rounds; `git log` is the record of commits). It replaces the v1–v9 briefs that
 were pasted into chat.
 
@@ -58,9 +58,9 @@ every figure of it, is `data/packages.json`; D16 and D20 say how a package is
 put together and why E was built the way it was. **Do not copy those numbers
 anywhere**: the file is the one source, and the tests read it.
 
-### Where it stands (round 84)
+### Where it stands (round 85)
 
-- **All five packages are live.** Rounds 73–79 and 81–84 each shipped (round
+- **All five packages are live.** Rounds 73–79 and 81–85 each shipped (round
   80 built nothing), and each was checked against the live page's asset hashes
   after its workflow finished.
 - **The project is in real use.** Rounds 73–77 all came from Leo using package
@@ -84,8 +84,10 @@ anywhere**: the file is the one source, and the tests read it.
   82 the model card (**done**, D12 round 82); round 83 became the cooking slot
   following the range chosen (**done**, D16 round 83); round 84 became a range
   narrower than its opening closed in by the run (**done**, D16 round 84, from
-  Leo using package B); 85 the right panel's tabs, the `Slider` warning and
-  the "MT" chip over "E" on a Chinese phone; then a hood's own outlet,
+  Leo using package B); round 85 the strips beside a hood and inside a tall
+  unit's opening faced and shaded like the cabinets (**done**, D13 round 85);
+  86 the right panel's tabs, the `Slider` warning and the "MT" chip over "E"
+  on a Chinese phone, after Leo's feedback from use; then a hood's own outlet,
   then 79a (the doors of the cabinet over the hood and the outlet shown in
   it), then 79b. The 30" option in A is paused.
 
@@ -108,6 +110,7 @@ anywhere**: the file is the one source, and the tests read it.
 | `tests/modelCard.test.ts`, `tests/modelLine.test.ts` | The model card against the list, and brand · model's layout rule (D12, round 82). |
 | `tests/rangeSwap.test.ts` | What stands under the cooking surface follows the range chosen (D16, round 83), and a range narrower than its opening is closed in by the run's fillers (round 84). |
 | `src/data/rangeFillers.test.ts` | The nine narrow-range swaps, the run's fillers, the stone and the kick to the machine, and what reads the cooking opening (D16, round 84). |
+| `tests/sideStrips.test.ts` | The strips a machine draws beside itself are faced in the doors' plane, take shadows, and have nothing of the machine in them (D13 and D11 rule 12, round 85). |
 | `scripts/screenshots.mjs` | Screenshot sets by round. |
 
 Commands: `npm run dev`, `npm run build`, `npm run test:unit` (unit only,
@@ -164,10 +167,13 @@ what to go and read.
 - **One rule is written once.** D17 carries the table of every time it was
   written twice: eleven rows, for twelve times it happened — round 60's
   quarter-inch window step is counted as a near relative, the fifth, and has
-  no row of its own. Two are still open, the first and the twelfth (round 84,
-  the half inch that is a scribe). The eighth (round 74, 54"
+  no row of its own. One is still open, the first; the twelfth (round 84,
+  the half inch that is a scribe) was closed in round 85. The eighth (round 74, 54"
   and 52" for the same handle height) was stopped before the second copy was
   written; round 78 found a third copy of one already marked closed.
+- **A figure from a script, a probe or a set of shots is quoted from the run
+  that was checked, and says which run.** D17, round 85: a plan quoted the
+  wrong run of a count and called C's 30" hood opening 36".
 - **Visual changes are proved by pixel diff**, live against local, mouse
   clicks, `?quality=high` pinned. A difference is zeroed one of three ways
   (D17): put the changed value back (round 61), shoot the same build twice

@@ -2,6 +2,7 @@ import { CABINET_STANDARDS, ROOM, RUNS, ft } from "./room";
 import { facingOf, toPlan } from "./frame";
 import { againstWall } from "./roomWalls";
 import { SLOT_BY_ID } from "./slots";
+import { SCRIBE_IN } from "./cookingSurface";
 import type { Appliance, Slot } from "../types";
 
 /**
@@ -303,8 +304,6 @@ export function hoodTopFt(
   return slot.position[1] + hoodBodyHeightFt(slot, appliance);
 }
 
-/** Below half an inch a gap beside a machine is a scribe, not a panel (as `Filler` draws). */
-const SIDE_FILLER_MIN_IN = 0.5;
 
 /**
  * The filler each side of a wall hood narrower than its slot. Round 79, Leo.
@@ -319,7 +318,7 @@ const SIDE_FILLER_MIN_IN = 0.5;
  * In the slot's own frame, feet: `x` is each strip's centre either side of the
  * middle, `y` and `z` its centre up from the hood's underside and out from the
  * run's centre line. Null for a hood over an island, for an insert liner in its
- * housing, and wherever the gap each side is under half an inch.
+ * housing, and wherever the gap each side is half an inch or less (`SCRIBE_IN`).
  */
 export function hoodSideFillers(
   slot: Slot,
@@ -333,7 +332,10 @@ export function hoodSideFillers(
   if (appliance.installType.includes("insert")) return null;
   const modelIn = appliance.widthIn ?? appliance.cutoutWidthIn ?? slot.cutout.w;
   const eachSideIn = (slot.cutout.w - modelIn) / 2;
-  if (eachSideIn < SIDE_FILLER_MIN_IN) return null;
+  // Half an inch or less is a scribe, not a board: the one figure, read where
+  // the range's fillers and `Filler` read it (round 85; this kept its own copy
+  // until then, and drew a strip at exactly half an inch where they drew none).
+  if (eachSideIn <= SCRIBE_IN) return null;
   // From the underside to the cabinet floor, which stands on the hood's top.
   const heightFt = hoodTopFt(slot, appliance) - slot.position[1];
   const depthFt = ROOM.upperDepth;

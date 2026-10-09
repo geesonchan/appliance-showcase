@@ -18,11 +18,11 @@ import { useSelection } from "../store/useSelection";
 import { useIsMobile } from "../hooks/useIsMobile";
 import { cabinetPaint, useAppStore } from "../store/useAppStore";
 import { ft } from "../data/room";
-import { CABINET_DOOR_IN } from "../data/ovenTrim";
 import { OVEN_GRILLE, ventsAtRear } from "../data/towerVent";
 import { SCENE_COLORS, finish, type FinishToken, type SurfaceProps } from "./materials";
 import { Surface } from "./Surface";
 import { HoodCabinet } from "./HoodCabinet";
+import { BoardFace, DOOR } from "./BoardFace";
 import { texture } from "./textures";
 
 /**
@@ -41,19 +41,6 @@ function counterMap(props: SurfaceProps, quality: "high" | "low") {
   return map;
 }
 
-/**
- * A shaker door, in feet: a frame of stiles and rails with a panel recessed
- * inside it, an eighth of an inch of gap to the next door, and the panel set
- * back a quarter.
- */
-const DOOR = {
-  thickness: ft(CABINET_DOOR_IN),
-  reveal: ft(0.125),
-  /** Width of the frame around the panel. */
-  rail: ft(2.25),
-  /** How far the panel sits behind the face of the frame. */
-  recess: ft(0.25),
-};
 
 /** Opacity of the ghosted carcass behind the install wireframe. */
 const GHOST_OPACITY = 0.06;
@@ -119,22 +106,15 @@ function Door({ box, s }: { box: CabinetBox; s: SurfaceProps }) {
 }
 
 /**
- * The face of a filler or a finished board: one flush strip of board the
- * height of the doors beside it, with no frame, no panel and no reveal at its
- * sides — it closes a gap and does not open, so it butts the door next to it.
- * Round 50 (Leo): these went through `Door`, which on a face too narrow for a
- * frame drew a strip that only looked like this, with a door's gap each side.
+ * A filler's or a finished board's face, on the side its box opens to. How
+ * the face is drawn is `BoardFace`'s (round 50, and since round 85 shared with
+ * the strips a machine draws beside itself).
  */
 function Strip({ box, s }: { box: CabinetBox; s: SurfaceProps }) {
   const face = doorFace(box);
-  const h = face.height - DOOR.reveal;
-  const front = face.depth / 2 + DOOR.thickness / 2;
   return (
     <group name={"strip-" + box.id} rotation={[0, rotationOf(face), 0]}>
-      <mesh position={[0, 0, front]} castShadow receiveShadow userData={{ cabinetRole: true }}>
-        <boxGeometry args={[face.width, h, DOOR.thickness]} />
-        <Surface s={s} size={[face.width, h]} rotate={Math.PI / 2} />
-      </mesh>
+      <BoardFace width={face.width} height={face.height} front={face.depth / 2} s={s} />
     </group>
   );
 }

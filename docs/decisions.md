@@ -931,6 +931,18 @@ the bottom of the doors, not the grilles. The steam oven beside the cooking
 surface is held to the rest of rule 12 exactly as the combination oven is. It has
 no microwave handle to hang it from.
 
+*Amended 2026-10-09 (round 85): the door closes over the kit only across a
+scribe.* A column narrower than its opening — an 18" T18IF900SP or T18IW100SP
+swapped into D's 24" slot, the 30" T30IR905SP into B's 36" refrigerator slot
+beside its wine column — leaves a gap the machine fills with a strip
+(`Filler`). The door's reach over the kit (`doorOverhang`) counted that same
+gap as its own, so the door stood over the strip: 3-1/4" of door and a handle
+inside the strip's stretch, and once the strip had a face in the plane of the
+doors (D13, round 85) the handle was hidden behind it. Now one owner: up to a
+scribe (`SCRIBE_IN`) the door covers the gap and half the kit, as before; past
+it the gap is the strip's and the door stays on its case. Every package's own
+columns fill their openings, so none of them moved.
+
 **Amended 2026-09-12 (round 31), Leo: the steam oven stands on a toe kick and
 one drawer.** The round-30 figure was 18", worked backwards from a 40" lower
 handle; that reasoning belongs to a combination oven's microwave and this
@@ -1563,6 +1575,37 @@ the wall cabinets', and a hood narrower than the cooking surface is said.*
     registered item that would mark a narrow hood in the list is to read this
     rule when it is built, not write its own.
 
+*Amended 2026-10-09 (round 85): the strips beside a hood, and inside a tall
+unit's opening, are faced and shaded like the cabinets beside them.* Found on
+the range's strips in round 84 (D16) and then read in the code for these: the
+strips a machine draws beside itself (`Filler` in ApplianceModel.tsx) cast
+shadows and took none, so their fronts were lit where the cabinet fronts
+beside them are in shadow, and they had no face — their front was the carcass
+line, 3/4" behind the doors. Measured in round 85 on round 84's code: 0.75"
+behind the faces beside them in every case below, and none taking shadows.
+- **One way a board's face is drawn** (`BoardFace`, src/three/BoardFace.tsx):
+  the run's own boards draw it (round 50's flush strip) and so do these, in the
+  plane of the doors. They are still the machine's, drawn by it (Leo, round 85:
+  the shared face, not the run's own boxes), so the sight-line fade and a model
+  swap treat them as before — measured: what the fade hides on each swap below
+  is the same before and after.
+- **Half an inch or less is a scribe, in one place** (`SCRIBE_IN`,
+  cookingSurface.ts). `hoodSideFillers` kept its own copy and drew a strip at
+  exactly half an inch where `Filler` and the range's fillers drew none (D17's
+  table, the twelfth, closed). No hood in the catalogue sat on it.
+- **Where it shows, all from the model card:** A's 36" hood slot with
+  AK7300AS or HMCB30WS (3" each side); B's and D's 42" housing slot with
+  AK7136BS-BF, HMWB361WS or PH36HWS (3") and AK7300AS or HMCB30WS (6"); A's
+  and B's refrigerator opening with the 30" T30IR905SP; D's freezer slot with
+  T18IF900SP and its wine slot with T18IW100SP. No package's own selection has
+  strips, C's included (its hood slot is 30"; round 85's plan said 36" in
+  error — D17).
+- **A column's door no longer reaches over a strip** (`doorOverhang`; D11
+  rule 12, round 85). Found by the before-and-after pictures of D's wine slot:
+  the faced strip hid the handle of the door that reached over it.
+- **The chimney hood's strips in a wider slot are not settled** (Open items):
+  they are its canopy's height, with bare wall over them. Unchanged.
+
 **Ducting**, from the ducting sheet — five installations, not five drawings of
 one:
 
@@ -2145,7 +2188,7 @@ repository has them)* — one rule, written more than once:
 | round 78 | the duct diameter for an airflow | `thresholds.duct` in data/rules.json, read by the checklist's duct line; and a literal in `utilities.ts` (`cfm > 600 ? 10 : cfm >= 400 ? 8 : 6`), read by the quote, the spec card and the install view | **one**: `utilities.ts` asks `ductDiameterFor` (round 78) | **it had bitten, on the live site, at exactly 400 CFM**: the table says 6" up to 400 and the literal said 8" from 400, its own comment ("6\" to 400 CFM") agreeing with the table. Zephyr AK7136AS-BF, 400 CFM, in package A's hood list: the checklist said 6" and the quote 8". `thresholdCopies.test.ts` checks both at every band edge, and was red on the old code at 400. |
 | round 78 | a gas pipe upsized above 65,000 BTU — **the third copy** | the rule's condition and `thresholds.gasPipeUpsizeBTU` (round 65's row), and a literal `65_000` in `utilities.ts` that round 65 did not find — **the copy the quote, the spec card and the install view actually printed** | **one**: the rule's condition, asked through `gasPipeFor` in `rules.ts`, which runs the rule engine's own test; `thresholds.gasPipeUpsizeBTU` deleted (round 78) | **the day the rule's figure moved**: the checklist line would have followed it and the quote's pipe size would not. `thresholdCopies.test.ts` moves the rule's threshold to 90,000 and sees the quote follow; on the old code it did not. |
 | round 83 | whether a cooking machine drops into the counter or stands on the floor | three, from the start: the run's cabinet under it (`layoutTemplate.ts`, from the *package's* slot, `installType === "rangetop"`); the counter's hole or cut (`counter.ts`, from the model, by the word "freestanding"); the machine's placement (`applianceBox.ts`, from the model, a rangetop or a cooktop) | **one**: `dropsIntoCounter` in `cookingSurface.ts`, which all three ask (round 83) | **it had bitten, on the live site, three ways**: package A with its range changed to the PCG366W rangetop hung the rangetop over an empty opening (Leo, from use); package B with its rangetop changed to a pro range drew the range inside B's drawer base; and a slide-in got a hole in a slab running over it. `rangeJoinery.test.ts` holds every package and every range it offers; each old copy put back on purpose turned it red. |
-| round 84 | how much beside a machine is a scribe and not a board: half an inch | `Filler` in ApplianceModel.tsx (`MIN`, nothing drawn at 1/2" or less) and `hoodSideFillers` in hood.ts (`SIDE_FILLER_MIN_IN`, nothing drawn under 1/2") — they disagree at exactly 1/2", where the hood draws a strip and `Filler` does not | **two**: round 84 put the first in `cookingSurface.ts` (`SCRIBE_IN`), read by `Filler` and by the run's range fillers (`rangeFillerIn`); the hood's is still its own | **not yet**: a hood exactly 1" narrower than its slot. None in the catalogue. Joined with the strips beside a hood, the next round (Open items). |
+| round 84 | how much beside a machine is a scribe and not a board: half an inch | `Filler` in ApplianceModel.tsx (`MIN`, nothing drawn at 1/2" or less) and `hoodSideFillers` in hood.ts (`SIDE_FILLER_MIN_IN`, nothing drawn under 1/2") — they disagree at exactly 1/2", where the hood draws a strip and `Filler` does not | **one**: `SCRIBE_IN` in `cookingSurface.ts`, read by the range's fillers (round 84), `Filler` (round 84) and `hoodSideFillers` (round 85) | **it never had**: a hood exactly 1" narrower than its slot, and none in the catalogue is. `hoodSideFillers.test.ts` holds the half inch, and was red on round 84's code. |
 
 Round 60's quarter-inch window step is a near relative rather than a member:
 one rule, but its search and its judgement worked to different resolutions,
@@ -2181,9 +2224,9 @@ closed — round 65's gas row was never really closed, because a third copy it d
 not know about was the one being printed. The eleventh, round 83's, is closed,
 and is the first that started at three copies: one question answered from the
 package in one place and from the model, by two different tests, in the other
-two. The twelfth, round 84's, is open: found while the range's fillers were
-given the same half inch, and left for the round that takes up the hood's
-strips. The table has eleven rows for those twelve: round 60's has
+two. The twelfth, round 84's, was closed in round 85 with the hood's strips:
+found while the range's fillers were given the same half inch. The table has
+eleven rows for those twelve: round 60's has
 none of its own. The table is here so that the next one found
 is added to it rather than rediscovered.
 
@@ -2311,6 +2354,18 @@ is made of.** "Those are HTML labels, not geometry" is an explanation, and the
 lesson of round 61 is that explanations outlive the bugs under them. Zero it
 one of the two ways — put the changed value back, or shoot the same build
 twice — or report it and stop.
+
+**A figure quoted from a measurement or a count comes from the run that was
+checked, and says which run it was.** *(Leo, round 85.)* Round 84's count of
+the machines narrower than their openings was run twice: the first run
+measured every package against package A's slots and was thrown away; the
+second, which the round used, was right. Round 85's plan quoted the first,
+and called package C's hood opening 36" — it is 30" (data/packages.json,
+C's `slot-hood`), and C's own hood has no strips. So a figure from a script,
+a probe or a set of shots is taken from the run that was checked and kept, and
+the report says which run — a file name, a run's label, a commit — so that it
+can be found again. A run found wrong is deleted, or marked wrong where it
+lies, before anything is quoted from the folder it is in.
 
 **What not to run at the same time.** *(Round 69.)*
 - **Tests and screenshots, not together.** A set of thirty shots is past ten
@@ -3327,10 +3382,16 @@ acceptance are report two, next round.)*
   panel past the sink, and both ends of D's column group. The toe kick ran to
   the very end of the run, flush with the side of the last cabinet. The door
   wrongly on that side had stood 3/4" proud and covered the kick's end, so the
-  band had always been there. A finished end goes to the floor, and the toe
-  recess shows only at the front. The kick now stops 1-1/2" short of each run's
-  far end — `TOE_SETBACK`, the same figure it is set back at the front and the
-  island's is set in by all round.
+  band had always been there. A finished end goes to the floor. The kick now
+  stops 1-1/2" short of each run's far end — `TOE_SETBACK`, the same figure it
+  is set back at the front and the island's is set in by all round.
+  - *Corrected in round 85 (checked read only; Leo).* This entry said "the toe
+    recess shows only at the front". No recess shows at the front, and none
+    ever has: the kick is a box inside the base carcass, its front 3" behind
+    the carcass front, and the carcass and its door both stand on the floor
+    (the first commit, `ae79efe`, and `BASE_BOX` since round 6). The kick can
+    be seen only in the install view, through the ghosted carcass. Whether
+    the front should show a recess is Leo's to decide (Open items).
   - Its break at a freestanding range, or a freestanding refrigerator, is still
     exactly at the machine's side, and the run's start still meets the wall or
     the corner cabinet.
@@ -4484,6 +4545,15 @@ Registered, not scheduled. None of these is a round of its own.
     devtools hook, absent in every run that did. Round 84's build gave the
     same picture with or without the hook in seven runs. Forcing a shadow-map
     refresh changed nothing in either build. Cause not found.
+  - *Round 85: the hook is not what decides it.* With the hook on every page,
+    both round 84's build and round 85's gave the same two pictures run to
+    run — 100,000 to 200,000 pixels apart, mostly by a few levels, over the
+    whole room — on the five packages as they open as well as after a swap.
+    Every comparison in round 85 was taken between an old run and a new run
+    in the same state, found by comparing all four pairs; each of the five
+    packages as it opens had such a pair at 0 pixels (D's and E's desktop overview
+    at one pixel by 1-2 levels, the pixel at (144, 225) that also differs
+    between runs of one build).
 - **A 120V machine's generic power point is drawn at 42", the hood's
   included.** *(Round 78, found while checking the hood's point; not
   changed.)* With no model entry, a 120V connection is drawn at
@@ -4640,7 +4710,7 @@ Registered, not scheduled. None of these is a round of its own.
   back.
 - **On a phone in Chinese, the "MT" chip sits over the "E" package button.**
   *(Found round 82, on the live site as well; Leo: fix with the right panel's
-  round, now round 85.)* The top
+  round, now round 86.)* The top
   bar at 390px: the machine-translation chip is drawn over the last package
   button.
 - **A model of another install type, for four more kinds of slot.** *(Found
@@ -4700,8 +4770,10 @@ Registered, not scheduled. None of these is a round of its own.
     `data/appliances.json` (the same way an unaccounted row stops it, D4).
     Leo: an edit to the sheet has already once taken out a row it was not
     meant to touch.
-- **The strips beside a hood and inside a tall unit's opening take no shadow
-  and stand 3/4" behind the doors.** *(Found round 84; Leo: the next round.)*
+- ~~**The strips beside a hood and inside a tall unit's opening take no shadow
+  and stand 3/4" behind the doors.**~~ **Done in round 85** (D13, round 85;
+  D11 rule 12, round 85), with the half inch joined into one. What follows is
+  the entry as it stood: *(Found round 84; Leo: the next round.)*
   Round 84 measured the cause on the strips beside a range: the machine's
   `Filler` (ApplianceModel.tsx) casts shadows and takes none, so its front is
   lit where the cabinet fronts beside it are in shadow, and its face is in the
@@ -4717,8 +4789,10 @@ Registered, not scheduled. None of these is a round of its own.
   - The half inch at which a gap stops being a scribe is written twice, the
     hood's own and `SCRIBE_IN`, and they disagree at exactly 1/2" (D17's table,
     round 84). Join them in the same round.
-- **Is the toe kick drawn as D22 round 50 describes?** *(Found round 84; Leo:
-  record it.)* Read off the scene in round 84 (package B, round 83's code):
+- ~~**Is the toe kick drawn as D22 round 50 describes?**~~ **Answered in round
+  85: no, and D22's sentence is corrected** to what is drawn. The question it
+  leaves is the entry after this one. What follows is the entry as it stood:
+  *(Found round 84; Leo: record it.)* Read off the scene in round 84 (package B, round 83's code):
   a base cabinet's carcass and its door both start at the floor (carcass 0" to
   34-1/2", door 1/16" to 34-7/16"), and the toe kick is a box inside the
   carcass, its front 3" behind the carcass front. So from the front no recess
@@ -4726,6 +4800,42 @@ Registered, not scheduled. None of these is a round of its own.
   short of each run's far end" and that "the toe recess shows only at the
   front". Whether a recess is meant to show at the front today, and since
   when it has not, has not been checked.
+  - **Checked in round 85, read only, nothing changed.** It never has. The
+    toe kick box is the same as in the first commit (`ae79efe`, 2026-09-05):
+    4" tall, 21" deep, its front 3" behind the carcass front. The base
+    carcass has always started at the floor — 0" to 36" at first, 0" to
+    34-1/2" since round 6 (`BASE_BOX`, `7f7d85d`, 2026-09-06) — and the door
+    with it. So the kick has stood inside the carcass from the start and no
+    recess has ever shown at the front; the one place it ever showed was the
+    dark band at an exposed run end that round 50 fixed (`85173f0`), where
+    the kick's end met the end panel. Round 50's sentence, "the toe recess
+    shows only at the front", describes the intent, not the drawing. In the
+    install view the carcass is ghosted, and the kick can be seen through it.
+- **Whether the front of a base cabinet shows a toe kick recess.** *(Leo,
+  round 85: registered, his to decide; not drawn in round 85.)* Today the
+  base carcass and its door stand on the floor and the kick is hidden inside
+  (D22, round 50, corrected in round 85). Drawing a recess would mean the
+  carcass and the door starting at the kick's height, 4" (`ROOM.toeKick`), with
+  the kick set back under them — every base cabinet and every picture of
+  every package would change, and what stands beside a machine on the floor
+  (a range, a dishwasher) would need looking at where the kick meets it.
+- **The strips beside a chimney hood in a slot wider than it.** *(Leo, round
+  85: only when a model is changed; waiting for his site practice; not this
+  round.)* HMCB30WS in A's 36" hood slot (about 3" each side) or in B's and
+  D's 42" housing slot (about 6"): the strips are drawn from the canopy's
+  underside to its top (`hoodSideFillers`, round 79, "up to the floor of the
+  cabinet over it"), and a chimney hood has no cabinet over it, so they are
+  8-9/16" tall with bare wall above, beside the chimney cover. No package's
+  own hood is in this state: C's is HMCB30WS in its own 30" slot, a 1/32"
+  scribe each side, no strips (round 85, its live page looked at front on).
+- **The panels a machine draws above or below itself have no face either.**
+  *(Found round 85, read from the code, not measured.)* `Filler`
+  (ApplianceModel.tsx) also draws a drawer front under a machine hung in its
+  opening and a panel over one shorter than its opening, as plain boxes with
+  their front in the carcass line; they take shadows. Round 85 put the face
+  (`BoardFace`) on the strips beside a machine only, as planned. Which
+  machines in which packages draw these, and whether they show, has not been
+  looked at.
 - **A fixed camera for screenshot diffs.** *(Leo, round 82: registered, not
   built.)* A URL parameter used only for comparing screenshots, of the same
   kind as `?quality=high` (D17), that sets the camera pose exactly — so a shot
@@ -4756,10 +4866,12 @@ Registered, not scheduled. None of these is a round of its own.
        cooking slot following the range chosen (Leo, from use; D16, round 83),
        *done in round 83*. **Round 84** became a range narrower than its
        opening closed in by the run (Leo, from use; D16, round 84), *done in
-       round 84*. **Round 85**: the right panel's tabs, the `Slider` warning,
-       and the "MT" chip over "E" on a Chinese phone (Leo, round 84: moved
-       back a round). What each decides is written here when that round is
-       built.
+       round 84*. **Round 85** became the strips beside a hood and inside a
+       tall unit's opening faced and shaded like the cabinets (Leo, from round
+       84's findings; D13, round 85), *done in round 85*. **Round 86**: the
+       right panel's tabs, the `Slider` warning, and the "MT" chip over "E" on
+       a Chinese phone, after Leo's feedback from use (Leo, round 85). What
+       each decides is written here when that round is built.
   1. **A hood's own outlet first.** The duct drawn and quoted follows the
      model's own outlet where its sheet gives one, rather than only the
      airflow band (the two data points above).

@@ -110,6 +110,22 @@ describe("where there are no strips", () => {
     });
   });
 
+  // Round 85: half an inch or less each side is a scribe, the same half inch
+  // everywhere (`SCRIBE_IN`). The hood's own copy drew a strip at exactly half
+  // an inch where `Filler` and the range's fillers drew none (D17's table, the
+  // twelfth). A hood exactly an inch narrower than its slot: none.
+  it("has none where the gap each side is exactly a scribe", () => {
+    const { slot } = hang(AK7300AS);
+    const narrower = { ...AK7300AS, widthIn: slot.cutout.w - 1 } as Appliance;
+    expect(hoodSideFillers(slot, narrower)).toBeNull();
+  });
+
+  it("has strips once the gap is past a scribe", () => {
+    const { slot } = hang(AK7300AS);
+    const narrower = { ...AK7300AS, widthIn: slot.cutout.w - 1.25 } as Appliance;
+    expect(hoodSideFillers(slot, narrower) && inches(hoodSideFillers(slot, narrower)!.widthFt)).toBe(0.625);
+  });
+
   it("has none beside a hood hung over an island", () => {
     const island = { ...SLOT_BY_ID["slot-hood"], mount: "island" as const };
     expect(hoodSideFillers(island, AK7300AS)).toBeNull();

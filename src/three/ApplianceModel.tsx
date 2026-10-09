@@ -32,6 +32,7 @@ import {
   rangeParts,
 } from "../data/rangeModel";
 import { Surface } from "./Surface";
+import { BoardFace } from "./BoardFace";
 import { CABINET_STANDARDS, ROOM, SLOT_BY_ID, ft } from "../data/slots";
 import { hingeAwayFrom, trimKitBeside, trimKitsBeside } from "../data/room";
 import { runForSlot } from "../data/room";
@@ -227,6 +228,20 @@ function Filler({
       </mesh>,
     );
   }
+  // A strip beside the machine is a board like the run's: it takes shadows as
+  // the cabinets beside it do, and it carries their face, in the plane of the
+  // doors (`BoardFace`, round 85). Until round 85 it cast shadows and took
+  // none, and had no face: its front was the carcass line, 3/4" behind the
+  // doors, and it read lighter than the cabinets either side.
+  const strip = (key: string, x: number, y: number, z: number, w: number, h: number, d: number) => (
+    <group key={key}>
+      <mesh position={[x, y, z]} castShadow receiveShadow userData={{ cabinetRole: true }}>
+        <boxGeometry args={[w, h, d]} />
+        <Mat s={cabinet} size={[w, h]} />
+      </mesh>
+      <BoardFace width={w} height={h} front={z + d / 2} at={[x, y]} s={cabinet} />
+    </group>
+  );
   // Beside a wall hood the strip is the wall cabinets', not a base cabinet's:
   // 12" deep against the wall, from the underside to the cabinet over it.
   // Leo's site practice, round 79 (`hoodSideFillers`).
@@ -234,29 +249,29 @@ function Filler({
   if (hoodSides) {
     for (const side of [-1, 1]) {
       pieces.push(
-        <mesh
-          key={"hood-side" + side}
-          position={[side * hoodSides.x, hoodSides.y, hoodSides.z]}
-          castShadow
-          userData={{ cabinetRole: true }}
-        >
-          <boxGeometry args={[hoodSides.widthFt, hoodSides.heightFt, hoodSides.depthFt]} />
-          <Mat s={cabinet} size={[hoodSides.widthFt, hoodSides.heightFt]} />
-        </mesh>,
+        strip(
+          "hood-side" + side,
+          side * hoodSides.x,
+          hoodSides.y,
+          hoodSides.z,
+          hoodSides.widthFt,
+          hoodSides.heightFt,
+          hoodSides.depthFt,
+        ),
       );
     }
   } else if (slot !== "slot-hood" && box.filler.eachSide > MIN) {
     for (const side of [-1, 1]) {
       pieces.push(
-        <mesh
-          key={"side" + side}
-          position={[side * (box.w / 2 + box.filler.eachSide / 2), box.y + box.h / 2, 0]}
-          castShadow
-          userData={{ cabinetRole: true }}
-        >
-          <boxGeometry args={[box.filler.eachSide, box.h, depth]} />
-          <Mat s={cabinet} size={[box.filler.eachSide, box.h]} />
-        </mesh>,
+        strip(
+          "side" + side,
+          side * (box.w / 2 + box.filler.eachSide / 2),
+          box.y + box.h / 2,
+          0,
+          box.filler.eachSide,
+          box.h,
+          depth,
+        ),
       );
     }
   }
