@@ -1,4 +1,4 @@
-import { dropsIntoCounter } from "./cookingSurface";
+import { dropsIntoCounter, openingAlong } from "./cookingSurface";
 import { bowlExtent, FIXTURE_BY_ID } from "./fixtures";
 import { ROOM, RUNS, ft, type CabinetRun } from "./room";
 import { islandAcross, islandAlong, type IslandLayout } from "./layoutTemplate";
@@ -187,15 +187,18 @@ const standsOnTheFloor = (range?: Appliance) => !range || !dropsIntoCounter(rang
  * which is a tall unit three quarters of an inch wide. And a range that stands
  * on the floor rather than dropping into the top, which is the same cut for
  * the same reason.
+ *
+ * The range's cut is the machine's own width, not its opening's (round 84,
+ * Leo): a range narrower than its opening has a filler each side, and the
+ * stone runs over the fillers to the machine's two sides.
  */
 function cuts(run: CabinetRun, range?: Appliance): [number, number][] {
   const floorStanding = standsOnTheFloor(range);
-  return run.segments
-    .filter(
-      (segment) =>
-        segment.kind === "tall" || (floorStanding && segment.slot === "slot-range"),
-    )
-    .map((segment) => [segment.from, segment.to] as [number, number]);
+  return run.segments.flatMap((segment): [number, number][] => {
+    if (segment.kind === "tall") return [[segment.from, segment.to]];
+    if (floorStanding && segment.slot === "slot-range") return [openingAlong(segment)];
+    return [];
+  });
 }
 
 /** A run from `from` to `to`, minus the stretches cut out of it. */

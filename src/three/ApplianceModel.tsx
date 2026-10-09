@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import type { ThreeEvent } from "@react-three/fiber";
 import { applianceBox, doorOverhang, flushOffset, isRangetop } from "../data/applianceBox";
+import { SCRIBE_IN } from "../data/cookingSurface";
 import { standardInstall, type StandardInstall } from "../data/ovenTrim";
 import {
   coffeeParts,
@@ -189,7 +190,7 @@ function Filler({
   const front = depth / 2 + 0.01;
   const openingW = ft(def.cutout.w);
   /** Below half an inch there is nothing to build; that is a scribe, not a panel. */
-  const MIN = ft(0.5);
+  const MIN = ft(SCRIBE_IN);
   const pieces: React.ReactNode[] = [];
 
   if (box.filler.below > MIN) {

@@ -48,6 +48,11 @@ what it shows, on their own:
    `OcclusionFade.tsx`) and works the fade out at once; every later frame is
    every fourth, as before. `tests/fadeRebuild.test.ts` holds it.
 
+   *Amended 2026-10-09 (round 84): a narrow range's fillers are its own.* The
+   run's fillers either side of a range narrower than its opening, and the
+   stone over them, are not on its sight line — they stand where its own
+   strips stood (D16, round 84, `inOwnFillers`).
+
 **Forbidden:** switching render mode, toggling day/night, toggling a layer, or
 changing language must leave the camera pose bit-identical.
 
@@ -1777,6 +1782,119 @@ has to follow.
   Four older tests held the slide-in as dropping in and were rewritten to the
   rule (`counter.test.ts`, `layout.test.ts`).
 
+**Amended 2026-10-09 (round 84), Leo: a range narrower than its opening is
+closed in by the run.** From Leo using package B: its 36" rangetop changed on
+the model card to a 30" freestanding gas range (MFGS4030RS), and the 3" left
+each side was drawn as two strips of a lighter colour standing up past the
+counter, with no stone over them.
+- **Leo's rule, from site, in his words:** "30“宽炉头两边的填充应该是顺滑的橱柜和
+  countertop的无缝填充才对". The filler each side of a range narrower than its
+  opening is part of the cabinetry — the doors' finish, flush with their fronts,
+  the toe kick carried through — and the countertop runs over it to the
+  machine's two sides, so it reads as one piece. In any package. Source: Leo's
+  site practice.
+- **What was drawn, and why it looked like that** (measured in round 84 on
+  round 83's code). The strips were the machine's own `Filler`
+  (ApplianceModel.tsx), a plain box: 24" deep, its front in the carcass line,
+  3/4" behind the doors; as tall as the machine (MFGS4030RS 47-7/8" with its
+  backguard, so a foot past the counter); no stone over it, because the counter
+  was cut across the whole opening; no toe kick, because the kick broke at the
+  opening. The paint was the doors' own (`#2e5c45`, the same roughness and
+  metalness); the colour was the light: the strips cast shadows and took none,
+  so their fronts were lit where every cabinet front beside them is in shadow.
+  With only that changed in the browser, a strip's face went from
+  `113,173,136` to `75,136,103`, the door beside it being `74,135,103`.
+- **One answer, asked by both:** `rangeFillerIn` in
+  `src/data/cookingSurface.ts` — how much of the cooking opening is left each
+  side of a range standing on the floor in it. Nothing for a machine that drops
+  into the stone (`dropsIntoCounter`), and nothing for half an inch or less,
+  which is a scribe (`SCRIBE_IN`, the half inch `Filler` already drew to, now
+  read from there). The run asks it and orders the opening as a filler, the
+  machine's own opening and a filler (`cooking` in layoutTemplate.ts): the
+  run's `BF` filler module, drawn with round 50's flush strip face, in the
+  run's finish, under the stone, with the kick under it. `applianceBox` asks it
+  and leaves the machine nothing to fill. So the two cannot both build the
+  fillers, or neither.
+- **The opening stays the slot's width**, one segment, so nothing along the run
+  moves and no wall grows. `openingAlong` (cookingSurface.ts) says where in that
+  segment the machine stands; what stops at the machine reads it, what is about
+  the wall the cabinets leave reads the segment:
+  - **stop at the machine:** the stone (`cuts` in counter.ts), the toe kick
+    (cabinets.ts), D11 rule 4's landings and rule 12's counter between the
+    machine and the oven tower (layoutRules.ts: a range's filler is counter on
+    its side), and the dimension chain beside the cooking surface
+    (dimensions.ts). *(Leo, round 84: measured to the machine is right — the
+    counter now runs to the machine, and that is where a customer's counter
+    starts.)*
+  - **keep the opening:** the backsplash (`HOOD_OPENING`, room.ts) and the wall
+    cabinets either side of the hood (`hoodSpan` and `wallCuts`,
+    layoutTemplate.ts). Round 84's first report called the last two "the sink
+    and landing order"; they are the hood's span and the wall cabinets' cuts.
+- **Choosing a range rebuilds the room when the gap changes as well as the
+  kind** (`setRangeModel`): package A's 36" range for a 30" one are both on the
+  floor, and round 83's condition rebuilt nothing for that swap. A range
+  carried into another package by a switch is recorded the same way, so B's
+  30" range taken into A is closed in there too.
+- **Found by the pixel diff, and fixed in the same round: flying to the range
+  turned the whole countertop to glass.** The sight-line fade (D1) casts a grid
+  of rays at points inside the machine. The top ray on the far side leaves a
+  30" machine's side at about counter height and crosses the stone now run
+  over the filler, and the stone is one slab with the whole countertop, so all
+  of it faded, and the filler with it. Until round 84 that stretch was the
+  machine's own strip, which the fade never counts, with no stone over it. A
+  36" range that fills its opening never sent a ray there (A's and C's own:
+  nothing at the range faded but the cabinet beside it, measured). So what is
+  in a narrow range's fillers — the two boards and the stone over them — is
+  the opening's own, as an enclosure is (`inOwnFillers` in OcclusionFade.tsx,
+  asking `rangeFillerIn`). Only the range, only where it has fillers; nothing
+  else the fade does changed. How it was found: a probe added to the fade for
+  one build, listing which ray met what, and then taken out.
+- **Measured** (D17's third way: round 83's code built here, `index-Dnoc9Hz3.js`,
+  the live page's own, against round 84's, `index-4ZRBO9Om.js`; the same
+  server, real input — the mouse on a desktop at 1440 x 900, a finger on a
+  phone at 390 x 844 — and `?quality=high`; every set shot at least twice and
+  compared only between runs that agree).
+  - **The five packages as they open** — the overview and the install view on
+    a desktop, the overview on a phone: **0 pixels**, but one pixel by 1-2
+    levels at (144, 225), which also differs between two runs of one build.
+    Two of the three runs of round 83's build had A's desktop overview and
+    install view 152,258 and 103,182 pixels off the third, all over the room
+    and mostly by a few levels — the run-to-run wash this method was written
+    for (round 81 met 152,251 on the same shot); the third matched round 84's
+    runs to the pixel.
+  - **The two swaps Leo asked for**, B to MFGS4030RS and A to PRG304WH, flown
+    to, the view reset, and in the white model, desktop and phone: changed only
+    at the range — the strips gone, the stone run to the machine, the fillers
+    in the doors' finish. B's overview 6,640 pixels inside the range's box,
+    A's 3,810; the fly-ins 28,098 (B) and 19,805 (A), at the range and the
+    cabinet beside it.
+  - **A speckle over the floor, the stone and the steel**, 123,373 to 129,924
+    pixels on B's swap, appeared in every run of round 83's build that did not
+    install three.js's devtools hook and in none that did; round 84's build
+    gave the same pictures either way in seven runs. Not explained; the
+    comparisons above are against round 83's runs with the hook, which agree
+    with each other to the pixel (Open items, the rebuild wash).
+- **Nine swaps today**, every one from the model card and none a package's own:
+  MFGS4030RS, HIS8055U (slide-in) and PRG304WH, each in A's, B's and D's 36"
+  opening. C's opening is 30" and its ranges fill it (MFGS4030RS's 1/16" each
+  side is a scribe). Nothing else in the room was changed: the strips beside a
+  hood or inside a tall unit's opening are the next round's (Open items).
+- Tests: `rangeFillers.test.ts` — the nine, counted; the run's three modules,
+  the stone over each filler and not over the machine, the kick to the
+  machine's sides, each filler a base-height strip box, no filler from the
+  machine, no filler left once the package's own range is back, the rebuild
+  on a range-for-a-range swap and on a switch; and the readers: rule 4's
+  landing, rule 12's counter, the dimension chain (each red on round 83's code,
+  for the reason it names), the backsplash and the wall cabinets (green there,
+  as they must be; each was broken on purpose and went red, and only its own
+  case did). `tests/rangeSwap.test.ts` — B to MFGS4030RS and A to PRG304WH on
+  the model card, desktop and phone: the run's two fillers in the scene, none
+  drawn by the machine, and neither the countertop nor a filler faded while
+  the range is flown to; red on round 83's build in all four (no fillers), and
+  red on round 84's before the fade fix in all four (the countertop and the far
+  filler faded). `occlusionFade.test.ts` — the filler zone on a slot written
+  out by hand; red with its inner edge taken away.
+
 ## D17 · A push is not a deploy
 
 **Decided:** 2026-09-08 (round 21), Leo, after four failed deploys in a row.
@@ -2027,6 +2145,7 @@ repository has them)* — one rule, written more than once:
 | round 78 | the duct diameter for an airflow | `thresholds.duct` in data/rules.json, read by the checklist's duct line; and a literal in `utilities.ts` (`cfm > 600 ? 10 : cfm >= 400 ? 8 : 6`), read by the quote, the spec card and the install view | **one**: `utilities.ts` asks `ductDiameterFor` (round 78) | **it had bitten, on the live site, at exactly 400 CFM**: the table says 6" up to 400 and the literal said 8" from 400, its own comment ("6\" to 400 CFM") agreeing with the table. Zephyr AK7136AS-BF, 400 CFM, in package A's hood list: the checklist said 6" and the quote 8". `thresholdCopies.test.ts` checks both at every band edge, and was red on the old code at 400. |
 | round 78 | a gas pipe upsized above 65,000 BTU — **the third copy** | the rule's condition and `thresholds.gasPipeUpsizeBTU` (round 65's row), and a literal `65_000` in `utilities.ts` that round 65 did not find — **the copy the quote, the spec card and the install view actually printed** | **one**: the rule's condition, asked through `gasPipeFor` in `rules.ts`, which runs the rule engine's own test; `thresholds.gasPipeUpsizeBTU` deleted (round 78) | **the day the rule's figure moved**: the checklist line would have followed it and the quote's pipe size would not. `thresholdCopies.test.ts` moves the rule's threshold to 90,000 and sees the quote follow; on the old code it did not. |
 | round 83 | whether a cooking machine drops into the counter or stands on the floor | three, from the start: the run's cabinet under it (`layoutTemplate.ts`, from the *package's* slot, `installType === "rangetop"`); the counter's hole or cut (`counter.ts`, from the model, by the word "freestanding"); the machine's placement (`applianceBox.ts`, from the model, a rangetop or a cooktop) | **one**: `dropsIntoCounter` in `cookingSurface.ts`, which all three ask (round 83) | **it had bitten, on the live site, three ways**: package A with its range changed to the PCG366W rangetop hung the rangetop over an empty opening (Leo, from use); package B with its rangetop changed to a pro range drew the range inside B's drawer base; and a slide-in got a hole in a slab running over it. `rangeJoinery.test.ts` holds every package and every range it offers; each old copy put back on purpose turned it red. |
+| round 84 | how much beside a machine is a scribe and not a board: half an inch | `Filler` in ApplianceModel.tsx (`MIN`, nothing drawn at 1/2" or less) and `hoodSideFillers` in hood.ts (`SIDE_FILLER_MIN_IN`, nothing drawn under 1/2") — they disagree at exactly 1/2", where the hood draws a strip and `Filler` does not | **two**: round 84 put the first in `cookingSurface.ts` (`SCRIBE_IN`), read by `Filler` and by the run's range fillers (`rangeFillerIn`); the hood's is still its own | **not yet**: a hood exactly 1" narrower than its slot. None in the catalogue. Joined with the strips beside a hood, the next round (Open items). |
 
 Round 60's quarter-inch window step is a near relative rather than a member:
 one rule, but its search and its judgement worked to different resolutions,
@@ -2062,7 +2181,9 @@ closed — round 65's gas row was never really closed, because a third copy it d
 not know about was the one being printed. The eleventh, round 83's, is closed,
 and is the first that started at three copies: one question answered from the
 package in one place and from the model, by two different tests, in the other
-two. The table has ten rows for those eleven: round 60's has
+two. The twelfth, round 84's, is open: found while the range's fillers were
+given the same half inch, and left for the round that takes up the hood's
+strips. The table has eleven rows for those twelve: round 60's has
 none of its own. The table is here so that the next one found
 is added to it rather than rediscovered.
 
@@ -4356,6 +4477,13 @@ Registered, not scheduled. None of these is a round of its own.
   same. Like the day-after-night difference above, **whoever meets it first
   will read it as something they broke**: compare a rebuilt room only with a
   rebuilt room (put one rebuild on both sides of a diff), as round 78 did.
+  - *Round 84, met in a new form.* Package B with its range changed to
+    MFGS4030RS on round 83's build: 123,373 to 129,924 pixels of the same kind
+    of speckle, over the floor, the stone and the steel, between runs of that
+    one build — present in every run whose page did not install three.js's
+    devtools hook, absent in every run that did. Round 84's build gave the
+    same picture with or without the hook in seven runs. Forcing a shadow-map
+    refresh changed nothing in either build. Cause not found.
 - **A 120V machine's generic power point is drawn at 42", the hood's
   included.** *(Round 78, found while checking the hood's point; not
   changed.)* With no model entry, a 120V connection is drawn at
@@ -4512,7 +4640,7 @@ Registered, not scheduled. None of these is a round of its own.
   back.
 - **On a phone in Chinese, the "MT" chip sits over the "E" package button.**
   *(Found round 82, on the live site as well; Leo: fix with the right panel's
-  round, now round 84.)* The top
+  round, now round 85.)* The top
   bar at 390px: the machine-translation chip is drawn over the last package
   button.
 - **A model of another install type, for four more kinds of slot.** *(Found
@@ -4572,6 +4700,32 @@ Registered, not scheduled. None of these is a round of its own.
     `data/appliances.json` (the same way an unaccounted row stops it, D4).
     Leo: an edit to the sheet has already once taken out a row it was not
     meant to touch.
+- **The strips beside a hood and inside a tall unit's opening take no shadow
+  and stand 3/4" behind the doors.** *(Found round 84; Leo: the next round.)*
+  Round 84 measured the cause on the strips beside a range: the machine's
+  `Filler` (ApplianceModel.tsx) casts shadows and takes none, so its front is
+  lit where the cabinet fronts beside it are in shadow, and its face is in the
+  carcass line, 3/4" behind the doors. The range's are the run's own fillers
+  now (D16, round 84). The same two things are read from the code, **not
+  measured**, for:
+  - the strips beside a wall hood narrower than its slot (`hoodSideFillers`,
+    round 79): in the wall cabinets' carcass line, 3/4" behind their doors;
+  - the strips inside a tall unit's opening when a column is narrower than it —
+    A's and B's refrigerator slot with the 30" T30IR905SP (3" each side), D's
+    freezer slot with T18IF900SP and its wine slot with T18IW100SP (3" and
+    3-1/8"), each 84" tall.
+  - The half inch at which a gap stops being a scribe is written twice, the
+    hood's own and `SCRIBE_IN`, and they disagree at exactly 1/2" (D17's table,
+    round 84). Join them in the same round.
+- **Is the toe kick drawn as D22 round 50 describes?** *(Found round 84; Leo:
+  record it.)* Read off the scene in round 84 (package B, round 83's code):
+  a base cabinet's carcass and its door both start at the floor (carcass 0" to
+  34-1/2", door 1/16" to 34-7/16"), and the toe kick is a box inside the
+  carcass, its front 3" behind the carcass front. So from the front no recess
+  shows on any base cabinet. D22 round 50 says the kick "now stops 1-1/2"
+  short of each run's far end" and that "the toe recess shows only at the
+  front". Whether a recess is meant to show at the front today, and since
+  when it has not, has not been checked.
 - **A fixed camera for screenshot diffs.** *(Leo, round 82: registered, not
   built.)* A URL parameter used only for comparing screenshots, of the same
   kind as `?quality=high` (D17), that sets the camera pose exactly — so a shot
@@ -4600,8 +4754,12 @@ Registered, not scheduled. None of these is a round of its own.
        model card, the truncation rule's test and one shared component for the
        model line. *Done in round 82* (D12, round 82). **Round 83** became the
        cooking slot following the range chosen (Leo, from use; D16, round 83),
-       *done in round 83*. **Round 84**: the right panel's tabs, the `Slider`
-       warning, and the "MT" chip over "E" on a Chinese phone. What each decides is written here when that round is built.
+       *done in round 83*. **Round 84** became a range narrower than its
+       opening closed in by the run (Leo, from use; D16, round 84), *done in
+       round 84*. **Round 85**: the right panel's tabs, the `Slider` warning,
+       and the "MT" chip over "E" on a Chinese phone (Leo, round 84: moved
+       back a round). What each decides is written here when that round is
+       built.
   1. **A hood's own outlet first.** The duct drawn and quoted follows the
      model's own outlet where its sheet gives one, rather than only the
      airflow band (the two data points above).

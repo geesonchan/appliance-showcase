@@ -12,7 +12,7 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **round 83** (`docs/decisions.md` is the record of
+Covers the repository up to **round 84** (`docs/decisions.md` is the record of
 rounds; `git log` is the record of commits). It replaces the v1–v9 briefs that
 were pasted into chat.
 
@@ -58,10 +58,11 @@ every figure of it, is `data/packages.json`; D16 and D20 say how a package is
 put together and why E was built the way it was. **Do not copy those numbers
 anywhere**: the file is the one source, and the tests read it.
 
-### Where it stands (round 83)
+### Where it stands (round 84)
 
-- **All five packages are live.** Rounds 73–79 each shipped, and each was
-  checked against the live page's asset hashes after its workflow finished.
+- **All five packages are live.** Rounds 73–79 and 81–84 each shipped (round
+  80 built nothing), and each was checked against the live page's asset hashes
+  after its workflow finished.
 - **The project is in real use.** Rounds 73–77 all came from Leo using package
   E himself: a wine cooler under the coffee machine (73), E's combination oven
   hanging at 0" (74), the coffee machine at its manual's height (75), the
@@ -81,7 +82,10 @@ anywhere**: the file is the one source, and the tests read it.
   Leo's decisions are its section 9. The interface work is three rounds, in
   Leo's order, in the Open items: 81 the fade flash (**done**, D1 round 81),
   82 the model card (**done**, D12 round 82); round 83 became the cooking slot
-  following the range chosen (**done**, D16 round 83); 84 the right panel's tabs; then a hood's own outlet,
+  following the range chosen (**done**, D16 round 83); round 84 became a range
+  narrower than its opening closed in by the run (**done**, D16 round 84, from
+  Leo using package B); 85 the right panel's tabs, the `Slider` warning and
+  the "MT" chip over "E" on a Chinese phone; then a hood's own outlet,
   then 79a (the doors of the cabinet over the hood and the outlet shown in
   it), then 79b. The 30" option in A is paused.
 
@@ -97,12 +101,13 @@ anywhere**: the file is the one source, and the tests read it.
 | `docs/reference/` | Manufacturer drawings and manuals, with `README.md` listing every file and what it settles. A figure with no entry here is not a source (D21). |
 | `src/data/` | The geometry and the rules: room and runs, cabinets, layout template, layout rules, rough-in, quote, checklist. |
 | `src/three/` | The scene: cabinets, appliances, utilities, rough-in layer, camera. |
-| `src/ui/` | Panels, install checklist, quote sheet, spec card. |
+| `src/ui/` | Panels, install checklist, quote sheet, spec card, the model card (`ModelCard.tsx`) and the shared brand · model line (`ModelLine.tsx`). |
 | `src/i18n/` | `en.json`, `zh.json`, `reviewed.json` (copy Leo has approved, locked to his words), `index.ts` (`translate`, `sayWith`). |
 | `tests/smoke.test.ts` | The browser suite: a real build in a real browser. |
 | `tests/fadeRebuild.test.ts` | A rebuilt room draws no faded cabinet solid, frame by frame (D1, round 81). |
 | `tests/modelCard.test.ts`, `tests/modelLine.test.ts` | The model card against the list, and brand · model's layout rule (D12, round 82). |
-| `tests/rangeSwap.test.ts` | What stands under the cooking surface follows the range chosen (D16, round 83). |
+| `tests/rangeSwap.test.ts` | What stands under the cooking surface follows the range chosen (D16, round 83), and a range narrower than its opening is closed in by the run's fillers (round 84). |
+| `src/data/rangeFillers.test.ts` | The nine narrow-range swaps, the run's fillers, the stone and the kick to the machine, and what reads the cooking opening (D16, round 84). |
 | `scripts/screenshots.mjs` | Screenshot sets by round. |
 
 Commands: `npm run dev`, `npm run build`, `npm run test:unit` (unit only,
@@ -157,9 +162,10 @@ what to go and read.
 - **A figure that cannot say exactly why it is that figure** may be working
   round a bug; record that it cannot. D17.
 - **One rule is written once.** D17 carries the table of every time it was
-  written twice: ten rows, for eleven times it happened — round 60's
+  written twice: eleven rows, for twelve times it happened — round 60's
   quarter-inch window step is counted as a near relative, the fifth, and has
-  no row of its own. One is still open, the first. The eighth (round 74, 54"
+  no row of its own. Two are still open, the first and the twelfth (round 84,
+  the half inch that is a scribe). The eighth (round 74, 54"
   and 52" for the same handle height) was stopped before the second copy was
   written; round 78 found a third copy of one already marked closed.
 - **Visual changes are proved by pixel diff**, live against local, mouse
@@ -230,6 +236,14 @@ list here:
   slot's own figure (D11 rule 14, round 75).
 - **HMCB30WS's installation manual** — package C's duct route,
   `through-ceiling`, is an inference (D22, round 58).
+- **PRG366WH's specification sheet and installation manual** — the range's
+  figures are written out from a note (docs/reference/README.md, its last
+  section), and the anti-tip bracket's position waits for the manual (Open
+  items; D16, round 83).
+- **PRG304WH's own document** — it carries PRG366WH's figures (Open items,
+  the 30" option in A).
+- **The 18" column's panel drawing, `t18iw905sp-panel.png`** — its figures
+  are in `WINE_COLUMN`, and the README row says the file is not here.
 
 What is inferred rather than read off a drawing is marked in the data itself:
 every rough-in point carries a `provenance`, and the install view draws the

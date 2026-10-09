@@ -3,7 +3,8 @@ import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 import { SLOT_BY_ID, ft } from "../data/slots";
 import { toLocal } from "../data/frame";
-import type { SlotId } from "../types";
+import type { Appliance, Slot, SlotId } from "../types";
+import { rangeFillerIn } from "../data/cookingSurface";
 import { anchorFor } from "./pinAnchor";
 import { FURNISHING_LAYER, furnishingHits } from "./barStoolMesh";
 import { DEBUG } from "../debug";
@@ -71,6 +72,34 @@ export function blocksSightLine(
 ): boolean {
   if (!isAppliance) return true;
   return outFt > ownDepthFt;
+}
+
+/**
+ * Whether a point on the plan lies in the fillers either side of a range
+ * narrower than its opening — the run's two boards and the stone over them.
+ *
+ * Round 84: those stand where the machine's own strips stood until then, and
+ * the strips were the machine's, so the fade never counted them. As the run's
+ * joinery they were met by the sight line and faded, and the stone over them
+ * is one slab with the whole countertop: flying to a 30" range in a 36"
+ * opening turned every inch of counter in the room to glass. What is inside
+ * the machine's own opening is not in its way, as its enclosure is not. Only
+ * the range, and only where the run has fillers beside it (`rangeFillerIn`);
+ * nothing else the fade does changes.
+ */
+export function inOwnFillers(
+  slot: Pick<Slot, "id" | "position" | "rotationY" | "cutout">,
+  appliance: Appliance | undefined,
+  x: number,
+  z: number,
+): boolean {
+  if (slot.id !== "slot-range") return false;
+  const fillerIn = rangeFillerIn(slot.cutout.w, appliance);
+  if (fillerIn === 0) return false;
+  const across = Math.abs(toLocal(slot, x, z).across);
+  const half = ft(slot.cutout.w) / 2;
+  const edge = 1e-6;
+  return across >= half - ft(fillerIn) - edge && across <= half + edge;
 }
 
 /** Whether a mesh belongs to a machine rather than to the joinery. */
@@ -272,9 +301,12 @@ export function OcclusionFade() {
         ...raycaster.intersectObjects(layers, true),
         ...furnishingHits(scene.getObjectByName(FURNISHING_LAYER), raycaster),
       ];
-      for (const { object } of met) {
+      for (const { object, point } of met) {
         const mesh = object as THREE.Mesh;
         if (!mesh.isMesh) continue;
+        // The run's fillers beside a narrow range, and the stone over them,
+        // are the range's own opening (round 84).
+        if (!isAppliance(mesh) && inOwnFillers(slot, selection[selectedSlot], point.x, point.z)) continue;
         // A machine beside the one being looked at is not in front of it.
         const other = owningSlot(mesh);
         const standing = other && other !== selectedSlot ? SLOT_BY_ID[other as SlotId] : undefined;

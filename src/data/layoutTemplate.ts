@@ -14,7 +14,7 @@ import {
 } from "./roomShell";
 import type { FixtureId, Package, PackageSlot, SlotId } from "../types";
 import { PACKAGE, slotsOf } from "./packages";
-import { dropsIntoCounter, rangeModelFor } from "./cookingSurface";
+import { dropsIntoCounter, rangeFillerIn, rangeModelFor } from "./cookingSurface";
 import { extentsOnAxis, faceRotation, onAxis, sizeOnAxis } from "./frame";
 import { LAYOUT_POLICY, shrinkRank, type ShrinkGroup } from "./layoutPolicy";
 import { comboSillFor } from "./columnModel";
@@ -1451,6 +1451,25 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
     const slot = spec["slot-range"];
     const widthIn = openingIn(slot);
     const chosen = rangeModelFor(pkg);
+    // Round 84, Leo: a range narrower than its opening is closed in by the
+    // run — a filler each side, the run's own board with a flush face (round
+    // 50), so it takes the doors' finish, the toe kick runs under it and the
+    // stone over it. The opening stays the slot's width, so nothing along the
+    // run moves; what is in it is the machine and the two fillers.
+    // `rangeFillerIn` is the one answer to how wide they are.
+    const fillerIn = rangeFillerIn(widthIn, chosen);
+    if (fillerIn > 0) {
+      const machineIn = widthIn - fillerIn * 2;
+      const filler = () => M(`BF${fillerIn}`, "filler", fillerIn);
+      return {
+        kind: "fixed",
+        id: "range",
+        widthIn,
+        segmentKind: "appliance",
+        modules: [filler(), M(`RO${machineIn}`, "opening", machineIn, { slot: "slot-range" }), filler()],
+        slot: "slot-range",
+      };
+    }
     if (!chosen || !dropsIntoCounter(chosen)) return opening("slot-range", "range");
     return fixed(
       "range",

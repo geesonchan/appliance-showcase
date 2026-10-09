@@ -4,6 +4,7 @@ import { hoodTopFt } from "./hood";
 import { islandAcross, islandAlong, islandHasCooktop, islandPoint } from "./layoutTemplate";
 import { axisIndex, extentsOnAxis, onAxis, sizeOnAxis, stripFacing, type Facing } from "./frame";
 import { COOKTOP_CABINET } from "./cooktop";
+import { openingAlong } from "./cookingSurface";
 import { PACKAGE_SLOTS } from "./packages";
 import { SLOT_BY_ID } from "./slots";
 import { TOWER_VENT } from "./towerVent";
@@ -608,7 +609,12 @@ function runBoxes(run: CabinetRun): CabinetBox[] {
     // front and the recess shows only where a toe goes. Round 50 (Leo): the kick
     // used to run to the very end, flush with that side, and a door wrongly hung
     // on the side had been covering its end.
-    const end = breaks ? segment.from : last ? segment.to - TOE_SETBACK : segment.to;
+    // At a range narrower than its opening the break is the machine's own
+    // sides: the fillers either side are the run's boards and the kick runs
+    // under them (round 84, Leo).
+    const [breakFrom, breakTo] =
+      segment.slot === "slot-range" ? openingAlong(segment) : [segment.from, segment.to];
+    const end = breaks ? breakFrom : last ? segment.to - TOE_SETBACK : segment.to;
     if ((breaks || last) && end > start) {
       boxes.push(
         onRun(
@@ -622,7 +628,7 @@ function runBoxes(run: CabinetRun): CabinetBox[] {
         ),
       );
     }
-    if (breaks) start = segment.to;
+    if (breaks) start = breakTo;
   }
 
   return boxes;

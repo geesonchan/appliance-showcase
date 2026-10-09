@@ -1,7 +1,7 @@
 import { LAYOUT_LIMITS, ROOM, ft } from "./room";
 import { hoodBodyHeightFt } from "./hood";
 import type { Appliance, Slot } from "../types";
-import { dropsIntoCounter } from "./cookingSurface";
+import { dropsIntoCounter, rangeFillerIn } from "./cookingSurface";
 
 /**
  * How big an appliance is, and where in its opening it sits.
@@ -98,6 +98,10 @@ export function applianceBox(slot: Slot, appliance: Appliance): ApplianceBox {
   // end of a counter — leaves no panel above it and no filler beside it: what
   // is there is the room. See docs/decisions.md D16.
   const standsAlone = slot.cabinetConfig.type === "tall";
+  // A range narrower than its opening is closed in by the run, which orders a
+  // filler each side (round 84): there is nothing left for the machine to fill.
+  // The same answer the run asks, so the two cannot both build it or neither.
+  const runFills = slot.id === "slot-range" && rangeFillerIn(slot.cutout.w, appliance) > 0;
 
   return {
     w,
@@ -116,7 +120,7 @@ export function applianceBox(slot: Slot, appliance: Appliance): ApplianceBox {
       // hung in the one place a cabinet may not go.
       below: hung || standsAlone || rangetop ? 0 : fromTop ? spareH : 0,
       above: hung || standsAlone || rangetop ? 0 : fromTop ? 0 : spareH,
-      eachSide: standsAlone ? 0 : spareW / 2,
+      eachSide: standsAlone || runFills ? 0 : spareW / 2,
     },
   };
 }

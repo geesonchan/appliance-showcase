@@ -4,14 +4,15 @@ import {
   DEFAULT_PARAMS,
   PARAM_LIMITS,
   generateLayout,
+  openingIn,
   type LayoutParams,
   type Refusal,
 } from "./layoutTemplate";
-import { PACKAGE, PACKAGE_BY_ID, setPackage } from "./packages";
+import { PACKAGE, PACKAGE_BY_ID, setPackage, slotsOf } from "./packages";
 import { LAYOUT, REQUESTED_PARAMS, applyLayout } from "./room";
 import { rebuildSlots } from "./slots";
 import { recordHoodModel } from "./hood";
-import { dropsIntoCounter, rangeModelFor, recordRangeModel } from "./cookingSurface";
+import { dropsIntoCounter, rangeFillerIn, rangeModelFor, recordRangeModel } from "./cookingSurface";
 import type { Appliance } from "../types";
 
 /**
@@ -54,6 +55,11 @@ export function setHoodModel(appliance: Appliance | undefined) {
  * no wall grows. Only when the answer changes: a range for a range, or a
  * rangetop for a rangetop, leaves the room as it is.
  *
+ * Round 84: and when a range standing on the floor leaves a different gap
+ * beside it — package A's 36" range for a 30" one — because the run closes
+ * that gap with a filler each side (`rangeFillerIn`). Round 83's condition
+ * asked only about the kind, so that swap rebuilt nothing.
+ *
  * Refused, it would put the previous choice back and say why. No room in any
  * package refuses it (`rangeJoinery.test.ts`).
  */
@@ -65,7 +71,13 @@ export function setRangeModel(
   recordRangeModel(packageId, appliance);
   if (packageId !== PACKAGE.id) return { ok: true, reasons: [], rebuilt: false };
   const after = rangeModelFor(PACKAGE);
-  const same = !!before && !!after && dropsIntoCounter(before) === dropsIntoCounter(after);
+  const opening = slotsOf(PACKAGE)["slot-range"];
+  const gap = (range: typeof before) => (opening ? rangeFillerIn(openingIn(opening), range) : 0);
+  const same =
+    !!before &&
+    !!after &&
+    dropsIntoCounter(before) === dropsIntoCounter(after) &&
+    gap(before) === gap(after);
   if (same) return { ok: true, reasons: [], rebuilt: false };
   const result = setLayoutParams(REQUESTED_PARAMS);
   if (!result.ok) {

@@ -21,7 +21,7 @@ import { PREVIEW_URL } from "./globalSetup";
 const DESKTOP = { width: 1440, height: 900 };
 const PHONE = { width: 390, height: 844 };
 
-const EXPECTED_TESTS = 6;
+const EXPECTED_TESTS = 10;
 let testsRun = 0;
 const filtered = process.argv.some((arg) => arg === "-t" || arg.startsWith("--testNamePattern"));
 beforeEach(() => {
@@ -98,6 +98,60 @@ const underTheRange = (s: Session) =>
     return [...new Set(ids)].sort();
   });
 
+/**
+ * Meshes the machine draws beside itself to fill its opening (`Filler` in
+ * ApplianceModel). Since round 84 a range narrower than its opening has none:
+ * the run closes the gap with its own fillers.
+ */
+const machineFillers = (s: Session) =>
+  s.page.evaluate(() => {
+    type Node = { children: Node[]; isMesh?: boolean; getObjectByName?: (n: string) => Node | undefined };
+    const scenes = (window as unknown as { __scenes?: Node[] }).__scenes ?? [];
+    const group = scenes.map((scene) => scene.getObjectByName?.("appliance-filler-slot-range")).find(Boolean);
+    let meshes = 0;
+    const walk = (node: Node) => {
+      if (node.isMesh) meshes += 1;
+      node.children.forEach(walk);
+    };
+    if (group) walk(group);
+    return meshes;
+  });
+
+/**
+ * What the sight-line fade has hidden at the range while it is flown to: the
+ * countertop (one extruded slab, with no box id of its own) and the run's
+ * fillers in the range's segment. Round 84: the fillers and the stone over them
+ * stand where the machine's own strips stood, which the fade never counted, so
+ * flying to the range must not turn them, or the whole countertop, to glass.
+ */
+const fadedAtTheRange = (s: Session) =>
+  s.page.evaluate(() => {
+    type Mat = { transparent: boolean; opacity: number };
+    type Node = {
+      children: Node[];
+      isMesh?: boolean;
+      material?: Mat | Mat[];
+      geometry?: { type?: string };
+      userData?: { boxId?: string };
+      getObjectByName?: (n: string) => Node | undefined;
+    };
+    const scenes = (window as unknown as { __scenes?: Node[] }).__scenes ?? [];
+    const layer = scenes.map((scene) => scene.getObjectByName?.("cabinet-layer")).find(Boolean);
+    const faded = (m: Node) =>
+      !!m.material && !Array.isArray(m.material) && m.material.transparent && m.material.opacity <= 0.2 + 1e-6;
+    const out = new Set<string>();
+    const walk = (node: Node, box: string | undefined) => {
+      const id = node.userData?.boxId ?? box;
+      if (node.isMesh && faded(node)) {
+        if (!id && node.geometry?.type === "ExtrudeGeometry") out.add("countertop");
+        if (id && /^(back|left)-range-BF/.test(id)) out.add(id);
+      }
+      node.children.forEach((child) => walk(child, id));
+    };
+    if (layer) walk(layer, undefined);
+    return [...out].sort();
+  });
+
 /** Package, then the range picked by its label, then a model from the card. */
 async function swap(s: Session, pkg: string, ...models: string[]) {
   await press(s, s.page.getByRole("button", { name: pkg, exact: true }).filter({ visible: true }).first());
@@ -137,6 +191,48 @@ describe("what stands under the cooking surface follows the machine chosen", () 
         before: ["back-range-DB36-0"],
         after: [],
         named: "Thermador · PRG366WH",
+        errors: [],
+      });
+      await s.page.context().close();
+    });
+
+    // Round 84, Leo: a range narrower than its opening is closed in by the
+    // run — a filler each side, in the cabinets' finish, under the stone.
+    // The run's boxes are `<run>-range-BF<width>-0` and `-2`, either side of
+    // the machine's own opening.
+    it(`closes package B's 36-inch opening round a 30-inch range with the run's own fillers, ${device}`, async () => {
+      const s = await open(phone);
+      const r = await swap(s, "B", "maytag-mfgs4030rs");
+      expect({
+        ...r,
+        drawnByTheMachine: await machineFillers(s),
+        fadedAtTheRange: await fadedAtTheRange(s),
+        errors: s.errors,
+      }).toEqual({
+        before: ["back-range-DB36-0"],
+        after: ["back-range-BF3.0625-0", "back-range-BF3.0625-2"],
+        named: "Maytag · MFGS4030RS",
+        drawnByTheMachine: 0,
+        fadedAtTheRange: [],
+        errors: [],
+      });
+      await s.page.context().close();
+    });
+
+    it(`closes package A's opening round its 30-inch range, a range for a range, ${device}`, async () => {
+      const s = await open(phone);
+      const r = await swap(s, "A", "thermador-prg304wh");
+      expect({
+        ...r,
+        drawnByTheMachine: await machineFillers(s),
+        fadedAtTheRange: await fadedAtTheRange(s),
+        errors: s.errors,
+      }).toEqual({
+        before: [],
+        after: ["back-range-BF3-0", "back-range-BF3-2"],
+        named: "Thermador · PRG304WH",
+        drawnByTheMachine: 0,
+        fadedAtTheRange: [],
         errors: [],
       });
       await s.page.context().close();

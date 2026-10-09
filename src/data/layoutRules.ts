@@ -12,6 +12,7 @@ import {
   type IslandLayout,
   type RunSegment,
 } from "./room";
+import { openingAlong } from "./cookingSurface";
 import { PACKAGE_SLOTS } from "./packages";
 import { SLOT_BY_ID } from "./slots";
 import { cooktopLandingsIn, islandAcross } from "./layoutTemplate";
@@ -171,11 +172,29 @@ function hasWorktop(segment: RunSegment): boolean {
   );
 }
 
+/**
+ * The counter a range's own fillers carry on one side of the machine, in feet.
+ *
+ * Round 84, Leo: a range narrower than its opening has a filler each side
+ * with the stone run over it to the machine, so the counter a customer can
+ * use starts at the machine's side, not at the opening's. Nothing for any
+ * other segment, or for a range that fills its opening.
+ */
+function rangeFillerSide(segment: RunSegment, side: -1 | 1): number {
+  if (segment.slot !== "slot-range") return 0;
+  const [from, to] = openingAlong(segment);
+  return side === -1 ? from - segment.from : segment.to - to;
+}
+
 function landing(run: CabinetRun, index: number, direction: -1 | 1): number {
-  let total = 0;
+  let total = rangeFillerSide(run.segments[index], direction);
   for (let i = index + direction; i >= 0 && i < run.segments.length; i += direction) {
     const segment = run.segments[i];
-    if (!hasWorktop(segment)) break;
+    if (!hasWorktop(segment)) {
+      // Walking up to a range from the side, its filler on that side is counter.
+      total += rangeFillerSide(segment, direction === 1 ? -1 : 1);
+      break;
+    }
     total += spanOf(segment);
   }
   return inches(total);
@@ -425,9 +444,13 @@ export function checkLayout(
     if (towered) {
       const [from, to] = towerAt < range.index ? [towerAt + 1, range.index] : [range.index + 1, towerAt];
       const between = range.run.segments.slice(from, to);
-      const counter = between
-        .filter((segment) => segment.kind === "counter")
-        .reduce((sum, segment) => sum + widthIn(segment), 0);
+      // And the range's own filler on the tower's side, which is counter too
+      // (round 84).
+      const counter =
+        between
+          .filter((segment) => segment.kind === "counter")
+          .reduce((sum, segment) => sum + widthIn(segment), 0) +
+        inches(rangeFillerSide(range.run.segments[range.index], towerSide === -1 ? -1 : 1));
       const { counterIn, panelIn } = LAYOUT_LIMITS.towerSpacer;
       if (counter < counterIn - 1e-6) {
         fail(

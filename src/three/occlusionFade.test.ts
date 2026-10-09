@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import * as THREE from "three";
-import { blocksSightLine, isAppliance, owningSlot, sightLineLayers } from "./OcclusionFade";
+import { blocksSightLine, inOwnFillers, isAppliance, owningSlot, sightLineLayers } from "./OcclusionFade";
+import type { Appliance } from "../types";
 
 /**
  * What may be faded off a sight line, and what may not. Round 55.
@@ -116,5 +117,38 @@ describe("what counts as being in the way", () => {
     cabinet.userData = { slot: "slot-hood" };
     cabinet.add(doorMesh);
     expect(isAppliance(doorMesh)).toBe(false);
+  });
+});
+
+/**
+ * Round 84: the run's fillers beside a range narrower than its opening, and
+ * the stone over them, are the range's own opening — where its own strips
+ * stood until then — and not in its way. Held on a slot written out by hand,
+ * a 36" opening on the back run at x = 0, so the answer is a fact of the
+ * figures and not of the room the code built.
+ */
+describe("the fillers beside a narrow range", () => {
+  const slot = { id: "slot-range" as const, position: [0, 0, -5] as [number, number, number], rotationY: 0, cutout: { w: 36, h: 36, d: 24 } };
+  const narrow = { installType: ["freestanding"], category: "range", widthIn: 30, cutoutWidthIn: null } as unknown as Appliance;
+  const full = { ...narrow, widthIn: 36 } as Appliance;
+  const at = (inches: number) => [inches / 12, -5] as const;
+
+  it("are the range's own: inside a filler, on either side", () => {
+    expect([inOwnFillers(slot, narrow, ...at(-16.5)), inOwnFillers(slot, narrow, ...at(16.5))]).toEqual([true, true]);
+  });
+
+  it("stop at the machine and at the opening's edge", () => {
+    expect([
+      inOwnFillers(slot, narrow, ...at(0)),
+      inOwnFillers(slot, narrow, ...at(14.5)),
+      inOwnFillers(slot, narrow, ...at(18.5)),
+    ]).toEqual([false, false, false]);
+  });
+
+  it("are nothing for a range that fills its opening, or for another slot", () => {
+    expect([
+      inOwnFillers(slot, full, ...at(16.5)),
+      inOwnFillers({ ...slot, id: "slot-dishwasher" as const }, narrow, ...at(16.5)),
+    ]).toEqual([false, false]);
   });
 });

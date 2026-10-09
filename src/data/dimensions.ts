@@ -1,4 +1,5 @@
 import { applianceBox } from "./applianceBox";
+import { openingAlong } from "./cookingSurface";
 import { cooktopHeight } from "./rangeModel";
 import {
   CABINET_STANDARDS,
@@ -102,7 +103,10 @@ export function dimensionsFor(
    */
   const point = (step: number, y: number): [number, number, number] => {
     const out = 0.5 + step * 1.5;
-    if (rangeSegment) return [rangeSegment.from - out, y, plane];
+    // From the machine's own side (round 84): a range narrower than its
+    // opening has a filler each side, and the cooking surface starts at the
+    // machine, not at the opening.
+    if (rangeSegment) return [openingAlong(rangeSegment)[0] - out, y, plane];
     return toWorld(range, -(ft(range.cutout.w) / 2 + out), y, ROOM.counterDepth / 2 + 0.35);
   };
 
