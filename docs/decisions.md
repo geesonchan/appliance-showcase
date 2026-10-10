@@ -1360,7 +1360,9 @@ sketches and Leo's decisions are `docs/plans/round-80-interface-plan.md`
   opening" / "另有 N 款放不下", opened to list each with its reason. **The one
   reason is width**: `fitCheck` refuses on width alone; how a model hangs keeps
   it off the list altogether (round 45), and height and depth are mentioned,
-  never refused.
+  never refused. *Since round 86 (D20, round 86): also height, where the
+  countertop or the coffee machine is above the opening, and another kind of
+  machine than a tall unit is built for; each reason that applies is said.*
 - **Only one model**: "This is the only model shown for this opening" / "此开口
   只展示这一款" (Leo) — also the alternatives list's line for it, which said
   "No alternatives in the catalogue yet".
@@ -2178,7 +2180,7 @@ repository has them)* — one rule, written more than once:
 
 | Found | The rule | Copies | Now | When it bites |
 |---|---|---|---|---|
-| rounds 45-46 | does this model go in this slot | `suitsPackageSlot` (switching packages) and `offeredFor` + width (the list) | **still two**, recorded in D20 as deliberate for now | **the day a third judgement of the same question is written** — a new place that asks "can this model go here" and writes its own answer instead of calling one of these. Join the two then, rather than adding the third. |
+| rounds 45-46 | does this model go in this slot | `suitsPackageSlot` (switching packages) and `offeredFor` + width (the list) | **still two**, recorded in D20 as deliberate for now; since round 86 both ask `tooTallIn` for height (D20, round 86) rather than either writing its own | **the day a third judgement of the same question is written** — a new place that asks "can this model go here" and writes its own answer instead of calling one of these. Join the two then, rather than adding the third. |
 | round 62 | the sink within six inches of its window | `fitWindow` and `windowRefusals`, with different tolerances | one, `sinkFromWindow` (round 63) | — |
 | round 65 | makeup air above 400 CFM | the rule's condition, `thresholds.makeupAirCfm`, `needsMakeupAir()`, the importer's flag — only the first read | one, the rule's condition (round 65) | — |
 | round 65 | a gas pipe upsized above 65,000 BTU | the `gas-pipe-size` rule's condition and `thresholds.gasPipeUpsizeBTU` — only the first read | **one since round 78** — see that row: there was a third copy, and it was the one the quote printed | **the day somebody changes the figure** and edits `thresholds`, the copy that is named like the setting: nothing changes on screen, because the rule reads its own. |
@@ -2908,6 +2910,88 @@ written into geometry instead of read from `ROOM`.
   and a customer trading down to a freestanding model is a real conversation.
   So the list does not filter refrigerators, or anything else, on install type.
   Do not "complete" the filter.
+
+  *Amended 2026-10-09 (round 86), Leo: the exception — what cannot physically
+  go in.* From Leo using package A: a wine column, 84" tall, picked on the
+  model card for the island's wine opening, 24" x 34" under the stone, and
+  drawn standing up through the countertop. Round 46 is not reversed; it gains
+  one exception, in Leo's words:
+  - **It goes in and only installs differently → allowed, and the room follows.**
+  - **It cannot physically go in** — a column in an opening under the
+    countertop → **not allowed**: listed with what "don't fit", and the reason
+    said.
+  - **What is above an opening is recorded once** (`openingAbove` in
+    slots.ts, stamped on every slot by `rebuildSlots`): the coffee machine, over
+    the opening a coffee tower stands over (D's second dishwasher, E's wine
+    cooler); the countertop, over every base opening a machine stands in, the
+    run's and the island's, on whichever leg; nothing over a tall unit, which
+    the cabinetmaker builds to its machine, over a cooking surface (the stone
+    stops at a range and is cut for a rangetop or a cooktop, D16), or over a
+    hood. Where something is above, a machine taller than the opening is
+    refused (`tooTallIn` in fit.ts), measured as width is — the published
+    cutout, else the body — to the same millionth of an inch; where nothing is,
+    height is mentioned as before and refuses nothing.
+  - **The reason, in Leo's words, locked in `reviewed.json`:** "{delta} too
+    tall — the countertop is above this opening" / "高出 {delta}，开口上方是台面",
+    and "{delta} too tall — the coffee machine is above this opening" / "高出
+    {delta}，开口上方是咖啡机". "Don't fit" had one reason until now, width (D12,
+    round 82); a model refused on both says both.
+  - **Another kind of machine in a tall unit → not allowed** (Leo, round 86):
+    B's and E's combination-oven tower offered the microwave drawer MD24BS and
+    the over-the-range microwave JVM3160RFSS, which fit on width. Both are
+    refused with "厂家未确认可装进高柜" (Leo's words, locked) / "The
+    manufacturer has not confirmed it can go in a tall cabinet" (drafted in
+    round 86, **for Leo to read; not locked**). A tall unit records the kind
+    it is built for (`tallUnitFor`), and `notForTallUnit` in fit.ts asks only
+    that. It is opened up model by model when a manual says the machine can be
+    built into a tall cabinet — a built-in kit, for instance (Open items).
+  - **One judgement, asked by both copies** (D17's table, first row): the
+    list, the model card, the spec card, the checklist and the quote read
+    `fitCheck`; a package switch reads `suitsPackageSlot`, which now asks
+    `tooTallIn` and `openingAbove` too. Not a third copy: neither writes its
+    own answer for height. No switch carries a column into such an opening
+    today — install type keeps it out of every one but E's under the coffee
+    machine, which no other package has — so the case is held by asking the
+    real model against E's real slot, which the old code passed.
+  - **What it refuses, counted** (every package built as the page builds it,
+    133 models offered across 36 openings): too tall — T24IW905SP and
+    T18IW100SP in A's and C's island wine opening and under E's coffee machine
+    (50" each), and MEM301WS, PO302W and PODS302B in A's, C's and D's
+    microwave-drawer opening (13-3/8" to 18-3/16"; refused on width already,
+    now on both); another kind — MD24BS and JVM3160RFSS in B's and E's tower.
+    The other 114 fit or are refused exactly as their width says, as before,
+    and every package's own selection still fits.
+  - **Allowed and not yet checked** (round 86, Leo: screenshots only, the
+    order to be his): A's and B's built-in refrigerator opening with the
+    freestanding T36FT820NS or the column T30IR905SP; C's counter-depth opening
+    with the 84" built-ins and column; D's wine column with the undercounter
+    PRW24C01CG; B's and E's combination-oven tower and D's double-oven tower
+    with the other ovens. Open items.
+  - Nothing is drawn differently: a model that cannot go in cannot be chosen.
+    Tests: `openingAbove.test.ts` (unit) and `tests/tooTall.test.ts` (the
+    card by mouse and by touch, E's coffee wording, B's tower, the Chinese) —
+    each red on round 85's code for the reason it names. The unit file was 10
+    red of 13 on round 85's code (the three green state what must not change:
+    E's own wine cooler still carried by a switch, every package's own
+    selection fitting, a machine exactly as tall as its opening); the browser
+    file 6 of 6 red on round 85's build, `index-DUMIkDdG.js`.
+  - **Measured** (D17's third way: round 85's code built here,
+    `index-DUMIkDdG.js`, the live page's own, against round 86's,
+    `index-HomJOvmc.js`; the mouse at 1440 x 900, a finger at 390 x 844,
+    `?quality=high`; each build shot twice, then A's install view three more
+    times each). **The five packages as they open — the overview and the
+    install view on a desktop, the overview on a phone — 0 pixels**, taken
+    between an old and a new run in the same state (D's and E's at the one
+    pixel at (144, 225)). Runs of one build came out in one of two states,
+    100,000 to 200,000 pixels apart over the whole room — the wash in Open
+    items. A's install view looked changed at first: both runs of each build
+    landed in different states, 103,188 pixels apart; with three more runs
+    each, both builds gave both states and every same-state pair was 0. **What
+    changes is the model card only**: A's and C's wine opening, E's under the
+    coffee machine and B's tower, every changed pixel inside the card, on a
+    desktop and on a phone. Before and after:
+    `docs/fixes/round-86-A-wine-card-before-after.png`,
+    `docs/fixes/round-86-B-tower-card-before-after.png`.
 - **The cooktop is in the island and the hood hangs straight over it.** The
   induction cooktop is set into the island's counter on its working side, not
   against a wall, and the hood hangs from the ceiling directly over it with no
@@ -4044,7 +4128,7 @@ Registered, not scheduled. None of these is a round of its own.
   set `backgroundImage` instead of `background`. *(Noted 2026-09-14, round 45,
   Leo.)* *(Leo, round 80: fix it along the way when the interface round is
   built, since regrouping the settings panel touches the sliders; not in the
-  plan stage.)*
+  plan stage.)* *(Round 88 now, with the right panel's tabs: Leo, round 86.)*
 - **Is a freestanding refrigerator in package A's slot drawn right?** The list
   offers one (D20, round 46), and D11 rule 11 was written for package C, where
   the refrigerator stands at the end of a run with nothing built round it. A's
@@ -4710,9 +4794,20 @@ Registered, not scheduled. None of these is a round of its own.
   back.
 - **On a phone in Chinese, the "MT" chip sits over the "E" package button.**
   *(Found round 82, on the live site as well; Leo: fix with the right panel's
-  round, now round 86.)* The top
+  round, now round 88.)* The top
   bar at 390px: the machine-translation chip is drawn over the last package
   button.
+  - *Measured in round 86's first plan (read only, on round 85's build):* it is
+    the whole bar, not the chip. The bar's contents are about 422px wide in
+    Chinese and 400px in English at 390px, and the right-hand group draws over
+    the package buttons: in Chinese "MT" starts at x 163.7 and "E" ends at
+    177.7; **in English at 375px "Quote" starts at 171.2, over the end of the
+    A-E group**, so the English page overlaps too on a 375px phone. The plan
+    for round 88 (Leo to confirm): tighten the bar below 430px and keep the
+    chip where it is (D10), aiming at no overlap at 360, 375, 390 and 414 in
+    both languages; its four open questions (the phone's tabs, "清单" being the
+    top bar's Quote in Chinese, the refusal line pointing at the Layout tab,
+    360px as the floor) go with it.
 - **A model of another install type, for four more kinds of slot.** *(Found
   round 83; Leo: each its own round, later.)* The list offers any model that
   fits on width (D20, round 46), and round 83 made the cooking slot follow the
@@ -4735,6 +4830,56 @@ Registered, not scheduled. None of these is a round of its own.
     MD24BS, because they fit on width. **Whether to allow these waits for Leo's
     judgement from site; D20 round 46 does not decide it** (that was about a
     machine installed differently, not a different machine).
+  - **Round 86 sorted all of these by Leo's new rule** (D20, round 86): what
+    cannot physically go in is refused; what goes in and installs differently
+    is allowed and the room is to follow.
+    - **Refused now:** a wine column in A's and C's island wine opening and
+      under E's coffee machine (too tall, the countertop or the coffee machine
+      above); MD24BS and JVM3160RFSS in B's and E's combination-oven tower (the
+      maker has not confirmed them for a tall cabinet — the entry below).
+    - **Allowed, the room not yet checked**: refrigerators (A's and B's
+      built-in opening with T36FT820NS or T30IR905SP; C's counter-depth opening
+      with T36IT100NP, T36BT120NS or T30IR905SP, each 12" taller than it); D's
+      wine column with PRW24C01CG; the oven towers (B's and E's with ME301YP,
+      PO302W, PODS302B; D's with ME301YP, MEM301WS, PO302W). Each was shot in
+      round 86 on its own and the package's own model, flown to — 
+      `docs/open-items/round-86-allowed-*.png` — for Leo to set the order.
+    - **Hoods** are round 87's (the entry for it below).
+- **A microwave drawer or an over-the-range microwave in a tall unit, once a
+  manual allows it.** *(Leo, round 86: not allowed until then.)* MD24BS and
+  JVM3160RFSS fit B's and E's combination-oven tower on width and are refused
+  there with "厂家未确认可装进高柜" (D20, round 86): another kind of machine than
+  the tower is built for. When a model's own manual says it can be built into
+  a tall cabinet — a built-in kit, for instance — record it on that model, with
+  the page, and let `notForTallUnit` (fit.ts) pass it; nothing else is to be
+  loosened for it. The English of the reason, "The manufacturer has not
+  confirmed it can go in a tall cabinet", was drafted in round 86 and is for
+  Leo to read before it is locked.
+- **Three "taller than the opening" notes that mislead.** *(Found in round
+  86's planning; Leo: registered, not changed this round.)* The soft line
+  "{delta} taller than the opening" (`swap.tallNote`, on the card, in the list
+  and on the spec card) shows wherever a machine is taller than its slot's
+  figure, and three of those are not about fitting at all:
+  - **E's own island hood, HMIB42WS**: "12" taller than the opening" — 30" of
+    collapsed catalogue height against the hood slot's 18", for a hood hung in
+    the open with no opening round it;
+  - **MFGS4030RS**, in every package that offers it: "11-7/8" taller" — its
+    backguard, which stands above the counter by design;
+  - **PRG366WH**, A's own range: "3/4" taller" — its 36-3/4" cooking height
+    against the 36" counter, which D13 and D16 treat as what it is.
+  - **Leo's idea for the fix:** round 86's "is something fixed above this
+    opening" (`openingAbove`, slot.above) decides when the line shows — not at
+    all over an opening with nothing above it. Over one with something above,
+    a taller machine is refused now anyway, so the line would in effect go;
+    whether anything else should be said about height (a tower opening
+    rebuilt to its machine, say) is for that round.
+- **Package A with the insert hood VCIN36GWS: the liner hangs between the
+  wall cabinets with no housing.** *(Leo, round 86, from use, with a
+  screenshot; round 87.)* Leo's site practice: an insert hood always comes
+  with its housing — the same reason a rangetop always has a base cabinet
+  under it (D16, round 83). The fix reuses package B's three-part housing
+  (`housingStyle`, box or sweep), not a second one. Round 87 also checks the
+  other hood install swaps on the list in the entry above.
 - **PRG366WH's installation manual, to come into `docs/reference/`.** *(Leo,
   round 83.)* It is to give the anti-tip bracket's position (the line is on the
   checklist from Leo's site practice; nothing is drawn for it yet) and the
@@ -4759,6 +4904,15 @@ Registered, not scheduled. None of these is a round of its own.
   - **When it is taken up** *(Leo, round 83)*: first run the browser test files
     one after another instead of side by side, to test the guess that they
     are starving each other.
+  - *Round 86, met again.* The first full `npm test` ended 2 of 2,469 red,
+    exit code 1, neither near the change: `tests/modelLine.test.ts`, package
+    B in English, whose page never showed its canvas within 60 seconds; and
+    `tests/fadeRebuild.test.ts`, install mode, turning the island on a
+    desktop, where every figure held and the one difference was a console
+    error, `Failed to load resource: net::ERR_CONNECTION_CLOSED` — the preview
+    server dropping a request. Run on their own, both passed (11 of 11, 18 of
+    18), and the suite run again in full passed 2,469 of 2,469, exit code 0.
+    Seven test files now start a browser each.
 - **A package whose own range is missing from the catalogue.** *(Round 83, not
   changed.)* What the run stands under the cooking surface reads the package's
   default range from the data when none has been chosen; if that model left the
@@ -4868,10 +5022,15 @@ Registered, not scheduled. None of these is a round of its own.
        opening closed in by the run (Leo, from use; D16, round 84), *done in
        round 84*. **Round 85** became the strips beside a hood and inside a
        tall unit's opening faced and shaded like the cabinets (Leo, from round
-       84's findings; D13, round 85), *done in round 85*. **Round 86**: the
-       right panel's tabs, the `Slider` warning, and the "MT" chip over "E" on
-       a Chinese phone, after Leo's feedback from use (Leo, round 85). What
-       each decides is written here when that round is built.
+       84's findings; D13, round 85), *done in round 85*. **Round 86** became
+       a machine that cannot physically go into an opening is refused (Leo,
+       from use of package A; D20, round 86), *done in round 86*. **Round 87**:
+       an insert hood comes with its housing, B's three-part housing reused,
+       and the other hood install swaps checked (Leo, round 86; the entry
+       above). **Round 88**: the right panel's tabs, the `Slider` warning, and
+       the "MT" chip over "E" on a Chinese phone (Leo, round 85, moved back by
+       Leo in round 86); round 86's first plan for it is in the "MT" entry
+       above. What each decides is written here when that round is built.
   1. **A hood's own outlet first.** The duct drawn and quoted follows the
      model's own outlet where its sheet gives one, rather than only the
      airflow band (the two data points above).

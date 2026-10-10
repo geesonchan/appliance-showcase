@@ -323,7 +323,10 @@ function CandidateRow({
  * so much, or the filler each side, or taller or deeper than the opening.
  *
  * One component since round 82, read by the alternatives list and the model
- * card, so the two cannot word the same fit differently.
+ * card, so the two cannot word the same fit differently. Since round 86 a
+ * model can be refused for more than its width — too tall for an opening with
+ * the countertop or the coffee machine above it, or another kind of machine
+ * than a tall unit is built for — and each reason that applies gets its line.
  */
 export function FitNotes({ fit }: { fit: FitResult }) {
   const t = useT();
@@ -331,9 +334,19 @@ export function FitNotes({ fit }: { fit: FitResult }) {
   const tooTall = fit.heightOverIn !== null && fit.heightOverIn > 0.05;
   return (
     <>
-      {!fit.fits && (
+      {!fit.widthFits && (
         <span className="mt-1 block text-[11px] font-medium text-ink">
           {t("swap.tooWide", { delta: formatInches(fit.widthOverIn) })}
+        </span>
+      )}
+      {fit.tooTallIn !== null && fit.above !== null && (
+        <span data-refused="too-tall" className="mt-1 block text-[11px] font-medium text-ink">
+          {t(`swap.tooTall.${fit.above}`, { delta: formatInches(fit.tooTallIn) })}
+        </span>
+      )}
+      {fit.notForTallUnit && (
+        <span data-refused="tall-unit" className="mt-1 block text-[11px] font-medium text-ink">
+          {t("swap.notForTallUnit")}
         </span>
       )}
       {fit.fits && fit.fillerEachSideIn !== null && fit.fillerEachSideIn > 0.05 && (

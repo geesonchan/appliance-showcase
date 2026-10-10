@@ -59,7 +59,24 @@ export type Slot = SlotRecord & {
   mount: "wall" | "island";
   /** Azimuth the fly-in views this slot from, when the default angle shows its back. */
   viewAzimuth?: number;
+  /**
+   * What is fixed over the opening, so that nothing taller than it can go in:
+   * the countertop, or the coffee machine a tower stands over it. Null where
+   * nothing is — a tall unit built to its machine, a cooking surface, a hood.
+   * Set by `rebuildSlots` for every slot in the room; a slot written out by
+   * hand in a test may leave it out. Round 86, `openingAbove` in slots.ts.
+   */
+  above?: OpeningAbove | null;
+  /**
+   * The kind of machine a tall unit's opening is built for, or null where the
+   * opening is not in a tall unit. Another kind is not offered as fitting it
+   * until its maker confirms it for a tall cabinet. Round 86.
+   */
+  tallUnitFor?: Category | null;
 };
+
+/** What stands over an opening and stops a taller machine going in. Round 86. */
+export type OpeningAbove = "countertop" | "coffee";
 
 /**
  * A fixture as the scene uses it. Structurally it is a slot without the product

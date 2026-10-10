@@ -7,7 +7,8 @@ import {
   schemesFileSchema,
 } from "./schema";
 import { SLOT_ORDER } from "./packages";
-import { SLOT_RECORDS } from "./slots";
+import { SLOT_RECORDS, openingAbove, openingHeightIn } from "./slots";
+import { tooTallIn } from "./fit";
 
 /**
  * The appliance catalogue and the schemes built from it.
@@ -102,12 +103,22 @@ export { SLOT_ORDER } from "./packages";
  * opening perfectly, and it is still the wrong machine, because package C
  * leaves it standing at the end of a run with the finished sides it does not
  * have.
+ *
+ * And since round 86, it has to go in: nothing taller than an opening with
+ * something fixed above it, asked of `tooTallIn`, the judgement the fit check
+ * makes for the list. A column's install type keeps it out of every such slot
+ * but E's under the coffee machine, which no other package has, so no switch
+ * carries one there today; the question is asked anyway, so the two copies of
+ * "can this model go here" (D17's table, first row) answer height alike.
  */
-export function suitsPackageSlot(appliance: Appliance, slot: PackageSlot): boolean {
+export function suitsPackageSlot(appliance: Appliance, slot: PackageSlot, entry: Package): boolean {
   if (appliance.category !== slot.category) return false;
   if (!appliance.installType.includes(slot.installType)) return false;
   const width = appliance.cutoutWidthIn ?? appliance.widthIn;
-  return width === null || width <= slot.widthIn;
+  if (width !== null && width > slot.widthIn) return false;
+  const record = SLOT_RECORDS.find((candidate) => candidate.id === slot.slotId);
+  if (!record) throw new Error(`data/slots.json has no ${slot.slotId}`);
+  return tooTallIn(appliance, openingHeightIn(record, slot), openingAbove(record, slot, entry.slots)) === null;
 }
 
 /**
@@ -161,7 +172,7 @@ export function migrateSelection(
     }
     const untouched = from ? from.defaultSelection[slot.slotId] === id : false;
     const kept = id && !untouched ? APPLIANCE_BY_ID[id] : undefined;
-    selection[slot.slotId] = kept && suitsPackageSlot(kept, slot) ? kept.id : fallback;
+    selection[slot.slotId] = kept && suitsPackageSlot(kept, slot, entry) ? kept.id : fallback;
   }
   return selection;
 }

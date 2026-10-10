@@ -6,7 +6,11 @@ import type { Appliance, Package, SlotId } from "../types";
 
 export interface Candidate {
   appliance: Appliance;
-  /** Width gates (`fit.fits`); height and depth are for the row to mention. */
+  /**
+   * Whether it goes in (`fit.fits`): its width, and since round 86 its height
+   * where something is fixed above the opening and its kind where the opening
+   * is in a tall unit. Otherwise height and depth are for the row to mention.
+   */
   fit: FitResult;
 }
 

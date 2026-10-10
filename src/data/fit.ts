@@ -1,11 +1,17 @@
 import { dropsIntoCounter } from "./applianceBox";
 import { CABINET_STANDARDS } from "./roomShell";
 import { PROTRUSION_DATUM } from "./rules";
-import type { Appliance, Slot } from "../types";
+import type { Appliance, Category, OpeningAbove, Slot } from "../types";
 
 export interface FitResult {
-  /** Whether the appliance can go in this opening at all. */
+  /**
+   * Whether the appliance can go in this opening at all: its width, and since
+   * round 86 its height where something is fixed above the opening, and its
+   * kind where the opening is in a tall unit built for another.
+   */
   fits: boolean;
+  /** Whether the width alone lets it in. */
+  widthFits: boolean;
   /** Inches the appliance exceeds the opening by; negative means clearance. */
   widthOverIn: number;
   /**
@@ -14,8 +20,26 @@ export interface FitResult {
    * cabinetmaker adds a filler strip. See docs/decisions.md D5.
    */
   fillerEachSideIn: number | null;
-  /** Reported but not gating; null when the appliance has no figure for it. */
+  /**
+   * Reported but not gating; null when the appliance has no figure for it.
+   * Where something is fixed above the opening, height gates instead: see
+   * `tooTallIn`.
+   */
   heightOverIn: number | null;
+  /**
+   * Inches taller than an opening with something fixed above it, which is a
+   * refusal; null when it is not taller, or nothing is above. Round 86.
+   */
+  tooTallIn: number | null;
+  /** What is above the opening, for the refusal to name. */
+  above: OpeningAbove | null;
+  /**
+   * Another kind of machine than the tall unit is built for, which its maker
+   * has not confirmed for a tall cabinet: a refusal. Round 86, Leo — a
+   * microwave drawer and an over-the-range microwave in a combination-oven
+   * tower, until a manual says they can be built in (Open items).
+   */
+  notForTallUnit: boolean;
   /**
    * How far the machine stands proud, measured from the cabinet face.
    *
@@ -57,9 +81,14 @@ export function fitCheck(slot: Slot, appliance: Appliance): FitResult {
   const widthOverIn = width === null ? 0 : width - slot.cutout.w;
   const height = required(appliance.cutoutHeightIn, appliance.heightIn);
   const depth = depthFromWallIn(appliance);
+  const widthFits = widthOverIn <= FIT_TOLERANCE_IN;
+  const above = slot.above ?? null;
+  const tallerIn = tooTallIn(appliance, slot.cutout.h, above);
+  const otherKind = notForTallUnit(appliance, slot.tallUnitFor ?? null);
 
   return {
-    fits: widthOverIn <= FIT_TOLERANCE_IN,
+    fits: widthFits && tallerIn === null && !otherKind,
+    widthFits,
     widthOverIn,
     // What is left over each side of a machine is filler — unless the machine
     // is not standing in the opening at all. A liner hangs on the ledge of a
@@ -69,6 +98,9 @@ export function fitCheck(slot: Slot, appliance: Appliance): FitResult {
     // nobody orders.
     fillerEachSideIn: widthOverIn < 0 && !dropsIntoSomething(appliance) ? -widthOverIn / 2 : null,
     heightOverIn: height === null ? null : height - slot.cutout.h,
+    tooTallIn: tallerIn,
+    above,
+    notForTallUnit: otherKind,
     // How far it stands proud of the cabinet face, which is a warning about a
     // machine built into cabinetry and a fact about one that is not. A rangetop
     // is *meant* to stand 1-1/2" out: that is where its controls are, and it is
@@ -83,6 +115,39 @@ export function fitCheck(slot: Slot, appliance: Appliance): FitResult {
         : depth - protrusionDatumIn(slot),
   };
 }
+
+/**
+ * How much taller than an opening with something fixed above it a machine is,
+ * or null where it is not taller or nothing is above. Round 86.
+ *
+ * The one judgement of it: `fitCheck` asks it for the list, the model card and
+ * everything else that reads a fit, and `suitsPackageSlot` asks it for a
+ * package switch, so the two copies of "can this model go in this slot"
+ * (D17's table, first row) do not grow a third answer for height. Measured as
+ * width is — the published cutout, else the body — with the same millionth of
+ * an inch for figures added in floating point. A machine with no height
+ * figure is let through: there is nothing to refuse it on.
+ */
+export function tooTallIn(
+  appliance: Appliance,
+  openingHeightIn: number,
+  above: OpeningAbove | null,
+): number | null {
+  if (above === null) return null;
+  const height = required(appliance.cutoutHeightIn, appliance.heightIn);
+  if (height === null) return null;
+  const over = height - openingHeightIn;
+  return over > FIT_TOLERANCE_IN ? over : null;
+}
+
+/**
+ * Whether a machine is another kind than the tall unit it is offered for was
+ * built for. Round 86, Leo: not allowed until its maker confirms it can go in
+ * a tall cabinet — a built-in kit, a manual that says so. No model in the
+ * catalogue records that yet (Open items).
+ */
+export const notForTallUnit = (appliance: Appliance, tallUnitFor: Category | null): boolean =>
+  tallUnitFor !== null && appliance.category !== tallUnitFor;
 
 /** A hood hung from the ceiling over an island: nothing round it to measure against. */
 const hungOverAnIsland = (slot: Slot) => slot.id === "slot-hood" && slot.mount === "island";

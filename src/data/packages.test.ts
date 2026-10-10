@@ -87,7 +87,7 @@ describe("the packages on offer", () => {
         // And it installs the way the package installs it, so a package's own
         // default is one the migration would keep rather than replace.
         expect(
-          suitsPackageSlot(chosen, slot),
+          suitsPackageSlot(chosen, slot, entry),
           `${entry.id}: ${slotId} default is a ${chosen.installType.join("/")} ` +
             `in a ${slot.installType} slot`,
         ).toBe(true);
@@ -242,7 +242,7 @@ describe("changing package", () => {
       );
       for (const slot of d.slots) {
         expect(
-          suitsPackageSlot(APPLIANCE_BY_ID[intoD[slot.slotId]], slot),
+          suitsPackageSlot(APPLIANCE_BY_ID[intoD[slot.slotId]], slot, d),
           `${id} → D: ${slot.slotId}`,
         ).toBe(true);
       }
@@ -253,7 +253,7 @@ describe("changing package", () => {
       );
       for (const slot of other.slots) {
         expect(
-          suitsPackageSlot(APPLIANCE_BY_ID[back[slot.slotId]], slot),
+          suitsPackageSlot(APPLIANCE_BY_ID[back[slot.slotId]], slot, other),
           `D → ${id}: ${slot.slotId}`,
         ).toBe(true);
       }

@@ -325,6 +325,16 @@
       "text": "2\" x 4\" corner supports in the cabinet under the rangetop, under the corners of its cutout, to carry it (142 lb).",
       "approval": "read",
       "reviewed": "Proposed in round 83 and approved by Leo unchanged: PCG366W's sheet p. 3 (decisions.md D16, round 83)"
+    },
+    "swap.tooTall.countertop": {
+      "text": "{delta} too tall — the countertop is above this opening",
+      "approval": "written",
+      "reviewed": "Leo's own wording, round 86: the reason a model is refused when it is taller than an opening with something fixed above it (the model card and the list; decisions.md D20, round 86)"
+    },
+    "swap.tooTall.coffee": {
+      "text": "{delta} too tall — the coffee machine is above this opening",
+      "approval": "written",
+      "reviewed": "Leo's own wording, round 86: the reason a model is refused when it is taller than an opening with something fixed above it (the model card and the list; decisions.md D20, round 86)"
     }
   },
   "zh": {
@@ -657,6 +667,21 @@
       "text": "柜内在 Rangetop 开孔的角部下方加 2\" × 4\" 木方支撑，承托灶的重量（142 磅）。",
       "approval": "written",
       "reviewed": "Leo's own wording, round 83: 木方 is what the shop and the installers call these supports — his site term (decisions.md D16, round 83)"
+    },
+    "swap.tooTall.countertop": {
+      "text": "高出 {delta}，开口上方是台面",
+      "approval": "written",
+      "reviewed": "Leo's own wording, round 86: the reason a model is refused when it is taller than an opening with something fixed above it (the model card and the list; decisions.md D20, round 86)"
+    },
+    "swap.tooTall.coffee": {
+      "text": "高出 {delta}，开口上方是咖啡机",
+      "approval": "written",
+      "reviewed": "Leo's own wording, round 86: the reason a model is refused when it is taller than an opening with something fixed above it (the model card and the list; decisions.md D20, round 86)"
+    },
+    "swap.notForTallUnit": {
+      "text": "厂家未确认可装进高柜",
+      "approval": "written",
+      "reviewed": "Leo's own wording, round 86: a microwave drawer or an over-the-range microwave offered for a combination-oven tower is not allowed until a manual says it can be built into a tall cabinet (decisions.md D20, round 86)"
     }
   }
 }

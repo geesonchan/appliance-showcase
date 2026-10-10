@@ -1,5 +1,5 @@
 import slotsFile from "../../data/slots.json";
-import type { PackageSlot, Slot, SlotId, SlotRecord } from "../types";
+import type { OpeningAbove, PackageSlot, Slot, SlotId, SlotRecord } from "../types";
 import { PACKAGE_SLOTS } from "./packages";
 import { CABINET_STANDARDS, OMITTED_SLOTS, ROOM, SLOT_PLACEMENT, ft } from "./room";
 import { parseDataFile, slotsFileSchema } from "./schema";
@@ -51,10 +51,14 @@ export const SLOT_RECORDS: SlotRecord[] = parsed.slots;
  * The enclosure flag changes what kind of hole it is: joinery built round the
  * appliance with finished sides, or a full-height unit standing on its own.
  */
-function size(record: SlotRecord, spec: PackageSlot): SlotRecord {
+function size(
+  record: SlotRecord,
+  spec: PackageSlot,
+  packageSlots: readonly PackageSlot[],
+): SlotRecord & Pick<Slot, "above" | "tallUnitFor"> {
   const box = {
     w: spec.widthIn,
-    ...(spec.heightIn === null ? {} : { h: spec.heightIn }),
+    h: openingHeightIn(record, spec),
     ...(spec.depthIn === null ? {} : { d: spec.depthIn }),
   };
   return {
@@ -84,10 +88,52 @@ function size(record: SlotRecord, spec: PackageSlot): SlotRecord {
       finishedSides: record.cabinetConfig.finishedSides,
       panelReady: spec.panelReady ?? record.cabinetConfig.panelReady,
     },
+    above: openingAbove(record, spec, packageSlots),
+    tallUnitFor: spec.tallUnit ? spec.category : null,
   };
 }
 
-function place(record: SlotRecord): Slot {
+/** How tall an opening is in this package: its own figure, else the slot's. */
+export const openingHeightIn = (record: SlotRecord, spec: PackageSlot): number =>
+  spec.heightIn ?? record.cutout.h;
+
+/**
+ * What is fixed over an opening, so that a machine taller than it cannot go in.
+ * Round 86, Leo, from package A: a wine column picked for the island's wine
+ * opening was drawn standing up through the countertop.
+ *
+ * - **The coffee machine**, over the opening a coffee tower stands over (D's
+ *   second dishwasher, E's wine cooler): the tower is one carcass, the machine
+ *   fixed above, and a fixed panel between (D11 rule 14).
+ * - **The countertop**, over every base opening a machine stands in: the run's
+ *   and the island's, whichever leg they go to. A cooking surface is not one —
+ *   the stone stops at a range and is cut for a rangetop or a cooktop (D16).
+ * - **Nothing**, over a tall unit, which the cabinetmaker builds to the machine
+ *   (D20, round 46), and over a hood.
+ *
+ * The one answer: `rebuildSlots` stamps it on the slot `fitCheck` reads, and a
+ * package switch asks it through `suitsPackageSlot`.
+ */
+export function openingAbove(
+  record: SlotRecord,
+  spec: PackageSlot,
+  packageSlots: readonly PackageSlot[],
+): OpeningAbove | null {
+  const over = packageSlots.find((slot) => slot.standsOver === record.id);
+  if (over) {
+    // Only a coffee tower stands over another opening today, and only it has
+    // words for what is above. Another would need its own, not this one's.
+    if (over.category !== "coffee") {
+      throw new Error(`${over.slotId} stands over ${record.id}, and nothing says what is above it`);
+    }
+    return "coffee";
+  }
+  if (spec.tallUnit || record.cabinetConfig.type !== "base") return null;
+  if (spec.category === "range" || spec.category === "cooktop") return null;
+  return "countertop";
+}
+
+function place(record: SlotRecord & Pick<Slot, "above" | "tallUnitFor">): Slot {
   const placement = SLOT_PLACEMENT[record.id];
   // A slot the package names and the layout did not place is a bug in the
   // generator, not a room: say which one rather than drawing it at the origin.
@@ -140,7 +186,7 @@ export function rebuildSlots() {
   // package might have; the room is built with the ones this one names.
   const all = parsed.slots
     .filter((record) => PACKAGE_SLOTS[record.id])
-    .map((record) => place(size(record, PACKAGE_SLOTS[record.id])));
+    .map((record) => place(size(record, PACKAGE_SLOTS[record.id], Object.values(PACKAGE_SLOTS))));
   SLOT_BY_ID = Object.fromEntries(all.map((slot) => [slot.id, slot])) as Record<SlotId, Slot>;
   SLOTS = all.filter((slot) => !OMITTED_SLOTS.includes(slot.id));
 }
