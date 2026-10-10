@@ -1,4 +1,5 @@
 import { dropsIntoCounter } from "./applianceBox";
+import { hoodMount } from "./hoodMount";
 import { CABINET_STANDARDS } from "./roomShell";
 import { PROTRUSION_DATUM } from "./rules";
 import type { Appliance, Category, OpeningAbove, Slot } from "../types";
@@ -187,7 +188,7 @@ export function protrusionDatumIn(slot: Slot): number {
 
 /** Whether the opening closes round the machine rather than being filled. */
 const dropsIntoSomething = (appliance: Appliance) =>
-  dropsIntoCounter(appliance) || appliance.installType.includes("insert");
+  dropsIntoCounter(appliance) || (appliance.category === "hood" && hoodMount(appliance) === "insert");
 
 /** Inches to one decimal, without a trailing ".0" on whole numbers. */
 export const formatInches = (value: number) =>

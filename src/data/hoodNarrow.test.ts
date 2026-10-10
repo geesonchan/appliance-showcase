@@ -69,11 +69,14 @@ describe("a hood narrower than the cooking surface", () => {
     expect(lines.map((f) => f.params.hood)).toEqual(["34-15/16"]);
   });
 
-  it("measures an insert liner as its housing: package B's 33-3/4 inch liner in a 42 inch housing", () => {
+  // The housing was 42" until round 87, when Leo set B's and D's to 36", the
+  // range's width. Measured as its 33-3/4" liner it would still raise the line
+  // against B's 35-15/16" rangetop; as its housing it does not.
+  it("measures an insert liner as its housing: package B's 33-3/4 inch liner in a 36 inch housing", () => {
     const selection = packageSelection("package-b");
     expect({ liner: selection["slot-hood"].widthIn, housing: SLOT_BY_ID["slot-hood"].cutout.w, lines: narrowLines(selection) }).toEqual({
       liner: 33.75,
-      housing: 42,
+      housing: 36,
       lines: [],
     });
   });

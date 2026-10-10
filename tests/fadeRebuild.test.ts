@@ -31,7 +31,7 @@ const DESKTOP = { width: 1440, height: 900 };
 const PHONE = { width: 390, height: 844 };
 
 /** Same guard as the smoke suite: a run that tested nothing fails. */
-const EXPECTED_TESTS = 18;
+const EXPECTED_TESTS = 21;
 let testsRun = 0;
 const filtered = process.argv.some((arg) => arg === "-t" || arg.startsWith("--testNamePattern"));
 beforeEach(() => {
@@ -386,11 +386,24 @@ async function swapRange(s: Session) {
   return () => press(s, chip);
 }
 
+/**
+ * Changing the hood from the model card to one that hangs differently (round
+ * 87): A's under-cabinet hood for the VCIN36GWS liner, which comes with its
+ * housing, so the room is generated again where it stands, not only re-cut.
+ * Its own rebuild path, so its own case.
+ */
+async function swapToInsert(s: Session) {
+  await fadedWithHood(s, "card", "slot-hood");
+  const chip = s.page.locator('[data-model-card] [data-candidate="thermador-vcin36gws"]').first();
+  return () => press(s, chip);
+}
+
 const PATHS = [
   ["changing the hood", swapHood],
   ["dragging the back wall slider", dragBackWall],
   ["turning the island", turnIsland],
   ["changing the range", swapRange],
+  ["changing the hood to an insert with its housing", swapToInsert],
 ] as const;
 
 const DEVICES = [

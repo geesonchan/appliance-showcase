@@ -3,6 +3,8 @@ import { facingOf, toPlan } from "./frame";
 import { againstWall } from "./roomWalls";
 import { SLOT_BY_ID } from "./slots";
 import { SCRIBE_IN } from "./cookingSurface";
+import { hoodModelFor, hoodMount } from "./hoodMount";
+import { PACKAGE } from "./packages";
 import type { Appliance, Slot } from "../types";
 
 /**
@@ -280,13 +282,11 @@ export function hoodBodyHeightFt(slot: Slot, appliance: Appliance | undefined): 
  * The cabinets are built from the layout, not from the store, and the bridge
  * over a canopy stands on the canopy's top — so they have to know which hood
  * it is. The store sets it (`setHoodModel` in layoutState.ts) whenever the
- * hood, the package or an undo changes it. Unset, a canopy is its slot's 18".
+ * hood, the package or an undo changes it. Since round 87 it is the package's
+ * (`hoodModelFor` in hoodMount.ts): the one chosen in this package, or the
+ * package's own.
  */
-let HOOD_MODEL: Appliance | undefined;
-export const hoodModel = () => HOOD_MODEL;
-export function recordHoodModel(appliance: Appliance | undefined) {
-  HOOD_MODEL = appliance;
-}
+export const hoodModel = () => hoodModelFor(PACKAGE);
 
 /**
  * The top of the canopy, in feet: where it hangs plus the model's own height.
@@ -299,7 +299,7 @@ export function recordHoodModel(appliance: Appliance | undefined) {
  */
 export function hoodTopFt(
   slot: Slot = SLOT_BY_ID["slot-hood"],
-  appliance: Appliance | undefined = HOOD_MODEL,
+  appliance: Appliance | undefined = hoodModel(),
 ): number {
   return slot.position[1] + hoodBodyHeightFt(slot, appliance);
 }
@@ -318,7 +318,8 @@ export function hoodTopFt(
  * In the slot's own frame, feet: `x` is each strip's centre either side of the
  * middle, `y` and `z` its centre up from the hood's underside and out from the
  * run's centre line. Null for a hood over an island, for an insert liner in its
- * housing, and wherever the gap each side is half an inch or less (`SCRIBE_IN`).
+ * housing, for a chimney hood (round 87, Leo: the gap is left open), and
+ * wherever the gap each side is half an inch or less (`SCRIBE_IN`).
  */
 export function hoodSideFillers(
   slot: Slot,
@@ -329,7 +330,12 @@ export function hoodSideFillers(
   // (packages B and D): what is either side of it is the housing, not a gap to
   // fill. Round 79, Leo — until then two blocks showed under B's and D's
   // housings, the base-cabinet fillers poking through.
-  if (appliance.installType.includes("insert")) return null;
+  if (hoodMount(appliance) === "insert") return null;
+  // A chimney hood narrower than its opening leaves the gap each side open:
+  // nothing over it for a strip to run up to, and Leo's site practice is to
+  // board nothing there (round 87). Until then two blocks of its canopy's
+  // height hung either side of it, with bare wall above.
+  if (hoodMount(appliance) === "chimney") return null;
   const modelIn = appliance.widthIn ?? appliance.cutoutWidthIn ?? slot.cutout.w;
   const eachSideIn = (slot.cutout.w - modelIn) / 2;
   // Half an inch or less is a scribe, not a board: the one figure, read where

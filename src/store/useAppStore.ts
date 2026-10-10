@@ -455,9 +455,15 @@ export const useAppStore = create<AppState>((set, get) => ({
       return;
     }
     // A different hood is a different cabinet over it (round 78): the carcass
-    // is re-cut and the room redrawn. The layout, the camera and every other
+    // is re-cut and the room redrawn. A hood that hangs differently — an
+    // insert in a housing, a chimney with nothing over it — has the room
+    // generated again where it stands (round 87). The camera and every other
     // choice stay as they are.
-    setHoodModel(APPLIANCE_BY_ID[applianceId]);
+    const result = setHoodModel(APPLIANCE_BY_ID[applianceId], get().packageId);
+    if (!result.ok) {
+      set({ layoutIssues: result.reasons });
+      return;
+    }
     set((s) => ({
       selection: { ...s.selection, [slot]: applianceId },
       layoutVersion: s.layoutVersion + 1,

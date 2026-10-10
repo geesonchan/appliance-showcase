@@ -2,7 +2,8 @@ import { useMemo } from "react";
 import { PARAM_LIMITS, feasibleRange, wallRequirement, type LayoutParams } from "../data/room";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
-import { useActivePackage } from "../store/useSelection";
+import { useActivePackage, useSelectedAppliance } from "../store/useSelection";
+import { hoodMount } from "../data/hoodMount";
 import { comboHandleAt, comboSillFor } from "../data/columnModel";
 import { atCoffeeManualHeight, snapCoffeeSill, underCoffee } from "../data/layoutTemplate";
 import { formatDimension } from "../data/dimensions";
@@ -108,11 +109,12 @@ export function LayoutControls() {
   const hasCoffee = specified.some((slot) => slot.category === "coffee");
   // What stands under it, which the caption names rather than assumes (round 73).
   const underIt = underCoffee(specified);
-  // And whether its hood is a liner that goes up inside joinery, which is the
-  // only kind with a shape to choose.
-  const hasHousing = specified.some(
-    (slot) => slot.slotId === "slot-hood" && slot.installType === "insert",
-  );
+  // And whether the hood in the room is a liner that goes up inside joinery,
+  // which is the only kind with a shape to choose. The hood chosen, not the
+  // package's own (round 87, Leo): A with VCIN36GWS shows it, B or D with an
+  // under-cabinet hood does not.
+  const hood = useSelectedAppliance("slot-hood");
+  const hasHousing = !!hood && hoodMount(hood) === "insert";
   const issues = useAppStore((s) => s.layoutIssues);
   const setLayout = useAppStore((s) => s.setLayout);
 

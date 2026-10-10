@@ -1,5 +1,4 @@
 import { ROOM, ft, type HousingStyle } from "./roomShell";
-import type { Appliance } from "../types";
 
 /**
  * The hood a joiner builds, with a manufacturer's liner in the underside of it.
@@ -67,8 +66,10 @@ export const HOOD_CABINET = {
 /**
  * What each shape gathers in to at the top, and what its face is made of.
  *
- * A box does not gather in at all: 42" wide and as deep as the base run below
- * it, which is what a chimney breast is, with the front boarded in shiplap.
+ * A box does not gather in at all: as wide as the housing and as deep as the
+ * base run below it, which is what a chimney breast is, with the front boarded
+ * in shiplap. Its 42" is the widest it is drawn; the top is never wider than
+ * the housing, and since round 87 every housing is 36" (D13).
  * A sweep draws in to a flue — 30" on the drawing, and 14" deep, except that
  * the top of that wall has to read as one line and a section standing proud of
  * the cabinets breaks it, so its depth is theirs where theirs is less.
@@ -217,10 +218,6 @@ function coveRings(
   }
   return rings;
 }
-
-/** True when this hood goes up inside a housing somebody else builds. */
-export const isInsert = (appliance: Appliance | undefined) =>
-  !!appliance?.installType.includes("insert");
 
 /**
  * Where the housing hangs, in feet above the floor.

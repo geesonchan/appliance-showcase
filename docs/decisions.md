@@ -1597,7 +1597,8 @@ behind the faces beside them in every case below, and none taking shadows.
   table, the twelfth, closed). No hood in the catalogue sat on it.
 - **Where it shows, all from the model card:** A's 36" hood slot with
   AK7300AS or HMCB30WS (3" each side); B's and D's 42" housing slot with
-  AK7136BS-BF, HMWB361WS or PH36HWS (3") and AK7300AS or HMCB30WS (6"); A's
+  AK7136BS-BF, HMWB361WS or PH36HWS (3") and AK7300AS or HMCB30WS (6") — 36"
+  since round 87, so there only AK7300AS and HMCB30WS, 3" each side; A's
   and B's refrigerator opening with the 30" T30IR905SP; D's freezer slot with
   T18IF900SP and its wine slot with T18IW100SP. No package's own selection has
   strips, C's included (its hood slot is 30"; round 85's plan said 36" in
@@ -1607,6 +1608,36 @@ behind the faces beside them in every case below, and none taking shadows.
   the faced strip hid the handle of the door that reached over it.
 - **The chimney hood's strips in a wider slot are not settled** (Open items):
   they are its canopy's height, with bare wall over them. Unchanged.
+  *Settled in round 87, Leo's site practice: none* — a chimney hood narrower
+  than its opening leaves the gap each side open (D16, round 87).
+
+*Amended 2026-10-10 (round 87), Leo: a 36" housing over a 36" range.* B's and
+D's insert housing was 42"; it is 36", and so is A's when its hood is swapped
+for the liner (D16, round 87). Leo, in his words: "36" Range 就直接配 36" Hood
+就好，因为 42" 现在很少家电品牌做" — his site practice.
+- **Checked against the liner's own manual**, `vcin36gws-manual.pdf`, its pages
+  read as pictures in round 87 (Chromium's PDF viewer; no PDF tool on this
+  machine reads them as text):
+  - **page 14**, "Ceiling cutout and supporting housing dimensions": the opening
+    in the housing's underside, "Dimension for A", is **32-15/16" for
+    VCIN36GWS** (836 mm), 21-1/4" deep; the framing round it is 1-1/2" x
+    3-1/2" members, the crossbar 12-11/16" up with a 5/8" ledge, the studs 16"
+    apart, the hood 0"-3" off the back wall. **The page gives no outside
+    width for the housing, and no limit either way.**
+  - **page 7**: the liner is 33-3/4" across its side trims (Dimension B), "is
+    designed for installation inside a custom-built hood assembly", and "needs
+    to be centered over the cooking surface"; **page 8**: 30" minimum to a
+    suggested 40" over the cooking surface. Neither gives a housing width.
+  - **So 36" is inside what the manual allows** — it sets the opening, not the
+    outside — **and only just, by its own drawing**: 32-15/16" of opening and
+    a 1-1/2" member each side is 35-15/16", a thirty-second of an inch each
+    side inside 36". Whether the finished panels of a 36" housing go outside
+    that framing or are the framing is the cabinetmaker's construction, and
+    the manual does not say. Reported to Leo in round 87.
+- The box shape's top is written as 42" (`HOUSING_STYLES`), which was the old
+  housing's whole width: a box does not gather in. The top is never wider
+  than the housing (`hoodCabinetParts`), so a 36" box runs straight up at 36";
+  the sweep still draws in to its 30" flue.
 
 **Ducting**, from the ducting sheet — five installations, not five drawings of
 one:
@@ -1940,6 +1971,72 @@ counter, with no stone over them.
   filler faded). `occlusionFade.test.ts` — the filler zone on a slot written
   out by hand; red with its inner edge taken away.
 
+**Amended 2026-10-10 (round 87), Leo: what is over a hood is the chosen
+hood's to say, not the package's.** From Leo using package A: its
+under-cabinet hood changed on the model card to the insert liner VCIN36GWS,
+and the liner hung on its own between the wall cabinets, with no housing.
+- **Leo's rule, from site:** an insert hood always comes with its housing — the
+  same reason a rangetop always has a base cabinet under it (round 83).
+  Source: Leo's site practice.
+- **Every hood swap follows the hood** (Leo, round 87): an under-cabinet hood
+  has a bridge cabinet over it, an insert a housing (package B's three-part
+  housing, `hoodCabinetParts`, not a second one), a chimney hood nothing over
+  it, its own cover to the ceiling. Where the canopy hangs follows it too — a
+  chimney's goes up to where its cover reaches the ceiling (D19), anything
+  else hangs at the clearance over the surface the wall was drilled for — and
+  so does the duct's route: through the ceiling for a chimney, up through the
+  cabinet or the housing for the others (Leo: the duct's words follow the
+  hood). The housing-shape control shows whenever the hood in the room is an
+  insert, and only then.
+- **One answer** (D17's table, the thirteenth): `hoodMount` in
+  `src/data/hoodMount.ts`, from the hood's own install type, asked by the
+  wall cabinets over it (`banksOn`), its height (`slots.ts`), the duct's route
+  (`ductRouteFor`), the housing-shape control, the strips beside it, the fit's
+  filler and the checklist's hood width. Until round 87 the first four read
+  the package's hood slot and the rest the model. A hood whose install type
+  says nothing about how it hangs is refused loudly, not guessed (D4). Kept
+  in a module with no imports from the room, as `cookingSurface.ts` is.
+- **The chosen hood belongs to its package** (`hoodModelFor`), as the range
+  does since round 83: a package switch builds the new room before the store
+  records the new package's hood, and round 78's one global hood would have
+  had that room built round the hood chosen in the package left.
+- **Choosing a hood regenerates the room where it stands when it hangs
+  differently** (`setHoodModel`), and only then; a hood that hangs the same
+  re-cuts the cabinets as round 78 did. The opening keeps the slot's width, so
+  nothing moves along the wall and no wall grows.
+- **B's and D's hood opening is 36", not 42"** (Leo, round 87, in his words:
+  "36" Range 就直接配 36" Hood 就好，因为 42" 现在很少家电品牌做"; his site
+  practice). Their housing is 36", and the wall cabinets either side of it
+  move 3" toward it. A's housing, with the liner swapped in, is A's 36"
+  opening. The housing's size against the liner's manual is in D13, round 87.
+- **Every hood the openings take, as built** (`hoodSwap.test.ts`, written out
+  by hand): A — the four under-cabinet hoods under a 36" bridge, VCIN36GWS in
+  a 36" housing, all at 66-3/4"; HMCB30WS nothing over it, at 66-3/4", through
+  the ceiling. B and D — the same at 66-7/16", HMCB30WS at 66-1/2". C —
+  AK7300AS under a 30" bridge at 66", HMCB30WS as before at 66-1/2". E — its
+  island hood at 72", unchanged.
+- **A chimney hood narrower than its opening leaves the gap open** (Leo,
+  round 87, his site practice, given after trying round 87 on this machine:
+  two small blocks hung either side of HMCB30WS's canopy in A's, B's and D's
+  36" openings, 3" wide and its canopy's 8-9/16" tall, with bare wall over
+  them). No strip is drawn beside a chimney hood (`hoodSideFillers`); the Open
+  item that waited for his practice is closed. `hoodSideFillers.test.ts` holds
+  it, red on round 87's first build.
+- Tests: `hoodSwap.test.ts` (unit) — red on round 86's code for A's liner
+  (a bridge over it), B's under-cabinet swap (its 42" housing kept), A's
+  chimney swap (a bridge over it), C's under-cabinet swap (nothing over it, at
+  66-1/2"), and B's and D's 42"; the case that the room is rebuilt only when
+  the hood hangs differently asks round 87's return value, so it could only
+  fail there for want of one. `tests/hoodHousing.test.ts` — the housing by
+  mouse and by touch, taken away again, B's taken away for an under-cabinet
+  hood, the chimney's spec card saying "Up through the ceiling"; 4 of 5 red on
+  round 86's build (`index-DRVWMZ5D.js`), and the fifth green on both by
+  design (A's own hood never had a housing). `tests/fadeRebuild.test.ts` — a
+  fifth path, the card's swap to the liner, which regenerates the room, on all
+  three devices. Two older unit tests held B's 42" housing and now hold 36",
+  each with the reason; three fixture hoods had inherited a range's install
+  type from the test helper and now say they are wall canopies.
+
 ## D17 · A push is not a deploy
 
 **Decided:** 2026-09-08 (round 21), Leo, after four failed deploys in a row.
@@ -2191,6 +2288,7 @@ repository has them)* — one rule, written more than once:
 | round 78 | a gas pipe upsized above 65,000 BTU — **the third copy** | the rule's condition and `thresholds.gasPipeUpsizeBTU` (round 65's row), and a literal `65_000` in `utilities.ts` that round 65 did not find — **the copy the quote, the spec card and the install view actually printed** | **one**: the rule's condition, asked through `gasPipeFor` in `rules.ts`, which runs the rule engine's own test; `thresholds.gasPipeUpsizeBTU` deleted (round 78) | **the day the rule's figure moved**: the checklist line would have followed it and the quote's pipe size would not. `thresholdCopies.test.ts` moves the rule's threshold to 90,000 and sees the quote follow; on the old code it did not. |
 | round 83 | whether a cooking machine drops into the counter or stands on the floor | three, from the start: the run's cabinet under it (`layoutTemplate.ts`, from the *package's* slot, `installType === "rangetop"`); the counter's hole or cut (`counter.ts`, from the model, by the word "freestanding"); the machine's placement (`applianceBox.ts`, from the model, a rangetop or a cooktop) | **one**: `dropsIntoCounter` in `cookingSurface.ts`, which all three ask (round 83) | **it had bitten, on the live site, three ways**: package A with its range changed to the PCG366W rangetop hung the rangetop over an empty opening (Leo, from use); package B with its rangetop changed to a pro range drew the range inside B's drawer base; and a slide-in got a hole in a slab running over it. `rangeJoinery.test.ts` holds every package and every range it offers; each old copy put back on purpose turned it red. |
 | round 84 | how much beside a machine is a scribe and not a board: half an inch | `Filler` in ApplianceModel.tsx (`MIN`, nothing drawn at 1/2" or less) and `hoodSideFillers` in hood.ts (`SIDE_FILLER_MIN_IN`, nothing drawn under 1/2") — they disagree at exactly 1/2", where the hood draws a strip and `Filler` does not | **one**: `SCRIBE_IN` in `cookingSurface.ts`, read by the range's fillers (round 84), `Filler` (round 84) and `hoodSideFillers` (round 85) | **it never had**: a hood exactly 1" narrower than its slot, and none in the catalogue is. `hoodSideFillers.test.ts` holds the half inch, and was red on round 84's code. |
+| round 87 | how a hood hangs, and so what is over it | the package's hood slot (`spec["slot-hood"].installType`) read by the wall cabinets over the hood (`banksOn`), its height (`slots.ts`, a chimney), the duct's route (the slot's data) and the housing-shape control; the chosen model's install type read by the strips beside it (`hoodSideFillers`), the fit's filler and the checklist's hood width | **one**: `hoodMount` in `hoodMount.ts`, from the chosen hood, which all of them ask (round 87) | **it had bitten, on the live site** (Leo, from use): A's hood swapped for the VCIN36GWS liner hung between the wall cabinets with no housing, B's and D's housing stayed over an under-cabinet hood, a chimney hood in A had a bridge over it and its spec card said "Up through cabinet", and an under-cabinet hood in C hung on bare wall. `hoodSwap.test.ts` holds every hood every opening takes. |
 
 Round 60's quarter-inch window step is a near relative rather than a member:
 one rule, but its search and its judgement worked to different resolutions,
@@ -2227,8 +2325,10 @@ not know about was the one being printed. The eleventh, round 83's, is closed,
 and is the first that started at three copies: one question answered from the
 package in one place and from the model, by two different tests, in the other
 two. The twelfth, round 84's, was closed in round 85 with the hood's strips:
-found while the range's fillers were given the same half inch. The table has
-eleven rows for those twelve: round 60's has
+found while the range's fillers were given the same half inch. The
+thirteenth, round 87's, was found and closed together: how a hood hangs, read
+from the package in four places and from the model in three. The table has
+twelve rows for those thirteen: round 60's has
 none of its own. The table is here so that the next one found
 is added to it rather than rediscovered.
 
@@ -2378,6 +2478,38 @@ lies, before anything is quoted from the folder it is in.
   was half way, so that run tested some mix of two builds and was thrown
   away. It was run again on a clean build. The same kind of mistake as the
   first — two jobs that share something, run as if they did not.
+
+**A round that waits for Leo before it is pushed says so in its first lines:
+which commit and which bundle the live site serves, that the new work is on
+this machine only, and how to try it here.** *(Leo, round 87.)* Round 87's
+report said "not committed yet" and sent before-and-after pictures; Leo
+tested the three fixes on the live site, found all three unfixed, and asked
+why the tests and the screenshots said otherwise. They were all of the local
+build (`index-Ce7IU0tz.js`); the site was still round 86 (`981fb49`,
+`index-DRVWMZ5D.js`). Nothing was wrong but the report, which left the live
+site as the only place to look. So, in any report that waits for Leo before
+the push:
+- its opening lines name the commit and the bundle the live site serves, and
+  say the new work is not on it;
+- it gives a way to try the new build on this machine — a local preview
+  server and its address — and it is not rebuilt while Leo is trying it;
+- **every screenshot is labelled with the bundle it was taken of**
+  (`index-*.js`), read from the page itself where possible, not from the
+  folder it was served from.
+
+**A preview server that is stopped has stopped: check the process, not the
+task.** *(Leo, round 87.)* Round 87 started four `vite preview` servers in the
+background and stopped each through the task that launched it. That ended the
+shell, not Vite: all four were still listening at the end of the round, found
+only because a fifth would not take a port. One of them served the
+repository's own `dist/`, which had been rebuilt several times since, so what
+it served had changed under it. None of round 87's shots or tests used that
+one — the shots record each port's bundle before they start, and the browser
+tests start their own server — but nothing would have said so if one had. So:
+after stopping a preview server, check that nothing is still listening on its
+port (`netstat -ano`) and end the Vite process by its id if it is; serve a
+copy of a build for a set of shots, never `dist/` while it may be rebuilt; and
+read each port's bundle before shooting from it.
 
 ⚠️ **Vitest's exit code goes into a file of its own, and nothing runs after it
 that could overwrite it.** *(Leo, round 70.)* The same trap has now been met
@@ -4129,7 +4261,8 @@ Registered, not scheduled. None of these is a round of its own.
   set `backgroundImage` instead of `background`. *(Noted 2026-09-14, round 45,
   Leo.)* *(Leo, round 80: fix it along the way when the interface round is
   built, since regrouping the settings panel touches the sliders; not in the
-  plan stage.)* *(Round 88 now, with the right panel's tabs: Leo, round 86.)*
+  plan stage.)* *(Round 88 now, with the right panel's tabs: Leo, round 86;
+  round 90 since round 87.)*
 - **Is a freestanding refrigerator in package A's slot drawn right?** The list
   offers one (D20, round 46), and D11 rule 11 was written for package C, where
   the refrigerator stands at the end of a run with nothing built round it. A's
@@ -4795,7 +4928,7 @@ Registered, not scheduled. None of these is a round of its own.
   back.
 - **On a phone in Chinese, the "MT" chip sits over the "E" package button.**
   *(Found round 82, on the live site as well; Leo: fix with the right panel's
-  round, now round 88.)* The top
+  round, now round 90 — Leo moved it back in rounds 86 and 87.)* The top
   bar at 390px: the machine-translation chip is drawn over the last package
   button.
   - *Measured in round 86's first plan (read only, on round 85's build):* it is
@@ -4804,7 +4937,7 @@ Registered, not scheduled. None of these is a round of its own.
     the package buttons: in Chinese "MT" starts at x 163.7 and "E" ends at
     177.7; **in English at 375px "Quote" starts at 171.2, over the end of the
     A-E group**, so the English page overlaps too on a 375px phone. The plan
-    for round 88 (Leo to confirm): tighten the bar below 430px and keep the
+    for that round (Leo to confirm): tighten the bar below 430px and keep the
     chip where it is (D10), aiming at no overlap at 360, 375, 390 and 414 in
     both languages; its four open questions (the phone's tabs, "清单" being the
     top bar's Quote in Chinese, the refusal line pointing at the Layout tab,
@@ -4818,7 +4951,9 @@ Registered, not scheduled. None of these is a round of its own.
     (HMCB30WS); B's and D's insert slots take under-cabinet hoods and a chimney;
     C's chimney slot takes an under-cabinet hood. Round 78 made the cabinet
     over a hood follow its height; housing, cabinet and chimney cover have not
-    been checked against its install type.
+    been checked against its install type. *Done in round 87* (D16, round 87):
+    what is over a hood, where it hangs and its duct's route follow the hood
+    chosen, in every package.
   - **Refrigerators**: A's and B's built-in slots take a freestanding
     counter-depth model and a column; C's counter-depth slot takes built-ins and
     a column (and the older item above, a freestanding refrigerator in A).
@@ -4845,7 +4980,7 @@ Registered, not scheduled. None of these is a round of its own.
       PO302W, PODS302B; D's with ME301YP, MEM301WS, PO302W). Each was shot in
       round 86 on its own and the package's own model, flown to — 
       `docs/open-items/round-86-allowed-*.png` — for Leo to set the order.
-    - **Hoods** are round 87's (the entry for it below).
+    - **Hoods** were round 87's, and are done (D16, round 87).
 - **A microwave drawer or an over-the-range microwave in a tall unit, once a
   manual allows it.** *(Leo, round 86: not allowed until then.)* MD24BS and
   JVM3160RFSS fit B's and E's combination-oven tower on width and are refused
@@ -4874,13 +5009,43 @@ Registered, not scheduled. None of these is a round of its own.
     a taller machine is refused now anyway, so the line would in effect go;
     whether anything else should be said about height (a tower opening
     rebuilt to its machine, say) is for that round.
-- **Package A with the insert hood VCIN36GWS: the liner hangs between the
-  wall cabinets with no housing.** *(Leo, round 86, from use, with a
-  screenshot; round 87.)* Leo's site practice: an insert hood always comes
+- ~~**Package A with the insert hood VCIN36GWS: the liner hangs between the
+  wall cabinets with no housing.**~~ **Done in round 87** (D16, round 87; D13,
+  round 87, for the housing's 36" against the liner's manual), with every
+  other hood swap. What follows is the entry as it stood: *(Leo, round 86,
+  from use, with a screenshot; round 87.)* Leo's site practice: an insert hood always comes
   with its housing — the same reason a rangetop always has a base cabinet
   under it (D16, round 83). The fix reuses package B's three-part housing
   (`housingStyle`, box or sweep), not a second one. Round 87 also checks the
   other hood install swaps on the list in the entry above.
+- **A 36" chimney hood, HMCB36WS.** *(Leo, round 87: registered for round 89
+  — first 88, then moved behind the model card by Leo — not started.)* Leo is adding it to the inventory sheet and putting its
+  specification sheet into `docs/reference/`, and will say when; then it is
+  imported (D4: through `npm run import:csv`, the sheet read-only) and its
+  figures read from its own sheet, page by page, not carried over from the
+  30" HMCB30WS. Until then a 36" opening with a chimney hood has only the 30"
+  one, which leaves the gap each side open (D16, round 87).
+  - *A first import, run by Leo on 2026-10-10 during round 87, set aside
+    unreviewed* (Leo: round 88's data does not go into round 87). Its summary:
+    read 35, exported 35, skipped 0; one each of no sourceUrl, no msrpUSD, no
+    cutoutWidthIn. Its diff against the committed file was more than the new
+    row: **T18IW100SP's hand-filled cells all came in empty** — msrpUSD 7799,
+    sourceUrl, verifiedAt 2026-09-28, cutout 18 x 84 x 25 and amps 15 — which
+    is most likely what the three warnings are, a `showcase_specs` lookup that
+    no longer finds that model (D4, data-sheet-spec.md: keyed by Model).
+    Round 89 checks it with `--verbose` before anything is written, and stops
+    on it, as Leo asked. The import is kept outside the repository, unread
+    into it, until then.
+- **The model card covers the machine it is about.** *(Leo, round 87, from
+  use, with a screenshot of package B's hood flown to: the card fills the
+  lower half of the scene, so a model changed on it cannot be seen changing.
+  Before the right panel's tabs and before HMCB36WS: round 88, a plan
+  first.)* The plan is to set
+  out at least these, each with its cost:
+  - on a fly-in, aim the camera at what is left of the scene above the card —
+    still the fly-in D1 allows, not a fourth reason to move the camera;
+  - a lower card, or one that folds itself away after a model is chosen;
+  - on a desktop, the card at the side of the scene.
 - **PRG366WH's installation manual, to come into `docs/reference/`.** *(Leo,
   round 83.)* It is to give the anti-tip bracket's position (the line is on the
   checklist from Leo's site practice; nothing is drawn for it yet) and the
@@ -4914,6 +5079,22 @@ Registered, not scheduled. None of these is a round of its own.
     server dropping a request. Run on their own, both passed (11 of 11, 18 of
     18), and the suite run again in full passed 2,469 of 2,469, exit code 0.
     Seven test files now start a browser each.
+  - *Round 87: the guess tested, as Leo asked in round 83.* With eight browser
+    files, the full run side by side ended 20 of 2,487 red in 1,972 seconds
+    (round 86's took 1,025): 13 pages never loaded (`page.goto` past 90
+    seconds), one test past 150 seconds, and the rest after them. The same
+    suite with the files one after another (`npx vitest run
+    --no-file-parallelism`, after `npm run build`) passed 2,487 of 2,487, exit
+    code 0, in 2,099 seconds. So the files starve each other side by side.
+    **In the config since round 87** (Leo): `fileParallelism: false` in
+    `vitest.config.ts`, so `npm test` runs the files one after another. The
+    unit suite (`npm run test:unit`, CI's) keeps its own config and runs side
+    by side as before.
+    - One of the 20 was a real assertion, and the test was at fault:
+      `tests/tooTall.test.ts` compared two canvas shots to say the room had not
+      changed, which a live WebGL canvas does not repeat to the pixel on a busy
+      machine. It now asserts what that meant — the refused chip is a disabled
+      button, and the selection the room is drawn from is unchanged.
 - **A package whose own range is missing from the catalogue.** *(Round 83, not
   changed.)* What the run stands under the cooking surface reads the package's
   default range from the data when none has been chosen; if that model left the
@@ -4974,15 +5155,22 @@ Registered, not scheduled. None of these is a round of its own.
   the kick set back under them — every base cabinet and every picture of
   every package would change, and what stands beside a machine on the floor
   (a range, a dishwasher) would need looking at where the kick meets it.
-- **The strips beside a chimney hood in a slot wider than it.** *(Leo, round
+- ~~**The strips beside a chimney hood in a slot wider than it.**~~ **Closed in
+  round 87, Leo's site practice:** a chimney hood narrower than its opening
+  leaves the gap each side open, and no strip is drawn (D16, round 87). What
+  follows is the entry as it stood: *(Leo, round
   85: only when a model is changed; waiting for his site practice; not this
   round.)* HMCB30WS in A's 36" hood slot (about 3" each side) or in B's and
-  D's 42" housing slot (about 6"): the strips are drawn from the canopy's
+  D's 42" housing slot (about 6"; 36" since round 87, so 3" there too): the
+  strips are drawn from the canopy's
   underside to its top (`hoodSideFillers`, round 79, "up to the floor of the
   cabinet over it"), and a chimney hood has no cabinet over it, so they are
   8-9/16" tall with bare wall above, beside the chimney cover. No package's
   own hood is in this state: C's is HMCB30WS in its own 30" slot, a 1/32"
   scribe each side, no strips (round 85, its live page looked at front on).
+  *Round 87: first left as they were, by Leo's word; then, from Leo trying
+  round 87 on this machine (the two blocks floating either side of the
+  canopy), taken out in the same round.*
 - **The panels a machine draws above or below itself have no face either.**
   *(Found round 85, read from the code, not measured.)* `Filler`
   (ApplianceModel.tsx) also draws a drawer front under a machine hung in its
@@ -5028,10 +5216,14 @@ Registered, not scheduled. None of these is a round of its own.
        from use of package A; D20, round 86), *done in round 86*. **Round 87**:
        an insert hood comes with its housing, B's three-part housing reused,
        and the other hood install swaps checked (Leo, round 86; the entry
-       above). **Round 88**: the right panel's tabs, the `Slider` warning, and
-       the "MT" chip over "E" on a Chinese phone (Leo, round 85, moved back by
-       Leo in round 86); round 86's first plan for it is in the "MT" entry
-       above. What each decides is written here when that round is built.
+       above), *done in round 87* (D16, round 87), with B's and D's housing
+       made 36" (Leo). **Round 88**: the model card covering the machine it
+       is about, a plan first (Leo, round 87; the entry above). **Round 89**:
+       the 36" chimney hood HMCB36WS (Leo, round 87; the entry above). **Round
+       90**: the right panel's tabs, the `Slider` warning, and the "MT" chip
+       over "E" on a Chinese phone (Leo, round 85, moved back by Leo in rounds
+       86 and 87); round 86's first plan for it is in the "MT" entry above.
+       What each decides is written here when that round is built.
   1. **A hood's own outlet first.** The duct drawn and quoted follows the
      model's own outlet where its sheet gives one, rather than only the
      airflow band (the two data points above).

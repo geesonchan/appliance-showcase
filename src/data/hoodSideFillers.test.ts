@@ -96,8 +96,10 @@ describe("where there are no strips", () => {
     expect(hang(PH36HWS).strips).toBeNull();
   });
 
-  // Package B's liner is 33-3/4" in a 42" housing: 4-1/8" each side, well past
-  // the half inch, so only the rule about inserts keeps the strips out.
+  // Package B's liner is 33-3/4" in a 36" housing: 1-1/8" each side, past the
+  // half inch, so only the rule about inserts keeps the strips out. (The
+  // housing was 42" and the gap 4-1/8" until round 87, when Leo set B's and
+  // D's housing to 36", the range's width.)
   it("has none beside an insert liner, which hangs in its housing", () => {
     resetRoom();
     setActivePackage("package-b");
@@ -105,7 +107,7 @@ describe("where there are no strips", () => {
     setHoodModel(liner);
     const slot = SLOT_BY_ID["slot-hood"];
     expect({ gapEachSideIn: (slot.cutout.w - liner.widthIn!) / 2, strips: hoodSideFillers(slot, liner) }).toEqual({
-      gapEachSideIn: 4.125,
+      gapEachSideIn: 1.125,
       strips: null,
     });
   });
@@ -124,6 +126,20 @@ describe("where there are no strips", () => {
     const { slot } = hang(AK7300AS);
     const narrower = { ...AK7300AS, widthIn: slot.cutout.w - 1.25 } as Appliance;
     expect(hoodSideFillers(slot, narrower) && inches(hoodSideFillers(slot, narrower)!.widthFt)).toBe(0.625);
+  });
+
+  // Round 87, Leo's site practice: a chimney hood narrower than its opening
+  // leaves the gap each side open — no strip. HMCB30WS in package A's 36"
+  // opening is 3" short each side, past the half inch, so only the chimney
+  // rule keeps the strips out; until round 87 two blocks hung either side of
+  // its canopy, its canopy's height, with bare wall over them.
+  it("has none beside a chimney hood narrower than its opening", () => {
+    const chimney = APPLIANCE_BY_ID["thermador-hmcb30ws"];
+    const { slot, strips } = hang(chimney);
+    expect({ gapEachSideIn: Math.round(((slot.cutout.w - chimney.widthIn!) / 2) * 1000) / 1000, strips }).toEqual({
+      gapEachSideIn: 3.031,
+      strips: null,
+    });
   });
 
   it("has none beside a hood hung over an island", () => {

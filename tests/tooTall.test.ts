@@ -120,13 +120,18 @@ describe("a machine that cannot go into an opening (round 86)", () => {
   it("does not change the model when a too-tall one is pressed", async () => {
     const s = await open(false);
     await selectOnCard(s, "A", "slot-wine");
-    const before = await s.page.locator("canvas").screenshot();
-    await press(s, s.page.locator('[data-model-card] [data-candidate="thermador-t24iw905sp"]').first());
+    const chip = s.page.locator('[data-model-card] [data-candidate="thermador-t24iw905sp"]').first();
+    await press(s, chip);
     await s.page.waitForTimeout(2500);
+    // The chip is a disabled button, so a press never reaches the store; the
+    // card's "Specified" is the selection the room is drawn from. (Round 86
+    // first compared two canvas shots, which a live WebGL canvas does not
+    // repeat to the pixel on a busy machine: red in round 87's first full run
+    // with the selection unchanged.)
     expect({
       specified: await specified(s),
-      sameRoom: Buffer.compare(before, await s.page.locator("canvas").screenshot()) === 0,
-    }).toEqual({ specified: ["zephyr-prw24c01cg"], sameRoom: true });
+      disabled: await chip.isDisabled(),
+    }).toEqual({ specified: ["zephyr-prw24c01cg"], disabled: true });
     await s.page.context().close();
   });
 

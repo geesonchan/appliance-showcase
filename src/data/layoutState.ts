@@ -11,7 +11,7 @@ import {
 import { PACKAGE, PACKAGE_BY_ID, setPackage, slotsOf } from "./packages";
 import { LAYOUT, REQUESTED_PARAMS, applyLayout } from "./room";
 import { rebuildSlots } from "./slots";
-import { recordHoodModel } from "./hood";
+import { hoodModelFor, hoodMount, recordHoodModel } from "./hoodMount";
 import { dropsIntoCounter, rangeFillerIn, rangeModelFor, recordRangeModel } from "./cookingSurface";
 import type { Appliance } from "../types";
 
@@ -38,10 +38,36 @@ import type { Appliance } from "../types";
  * canopy still hangs off the surface the wall was drilled for (D13, D16) — so
  * this re-cuts the cabinets and leaves the layout, the slots and the fittings
  * as they are.
+ *
+ * Round 87: unless the new hood hangs differently (`hoodMount`). What is over
+ * it — a bridge cabinet, a housing, or nothing under a chimney — is the
+ * layout's, and so are where the canopy hangs and the duct's route, so then
+ * the room is generated again where it stands, as a range of another kind
+ * regenerates it (round 83). The opening keeps the slot's width, so nothing
+ * moves along the wall and no wall grows. Refused, the previous hood is put
+ * back and the reasons come out; no room in any package refuses it
+ * (`hoodSwap.test.ts`).
  */
-export function setHoodModel(appliance: Appliance | undefined) {
-  recordHoodModel(appliance);
-  rebuildCabinets();
+export function setHoodModel(
+  appliance: Appliance | undefined,
+  packageId: string = PACKAGE.id,
+): { ok: boolean; reasons: Refusal[]; rebuilt: boolean } {
+  const before = hoodModelFor(PACKAGE);
+  recordHoodModel(appliance, packageId);
+  if (packageId !== PACKAGE.id) return { ok: true, reasons: [], rebuilt: false };
+  const after = hoodModelFor(PACKAGE);
+  const same = !!before && !!after && hoodMount(before) === hoodMount(after);
+  if (same || !after) {
+    rebuildCabinets();
+    return { ok: true, reasons: [], rebuilt: false };
+  }
+  const result = setLayoutParams(REQUESTED_PARAMS);
+  if (!result.ok) {
+    recordHoodModel(before, packageId);
+    setLayoutParams(REQUESTED_PARAMS);
+    return { ...result, rebuilt: false };
+  }
+  return { ...result, rebuilt: true };
 }
 
 /**

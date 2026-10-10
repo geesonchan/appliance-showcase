@@ -87,6 +87,9 @@ export const FIXTURES = {
     id: "hood-needs-blower",
     slot: "slot-hood",
     category: "hood",
+    // A wall canopy, which is what these stand for. Round 87: a hood says how
+    // it hangs (`hoodMount`), and the helper's own default is a range's.
+    installType: ["under-cabinet"],
     blower: "required",
     widthIn: 36,
     heightIn: 18,
@@ -99,6 +102,9 @@ export const FIXTURES = {
     id: "hood-integrated-300",
     slot: "slot-hood",
     category: "hood",
+    // A wall canopy, which is what these stand for. Round 87: a hood says how
+    // it hangs (`hoodMount`), and the helper's own default is a range's.
+    installType: ["under-cabinet"],
     blower: "integrated",
     heightIn: 18,
     depthIn: 24,
@@ -111,6 +117,9 @@ export const FIXTURES = {
     id: "hood-integrated-600",
     slot: "slot-hood",
     category: "hood",
+    // A wall canopy, which is what these stand for. Round 87: a hood says how
+    // it hangs (`hoodMount`), and the helper's own default is a range's.
+    installType: ["under-cabinet"],
     blower: "integrated",
     heightIn: 18,
     depthIn: 24,

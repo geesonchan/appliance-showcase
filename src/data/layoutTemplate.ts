@@ -15,6 +15,7 @@ import {
 import type { FixtureId, Package, PackageSlot, SlotId } from "../types";
 import { PACKAGE, slotsOf } from "./packages";
 import { dropsIntoCounter, rangeFillerIn, rangeModelFor } from "./cookingSurface";
+import { hoodMountFor, type HoodMount } from "./hoodMount";
 import { extentsOnAxis, faceRotation, onAxis, sizeOnAxis } from "./frame";
 import { LAYOUT_POLICY, shrinkRank, type ShrinkGroup } from "./layoutPolicy";
 import { comboSillFor } from "./columnModel";
@@ -2194,6 +2195,7 @@ function banksOn(
   spec: Record<SlotId, PackageSlot>,
   housingStyle: HousingStyle,
   windows: ResolvedWindow[],
+  mount: HoodMount | null,
 ): UpperBank[] {
   const stop = bankStop(segments);
   const openings = cutsFor(windows, runId === "back" ? "back" : "left").filter(
@@ -2209,12 +2211,14 @@ function banksOn(
   // The bank stops exactly at the hood's flank. A gap there is one you cannot
   // get a cloth into and a foot of shelf nobody has.
   const hoodIn = Math.round((hood[1] - hood[0]) * 12);
-  const install = spec["slot-hood"].installType;
-  const bridged = install === "under-cabinet";
+  // How the chosen hood hangs, not how the package's own does (round 87): an
+  // under-cabinet hood has a bridge over it, an insert a housing, a chimney
+  // hood nothing. `hoodMount` in hoodMount.ts.
+  const bridged = mount === "under-cabinet";
   // A housing is cabinetry, and it is the cabinetry over this stretch of wall:
   // from where the liner hangs to the ceiling, in one piece, in the door
   // finish. `hoodCabinetParts` gives it its shape.
-  const housed = install === "insert";
+  const housed = mount === "insert";
   const mountY = ft(
     (spec["slot-hood"].builtForCooktopIn ?? 36) + CABINET_STANDARDS.hood.aboveCooktopMinIn,
   );
@@ -2644,6 +2648,8 @@ export function generateLayout(
   const halfZ = ft(params.leftWallIn) / 2;
   const corner = CORNERS[params.cornerType];
   const spec = slotsOf(pkg);
+  // How the hood chosen in this package hangs, which decides what is over it (round 87).
+  const mount = spec["slot-hood"] ? hoodMountFor(pkg) : null;
   const omitted = omittedSlots(params, pkg);
   const plan = planLegs(params, pkg, omitted);
 
@@ -2753,6 +2759,7 @@ export function generateLayout(
       corner: wall === "left" ? corner : null,
       spec,
       housingStyle: params.housingStyle,
+      mount,
     });
     if (!fitted) {
       unfitted.push({
@@ -2847,6 +2854,7 @@ export function generateLayout(
         spec,
         params.housingStyle,
         windows,
+        mount,
       ),
     },
     {
@@ -2862,6 +2870,7 @@ export function generateLayout(
         spec,
         params.housingStyle,
         windows,
+        mount,
       ),
     },
   ];
@@ -2963,6 +2972,7 @@ function fitWindow(
     corner: (typeof CORNERS)[keyof typeof CORNERS] | null;
     spec: Record<SlotId, PackageSlot>;
     housingStyle: HousingStyle;
+    mount: HoodMount | null;
   },
 ): ResolvedWindow | null {
   const centre = (span: readonly [number, number]) => (span[0] + span[1]) / 2;
@@ -3030,6 +3040,7 @@ function evenBeside(
     corner: (typeof CORNERS)[keyof typeof CORNERS] | null;
     spec: Record<SlotId, PackageSlot>;
     housingStyle: HousingStyle;
+    mount: HoodMount | null;
   },
 ): boolean {
   const banks = banksOn(
@@ -3040,6 +3051,7 @@ function evenBeside(
     leg.spec,
     leg.housingStyle,
     [window],
+    leg.mount,
   );
   // A bank beside a window has to be a bank: a stretch of nothing but fillers
   // is the board-on-its-own problem again, and the window should move rather

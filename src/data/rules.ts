@@ -1,4 +1,5 @@
 import { dropsIntoCounter } from "./cookingSurface";
+import { hoodMount } from "./hoodMount";
 import rulesFile from "../../data/rules.json";
 import { z } from "zod";
 import type { Appliance, Slot, SlotId } from "../types";
@@ -301,11 +302,11 @@ export function packageContext(
  * How wide a hood is, as the rule about hood and cooking surface reads it.
  * An insert liner is hidden in a housing the cabinetmaker builds, and the
  * housing is what the hood is to anybody standing at the range: the slot's own
- * width (42" in packages B and D, round 79, Leo).
+ * width (round 79, Leo; 36" in every package since round 87).
  */
 function hoodWidthIn(hood: Appliance | undefined): number | null {
   if (!hood) return null;
-  if (hood.installType.includes("insert")) return SLOT_BY_ID["slot-hood"].cutout.w;
+  if (hood.category === "hood" && hoodMount(hood) === "insert") return SLOT_BY_ID["slot-hood"].cutout.w;
   return hood.widthIn ?? hood.cutoutWidthIn;
 }
 

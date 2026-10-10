@@ -12,7 +12,7 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **round 86** (`docs/decisions.md` is the record of
+Covers the repository up to **round 87** (`docs/decisions.md` is the record of
 rounds; `git log` is the record of commits). It replaces the v1–v9 briefs that
 were pasted into chat.
 
@@ -58,9 +58,9 @@ every figure of it, is `data/packages.json`; D16 and D20 say how a package is
 put together and why E was built the way it was. **Do not copy those numbers
 anywhere**: the file is the one source, and the tests read it.
 
-### Where it stands (round 86)
+### Where it stands (round 87)
 
-- **All five packages are live.** Rounds 73–79 and 81–86 each shipped (round
+- **All five packages are live.** Rounds 73–79 and 81–87 each shipped (round
   80 built nothing), and each was checked against the live page's asset hashes
   after its workflow finished.
 - **The project is in real use.** Rounds 73–77 all came from Leo using package
@@ -88,9 +88,12 @@ anywhere**: the file is the one source, and the tests read it.
   unit's opening faced and shaded like the cabinets (**done**, D13 round 85);
   round 86 a machine that cannot physically go into an opening refused — a
   wine column under the island's top, from Leo using package A (**done**, D20
-  round 86); 87 an insert hood with its housing, B's reused (Leo, from use);
-  88 the right panel's tabs, the `Slider` warning and the "MT" chip over "E"
-  on a Chinese phone; then a hood's own outlet, then 79a (the doors of the
+  round 86); round 87 an insert hood with its housing and every hood swap
+  following the hood, B's and D's housing made 36" (**done**, D16 and D13
+  round 87, from Leo using package A); 88 the model card covering the
+  machine, a plan first; 89 the 36" chimney hood HMCB36WS; 90 the right panel's
+  tabs, the `Slider` warning and the "MT" chip over "E" on a Chinese phone;
+  then a hood's own outlet, then 79a (the doors of the
   cabinet over the hood and the outlet shown in it), then 79b. The 30" option
   in A is paused.
 
@@ -113,6 +116,7 @@ anywhere**: the file is the one source, and the tests read it.
 | `tests/modelCard.test.ts`, `tests/modelLine.test.ts` | The model card against the list, and brand · model's layout rule (D12, round 82). |
 | `tests/rangeSwap.test.ts` | What stands under the cooking surface follows the range chosen (D16, round 83), and a range narrower than its opening is closed in by the run's fillers (round 84). |
 | `src/data/rangeFillers.test.ts` | The nine narrow-range swaps, the run's fillers, the stone and the kick to the machine, and what reads the cooking opening (D16, round 84). |
+| `src/data/hoodSwap.test.ts`, `tests/hoodHousing.test.ts` | What is over a hood, where it hangs and its duct's route follow the hood chosen; an insert comes with its housing (D16, round 87). |
 | `src/data/openingAbove.test.ts`, `tests/tooTall.test.ts` | What is above an opening, and a machine too tall for one, or of another kind than a tall unit is built for, refused with its reason (D20, round 86). |
 | `tests/sideStrips.test.ts` | The strips a machine draws beside itself are faced in the doors' plane, take shadows, and have nothing of the machine in them (D13 and D11 rule 12, round 85). |
 | `scripts/screenshots.mjs` | Screenshot sets by round. |
@@ -169,10 +173,11 @@ what to go and read.
 - **A figure that cannot say exactly why it is that figure** may be working
   round a bug; record that it cannot. D17.
 - **One rule is written once.** D17 carries the table of every time it was
-  written twice: eleven rows, for twelve times it happened — round 60's
+  written twice: twelve rows, for thirteen times it happened — round 60's
   quarter-inch window step is counted as a near relative, the fifth, and has
   no row of its own. One is still open, the first; the twelfth (round 84,
-  the half inch that is a scribe) was closed in round 85. The eighth (round 74, 54"
+  the half inch that is a scribe) was closed in round 85, and the thirteenth
+  (round 87, how a hood hangs) was found and closed together. The eighth (round 74, 54"
   and 52" for the same handle height) was stopped before the second copy was
   written; round 78 found a third copy of one already marked closed.
 - **A figure from a script, a probe or a set of shots is quoted from the run
@@ -209,6 +214,10 @@ what to go and read.
 - **Do not run the tests and the screenshots together**, and do not build while
   the smoke suite runs. D17.
 - **Push, wait for the workflow, rebuild, compare the asset hashes.** D17.
+- **A round held for Leo's look says the live site does not have it**, names
+  the live commit and bundle, gives a local preview to try, and labels every
+  screenshot with its bundle; **a stopped preview server is checked to have
+  stopped** (its port free, its Vite process gone). D17, round 87.
 - Windows: PowerShell splits `"` in a commit message (`git commit -F`), and
   `\n` written through a shell or Python lands as a real newline — use the
   editor tools for i18n strings and scripts.

@@ -101,7 +101,7 @@
         {
           "slotId": "slot-hood",
           "category": "hood",
-          "widthIn": 42,
+          "widthIn": 36,
           "installType": "insert",
           "builtForCooktopIn": 36.4375,
           "utilities": {
@@ -313,7 +313,7 @@
         {
           "slotId": "slot-hood",
           "category": "hood",
-          "widthIn": 42,
+          "widthIn": 36,
           "installType": "insert",
           "builtForCooktopIn": 36.4375,
           "utilities": {

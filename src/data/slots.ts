@@ -1,6 +1,7 @@
 import slotsFile from "../../data/slots.json";
 import type { OpeningAbove, PackageSlot, Slot, SlotId, SlotRecord } from "../types";
-import { PACKAGE_SLOTS } from "./packages";
+import { PACKAGE, PACKAGE_SLOTS } from "./packages";
+import { ductRouteFor, hoodMountFor } from "./hoodMount";
 import { CABINET_STANDARDS, OMITTED_SLOTS, ROOM, SLOT_PLACEMENT, ft } from "./room";
 import { parseDataFile, slotsFileSchema } from "./schema";
 import { ISLAND_HOOD, assertHoodRoute } from "./hood";
@@ -71,6 +72,10 @@ function size(
       ...(spec.utilities?.gas ? { gas: spec.utilities.gas } : {}),
       ...(spec.utilities?.power ? { power: spec.utilities.power } : {}),
       ...(spec.utilities?.duct ? { duct: spec.utilities.duct } : {}),
+      // The duct's route is the chosen hood's to say where the package's own
+      // route cannot be it: a chimney hood has no cabinet to go up through, a
+      // hood under a cabinet or in a housing goes up through it. Round 87.
+      ...hoodRoute(record, spec),
     },
     // The hood is hung off the cooking surface the wall was drilled for, and
     // which surface that is belongs to the package. See D13 and D16.
@@ -91,6 +96,15 @@ function size(
     above: openingAbove(record, spec, packageSlots),
     tallUnitFor: spec.tallUnit ? spec.category : null,
   };
+}
+
+/** The hood slot's duct, its route following the chosen hood (round 87); nothing for another slot. */
+function hoodRoute(record: SlotRecord, spec: PackageSlot): { duct?: SlotRecord["utilities"]["duct"] } {
+  if (record.id !== "slot-hood") return {};
+  const duct = spec.utilities?.duct ?? record.utilities.duct;
+  const mount = hoodMountFor(PACKAGE);
+  if (!duct || !mount) return {};
+  return { duct: { ...duct, route: ductRouteFor(mount, duct.route) } };
 }
 
 /** How tall an opening is in this package: its own figure, else the slot's. */
@@ -156,7 +170,8 @@ function place(record: SlotRecord & Pick<Slot, "above" | "tallUnitFor">): Slot {
   // 42" from the canopy's underside. Under the 108-1/2" ceiling that puts the
   // canopy of package C's hood at 66-1/2" rather than on the 30" minimum over
   // its 36" cooking surface — 30-1/2" of clearance, inside D13's 30"-40". D19.
-  const chimney = PACKAGE_SLOTS["slot-hood"]?.installType === "chimney";
+  // How the chosen hood hangs, not the package's own (round 87).
+  const chimney = hoodMountFor(PACKAGE) === "chimney";
   const underIn = chimney ? Math.max(clearanceIn, ROOM.wallHeight * 12 - chimneyReachIn) : clearanceIn;
   const y = ft(underIn);
   return { ...record, ...placement, position: [x, y, z] as [number, number, number] };
