@@ -2941,7 +2941,8 @@ written into geometry instead of read from `ROOM`.
     the over-the-range microwave JVM3160RFSS, which fit on width. Both are
     refused with "厂家未确认可装进高柜" (Leo's words, locked) / "The
     manufacturer has not confirmed it can go in a tall cabinet" (drafted in
-    round 86, **for Leo to read; not locked**). A tall unit records the kind
+    round 86 and approved by Leo unchanged after it; locked, approval
+    `read`). A tall unit records the kind
     it is built for (`tallUnitFor`), and `notForTallUnit` in fit.ts asks only
     that. It is opened up model by model when a manual says the machine can be
     built into a tall cabinet — a built-in kit, for instance (Open items).
@@ -4853,8 +4854,8 @@ Registered, not scheduled. None of these is a round of its own.
   a tall cabinet — a built-in kit, for instance — record it on that model, with
   the page, and let `notForTallUnit` (fit.ts) pass it; nothing else is to be
   loosened for it. The English of the reason, "The manufacturer has not
-  confirmed it can go in a tall cabinet", was drafted in round 86 and is for
-  Leo to read before it is locked.
+  confirmed it can go in a tall cabinet", was drafted in round 86 and
+  approved by Leo unchanged; it is locked.
 - **Three "taller than the opening" notes that mislead.** *(Found in round
   86's planning; Leo: registered, not changed this round.)* The soft line
   "{delta} taller than the opening" (`swap.tallNote`, on the card, in the list

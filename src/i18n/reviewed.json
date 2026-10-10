@@ -335,6 +335,11 @@
       "text": "{delta} too tall — the coffee machine is above this opening",
       "approval": "written",
       "reviewed": "Leo's own wording, round 86: the reason a model is refused when it is taller than an opening with something fixed above it (the model card and the list; decisions.md D20, round 86)"
+    },
+    "swap.notForTallUnit": {
+      "text": "The manufacturer has not confirmed it can go in a tall cabinet",
+      "approval": "read",
+      "reviewed": "Proposed in round 86 and approved by Leo unchanged after the round: the English of his reason for a microwave drawer or an over-the-range microwave in a combination-oven tower (decisions.md D20, round 86)"
     }
   },
   "zh": {
