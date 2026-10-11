@@ -5,8 +5,9 @@ import {
   migrateSelection,
 } from "../data/catalogue";
 import { DEFAULT_PACKAGE, PACKAGE_BY_ID } from "../data/packages";
-import { setActivePackage, setHoodModel, setLayoutParams, setLayoutParamsGrowing, setRangeModel } from "../data/layoutState";
+import { setActivePackage, setFridgeModel, setHoodModel, setLayoutParams, setLayoutParamsGrowing, setRangeModel } from "../data/layoutState";
 import { recordRangeModel } from "../data/cookingSurface";
+import { recordFridgeModel } from "../data/fridgeMount";
 import { inchesSpoken } from "../data/inches";
 import type { LayoutParams, Refusal } from "../data/layoutTemplate";
 import { LAYOUT_ISSUES, REQUESTED_PARAMS } from "../data/room";
@@ -450,6 +451,21 @@ export const useAppStore = create<AppState>((set, get) => ({
       }));
       return;
     }
+    if (slot === "slot-fridge") {
+      // A built-in stands in an enclosure and a counter-depth machine among
+      // rule 11's parts, each to its own height (round 89): changing one for
+      // the other generates the room again where it stands.
+      const result = setFridgeModel(APPLIANCE_BY_ID[applianceId], get().packageId);
+      if (!result.ok) {
+        set({ layoutIssues: result.reasons });
+        return;
+      }
+      set((s) => ({
+        selection: { ...s.selection, [slot]: applianceId },
+        layoutVersion: result.rebuilt ? s.layoutVersion + 1 : s.layoutVersion,
+      }));
+      return;
+    }
     if (slot !== "slot-hood") {
       set((s) => ({ selection: { ...s.selection, [slot]: applianceId } }));
       return;
@@ -499,6 +515,9 @@ export const useAppStore = create<AppState>((set, get) => ({
       // run already stands right under it; recorded so the package's next
       // rebuild reads the range on screen (round 83).
       if (selection["slot-range"]) setRangeModel(APPLIANCE_BY_ID[selection["slot-range"]], packageId);
+      // And the refrigerator, which a switch carries across only when it is
+      // built in the way the new slot is (round 89).
+      if (selection["slot-fridge"]) setFridgeModel(APPLIANCE_BY_ID[selection["slot-fridge"]], packageId);
       return {
         packageId,
         selection,
@@ -572,6 +591,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     if (back.packageId !== get().packageId) setActivePackage(back.packageId);
     setHoodModel(APPLIANCE_BY_ID[back.selection["slot-hood"]]);
     recordRangeModel(back.packageId, APPLIANCE_BY_ID[back.selection["slot-range"]]);
+    recordFridgeModel(APPLIANCE_BY_ID[back.selection["slot-fridge"]], back.packageId);
     const result = setLayoutParams(back.layoutParams);
     set((s) => ({
       packageId: back.packageId,

@@ -340,6 +340,11 @@
       "text": "The manufacturer has not confirmed it can go in a tall cabinet",
       "approval": "read",
       "reviewed": "Proposed in round 86 and approved by Leo unchanged after the round: the English of his reason for a microwave drawer or an over-the-range microwave in a combination-oven tower (decisions.md D20, round 86)"
+    },
+    "swap.notInColumnBank": {
+      "text": "This opening is part of a column set; a freestanding refrigerator isn't used here.",
+      "approval": "written",
+      "reviewed": "Leo's own wording, round 89, rewritten by him from the round's draft: the reason a counter-depth refrigerator is refused in an opening in a bank of columns (the model card and the list; decisions.md D16, round 89)"
     }
   },
   "zh": {
@@ -687,6 +692,11 @@
       "text": "厂家未确认可装进高柜",
       "approval": "written",
       "reviewed": "Leo's own wording, round 86: a microwave drawer or an over-the-range microwave offered for a combination-oven tower is not allowed until a manual says it can be built into a tall cabinet (decisions.md D20, round 86)"
+    },
+    "swap.notInColumnBank": {
+      "text": "此位置是柱式组合，独立式冰箱不适用",
+      "approval": "written",
+      "reviewed": "Leo's own wording, round 89: a counter-depth refrigerator is not allowed in an opening in a bank of columns (decisions.md D16, round 89)"
     }
   }
 }

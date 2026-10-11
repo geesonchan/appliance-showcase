@@ -1,5 +1,6 @@
 import { dropsIntoCounter } from "./applianceBox";
 import { hoodMount } from "./hoodMount";
+import { fridgeMount } from "./fridgeMount";
 import { CABINET_STANDARDS } from "./roomShell";
 import { PROTRUSION_DATUM } from "./rules";
 import type { Appliance, Category, OpeningAbove, Slot } from "../types";
@@ -41,6 +42,11 @@ export interface FitResult {
    * tower, until a manual says they can be built in (Open items).
    */
   notForTallUnit: boolean;
+  /**
+   * A counter-depth refrigerator offered for an opening in a bank of columns:
+   * a refusal. Round 89, Leo — "此位置是柱式组合，独立式冰箱不适用".
+   */
+  notInColumnBank: boolean;
   /**
    * How far the machine stands proud, measured from the cabinet face.
    *
@@ -86,9 +92,10 @@ export function fitCheck(slot: Slot, appliance: Appliance): FitResult {
   const above = slot.above ?? null;
   const tallerIn = tooTallIn(appliance, slot.cutout.h, above);
   const otherKind = notForTallUnit(appliance, slot.tallUnitFor ?? null);
+  const inBank = freestandingInBank(appliance, slot.inColumnBank ?? false);
 
   return {
-    fits: widthFits && tallerIn === null && !otherKind,
+    fits: widthFits && tallerIn === null && !otherKind && !inBank,
     widthFits,
     widthOverIn,
     // What is left over each side of a machine is filler — unless the machine
@@ -102,6 +109,7 @@ export function fitCheck(slot: Slot, appliance: Appliance): FitResult {
     tooTallIn: tallerIn,
     above,
     notForTallUnit: otherKind,
+    notInColumnBank: inBank,
     // How far it stands proud of the cabinet face, which is a warning about a
     // machine built into cabinetry and a fact about one that is not. A rangetop
     // is *meant* to stand 1-1/2" out: that is where its controls are, and it is
@@ -149,6 +157,17 @@ export function tooTallIn(
  */
 export const notForTallUnit = (appliance: Appliance, tallUnitFor: Category | null): boolean =>
   tallUnitFor !== null && appliance.category !== tallUnitFor;
+
+/**
+ * Whether a machine is a counter-depth refrigerator offered for an opening in
+ * a bank of columns. Round 89, Leo: not allowed — a bank is built of columns
+ * joined by their kits, and a freestanding machine's counter-deep panels and
+ * the cabinet on its own top have no place in it. The one judgement of it:
+ * `fitCheck` for the list and the card, `suitsPackageSlot` for a switch, both
+ * on the run's own answer to "is this a bank" (`inColumnBank`).
+ */
+export const freestandingInBank = (appliance: Appliance, inColumnBank: boolean): boolean =>
+  inColumnBank && appliance.category === "refrigerator" && fridgeMount(appliance) === "freestanding";
 
 /** A hood hung from the ceiling over an island: nothing round it to measure against. */
 const hungOverAnIsland = (slot: Slot) => slot.id === "slot-hood" && slot.mount === "island";

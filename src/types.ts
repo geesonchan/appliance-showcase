@@ -73,6 +73,12 @@ export type Slot = SlotRecord & {
    * until its maker confirms it for a tall cabinet. Round 86.
    */
   tallUnitFor?: Category | null;
+  /**
+   * Whether the opening is one of a bank of columns, where a counter-depth
+   * refrigerator is not offered as fitting (Leo, round 89). Set by
+   * `rebuildSlots`; a slot written out by hand in a test may leave it out.
+   */
+  inColumnBank?: boolean;
 };
 
 /** What stands over an opening and stops a taller machine going in. Round 86. */

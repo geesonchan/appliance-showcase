@@ -8,7 +8,8 @@ import {
 } from "./schema";
 import { SLOT_ORDER } from "./packages";
 import { SLOT_RECORDS, openingAbove, openingHeightIn } from "./slots";
-import { tooTallIn } from "./fit";
+import { freestandingInBank, tooTallIn } from "./fit";
+import { inColumnBank } from "./layoutTemplate";
 
 /**
  * The appliance catalogue and the schemes built from it.
@@ -118,6 +119,9 @@ export function suitsPackageSlot(appliance: Appliance, slot: PackageSlot, entry:
   if (width !== null && width > slot.widthIn) return false;
   const record = SLOT_RECORDS.find((candidate) => candidate.id === slot.slotId);
   if (!record) throw new Error(`data/slots.json has no ${slot.slotId}`);
+  // Round 89: and no counter-depth refrigerator into a bank of columns, asked
+  // of the fit check's own judgement.
+  if (freestandingInBank(appliance, inColumnBank(entry, slot.slotId))) return false;
   return tooTallIn(appliance, openingHeightIn(record, slot), openingAbove(record, slot, entry.slots)) === null;
 }
 

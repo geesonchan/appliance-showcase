@@ -225,11 +225,15 @@ describe("every other model (round 86)", () => {
     let compared = 0;
     eachPackage((code, slotId) => {
       for (const { appliance: model, fit } of candidatesFor(slotId, PACKAGE_BY_ID[`package-${code.toLowerCase()}`])) {
-        if (fit.tooTallIn !== null || fit.notForTallUnit) continue;
+        // Round 89: a counter-depth refrigerator in a bank of columns is
+        // refused too, and held in fridgeSwap.test.ts — T36FT820NS in B's, D's
+        // and E's refrigerator openings, three set aside here (in D's and E's
+        // 30" it is too wide as well). So 111 compared, where round 86 had 114.
+        if (fit.tooTallIn !== null || fit.notForTallUnit || fit.notInColumnBank) continue;
         compared += 1;
         if (fit.fits !== fit.widthOverIn <= 1e-6) changed.push(`${code} ${slotId} ${short(model.id)}`);
       }
     });
-    expect({ compared, changed }).toEqual({ compared: 114, changed: [] });
+    expect({ compared, changed }).toEqual({ compared: 111, changed: [] });
   });
 });

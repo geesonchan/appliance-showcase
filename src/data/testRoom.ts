@@ -1,5 +1,6 @@
 import { APPLIANCE_BY_ID } from "./catalogue";
 import { recordRangeModel } from "./cookingSurface";
+import { recordFridgeModel } from "./fridgeMount";
 import { setLayoutParams } from "./layoutState";
 import { DEFAULT_PARAMS } from "./layoutTemplate";
 import { DEFAULT_PACKAGE, PACKAGE_BY_ID, setPackage } from "./packages";
@@ -33,6 +34,8 @@ export function defaultSelectionOf(id: string): Record<SlotId, Appliance> {
 export function resetRoom() {
   // No range chosen: each package is built round its own (round 83).
   recordRangeModel(DEFAULT_PACKAGE.id, undefined);
+  // Nor a refrigerator: each package is built round its own (round 89).
+  recordFridgeModel(undefined, DEFAULT_PACKAGE.id);
   setPackage(DEFAULT_PACKAGE.id);
   const result = setLayoutParams(DEFAULT_PARAMS);
   if (!result.ok) {

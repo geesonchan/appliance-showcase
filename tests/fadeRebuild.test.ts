@@ -31,7 +31,7 @@ const DESKTOP = { width: 1440, height: 900 };
 const PHONE = { width: 390, height: 844 };
 
 /** Same guard as the smoke suite: a run that tested nothing fails. */
-const EXPECTED_TESTS = 21;
+const EXPECTED_TESTS = 24;
 let testsRun = 0;
 const filtered = process.argv.some((arg) => arg === "-t" || arg.startsWith("--testNamePattern"));
 beforeEach(() => {
@@ -398,12 +398,25 @@ async function swapToInsert(s: Session) {
   return () => press(s, chip);
 }
 
+/**
+ * Changing the refrigerator from the model card to one built in differently
+ * (round 89): A's built-in for the counter-depth T36FT820NS, which stands
+ * among D11 rule 11's parts with a cabinet on its own top, so the room is
+ * generated again where it stands. Its own rebuild path, so its own case.
+ */
+async function swapFridge(s: Session) {
+  await fadedWithHood(s, "card", "slot-fridge");
+  const chip = s.page.locator('[data-model-card] [data-candidate="thermador-t36ft820ns"]').first();
+  return () => press(s, chip);
+}
+
 const PATHS = [
   ["changing the hood", swapHood],
   ["dragging the back wall slider", dragBackWall],
   ["turning the island", turnIsland],
   ["changing the range", swapRange],
   ["changing the hood to an insert with its housing", swapToInsert],
+  ["changing the refrigerator to a counter-depth one", swapFridge],
 ] as const;
 
 const DEVICES = [

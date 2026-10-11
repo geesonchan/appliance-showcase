@@ -2141,6 +2141,98 @@ and the liner hung on its own between the wall cabinets, with no housing.
   each with the reason; three fixture hoods had inherited a range's install
   type from the test helper and now say they are wall canopies.
 
+**Amended 2026-10-10 (round 89), Leo: what stands round a refrigerator is the
+chosen model's to say, not the package's.** From Leo using package C: its
+counter-depth T36FT820NS changed on the model card to the built-in
+T36BT120NS, and the cabinets round it stayed as they were — the 84" machine
+ran up behind the cabinet over C's 72" opening. Read in round 88 (Open items):
+a refrigerator picked on the card changed the selection and nothing else, and
+everything that lays out or draws its surround read the package's slot.
+- **One answer** (D17's table, the fourteenth): `fridgeMount` in
+  `src/data/fridgeMount.ts`, from the model's install type — `built-in` or
+  `column` is built in, an enclosure; `counter-depth` is freestanding, D11 rule
+  11's parts — and the opening's height is the model's own
+  (`fridgeOpeningHeightIn`: its cutout, else its body). Never the word
+  "freestanding" (D4); a refrigerator whose install type says neither is
+  refused loudly. `slotsAsBuilt` gives the package's refrigerator slot as the
+  chosen model is built in, and the run (`planLegs`, the placements) and the
+  slots (`rebuildSlots`) read it; through them the cabinet over the machine
+  (`fridgeOpeningH`, the tall unit's head) and whether the machine fills
+  round itself (`standsAlone`). Every package's own refrigerator gives back
+  its slot exactly as `data/packages.json` writes it.
+- **The chosen refrigerator belongs to its package** (`fridgeModelFor`), as
+  the range and the hood do, and **choosing one regenerates the room where it
+  stands when it is built in differently or to another height**
+  (`setFridgeModel`); a column for a built-in in A changes nothing round it. A
+  package switch and Undo carry it as they carry the range.
+- **The segment stays the package's own** (Leo, round 89), so nothing moves
+  along the run and no wall grows, as round 84 kept a range's opening
+  (`fridgeSegmentIn`). Against a return wall a counter-depth machine keeps its
+  3-1/2" (rule 11) in a built-in's 42", and the half inch comes off the panel
+  on the corner side, 2-1/2"; a built-in in C's 42-1/2" gets **no more room
+  for its doors than its own enclosure gives** (Leo) — a half-inch scribe
+  panel at the wall. Without a return wall the two segments are both 42".
+- **The machine stands over its own opening** (`fridgeAt`), not the middle of
+  the segment. With the pieces each side unequal they differ: C's own
+  T36FT820NS against a return wall stood 1/4" past the middle of its opening
+  until round 89 (3" panel, 36" opening, 3-1/2" filler). Without a return
+  wall nothing moved.
+- **A counter-depth refrigerator is not allowed in a bank of columns** (Leo,
+  round 89): B's refrigerator beside its wine column, D's and E's banks. It
+  is listed with what "don't fit", the reason in Leo's words, "此位置是柱式组合，
+  独立式冰箱不适用" / "This opening is part of a column set; a freestanding
+  refrigerator isn't used here." (the English his rewrite of the round's
+  draft), both locked in `reviewed.json`, approval `written`. Whether an opening is in a bank is
+  the run's own answer (`inColumnBank`, from `columnsAlongRun`), stamped on
+  the slot; `fitCheck` (`freestandingInBank`) asks it for the list and the
+  card, `suitsPackageSlot` for a switch (D17's table, first row: not a third
+  judgement). Only T36FT820NS is refused by it: in B's opening, where it fits
+  on width, and in D's and E's 30", where it is too wide as well.
+- **What each opening takes, as built** (`fridgeSwap.test.ts`, written out by
+  hand): A — T36BT120NS, T36IT100NP and T30IR905SP in its 42" enclosure, the
+  bridge from 84"; T36FT820NS among rule 11's 3" panels, the cabinet over it
+  from 73". B — the three built-ins and the column in its bank, from 84". C —
+  its own T36FT820NS from 73"; T36BT120NS, T36IT100NP and T30IR905SP in a 42"
+  enclosure from 84" (Leo's case). D and E — their 30" column.
+- **Not changed:** the colours. Cabinet paint is chosen by run only, and a
+  panel-ready model's doors take the cabinet colour as before. Leo's
+  screenshot of the colour that stayed wrong has not reached the session
+  twice; to be compared when it does.
+- **Measured** (D17's third way: round 88's code built here,
+  `index-DvngSexI.js`, the live page's own, against round 89's,
+  `index-BPsXxqzx.js`, each from a copy of its build; the mouse at 1440 x 900,
+  a finger at 390 x 844, `?quality=high`; each build shot twice):
+  - **The five packages as they open, and their own refrigerator flown to,
+    desktop and phone: 0 pixels**, but the one pixel at (144, 225) that also
+    differs between runs of one build — and A's two desktop shots, which came
+    out 152,255 and 162,511 pixels apart over the whole room, mostly a few
+    levels (the wash in Open items). Shot three more times each, both builds
+    gave both states, and every same-state pair between them was 0 (1 in the
+    fly-in). Phone B's refrigerator: the second new run in the other state;
+    the first matched the old build's to the pixel.
+  - **The swaps change round the refrigerator only:** C to T36BT120NS 17,971
+    pixels between same-state runs, T30IR905SP 27,567, T36IT100NP 11,931, all
+    inside x 499-681; A to T36FT820NS 2,139, at the top of its surround. A's
+    column swap, built in the same way to the same height: 1,567 pixels in the
+    first pair, in a box over the wall cabinets — the same count, in the same
+    box, that old run 1 and old run 2 differ by — and 0 in the second. B's card: changed inside the card (one model
+    fewer that fits, T36FT820NS listed with its reason). Before and after:
+    `docs/fixes/round-89-*.png`.
+- Tests: `fridgeSwap.test.ts` (unit, thirteen cases) — 9 red on round 88's
+  code, each for what it names (the rebuild case for want of
+  `setFridgeModel`), 4 green there by design (every package's own slot
+  unchanged, A and C not refused, built-ins not refused in a bank, how an
+  install type is read). Its check that nothing else along the run moved was
+  broken on purpose — the segment sized from the chosen model — and went red
+  in both return-wall cases. `tests/fridgeSurround.test.ts` — C's swap by
+  mouse and by touch, C put back, A's counter-depth swap, B's refusal; 4 of 5
+  red on round 88's build (`index-DvngSexI.js`), the fifth green there by
+  design. `tests/fadeRebuild.test.ts` — a sixth path, the card's swap to a
+  counter-depth refrigerator, on all three devices: red on round 88's build
+  for want of a rebuild, green on round 89's with no solid render.
+  `openingAbove.test.ts` (round 86) sets the bank refusals aside as it sets
+  aside its own, 111 compared where it had 114, with the reason.
+
 ## D17 · A push is not a deploy
 
 **Decided:** 2026-09-08 (round 21), Leo, after four failed deploys in a row.
@@ -2393,6 +2485,7 @@ repository has them)* — one rule, written more than once:
 | round 83 | whether a cooking machine drops into the counter or stands on the floor | three, from the start: the run's cabinet under it (`layoutTemplate.ts`, from the *package's* slot, `installType === "rangetop"`); the counter's hole or cut (`counter.ts`, from the model, by the word "freestanding"); the machine's placement (`applianceBox.ts`, from the model, a rangetop or a cooktop) | **one**: `dropsIntoCounter` in `cookingSurface.ts`, which all three ask (round 83) | **it had bitten, on the live site, three ways**: package A with its range changed to the PCG366W rangetop hung the rangetop over an empty opening (Leo, from use); package B with its rangetop changed to a pro range drew the range inside B's drawer base; and a slide-in got a hole in a slab running over it. `rangeJoinery.test.ts` holds every package and every range it offers; each old copy put back on purpose turned it red. |
 | round 84 | how much beside a machine is a scribe and not a board: half an inch | `Filler` in ApplianceModel.tsx (`MIN`, nothing drawn at 1/2" or less) and `hoodSideFillers` in hood.ts (`SIDE_FILLER_MIN_IN`, nothing drawn under 1/2") — they disagree at exactly 1/2", where the hood draws a strip and `Filler` does not | **one**: `SCRIBE_IN` in `cookingSurface.ts`, read by the range's fillers (round 84), `Filler` (round 84) and `hoodSideFillers` (round 85) | **it never had**: a hood exactly 1" narrower than its slot, and none in the catalogue is. `hoodSideFillers.test.ts` holds the half inch, and was red on round 84's code. |
 | round 87 | how a hood hangs, and so what is over it | the package's hood slot (`spec["slot-hood"].installType`) read by the wall cabinets over the hood (`banksOn`), its height (`slots.ts`, a chimney), the duct's route (the slot's data) and the housing-shape control; the chosen model's install type read by the strips beside it (`hoodSideFillers`), the fit's filler and the checklist's hood width | **one**: `hoodMount` in `hoodMount.ts`, from the chosen hood, which all of them ask (round 87) | **it had bitten, on the live site** (Leo, from use): A's hood swapped for the VCIN36GWS liner hung between the wall cabinets with no housing, B's and D's housing stayed over an under-cabinet hood, a chimney hood in A had a bridge over it and its spec card said "Up through cabinet", and an under-cabinet hood in C hung on bare wall. `hoodSwap.test.ts` holds every hood every opening takes. |
+| round 89 | how a refrigerator is built in, and so what stands round it | the package's refrigerator slot — `enclosure` read by the run (an enclosure or rule 11's parts), the machine's inset and the slot's cabinet type (`standsAlone`), `heightIn` by the cabinet over a counter-depth machine (`fridgeOpeningH`) and the bridge over an enclosure; only the machine's own drawing read the model | **one**: `fridgeMount` and `fridgeOpeningHeightIn` in `fridgeMount.ts`, from the chosen refrigerator, which the run and the slots ask through `slotsAsBuilt` (round 89) | **it had bitten, on the live site** (Leo, from use): C's counter-depth T36FT820NS changed for the built-in T36BT120NS drew the 84" machine running up behind the cabinet over C's 72" opening; A's built-in changed for T36FT820NS stood it in A's enclosure with a panel over it. `fridgeSwap.test.ts` holds every refrigerator every opening takes. |
 
 Round 60's quarter-inch window step is a near relative rather than a member:
 one rule, but its search and its judgement worked to different resolutions,
@@ -2431,9 +2524,10 @@ package in one place and from the model, by two different tests, in the other
 two. The twelfth, round 84's, was closed in round 85 with the hood's strips:
 found while the range's fillers were given the same half inch. The
 thirteenth, round 87's, was found and closed together: how a hood hangs, read
-from the package in four places and from the model in three. The table has
-twelve rows for those thirteen: round 60's has
-none of its own. The table is here so that the next one found
+from the package in four places and from the model in three. The fourteenth,
+round 89's, likewise: how a refrigerator is built in, read from the package
+everywhere but the machine's own drawing. The table has thirteen rows for
+those fourteen: round 60's has none of its own. The table is here so that the next one found
 is added to it rather than rediscovered.
 
 **An exception written into a test is broken on purpose before it is
@@ -3142,7 +3236,9 @@ written into geometry instead of read from `ROOM`.
 - **What the list leaves out: what cannot be built, not what is built
   differently.** *(Leo, round 46.)* An island hood in a wall slot cannot be drawn
   or installed there, so it is left out. A freestanding refrigerator in package
-  A's built-in slot can: D11 rule 11 already draws its surround and return wall,
+  A's built-in slot can: D11 rule 11 already draws its surround and return wall
+  *(not so until round 89: rule 11 was keyed on the package, and a
+  counter-depth machine stood in A's enclosure; D16, round 89)*,
   and a customer trading down to a freestanding model is a real conversation.
   So the list does not filter refrigerators, or anything else, on install type.
   Do not "complete" the filter.
@@ -4366,13 +4462,15 @@ Registered, not scheduled. None of these is a round of its own.
   Leo.)* *(Leo, round 80: fix it along the way when the interface round is
   built, since regrouping the settings panel touches the sliders; not in the
   plan stage.)* *(Round 88 now, with the right panel's tabs: Leo, round 86;
-  round 90 since round 87.)*
+  round 90 since round 87; round 91 since round 88.)*
 - **Is a freestanding refrigerator in package A's slot drawn right?** The list
   offers one (D20, round 46), and D11 rule 11 was written for package C, where
   the refrigerator stands at the end of a run with nothing built round it. A's
   slot is at the end of a tall bank with cabinets round it, which is not the
   same case. It deserves a test of its own. *(Noted 2026-09-14, round 46, Leo:
-  not now.)*
+  not now.)* *Answered in round 88's reading: no — it stands in A's built-in
+  enclosure, and rule 11 is keyed on the package, not the model. Round 89
+  (the entry "What stands round a refrigerator follows the model chosen").*
 - ~~**The install view's outline round an island hood is a 30" box.** The
   outline round every appliance is a box its catalogue `heightIn` tall, and
   HMIB42WS's is the collapsed 30", so in the view that exists to explain
@@ -5032,7 +5130,7 @@ Registered, not scheduled. None of these is a round of its own.
   back.
 - **On a phone in Chinese, the "MT" chip sits over the "E" package button.**
   *(Found round 82, on the live site as well; Leo: fix with the right panel's
-  round, now round 90 — Leo moved it back in rounds 86 and 87.)* The top
+  round, now round 91 — Leo moved it back in rounds 86, 87 and 88.)* The top
   bar at 390px: the machine-translation chip is drawn over the last package
   button.
   - *Measured in round 86's first plan (read only, on round 85's build):* it is
@@ -5107,6 +5205,12 @@ Registered, not scheduled. None of these is a round of its own.
     backguard, which stands above the counter by design;
   - **PRG366WH**, A's own range: "3/4" taller" — its 36-3/4" cooking height
     against the 36" counter, which D13 and D16 treat as what it is.
+  - *A fourth, since round 89:* **the 84" built-ins and column in C's
+    refrigerator opening**, "12" taller than the opening" while C's own 72"
+    T36FT820NS is chosen — and the opening is now built to the machine picked
+    (D16, round 89), so they are not taller than anything once chosen. The
+    note was there before round 89; the room following the model is what
+    makes it wrong.
   - **Leo's idea for the fix:** round 86's "is something fixed above this
     opening" (`openingAbove`, slot.above) decides when the line shows — not at
     all over an opening with nothing above it. Over one with something above,
@@ -5123,7 +5227,8 @@ Registered, not scheduled. None of these is a round of its own.
   (`housingStyle`, box or sweep), not a second one. Round 87 also checks the
   other hood install swaps on the list in the entry above.
 - **A 36" chimney hood, HMCB36WS.** *(Leo, round 87: registered for round 89
-  — first 88, then moved behind the model card by Leo — not started.)* Leo is adding it to the inventory sheet and putting its
+  — first 88, then moved behind the model card by Leo; round 90 since round
+  88, behind the refrigerator — not started.)* Leo is adding it to the inventory sheet and putting its
   specification sheet into `docs/reference/`, and will say when; then it is
   imported (D4: through `npm run import:csv`, the sheet read-only) and its
   figures read from its own sheet, page by page, not carried over from the
@@ -5137,14 +5242,14 @@ Registered, not scheduled. None of these is a round of its own.
     sourceUrl, verifiedAt 2026-09-28, cutout 18 x 84 x 25 and amps 15 — which
     is most likely what the three warnings are, a `showcase_specs` lookup that
     no longer finds that model (D4, data-sheet-spec.md: keyed by Model).
-    Round 89 checks it with `--verbose` before anything is written, and stops
+    Round 90 checks it with `--verbose` before anything is written, and stops
     on it, as Leo asked. The import is kept outside the repository, unread
     into it, until then: **`C:\Users\leoch\Documents\showcase-staging\`**,
     `appliances.imported-2026-10-10.json` (45,467 bytes, SHA-256
     `ecbc3a2a…63a2a`) and `appliances.import.diff` (its diff against the
     committed file). *(Moved there in round 88 from a session's temporary
     folder, Leo; the files' hashes checked the same after the move.)* If it is
-    not there, round 89 imports again from
+    not there, round 90 imports again from
     `C:\Users\leoch\Downloads\showcase_export.csv`.
 - **The model card covers the machine it is about.** *Desktop: done in round
   88 (D12, round 88) — the card at the left of the scene. The phone is the next
@@ -5209,7 +5314,8 @@ Registered, not scheduled. None of these is a round of its own.
   CSS pixels — under 768, so the phone layout. (The screenshots may be scaled
   themselves; the page's own `window.innerWidth` is the exact figure.) Whether
   a half-screen window on that machine should get the desktop layout is
-  Leo's to decide; nothing was changed.
+  Leo's to decide; nothing was changed. *(Leo, round 88: not changed — the
+  shop demonstrates full screen; kept registered.)*
 - **On a phone, the model card folds away once a model is chosen.** *(Leo,
   round 87: registered, later; not round 88.)* The card takes 155-238px of a
   390 x 844 phone, from 35% to 45% of the canvas height up from the bottom,
@@ -5267,7 +5373,9 @@ Registered, not scheduled. None of these is a round of its own.
       machine. It now asserts what that meant — the refused chip is a disabled
       button, and the selection the room is drawn from is unchanged.
 - **A tap on the phone card's liner that rebuilt nothing, once.** *(Round 88,
-  cause not found.)* Round 88's first full `npm test` ended 2,500 of 2,501,
+  cause not found. Leo, round 89: a round of its own, round 93, after RAL —
+  is it the test's timing of the tap, or a real tap that now and then does
+  not take?)* Round 88's first full `npm test` ended 2,500 of 2,501,
   exit code 1: `tests/fadeRebuild.test.ts`, "changing the hood to an insert
   with its housing, on a phone with touch" — `rebuilt: false`, no room rebuilt
   after the tap on VCIN36GWS's chip, and so nothing to check (`solidRenders:
@@ -5275,7 +5383,19 @@ Registered, not scheduled. None of these is a round of its own.
   in that run; the file alone passed 21 of 21; the whole suite run again passed
   2,501 of 2,501, exit code 0. Round 88 changed nothing on the phone (the card
   there is round 82's markup). Not looked into further.
-- **The browser suite's own preview server outlives the run.** *(Found round
+  - *Round 89, met again on another path:* "changing the hood, on a phone with
+    touch, the CPU slowed four times" — `rebuilds: 0`, nothing drawn solid —
+    in a run of three browser files; the file run again alone passed 24 of 24.
+    Twice now, on two paths, both a tap on the phone card's chip after the
+    camera was dragged. Round 89 changed nothing on the phone either.
+- ~~**The browser suite's own preview server outlives the run.**~~ **Fixed in
+  round 89:** `startPreview` (tests/globalSetup.ts) runs Vite's own script
+  with node, no shell between, and stopping it waits for that process to
+  exit. `tests/previewServer.test.ts` starts one on its own port, stops it and
+  finds the port free; with the old start (`npx` in a shell) put back on
+  purpose it went red — and left Vite listening on 4174 and 4191 again. After
+  round 89's browser runs 4174 was free each time. What follows is the entry
+  as it stood: *(Found round
   88, not changed.)* `tests/globalSetup.ts` starts `vite preview --port 4174`
   through `npx` with `shell: true`, and its teardown, `server.kill()`, ends the
   shell and not Vite. After round 88's first run of one browser file, Vite
@@ -5286,6 +5406,8 @@ Registered, not scheduled. None of these is a round of its own.
   refuses the new server, and `waitForServer` would then find the old one), and
   whether an old server serves a rebuilt `dist/` correctly. Until it is fixed:
   check 4174 after every browser run and end what is left there.
+  *(Leo, round 88: fixed in round 89, with a test that the port is free
+  after the suite.)*
 - **A package whose own range is missing from the catalogue.** *(Round 83, not
   changed.)* What the run stands under the cooking surface reads the package's
   default range from the data when none has been chosen; if that model left the
@@ -5378,6 +5500,98 @@ Registered, not scheduled. None of these is a round of its own.
   and damping put it (round 81: a few hundred pixels to over 100,000 between
   two runs of one build). It must not be a way for a person to move the camera
   (D1): only a screenshot asks for it, like `?quality=`.
+- ~~**What stands round a refrigerator follows the model chosen.**~~ **Done in
+  round 89** (D16, round 89): one answer from the chosen model, the segment
+  kept, a counter-depth machine refused in a bank of columns. **Still open
+  from it:** which colour Leo saw stay wrong — his screenshot has not reached
+  the session (round 89: Leo put it at `docs/feedback/c-fridge-colour.png`,
+  not to be committed; no such file was on this machine when the round was
+  pushed); nothing in the code changes a cabinet's colour with a
+  refrigerator. What follows is the entry as it stood: *(Leo, round
+  88, from use of package C, with a screenshot: its counter-depth T36FT820NS
+  changed on the model card to the built-in T36BT120NS, and the cabinets round
+  it kept their height and colour. Round 89; a read-only report first, done in
+  round 88.)* The same class as the range (D16, round 83) and the hood (D16,
+  round 87): how a refrigerator installs is to be answered from the chosen
+  model, in one place, and the run asks it. A's and B's built-in openings
+  with a counter-depth or column model are checked in the same round. Read
+  in round 88 on `index-DvngSexI.js` (the live build), shots in
+  `docs/open-items/round-89-*.png`:
+  - **A refrigerator picked on the card changes the selection and nothing
+    else** (`selectAppliance`, useAppStore.ts: only the range and the hood
+    regenerate the room). And nothing that lays out or draws the surround
+    reads the model: the run's choice between an enclosure (two panels and a
+    bridge, `T{w}96`) and D11 rule 11's freestanding parts (counter-deep
+    panels, a cabinet on its own top, the 3-1/2" filler against a return
+    wall) is the package slot's `enclosure` (`layoutTemplate.ts`, `single`);
+    the height of the cabinet over a freestanding machine and of the bridge
+    over an enclosure is the package slot's `heightIn` (72" in C, 84" in A and
+    B; `cabinets.ts`, `fridgeOpeningH` and the tall unit's head); whether the
+    machine fills round itself is the slot's `cabinetConfig.type`
+    (`applianceBox.ts`, `standsAlone`). Only the machine's own drawing reads
+    the model (its 84" or 72", its depth, panel-ready doors).
+  - **C with T36BT120NS** (84", built-in): drawn 84" tall into C's 72"
+    opening, so its top 11" run up behind the cabinet over it, which still
+    starts at 73"; the panels each side stay counter-deep. **C with T36IT100NP
+    or T30IR905SP**: the same, 84" into the 72" opening. **A with T36FT820NS**
+    (72", counter-depth): stands inside A's built-in enclosure — panels as
+    deep as a built-in, a 12" painted panel over it under the bridge, its
+    doors standing proud of them — none of rule 11's parts. **B** stands its
+    refrigerator in a bank with its wine column (COMBIKIT between), and a
+    counter-depth model there is drawn as a column in the bank, with a panel
+    over it.
+  - **The colour:** cabinet paint is chosen by run only (`cabinetPaint`), so
+    no refrigerator swap changes a cabinet's colour; a panel-ready model's
+    doors take the cabinet colour (T36IT100NP). Which colour Leo saw stay
+    wrong is to be read from his screenshot.
+  - **D20's round-46 note says rule 11 "already draws its surround and return
+    wall" for a freestanding refrigerator in A's slot. It does not**: rule 11
+    is keyed on the package's `enclosure`, not the model (the older entry
+    above, "Is a freestanding refrigerator in package A's slot drawn right?",
+    asked exactly this).
+  - **Tests today:** only `tests/sideStrips.test.ts` swaps a refrigerator (the
+    column into A and B, for its strips); nothing holds a surround after a
+    swap, and nothing swaps one in C.
+- **Every RAL Classic colour, with its source.** *(Leo, round 88: typing a
+  RAL Classic number not in the table, e.g. 5015, says "not in the table".
+  Round 92; a read-only report first, done in round 88.)* Read in round 88:
+  - **The table is forty codes**, hand-picked for kitchens in round 33:
+    9001 9002 9003 9010 9016 1013 1015 1001 1019 8014 8017 8019 8024 8025
+    7035 7044 7047 7032 7030 7039 7022 7015 7016 7021 7024 7026 9005 6005
+    6009 6012 6021 6028 6011 6013 5003 5008 5011 5014 5023 5024. The schema
+    holds it to at most forty (`ral.ts`). Their colours are the HEX column
+    of the detail table of Wikipedia's *List of RAL colours*, retrieved
+    2026-09-13 (`_meta.provenance`).
+  - **The file's "RAL publishes no official sRGB value" is not right as
+    written.** RAL's shop sells "RAL Digital colour library – RAL CLASSIC",
+    "as a download in RGB and Lab", €29.50 before VAT
+    (shop.ral-farben.de/en/ral-digital.html, read 2026-10-10); the page does
+    not say whether its values may be shown in a published app. What is true
+    is that RAL publishes no free one.
+  - **The input already takes** "5015", "RAL 5015", "ral5015" and "RAL-5015"
+    (`lookupRal`); 5015 is refused only because the table lacks it.
+  - **What the full table could come from**: Wikipedia's overview table, the
+    same page the forty came from — 218 Classic codes per a reading of the
+    page on 2026-10-10 (to be counted from its wikitext when built), each
+    with a hex "approximating the given RAL colour", no source given for the
+    conversion, and a statement that on-screen samples are not binding; or
+    RAL's own digital library, bought, its terms read first. Secondary
+    converters disagree with each other (RAL 5015: Wikipedia #2874B2, a
+    converter site #0083B4) and are not a source. Twelve pearl colours, two
+    aluminium ones and five luminous ones cannot be shown on a screen at all.
+  - **Leo's decisions, round 89 (the plan, registered; nothing built):**
+    - Wikipedia's approximations, **each code with its source and the date it
+      was read**; `_meta.provenance`'s "RAL publishes no official sRGB value"
+      becomes "RAL publishes no free one".
+    - **Pearl, metallic and luminous colours are shown as any other**, with a
+      line: "Pearl, metallic and luminous colours cannot be shown on a
+      screen." / "珠光、金属和荧光色无法在屏幕上显示。"
+    - Beside the input: "Screen colours are approximate — confirm against a
+      physical RAL colour card." / "屏幕颜色仅供参考，以实物色卡为准。"
+    - A code with no colour: "{code} is not a RAL Classic colour" / "{code}
+      不是 RAL Classic 色号".
+    - The input takes "5015", "RAL 5015" and "ral5015" (it already does; the
+      round adds the cases to the test).
 - **Registered rounds after 78, in Leo's order.** *(Leo, rounds 78-79; not
   started. Round 79 put the interface round first and moved the rest back.)*
   0. **An interface round, plan first, with phone and desktop sketches.**
@@ -5412,11 +5626,18 @@ Registered, not scheduled. None of these is a round of its own.
        is about, a plan first (Leo, round 87; the entry above), narrowed by
        Leo to the desktop, *done in round 88* (D12, round 88): the card at
        the left of the scene; the phone's card folding away is registered
-       for later (the entry above). **Round 89**:
-       the 36" chimney hood HMCB36WS (Leo, round 87; the entry above). **Round
-       90**: the right panel's tabs, the `Slider` warning, and the "MT" chip
-       over "E" on a Chinese phone (Leo, round 85, moved back by Leo in rounds
-       86 and 87); round 86's first plan for it is in the "MT" entry above.
+       for later (the entry above). **Round 89**: what stands round a
+       refrigerator follows the model chosen (Leo, round 88; the entry
+       above), with the browser suite's preview server made to stop, *done
+       in round 89* (D16, round 89). **Round
+       90**: the 36" chimney hood HMCB36WS (Leo, round 87; the entry above).
+       **Round 91**: the right panel's tabs, the `Slider` warning, and the
+       "MT" chip over "E" on a Chinese phone (Leo, round 85, moved back by Leo
+       in rounds 86, 87 and 88); round 86's first plan for it is in the "MT"
+       entry above. **Round 92**: every RAL Classic colour (Leo, round 88; the
+       entry above). **Round 93**: why a tap on the phone card's chip now and
+       then rebuilds nothing — the test's timing or a real tap (Leo, round
+       89; the entry above).
        What each decides is written here when that round is built.
   1. **A hood's own outlet first.** The duct drawn and quoted follows the
      model's own outlet where its sheet gives one, rather than only the

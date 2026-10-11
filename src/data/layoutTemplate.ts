@@ -16,6 +16,7 @@ import type { FixtureId, Package, PackageSlot, SlotId } from "../types";
 import { PACKAGE, slotsOf } from "./packages";
 import { dropsIntoCounter, rangeFillerIn, rangeModelFor } from "./cookingSurface";
 import { hoodMountFor, type HoodMount } from "./hoodMount";
+import { slotsAsBuilt } from "./fridgeMount";
 import { extentsOnAxis, faceRotation, onAxis, sizeOnAxis } from "./frame";
 import { LAYOUT_POLICY, shrinkRank, type ShrinkGroup } from "./layoutPolicy";
 import { comboSillFor } from "./columnModel";
@@ -471,6 +472,18 @@ export const openingIn = (slot: PackageSlot) =>
 export const insetOf = (slot: PackageSlot) => (slot.enclosure ? PANEL : 0);
 
 /**
+ * The run's segment for a package's own refrigerator, in inches: its
+ * enclosure, or D11 rule 11's panel, opening and panel or 3-1/2" against a
+ * return wall. A refrigerator chosen on the model card is built into this same
+ * segment (round 89), so a swap moves nothing along the run.
+ */
+export function fridgeSegmentIn(slot: PackageSlot, params: Pick<LayoutParams, "fridgeEndAbuts">): number {
+  if (slot.enclosure) return openingIn(slot);
+  const outerIn = params.fridgeEndAbuts === "wall" ? LAYOUT_LIMITS.fridge.fromWallIn : PANEL_IN;
+  return PANEL_IN + slot.widthIn + outerIn;
+}
+
+/**
  * Where each category stands in the L.
  *
  * The package says what is on the list and how wide it is; this says what the
@@ -631,6 +644,18 @@ export function columnsAlongRun(pkg: Package, leg: "left" | "back"): SlotId[] {
   if (!pkg.columnOrder) return TALL_ORDER.filter(standing);
   const facing = pkg.columnOrder.filter(standing);
   return leg === "back" ? facing : [...facing].reverse();
+}
+
+/**
+ * Whether a slot stands in a bank of columns: two or more tall units at the
+ * end of a run, joined by their kits (B's refrigerator and wine column, D's
+ * and E's banks). The run builds a bank on exactly this (`tallSlots`), and
+ * the fit check and a package switch ask it, so a counter-depth refrigerator
+ * is refused in one (round 89, Leo) on the same answer the run is built on.
+ */
+export function inColumnBank(pkg: Package, slotId: SlotId): boolean {
+  const bank = columnsAlongRun(pkg, "back");
+  return bank.length > 1 && bank.includes(slotId);
 }
 
 // --- packing a leg --------------------------------------------------------
@@ -1376,7 +1401,8 @@ function islandFor(
 function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[] = []) {
   const corner = CORNERS[params.cornerType];
   const { sink: sinkRule } = LAYOUT_LIMITS;
-  const spec = slotsOf(pkg);
+  // The refrigerator's slot as the model chosen in this package is built in (round 89).
+  const spec = slotsAsBuilt(pkg);
 
   // And what this template cannot build a kitchen without, whatever the
   // package declares. D22: the schema no longer has a list of core slots.
@@ -1532,18 +1558,36 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
    * panel and the manufacturer's eighth of an inch. Against a return wall,
    * three and a half inches of filler, or the door will not open ninety
    * degrees. See docs/decisions.md D11 rule 11.
+   *
+   * Round 89, Leo: which of the two is the chosen model's (`fridgeMount`), so
+   * `spec` is the slot as that model is built in (`slotsAsBuilt`). The segment
+   * is the one the package builds for its own refrigerator, so a swap moves
+   * nothing along the run and grows no wall (as round 84 keeps a range's
+   * opening): a counter-depth machine in a built-in's 42" with a return wall
+   * past it keeps its 3-1/2" and takes the half inch off the panel on the
+   * corner side; a built-in in a counter-depth machine's segment with a
+   * return wall past it leaves a half-inch scribe at the wall, and no more
+   * room for its doors than its own enclosure gives (Leo).
    */
   const fridge = spec["slot-fridge"];
+  const segmentIn = fridgeSegmentIn(slotsOf(pkg)["slot-fridge"], params);
   const single = fridge.enclosure
     ? (() => {
         const widthIn = openingIn(fridge);
-        return fixed(
-          "fridge",
-          widthIn,
-          fridge.tallUnit ? "tall" : "appliance",
-          M(`T${widthIn}96`, "tall", widthIn, { heightIn: 96, slot: "slot-fridge" }),
-          { slot: "slot-fridge" },
-        );
+        const scribeIn = segmentIn - widthIn;
+        if (scribeIn < -1e-6) throw new Error(`a built-in refrigerator needs ${widthIn}" in a ${segmentIn}" segment`);
+        const tower = M(`T${widthIn}96`, "tall", widthIn, { heightIn: 96, slot: "slot-fridge" });
+        return {
+          kind: "fixed" as const,
+          id: "fridge",
+          widthIn: segmentIn,
+          segmentKind: (fridge.tallUnit ? "tall" : "appliance") as RunSegment["kind"],
+          slot: "slot-fridge" as SlotId,
+          modules:
+            scribeIn > 1e-6
+              ? [tower, M(`PNL${round8(scribeIn)}`, "panel", scribeIn, { slot: "slot-fridge" })]
+              : [tower],
+        };
       })()
     : (() => {
         const rule = LAYOUT_LIMITS.fridge;
@@ -1553,15 +1597,16 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
         // the same gap twice and asking the wall for it.
         const openIn = fridge.widthIn;
         const outerIn = params.fridgeEndAbuts === "wall" ? rule.fromWallIn : PANEL_IN;
-        const widthIn = PANEL_IN + openIn + outerIn;
+        const innerIn = segmentIn - openIn - outerIn;
+        if (innerIn < -1e-6) throw new Error(`a freestanding refrigerator needs ${openIn + outerIn}" in a ${segmentIn}" segment`);
         return {
           kind: "fixed" as const,
           id: "fridge",
-          widthIn,
+          widthIn: segmentIn,
           segmentKind: (fridge.tallUnit ? "tall" : "appliance") as RunSegment["kind"],
           slot: "slot-fridge" as SlotId,
           modules: [
-            M(`PNL${PANEL_IN}`, "panel", PANEL_IN, { slot: "slot-fridge" }),
+            M(`PNL${round8(innerIn)}`, "panel", innerIn, { slot: "slot-fridge" }),
             M(`RO${round8(openIn)}`, "tall-open", openIn, { slot: "slot-fridge" }),
             params.fridgeEndAbuts === "wall"
               ? M(`BF${round8(outerIn)}`, "filler", outerIn, { slot: "slot-fridge" })
@@ -2481,6 +2526,33 @@ function placements(
   };
 
   /**
+   * The refrigerator, centred over its own opening: the tower's, inside its
+   * panels, or the opening between rule 11's panels. Round 89: a counter-depth
+   * machine swapped into a built-in's segment against a return wall has a
+   * 2-1/2" panel one side and 3-1/2" the other, and the middle of the segment
+   * is not the middle of its opening. Where the pieces each side are equal —
+   * every package's own refrigerator but C's against a return wall — it is
+   * the same place `wall` gives.
+   */
+  const fridgeAt = (): SlotPlacement => {
+    const { run, segment } = find((s) => s.slot === "slot-fridge");
+    let cursor = segment.from;
+    for (const module of segment.modules) {
+      const next = cursor + ft(module.widthIn);
+      if (module.kind === "tall" || module.kind === "tall-open") {
+        const at = onRun(run, mid([cursor, next]));
+        return {
+          position: [at[0], ft(sillFor(spec["slot-fridge"], params)), at[2]],
+          rotationY: facing(run),
+          mount: "wall",
+        };
+      }
+      cursor = next;
+    }
+    return wall("slot-fridge", insetOf(spec["slot-fridge"]));
+  };
+
+  /**
    * The cooking surface the hood hangs over: a range on a run, or the island's
    * cooktop. Round 52 (D22 step 3) — this was `slot-range` alone, so a package
    * that cooked on the island threw on its way out of the generator.
@@ -2575,7 +2647,7 @@ function placements(
     } else if (onARun(slot)) {
       // Inset by a panel inside its enclosure; hard against the run's own line
       // when there is no enclosure to be inside. Either way it is centred.
-      slots[slot] = wall(slot, slot === "slot-fridge" ? insetOf(spec[slot]) : 0);
+      slots[slot] = slot === "slot-fridge" ? fridgeAt() : wall(slot, 0);
     } else {
       slots[slot] = under(slot);
     }
@@ -2647,7 +2719,8 @@ export function generateLayout(
   const halfX = ft(params.backWallIn) / 2;
   const halfZ = ft(params.leftWallIn) / 2;
   const corner = CORNERS[params.cornerType];
-  const spec = slotsOf(pkg);
+  // The refrigerator's slot as the model chosen in this package is built in (round 89).
+  const spec = slotsAsBuilt(pkg);
   // How the hood chosen in this package hangs, which decides what is over it (round 87).
   const mount = spec["slot-hood"] ? hoodMountFor(pkg) : null;
   const omitted = omittedSlots(params, pkg);
@@ -3181,7 +3254,7 @@ export function fridgeOpeningOf(
   layout: GeneratedLayout,
   pkg: Package = PACKAGE,
 ): readonly [number, number] {
-  const inset = insetOf(slotsOf(pkg)["slot-fridge"]);
+  const inset = insetOf(slotsAsBuilt(pkg)["slot-fridge"]);
   for (const run of layout.runs) {
     const tower = run.segments.find((s) => s.slot === "slot-fridge");
     if (tower) return [tower.from + inset, tower.to - inset] as const;

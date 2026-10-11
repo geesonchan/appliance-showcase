@@ -13,6 +13,7 @@ import { LAYOUT, REQUESTED_PARAMS, applyLayout } from "./room";
 import { rebuildSlots } from "./slots";
 import { hoodModelFor, hoodMount, recordHoodModel } from "./hoodMount";
 import { dropsIntoCounter, rangeFillerIn, rangeModelFor, recordRangeModel } from "./cookingSurface";
+import { fridgeModelFor, fridgeMount, fridgeOpeningHeightIn, recordFridgeModel } from "./fridgeMount";
 import type { Appliance } from "../types";
 
 /**
@@ -108,6 +109,40 @@ export function setRangeModel(
   const result = setLayoutParams(REQUESTED_PARAMS);
   if (!result.ok) {
     recordRangeModel(packageId, before);
+    setLayoutParams(REQUESTED_PARAMS);
+    return { ...result, rebuilt: false };
+  }
+  return { ...result, rebuilt: true };
+}
+
+/**
+ * The refrigerator the customer has chosen, which decides what stands round it.
+ *
+ * Round 89, Leo: a built-in or a column stands in an enclosure, a
+ * counter-depth machine among D11 rule 11's parts, and the cabinet over either
+ * stands on the machine's own height (`fridgeMount`, `fridgeOpeningHeightIn`).
+ * So when either answer changes the room is generated again where it stands,
+ * as a range of another kind regenerates it (round 83); the segment is the
+ * package's own, so nothing moves along the run and no wall grows. A
+ * refrigerator built in the same way and to the same height — A's built-in
+ * for the column — changes nothing round it. Refused, the previous choice is
+ * put back and the reasons come out; no room in any package refuses it
+ * (`fridgeSwap.test.ts`).
+ */
+export function setFridgeModel(
+  appliance: Appliance | undefined,
+  packageId: string = PACKAGE.id,
+): { ok: boolean; reasons: Refusal[]; rebuilt: boolean } {
+  const before = fridgeModelFor(PACKAGE);
+  recordFridgeModel(appliance, packageId);
+  if (packageId !== PACKAGE.id) return { ok: true, reasons: [], rebuilt: false };
+  const after = fridgeModelFor(PACKAGE);
+  const built = (fridge: Appliance | undefined) =>
+    fridge ? `${fridgeMount(fridge)} ${fridgeOpeningHeightIn(fridge)}` : "";
+  if (built(before) === built(after)) return { ok: true, reasons: [], rebuilt: false };
+  const result = setLayoutParams(REQUESTED_PARAMS);
+  if (!result.ok) {
+    recordFridgeModel(before, packageId);
     setLayoutParams(REQUESTED_PARAMS);
     return { ...result, rebuilt: false };
   }

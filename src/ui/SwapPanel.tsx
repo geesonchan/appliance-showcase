@@ -344,6 +344,11 @@ export function FitNotes({ fit }: { fit: FitResult }) {
           {t(`swap.tooTall.${fit.above}`, { delta: formatInches(fit.tooTallIn) })}
         </span>
       )}
+      {fit.notInColumnBank && (
+        <span data-refused="column-bank" className="mt-1 block text-[11px] font-medium text-ink">
+          {t("swap.notInColumnBank")}
+        </span>
+      )}
       {fit.notForTallUnit && (
         <span data-refused="tall-unit" className="mt-1 block text-[11px] font-medium text-ink">
           {t("swap.notForTallUnit")}

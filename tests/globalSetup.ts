@@ -1,4 +1,5 @@
 import { spawn, type ChildProcess } from "node:child_process";
+import { fileURLToPath } from "node:url";
 
 /** Kept off 4173 so a preview server you already have open is left alone. */
 export const PREVIEW_PORT = 4174;
@@ -37,6 +38,36 @@ async function warm(url: string) {
   );
 }
 
+/** Vite's own command-line script, run with this node rather than through a shell. */
+const VITE = fileURLToPath(new URL("../node_modules/vite/bin/vite.js", import.meta.url));
+
+/**
+ * Serve the production build on `port`, and give back what stops it.
+ *
+ * Round 89: this was `npx vite preview` with `shell: true`, and stopping it
+ * killed the shell, not Vite — so after every run of the browser suite Vite
+ * was still listening on 4174, serving a `dist/` the next build rewrote under
+ * it (docs/decisions.md, Open items, round 88). Vite's own script is started
+ * with this node now, with no shell between, so the process stopped is the
+ * one listening; and stopping waits until it has exited.
+ * `tests/previewServer.test.ts` holds the port free afterwards.
+ */
+export async function startPreview(port: number): Promise<() => Promise<void>> {
+  const server: ChildProcess = spawn(
+    process.execPath,
+    [VITE, "preview", "--port", String(port), "--strictPort"],
+    { stdio: "ignore" },
+  );
+  const exited = new Promise<void>((resolve) => server.once("exit", () => resolve()));
+  const url = `http://localhost:${port}`;
+  await waitForServer(url);
+  await warm(url);
+  return async () => {
+    if (server.exitCode === null && server.signalCode === null) server.kill();
+    await exited;
+  };
+}
+
 /**
  * Serves the production build for the smoke suite.
  *
@@ -46,18 +77,5 @@ async function warm(url: string) {
  * of the two.
  */
 export default async function setup() {
-  let server: ChildProcess | undefined;
-
-  server = spawn(
-    "npx",
-    ["vite", "preview", "--port", String(PREVIEW_PORT), "--strictPort"],
-    { stdio: "ignore", shell: true },
-  );
-
-  await waitForServer(PREVIEW_URL);
-  await warm(PREVIEW_URL);
-
-  return async () => {
-    server?.kill();
-  };
+  return startPreview(PREVIEW_PORT);
 }

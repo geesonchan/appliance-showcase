@@ -5,6 +5,8 @@ import { ductRouteFor, hoodMountFor } from "./hoodMount";
 import { CABINET_STANDARDS, OMITTED_SLOTS, ROOM, SLOT_PLACEMENT, ft } from "./room";
 import { parseDataFile, slotsFileSchema } from "./schema";
 import { ISLAND_HOOD, assertHoodRoute } from "./hood";
+import { slotsAsBuilt } from "./fridgeMount";
+import { inColumnBank } from "./layoutTemplate";
 
 export { ft, CABINET_STANDARDS, ROOM, RUN, RUNS, RUN_BY_ID, PANEL, FRIDGE_OPENING, HOOD_OPENING, ISLAND, OMITTED_SLOTS, isOmitted } from "./room";
 
@@ -56,7 +58,7 @@ function size(
   record: SlotRecord,
   spec: PackageSlot,
   packageSlots: readonly PackageSlot[],
-): SlotRecord & Pick<Slot, "above" | "tallUnitFor"> {
+): SlotRecord & Pick<Slot, "above" | "tallUnitFor" | "inColumnBank"> {
   const box = {
     w: spec.widthIn,
     h: openingHeightIn(record, spec),
@@ -95,6 +97,7 @@ function size(
     },
     above: openingAbove(record, spec, packageSlots),
     tallUnitFor: spec.tallUnit ? spec.category : null,
+    inColumnBank: inColumnBank(PACKAGE, record.id),
   };
 }
 
@@ -147,7 +150,7 @@ export function openingAbove(
   return "countertop";
 }
 
-function place(record: SlotRecord & Pick<Slot, "above" | "tallUnitFor">): Slot {
+function place(record: SlotRecord & Pick<Slot, "above" | "tallUnitFor" | "inColumnBank">): Slot {
   const placement = SLOT_PLACEMENT[record.id];
   // A slot the package names and the layout did not place is a bug in the
   // generator, not a room: say which one rather than drawing it at the origin.
@@ -199,9 +202,13 @@ export let SLOT_BY_ID: Record<SlotId, Slot>;
 export function rebuildSlots() {
   // Only the slots this package has. The file describes every opening any
   // package might have; the room is built with the ones this one names.
+  // The refrigerator's slot as the model chosen is built in (round 89): its
+  // opening's height and whether it is an enclosure are the model's, so the
+  // cabinet over it and what the machine fills round itself follow the swap.
+  const built = slotsAsBuilt(PACKAGE);
   const all = parsed.slots
     .filter((record) => PACKAGE_SLOTS[record.id])
-    .map((record) => place(size(record, PACKAGE_SLOTS[record.id], Object.values(PACKAGE_SLOTS))));
+    .map((record) => place(size(record, built[record.id], Object.values(PACKAGE_SLOTS))));
   SLOT_BY_ID = Object.fromEntries(all.map((slot) => [slot.id, slot])) as Record<SlotId, Slot>;
   SLOTS = all.filter((slot) => !OMITTED_SLOTS.includes(slot.id));
 }

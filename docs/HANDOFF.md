@@ -12,7 +12,7 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **round 88** (`docs/decisions.md` is the record of
+Covers the repository up to **round 89** (`docs/decisions.md` is the record of
 rounds; `git log` is the record of commits). It replaces the v1–v9 briefs that
 were pasted into chat.
 
@@ -58,7 +58,7 @@ every figure of it, is `data/packages.json`; D16 and D20 say how a package is
 put together and why E was built the way it was. **Do not copy those numbers
 anywhere**: the file is the one source, and the tests read it.
 
-### Where it stands (round 88)
+### Where it stands (round 89)
 
 - **All five packages are live.** Rounds 73–79 and 81–87 each shipped (round
   80 built nothing), and each was checked against the live page's asset hashes
@@ -90,9 +90,10 @@ anywhere**: the file is the one source, and the tests read it.
   wine column under the island's top, from Leo using package A (**done**, D20
   round 86); round 87 an insert hood with its housing and every hood swap
   following the hood, B's and D's housing made 36" (**done**, D16 and D13
-  round 87, from Leo using package A); 88 the model card at the left of the scene on a desktop (**done**, D12 round 88; the phone's later); 89 the 36" chimney hood HMCB36WS; 90 the right panel's
+  round 87, from Leo using package A); 88 the model card at the left of the scene on a desktop (**done**, D12 round 88; the phone's later); 89 a refrigerator's surround following the model chosen (**done**, D16 round 89); 90 the 36" chimney hood HMCB36WS; 91 the right panel's
   tabs, the `Slider` warning and the "MT" chip over "E" on a Chinese phone;
-  then a hood's own outlet, then 79a (the doors of the
+  92 every RAL Classic colour; 93 why a tap on the phone card now and then
+  rebuilds nothing; then a hood's own outlet, then 79a (the doors of the
   cabinet over the hood and the outlet shown in it), then 79b. The 30" option
   in A is paused.
 
@@ -118,6 +119,9 @@ anywhere**: the file is the one source, and the tests read it.
 | `src/data/hoodSwap.test.ts`, `tests/hoodHousing.test.ts` | What is over a hood, where it hangs and its duct's route follow the hood chosen; an insert comes with its housing (D16, round 87). |
 | `src/data/openingAbove.test.ts`, `tests/tooTall.test.ts` | What is above an opening, and a machine too tall for one, or of another kind than a tall unit is built for, refused with its reason (D20, round 86). |
 | `tests/sideStrips.test.ts` | The strips a machine draws beside itself are faced in the doors' plane, take shadows, and have nothing of the machine in them (D13 and D11 rule 12, round 85). |
+| `tests/modelCardSide.test.ts` | On a desktop the model card at the left of the scene, as tall as what it holds, gone while the list rail is open, clear of the machine (D12, round 88). |
+| `src/data/fridgeSwap.test.ts`, `tests/fridgeSurround.test.ts` | What stands round a refrigerator follows the model chosen; a counter-depth one is refused in a bank of columns (D16, round 89). |
+| `tests/previewServer.test.ts` | The browser suite's preview server leaves its port free when stopped (round 89). |
 | `scripts/screenshots.mjs` | Screenshot sets by round. |
 
 Commands: `npm run dev`, `npm run build`, `npm run test:unit` (unit only,
@@ -172,11 +176,12 @@ what to go and read.
 - **A figure that cannot say exactly why it is that figure** may be working
   round a bug; record that it cannot. D17.
 - **One rule is written once.** D17 carries the table of every time it was
-  written twice: twelve rows, for thirteen times it happened — round 60's
+  written twice: thirteen rows, for fourteen times it happened — round 60's
   quarter-inch window step is counted as a near relative, the fifth, and has
   no row of its own. One is still open, the first; the twelfth (round 84,
   the half inch that is a scribe) was closed in round 85, and the thirteenth
-  (round 87, how a hood hangs) was found and closed together. The eighth (round 74, 54"
+  (round 87, how a hood hangs) and the fourteenth (round 89, how a
+  refrigerator is built in) were each found and closed together. The eighth (round 74, 54"
   and 52" for the same handle height) was stopped before the second copy was
   written; round 78 found a third copy of one already marked closed.
 - **A figure from a script, a probe or a set of shots is quoted from the run
