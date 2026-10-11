@@ -12,7 +12,7 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **round 90** (`docs/decisions.md` is the record of
+Covers the repository up to **round 92** (`docs/decisions.md` is the record of
 rounds; `git log` is the record of commits). It replaces the v1–v9 briefs that
 were pasted into chat.
 
@@ -58,10 +58,10 @@ every figure of it, is `data/packages.json`; D16 and D20 say how a package is
 put together and why E was built the way it was. **Do not copy those numbers
 anywhere**: the file is the one source, and the tests read it.
 
-### Where it stands (round 90)
+### Where it stands (round 92)
 
-- **All five packages are live.** Rounds 73–79 and 81–87 each shipped (round
-  80 built nothing), and each was checked against the live page's asset hashes
+- **All five packages are live.** Rounds 73–79, 81–90 and 92 each shipped
+  (round 80 built nothing; 91 waits, below), and each was checked against the live page's asset hashes
   after its workflow finished.
 - **The project is in real use.** Rounds 73–77 all came from Leo using package
   E himself: a wine cooler under the coffee machine (73), E's combination oven
@@ -90,10 +90,14 @@ anywhere**: the file is the one source, and the tests read it.
   wine column under the island's top, from Leo using package A (**done**, D20
   round 86); round 87 an insert hood with its housing and every hood swap
   following the hood, B's and D's housing made 36" (**done**, D16 and D13
-  round 87, from Leo using package A); 88 the model card at the left of the scene on a desktop (**done**, D12 round 88; the phone's later); 89 a refrigerator's surround following the model chosen (**done**, D16 round 89); 90 the 36" chimney hood HMCB36WS (**done**, D16 round 90); 91 the right panel's
-  tabs, the `Slider` warning and the "MT" chip over "E" on a Chinese phone;
-  92 every RAL Classic colour; 93 why a tap on the phone card now and then
-  rebuilds nothing; then a hood's own outlet, then 79a (the doors of the
+  round 87, from Leo using package A); 88 the model card at the left of the scene on a desktop (**done**, D12 round 88; the phone's later); 89 a refrigerator's surround following the model chosen (**done**, D16 round 89); 90 the 36" chimney hood HMCB36WS (**done**, D16 round 90); 92 every RAL
+  Classic colour, built before 91 with its number kept, and the importer
+  stopping when hand-filled cells come in blank (**done**, D15 and D4 round
+  92); 91 the right panel's tabs, the `Slider` warning and the "MT" chip over
+  "E" on a Chinese phone (waiting for Leo's feedback from use); 93 why a tap on
+  the phone card now and then rebuilds nothing, and the mouse-or-script smoke
+  test comparing the canvas by pixels and the HTML over it by position; 94 a
+  share button, a plan first; then a hood's own outlet, then 79a (the doors of the
   cabinet over the hood and the outlet shown in it), then 79b. The 30" option
   in A is paused.
 
@@ -122,6 +126,9 @@ anywhere**: the file is the one source, and the tests read it.
 | `tests/modelCardSide.test.ts` | On a desktop the model card at the left of the scene, as tall as what it holds, gone while the list rail is open, clear of the machine (D12, round 88). |
 | `src/data/fridgeSwap.test.ts`, `tests/fridgeSurround.test.ts` | What stands round a refrigerator follows the model chosen; a counter-depth one is refused in a bank of columns (D16, round 89). |
 | `tests/previewServer.test.ts` | The browser suite's preview server leaves its port free when stopped (round 89). |
+| `src/data/hmcb36ws.test.ts`, `tests/chimney36.test.ts` | The 36" chimney hood HMCB36WS in A's, B's and D's openings, and a chimney hood's cover its own model's (D16, round 90). |
+| `src/data/ral.test.ts`, `tests/ralColours.test.ts` | Every RAL Classic code with its source and date, the special finishes, and what the RAL input says under it (D15, round 92). |
+| `scripts/handFilled.test.ts` | The import stops when a checked model's hand-filled cells come in blank, unless `--allow-empty=MODEL` names it (D4, round 92). |
 | `scripts/screenshots.mjs` | Screenshot sets by round. |
 
 Commands: `npm run dev`, `npm run build`, `npm run test:unit` (unit only,

@@ -258,6 +258,41 @@ rows of `data/appliances.json` whose `installType` is exactly
 added to Feature, is written where the importer is described:
 docs/data-sheet-spec.md, **Install form**.
 
+*Amended 2026-10-11 (round 92), Leo: hand-filled cells that come in blank stop
+the import.* T18IW100SP's price, source, check date, cutout and amps came in
+empty twice after edits to the sheet — round 87's first import and round 90's
+first, its `showcase_specs` lookup by Model finding nothing — and both times
+only a reading of the diff caught it.
+- **The check.** Before anything is written, the import reads the committed
+  `data/appliances.json`. For every model there with a `verifiedAt`, each
+  hand-filled field (the `showcase_specs` columns, data-sheet-spec.md) that had
+  a value and now comes in as a blank cell does — null for most, 120 for the
+  voltage, false for water, integrated for a hood's blower, each worked out by
+  the importer's own parsers, not written again — is listed with the value it
+  had, and the run stops: exit code 1, "nothing written", as an unaccounted row
+  does (`emptiedCheckedModels`, `assertHandFilledKept` in csv-to-json.ts). A
+  value changed to another value is an edit and passes; a model nobody has
+  checked is not looked at.
+- **`--allow-empty=MODEL`** (Leo) lets one named model through, and the run
+  prints it with what came in blank. A bare `--allow-empty` is refused, never
+  read as everything; a name the committed file does not have is refused too.
+- **Not this check:** a checked model that leaves the import altogether.
+  Registered with the package's default model (Open items).
+- **Proved on the real fault.** The import set aside on 2026-10-10
+  (`showcase-staging`, SHA-256 `ecbc3a2a…63a2a`, checked) against the file it
+  was diffed against (blob `933e54b`): it stops, naming Thermador T18IW100SP
+  and exactly its seven fields. Round 90's committed file against itself finds
+  nothing, and today's export (`showcase_export.csv`, 2026-10-11) imports
+  through it to the same 35 rows, byte for byte.
+- **Tests.** `scripts/handFilled.test.ts`, 13 cases, on the fixture's checked
+  refrigerator — lopsided on purpose: its voltage and water are already what a
+  blank cell gives. The import run as Leo runs it, in a folder of its own,
+  stops and leaves the file byte for byte; with the model named it writes and
+  prints it; a bare flag is refused. Those three were red on round 90's
+  importer, which wrote the emptied file and exited 0; the rest cannot load
+  there (the functions are new). With the "only checked models" condition
+  taken out on purpose, the unchecked case went red.
+
 ## D5 · The kitchen is a rangetop, an island, and no wall oven
 
 **Decided:** 2026-09-05 (M2), from Leo's read of the catalogue.
@@ -1803,6 +1838,8 @@ and changes nothing, and so does anything that is not a RAL number. The table is
 forty codes kitchens are commonly specified in, with the sRGB values from the
 detail table of Wikipedia's *List of RAL colours*. RAL publishes no official
 sRGB, so these are approximations, and `_meta.provenance` in the file says so.
+*(Round 92, below: every Classic code now; the table was the page's overview
+table, and RAL publishes no free value rather than none.)*
 It is still colour, not product: nothing about it reaches the package or the
 quote. The oak on doors and floors is a shade deeper, toward #8B6B47, and the
 clay swatch is a deeper walnut brown to match (#6B4E3D) — in round 35 renamed
@@ -1816,6 +1853,62 @@ format — 24" x 48" by default, 32" x 32" or 48" x 48" — laid third-bond with
 1/16" joints; the size is a finish setting under Floor. Marble is warm grey with
 ink-dot veining, and quartz stays pale. None of it is a download; every surface
 is still drawn on a canvas.
+
+**Amended 2026-10-11 (round 92), Leo: every RAL Classic colour, each with its
+source.** From Leo typing RAL 5015, which the forty-code table answered "not in
+the table" (round 88). Built ahead of round 91, its number unchanged.
+- **The table is every Classic code Wikipedia's *List of RAL colours* gives:
+  217.** 215 from the Hex triplet column of its overview table, "All colours
+  defined in RAL Classic" — the column the forty were taken from in round 33,
+  which this entry and the file called "the detail table" — and RAL 6031
+  (Bronze green) and RAL 6039 (Fibrous green), which the overview leaves out,
+  from the Sample column of the page's Green colour-group table (Leo: in, their
+  source "colour-group"). One fixed revision, 1369650571 (2026-08-16), linked
+  by its `oldid`; it was the page's current revision on 2026-09-13 as well.
+- **Each code says where its value is from and when it was read** (`source`,
+  `readAt` in `data/ral.json`, `sources` naming each table and column once).
+  The forty keep 2026-09-13; read again from the same revision, all forty are
+  unchanged, so no door changes colour. The rest are dated 2026-10-11.
+- **Where the page disagrees with itself, the overview's Hex triplet is
+  taken**, as in round 33: its colour-group tables give RAL 9003 #FFFFFF and
+  RAL 9005 #131516 against #F4F8F4 and #0A0A0D, and for RAL 9022 the overview's
+  own Sample column says #9C9C9C against its #858583.
+- **"RAL publishes no official sRGB" was not right as written, and is "no free
+  one" now** (round 88's reading: RAL sells its digital library, RGB and Lab).
+  The file, `ral.ts` and this entry say so.
+- **No two codes share a hex**, and none is a swatch's. The door keeps only its
+  hex, and `ralForHex` reads the code back from it, so `ral.test.ts` holds the
+  217 to 217 colours.
+- **Pearl, metallic and luminous colours are shown as any other, with a line**
+  (Leo): "Pearl, metallic and luminous colours cannot be shown on a screen." /
+  "珠光、金属和荧光色无法在屏幕上显示。", under the input of the palette whose
+  colour is one of them, and only while it is (Leo). Twenty-three are marked
+  `effect` in the data, from their names on the page: fifteen Pearl (1035,
+  1036, 2013, 3032, 3033, 4011, 4012, 5025, 5026, 6035, 6036, 7048, 8029,
+  9022, 9023), the two aluminium colours as metallic (9006, 9007), six
+  Luminous (1026, 2005, 2007, 3024, 3026, 6038). *Round 88's reading counted
+  twelve, two and five; the page's names give fifteen, two and six.*
+- **Under each RAL input, always:** "Screen colours are approximate — confirm
+  against a physical RAL colour card." / "屏幕颜色仅供参考，以实物色卡为准。" —
+  Leo's "B version" of the English.
+- **A number that is not a Classic code:** "{code} is not a RAL Classic
+  colour" / "{code} 不是 RAL Classic 色号" (was "is not in the table" / "未收
+  录"). The three lines are locked in `reviewed.json`: the Chinese `written`,
+  the English `read` (drafted, then chosen and confirmed by Leo).
+- **The input takes "5015", "RAL 5015" and "ral5015"**; it did before, and the
+  test now says so on a code the old table lacked.
+- **Tests.** `ral.test.ts` — 20 cases: the 217, one revision, the two from the
+  colour-group table, the forty written out by hand from the old file with
+  their date, spot values (5015 #2874B2, 2017, 6031, 6039, 9022), each list of
+  `effect` codes written out; 15 red on round 90's code, the 5 green there being
+  the old cases. `tests/ralColours.test.ts` — 8 cases, the mouse into the
+  field and the keyboard to type and press Enter, English and Chinese: 5015
+  paints the doors, 1234 says it is not a Classic code, the approximate line,
+  the pearl line on and off, a luminous accent's line under the accent's input
+  and not the doors'. 7 red on round 90's build (`index-BQ2BMTju.js`), each for
+  what it names; the eighth (an ordinary colour gives no pearl line) green on
+  both by design, and red with the line forced on. With the Chinese pearl line
+  changed by one word, `reviewed.test.ts` went red.
 
 ---
 
@@ -5482,7 +5575,9 @@ Registered, not scheduled. None of these is a round of its own.
   check 4174 after every browser run and end what is left there.
   *(Leo, round 88: fixed in round 89, with a test that the port is free
   after the suite.)*
-- **The importer stops when hand-filled cells go empty.** *(Leo, round 90:
+- ~~**The importer stops when hand-filled cells go empty.**~~ **Done in round
+  92** (D4, round 92), with `--allow-empty=MODEL` (Leo). What follows is the
+  entry as it stood: *(Leo, round 90:
   registered, later.)* T18IW100SP's hand-filled cells — price, source, the
   date it was checked, cutout, amps — came in empty twice after edits to the
   sheet: round 87's first import and round 90's first (its `showcase_specs`
@@ -5509,6 +5604,11 @@ Registered, not scheduled. None of these is a round of its own.
     `data/appliances.json` (the same way an unaccounted row stops it, D4).
     Leo: an edit to the sheet has already once taken out a row it was not
     meant to touch.
+  - **And a checked model that leaves the import altogether.** *(Leo, round
+    92: registered here, with this, not built.)* Round 92's check (D4) looks
+    only at a model the import still has; a model with a `verifiedAt` in the
+    committed file that the import no longer produces at all is passed over.
+    Build the two together.
 - ~~**The strips beside a hood and inside a tall unit's opening take no shadow
   and stand 3/4" behind the doors.**~~ **Done in round 85** (D13, round 85;
   D11 rule 12, round 85), with the half inch joined into one. What follows is
@@ -5639,7 +5739,12 @@ Registered, not scheduled. None of these is a round of its own.
   - **Tests today:** only `tests/sideStrips.test.ts` swaps a refrigerator (the
     column into A and B, for its strips); nothing holds a surround after a
     swap, and nothing swaps one in C.
-- **Every RAL Classic colour, with its source.** *(Leo, round 88: typing a
+- ~~**Every RAL Classic colour, with its source.**~~ **Done in round 92** (D15,
+  round 92): 217 codes, each with its source and the day it was read. Two
+  things in the reading below were corrected there: the forty came from the
+  page's overview table, not a "detail table", and the special colours are
+  fifteen pearl, two aluminium and six luminous, not twelve, two and five.
+  What follows is the entry as it stood: *(Leo, round 88: typing a
   RAL Classic number not in the table, e.g. 5015, says "not in the table".
   Round 92; a read-only report first, done in round 88.)* Read in round 88:
   - **The table is forty codes**, hand-picked for kitchens in round 33:
@@ -5679,6 +5784,47 @@ Registered, not scheduled. None of these is a round of its own.
       不是 RAL Classic 色号".
     - The input takes "5015", "RAL 5015" and "ral5015" (it already does; the
       round adds the cases to the test).
+- **On the Chinese page the RAL code beside "应用" is cut by a pixel.** *(Found
+  round 92 in its screenshots, on the live site as well; not changed.)* With a
+  RAL colour on the doors, the code shown after the input and its button reads
+  "RAL 10…" in Chinese: measured on round 90's build (`index-BQ2BMTju.js`) and
+  round 92's alike, at 1440 x 900, RAL 6005 needs 51px and gets 50
+  (`data-ral-current`, `truncate`), where the English "Set" leaves it its 51.
+  "应用" is wider than "Set". Screenshot: `docs/fixes/round-92-ral-panel-zh.png`,
+  the last panel.
+- **A link that rebuilds the same kitchen: a share button.** *(Leo, round 92:
+  registered for round 94, after 93; not started. That round reads out a plan
+  first and builds nothing until Leo has it.)* The settings chosen make a link,
+  and somebody opening it elsewhere sees the same kitchen. The plan is to
+  answer, in Leo's points:
+  1. **What the link carries**: the package, every slot's model, the cabinet
+     colour with its RAL code, the accent, the countertop, the floor, the wall
+     colour, which leg the refrigerator is on, the wall lengths, which way the
+     island runs, and the rest — a full list, and roughly how long the link
+     is. **Not** the camera, the machine selected or the display mode: a link
+     always opens at the default view.
+  2. **An old link** carries a version. On opening, each setting is checked:
+     a model no longer in the catalogue, or one today's rules no longer let
+     into its opening, falls back to the package's default, and the page says
+     "N settings have been updated" / "有 N 项已更新". The checks call what
+     exists — `candidatesFor` and the rest — and write none of their own (D17's
+     table, first row).
+  3. **No price and no customer information** in the link.
+  4. **Copy the link on a desktop; the system share sheet on a phone**; and
+     whether to add a QR code, so a customer in the shop can scan it with a
+     phone and take the kitchen away.
+  5. **Most customers will open it on a phone**: how much the phone layout's
+     known problems cost then.
+  6. **How opening a link sits with Undo**, and whether D1's camera rule is
+     touched.
+  - *Two things from this file for that plan to answer (round 92, read, not
+    decided):* D10 forbids copy that tells a customer what we changed (更新为
+    and its English equivalents), and "有 N 项已更新" is close to it, so the
+    wording is that round's to settle with Leo; and a link opening at the
+    default view is the page loading, not a fourth reason for the camera to
+    move (D1) — the plan should say so in so many words. The door keeps only
+    its hex, and since round 92 no two RAL codes share one (D15), so a link can
+    carry the code and come back to the same colour.
 - **Registered rounds after 78, in Leo's order.** *(Leo, rounds 78-79; not
   started. Round 79 put the interface round first and moved the rest back.)*
   0. **An interface round, plan first, with phone and desktop sketches.**
@@ -5722,13 +5868,17 @@ Registered, not scheduled. None of these is a round of its own.
        **Round 91**: the right panel's tabs, the `Slider` warning, and the
        "MT" chip over "E" on a Chinese phone (Leo, round 85, moved back by Leo
        in rounds 86, 87 and 88); round 86's first plan for it is in the "MT"
-       entry above. **Round 92**: every RAL Classic colour (Leo, round 88; the
-       entry above). **Round 93**: why a tap on the phone card's chip now and
-       then rebuilds nothing — the test's timing or a real tap (Leo, round
-       89; the entry above); and the mouse-or-script smoke test changed to
-       compare the canvas by pixels and the HTML over it by position (Leo,
-       round 90; its entry above). Later: the importer stopping when hand-filled
-       cells go empty (Leo, round 90; the entry above).
+       entry above. *Waiting for Leo's feedback from use (Leo, round 92).*
+       **Round 92**: every RAL Classic colour (Leo, round 88; the entry above),
+       built ahead of 91 with its number kept (Leo), and with it the importer
+       stopping when hand-filled cells go empty (Leo, round 90; the entry
+       above) — *done in round 92* (D15 and D4, round 92). **Round 93**: why a
+       tap on the phone card's chip now and then rebuilds nothing — the test's
+       timing or a real tap (Leo, round 89; the entry above); and the
+       mouse-or-script smoke test changed to compare the canvas by pixels and
+       the HTML over it by position (Leo, round 90; its entry above).
+       **Round 94**, after 93: a share button (Leo, round 92; the entry
+       "A link that rebuilds the same kitchen" above), a plan read out first.
        What each decides is written here when that round is built.
   1. **A hood's own outlet first.** The duct drawn and quoted follows the
      model's own outlet where its sheet gives one, rather than only the

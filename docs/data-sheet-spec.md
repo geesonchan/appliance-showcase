@@ -353,3 +353,37 @@ than letting the rows through.
 ```
 
 `data/appliances.json` is left untouched on that path.
+
+## Hand-filled cells that come in blank
+
+*(Round 92, Leo; decisions.md D4.)* A model the committed
+`data/appliances.json` has checked — it has a `verifiedAt` — keeps its
+hand-filled cells, or the import stops. Before anything is written, every
+field in the `showcase_specs` table above that had a value for such a model and
+now comes in as a blank cell does (null; 120 for `voltage`; false for `water`;
+integrated for a hood's `blower`) is listed with the value it had, and the run
+exits with an error and writes nothing — the same way an unaccounted row does.
+It is what happens when the `showcase_specs` lookup by Model finds nothing, as
+it did for T18IW100SP in rounds 87 and 90. *Illustrative, from the import set
+aside on 2026-10-10 (the source URL shortened here):*
+
+```
+hand-filled cells came in blank for 1 checked model(s), each with a verifiedAt in the committed data/appliances.json:
+  Thermador T18IW100SP: msrpUSD (was 7799), sourceUrl (was "https://media3.bsh-group.com/…"), verifiedAt (was "2026-09-28"), cutoutWidthIn (was 18), cutoutHeightIn (was 84), cutoutDepthIn (was 25), requires.amps (was 15)
+Most likely the showcase_specs lookup by Model found nothing for it (docs/data-sheet-spec.md).
+Mend the sheet; or, if emptying them is meant, run again with --allow-empty=MODEL for each model.
+
+nothing written
+```
+
+A value changed to another value is an edit, and goes through. Where emptying
+a checked model's cells is meant, name it:
+
+```bash
+npm run import:csv -- ~/Downloads/showcase_export.csv --allow-empty=T18IW100SP
+```
+
+once per model. The result prints each named model with what came in blank. A
+bare `--allow-empty`, and a model the committed file does not have, are
+refused. A checked model that leaves the import altogether is not this check
+(decisions.md, Open items).

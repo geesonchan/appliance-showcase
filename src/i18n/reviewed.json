@@ -345,6 +345,21 @@
       "text": "This opening is part of a column set; a freestanding refrigerator isn't used here.",
       "approval": "written",
       "reviewed": "Leo's own wording, round 89, rewritten by him from the round's draft: the reason a counter-depth refrigerator is refused in an opening in a bank of columns (the model card and the list; decisions.md D16, round 89)"
+    },
+    "finish.ral.unknown": {
+      "text": "{code} is not a RAL Classic colour",
+      "approval": "read",
+      "reviewed": "Leo's decision, round 89, as recorded in Open items; the RAL input's line for a number that is not a Classic code (decisions.md D15, round 92)"
+    },
+    "finish.ral.approximate": {
+      "text": "Screen colours are approximate — confirm against a physical RAL colour card.",
+      "approval": "read",
+      "reviewed": "Leo's decision, round 89, the English confirmed by Leo in round 92 as his \"B version\"; the line under the RAL input (decisions.md D15, round 92)"
+    },
+    "finish.ral.effect": {
+      "text": "Pearl, metallic and luminous colours cannot be shown on a screen.",
+      "approval": "read",
+      "reviewed": "Leo's decision, round 89, as recorded in Open items; the line under the RAL input while a pearl, metallic or luminous colour is on the doors (decisions.md D15, round 92)"
     }
   },
   "zh": {
@@ -697,6 +712,21 @@
       "text": "此位置是柱式组合，独立式冰箱不适用",
       "approval": "written",
       "reviewed": "Leo's own wording, round 89: a counter-depth refrigerator is not allowed in an opening in a bank of columns (decisions.md D16, round 89)"
+    },
+    "finish.ral.unknown": {
+      "text": "{code} 不是 RAL Classic 色号",
+      "approval": "written",
+      "reviewed": "Leo's own wording, round 89; the RAL input's line for a number that is not a Classic code (decisions.md D15, round 92)"
+    },
+    "finish.ral.approximate": {
+      "text": "屏幕颜色仅供参考，以实物色卡为准。",
+      "approval": "written",
+      "reviewed": "Leo's own wording, round 89; the line under the RAL input (decisions.md D15, round 92)"
+    },
+    "finish.ral.effect": {
+      "text": "珠光、金属和荧光色无法在屏幕上显示。",
+      "approval": "written",
+      "reviewed": "Leo's own wording, round 89; the line under the RAL input while a pearl, metallic or luminous colour is on the doors (decisions.md D15, round 92)"
     }
   }
 }

@@ -73,9 +73,11 @@ function Swatches({
  * A RAL number, typed. Round 33, Leo.
  *
  * The swatches are the quick picks; this is for the customer who arrives with a
- * number from a painter or a brochure. A number in `data/ral.json` paints the
- * doors that colour; anything else says why and changes nothing — a colour the
- * table does not have is not guessed at.
+ * number from a painter or a brochure. A RAL Classic number paints the doors
+ * that colour; anything else says why and changes nothing — a colour the table
+ * does not have is not guessed at. Under it, always, that a screen colour is an
+ * approximation; and, only while a pearl, metallic or luminous colour is on
+ * these doors, that a screen cannot show one (round 92, Leo).
  */
 function RalInput({
   which,
@@ -150,6 +152,15 @@ function RalInput({
       {error && (
         <p data-ral-error={which} className="mt-1 text-[11px] leading-snug text-[#8A2018]">
           {t(error.key, error.vars)}
+        </p>
+      )}
+      {/* The table is Wikipedia's approximations, not RAL's (round 92, Leo). */}
+      <p data-ral-approximate={which} className="mt-1 text-[11px] leading-snug text-ink-muted">
+        {t("finish.ral.approximate")}
+      </p>
+      {current?.effect && (
+        <p data-ral-effect={which} className="mt-0.5 text-[11px] leading-snug text-ink-muted">
+          {t("finish.ral.effect")}
         </p>
       )}
     </div>

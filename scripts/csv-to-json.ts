@@ -8,7 +8,7 @@
  * fails here rather than at runtime. See docs/data-sheet-spec.md.
  */
 
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import type { Appliance, Category, SlotId } from "../src/types.ts";
 import type { UnknownType } from "./normalise.ts";
 import { appliancesFileSchema, parseDataFile } from "../src/data/schema.ts";
@@ -118,6 +118,9 @@ const priceOrNull = (value: string | undefined) => {
   return Math.round(parsed);
 };
 
+/** The voltage cell: 240, or anything else reads as 120. */
+const voltageOf = (value: string | undefined): 120 | 240 => (Number(value) === 240 ? 240 : 120);
+
 /**
  * Convert parsed CSV rows into catalogue entries.
  *
@@ -205,7 +208,7 @@ export function convert(
     const id = toId(brand, model);
     const published = toPublished(model);
 
-    const voltage = Number(row.voltage) === 240 ? 240 : 120;
+    const voltage = voltageOf(row.voltage);
     const cfm = numberOrNull(row.cfm);
 
     appliances.push({
@@ -305,6 +308,113 @@ export function assertAccounted(summary: ConversionSummary): void {
   }
 }
 
+/**
+ * The fields filled in by hand in `showcase_specs` and looked up by Model
+ * (docs/data-sheet-spec.md), each with what a blank cell comes in as — worked
+ * out by the same parsers `convert` reads the cells with, not written again.
+ */
+const HAND_FILLED: {
+  field: string;
+  read: (appliance: Appliance) => unknown;
+  blank: (appliance: Appliance) => unknown;
+}[] = [
+  { field: "msrpUSD", read: (a) => a.msrpUSD, blank: () => priceOrNull("") },
+  { field: "sourceUrl", read: (a) => a.sourceUrl, blank: () => textOrNull("") },
+  { field: "verifiedAt", read: (a) => a.verifiedAt, blank: () => textOrNull("") },
+  { field: "cutoutWidthIn", read: (a) => a.cutoutWidthIn, blank: () => numberOrNull("") },
+  { field: "cutoutHeightIn", read: (a) => a.cutoutHeightIn, blank: () => numberOrNull("") },
+  { field: "cutoutDepthIn", read: (a) => a.cutoutDepthIn, blank: () => numberOrNull("") },
+  { field: "leadTimeWeeks", read: (a) => a.leadTimeWeeks, blank: () => numberOrNull("") },
+  {
+    field: "topDepthIn",
+    read: (a) => a.topDepthIn,
+    blank: (a) => (a.category === "hood" ? toDimension("") : null),
+  },
+  { field: "blower", read: (a) => a.blower, blank: (a) => toBlower(a.category, "") },
+  { field: "requires.voltage", read: (a) => a.requires.voltage, blank: () => voltageOf("") },
+  { field: "requires.amps", read: (a) => a.requires.amps, blank: () => numberOrNull("") },
+  { field: "requires.gasBTU", read: (a) => a.requires.gasBTU, blank: () => numberOrNull("") },
+  { field: "requires.water", read: (a) => a.requires.water, blank: () => toBoolean("") },
+  { field: "requires.cfm", read: (a) => a.requires.cfm, blank: () => numberOrNull("") },
+];
+
+export interface EmptiedModel {
+  brand: string;
+  model: string;
+  /** Each hand-filled field that had a value and comes in blank, with the value it had. */
+  fields: { field: string; was: unknown }[];
+}
+
+/**
+ * The checked models whose hand-filled cells came in blank.
+ *
+ * Round 92, Leo: T18IW100SP's price, source, check date, cutout and amps came
+ * in empty twice after edits to the sheet (rounds 87 and 90) — its
+ * `showcase_specs` lookup by Model finding nothing — and both times only a
+ * reading of the diff caught it. So for a model the committed file has
+ * checked (`verifiedAt`), any hand-filled field that had a value and now comes
+ * in as a blank cell does is reported here, field by field. A value changed to
+ * another value is an edit, and is not. A model the import no longer has at
+ * all is another check, registered beside the package's default model (Open
+ * items), not this one.
+ */
+export function emptiedCheckedModels(committed: Appliance[], imported: Appliance[]): EmptiedModel[] {
+  const byId = new Map(imported.map((appliance) => [appliance.id, appliance]));
+  const emptied: EmptiedModel[] = [];
+  for (const before of committed) {
+    if (before.verifiedAt === null) continue;
+    const after = byId.get(before.id);
+    if (!after) continue;
+    const fields = HAND_FILLED.filter(
+      (f) => f.read(before) !== f.blank(before) && f.read(after) === f.blank(after),
+    ).map((f) => ({ field: f.field, was: f.read(before) }));
+    if (fields.length > 0) emptied.push({ brand: before.brand, model: before.model, fields });
+  }
+  return emptied;
+}
+
+/**
+ * What the run may write, given what came in blank and the models named with
+ * `--allow-empty=MODEL` (Leo, round 92: the model has to be named, and the
+ * result prints it). Throws on a model that came in blank and was not named,
+ * and on a named model the committed file does not have — a typo is not a
+ * permission. Gives back the lines the run prints for the named ones.
+ */
+export function assertHandFilledKept(
+  emptied: EmptiedModel[],
+  allowed: string[],
+  committed: Appliance[],
+): string[] {
+  const same = (a: string, b: string) => a.toUpperCase() === b.toUpperCase();
+  const strangers = allowed.filter((model) => !committed.some((a) => same(a.model, model)));
+  if (strangers.length > 0) {
+    throw new Error(
+      `--allow-empty names ${strangers.join(", ")}, which the committed data/appliances.json does not have`,
+    );
+  }
+  const line = (e: EmptiedModel) =>
+    `  ${e.brand} ${e.model}: ` +
+    e.fields.map((f) => `${f.field} (was ${JSON.stringify(f.was)})`).join(", ");
+  const stopped = emptied.filter((e) => !allowed.some((model) => same(e.model, model)));
+  if (stopped.length > 0) {
+    throw new Error(
+      [
+        `hand-filled cells came in blank for ${stopped.length} checked model(s), ` +
+          "each with a verifiedAt in the committed data/appliances.json:",
+        ...stopped.map(line),
+        "Most likely the showcase_specs lookup by Model found nothing for it (docs/data-sheet-spec.md).",
+        "Mend the sheet; or, if emptying them is meant, run again with --allow-empty=MODEL for each model.",
+      ].join("\n"),
+    );
+  }
+  return allowed.map((model) => {
+    const found = emptied.find((e) => same(e.model, model));
+    return found
+      ? `allowed to come in blank (--allow-empty):\n${line(found)}`
+      : `--allow-empty=${model}: nothing of it came in blank`;
+  });
+}
+
 export function formatSummary(summary: ConversionSummary, verbose = false): string {
   // The skipped total is on the first line, so the line read on its own closes.
   const lines = [
@@ -353,9 +463,14 @@ function main() {
   const args = process.argv.slice(2);
   const verbose = args.includes("--verbose");
   const input = args.find((arg) => !arg.startsWith("--"));
-  if (!input) {
+  // --allow-empty=MODEL, once per model. A bare --allow-empty names nothing and
+  // is refused, never read as "allow everything" (Leo, round 92).
+  const allowEmpty = args
+    .filter((arg) => arg === "--allow-empty" || arg.startsWith("--allow-empty="))
+    .map((arg) => arg.slice("--allow-empty=".length).trim());
+  if (!input || allowEmpty.some((model) => model === "")) {
     console.error(
-      "usage: npm run import:csv -- path/to/showcase_export.csv [--verbose]",
+      "usage: npm run import:csv -- path/to/showcase_export.csv [--verbose] [--allow-empty=MODEL ...]",
     );
     process.exit(1);
   }
@@ -387,6 +502,28 @@ function main() {
     process.exit(1);
   }
 
+  // Read before anything is written: a checked model's hand-filled cells may
+  // not come in blank unless the run names it (round 92).
+  const committed = existsSync("data/appliances.json")
+    ? parseDataFile(
+        appliancesFileSchema,
+        JSON.parse(readFileSync("data/appliances.json", "utf8")),
+        "data/appliances.json",
+      ).appliances
+    : [];
+  let allowedLines: string[];
+  try {
+    allowedLines = assertHandFilledKept(
+      emptiedCheckedModels(committed, result.appliances),
+      allowEmpty,
+      committed,
+    );
+  } catch (error) {
+    console.log(formatSummary(result.summary, verbose));
+    console.error(`\n${(error as Error).message}\nnothing written\n`);
+    process.exit(1);
+  }
+
   const file = {
     _meta: {
       generatedBy: `scripts/csv-to-json.ts from ${input}`,
@@ -405,6 +542,7 @@ function main() {
   writeFileSync("data/appliances.json", `${JSON.stringify(file, null, 2)}\n`, "utf8");
 
   console.log(formatSummary(result.summary, verbose));
+  for (const line of allowedLines) console.log(`\n${line}`);
   console.log(`\nwrote data/appliances.json`);
 }
 
