@@ -146,12 +146,23 @@ describe("the model line", () => {
 
         const all: (Line & { at: string })[] = [];
         let onCard = 0;
+        // Round 88: on a desktop the card does not show while the list rail is
+        // open (D12, round 88), so the card's lines and the alternatives' are
+        // read one after the other — the card with the rail folded, then the
+        // list with it open — rather than together. The rule held is unchanged.
+        const rail = page.locator('button[data-rail="left"]').first();
+        const toggleRail = async () => {
+          const r = (await rail.boundingBox())!;
+          await page.mouse.click(r.x + r.width / 2, r.y + r.height / 2);
+          await page.waitForTimeout(600);
+        };
         const rows = await page.locator('[data-panel="list"] ul li button').count();
         for (let i = 0; i < rows; i += 1) {
           await row(i).scrollIntoViewIfNeeded();
           const box = (await row(i).boundingBox())!;
           await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
           await page.waitForTimeout(700);
+          await toggleRail();
           // The folded models too: they are laid out only when opened.
           const toggle = page.locator("[data-model-card] [data-card-refused-toggle]");
           if (await toggle.count()) {
@@ -160,6 +171,9 @@ describe("the model line", () => {
             await page.waitForTimeout(200);
           }
           onCard += await page.locator("[data-model-card] [data-model-line]").count();
+          const onTheCard = await readLines(page);
+          all.push(...onTheCard.map((line) => ({ ...line, at: `#${i + 1} card` })));
+          await toggleRail();
           const lines = await readLines(page);
           all.push(...lines.map((line) => ({ ...line, at: `#${i + 1}` })));
           const back = page.getByRole("button", { name: /All appliances|全部家电/ }).filter({ visible: true }).first();

@@ -103,8 +103,14 @@ describe("the model card", () => {
   const MACHINES: Record<string, number> = { A: 6, B: 6, C: 6, D: 10, E: 8 };
 
   for (const pkg of PACKAGES) {
+    // Round 88: on a desktop the card does not show while the list rail is
+    // open (D12, round 88), so the two can no longer be read at once. Each
+    // machine is picked in the rail, the rail folded and the card read, then
+    // the rail opened and the list read, and the two compared. What is held is
+    // unchanged — the same models, refused the same way.
     it(`offers what the list offers, for every machine in package ${pkg}, on a desktop`, async () => {
       const s = await open(false);
+      const rail = s.page.locator('button[data-rail="left"]').first();
       await press(s, button(s, "Appliances"));
       await s.page.waitForTimeout(600);
       await press(s, button(s, pkg));
@@ -116,7 +122,11 @@ describe("the model card", () => {
       for (let i = 0; i < rows; i += 1) {
         await press(s, s.page.locator('[data-panel="list"] ul li button').nth(i));
         await s.page.waitForTimeout(900);
+        await press(s, rail);
+        await s.page.waitForTimeout(600);
         const card = await cardModels(s);
+        await press(s, rail);
+        await s.page.waitForTimeout(600);
         const list = await listModels(s);
         machines += 1;
         compared += list.length;

@@ -302,8 +302,17 @@ describe("desktop", () => {
     await page.waitForTimeout(1200);
     const boxBefore = await rangeBox();
     // The model card names the machine selected (round 82; it was the small
-    // "View specs" card before).
-    const current = () => page.locator("[data-model-card] [data-model-line]").first().innerText();
+    // "View specs" card before). Since round 88 it does not show on a desktop
+    // while the list rail is open (D12, round 88), so it is read with the rail
+    // folded, and the rail opened again for the pick below.
+    const current = async () => {
+      await page.click(`button[data-rail="left"]`);
+      await page.waitForTimeout(500);
+      const named = await page.locator("[data-model-card] [data-model-line]").first().innerText();
+      await page.click(`button[data-rail="left"]`);
+      await page.waitForTimeout(500);
+      return named;
+    };
     const specBefore = await current();
 
     // Whatever the catalogue holds today, pick a candidate that is not the one

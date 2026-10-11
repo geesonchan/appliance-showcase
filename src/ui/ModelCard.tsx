@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useIsMobile } from "../hooks/useIsMobile";
 import { slotAvailability } from "../data/availability";
 import { candidatesFor, type Candidate } from "../data/candidates";
 import { SLOT_ORDER } from "../data/catalogue";
@@ -37,12 +38,21 @@ import { FitNotes } from "./SwapPanel";
  *   again (Leo, round 80; D13 round 79).
  * - Pin labels keep clear of it (`data-pin-keep-out`). It moves no camera (D1).
  * - On a phone it hides while the sheet is open, which covers it, and comes
- *   back when the sheet closes (Leo, round 82). On a desktop it stays with the
- *   list rail open (Leo, round 82): the card is the way in, the rail the detail.
+ *   back when the sheet closes (Leo, round 82).
+ * - **On a desktop it sits at the left of the scene** (Leo, round 88, from use:
+ *   bottom centre it covered the machine it is about). Over the scene's top
+ *   left corner, 16px in, 260px wide — the list rail's width — and in no
+ *   column, so the canvas and the camera are as they were (D1 unchanged). As
+ *   tall as what it holds, never past the scene's foot less 16px, and scrolling
+ *   inside itself past that; the models one under another. **With the list
+ *   rail open it does not show** — the models are in one place at a time — and
+ *   comes back, on the same machine, when the rail folds. This reverses round
+ *   82's "on a desktop it stays with the list rail open". D12, round 88.
  */
 export function ModelCard() {
   const t = useT();
   const say = useRefusalText();
+  const phone = useIsMobile();
   const selectedSlot = useAppStore((s) => s.selectedSlot);
   const sheetOpen = useAppStore((s) => s.mobilePanel !== "none");
   const selection = useSelection();
@@ -96,7 +106,11 @@ export function ModelCard() {
           data-fits={fit.fits}
           onClick={() => selectAppliance(selectedSlot, appliance.id)}
           className={[
-            "flex h-full w-[168px] flex-col items-stretch rounded-md border px-2.5 py-2 text-left transition-colors",
+            // A phone lays the models side by side; a desktop one under another,
+            // each the card's width (round 88).
+            phone
+              ? "flex h-full w-[168px] flex-col items-stretch rounded-md border px-2.5 py-2 text-left transition-colors"
+              : "flex w-full flex-col items-stretch rounded-md border px-2.5 py-2 text-left transition-colors",
             selected
               ? "border-accent bg-[rgba(46,92,69,0.07)]"
               : blocked
@@ -118,6 +132,110 @@ export function ModelCard() {
       </li>
     );
   };
+
+  const notes = (
+    <>
+      {narrow && (
+        <p data-card-narrow className="mt-2 text-[11px] leading-snug text-[#8A4B12]">
+          {say(narrow.messageKey, narrow.params ?? {})}
+        </p>
+      )}
+      {unavailable && (
+        <p className="mt-2 text-[11px] leading-snug text-ink-muted">
+          <span className="font-medium text-ink">{t("swap.unavailable")}</span>{" "}
+          {t(availability.reasonKey!, { takenBy: availability.takenBy! })}
+        </p>
+      )}
+    </>
+  );
+
+  if (!phone) {
+    // The list rail is where the models are while it is open (round 88).
+    if (leftOpen) return null;
+    return (
+      <div
+        data-pin-keep-out
+        data-model-card={selectedSlot}
+        className={[
+          "pointer-events-auto absolute left-4 top-4 z-20 flex max-h-[calc(100%-32px)] w-[260px] flex-col",
+          "rounded-lg border border-line bg-surface shadow-[0_8px_24px_rgba(31,42,34,0.14)]",
+        ].join(" ")}
+      >
+        <div className="shrink-0 px-3 pt-3">
+          <div className="flex items-start justify-between gap-2">
+            <p data-card-title className="tracking-label min-w-0 truncate pt-1.5 text-[9px] text-ink-muted">
+              {String(number).padStart(2, "0")} · {t(slot.labelKey)}
+            </p>
+            <button
+              type="button"
+              data-card-close
+              onClick={() => selectSlot(null)}
+              aria-label={t("mobile.close")}
+              className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-[13px] text-ink-muted hover:text-ink"
+            >
+              ×
+            </button>
+          </div>
+          {/* Brand · model and the width beside it: the model is never cut,
+              the brand gives way first, and the width drops to a line of its
+              own when the two do not fit (D12, rounds 79 and 82). */}
+          <div data-card-model className="flex flex-wrap items-baseline gap-x-2">
+            <ModelLine className="min-w-0 max-w-full text-[14px] text-ink" brand={current.brand} model={current.model} />
+            <span data-card-width className="shrink-0 whitespace-nowrap text-[11px] tabular-nums text-ink-muted">
+              {formatDimension(listWidth(current, slot).modelIn)}
+            </span>
+          </div>
+          <button
+            type="button"
+            data-card-specs
+            onClick={() => openSpec(selectedSlot)}
+            className="mt-1.5 flex items-center gap-1 whitespace-nowrap text-[12px] font-medium text-accent transition-opacity hover:opacity-80"
+          >
+            {t("scene.enter")}
+            <span aria-hidden="true">→</span>
+          </button>
+          {notes}
+          <p data-card-models-label className="tracking-label mb-2 mt-3 whitespace-nowrap text-[9px] text-ink-muted">
+            {t("card.models", { count: fitting.length })}
+          </p>
+        </div>
+
+        <div data-card-scroll className="min-h-0 overflow-y-auto px-3 pb-3">
+          <ul className="flex flex-col gap-2">{fitting.map(chip)}</ul>
+
+          {fitting.length <= 1 && refused.length === 0 && (
+            <p className="mt-2 text-[11px] text-ink-muted">{t("swap.noneOther")}</p>
+          )}
+
+          {refused.length > 0 && (
+            <>
+              <button
+                type="button"
+                data-card-refused-toggle
+                aria-expanded={refusedOpen}
+                onClick={() => setShowRefused(refusedOpen ? null : selectedSlot)}
+                className="mt-2 text-left text-[11px] text-ink-muted underline-offset-2 hover:text-ink hover:underline"
+              >
+                {refusedOpen ? t("card.hideRefused") : t("card.moreRefused", { count: refused.length })}
+              </button>
+              {refusedOpen && <ul className="mt-2 flex flex-col gap-2">{refused.map(chip)}</ul>}
+            </>
+          )}
+        </div>
+
+        <div className="shrink-0 border-t border-line px-3 py-2">
+          <button
+            type="button"
+            data-card-details
+            onClick={details}
+            className="whitespace-nowrap text-[11px] font-medium text-accent transition-opacity hover:opacity-80"
+          >
+            {t("card.details")}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -162,17 +280,7 @@ export function ModelCard() {
         </div>
       </div>
 
-      {narrow && (
-        <p data-card-narrow className="mt-2 text-[11px] leading-snug text-[#8A4B12]">
-          {say(narrow.messageKey, narrow.params ?? {})}
-        </p>
-      )}
-      {unavailable && (
-        <p className="mt-2 text-[11px] leading-snug text-ink-muted">
-          <span className="font-medium text-ink">{t("swap.unavailable")}</span>{" "}
-          {t(availability.reasonKey!, { takenBy: availability.takenBy! })}
-        </p>
-      )}
+      {notes}
 
       <div className="mb-2 mt-3 flex items-baseline justify-between gap-3">
         <span className="tracking-label text-[9px] text-ink-muted">

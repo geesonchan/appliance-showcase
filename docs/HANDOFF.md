@@ -12,7 +12,7 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **round 87** (`docs/decisions.md` is the record of
+Covers the repository up to **round 88** (`docs/decisions.md` is the record of
 rounds; `git log` is the record of commits). It replaces the v1–v9 briefs that
 were pasted into chat.
 
@@ -58,7 +58,7 @@ every figure of it, is `data/packages.json`; D16 and D20 say how a package is
 put together and why E was built the way it was. **Do not copy those numbers
 anywhere**: the file is the one source, and the tests read it.
 
-### Where it stands (round 87)
+### Where it stands (round 88)
 
 - **All five packages are live.** Rounds 73–79 and 81–87 each shipped (round
   80 built nothing), and each was checked against the live page's asset hashes
@@ -90,8 +90,7 @@ anywhere**: the file is the one source, and the tests read it.
   wine column under the island's top, from Leo using package A (**done**, D20
   round 86); round 87 an insert hood with its housing and every hood swap
   following the hood, B's and D's housing made 36" (**done**, D16 and D13
-  round 87, from Leo using package A); 88 the model card covering the
-  machine, a plan first; 89 the 36" chimney hood HMCB36WS; 90 the right panel's
+  round 87, from Leo using package A); 88 the model card at the left of the scene on a desktop (**done**, D12 round 88; the phone's later); 89 the 36" chimney hood HMCB36WS; 90 the right panel's
   tabs, the `Slider` warning and the "MT" chip over "E" on a Chinese phone;
   then a hood's own outlet, then 79a (the doors of the
   cabinet over the hood and the outlet shown in it), then 79b. The 30" option

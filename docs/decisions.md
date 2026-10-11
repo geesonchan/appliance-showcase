@@ -1385,7 +1385,8 @@ sketches and Leo's decisions are `docs/plans/round-80-interface-plan.md`
   purpose, it went red on every row.
 - **On a phone the card hides while the sheet is open** and comes back when it
   closes; **on a desktop it stays with the list rail open** (Leo): the card is
-  the way in, the rail the detail.
+  the way in, the rail the detail. *Reversed for the desktop in round 88
+  (below): with the list rail open the card does not show.*
 - **A toast goes to the top of the scene while the card is up** (Leo approved
   it from the screenshots). Found by `tests/modelCard.test.ts`: the room-grew
   message, up twenty seconds with its Undo, covered the card's last row when a
@@ -1411,6 +1412,109 @@ sketches and Leo's decisions are `docs/plans/round-80-interface-plan.md`
   desktop by mouse and on a phone by touch; a pick from the card is a pick from
   the list; the narrow-hood line is the checklist's; one model, nothing folded;
   the pins do not move; no pin label on the card; no toast on the card.
+
+**Amended 2026-10-10 (round 88), Leo: on a desktop the model card is at the
+left of the scene.** From Leo using round 87 (a screenshot of package B's hood
+flown to): bottom centre, the card filled the lower half of the scene, over the
+machine it is about, so a model changed on it could not be seen changing. The
+plan's three ways and their costs were in round 87's report; Leo narrowed it to
+the desktop, where the shop shows, and the phone's is registered for later (Open
+items). Sketched first at 1440 x 900, the list rail folded and open.
+- **Where.** From 768px wide, over the scene's top left corner, **16px in from
+  the left and the top, 260px wide** — the list rail's width (`LIST_RAIL_PX`).
+  Laid over the scene, in no column: the canvas keeps its width, the camera is
+  not moved, **D1 is not changed** (no fly-in aimed past the card).
+- **How tall.** As tall as what it holds — E's coffee machine, one model, is a
+  short card; B's hood, six, a taller one — and never past the scene's foot
+  less 16px; past that the models scroll inside the card, the title and
+  "Details in the list ›" staying put. The tallest card today is A's microwave
+  drawer with its five refused models open, 756-1/2px: at 1440 x 900 (a scene
+  844px tall) it ends 71px above the foot and has nothing to scroll; on a 1366
+  x 768 laptop (712px) it is held at 680px and scrolls 76px.
+- **What is on it, in order.** The number and the machine, with the close
+  button on that line; brand · model and its width; "View specs →"; "MODELS FOR
+  THIS OPENING · N" on a line of its own; the models one under another, each
+  the card's width, each with its width, brand · model and what it needs, as
+  before; the folded "N more don't fit"; and at the foot "Details in the list
+  ›". Brand · model is `ModelLine`, so round 82's rule holds unchanged: the
+  model is never cut, the brand gives way first, and the width drops to a line
+  of its own. The models are `candidatesFor`'s and nothing else's (D17's table,
+  first row: no third judgement).
+- **With the list rail open the card does not show** (Leo, round 88), so the
+  models are in one place at a time; when the rail folds it comes back on the
+  same machine. "Details in the list ›" opens the rail, and the card goes with
+  it. **This reverses round 82's "on a desktop it stays with the list rail
+  open".**
+- **Not changed:** the phone (the card, its place and its hiding under the
+  sheet are as round 82 left them); the camera; the pin labels' keep-out
+  (`data-pin-keep-out`, which the card still carries, so a label under the card
+  moves off it, as before); where a toast goes.
+- **The machine is clear of the card.** Every machine in every package (36),
+  picked in the list rail with the mouse, the rail folded and the fly-in
+  settled: its meshes projected through the camera of the last render (a hook
+  on three.js's devtools announcement, outside the app) leave its left edge
+  right of the card's right edge. Closest: E's island hood (385px against the
+  card's 312px) and A's refrigerator (390px), measured at the same camera on
+  round 87's build in the red run.
+- ⚠️ **On a narrow desktop the card lies over the controls centred in the
+  scene.** Found in round 88, not changed (the controls and the toast were
+  outside the round; Leo, round 88: registered, not this round). The card ends at 312px from the page's
+  left at every width; the render-mode switch at the top and the toolbar and
+  hint at the foot are centred in the scene, so they move left as the window
+  narrows. **The mode switch** ("Materials · White model · Install"), with any
+  machine selected: covered at its left end below about 1,090px wide (its left
+  edge at 307px at 1080, 279px at 1024, 151px at 768; clear at 317px at 1100
+  and beyond). **The toolbar and the hint**, only by a card tall enough to
+  reach the foot: at 1024 x 768 they start at 230px and 259px. At 1366 and
+  1440 everything is clear. The card is drawn over them. Open items.
+- **Measured** (D17's third way: round 87's code, `index-BC2MBIj-.js`, the live
+  page's own, against round 88's, `index-By7700RO.js`, each served from a copy
+  of its build; the mouse at 1440 x 900, a finger at 390 x 844, `?quality=high`;
+  each build shot twice, and a third time where its two runs disagreed).
+  - **The five packages as they open, desktop and phone: 0 pixels**, but the
+    one pixel by 1-2 levels at (144, 225) that also differs between runs of one
+    build. The second new run of B on the phone came out 98,671 and 152,269
+    pixels off its first, over the whole room and mostly by a few levels (the
+    wash in Open items); its third run matched the first and the old build's
+    to the pixel.
+  - **The hood flown to on a phone: 0 pixels**, every package.
+  - **The hood flown to on a desktop: changed inside the old card's box and the
+    new one's, and two other things.** First, the pin labels the old card had
+    pushed aside, or the new one pushes: B's "04 Dishwasher", D's "07 Coffee
+    machine" and "09 Second dishwasher", a leader line each in A and E (476,
+    2,134, 303 and 448 pixels). That is the labels' keep-out (round 82)
+    answering the card where it now is, as it is meant to. Second, rings of 1-2
+    levels round the middle of the scene in B, C and E, about 18,000-20,000
+    pixels: the vignette, an HTML gradient laid over the canvas, which the
+    browser draws a level differently once the card has moved. **Zeroed, not
+    explained:** with the vignette and the pin layer hidden on both sides for
+    the shot, all five fly-ins are 0 pixels outside the two cards' boxes (each
+    grown 40px for the card's shadow), in both pairs of runs, and each build's
+    two runs agree to the pixel. A first set of those runs hid the pins before
+    the hood was clicked, so no card was ever opened; it was deleted, not used.
+    Before and after: `docs/fixes/round-88-{A..E}-desktop-hood-before-after.png`.
+- **Tests.** `tests/modelCardSide.test.ts`, thirteen cases, the mouse at 1440 x
+  900 unless named: per package, every machine — 16px in, 260px wide, inside
+  the scene, clear of the machine; E's coffee card below B's hood card and well
+  clear of the foot; A's microwave drawer with its refused models open inside
+  the scene, and at 1366 x 768 held 16px above the foot and scrolling; the card
+  gone with the rail open and back on the same machine; "Details in the list ›"
+  opening the rail; every row of the card on one line and brand · model to
+  round 82's rule, every machine in English and in Chinese, and with the card
+  narrowed in the test until the brand gives way; and the pins byte-identical
+  after the rail opens and folds and after the card is closed (D1). All
+  thirteen red on round 87's build, `index-BC2MBIj-.js`, each for the reason it
+  names (the rows case because the old card has none of the new rows), and
+  green on round 88's, `index-By7700RO.js`. The line count in the rows case groups a
+  line's boxes by where they overlap: its first version counted the arrow after
+  "View specs" as a second line, and the fixed one, with a wrap forced on
+  purpose, counted three and four. The pins' check was the one part green on
+  the old build as well, as it must be — the old card simply never left.
+  `modelCard.test.ts` and `modelLine.test.ts` read the card and the list one
+  after the other now — the card with the rail folded, then the list with it
+  open — where they read both at once; what they hold is unchanged. So does
+  the smoke test "swaps a model in place", which read the card with the rail
+  open. The phone cases are unchanged.
 
 ---
 
@@ -5035,8 +5139,16 @@ Registered, not scheduled. None of these is a round of its own.
     no longer finds that model (D4, data-sheet-spec.md: keyed by Model).
     Round 89 checks it with `--verbose` before anything is written, and stops
     on it, as Leo asked. The import is kept outside the repository, unread
-    into it, until then.
-- **The model card covers the machine it is about.** *(Leo, round 87, from
+    into it, until then: **`C:\Users\leoch\Documents\showcase-staging\`**,
+    `appliances.imported-2026-10-10.json` (45,467 bytes, SHA-256
+    `ecbc3a2a…63a2a`) and `appliances.import.diff` (its diff against the
+    committed file). *(Moved there in round 88 from a session's temporary
+    folder, Leo; the files' hashes checked the same after the move.)* If it is
+    not there, round 89 imports again from
+    `C:\Users\leoch\Downloads\showcase_export.csv`.
+- **The model card covers the machine it is about.** *Desktop: done in round
+  88 (D12, round 88) — the card at the left of the scene. The phone is the next
+  entry.* *(Leo, round 87, from
   use, with a screenshot of package B's hood flown to: the card fills the
   lower half of the scene, so a model changed on it cannot be seen changing.
   Before the right panel's tabs and before HMCB36WS: round 88, a plan
@@ -5046,6 +5158,65 @@ Registered, not scheduled. None of these is a round of its own.
     still the fly-in D1 allows, not a fourth reason to move the camera;
   - a lower card, or one that folds itself away after a model is chosen;
   - on a desktop, the card at the side of the scene.
+  - *Narrowed by Leo after the plan (round 87's report): the shop shows on a
+    desktop.* Round 88 is the desktop only: the card at the left of the scene,
+    the camera not moved and D1 not changed, its models read from
+    `candidatesFor` and nothing else; with the list rail open the card does
+    not show, so the models are in one place at a time. Sketches first
+    (1440 x 900, two: the list rail folded and open), then the plan. *The two
+    sketches were made in round 87's session, on `index-BC2MBIj-.js`, and Leo
+    settled the plan from them in conversation before round 88; what was built
+    is D12, round 88.*
+- **On a narrow desktop the model card lies over the render-mode switch, and a
+  full-height one over the toolbar.** *(Found round 88, not changed: the
+  controls and the toast were outside the round; Leo, round 88: registered, not this round.)* The card is
+  260px at 16px in (D12, round 88) and ends at 312px from the page's left; the
+  mode switch, the toolbar and the hint are centred in the scene. Measured on
+  `index-By7700RO.js`, Configuration open, a machine selected: the mode
+  switch's left edge is at 151px at 768 wide, 279px at 1024 and 307px at 1080
+  — covered — and 317px at 1100, clear from there up. At 1024 x 768 the
+  toolbar starts at 230px and the hint at 259px, so a card reaching the
+  scene's foot (A's microwave drawer with its five refused models open)
+  covers the toolbar's left end too; a shorter card does not. At 1366 and
+  1440 all of it is clear. At 1024 the scene's middle, where a machine flown
+  to stands, is also only about 100px right of the card. Screenshot:
+  `docs/open-items/round-88-1024-card-over-toolbar.png`.
+- **A pin label can stay under a full-height model card.** *(Leo, round 88,
+  from trying it full screen on his machine, with a screenshot; registered, not
+  this round.)* Package A with the range selected: the card holds five models
+  and runs the scene's whole height, and "01 Refrigerator" stood under it, only
+  its last letters, "or", showing past the card's right edge. *Read from the
+  code, not measured:* a label only ever moves up or down, never sideways
+  (`layoutPins`, pinLayout.ts — its X is what says which machine it names); a
+  card from 16px under the scene's top to 16px over its foot blocks every
+  height at that X, so `nearestFree` finds no place inside the canvas and
+  leaves the label where it was, under the card (the card is drawn over the
+  labels). A shorter card leaves room above or below it, as in round 88's
+  pictures, where labels were pushed off the card.
+- **Where a desktop becomes a phone: 768 CSS pixels, not the window's own
+  pixels.** *(Leo, round 88: with the browser at half his screen, "about
+  1200px", the page was the phone layout — the Appliances and Configure
+  buttons at the foot and the model card across the bottom; registered, not
+  this round.)* The line is Tailwind's own `md`, 768px (`tailwind.config.js`
+  does not change it): every `md:` class switches there, and the code that
+  asks in script says the same — `useIsMobile` (`max-width: 767px`), which the
+  model card and the camera read, and the same query in `ModelCard.tsx`,
+  `SceneControls.tsx` and the render tier (`useAppStore.ts`). A CSS pixel is
+  the window's width in screen pixels divided by the display scaling and the
+  browser's zoom together (`devicePixelRatio`). In Leo's two screenshots the
+  card, 260 CSS pixels, measures about 372 screenshot pixels, about 1.43 to
+  one; the half-screen page is about 997 screenshot pixels wide, so about 697
+  CSS pixels — under 768, so the phone layout. (The screenshots may be scaled
+  themselves; the page's own `window.innerWidth` is the exact figure.) Whether
+  a half-screen window on that machine should get the desktop layout is
+  Leo's to decide; nothing was changed.
+- **On a phone, the model card folds away once a model is chosen.** *(Leo,
+  round 87: registered, later; not round 88.)* The card takes 155-238px of a
+  390 x 844 phone, from 35% to 45% of the canvas height up from the bottom,
+  over the machine it is about (measured on the live build, round 87,
+  `index-BC2MBIj-.js`). Opened in full when a machine is selected, so a
+  customer still sees that it can be changed (round 80), and folded to one
+  line after a pick.
 - **PRG366WH's installation manual, to come into `docs/reference/`.** *(Leo,
   round 83.)* It is to give the anti-tip bracket's position (the line is on the
   checklist from Leo's site practice; nothing is drawn for it yet) and the
@@ -5095,6 +5266,26 @@ Registered, not scheduled. None of these is a round of its own.
       changed, which a live WebGL canvas does not repeat to the pixel on a busy
       machine. It now asserts what that meant — the refused chip is a disabled
       button, and the selection the room is drawn from is unchanged.
+- **A tap on the phone card's liner that rebuilt nothing, once.** *(Round 88,
+  cause not found.)* Round 88's first full `npm test` ended 2,500 of 2,501,
+  exit code 1: `tests/fadeRebuild.test.ts`, "changing the hood to an insert
+  with its housing, on a phone with touch" — `rebuilt: false`, no room rebuilt
+  after the tap on VCIN36GWS's chip, and so nothing to check (`solidRenders:
+  0`). The same path passed on the desktop and on the phone slowed four times
+  in that run; the file alone passed 21 of 21; the whole suite run again passed
+  2,501 of 2,501, exit code 0. Round 88 changed nothing on the phone (the card
+  there is round 82's markup). Not looked into further.
+- **The browser suite's own preview server outlives the run.** *(Found round
+  88, not changed.)* `tests/globalSetup.ts` starts `vite preview --port 4174`
+  through `npx` with `shell: true`, and its teardown, `server.kill()`, ends the
+  shell and not Vite. After round 88's first run of one browser file, Vite
+  was still listening on 4174 (its own process, `vite preview --port 4174
+  --strictPort`), serving `dist/` — which the next step rebuilt. It was ended
+  by its process id, as D17 asks of a preview server (round 87). Not yet
+  checked: what the next run does when 4174 is still taken (`--strictPort`
+  refuses the new server, and `waitForServer` would then find the old one), and
+  whether an old server serves a rebuilt `dist/` correctly. Until it is fixed:
+  check 4174 after every browser run and end what is left there.
 - **A package whose own range is missing from the catalogue.** *(Round 83, not
   changed.)* What the run stands under the cooking surface reads the package's
   default range from the data when none has been chosen; if that model left the
@@ -5218,7 +5409,10 @@ Registered, not scheduled. None of these is a round of its own.
        and the other hood install swaps checked (Leo, round 86; the entry
        above), *done in round 87* (D16, round 87), with B's and D's housing
        made 36" (Leo). **Round 88**: the model card covering the machine it
-       is about, a plan first (Leo, round 87; the entry above). **Round 89**:
+       is about, a plan first (Leo, round 87; the entry above), narrowed by
+       Leo to the desktop, *done in round 88* (D12, round 88): the card at
+       the left of the scene; the phone's card folding away is registered
+       for later (the entry above). **Round 89**:
        the 36" chimney hood HMCB36WS (Leo, round 87; the entry above). **Round
        90**: the right panel's tabs, the `Slider` warning, and the "MT" chip
        over "E" on a Chinese phone (Leo, round 85, moved back by Leo in rounds
