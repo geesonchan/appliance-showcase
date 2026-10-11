@@ -107,38 +107,78 @@ export function hoodProfile(
  *
  * The assembly has its own travel. Past the top of it the manufacturer sells an
  * extension, and a room that needs one has to say so on the install list rather
- * than draw a chimney that does not exist. Figures from Leo's round-17 note
- * against HMCB30WS.
+ * than draw a chimney that does not exist.
+ *
+ * **Each model's own figures, from its own sheet** (round 90, Leo: HMCB36WS's
+ * are read from its sheet, not carried over from the 30"). Until round 90 these
+ * were one constant, HMCB30WS's, which any chimney hood would have been drawn
+ * with. The two sheets give the same chimney; each entry cites the one it was
+ * read from. A chimney hood with no entry is refused loudly (`chimneyOf`).
  */
-export const CHIMNEY = {
-  widthIn: 13.1875,
-  depthIn: 10.75,
+export interface ChimneyFigures {
+  /** The cover's cross-section. */
+  widthIn: number;
+  depthIn: number;
   /**
-   * How much bigger the outer section is than the inner, all round.
-   *
-   * Nearly nothing: the two read as one flue with a joint in it, not as a
-   * stepped stack. The drawing gives one cross-section for both.
+   * The canopy's underside to the top of the chimney, as the sheet rates it:
+   * the shortest and the longest. Under a ceiling higher than the clearance
+   * over the cooking surface plus the longest, the canopy goes up rather than
+   * the chimney being drawn past what it is rated for (D19).
    */
-  stepIn: 0.25,
-  /**
-   * One section's height, and therefore the whole assembly collapsed.
-   *
-   * Read off docs/reference/hmcb30ws-spec.png: its 30-42" is measured from the
-   * canopy's *underside* to the top of the chimney, and the canopy is 8-9/16"
-   * of that. So collapsed the chimney shows 30 - 8-9/16 = 21-7/16", which is
-   * the outer section with the inner entirely inside it.
-   *
-   * What the assembly can cover is therefore one section at the bottom and two
-   * nearly fully drawn apart at the top — not the sheet's 30-42, which is the
-   * rated installation range for an 8' to 9' ceiling rather than the travel of
-   * the part.
-   */
-  sectionIn: 30 - 8.5625,
+  reachIn: readonly [number, number];
   /** The extension a taller room needs. */
-  extension: "CHXTHMCB",
-  /** The grille across the top of each side, from the drawing's 5-1/2". */
-  vent: { heightIn: 5.5, fromTopIn: 1 },
+  extension: string;
+  /** The grille across the top of each side: its height, and how far under the top (a display figure). */
+  vent: { heightIn: number; fromTopIn: number };
+  /** The sheet it was read from. */
+  source: string;
+}
+
+export const CHIMNEYS: Record<string, ChimneyFigures> = {
+  // docs/reference/hmcb30ws-spec.png (Leo's round-17 note against it).
+  HMCB30WS: {
+    widthIn: 13.1875,
+    depthIn: 10.75,
+    reachIn: [30, 42],
+    extension: "CHXTHMCB",
+    vent: { heightIn: 5.5, fromTopIn: 1 },
+    source: "docs/reference/hmcb30ws-spec.png",
+  },
+  // docs/reference/hmcb36ws-spec.pdf: p. 2, the cover 13-3/16" x 10-3/4", the
+  // 5-1/2" grille, 30"-42" from the canopy's underside to the top; p. 1-2,
+  // CHXTHMCB for up to 12' ceilings. Round 90. (p. 1's "Height of the Chimney
+  // 25"-27"" does not square with 30"-42" less the 8-9/16" canopy and is not
+  // used; Open items.)
+  HMCB36WS: {
+    widthIn: 13.1875,
+    depthIn: 10.75,
+    reachIn: [30, 42],
+    extension: "CHXTHMCB",
+    vent: { heightIn: 5.5, fromTopIn: 1 },
+    source: "docs/reference/hmcb36ws-spec.pdf",
+  },
 };
+
+/**
+ * How much bigger the outer section is than the inner, all round. Nearly
+ * nothing: the two read as one flue with a joint in it, not as a stepped
+ * stack. The drawings give one cross-section for both, so this is a display
+ * figure, the same for every model.
+ */
+export const CHIMNEY_STEP_IN = 0.25;
+
+/**
+ * A chimney hood's cover, with one section's height worked out: the sheet's
+ * shortest reach less the canopy's own height (its `heightIn`, from the same
+ * sheet), which is the assembly collapsed — the outer section with the inner
+ * entirely inside it. HMCB30WS: 30 - 8-9/16 = 21-7/16".
+ */
+export function chimneyOf(hood: Pick<Appliance, "model" | "id" | "heightIn">): ChimneyFigures & { sectionIn: number } {
+  const figures = CHIMNEYS[hood.model];
+  if (!figures) throw new Error(`${hood.id}: a chimney hood with no chimney figures from its sheet`);
+  if (hood.heightIn === null) throw new Error(`${hood.id}: a chimney hood with no canopy height`);
+  return { ...figures, sectionIn: figures.reachIn[0] - hood.heightIn };
+}
 
 export interface ChimneyParts {
   /** Canopy top to ceiling, in feet. What the assembly has to cover. */
@@ -167,12 +207,16 @@ export interface ChimneyParts {
  * surface the wall was drilled for, so where its top lands moves with the range
  * — and the chimney is whatever is left between there and the ceiling.
  */
-export function chimneyParts(canopyTop: number, ceiling = ROOM.wallHeight): ChimneyParts {
+export function chimneyParts(
+  canopyTop: number,
+  chimney: { sectionIn: number; widthIn: number; depthIn: number },
+  ceiling = ROOM.wallHeight,
+): ChimneyParts {
   const rise = Math.max(0, ceiling - canopyTop);
-  const section = ft(CHIMNEY.sectionIn);
-  const step = ft(CHIMNEY.stepIn);
-  const w = ft(CHIMNEY.widthIn);
-  const d = ft(CHIMNEY.depthIn);
+  const section = ft(chimney.sectionIn);
+  const step = ft(CHIMNEY_STEP_IN);
+  const w = ft(chimney.widthIn);
+  const d = ft(chimney.depthIn);
 
   // Both sections are the same length and they slide on each other. The outer
   // hangs off the canopy, the inner off the ceiling, and what changes with the

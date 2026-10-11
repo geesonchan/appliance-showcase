@@ -16,7 +16,7 @@ import {
   isCombo,
   isDouble,
 } from "./columnModel";
-import { CHIMNEY, chimneyParts, isChimney } from "./hood";
+import { chimneyOf, chimneyParts, isChimney } from "./hood";
 import { ISLAND, LAYOUT_LIMITS, LAYOUT_PARAMS, OMITTED_SLOTS, ROOM, RUNS } from "./room";
 import { COFFEE_HEIGHT } from "./layoutTemplate";
 import { formatDimension } from "./dimensions";
@@ -617,7 +617,9 @@ function chimneyExtension(selection: Record<SlotId, Appliance>): Finding[] {
 
   const slot = SLOT_BY_ID["slot-hood"];
   const canopyTop = slot.position[1] + applianceBox(slot, hood).h;
-  const chimney = chimneyParts(canopyTop);
+  // The chosen hood's own cover, from its sheet (round 90).
+  const figures = chimneyOf(hood);
+  const chimney = chimneyParts(canopyTop, figures);
   const riseIn = Math.round(chimney.rise * 120) / 10;
 
   // Below one section the chimney will not shorten: it is not a cut-to-fit
@@ -629,7 +631,7 @@ function chimneyExtension(selection: Record<SlotId, Appliance>): Finding[] {
         severity: "warning",
         messageKey: "rule.chimneyTooLow",
         slot: "slot-hood",
-        params: { riseIn, sectionIn: CHIMNEY.sectionIn },
+        params: { riseIn, sectionIn: figures.sectionIn },
       },
     ];
   }
@@ -642,7 +644,7 @@ function chimneyExtension(selection: Record<SlotId, Appliance>): Finding[] {
       messageKey: "rule.chimneyExtension",
       slot: "slot-hood",
       params: {
-        model: CHIMNEY.extension,
+        model: figures.extension,
         overIn: Math.round(chimney.shortIn * 10) / 10,
         riseIn,
       },

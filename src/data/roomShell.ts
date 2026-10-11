@@ -115,14 +115,9 @@ export const CABINET_STANDARDS = {
     /** Canopy bottom above the cooking surface. Gas sets the 30" minimum. */
     aboveCooktopMinIn: 30,
     aboveCooktopMaxIn: 40,
-    /**
-     * How far a chimney hood's own duct cover is rated to reach, from the
-     * underside of its canopy to the top of the chimney: HMCB30WS's 30"-42",
-     * from docs/reference/hmcb30ws-spec.png. Under a ceiling higher than the
-     * minimum clearance plus this, the canopy goes up rather than the chimney
-     * being drawn past what it is rated for. D19.
-     */
-    chimneyReachIn: 42,
+    // How far a chimney hood's duct cover reaches is the model's own since
+    // round 90: `CHIMNEYS` in hood.ts, from each sheet. It was HMCB30WS's 42"
+    // here, for every chimney hood.
     /** The duct collar sits this far above the canopy top. */
     outletAboveBodyIn: 8.375,
     /**

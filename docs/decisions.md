@@ -2195,9 +2195,9 @@ everything that lays out or draws its surround read the package's slot.
   its own T36FT820NS from 73"; T36BT120NS, T36IT100NP and T30IR905SP in a 42"
   enclosure from 84" (Leo's case). D and E — their 30" column.
 - **Not changed:** the colours. Cabinet paint is chosen by run only, and a
-  panel-ready model's doors take the cabinet colour as before. Leo's
-  screenshot of the colour that stayed wrong has not reached the session
-  twice; to be compared when it does.
+  panel-ready model's doors take the cabinet colour as before. The colour
+  Leo had seen stay wrong was right on the live site after round 89 (Leo,
+  round 90); closed.
 - **Measured** (D17's third way: round 88's code built here,
   `index-DvngSexI.js`, the live page's own, against round 89's,
   `index-BPsXxqzx.js`, each from a copy of its build; the mouse at 1440 x 900,
@@ -2232,6 +2232,63 @@ everything that lays out or draws its surround read the package's slot.
   for want of a rebuild, green on round 89's with no solid render.
   `openingAbove.test.ts` (round 86) sets the bank refusals aside as it sets
   aside its own, 111 compared where it had 114, with the reason.
+
+**Amended 2026-10-11 (round 90), Leo: the 36" chimney hood HMCB36WS.**
+Registered in round 87: until it came, a 36" opening with a chimney hood had
+only the 30" HMCB30WS, which left 3" each side open (round 87) and raised "the
+hood is narrower than the cooking surface" (D13, round 79).
+- **Its sheet**, `docs/reference/hmcb36ws-spec.pdf`, downloaded in round 90
+  from the URL its sheet row cites, read page by page (README). Its canopy is
+  35-15/16" x 23-3/16" x 8-9/16" with a 5" front face, its chimney cover 13-3/16"
+  x 10-3/4" with a 5-1/2" grille, 30"-42" from the canopy's underside to the
+  chimney's top, CHXTHMCB for ceilings to 12', 600 CFM, an 8" duct. **Every
+  figure is read from its own sheet, not carried over from the 30"** (Leo); the
+  chimney's figures happen to be the 30"'s.
+- **Imported through `npm run import:csv`** (D4), after Leo mended the sheet's
+  lookup for T18IW100SP (below). The diff against the committed file is the new
+  row and the file's header, nothing else; read 35, exported 35, skipped 0, no
+  warnings.
+- **How it hangs is its drawing's**: `PUBLISHED_SPECS` gives it `wall-mount` and
+  `chimney`, as HMCB30WS's. Its sheet row's Feature, "Chimney", is read by the
+  importer as `wall-mount` alone, and `hoodMount` refuses a hood that does not
+  say how it hangs (round 87) — so without the entry the page would have thrown.
+- **A chimney hood's cover is its own model's** (Leo approved): `CHIMNEYS` in
+  hood.ts, one entry per sheet, each citing it, read by the drawing, the
+  checklist's extension and too-low lines, and the canopy's hanging height
+  (`chimneyOf`). Until round 90 the cover was one constant, HMCB30WS's, and
+  `CABINET_STANDARDS.hood.chimneyReachIn` a second copy of its 42"; both are
+  gone. One section's height is worked out from the model's own canopy height
+  (`heightIn`), not written again. A chimney hood with no entry is refused
+  loudly. HMCB30WS draws exactly as before (measured, below).
+- **In A's, B's and D's 36" openings** it fills the opening: no filler on the
+  card, no strips, no line that it is narrower than the cooking surface — where
+  HMCB30WS still raises the line and prints 3" each side. It hangs where the
+  30" does (66-3/4" in A, 66-1/2" in B and D), nothing over it, its duct through
+  the ceiling. C's 30" opening refuses it on width; E's island takes no wall
+  hood. The duct drawn and quoted is still the airflow band's (600 CFM, 8"),
+  which here agrees with its sheet's 8"; a hood's own outlet is a later round.
+- **Measured** (D17's third way: round 89's code built here,
+  `index-DE51yyUI.js`, the live page's own, against round 90's,
+  `index-wG-q4sLU.js`, each from a copy; the mouse at 1440 x 900, a finger at
+  390 x 844, `?quality=high`; each build shot twice). **0 pixels** in the first
+  pair for every package as it opens and its own hood flown to, desktop and
+  phone — C's own HMCB30WS among them — and for HMCB30WS swapped into A, B and
+  D: the 30" draws as it did. The second pair differed in A and on the phone in
+  B by exactly what round 89's own two runs differed by (its second run the odd
+  one), and by the one pixel at (144, 225). HMCB36WS against HMCB30WS in A's,
+  B's and D's openings: `docs/fixes/round-90-hmcb36ws-in-A-B-D.png` (in D a
+  pin label moved off the wider canopy, the keep-out at work).
+- Tests: `hmcb36ws.test.ts` (unit, nine cases) — 7 red on round 89's code and
+  data (the model not in the catalogue, `chimneyOf` not there), the 2 about
+  HMCB30WS green on both, as they must be; two cases first written as "no
+  strips" and "no line" passed on round 89 because the model was undefined, and
+  now say which model they asked. `tests/chimney36.test.ts` — the 30" then the
+  36" picked on the card in A by mouse, B by touch, D by mouse; 3 of 3 red on
+  round 89's build (`index-DE51yyUI.js`, no such chip). `hoodSwap.test.ts`'s
+  table gains A's, B's and D's HMCB36WS; round 86's counts in
+  `openingAbove.test.ts` go from 133 offered to 137 and 111 compared to 115,
+  each with the reason; `chimney.test.ts` and `stackedTops.test.ts` take
+  HMCB30WS's cover by name.
 
 ## D17 · A push is not a deploy
 
@@ -4775,6 +4832,20 @@ Registered, not scheduled. None of these is a round of its own.
     button. Both shots now hide the toolbar and the hint line over it before
     they are taken (`[data-pin-keep-out]`), so the room under them is compared
     too. The whole suite was green with it.
+  - **Round 90: red again, and not only the toolbar.** 1,013 pixels, up to 61
+    levels, over x 155-1399, y 12-807, in round 90's first full run
+    (`index-wG-q4sLU.js`); kept in
+    `test-results/mouse-script/2026-10-11T08-52-28-488Z/`. Looked at before
+    deciding anything, as this entry asks: every differing pixel seen is on
+    HTML text — the pin labels' words, the mode switch's edge, the right
+    panel's words — and none on the drawing of the room. Run again on its own
+    it passed, and the whole suite run again passed 2,537 of 2,537. Reported
+    to Leo before pushing, as this entry says to when a difference is not the
+    toolbar's; Leo: push round 90 as it is. **Leo, round 90: into round 93**,
+    where this test is changed to compare the 3D canvas by its pixels and the
+    HTML laid over it — the pin labels, the buttons — by each element's
+    position, number by number, not by pixels: a difference in how text is
+    drawn then raises nothing, and a label that really moves is still found.
 - ~~**Package B's neighbouring-cabinet points are drawn outside the cabinet.**~~
   **Fixed in round 71**: only a real cabinet counts as one, and where neither
   side has one the point goes where the model's `whenNoCabinet` says — B's
@@ -5226,7 +5297,10 @@ Registered, not scheduled. None of these is a round of its own.
   under it (D16, round 83). The fix reuses package B's three-part housing
   (`housingStyle`, box or sweep), not a second one. Round 87 also checks the
   other hood install swaps on the list in the entry above.
-- **A 36" chimney hood, HMCB36WS.** *(Leo, round 87: registered for round 89
+- ~~**A 36" chimney hood, HMCB36WS.**~~ **Done in round 90** (D16, round 90):
+  imported from Leo's mended sheet, its figures read from its own sheet, a
+  chimney hood's cover made each model's own. What follows is the entry as it
+  stood: *(Leo, round 87: registered for round 89
   — first 88, then moved behind the model card by Leo; round 90 since round
   88, behind the refrigerator — not started.)* Leo is adding it to the inventory sheet and putting its
   specification sheet into `docs/reference/`, and will say when; then it is
@@ -5408,6 +5482,22 @@ Registered, not scheduled. None of these is a round of its own.
   check 4174 after every browser run and end what is left there.
   *(Leo, round 88: fixed in round 89, with a test that the port is free
   after the suite.)*
+- **The importer stops when hand-filled cells go empty.** *(Leo, round 90:
+  registered, later.)* T18IW100SP's hand-filled cells — price, source, the
+  date it was checked, cutout, amps — came in empty twice after edits to the
+  sheet: round 87's first import and round 90's first (its `showcase_specs`
+  lookup by Model finding nothing). Both were caught by reading the diff. The
+  check to build: a model whose committed row has a `verifiedAt` and whose
+  hand-filled fields (the `showcase_specs` columns, data-sheet-spec.md) would
+  come in empty stops the import with an error naming the model and the
+  fields, and writes nothing — as an unaccounted row does (D4). Next to the
+  entry below, which asks the same of a package's own default model.
+- **HMCB36WS's sheet gives a chimney height that does not square.** *(Found
+  round 90, not changed.)* Page 1, "Height of the Chimney (in) 25" – 27"",
+  against page 2's drawing, 30"-42" from the canopy's underside to the top of
+  the chimney with an 8-9/16" canopy — 21-7/16" to 33-7/16" of chimney. What
+  25"-27" measures is not said. The drawing's figures are the ones used, as for
+  HMCB30WS; HMCB30WS's sheet in the repository is one page and has no such row.
 - **A package whose own range is missing from the catalogue.** *(Round 83, not
   changed.)* What the run stands under the cooking surface reads the package's
   default range from the data when none has been chosen; if that model left the
@@ -5502,12 +5592,9 @@ Registered, not scheduled. None of these is a round of its own.
   (D1): only a screenshot asks for it, like `?quality=`.
 - ~~**What stands round a refrigerator follows the model chosen.**~~ **Done in
   round 89** (D16, round 89): one answer from the chosen model, the segment
-  kept, a counter-depth machine refused in a bank of columns. **Still open
-  from it:** which colour Leo saw stay wrong — his screenshot has not reached
-  the session (round 89: Leo put it at `docs/feedback/c-fridge-colour.png`,
-  not to be committed; no such file was on this machine when the round was
-  pushed); nothing in the code changes a cabinet's colour with a
-  refrigerator. What follows is the entry as it stood: *(Leo, round
+  kept, a counter-depth machine refused in a bank of columns. The colour Leo
+  saw stay wrong (his screenshot never reached the session): *closed in round
+  90 — Leo looked at round 89 on the live site and it is right.* What follows is the entry as it stood: *(Leo, round
   88, from use of package C, with a screenshot: its counter-depth T36FT820NS
   changed on the model card to the built-in T36BT120NS, and the cabinets round
   it kept their height and colour. Round 89; a read-only report first, done in
@@ -5630,14 +5717,18 @@ Registered, not scheduled. None of these is a round of its own.
        refrigerator follows the model chosen (Leo, round 88; the entry
        above), with the browser suite's preview server made to stop, *done
        in round 89* (D16, round 89). **Round
-       90**: the 36" chimney hood HMCB36WS (Leo, round 87; the entry above).
+       90**: the 36" chimney hood HMCB36WS (Leo, round 87; the entry above),
+       *done in round 90* (D16, round 90).
        **Round 91**: the right panel's tabs, the `Slider` warning, and the
        "MT" chip over "E" on a Chinese phone (Leo, round 85, moved back by Leo
        in rounds 86, 87 and 88); round 86's first plan for it is in the "MT"
        entry above. **Round 92**: every RAL Classic colour (Leo, round 88; the
        entry above). **Round 93**: why a tap on the phone card's chip now and
        then rebuilds nothing — the test's timing or a real tap (Leo, round
-       89; the entry above).
+       89; the entry above); and the mouse-or-script smoke test changed to
+       compare the canvas by pixels and the HTML over it by position (Leo,
+       round 90; its entry above). Later: the importer stopping when hand-filled
+       cells go empty (Leo, round 90; the entry above).
        What each decides is written here when that round is built.
   1. **A hood's own outlet first.** The duct drawn and quoted follows the
      model's own outlet where its sheet gives one, rather than only the

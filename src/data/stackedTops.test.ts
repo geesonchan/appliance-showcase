@@ -1,6 +1,7 @@
 import { afterAll, describe, expect, it } from "vitest";
 import { CABINETS, standOffFromWall, type CabinetBox } from "./cabinets";
-import { APPLIANCES } from "./catalogue";
+import { APPLIANCES, APPLIANCE_BY_ID } from "./catalogue";
+import { chimneyOf } from "./hood";
 import { checkLayout } from "./layoutRules";
 import { setActivePackage, setLayoutParams } from "./layoutState";
 import { DEFAULT_PARAMS } from "./layoutTemplate";
@@ -222,7 +223,10 @@ describe("a chimney hood under the 108-1/2 inch ceiling", () => {
     const hood = SLOT_BY_ID["slot-hood"];
     const undersideIn = inches(hood.position[1]);
     const clearanceIn = undersideIn - (hood.builtForCooktopIn ?? 36);
-    const { chimneyReachIn, aboveCooktopMinIn, aboveCooktopMaxIn } = CABINET_STANDARDS.hood;
+    const { aboveCooktopMinIn, aboveCooktopMaxIn } = CABINET_STANDARDS.hood;
+    // C's own HMCB30WS's reach, from its sheet: a constant until round 90,
+    // each chimney hood's own since (`CHIMNEYS` in hood.ts).
+    const chimneyReachIn = chimneyOf(APPLIANCE_BY_ID["thermador-hmcb30ws"]).reachIn[1];
     expect(undersideIn + chimneyReachIn).toBeCloseTo(inches(ROOM.wallHeight), 6);
     expect(clearanceIn).toBeCloseTo(30.5, 6);
     expect(clearanceIn).toBeGreaterThanOrEqual(aboveCooktopMinIn);

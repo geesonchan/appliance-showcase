@@ -14,11 +14,12 @@ import {
   wineColumnParts,
 } from "../data/columnModel";
 import {
-  CHIMNEY,
   HOOD_PROFILE,
   ISLAND_HOOD,
   canopySolid,
+  chimneyOf,
   chimneyParts,
+  isChimney,
   hoodProfile,
   hoodSideFillers,
   hoodTopDepthIn,
@@ -391,6 +392,8 @@ function Body({
       return (
         <Hood
           installType={installType}
+          // A chimney hood's own cover, from its sheet (round 90).
+          chimney={isChimney(appliance) ? chimneyOf(appliance) : null}
           frontLipIn={appliance.frontLipIn}
           baseY={baseY}
           topDepthIn={topDepthIn}
@@ -1568,6 +1571,7 @@ function IslandTrim({
  */
 function Hood({
   installType,
+  chimney: cover,
   topDepthIn,
   frontLipIn,
   baseY,
@@ -1578,6 +1582,7 @@ function Hood({
   glass,
 }: {
   installType: string[];
+  chimney: ReturnType<typeof chimneyOf> | null;
   topDepthIn: number;
   frontLipIn: number | null;
   baseY: number;
@@ -1651,7 +1656,7 @@ function Hood({
             w,
             h,
             d,
-            CHIMNEY.widthIn,
+            cover!.widthIn,
             topDepthIn,
             frontLipIn ?? HOOD_PROFILE.frontLipIn,
           )
@@ -1732,7 +1737,8 @@ function Hood({
     // lower sliding over the upper, and a grille across the top of each side:
     // that is the part, and drawing it as one tapered box was drawing a
     // chimney nobody sells.
-    const chimney = chimneyParts(baseY + h);
+    if (!cover) throw new Error("a chimney hood drawn with no chimney figures");
+    const chimney = chimneyParts(baseY + h, cover);
     // Against the wall, like the canopy under it: a duct cover centred on the
     // canopy's flat top stands half a foot out into the room for no reason.
     const backOf = (depth: number) => -d / 2 + depth / 2;
@@ -1752,11 +1758,11 @@ function Hood({
               key={side}
               position={[
                 (side * size.w) / 2,
-                size.h / 2 - ft(CHIMNEY.vent.fromTopIn + CHIMNEY.vent.heightIn / 2),
+                size.h / 2 - ft(cover.vent.fromTopIn + cover.vent.heightIn / 2),
                 0,
               ]}
             >
-              <boxGeometry args={[ft(0.2), ft(CHIMNEY.vent.heightIn), size.d * 0.7]} />
+              <boxGeometry args={[ft(0.2), ft(cover.vent.heightIn), size.d * 0.7]} />
               <Mat s={glass} />
             </mesh>
           ))}

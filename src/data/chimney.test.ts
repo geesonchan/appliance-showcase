@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { applianceBox } from "./applianceBox";
 import { APPLIANCE_BY_ID } from "./catalogue";
-import { CHIMNEY, canopySolid, chimneyParts, hoodCabinetFloor, isChimney } from "./hood";
+import { canopySolid, chimneyOf, chimneyParts, hoodCabinetFloor, isChimney } from "./hood";
 import { packageContext } from "./rules";
 import { setActivePackage, setLayoutParams } from "./layoutState";
 import { DEFAULT_PARAMS } from "./layoutTemplate";
@@ -9,6 +9,12 @@ import { DEFAULT_PACKAGE } from "./packages";
 import { ROOM, SLOT_BY_ID, ft } from "./slots";
 
 const inches = (feet: number) => feet * 12;
+
+/**
+ * HMCB30WS's cover, which these cases were written against (round 17). One
+ * constant until round 90; each chimney hood's own figures since (`CHIMNEYS`).
+ */
+const CHIMNEY = chimneyOf(APPLIANCE_BY_ID["thermador-hmcb30ws"]);
 
 /**
  * The duct cover over a chimney hood.
@@ -22,7 +28,7 @@ describe("a chimney reaches the ceiling", () => {
   it("finishes exactly at the ceiling, wherever the canopy is", () => {
     for (const canopyTopIn of [60, 74.5625, 80, 84.75]) {
       const canopyTop = ft(canopyTopIn);
-      const chimney = chimneyParts(canopyTop);
+      const chimney = chimneyParts(canopyTop, CHIMNEY);
       expect(inches(canopyTop + chimney.rise), `canopy top ${canopyTopIn}"`).toBeCloseTo(
         inches(ROOM.wallHeight),
         6,
@@ -33,7 +39,7 @@ describe("a chimney reaches the ceiling", () => {
   it("keeps both sections one section long and slides them, canopy to ceiling", () => {
     // Canopy tops the two sections can span under the 108-1/2" ceiling.
     for (const canopyTopIn of [66, 74.5625, 84.75]) {
-      const chimney = chimneyParts(ft(canopyTopIn));
+      const chimney = chimneyParts(ft(canopyTopIn), CHIMNEY);
       const where = `canopy top ${canopyTopIn}"`;
 
       // Neither section changes length: what changes is how much of the inner
@@ -52,7 +58,7 @@ describe("a chimney reaches the ceiling", () => {
   });
 
   it("keeps the two sections the same size to within half an inch", () => {
-    const chimney = chimneyParts(ft(74.5625));
+    const chimney = chimneyParts(ft(74.5625), CHIMNEY);
     expect(inches(chimney.lower.w)).toBeCloseTo(CHIMNEY.widthIn, 6);
     expect(inches(chimney.lower.d)).toBeCloseTo(CHIMNEY.depthIn, 6);
     // A telescope, not a stepped stack: the joint should barely read.
@@ -62,8 +68,8 @@ describe("a chimney reaches the ceiling", () => {
   });
 
   it("moves with the canopy, which moves with the range under it", () => {
-    const low = chimneyParts(ft(70));
-    const high = chimneyParts(ft(80));
+    const low = chimneyParts(ft(70), CHIMNEY);
+    const high = chimneyParts(ft(80), CHIMNEY);
     expect(low.rise).toBeGreaterThan(high.rise);
     expect(inches(low.rise - high.rise)).toBeCloseTo(10, 6);
   });
@@ -79,20 +85,20 @@ describe("a chimney reaches the ceiling", () => {
   it("covers one section at the shortest and two at the longest", () => {
     const ceilingIn = ROOM.wallHeight * 12;
 
-    const collapsed = chimneyParts(ft(ceilingIn - CHIMNEY.sectionIn));
+    const collapsed = chimneyParts(ft(ceilingIn - CHIMNEY.sectionIn), CHIMNEY);
     expect(collapsed.needsExtension).toBe(false);
     expect(collapsed.tooLow).toBe(false);
     expect(inches(collapsed.overlap)).toBeCloseTo(CHIMNEY.sectionIn, 6);
 
-    const extended = chimneyParts(ft(ceilingIn - CHIMNEY.sectionIn * 2));
+    const extended = chimneyParts(ft(ceilingIn - CHIMNEY.sectionIn * 2), CHIMNEY);
     expect(extended.needsExtension).toBe(false);
     expect(inches(extended.overlap)).toBeCloseTo(0, 6);
 
-    const tall = chimneyParts(ft(ceilingIn - CHIMNEY.sectionIn * 2 - 8));
+    const tall = chimneyParts(ft(ceilingIn - CHIMNEY.sectionIn * 2 - 8), CHIMNEY);
     expect(tall.needsExtension).toBe(true);
     expect(tall.shortIn).toBeCloseTo(8, 6);
 
-    const low = chimneyParts(ft(ceilingIn - CHIMNEY.sectionIn + 4));
+    const low = chimneyParts(ft(ceilingIn - CHIMNEY.sectionIn + 4), CHIMNEY);
     expect(low.tooLow).toBe(true);
   });
 
@@ -105,7 +111,7 @@ describe("a chimney reaches the ceiling", () => {
 
       const slot = SLOT_BY_ID["slot-hood"];
       const canopyTop = slot.position[1] + applianceBox(slot, hood).h;
-      const chimney = chimneyParts(canopyTop);
+      const chimney = chimneyParts(canopyTop, CHIMNEY);
 
       expect(canopyTop + chimney.rise).toBeCloseTo(ROOM.wallHeight, 9);
       expect(chimney.upper.from + chimney.upper.h).toBeCloseTo(chimney.rise, 9);

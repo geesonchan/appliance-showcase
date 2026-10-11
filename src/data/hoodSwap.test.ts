@@ -77,6 +77,10 @@ describe("what is over a hood follows the hood chosen (round 87)", () => {
       "A hmwb361ws": "bridge 36 at 66.75 up-through-cabinet",
       "A ph36hws": "bridge 36 at 66.75 up-through-cabinet",
       "A hmcb30ws": "nothing at 66.75 through-ceiling",
+      // Round 90: the 36" chimney hood, from its own sheet — as its 30" does,
+      // nothing over it and its duct through the ceiling; its cover reaches
+      // 42" too, so it hangs where the 30" does in every opening.
+      "A hmcb36ws": "nothing at 66.75 through-ceiling",
       // B and D: 36-7/16" of rangetop, so 66-7/16"; a chimney goes up to
       // 66-1/2" so its cover reaches the 108-1/2" ceiling (D19).
       "B ak7136bs-bf": "bridge 36 at 66.438 up-through-cabinet",
@@ -85,6 +89,7 @@ describe("what is over a hood follows the hood chosen (round 87)", () => {
       "B hmwb361ws": "bridge 36 at 66.438 up-through-cabinet",
       "B ph36hws": "bridge 36 at 66.438 up-through-cabinet",
       "B hmcb30ws": "nothing at 66.5 through-ceiling",
+      "B hmcb36ws": "nothing at 66.5 through-ceiling",
       // C: a 36" range; its own chimney hood hangs at 66-1/2" as before, an
       // under-cabinet one at the 30" minimum with a cabinet to hang from.
       "C ak7300as": "bridge 30 at 66 up-through-cabinet",
@@ -95,6 +100,7 @@ describe("what is over a hood follows the hood chosen (round 87)", () => {
       "D hmwb361ws": "bridge 36 at 66.438 up-through-cabinet",
       "D ph36hws": "bridge 36 at 66.438 up-through-cabinet",
       "D hmcb30ws": "nothing at 66.5 through-ceiling",
+      "D hmcb36ws": "nothing at 66.5 through-ceiling",
       // E: hung from the ceiling over the island at 72" (D20).
       "E hmib42ws": "nothing at 72 through-ceiling",
     });
@@ -142,7 +148,8 @@ describe("how every hood in the catalogue hangs (round 87)", () => {
     const hoods = APPLIANCES.filter((appliance) => appliance.category === "hood");
     const mounts = Object.fromEntries(hoods.map((hood) => [short(hood.id), hoodMount(hood)]));
     expect({ hoods: hoods.length, mounts }).toEqual({
-      hoods: 7,
+      // Round 90: HMCB36WS, a chimney hood by its own sheet (PUBLISHED_SPECS).
+      hoods: 8,
       mounts: {
         "ak7136bs-bf": "under-cabinet",
         ak7300as: "under-cabinet",
@@ -150,6 +157,7 @@ describe("how every hood in the catalogue hangs (round 87)", () => {
         hmwb361ws: "under-cabinet",
         ph36hws: "under-cabinet",
         hmcb30ws: "chimney",
+        hmcb36ws: "chimney",
         hmib42ws: "island",
       },
     });

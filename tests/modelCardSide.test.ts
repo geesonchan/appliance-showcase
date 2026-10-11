@@ -251,7 +251,10 @@ describe("the model card at the left of the scene, on a desktop", () => {
     });
   }
 
-  it("is as tall as what it holds: E's coffee machine, one model, below B's hood, six, and well clear of the foot", async () => {
+  // B's hood took six models when this was written (round 88) and seven since
+  // round 90, HMCB36WS among them; the count is in the expectation so the
+  // card compared is the one meant.
+  it("is as tall as what it holds: E's coffee machine, one model, below B's hood, seven, and well clear of the foot", async () => {
     const s = await open();
     const read = async (pkg: string, machine: string) => {
       await switchTo(s, pkg);
@@ -276,7 +279,7 @@ describe("the model card at the left of the scene, on a desktop", () => {
       // "Clearly above the foot": at least a third of the scene left under it.
       coffeeWellClear: coffee.belowFoot > coffee.sceneHeight / 3,
       errors: s.errors,
-    }).toEqual({ hoodModels: 6, coffeeModels: 1, coffeeShorter: true, coffeeWellClear: true, errors: [] });
+    }).toEqual({ hoodModels: 7, coffeeModels: 1, coffeeShorter: true, coffeeWellClear: true, errors: [] });
     await s.page.context().close();
   });
 

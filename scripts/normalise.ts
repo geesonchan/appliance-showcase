@@ -593,6 +593,20 @@ export const PUBLISHED_SPECS: Record<
     frontLipIn: 5,
     installType: ["wall-mount", "chimney"],
   },
+  // Thermador HMCB36WS, from docs/reference/hmcb36ws-spec.pdf (round 90): p. 2's
+  // drawing, a canopy 35-15/16" wide, 23-3/16" deep and 8-9/16" tall with a 5"
+  // front face (p. 1: "30" – 42" x 35 15/16" x 23 3/16"" overall, HxWxD). Read
+  // from its own sheet, not carried over from the 30". Its sheet row's Feature
+  // says "Chimney", which the importer reads as `wall-mount` alone; how it hangs
+  // is its drawing's, a chimney wall hood (`hoodMount` refuses a hood that does
+  // not say, round 87).
+  HMCB36WS: {
+    widthIn: 35.9375,
+    heightIn: 8.5625,
+    depthIn: 23.1875,
+    frontLipIn: 5,
+    installType: ["wall-mount", "chimney"],
+  },
   // Thermador T36FT820NS, from docs/reference/t36ft820ns-spec.png. A 24" body
   // held 1" off the wall by its own spacers, with the doors and then the handles
   // standing in front of it: 25", 28-3/4" and 31-7/16" to the wall.

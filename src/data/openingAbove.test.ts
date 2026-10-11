@@ -98,7 +98,10 @@ describe("a machine taller than an opening with something above it (round 86)", 
       }
     });
     expect({ offered, refused: refused.sort() }).toEqual({
-      offered: 133,
+      // Round 90: 137 — HMCB36WS joined the catalogue and is offered for A's,
+      // B's, C's and D's hood openings (refused on width in C's 30"; E's
+      // island takes no wall hood). Nothing it adds is too tall.
+      offered: 137,
       refused: [
         "A slot-microwave mem301ws +14.5 countertop",
         "A slot-microwave po302w +18.188 countertop",
@@ -228,12 +231,13 @@ describe("every other model (round 86)", () => {
         // Round 89: a counter-depth refrigerator in a bank of columns is
         // refused too, and held in fridgeSwap.test.ts — T36FT820NS in B's, D's
         // and E's refrigerator openings, three set aside here (in D's and E's
-        // 30" it is too wide as well). So 111 compared, where round 86 had 114.
+        // 30" it is too wide as well). So 111 compared, where round 86 had 114;
+        // and 115 since round 90, with HMCB36WS offered in four hood openings.
         if (fit.tooTallIn !== null || fit.notForTallUnit || fit.notInColumnBank) continue;
         compared += 1;
         if (fit.fits !== fit.widthOverIn <= 1e-6) changed.push(`${code} ${slotId} ${short(model.id)}`);
       }
     });
-    expect({ compared, changed }).toEqual({ compared: 111, changed: [] });
+    expect({ compared, changed }).toEqual({ compared: 115, changed: [] });
   });
 });
