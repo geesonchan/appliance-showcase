@@ -9,6 +9,7 @@
  */
 
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
 import type { Appliance, Category, SlotId } from "../src/types.ts";
 import type { UnknownType } from "./normalise.ts";
 import { appliancesFileSchema, parseDataFile } from "../src/data/schema.ts";
@@ -459,8 +460,17 @@ export function formatSummary(summary: ConversionSummary, verbose = false): stri
   return lines.join("\n");
 }
 
-function main() {
-  const args = process.argv.slice(2);
+/**
+ * The import as `npm run import:csv` runs it: read the CSV, check it, write
+ * `data/appliances.json`. Gives back the exit code rather than exiting, and
+ * reads and writes under `io.cwd`, so a test can run it whole in a folder of
+ * its own (round 92: CI's Node 20 cannot run the script as a `.ts` file).
+ */
+export function runImport(
+  args: string[],
+  io: { cwd: string; log: (line: string) => void; error: (line: string) => void },
+): number {
+  const at = (path: string) => resolve(io.cwd, path);
   const verbose = args.includes("--verbose");
   const input = args.find((arg) => !arg.startsWith("--"));
   // --allow-empty=MODEL, once per model. A bare --allow-empty names nothing and
@@ -469,14 +479,14 @@ function main() {
     .filter((arg) => arg === "--allow-empty" || arg.startsWith("--allow-empty="))
     .map((arg) => arg.slice("--allow-empty=".length).trim());
   if (!input || allowEmpty.some((model) => model === "")) {
-    console.error(
+    io.error(
       "usage: npm run import:csv -- path/to/showcase_export.csv [--verbose] [--allow-empty=MODEL ...]",
     );
-    process.exit(1);
+    return 1;
   }
 
-  const slotsFile = JSON.parse(readFileSync("data/slots.json", "utf8"));
-  const rows = parseCsv(readFileSync(input, "utf8"));
+  const slotsFile = JSON.parse(readFileSync(at("data/slots.json"), "utf8"));
+  const rows = parseCsv(readFileSync(at(input), "utf8"));
 
   let result;
   try {
@@ -487,9 +497,9 @@ function main() {
       // values that need a rule and the blank-type models worth confirming.
       const partial = (error as UnknownApplianceTypeError & { summary?: ConversionSummary })
         .summary;
-      if (partial) console.log(formatSummary(partial, verbose));
-      console.error(`\n${error.message}\n`);
-      process.exit(1);
+      if (partial) io.log(formatSummary(partial, verbose));
+      io.error(`\n${error.message}\n`);
+      return 1;
     }
     throw error;
   }
@@ -497,17 +507,17 @@ function main() {
   try {
     assertAccounted(result.summary);
   } catch (error) {
-    console.log(formatSummary(result.summary, verbose));
-    console.error(`\n${(error as Error).message}\nnothing written\n`);
-    process.exit(1);
+    io.log(formatSummary(result.summary, verbose));
+    io.error(`\n${(error as Error).message}\nnothing written\n`);
+    return 1;
   }
 
   // Read before anything is written: a checked model's hand-filled cells may
   // not come in blank unless the run names it (round 92).
-  const committed = existsSync("data/appliances.json")
+  const committed = existsSync(at("data/appliances.json"))
     ? parseDataFile(
         appliancesFileSchema,
-        JSON.parse(readFileSync("data/appliances.json", "utf8")),
+        JSON.parse(readFileSync(at("data/appliances.json"), "utf8")),
         "data/appliances.json",
       ).appliances
     : [];
@@ -519,9 +529,9 @@ function main() {
       committed,
     );
   } catch (error) {
-    console.log(formatSummary(result.summary, verbose));
-    console.error(`\n${(error as Error).message}\nnothing written\n`);
-    process.exit(1);
+    io.log(formatSummary(result.summary, verbose));
+    io.error(`\n${(error as Error).message}\nnothing written\n`);
+    return 1;
   }
 
   const file = {
@@ -539,12 +549,19 @@ function main() {
   };
 
   parseDataFile(appliancesFileSchema, file, "data/appliances.json");
-  writeFileSync("data/appliances.json", `${JSON.stringify(file, null, 2)}\n`, "utf8");
+  writeFileSync(at("data/appliances.json"), `${JSON.stringify(file, null, 2)}\n`, "utf8");
 
-  console.log(formatSummary(result.summary, verbose));
-  for (const line of allowedLines) console.log(`\n${line}`);
-  console.log(`\nwrote data/appliances.json`);
+  io.log(formatSummary(result.summary, verbose));
+  for (const line of allowedLines) io.log(`\n${line}`);
+  io.log(`\nwrote data/appliances.json`);
+  return 0;
 }
 
 // Only run the CLI when invoked directly, so the tests can import the module.
-if (process.argv[1]?.endsWith("csv-to-json.ts")) main();
+if (process.argv[1]?.endsWith("csv-to-json.ts")) {
+  process.exitCode = runImport(process.argv.slice(2), {
+    cwd: process.cwd(),
+    log: console.log,
+    error: console.error,
+  });
+}

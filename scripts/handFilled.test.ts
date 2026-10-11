@@ -1,4 +1,3 @@
-import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -6,7 +5,13 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import slotsFile from "../data/slots.json";
 import type { Category, SlotId } from "../src/types.ts";
-import { assertHandFilledKept, convert, emptiedCheckedModels, parseCsv } from "./csv-to-json.ts";
+import {
+  assertHandFilledKept,
+  convert,
+  emptiedCheckedModels,
+  parseCsv,
+  runImport,
+} from "./csv-to-json.ts";
 
 /**
  * Round 92, Leo: an import whose hand-filled cells come in blank for a model
@@ -19,7 +24,6 @@ import { assertHandFilledKept, convert, emptiedCheckedModels, parseCsv } from ".
 
 const slots = slotsFile.slots as { id: SlotId; compatibleCategories: Category[] }[];
 const FIXTURE = fileURLToPath(new URL("../tests/fixtures/showcase_export.sample.csv", import.meta.url));
-const SCRIPT = fileURLToPath(new URL("./csv-to-json.ts", import.meta.url));
 const rows = parseCsv(readFileSync(FIXTURE, "utf8"));
 
 /** The `showcase_specs` columns, as the export carries them (docs/data-sheet-spec.md). */
@@ -145,8 +149,12 @@ describe("what a run may write", () => {
   });
 });
 
-/** The importer as Leo runs it, in a folder of its own with its own data/. */
-function runImport(changed: Record<string, string>[], ...flags: string[]) {
+/**
+ * The importer as Leo runs it, whole, in a folder of its own with its own
+ * data/ — called in this process, not spawned: CI runs Node 20, which cannot
+ * run a .ts file (round 92's first push failed there on exactly that).
+ */
+function importIn(changed: Record<string, string>[], ...flags: string[]) {
   const dir = mkdtempSync(join(tmpdir(), "import-"));
   mkdirSync(join(dir, "data"));
   writeFileSync(join(dir, "data", "slots.json"), JSON.stringify(slotsFile));
@@ -160,14 +168,20 @@ function runImport(changed: Record<string, string>[], ...flags: string[]) {
   const cell = (value: string) => (/[",\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value);
   const csv = [header.join(","), ...changed.map((row) => header.map((h) => cell(row[h] ?? "")).join(","))].join("\n");
   writeFileSync(join(dir, "export.csv"), csv);
-  const run = spawnSync(process.execPath, [SCRIPT, "export.csv", ...flags], { cwd: dir, encoding: "utf8" });
+  const stdout: string[] = [];
+  const stderr: string[] = [];
+  const status = runImport(["export.csv", ...flags], {
+    cwd: dir,
+    log: (line) => stdout.push(line),
+    error: (line) => stderr.push(line),
+  });
   const after = readFileSync(join(dir, "data", "appliances.json"), "utf8");
-  return { status: run.status, stdout: run.stdout, stderr: run.stderr, unchanged: after === before };
+  return { status, stdout: stdout.join("\n"), stderr: stderr.join("\n"), unchanged: after === before };
 }
 
 describe("the import, run", () => {
   it("stops, names the model and writes nothing", () => {
-    const run = runImport(edit(CHECKED, blankAll));
+    const run = importIn(edit(CHECKED, blankAll));
     expect({
       status: run.status,
       named: run.stderr.includes("Sub-Zero CL3650UFD: msrpUSD (was 12995)"),
@@ -177,7 +191,7 @@ describe("the import, run", () => {
   });
 
   it("writes, and prints the model, when the run names it", () => {
-    const run = runImport(edit(CHECKED, blankAll), `--allow-empty=${CHECKED}`);
+    const run = importIn(edit(CHECKED, blankAll), `--allow-empty=${CHECKED}`);
     expect({
       status: run.status,
       printed: run.stdout.includes("allowed to come in blank (--allow-empty):\n  Sub-Zero CL3650UFD:"),
@@ -186,7 +200,7 @@ describe("the import, run", () => {
   });
 
   it("refuses --allow-empty with no model", () => {
-    const run = runImport(edit(CHECKED, blankAll), "--allow-empty");
+    const run = importIn(edit(CHECKED, blankAll), "--allow-empty");
     expect({ status: run.status, usage: run.stderr.includes("--allow-empty=MODEL"), unchanged: run.unchanged }).toEqual({
       status: 1,
       usage: true,

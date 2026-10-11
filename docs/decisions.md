@@ -292,6 +292,14 @@ only a reading of the diff caught it.
   importer, which wrote the emptied file and exited 0; the rest cannot load
   there (the functions are new). With the "only checked models" condition
   taken out on purpose, the unchecked case went red.
+- ⚠️ **The first push failed in CI, and nothing deployed** (run 38169240705,
+  `aea5523`). Those three cases spawned `node` on `scripts/csv-to-json.ts`;
+  this machine runs Node 24, which runs a `.ts` file, and CI runs Node 20,
+  which cannot. Green here, red there, with the same command. The import is
+  now `runImport(args, io)`, which gives back its exit code and reads and
+  writes under a folder it is handed; the command calls it, and the tests call
+  it in-process. With the check disconnected inside it, the two cases that
+  stop and allow went red. D17, round 92.
 
 ## D5 · The kitchen is a rangetop, an island, and no wall oven
 
@@ -2401,6 +2409,12 @@ The site was a day behind and nothing said so.
    build` — the first covers `scripts/**` as well as `src/**`, the second
    type-checks before it bundles. A narrower command is an inner loop, never a
    green light.
+   *Amended 2026-10-11 (round 92): and remember it runs on CI's Node, not
+   this machine's.* `.github/workflows/pages.yml` sets Node 20; this machine
+   has Node 24. Round 92's first push passed `npm run test:unit` here and
+   failed it in CI, because three tests spawned `node` on a `.ts` file, which
+   Node 24 runs and Node 20 does not (D4, round 92). A test does not start a
+   process on a `.ts` file; it calls the code in-process.
 2. **Wait for the run.** `gh run watch <id> --exit-status` after the push, and
    the report carries the conclusion and the link. "Pushed" is not a result.
 3. **Check the link, not the workflow.** The footer carries the build's commit
