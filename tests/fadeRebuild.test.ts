@@ -64,8 +64,28 @@ interface Render {
 
 /** Installed before the page's own scripts run. */
 function installHook() {
-  const trace = { renders: [] as { layer: string; faded: string[]; machines: number }[], worldUpdates: 0, on: false };
+  const trace = {
+    renders: [] as { layer: string; faded: string[]; machines: number }[],
+    worldUpdates: 0,
+    on: false,
+    events: [] as string[],
+  };
   (window as unknown as { __rebuildTrace: typeof trace }).__rebuildTrace = trace;
+  // Round 93: what reached the page while a rebuild is traced, so a run that
+  // rebuilds nothing says whether the tap arrived and on what (Open items).
+  for (const type of ["touchstart", "touchend", "touchcancel", "pointerdown", "pointerup", "pointercancel", "click"]) {
+    document.addEventListener(
+      type,
+      (event) => {
+        if (!trace.on) return;
+        const target = event.target instanceof Element ? event.target : null;
+        const named = target?.closest("[data-candidate],[data-pin-label],button");
+        const name = named?.getAttribute("data-candidate") ?? named?.getAttribute("data-pin-label") ?? named?.textContent?.trim().slice(0, 24);
+        trace.events.push(`${type}@${name ?? target?.tagName.toLowerCase() ?? "?"}`);
+      },
+      { capture: true },
+    );
+  }
   let inRender = false;
   const hook = new EventTarget();
   (window as unknown as { __THREE_DEVTOOLS__: EventTarget }).__THREE_DEVTOOLS__ = hook;
@@ -156,6 +176,8 @@ interface Session {
   cdp: CDPSession;
   phone: boolean;
   errors: string[];
+  /** The last press: where, what was under that point, and how far the element moved by the time it landed. */
+  lastPress?: { at: [number, number]; under: string | null; movedPx: number | null };
 }
 
 async function open(phone: boolean): Promise<Session> {
@@ -183,8 +205,20 @@ async function press(s: Session, locator: ReturnType<Page["locator"]>) {
   const box = (await locator.boundingBox())!;
   const x = box.x + box.width / 2;
   const y = box.y + box.height / 2;
+  // Round 93: kept for a run that rebuilds nothing — what was under the point.
+  const under = await s.page.evaluate(([px, py]) => {
+    const el = document.elementFromPoint(px, py);
+    const named = el?.closest("[data-candidate],[data-pin-label],button");
+    return named?.getAttribute("data-candidate") ?? named?.getAttribute("data-pin-label") ?? named?.textContent?.trim().slice(0, 24) ?? el?.tagName ?? null;
+  }, [x, y] as const);
   if (s.phone) await s.page.touchscreen.tap(x, y);
   else await s.page.mouse.click(x, y);
+  const after = await locator.boundingBox().catch(() => null);
+  s.lastPress = {
+    at: [Math.round(x), Math.round(y)],
+    under,
+    movedPx: after ? Math.round(Math.max(Math.abs(after.x - box.x), Math.abs(after.y - box.y))) : null,
+  };
 }
 
 /** A horizontal drag, by the mouse or by one finger. */
@@ -251,9 +285,10 @@ async function fadedWithHood(s: Session, panel: "list" | "config" | "card", slot
  */
 async function rebuild(s: Session, cpu: number, action: () => Promise<void>) {
   await s.page.evaluate(() => {
-    const t = (window as unknown as { __rebuildTrace: { renders: unknown[]; worldUpdates: number; on: boolean } }).__rebuildTrace;
+    const t = (window as unknown as { __rebuildTrace: { renders: unknown[]; worldUpdates: number; on: boolean; events: string[] } }).__rebuildTrace;
     t.renders = [];
     t.worldUpdates = 0;
+    t.events = [];
     t.on = true;
   });
   if (cpu > 1) await s.cdp.send("Emulation.setCPUThrottlingRate", { rate: cpu });
@@ -262,8 +297,8 @@ async function rebuild(s: Session, cpu: number, action: () => Promise<void>) {
   if (cpu > 1) await s.cdp.send("Emulation.setCPUThrottlingRate", { rate: 1 });
   await steady(s);
   const during = await s.page.evaluate(() => {
-    const t = (window as unknown as { __rebuildTrace: { renders: Render[]; worldUpdates: number; on: boolean } }).__rebuildTrace;
-    return { renders: t.renders.slice(), worldUpdates: t.worldUpdates };
+    const t = (window as unknown as { __rebuildTrace: { renders: Render[]; worldUpdates: number; on: boolean; events: string[] } }).__rebuildTrace;
+    return { renders: t.renders.slice(), worldUpdates: t.worldUpdates, events: t.events.slice() };
   });
   // And a quiet second with the hood still selected: the positions are brought
   // up to date once per rebuild, never on every frame.
@@ -533,6 +568,13 @@ describe("a room rebuilt while cabinets are faded", () => {
         // Printed before the expectation, so a red run keeps its numbers.
         // eslint-disable-next-line no-console
         console.log(`${path}, ${device}:`, JSON.stringify({ before, ...result, worldUpdates: trace.worldUpdates, idle: trace.idleWorldUpdates }));
+        // Round 93: a run that rebuilds nothing — met twice, on a phone, never
+        // reproduced in 120 tries (Open items) — says what the press met and
+        // what reached the page.
+        const evidence =
+          result.rebuilds > 0
+            ? ""
+            : `no rebuild — press ${JSON.stringify(s.lastPress ?? null)}, events: ${trace.events.join(" ") || "none"}`;
         // One expectation, so a red run shows every part of it at once.
         expect({
           fadedBeforeTheRebuild: before > 0,
@@ -543,7 +585,7 @@ describe("a room rebuilt while cabinets are faded", () => {
           positionsUpdatedOncePerRebuild: trace.worldUpdates === result.rebuilds,
           positionsUpdatedWhileIdle: trace.idleWorldUpdates,
           errors: s.errors,
-        }).toEqual({
+        }, evidence).toEqual({
           fadedBeforeTheRebuild: true,
           rebuilt: true,
           roomsChecked: true,

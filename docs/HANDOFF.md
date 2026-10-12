@@ -12,7 +12,7 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **round 92c** (`docs/decisions.md` is the record of
+Covers the repository up to **round 93** (`docs/decisions.md` is the record of
 rounds; `git log` is the record of commits). It replaces the v1–v9 briefs that
 were pasted into chat.
 
@@ -58,9 +58,9 @@ every figure of it, is `data/packages.json`; D16 and D20 say how a package is
 put together and why E was built the way it was. **Do not copy those numbers
 anywhere**: the file is the one source, and the tests read it.
 
-### Where it stands (round 92c)
+### Where it stands (round 93)
 
-- **All five packages are live.** Rounds 73–79, 81–90, 92, 92a and 92b each shipped
+- **All five packages are live.** Rounds 73–79, 81–90, 92, 92a, 92b and 92c each shipped
   (round 80 built nothing; 91 waits, below), and each was checked against the live page's asset hashes
   after its workflow finished.
 - **The project is in real use.** Rounds 73–77 all came from Leo using package
@@ -97,7 +97,7 @@ anywhere**: the file is the one source, and the tests read it.
   "E" on a Chinese phone (waiting for Leo's feedback from use); 93 why a tap on
   the phone card now and then rebuilds nothing, and the mouse-or-script smoke
   test comparing the canvas by pixels and the HTML over it by position, and
-  this machine and CI on one Node version; 94 a
+  this machine and CI on one Node version (**done**, D17 round 93 and Open items: the tap not reproduced in 120 tries and its test keeping the evidence); 94 a
   share button, a plan first; then a hood's own outlet, then 79a (the doors of the
   cabinet over the hood and the outlet shown in it), then 79b. The 30" option
   in A is paused.
@@ -129,6 +129,7 @@ anywhere**: the file is the one source, and the tests read it.
 | `tests/previewServer.test.ts` | The browser suite's preview server leaves its port free when stopped (round 89). |
 | `src/data/hmcb36ws.test.ts`, `tests/chimney36.test.ts` | The 36" chimney hood HMCB36WS in A's, B's and D's openings, and a chimney hood's cover its own model's (D16, round 90). |
 | `src/data/ral.test.ts`, `tests/ralColours.test.ts` | Every RAL Classic code with its source and date, the special finishes, and what the RAL input says under it (D15, round 92). |
+| `src/data/nodeVersion.test.ts` | One Node major, 24: `.nvmrc`, `package.json`'s engines, the workflow reading the file, and the Node the suite runs on (D17, rule 1, round 93). |
 | `src/data/ovenTower.test.ts` | Every oven tower a standard install — 30" overall, its 3/4" sides inside, a 28-1/2" opening, from `ovenTower.ts` — and what stands beside it on the far side: a board under 9", counter with wall cabinets over it from 9" (D11 rule 12, round 92c). |
 | `src/data/toeKick.test.ts`, `tests/toeKick.test.ts` | What stands on the toe kick and what goes to the floor, where the kick runs, the corner piece, the island's 3", a dishwasher's kick panel, and rough-in in a base cabinet read from `cabinets.ts` (D22, round 92b). |
 | `src/store/defaultDoors.test.ts`, `tests/defaultDoors.test.ts` | Every package opens with its doors in RAL 5015; the interface green and the accent palette unchanged (D15, round 92a). |

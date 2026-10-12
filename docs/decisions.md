@@ -2611,6 +2611,12 @@ The site was a day behind and nothing said so.
    failed it in CI, because three tests spawned `node` on a `.ts` file, which
    Node 24 runs and Node 20 does not (D4, round 92). A test does not start a
    process on a `.ts` file; it calls the code in-process.
+   *Amended 2026-10-12 (round 93), Leo: one Node, the major 24.* It is written
+   once, in `.nvmrc`; `package.json`'s engines ask for it (`>=24 <25`); the
+   workflow reads the file (`node-version-file: .nvmrc`) and has no number of
+   its own. `src/data/nodeVersion.test.ts` holds all three and the Node it
+   runs on, here and in CI; with `.nvmrc` set to 20 on purpose, three of its
+   four cases went red (the workflow still reading the file is the fourth).
 2. **Wait for the run.** `gh run watch <id> --exit-status` after the push, and
    the report carries the conclusion and the link. "Pushed" is not a result.
 3. **Check the link, not the workflow.** The footer carries the build's commit
@@ -4946,7 +4952,12 @@ to explain connections — a machine that must have water.
 
 Registered, not scheduled. None of these is a round of its own.
 
-- **GitHub Actions on Node 20.** Since round 35's deploy the Pages workflow
+- ~~**GitHub Actions on Node 20.**~~ **Done in round 93** (Leo), with the
+  workflow's Node: `actions/checkout@v7`, `actions/setup-node@v7`,
+  `actions/upload-pages-artifact@v5` (which runs `actions/upload-artifact`
+  v7) and `actions/deploy-pages@v5`, each read before it went in — the
+  inputs the workflow uses are all there, and each runs on `node24`. What
+  follows is the entry as it stood: Since round 35's deploy the Pages workflow
   warns that `actions/checkout@v4`, `actions/setup-node@v4` and
   `actions/upload-artifact@v4` target Node 20, which GitHub is retiring, and
   are being forced onto Node 24. Nothing fails yet. Move them to releases that
@@ -5295,8 +5306,18 @@ Registered, not scheduled. None of these is a round of its own.
   vitest itself (D17: the exit code goes into a file of its own).
   - **Very likely the mouse-and-script smoke test, the next entry.** *(Leo,
     round 70.)*
-- **"Draws the same room whether the switch was clicked with the mouse or from
-  script" goes red now and then.** *(Round 70, Leo.)* The smoke test holds a
+- ~~**"Draws the same room whether the switch was clicked with the mouse or from
+  script" goes red now and then.**~~ **Changed in round 93, as round 90
+  decided** (Leo): the 3D canvas is compared by its pixels — everything laid
+  over it hidden, so the room under the labels and the toolbar is compared
+  too — and every pin label and button on screen by its position and size,
+  number by number, to the hundredth of a pixel (Leo, round 93: exact). A
+  red keeps both canvases, the difference and both layouts. **Shown catching
+  what it is for, and not what it is not:** the script side switched to C
+  instead — red, 454,961 canvas pixels and the labels one package has and the
+  other has not; the script side's labels moved 2px — red, canvas 0, every
+  label listed 2.00 apart; the script side's labels only a different colour —
+  green. What follows is the entry as it stood: *(Round 70, Leo.)* The smoke test holds a
   mouse-clicked and a script-clicked switch into package D to the same picture,
   to the pixel. In round 70's five full runs it was red twice — by 1,147 and by
   63 pixels, both on the geometry fix's code and neither with anything kept to
@@ -5954,6 +5975,21 @@ Registered, not scheduled. None of these is a round of its own.
     in a run of three browser files; the file run again alone passed 24 of 24.
     Twice now, on two paths, both a tap on the phone card's chip after the
     camera was dragged. Round 89 changed nothing on the phone either.
+  - *Round 93: not reproduced in 120 tries.* A probe outside the test (not
+    committed) ran the test's own steps on round 92c's build
+    (`index-BGhg_RhU.js`): the hood flown to on a phone, the camera turned by
+    touch until cabinets faded, then the tap exactly as the test's `press()`
+    makes it — the card's VCIN36GWS chip and the sheet's AK7300AS, each at
+    normal speed and with the CPU slowed four times, 30 times each, three
+    browsers at once for load. 120 of 120: the point tapped was on the chip,
+    the touch, pointer and click events all reached it, the model was chosen
+    and the room rebuilt. So neither the test's timing nor a tap that does not
+    take is shown; it stays open. **The test now keeps the evidence**: a run
+    that rebuilds nothing says where the press was, what was under that point
+    and whether the element had moved, and every touch, pointer and click
+    event that reached the page (`fadeRebuild.test.ts`). Shown working on
+    purpose: the action pointed at another machine's label went red with "no
+    rebuild — press … under CANVAS … events: … click@canvas".
 - ~~**The browser suite's own preview server outlives the run.**~~ **Fixed in
   round 89:** `startPreview` (tests/globalSetup.ts) runs Vite's own script
   with node, no shell between, and stopping it waits for that process to
@@ -6204,7 +6240,10 @@ Registered, not scheduled. None of these is a round of its own.
     the 1" reveal cleats inside the cabinet sides, recessed from the front;
   - each machine's data then carries both cutouts, and the package's choice
     picks one (round 92c keeps only the standard: Leo).
-- **This machine and CI on one Node version.** *(Leo, round 92a: registered,
+- ~~**This machine and CI on one Node version.**~~ **Done in round 93**
+  (D17, rule 1, round 93): the major 24, written once in `.nvmrc`, read by the
+  workflow, asked by the engines, held by `nodeVersion.test.ts`. What follows
+  is the entry as it stood: *(Leo, round 92a: registered,
   into round 93.)* CI runs Node 20 (`actions/setup-node`, `node-version: 20` in
   `.github/workflows/pages.yml`) and this machine Node 24, and round 92's first
   push went red in CI on exactly that (D4 and D17, round 92). Either CI moves to
@@ -6348,7 +6387,10 @@ Registered, not scheduled. None of these is a round of its own.
        timing or a real tap (Leo, round 89; the entry above); and the
        mouse-or-script smoke test changed to compare the canvas by pixels and
        the HTML over it by position (Leo, round 90; its entry above); and this
-       machine and CI on one Node version (Leo, round 92a; its entry above).
+       machine and CI on one Node version (Leo, round 92a; its entry above) —
+       *done in round 93*: the tap not reproduced in 120 tries and its test
+       keeping the evidence, the smoke test changed, Node 24 here and in CI
+       with the actions on Node 24 (each entry above).
        **Round 92a**, before 93: the doors open in RAL 5015 (Leo; D15, round
        92a). **Round 92b**, before 93: every base cabinet on a toe kick that
        shows, in the doors' finish (Leo; D22's toe kick entry and D13, round

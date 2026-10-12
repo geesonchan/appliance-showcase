@@ -987,10 +987,19 @@ describe("switching to a package with more machines", () => {
    * been skipping that frame; without it, a script-clicked switch into D kept
    * 641 pixels of stale shadow edge that a mouse-clicked one does not.
    *
-   * So the two inputs are held to the same picture. `?quality=high` pins the
-   * render tier, which otherwise follows the frame rate; the top bar is left
-   * out, where focus and hover differ by input; and the room-grew toast is
-   * waited out.
+   * So the two inputs are held to the same room. `?quality=high` pins the
+   * render tier, which otherwise follows the frame rate, and the room-grew
+   * toast is waited out.
+   *
+   * Round 93 (Leo, round 90): the 3D canvas is compared by its pixels, and what
+   * HTML lies over it — the pin labels, the buttons — by each element's
+   * position, number by number, to the hundredth of a pixel. Until then the
+   * whole page was compared by pixels, and it went red now and then on text
+   * drawn a level differently (round 90: 1,013 pixels, every one on HTML text),
+   * where no label had moved; the toolbar had already been taken out for the
+   * same reason (round 82). Now a difference in how text is drawn raises
+   * nothing, a label that really moves is still found, and the room is
+   * compared whole, under the HTML too.
    */
   it("draws the same room whether the switch was clicked with the mouse or from script", async () => {
     const shoot = async (how: "mouse" | "script") => {
@@ -999,17 +1008,39 @@ describe("switching to a package with more machines", () => {
       if (how === "script") await switchFromScript(page, "package-d");
       else await page.locator(`[data-segment="package"] button[data-value="package-d"]`).click();
       await page.waitForTimeout(24000);
-      // Round 82: red again, 63 pixels up to 2 levels, every one on the edges
-      // of the bottom toolbar and its compass button — the translucent, blurred
-      // HTML bar over the canvas, as in round 70. As the Open item decided
-      // (Leo, round 70), the toolbar and the hint line over it are taken out of
-      // the picture: hidden in both shots, so the room under them is compared
-      // too. The test holds the room; they are not the room.
-      await page.addStyleTag({ content: "[data-pin-keep-out] { visibility: hidden !important; }" });
+      // Where every pin label and every button on screen is, to the hundredth.
+      const layout = await page.evaluate(() => {
+        const r2 = (v: number) => Math.round(v * 100) / 100;
+        const shown = (el: Element) => {
+          const style = getComputedStyle(el);
+          const box = el.getBoundingClientRect();
+          return style.visibility !== "hidden" && style.display !== "none" && box.width > 0 && box.height > 0;
+        };
+        const out: Record<string, number[]> = {};
+        const record = (key: string, el: Element) => {
+          const box = el.getBoundingClientRect();
+          out[key] = [r2(box.x), r2(box.y), r2(box.width), r2(box.height)];
+        };
+        document.querySelectorAll("[data-pin-label]").forEach((el, i) => {
+          if (shown(el)) record(`pin ${el.getAttribute("data-pin-label")} #${i}`, el);
+        });
+        document.querySelectorAll("button").forEach((el, i) => {
+          if (!shown(el)) return;
+          const name = (el.getAttribute("aria-label") || el.getAttribute("title") || el.textContent || "").trim().slice(0, 32);
+          record(`button #${i} ${name}`, el);
+        });
+        return out;
+      });
+      // The canvas alone: everything laid over it hidden, so the room under
+      // the labels and the toolbar is compared as well.
+      await page.addStyleTag({
+        content: "body * { visibility: hidden !important; } canvas { visibility: visible !important; }",
+      });
       await page.waitForTimeout(500);
-      const png = await page.screenshot({ clip: { x: 0, y: 60, width: 1440, height: 840 } });
+      const box = (await page.locator("canvas").boundingBox())!;
+      const png = await page.screenshot({ clip: { x: box.x, y: box.y, width: box.width, height: box.height } });
       await page.context().close();
-      return png.toString("base64");
+      return { canvas: png.toString("base64"), layout };
     };
     const mouse = await shoot("mouse");
     const script = await shoot("script");
@@ -1065,30 +1096,39 @@ describe("switching to a package with more machines", () => {
           const diff = canvas.toDataURL("image/png").split(",")[1];
           return { n, max, box, diff };
         },
-        [mouse, script],
+        [mouse.canvas, script.canvas],
       );
       await context.close();
       return found;
     })();
 
+    // Every element, number by number: one only on one side, or anywhere else.
+    const keys = [...new Set([...Object.keys(mouse.layout), ...Object.keys(script.layout)])].sort();
+    const moved = keys
+      .filter((key) => JSON.stringify(mouse.layout[key]) !== JSON.stringify(script.layout[key]))
+      .map((key) => `${key}: mouse ${JSON.stringify(mouse.layout[key] ?? null)}, script ${JSON.stringify(script.layout[key] ?? null)}`);
+
     // Round 70: a red here used to leave nothing but a count, and one such red
-    // in round 69 was lost altogether. A failure now keeps both pictures and
-    // the difference, and says where it is. The box is in the screenshot's own
-    // pixels; it starts 60 below the top of the page, under the top bar.
+    // in round 69 was lost altogether. A failure keeps both pictures of the
+    // canvas, the difference and both layouts, and says where. The box is in
+    // the canvas's own pixels.
     let evidence = "";
-    if (result.n > 0) {
+    if (result.n > 0 || moved.length > 0) {
       const dir = `test-results/mouse-script/${new Date().toISOString().replace(/[:.]/g, "-")}`;
       mkdirSync(dir, { recursive: true });
-      writeFileSync(`${dir}/mouse.png`, Buffer.from(mouse, "base64"));
-      writeFileSync(`${dir}/script.png`, Buffer.from(script, "base64"));
+      writeFileSync(`${dir}/mouse.png`, Buffer.from(mouse.canvas, "base64"));
+      writeFileSync(`${dir}/script.png`, Buffer.from(script.canvas, "base64"));
       writeFileSync(`${dir}/diff.png`, Buffer.from(result.diff, "base64"));
+      writeFileSync(`${dir}/layout.json`, JSON.stringify({ mouse: mouse.layout, script: script.layout, moved }, null, 2));
       const [x0, y0, x1, y1] = result.box;
-      evidence = ` — up to ${result.max} levels, within x ${x0}-${x1}, y ${y0}-${y1}; pictures in ${dir}`;
+      evidence =
+        (result.n > 0 ? ` — canvas up to ${result.max} levels, within x ${x0}-${x1}, y ${y0}-${y1}` : "") +
+        `; evidence in ${dir}`;
     }
     expect(
-      result.n,
-      `pixels that differ between a mouse-clicked and a script-clicked switch into D${evidence}`,
-    ).toBe(0);
+      { elements: keys.length > 10, canvasPixels: result.n, moved },
+      `a mouse-clicked and a script-clicked switch into D${evidence}`,
+    ).toEqual({ elements: true, canvasPixels: 0, moved: [] });
   });
 });
 
