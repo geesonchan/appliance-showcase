@@ -135,10 +135,13 @@ function RalInput({
         >
           {t("finish.ral.set")}
         </button>
+        {/* Never shrinks: it is always "RAL" and four digits, and in Chinese,
+            where "应用" is wider than "Set", it was cut a pixel short
+            ("RAL 50…"). The input gives the pixel up instead (round 92a). */}
         {current && (
           <span
             data-ral-current={which}
-            className="flex min-w-0 items-center gap-1.5 text-[11px] text-ink-muted"
+            className="flex shrink-0 items-center gap-1.5 text-[11px] text-ink-muted"
             title={current.name}
           >
             <span

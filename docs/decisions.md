@@ -1884,9 +1884,10 @@ the table" (round 88). Built ahead of round 91, its number unchanged.
 - **"RAL publishes no official sRGB" was not right as written, and is "no free
   one" now** (round 88's reading: RAL sells its digital library, RGB and Lab).
   The file, `ral.ts` and this entry say so.
-- **No two codes share a hex**, and none is a swatch's. The door keeps only its
-  hex, and `ralForHex` reads the code back from it, so `ral.test.ts` holds the
-  217 to 217 colours.
+- **No two codes share a hex**, and none is a swatch's *(until round 92a,
+  below: the first cabinet swatch is RAL 5015)*. The door keeps only its hex,
+  and `ralForHex` reads the code back from it, so `ral.test.ts` holds the 217
+  to 217 colours.
 - **Pearl, metallic and luminous colours are shown as any other, with a line**
   (Leo): "Pearl, metallic and luminous colours cannot be shown on a screen." /
   "珠光、金属和荧光色无法在屏幕上显示。", under the input of the palette whose
@@ -1917,6 +1918,76 @@ the table" (round 88). Built ahead of round 91, its number unchanged.
   what it names; the eighth (an ordinary colour gives no pearl line) green on
   both by design, and red with the line forced on. With the Chinese pearl line
   changed by one word, `reviewed.test.ts` went red.
+
+**Amended 2026-10-11 (round 92a), Leo: the doors open in RAL 5015.** A small
+round between 92 and 93. RAL 5015 takes the forest green's place as the first
+cabinet swatch, and so is the doors every package opens with.
+- **Only the doors.** The interface's own green — the buttons, what is
+  selected, a selected pin's outline — is `--accent` in `index.css`,
+  `SCENE_COLORS.selection` and `PinOverlay`, the same #2E5C45 by origin, and
+  is not touched. Nor is the accent palette, or the accent the page opens with
+  (oak). A panel-ready machine's front takes the cabinet colour, as it always
+  has (`cabinetPaint`), so it opens in RAL 5015 too.
+- **Its value is the RAL table's** (`lookupRal("RAL 5015")`, #2874B2), not
+  written into the palette again. The swatch is "Sky blue" / "天蓝" (Leo),
+  key `finish.cabinet.skyBlue`; "Forest green" / "森林绿" are gone.
+  With the doors a RAL colour, the code shows beside the input from the start:
+  "RAL 5015".
+- **An old link asking for `?cabinet=green` opens on the swatch in its
+  place**, sky blue, as `clay` and `walnut` open on burgundy (round 35).
+- **Not changed:** `SCENE_COLORS.cabinet`, the painted finish's fallback, is
+  still #2E5C45. Every caller of `finish` with the painted token hands it a
+  colour (read round 92a: the doors, the panels in a machine's opening, the
+  window's white), so it is never drawn.
+- **Scheme 01's dots under the package summary show RAL 5015** where they
+  showed the green (Leo): its palette in `data/schemes.json`, second colour.
+- **The code beside the input shows whole, in both languages** (Leo, with a
+  screenshot: on his machine the English page cut it too, "RAL 5..." at 1440
+  wide, where the browser the tests run in did not). It is always "RAL" and
+  four digits, so it no longer shrinks (`shrink-0`, FinishPicker.tsx) and the
+  input gives the pixel up instead. Closes round 92's Open item.
+- **Tests.** `src/store/defaultDoors.test.ts`, 8 cases — 4 red on round 92's
+  code (the chip, the default, the names, no green left), 3 green on both by
+  design (the other four chips, the interface green, the accent palette), and
+  Scheme 01's dots written out. `tests/defaultDoors.test.ts`, 9 cases with the
+  mouse — every package's doors RAL 5015, the chip chosen and named in English
+  and Chinese, `?cabinet=green`, the dots, and the code whole in English and in
+  Chinese, each also with its letters spaced 1.5px wider to stand in for a
+  machine whose fonts draw wider than this one's. The first four were 4 of 4 red
+  on round 92's build (`index-5Zknlu6E.js`), every door #2E5C45; on the first
+  92a build (`index-C1ywdBL3.js`, without the chip fix and the dot) 4 of 9 were
+  red — Chinese, Chinese wider, English wider, the dots — and English at this
+  machine's width green, as it showed here. ⚠️ **The first test of the cut
+  compared `scrollWidth` with `clientWidth`, whole pixels, and passed on the
+  first 92a build in Chinese, where the page drew "RAL 50…"**: the text was
+  under a pixel too wide. It now measures the drawn text against its box to the
+  fraction (D17: a detector is shown catching the known fault first).
+  B's and D's insert housing reports a second colour, #C7C7C7, the oak finish's
+  tint on its band, on round 92 as well; the test names it.
+- **Measured** (round 92's build, `index-5Zknlu6E.js`, the live page's own,
+  against round 92a's first build, `index-C1ywdBL3.js`, each from a copy; the mouse at
+  1440 x 900 in Materials, White model and Install, a finger at 390 x 844,
+  `?quality=high`; three runs of each build). Every package changes at its
+  doors, as meant. To show the doors are all that changed, D17's first way:
+  round 92's build asked for the same doors by URL (`?cabinet=ral5015`)
+  against round 92a's — **0 pixels** on the phone in all five packages, and on
+  the desktop left of the right panel in all three modes a same-state pair at
+  0 in every package (D's Materials at 1). The runs fell into the two states of
+  the wash in Open items, in both builds alike. The right panel changes at the
+  first swatch and the "RAL 5015" beside the input. Before and after:
+  `docs/fixes/round-92a-{A..E}-desktop-before-after.png`,
+  `round-92a-A-install-before-after.png`, `round-92a-panel-before-after.png`.
+  - *The final build, `index-ByCVmYnM.js` (the chip fix and the dot), against
+    the first, `index-C1ywdBL3.js`:* outside the right panel 0 pixels in every
+    package and mode on the desktop and on the phone, between runs in the same
+    state. Package A first came out 40,139 to 152,350 pixels off, all over the
+    room; shot again, the two builds alternately, three of four runs agreed to
+    the pixel, the fourth in the other state of the wash — it was the run, not
+    the code. In the panel: the code whole, and the second dot.
+- ⚠️ **Found on the way: on the Chinese page the code was cut as the page
+  opened**, "RAL 50…" — round 92's one-pixel fault showed only once somebody
+  typed a code, and with the doors a RAL colour from the start it showed on
+  every Chinese page. Fixed in this round (above).
 
 ---
 
@@ -5798,7 +5869,16 @@ Registered, not scheduled. None of these is a round of its own.
       不是 RAL Classic 色号".
     - The input takes "5015", "RAL 5015" and "ral5015" (it already does; the
       round adds the cases to the test).
-- **On the Chinese page the RAL code beside "应用" is cut by a pixel.** *(Found
+- **This machine and CI on one Node version.** *(Leo, round 92a: registered,
+  into round 93.)* CI runs Node 20 (`actions/setup-node`, `node-version: 20` in
+  `.github/workflows/pages.yml`) and this machine Node 24, and round 92's first
+  push went red in CI on exactly that (D4 and D17, round 92). Either CI moves to
+  Node 24, or the repository says the version (`engines`, an `.nvmrc`) and both
+  use it. Next to the older entry on the actions themselves targeting Node 20
+  (the first entry above), which may go with it.
+- ~~**On the Chinese page the RAL code beside "应用" is cut by a pixel.**~~
+  **Fixed in round 92a** (D15, round 92a), in both languages: Leo's machine cut
+  it in English too. What follows is the entry as it stood: *(Found
   round 92 in its screenshots, on the live site as well; not changed.)* With a
   RAL colour on the doors, the code shown after the input and its button reads
   "RAL 10…" in Chinese: measured on round 90's build (`index-BQ2BMTju.js`) and
@@ -5890,8 +5970,10 @@ Registered, not scheduled. None of these is a round of its own.
        tap on the phone card's chip now and then rebuilds nothing — the test's
        timing or a real tap (Leo, round 89; the entry above); and the
        mouse-or-script smoke test changed to compare the canvas by pixels and
-       the HTML over it by position (Leo, round 90; its entry above).
-       **Round 94**, after 93: a share button (Leo, round 92; the entry
+       the HTML over it by position (Leo, round 90; its entry above); and this
+       machine and CI on one Node version (Leo, round 92a; its entry above).
+       **Round 92a**, before 93: the doors open in RAL 5015 (Leo; D15, round
+       92a). **Round 94**, after 93: a share button (Leo, round 92; the entry
        "A link that rebuilds the same kitchen" above), a plan read out first.
        What each decides is written here when that round is built.
   1. **A hood's own outlet first.** The duct drawn and quoted follows the

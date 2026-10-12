@@ -93,10 +93,11 @@ anywhere**: the file is the one source, and the tests read it.
   round 87, from Leo using package A); 88 the model card at the left of the scene on a desktop (**done**, D12 round 88; the phone's later); 89 a refrigerator's surround following the model chosen (**done**, D16 round 89); 90 the 36" chimney hood HMCB36WS (**done**, D16 round 90); 92 every RAL
   Classic colour, built before 91 with its number kept, and the importer
   stopping when hand-filled cells come in blank (**done**, D15 and D4 round
-  92); 91 the right panel's tabs, the `Slider` warning and the "MT" chip over
+  92); 92a the doors opening in RAL 5015 (D15 round 92a); 91 the right panel's tabs, the `Slider` warning and the "MT" chip over
   "E" on a Chinese phone (waiting for Leo's feedback from use); 93 why a tap on
   the phone card now and then rebuilds nothing, and the mouse-or-script smoke
-  test comparing the canvas by pixels and the HTML over it by position; 94 a
+  test comparing the canvas by pixels and the HTML over it by position, and
+  this machine and CI on one Node version; 94 a
   share button, a plan first; then a hood's own outlet, then 79a (the doors of the
   cabinet over the hood and the outlet shown in it), then 79b. The 30" option
   in A is paused.
@@ -128,6 +129,7 @@ anywhere**: the file is the one source, and the tests read it.
 | `tests/previewServer.test.ts` | The browser suite's preview server leaves its port free when stopped (round 89). |
 | `src/data/hmcb36ws.test.ts`, `tests/chimney36.test.ts` | The 36" chimney hood HMCB36WS in A's, B's and D's openings, and a chimney hood's cover its own model's (D16, round 90). |
 | `src/data/ral.test.ts`, `tests/ralColours.test.ts` | Every RAL Classic code with its source and date, the special finishes, and what the RAL input says under it (D15, round 92). |
+| `src/store/defaultDoors.test.ts`, `tests/defaultDoors.test.ts` | Every package opens with its doors in RAL 5015; the interface green and the accent palette unchanged (D15, round 92a). |
 | `scripts/handFilled.test.ts` | The import stops when a checked model's hand-filled cells come in blank, unless `--allow-empty=MODEL` names it (D4, round 92). |
 | `scripts/screenshots.mjs` | Screenshot sets by round. |
 

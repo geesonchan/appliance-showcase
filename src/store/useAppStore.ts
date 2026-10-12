@@ -170,13 +170,23 @@ export type TileSize = "24x48" | "32x32" | "48x48";
 export const TILE_SIZES: TileSize[] = ["24x48", "32x32", "48x48"];
 export const WALL_FINISHES: WallFinish[] = ["warm-grey", "mid-grey", "taupe", "white"];
 
+/** RAL 5015's value, read from the RAL table rather than written again here. */
+const RAL_5015 = (() => {
+  const found = lookupRal("RAL 5015");
+  if (!found.ok) throw new Error("data/ral.json has no RAL 5015, the doors' default");
+  return found.colour.hex;
+})();
+
 /**
- * The four cabinet colours, which are paint chips rather than data.
+ * The cabinet colours, which are paint chips rather than data.
  *
- * Scheme 01's own green first, so the room opens as it was specified.
+ * The first is the doors every package opens with. RAL 5015, sky blue, since
+ * round 92a (Leo): it replaced Scheme 01's forest green, #2E5C45, as the first
+ * chip and the default. Only the doors: the interface's own green — buttons,
+ * what is selected — is `--accent`, and stays.
  */
 export const CABINET_COLORS = [
-  { key: "finish.cabinet.green", value: "#2E5C45", token: "painted" as const },
+  { key: "finish.cabinet.skyBlue", value: RAL_5015, token: "painted" as const },
   { key: "finish.cabinet.navy", value: "#2B3A4A", token: "painted" as const },
   // Burgundy, round 35, Leo: a deep, cool wine red of the kind phones are sold
   // in, never orange. It was clay, then walnut; wood is the oak swatch's and
@@ -255,8 +265,10 @@ function initialFinishes() {
   const swatch = (palette: typeof CABINET_COLORS | typeof ACCENT_COLORS, asked: string | null) => {
     if (!asked) return undefined;
     // The third swatch was clay, then walnut, and is burgundy since round 35;
-    // a link from before still opens on it.
-    const name = asked === "clay" || asked === "walnut" ? "burgundy" : asked;
+    // the first was green until round 92a and is sky blue. A link from before
+    // still opens on the swatch in that place.
+    const name =
+      asked === "clay" || asked === "walnut" ? "burgundy" : asked === "green" ? "skyBlue" : asked;
     const ral = lookupRal(name);
     if (ral.ok) return { value: ral.colour.hex };
     return palette.find((paint) => paint.key.endsWith(name));
