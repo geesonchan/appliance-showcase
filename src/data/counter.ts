@@ -1,4 +1,4 @@
-import { dropsIntoCounter, openingAlong } from "./cookingSurface";
+import { openingAlong, standsOnTheFloor } from "./cookingSurface";
 import { bowlExtent, FIXTURE_BY_ID } from "./fixtures";
 import { ROOM, RUNS, ft, type CabinetRun } from "./room";
 import { islandAcross, islandAlong, type IslandLayout } from "./layoutTemplate";
@@ -169,15 +169,6 @@ const runEnd = (run: CabinetRun) => run.segments[run.segments.length - 1].to;
 
 /** Same figure twice, to the tolerance a generated run is built to. */
 const near = (a: number, b: number) => Math.abs(a - b) < 1e-9;
-
-/**
- * True when the machine specified stands on the floor rather than dropping in:
- * a freestanding range, and a slide-in too — the stone stops at its two sides
- * and nothing runs behind it (Leo, round 83). Until round 83 this read the word
- * "freestanding", so a slide-in got a hole in a slab running over it. The one
- * answer is `dropsIntoCounter`.
- */
-const standsOnTheFloor = (range?: Appliance) => !range || !dropsIntoCounter(range);
 
 /**
  * Where a leg's stone is cut clean through, along the run.

@@ -1,7 +1,7 @@
 import appliancesFile from "../../data/appliances.json";
 import roughInFile from "../../data/rough-in.json";
 import { applianceBox } from "./applianceBox";
-import { hoodBridgeBand } from "./cabinets";
+import { BASE_CABINET_BAND, hoodBridgeBand } from "./cabinets";
 import { ISLAND, PANEL, ROOM, RUNS, carries, ft, type CabinetRun, type ModuleKind, type RunSegment } from "./room";
 import { parseDataFile, roughInFileSchema, type RoughInPoint } from "./schema";
 import { SLOT_BY_ID } from "./slots";
@@ -154,7 +154,12 @@ interface HostBox {
   run: CabinetRun;
   /** Extent along the run, in feet. */
   along: readonly [number, number];
-  /** Floor and ceiling of the box, in feet. */
+  /**
+   * Floor and ceiling of the box, in feet. A base cabinet's is
+   * `BASE_CABINET_BAND`, the one `cabinets.ts` draws it with: it stands on the
+   * toe kick, and a figure "from the bottom" is from its floor, 4" up (round
+   * 92b, Leo). Until then each host wrote its own copy, from the room's floor.
+   */
   band: readonly [number, number];
   /** For the cabinet beside a tower: which end of `along` meets the tower. */
   nearEnd?: 0 | 1;
@@ -297,7 +302,7 @@ function hostFor(slot: Slot, appliance: Appliance, point: RoughInPoint): HostBox
           id: neighbour.id,
           run: found.run,
           along: [neighbour.from, neighbour.to] as const,
-          band: [0, ROOM.counterHeight - ROOM.counterThickness] as const,
+          band: BASE_CABINET_BAND,
         };
       }
     }
@@ -312,7 +317,7 @@ function hostFor(slot: Slot, appliance: Appliance, point: RoughInPoint): HostBox
           id: sink.id,
           run,
           along: [sink.from, sink.to] as const,
-          band: [0, ROOM.counterHeight - ROOM.counterThickness] as const,
+          band: BASE_CABINET_BAND,
         };
       }
     }
@@ -348,7 +353,7 @@ function hostFor(slot: Slot, appliance: Appliance, point: RoughInPoint): HostBox
       id: cabinet.id,
       run: found.run,
       along: [cabinet.from, cabinet.to] as const,
-      band: [0, ROOM.counterHeight - ROOM.counterThickness] as const,
+      band: BASE_CABINET_BAND,
       // The end of the cabinet that meets the tower.
       nearEnd: side.step === 1 ? 0 : 1,
     };
@@ -365,7 +370,7 @@ function hostFor(slot: Slot, appliance: Appliance, point: RoughInPoint): HostBox
     id: neighbour.segment.id,
     run: found!.run,
     along: [neighbour.segment.from, neighbour.segment.to] as const,
-    band: [0, ROOM.counterHeight - ROOM.counterThickness] as const,
+    band: BASE_CABINET_BAND,
     step: neighbour.step,
   };
 }
@@ -452,7 +457,7 @@ function islandNeighbour(slot: Slot, wanted: Side): HostBox | null {
     id: `${slot.id}-island-${way * rightAlong > 0 ? "right" : "left"}`,
     run: RUNS[0],
     along: [local[0], local[1]] as const,
-    band: [0, ROOM.counterHeight - ROOM.counterThickness] as const,
+    band: BASE_CABINET_BAND,
     step: (way * rightAlong) as -1 | 1,
     frame: {
       origin: [slot.position[0], slot.position[2]] as const,

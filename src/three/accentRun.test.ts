@@ -8,7 +8,7 @@ import {
   cabinetPaint,
   type AccentRun,
 } from "../store/useAppStore";
-import { SCENE_COLORS, finish } from "./materials";
+import { finish } from "./materials";
 
 /**
  * A kitchen is finished by the run, not by the shelf.
@@ -28,13 +28,14 @@ function boxFinish(
   accent: string,
   accentRun: AccentRun,
 ) {
+  // The toe kick too, since round 92b: it was a dark board of its own, and it
+  // is the run's finish now that the cabinets stand on it and it shows.
   const door = cabinetPaint({ cabinet: primary, accent, accentRun }, box.run);
-  if (box.kind === "toe") return finish("realistic", "painted", SCENE_COLORS.toe);
   return finish("realistic", door.token, door.colour);
 }
 
 const doors = (accentRun: AccentRun, primary: string, accent: string) =>
-  CABINETS.filter((box) => box.kind !== "counter" && box.kind !== "toe").map((box) => ({
+  CABINETS.filter((box) => box.kind !== "counter").map((box) => ({
     run: box.run,
     surface: boxFinish(box, primary, accent, accentRun),
   }));

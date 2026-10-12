@@ -284,10 +284,17 @@ describe("D13 · base cabinets", () => {
     expect(inches(ROOM.counterDepth)).toBe(24);
   });
 
-  it("builds the carcass to 34.5 inches, not to the finished height", () => {
+  // Round 92b (Leo): the carcass stands on a 4" toe kick, so the box is 4" to
+  // 34.5" — 30.5" of it — and the counter is still 36". Until then it was 0" to
+  // 34.5", with the kick hidden inside it.
+  it("builds the carcass from the toe kick to 34.5 inches, not to the finished height", () => {
     const box = CABINETS.find((b) => b.id === "back-sink-SB30-0")!;
-    expect(inches(box.size[1])).toBeCloseTo(34.5, 6);
-    expect(inches(box.size[2])).toBeCloseTo(24, 6);
+    const sixteenths = (feet: number) => Math.round(inches(feet) * 16) / 16;
+    expect({
+      bottom: sixteenths(box.position[1] - box.size[1] / 2),
+      top: sixteenths(box.position[1] + box.size[1] / 2),
+      deep: sixteenths(box.size[2]),
+    }).toEqual({ bottom: 4, top: 34.5, deep: 24 });
   });
 
   it("sizes every run segment in 3 inch increments from 12 to 36", () => {
@@ -576,22 +583,29 @@ describe("D11 rule 2 · the corner is continuous", () => {
   /**
    * Three facts about the toe kick, and they are separate ones.
    *
-   * It starts where the run starts, against the wall or the corner cabinet. It
-   * breaks at the range, exactly at the machine's sides: a freestanding machine
-   * stands on the floor, and a recessed board behind it is a board behind
-   * nothing. And it stops 1-1/2" short of the run's far end (round 50, Leo):
-   * the last cabinet's side there is a finished end, which goes to the floor,
-   * and the toe recess shows only at the front — the same 1-1/2" the island's
-   * toe kick is set in by on every side.
+   * It starts where the run starts: against the wall on the leg that holds the
+   * corner box, and into the corner on the other, as far as the corner leg's
+   * kick front, so the two meet with no notch (round 92b). This block builds a
+   * 36" susan: the other leg starts at the square's front, 36" off the wall,
+   * and the corner leg's kick front is 21" off it, so 15" — and the susan has a
+   * piece of its own under its diagonal door (toeKick.test.ts holds it). It breaks at the range,
+   * exactly at the machine's sides: a freestanding machine stands on the floor,
+   * and a recessed board behind it is a board behind nothing. And at the far
+   * end it runs to the end where what ends the run stands on it — package A's
+   * back run ends on a filler against the wall — and stops at the inside face
+   * of a board that goes to the floor: A's left run ends on the refrigerator's
+   * enclosure, whose 3" outer board stands on the floor (round 92b, Leo; a kick
+   * run to the end there had its end face in that board's, and the two
+   * flickered).
    *
-   * This test used to say the kick ran the whole leg less the range. At the far
-   * end that was wrong: a door wrongly hung on the side of the last cabinet
-   * stood proud and hid the kick's end, and the test held the mistake in place.
+   * Round 50 had it stop 1-1/2" short of every far end; round 92b's kick shows,
+   * and a filler standing on it against the wall needs it under it.
    */
-  it("runs the toe kick from the start of each leg, breaks it at the range, and stops it short of the open end", () => {
-    const toes = CABINETS.filter((box) => box.kind === "toe" && !box.id.startsWith("island"));
-    // One per leg, plus one more on the leg the range splits.
-    expect(toes).toHaveLength(3);
+  it("runs the toe kick from the start of each leg, breaks it at the range, and runs it to the end", () => {
+    const all = CABINETS.filter((box) => box.kind === "toe" && !box.id.startsWith("island"));
+    const toes = all.filter((box) => box.rotationY === undefined);
+    // One per leg, plus one more on the leg the range splits, plus the susan's.
+    expect({ straight: toes.length, corner: all.length - toes.length }).toEqual({ straight: 3, corner: 1 });
     for (const run of RUNS) {
       const onRun = toes.filter((box) => box.id.startsWith(run.id));
       expect(onRun.length, `${run.id} has no toe kick`).toBeGreaterThan(0);
@@ -601,8 +615,10 @@ describe("D11 rule 2 · the corner is continuous", () => {
         .sort((a, b) => a[0] - b[0]);
       const first = run.segments[0].from;
       const last = run.segments[run.segments.length - 1].to;
-      expect(extents[0][0], `${run.id} toe kick starts at the run`).toBeCloseTo(first, 6);
-      expect(inches(last - extents[extents.length - 1][1]), `${run.id} toe kick short of the end`).toBeCloseTo(1.5, 6);
+      const intoCorner = run.segments[0].kind === "corner" ? 0 : 15;
+      expect(inches(first - extents[0][0]), `${run.id} toe kick reaches into the corner`).toBeCloseTo(intoCorner, 6);
+      const short = run.id === "left" ? 3 : 0;
+      expect(inches(last - extents[extents.length - 1][1]), `${run.id} toe kick short of the end`).toBeCloseTo(short, 6);
       const range = run.segments.find((s) => s.slot === "slot-range");
       if (range) {
         expect(extents.some(([, to]) => Math.abs(to - range.from) < 1e-9), "kick stops at the range").toBe(true);

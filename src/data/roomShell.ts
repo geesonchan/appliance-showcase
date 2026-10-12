@@ -48,7 +48,13 @@ export const ROOM = {
    * the ceiling is the closing scribe D13 already allows. Leo, round 37. D19.
    */
   stackTop: ft(108),
+  /**
+   * The toe kick: 4" high, its front 3" behind the carcass front — 3-3/4"
+   * behind the door face. A US standard base cabinet, and Leo's site practice
+   * (round 92b, D13). Base cabinets and the oven and coffee towers stand on it.
+   */
   toeKick: ft(4),
+  toeRecess: ft(3),
 };
 
 /** Set the room to the walls a layout was generated for, in inches. */

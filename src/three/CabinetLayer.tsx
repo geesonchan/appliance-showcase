@@ -278,13 +278,14 @@ function CabinetSolid({ box }: { box: CabinetBox }) {
   // on one whole leg or on the island — wall cabinets, base cabinets and towers
   // together. See docs/decisions.md D15.
   const door = cabinetPaint(finishes, box.run);
-  const token =
-    box.kind === "counter" ? counter : box.kind === "toe" ? "painted" : door.token;
+  // The toe kick is the doors' finish too: the cabinets stand on it and it
+  // shows, so it goes with the door colour, the accent run, RAL and oak
+  // (round 92b, Leo). Until then it was hidden in the carcass, and dark.
+  const token = box.kind === "counter" ? counter : door.token;
   // One colour through the room unless somebody asks for two. A two-tone
   // kitchen — the picked colour below, a lighter finish above — is a decision
   // a designer makes on purpose, not what "the cabinets are green" means.
-  const colour =
-    box.kind === "toe" ? SCENE_COLORS.toe : box.kind === "counter" ? undefined : door.colour;
+  const colour = box.kind === "counter" ? undefined : door.colour;
   const props = finish(renderMode, token, colour);
 
   const install = renderMode === "install";
@@ -374,6 +375,7 @@ function CabinetWireframe({ box, faint }: { box: CabinetBox; faint: boolean }) {
     <lineSegments
       geometry={edges}
       position={box.position}
+      rotation={[0, box.rotationY ?? 0, 0]}
       visible={renderMode === "install"}
       userData={{ slot: box.slot }}
       // Opt out of raycasting entirely. Line raycasts use a threshold measured
@@ -495,7 +497,12 @@ export function CabinetLayer() {
     <group name="cabinet-layer" visible={showCabinets}>
       <CounterSlab />
       {solids.map((box) => (
-        <group key={box.id} position={box.position} userData={{ slot: box.slot }}>
+        <group
+          key={box.id}
+          position={box.position}
+          rotation={[0, box.rotationY ?? 0, 0]}
+          userData={{ slot: box.slot }}
+        >
           <CabinetSolid box={box} />
         </group>
       ))}

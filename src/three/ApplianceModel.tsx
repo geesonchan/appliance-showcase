@@ -33,7 +33,8 @@ import {
   rangeParts,
 } from "../data/rangeModel";
 import { Surface } from "./Surface";
-import { BoardFace } from "./BoardFace";
+import { BoardFace, DOOR } from "./BoardFace";
+import { KICK_LIFT } from "../data/cabinets";
 import { CABINET_STANDARDS, ROOM, SLOT_BY_ID, ft } from "../data/slots";
 import { hingeAwayFrom, trimKitBeside, trimKitsBeside } from "../data/room";
 import { runForSlot } from "../data/room";
@@ -195,20 +196,24 @@ function Filler({
   const MIN = ft(SCRIBE_IN);
   const pieces: React.ReactNode[] = [];
 
-  if (box.filler.below > MIN) {
+  // The drawer under a machine hung in a base opening stands on the toe kick
+  // like the cabinets beside it, and the run's kick runs under it (round 92b).
+  const lift = def.position[1] < 1e-6 ? Math.min(KICK_LIFT, box.filler.below) : 0;
+  const drawerH = box.filler.below - lift;
+  if (drawerH > MIN) {
     pieces.push(
       <group key="below">
         <mesh
-          position={[0, box.filler.below / 2, 0]}
+          position={[0, lift + drawerH / 2, 0]}
           castShadow
           receiveShadow
           userData={{ cabinetRole: true }}
         >
-          <boxGeometry args={[openingW, box.filler.below, depth]} />
-          <Mat s={cabinet} size={[openingW, box.filler.below]} />
+          <boxGeometry args={[openingW, drawerH, depth]} />
+          <Mat s={cabinet} size={[openingW, drawerH]} />
         </mesh>
         {/* A drawer pull, so it reads as a drawer rather than a blank panel. */}
-        <mesh position={[0, box.filler.below * 0.62, front]}>
+        <mesh position={[0, lift + drawerH * 0.62, front]}>
           <boxGeometry args={[openingW * 0.5, ft(1), ft(1)]} />
           <Mat s={trim} />
         </mesh>
@@ -405,26 +410,42 @@ function Body({
         />
       );
 
-    case "dishwasher":
+    case "dishwasher": {
       // A panel-ready dishwasher is a door with a machine behind it, so the
       // front is drawn as a door — the cabinet's own finish, at the cabinet's
       // own grain — and only the handle stays steel.
+      //
+      // Round 92b (Leo): standing on the floor, its door starts where the
+      // cabinets' doors do, on the toe kick, and under it is its own kick
+      // panel, lined up with theirs — 4" high, 3-3/4" behind the door face. The
+      // panel goes with the door: the cabinet's finish on a panel-ready
+      // machine, the machine's own steel on a steel one (`body` is either).
+      const kick = baseY < 1e-6 ? Math.min(KICK_LIFT, h / 2) : 0;
+      const doorH = h - kick;
+      const kickFront = face + ft(0.125) - ROOM.toeRecess - DOOR.thickness;
       return (
         <group>
-          <mesh position={[0, h / 2, cz]} castShadow>
-            <boxGeometry args={[w, h, cd]} />
-            <Mat s={body} size={[w, h]} />
+          <mesh position={[0, kick + doorH / 2, cz]} castShadow>
+            <boxGeometry args={[w, doorH, cd]} />
+            <Mat s={body} size={[w, doorH]} />
           </mesh>
-          <mesh position={[0, h * 0.5, face]} castShadow>
-            <boxGeometry args={[w * 0.96, h * 0.96, ft(0.25)]} />
-            <Mat s={body} size={[w * 0.96, h * 0.96]} />
+          <mesh position={[0, kick + doorH * 0.5, face]} castShadow>
+            <boxGeometry args={[w * 0.96, doorH * 0.96, ft(0.25)]} />
+            <Mat s={body} size={[w * 0.96, doorH * 0.96]} />
           </mesh>
-          <mesh position={[0, h * 0.94, gripZ]} rotation={[0, 0, Math.PI / 2]}>
+          <mesh position={[0, kick + doorH * 0.94, gripZ]} rotation={[0, 0, Math.PI / 2]}>
             <cylinderGeometry args={[bar / 2, bar / 2, w * 0.9, 12]} />
             <Mat s={trim} />
           </mesh>
+          {kick > 0 && (
+            <mesh name="dishwasher-kick" position={[0, kick / 2, kickFront - ft(0.375)]} castShadow receiveShadow>
+              <boxGeometry args={[w, kick, ft(0.75)]} />
+              <Mat s={body} size={[w, kick]} />
+            </mesh>
+          )}
         </group>
       );
+    }
 
     case "wall-oven":
       // A combination oven is two machines in one carcass, and that is what is

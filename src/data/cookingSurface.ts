@@ -49,6 +49,24 @@ export const dropsIntoCounter = (appliance: Kind) =>
   isRangetop(appliance) || appliance.category === "cooktop";
 
 /**
+ * The same answer from the other side, for what stops at the machine: the
+ * stone is cut at its sides (counter.ts) and the toe kick breaks at them
+ * (cabinets.ts). With no machine chosen the run leaves an opening (`cooking`
+ * in layoutTemplate.ts), so that reads as standing on the floor too.
+ *
+ * A freestanding range, and a slide-in too — the stone stops at its two sides
+ * and nothing runs behind it (Leo, round 83). Until round 83 the counter read
+ * the word "freestanding", so a slide-in got a hole in a slab running over it.
+ * This was the counter's own wrapper until round 92b.
+ *
+ * Round 92b, from Leo trying it on B and D: the kick broke at every cooking
+ * opening, and under a rangetop's drawer base, now standing on the kick, a
+ * strip of floor showed. A rangetop's base cabinet stands on the kick like any
+ * other, and the kick runs on under it.
+ */
+export const standsOnTheFloor = (appliance?: Kind) => !appliance || !dropsIntoCounter(appliance);
+
+/**
  * How much of the cooking opening is left each side of a range standing on
  * the floor in it, in inches — 0 where nothing is built there.
  *

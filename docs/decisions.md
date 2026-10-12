@@ -662,7 +662,9 @@ each one has a test with a case that breaks it.
     surface; eighteen is what the stretch is built at, because it is the
     landing a pan comes off the burner onto and because five inches of gap
     makes the tower crowd the cooking. The tower's own side is a 3/4" finished
-    end panel from the floor to its top, and the wall's spare inches go to
+    end panel from the floor to its top *(since round 92b from the toe kick, 4"
+    up, with the tower, unless it is the run's exposed end — D22's toe kick
+    entry, round 92b)*, and the wall's spare inches go to
     these landings before they go anywhere else. A wall that cannot pay for
     eighteen builds them narrower, three inches at a time, together, and never
     under six.
@@ -1572,6 +1574,13 @@ Both are checked by `checkLayout`, and the M3-3 generator has to satisfy both.
 **Cabinets.**
 
 - Base: 24" deep, a 34.5" box under a 1.5" top, 36" finished.
+- **Toe kick: 4" high, its front 3" behind the carcass front — 3-3/4" behind
+  the door face.** *(Added round 92b. Source: a US standard base cabinet, and
+  Leo's site practice.)* The carcass stands on it, so the box is 4" to 34.5";
+  the counter is still 36". It is the doors' finish. `ROOM.toeKick` and
+  `ROOM.toeRecess` in `roomShell.ts`; what stands on it, D22's toe kick entry,
+  round 92b. The 4" and the 3" were in the code from the first commit, hidden
+  inside the carcass, and recorded nowhere here until round 92b.
 - Widths: 12" to 36" in 3" increments.
 - Wall: 12" deep, 30 / 36 / 42" tall, hung 18" over the counter — so 54" to the
   underside.
@@ -2721,6 +2730,7 @@ repository has them)* — one rule, written more than once:
 | round 84 | how much beside a machine is a scribe and not a board: half an inch | `Filler` in ApplianceModel.tsx (`MIN`, nothing drawn at 1/2" or less) and `hoodSideFillers` in hood.ts (`SIDE_FILLER_MIN_IN`, nothing drawn under 1/2") — they disagree at exactly 1/2", where the hood draws a strip and `Filler` does not | **one**: `SCRIBE_IN` in `cookingSurface.ts`, read by the range's fillers (round 84), `Filler` (round 84) and `hoodSideFillers` (round 85) | **it never had**: a hood exactly 1" narrower than its slot, and none in the catalogue is. `hoodSideFillers.test.ts` holds the half inch, and was red on round 84's code. |
 | round 87 | how a hood hangs, and so what is over it | the package's hood slot (`spec["slot-hood"].installType`) read by the wall cabinets over the hood (`banksOn`), its height (`slots.ts`, a chimney), the duct's route (the slot's data) and the housing-shape control; the chosen model's install type read by the strips beside it (`hoodSideFillers`), the fit's filler and the checklist's hood width | **one**: `hoodMount` in `hoodMount.ts`, from the chosen hood, which all of them ask (round 87) | **it had bitten, on the live site** (Leo, from use): A's hood swapped for the VCIN36GWS liner hung between the wall cabinets with no housing, B's and D's housing stayed over an under-cabinet hood, a chimney hood in A had a bridge over it and its spec card said "Up through cabinet", and an under-cabinet hood in C hung on bare wall. `hoodSwap.test.ts` holds every hood every opening takes. |
 | round 89 | how a refrigerator is built in, and so what stands round it | the package's refrigerator slot — `enclosure` read by the run (an enclosure or rule 11's parts), the machine's inset and the slot's cabinet type (`standsAlone`), `heightIn` by the cabinet over a counter-depth machine (`fridgeOpeningH`) and the bridge over an enclosure; only the machine's own drawing read the model | **one**: `fridgeMount` and `fridgeOpeningHeightIn` in `fridgeMount.ts`, from the chosen refrigerator, which the run and the slots ask through `slotsAsBuilt` (round 89) | **it had bitten, on the live site** (Leo, from use): C's counter-depth T36FT820NS changed for the built-in T36BT120NS drew the 84" machine running up behind the cabinet over C's 72" opening; A's built-in changed for T36FT820NS stood it in A's enclosure with a panel over it. `fridgeSwap.test.ts` holds every refrigerator every opening takes. |
+| round 92b | where a base cabinet is, floor to top, for a rough-in point "in the cabinet" | `BASE_BOX` in cabinets.ts, which draws the cabinet; and five copies of `[0, ROOM.counterHeight - ROOM.counterThickness]` in `roughIn.ts`, one per host — the neighbour's cabinet, the sink base, the cabinet beside a tower, the other neighbour, the island's cabinet beside an opening — each from the room's floor | **one**: `BASE_CABINET_BAND` in cabinets.ts, which the hosts read (round 92b) | **it never had**: the two agreed while the cabinet stood on the floor. It would have the moment the cabinets stood on the kick — every figure "from the bottom" of a base cabinet drawn 4" low, which is the round that found it. `toeKick.test.ts` counts the copies in `roughIn.ts` (none) and holds a sink-base point 4" up with its figure unchanged. *(Row added after round 92b's own write-up, which cited this table without one.)* |
 
 Round 60's quarter-inch window step is a near relative rather than a member:
 one rule, but its search and its judgement worked to different resolutions,
@@ -2761,8 +2771,10 @@ found while the range's fillers were given the same half inch. The
 thirteenth, round 87's, was found and closed together: how a hood hangs, read
 from the package in four places and from the model in three. The fourteenth,
 round 89's, likewise: how a refrigerator is built in, read from the package
-everywhere but the machine's own drawing. The table has thirteen rows for
-those fourteen: round 60's has none of its own. The table is here so that the next one found
+everywhere but the machine's own drawing. The fifteenth, round 92b's, likewise:
+where a base cabinet is, written once to draw it and five times more to
+measure a rough-in point in it. The table has fourteen rows for those
+fifteen: round 60's has none of its own. The table is here so that the next one found
 is added to it rather than rediscovered.
 
 **An exception written into a test is broken on purpose before it is
@@ -4044,6 +4056,167 @@ acceptance are report two, next round.)*
     (the first commit, `ae79efe`, and `BASE_BOX` since round 6). The kick can
     be seen only in the install view, through the ghosted carcass. Whether
     the front should show a recess is Leo's to decide (Open items).
+  - ***Amended 2026-10-11 (round 92b), Leo: every base cabinet stands on a toe
+    kick that shows.*** *Decided by Leo; source: a US standard base cabinet,
+    and his site practice.* It came from a narrower request — a door-coloured
+    board over the black slot under the oven towers, planned and withdrawn by
+    Leo — and became the whole kitchen: that slot was the kick showing under a
+    tower whose drawer starts 4" up, the one place it ever did.
+    - **The kick:** 4" high, its front 3" behind the carcass front, 3-3/4"
+      behind the door face (D13, with its source), in the doors' finish — it
+      follows the door colour, the accent run, a RAL colour and oak
+      (`cabinetPaint`; it was a dark board, `SCENE_COLORS.toe`, now gone).
+    - **What stands on it** (`KICK_LIFT`, cabinets.ts, the one figure): every
+      base cabinet, corner box and base filler (the carcass 4" to 34.5", the
+      door from 4-1/16"; the counter is still 36"); the island's cabinets; the
+      oven and coffee towers, their sides with them; round 84's fillers beside
+      a range; the drawer front under a hung microwave drawer; and a
+      dishwasher's door, with a kick panel of its own under it, lined up with
+      the cabinets' — the cabinet's finish on a panel-ready machine, its own
+      steel on a steel one (Leo).
+    - **What goes to the floor** (Leo, his decision 4 in his words: "烤箱塔、咖啡
+      机塔等柜子站在踢脚上；冰箱、柱式机器的围框侧板和开口内挡板落地"; his earlier
+      "高柜都站在踢脚上" was a paraphrase, not his words, and is not the
+      record): a refrigerator's or a column's surround boards, the strips
+      inside their openings, the filler against a return wall; and the board
+      that is a run's exposed end, whatever it closes — the end panel of a run
+      of base cabinets, and a tower's end board where the tower ends the run
+      (Leo, decision 2 and its round-92b confirmation). The recess shows only
+      at the front. `boardOnKick` and `towerOnKick` (cabinets.ts).
+    - **Where it runs:** under every run, from the wall on the leg that holds
+      the corner box and from the corner leg's kick front on the other (3" into
+      a blind corner, 15" into a susan's square), so the two meet with no notch
+      (`intoTheCorner`); broken at a range that stands on the floor —
+      freestanding or slide-in, at the machine's own sides — at a
+      freestanding refrigerator and under the machine in a coffee tower's
+      bottom, as before, and **run on under a rangetop**, whose drawer base
+      stands on it like any base cabinet (below: found by Leo before the
+      push); at the far end
+      to the wall under a filler that stands on it, or to the inside face of a
+      board that goes to the floor (`endOnTheFloor`). Under a corner susan a
+      piece of its own runs along the diagonal door's chord, 3" behind it,
+      between the two legs' kick fronts — the one box turned off the runs'
+      axes (`cornerKick`, `rotationY`). The island's is set in 3" on all four
+      sides, the seating side under the overhang and its ends too (Leo,
+      decision 3), where it was 1-1/2".
+    - **Rough-in in a base cabinet moves up with it** (Leo, decision 6): a
+      figure "from the bottom" is from the cabinet's floor, 4" up, so the
+      dishwasher's points in the sink base, T36BT120NS's, the rangetop's and
+      T18IW100SP's sockets, the coffee machine's and the wine cooler's all
+      move up 4" with the same figures — no line a customer reads changes.
+      The hosts read the band from `cabinets.ts` (`BASE_CABINET_BAND`); each
+      had written its own copy, five of them, from the room's floor — D17's
+      table, found and closed together.
+    - **Not changed:** a refrigerator's and a column's own grille (its front
+      starts at 4", the kick's height, and sits 1/4" behind its doors — its own
+      part); the wine cooler under the coffee machine on its own kick panel
+      (its vent, round 73); the rangetop's gas, already measured from the top
+      of the kick.
+    - **Tests.** `src/data/toeKick.test.ts`, 27 cases over every package and
+      arrangement (and a susan): every base box on the kick, the run kick's
+      front 3" back, each package's boards on the kick or the floor written out
+      by hand, the corner reach (3" and 15"), the far ends, the island's 3" all
+      round, the susan's piece along its chord, the finish, a point in the sink
+      base 4" up with its figure unchanged, and `roughIn.ts` holding no copy of
+      the band — 18 red on round 92a's code, each for what it names, the rest
+      green there by design (what was already so: the run kick's front, A's and
+      C's boards on the floor, no piece under a blind corner). `tests/toeKick.test.ts`,
+      6 cases with the mouse — the kick under B's, D's and E's oven towers
+      3-3/4" behind the drawer's face in the door colour, following a colour
+      change, and a dishwasher's door and kick panel, panel-ready and steel;
+      6 of 6 red on round 92a's build (`index-FG51Hp_p.js`). Its steel case
+      first passed on round 92a for want of a kick at all — both colours
+      undefined, so "the same" — and now finds the kick first (D22, round 72).
+      `layout.test.ts`'s two kick facts and `accentRun.test.ts` (the kick now
+      the run's finish) rewritten, each with its reason.
+    - **Measured** (D17's first way, by stages; round 92a's build,
+      `index-FG51Hp_p.js`, the live page's own, against temporary builds of the
+      new code, not committed, each from a copy; the mouse at 1440 x 900 in
+      Materials, White model and Install, a finger at 390 x 844,
+      `?quality=high`; every build shot two or three times):
+      - **Everything but the kick: 0 pixels.** The new code with the lift at 0,
+        the kick dark and its round-92a geometry put back
+        (`index-BWz1PgST.js`) against round 92a: 0 in every shot, desktop and
+        phone, all three modes, all four pairings of runs. So the rough-in
+        hosts reading `cabinets.ts`, the boards' rule, the turned box, the
+        dishwasher's and the microwave drawer's paths change nothing on screen.
+      - **The kick's geometry, still hidden** (`index-BGtugD6n.js`): lines in
+        the Install view, where the kick shows through the ghosted carcass
+        (7,000 to 12,000 pixels); 4 to 17 pixels of floor at the island's
+        corner, which a build with only the island's 3" changed
+        (`index-CDMksueO.js`) reproduces exactly and the old 1-1/2" does not;
+        and a flicker at a run's end — see below.
+      - **⚠️ Found and fixed by it:** run to a refrigerator enclosure's end, the
+        kick's end face lay in the plane of its outer board, which goes to the
+        floor, and the two flickered (645 pixels, package A's left run on a
+        phone). The kick now stops at that board's inside face
+        (`endOnTheFloor`; `toeKick.test.ts` holds it). At a filler against the
+        wall the same flicker shows only in the proof build, where the filler
+        still stands on the floor; standing on the kick, it shares no face with
+        it.
+      - **The colour** (`index-Ca_7xklZ.js`): the old black slot under B's, D's
+        and E's oven towers (157 to 702 pixels), the kick through the Install
+        view's ghost, and nothing in C.
+      - **The recess** (`index-CSQbd8au.js`, the build itself): the band at the
+        cabinets' feet along every run and round the island, the dishwasher's
+        foot, and nothing under the refrigerator and column banks — 8,000 to
+        11,500 pixels in Materials, 7,900 to 9,300 in the White model, 21,000
+        to 31,500 in Install, 6,800 to 9,100 on a phone.
+      Before and after: `docs/fixes/round-92b-{A..E}-desktop-before-after.png`,
+      `round-92b-D-oven-B-dishwasher-closeups.png`,
+      `round-92b-E-island-A-corner-closeups.png`.
+    - **⚠️ Found by Leo trying the build before the push (`index-CSQbd8au.js`):
+      B's and D's rangetop stood on nothing.** The drawer base under a
+      rangetop stood on the kick like every base cabinet, and the kick broke at
+      every cooking opening — so a strip of floor showed under it, in B and D
+      as they open and wherever a rangetop is picked. Round 92b's own: on
+      round 92a the drawer base stood on the floor and the break was hidden.
+      - **The fix asks round 83's answer, not a new one.** The kick breaks at
+        the cooking opening only where the range stands on the floor —
+        `standsOnTheFloor` (cookingSurface.ts), the other side of
+        `dropsIntoCounter`, asked of `rangeModelFor` the package the room is
+        built round, which is what the run asked when it ordered the drawer
+        base or left the opening. The counter had the same answer as a
+        wrapper of its own (`standsOnTheFloor` in counter.ts); it is the one
+        function now, and both read it.
+      - **Anything else lifted over a gap?** Checked, not assumed: every box on
+        a wall run whose foot is 4" up, in every package and arrangement, has
+        the kick under the whole of it. On `index-CSQbd8au.js`'s code it found
+        exactly B's and D's `back-range-DB36-0`, in every arrangement of both,
+        and nothing else — the coffee and oven towers, their boards, the
+        fillers, the corner pieces all have their kick.
+      - **Tests** (`toeKick.test.ts`, 10 more, 37 in all): per package, every
+        range it offers that fits and then its own again — the kick runs on
+        under a rangetop and breaks exactly at a floor-standing range's two
+        sides; E has no range on a run, and its island's kick is one piece;
+        per package, nothing standing 4" up without the kick under it. 5 red on
+        `index-CSQbd8au.js`'s code — A's, B's and D's ranges (each "PCG366W:
+        broken, want runs on") and B's and D's lifted drawer base — each for
+        what it names; the other 5 green there by design (C's 30" opening
+        takes no rangetop, E has none on a run, A, C and E lift nothing over a
+        gap).
+      - **Measured** (D17's first way; the build Leo tried, `index-CSQbd8au.js`,
+        rebuilt from a copy of the tree to the same hash, against the fix,
+        `index-EfkWpCd-.js`; the mouse at 1440 x 900, a finger at 390 x 844,
+        `?quality=high`; each build shot twice, and every pair of runs of one
+        build agreed to the pixel but the one pixel at (144, 225)). B and D as
+        they open, Materials and White model: **220 and 191 pixels, all inside
+        the rangetop's foot** (B x 588-677, D x 814-895); the phone, 51 and 43
+        there. B and D with the island off, and A with its range changed to
+        PCG366W, the same: 220, 191, 243. **A, C and E as they open: 0.** The
+        Install view changed more — 10,931 pixels in B and 20,292 in D, out to
+        the oven tower — and it was **zeroed, not explained**: a proof build
+        with the kick under the rangetop drawn as a piece of its own, the same
+        geometry split at the opening's sides (`index-X5oKdcmY.js`, not
+        committed), is 0 and 2 pixels off the fix in Materials, and against
+        `index-CSQbd8au.js` its Install view changes only at the rangetop (B
+        7,055, D 5,697 pixels, inside x 588-728 and 814-942). So the rest is the
+        kick being one box instead of two: the ghosted Install view blends the
+        see-through boxes in another order over the 18" counter beside the
+        rangetop. Every unbroken stretch of kick is one box already; the fix
+        leaves it so. Before and after:
+        `docs/fixes/round-92b-rangetop-kick-before-after.png`,
+        `round-92b-rangetop-kick-A-pcg366w-before-after.png`.
   - Its break at a freestanding range, or a freestanding refrigerator, is still
     exactly at the machine's side, and the run's start still meets the wall or
     the corner cabinet.
@@ -5735,7 +5908,10 @@ Registered, not scheduled. None of these is a round of its own.
     the kick's end met the end panel. Round 50's sentence, "the toe recess
     shows only at the front", describes the intent, not the drawing. In the
     install view the carcass is ghosted, and the kick can be seen through it.
-- **Whether the front of a base cabinet shows a toe kick recess.** *(Leo,
+- ~~**Whether the front of a base cabinet shows a toe kick recess.**~~
+  **Closed in round 92b, Leo: yes** — every base cabinet stands on a toe kick
+  that shows, in the doors' finish (D22's toe kick entry, round 92b; D13). What
+  follows is the entry as it stood: *(Leo,
   round 85: registered, his to decide; not drawn in round 85.)* Today the
   base carcass and its door stand on the floor and the kick is hidden inside
   (D22, round 50, corrected in round 85). Drawing a recess would mean the
@@ -5919,6 +6095,44 @@ Registered, not scheduled. None of these is a round of its own.
     move (D1) — the plan should say so in so many words. The door keeps only
     its hex, and since round 92 no two RAL codes share one (D15), so a link can
     carry the code and come back to the same colour.
+- **What stands beside an oven tower, on the side away from the range, is
+  carried to the tower's top however wide it is.** *(Found in round 92b from
+  Leo trying package D with "Oven tower: Left of the range" — the cabinet in
+  the corner looked the wrong height. On the live site as well, round 92a; not
+  round 92b's. Leo: a round of its own, not round 92b. **Round 92c, before
+  93** — Leo, because B's own default room is affected too, against D11 rule
+  6's 15" of counter beside the refrigerator.)*
+  - **Leo's rule for round 92c, his site practice:** a stretch beside the
+    oven tower on the side away from the range narrower than 9" is finished
+    panel to the top, as now; one 9" or wider is ordinary counter, with
+    ordinary wall cabinets over it (12" deep, from 54"), like the rest of the
+    bank. A plan is read out first and nothing is built until Leo has it.
+  `besideTheTower` (cabinets.ts, since 2026-09-08, `3075c10`, "fill beside the
+  tower") takes a counter stretch beside a tower that stands `beside:
+  "range"`, and on the side away from the range draws finished panel from the
+  counter (36") to the tower's top (96"), as deep as the run (24"), with a 12"
+  box stacked on it to 108" (D19). Its commit and its comment wrote it for a
+  strip — "the spice pull-out on one, whatever finishes the run on the other",
+  so a 96" tower has no "slot of bare wall down each side" — and it looks at
+  no width. Nothing in this file recorded it until now.
+  - **Where it is more than a strip** (read from the room as built, round
+    92b's code; every buildable package, the tower either side, the sink on
+    either leg, either corner, the coffee cabinet on either leg):
+    - **D, the tower left of the range:** the corner landing — with D's own
+      sink, corner and coffee leg a 27" base (B27) and its 1-1/2" filler, so a
+      28-1/2" box 24" deep from the worktop to the ceiling, where the wall
+      cabinets beside it are 12" deep from 54"; 21" (DB21) or 12" (B12) in
+      other arrangements.
+    - **B, the tower left of the range:** the corner landing, 15" or 12".
+    - **B as it opens** (the tower right of the range): the refrigerator's 15"
+      landing between the tower and the column bank (D11 rule 6) — the panel
+      stands on the whole of that counter.
+    - The case it was written for: D with the tower right of the range, the
+      3" filler that ends the back run.
+  - **Not round 92b's:** the code is untouched by it, and D with the tower left
+    on round 92a's build (`index-FG51Hp_p.js`, served from a copy) against
+    round 92b's changes only at the cabinets' feet and the dishwashers;
+    nothing at the corner. Shots: `docs/open-items/round-92b-D-tower-left-corner.png`.
 - **Registered rounds after 78, in Leo's order.** *(Leo, rounds 78-79; not
   started. Round 79 put the interface round first and moved the rest back.)*
   0. **An interface round, plan first, with phone and desktop sketches.**
@@ -5973,7 +6187,14 @@ Registered, not scheduled. None of these is a round of its own.
        the HTML over it by position (Leo, round 90; its entry above); and this
        machine and CI on one Node version (Leo, round 92a; its entry above).
        **Round 92a**, before 93: the doors open in RAL 5015 (Leo; D15, round
-       92a). **Round 94**, after 93: a share button (Leo, round 92; the entry
+       92a). **Round 92b**, before 93: every base cabinet on a toe kick that
+       shows, in the doors' finish (Leo; D22's toe kick entry and D13, round
+       92b) — it replaced a plan for a board under the oven towers alone,
+       withdrawn by Leo. **Round 92c**, before 93: what stands beside an oven
+       tower on the side away from the range — under 9" a board to the top,
+       9" and over counter with wall cabinets over it (Leo; the entry "What
+       stands beside an oven tower" above), found in round 92b and not part
+       of it; a plan first. **Round 94**, after 93: a share button (Leo, round 92; the entry
        "A link that rebuilds the same kitchen" above), a plan read out first.
        What each decides is written here when that round is built.
   1. **A hood's own outlet first.** The duct drawn and quoted follows the

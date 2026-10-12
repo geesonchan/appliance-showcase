@@ -12,7 +12,7 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **round 92** (`docs/decisions.md` is the record of
+Covers the repository up to **round 92b** (`docs/decisions.md` is the record of
 rounds; `git log` is the record of commits). It replaces the v1–v9 briefs that
 were pasted into chat.
 
@@ -58,9 +58,9 @@ every figure of it, is `data/packages.json`; D16 and D20 say how a package is
 put together and why E was built the way it was. **Do not copy those numbers
 anywhere**: the file is the one source, and the tests read it.
 
-### Where it stands (round 92)
+### Where it stands (round 92b)
 
-- **All five packages are live.** Rounds 73–79, 81–90 and 92 each shipped
+- **All five packages are live.** Rounds 73–79, 81–90, 92 and 92a each shipped
   (round 80 built nothing; 91 waits, below), and each was checked against the live page's asset hashes
   after its workflow finished.
 - **The project is in real use.** Rounds 73–77 all came from Leo using package
@@ -93,7 +93,7 @@ anywhere**: the file is the one source, and the tests read it.
   round 87, from Leo using package A); 88 the model card at the left of the scene on a desktop (**done**, D12 round 88; the phone's later); 89 a refrigerator's surround following the model chosen (**done**, D16 round 89); 90 the 36" chimney hood HMCB36WS (**done**, D16 round 90); 92 every RAL
   Classic colour, built before 91 with its number kept, and the importer
   stopping when hand-filled cells come in blank (**done**, D15 and D4 round
-  92); 92a the doors opening in RAL 5015 (D15 round 92a); 91 the right panel's tabs, the `Slider` warning and the "MT" chip over
+  92); 92a the doors opening in RAL 5015 (D15 round 92a); 92b every base cabinet on a toe kick that shows (D22 and D13 round 92b); 92c what stands beside an oven tower on the side away from the range, before 93 (a plan first; Open items); 91 the right panel's tabs, the `Slider` warning and the "MT" chip over
   "E" on a Chinese phone (waiting for Leo's feedback from use); 93 why a tap on
   the phone card now and then rebuilds nothing, and the mouse-or-script smoke
   test comparing the canvas by pixels and the HTML over it by position, and
@@ -129,6 +129,7 @@ anywhere**: the file is the one source, and the tests read it.
 | `tests/previewServer.test.ts` | The browser suite's preview server leaves its port free when stopped (round 89). |
 | `src/data/hmcb36ws.test.ts`, `tests/chimney36.test.ts` | The 36" chimney hood HMCB36WS in A's, B's and D's openings, and a chimney hood's cover its own model's (D16, round 90). |
 | `src/data/ral.test.ts`, `tests/ralColours.test.ts` | Every RAL Classic code with its source and date, the special finishes, and what the RAL input says under it (D15, round 92). |
+| `src/data/toeKick.test.ts`, `tests/toeKick.test.ts` | What stands on the toe kick and what goes to the floor, where the kick runs, the corner piece, the island's 3", a dishwasher's kick panel, and rough-in in a base cabinet read from `cabinets.ts` (D22, round 92b). |
 | `src/store/defaultDoors.test.ts`, `tests/defaultDoors.test.ts` | Every package opens with its doors in RAL 5015; the interface green and the accent palette unchanged (D15, round 92a). |
 | `scripts/handFilled.test.ts` | The import stops when a checked model's hand-filled cells come in blank, unless `--allow-empty=MODEL` names it (D4, round 92). |
 | `scripts/screenshots.mjs` | Screenshot sets by round. |
@@ -185,12 +186,13 @@ what to go and read.
 - **A figure that cannot say exactly why it is that figure** may be working
   round a bug; record that it cannot. D17.
 - **One rule is written once.** D17 carries the table of every time it was
-  written twice: thirteen rows, for fourteen times it happened — round 60's
+  written twice: fourteen rows, for fifteen times it happened — round 60's
   quarter-inch window step is counted as a near relative, the fifth, and has
   no row of its own. One is still open, the first; the twelfth (round 84,
   the half inch that is a scribe) was closed in round 85, and the thirteenth
-  (round 87, how a hood hangs) and the fourteenth (round 89, how a
-  refrigerator is built in) were each found and closed together. The eighth (round 74, 54"
+  (round 87, how a hood hangs), the fourteenth (round 89, how a
+  refrigerator is built in) and the fifteenth (round 92b, where a base
+  cabinet is, for its rough-in) were each found and closed together. The eighth (round 74, 54"
   and 52" for the same handle height) was stopped before the second copy was
   written; round 78 found a third copy of one already marked closed.
 - **A figure from a script, a probe or a set of shots is quoted from the run
