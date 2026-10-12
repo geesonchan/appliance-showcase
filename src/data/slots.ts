@@ -7,6 +7,7 @@ import { parseDataFile, slotsFileSchema } from "./schema";
 import { ISLAND_HOOD, assertHoodRoute, chimneyOf } from "./hood";
 import { slotsAsBuilt } from "./fridgeMount";
 import { inColumnBank } from "./layoutTemplate";
+import { ovenTowerOf } from "./ovenTower";
 
 export { ft, CABINET_STANDARDS, ROOM, RUN, RUNS, RUN_BY_ID, PANEL, FRIDGE_OPENING, HOOD_OPENING, ISLAND, OMITTED_SLOTS, isOmitted } from "./room";
 
@@ -59,8 +60,12 @@ function size(
   spec: PackageSlot,
   packageSlots: readonly PackageSlot[],
 ): SlotRecord & Pick<Slot, "above" | "tallUnitFor" | "inColumnBank"> {
+  // An oven tower's hole is its oven's standard cutout, inside a tower the
+  // slot's width overall (round 92c, `ovenTower.ts`): the fit check, the vent
+  // in its top and the points in it all read this.
+  const tower = ovenTowerOf(PACKAGE, spec);
   const box = {
-    w: spec.widthIn,
+    w: tower ? tower.openingIn : spec.widthIn,
     h: openingHeightIn(record, spec),
     ...(spec.depthIn === null ? {} : { d: spec.depthIn }),
   };

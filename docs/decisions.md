@@ -664,7 +664,8 @@ each one has a test with a case that breaks it.
     makes the tower crowd the cooking. The tower's own side is a 3/4" finished
     end panel from the floor to its top *(since round 92b from the toe kick, 4"
     up, with the tower, unless it is the run's exposed end — D22's toe kick
-    entry, round 92b)*, and the wall's spare inches go to
+    entry, round 92b; since round 92c both sides are inside the tower's own
+    30", a standard install — below, round 92c)*, and the wall's spare inches go to
     these landings before they go anywhere else. A wall that cannot pay for
     eighteen builds them narrower, three inches at a time, together, and never
     under six.
@@ -1010,7 +1011,9 @@ of the opening — is cut through along its back edge instead, hard against the
 back of the opening, where it is behind the machine and under the cabinet and
 cannot be seen from the room. It is most of the opening's width and 2"-3" deep;
 it is built at 3", with a 3/4" board left each side so the shelf still bears on
-the carcass, which makes it 28-1/2" x 3" in a 30" opening. The junction box is
+the carcass, which makes it 28-1/2" x 3" in a 30" opening *(27" x 3" since
+round 92c, the same rule in the standard install's 28-1/2" opening — Leo, round
+92c; below)*. The junction box is
 where the machine's own sheet puts it, above or beside the opening (MEM301WS;
 there is no PODS302B sheet, see above). It is drawn in the install view with its
 width figured, and it is a line on the install list. It applies to every tall
@@ -1170,6 +1173,119 @@ A-D never took).
   range written with its source. A model with no recorded range fails, so a
   default nobody set cannot pass. It was red on round 73's code for E alone,
   in all nine of its arrangements.
+
+**Amended 2026-10-12 (round 92c), Leo: every oven tower is a standard install,
+and what stands beside it on the far side is a board only when it is a strip.**
+From Leo trying round 92b on package D with the oven tower left of the range:
+the cabinet in the corner looked the wrong height (Open items, round 92b).
+- **The install, Leo's site practice in his words:** "如果 MEM301WS 是 Flush
+  安装，侧板要多出 3/4" 侧板出来，如果是 standard 安装，整个 tower 的总宽度连侧板
+  就是 30"". B, D and E are all standard (Leo): **the tower is 30" overall, its
+  two 3/4" sides inside it, and the hole between them is the oven's standard
+  cutout, 28-1/2"**. The manufacturers' figures, each sheet read as pictures
+  page by page (round 92c): MEM301WS, `mem301ws-spec.pdf` p. 1 (standard
+  48-1/2" x 28-1/2" x 23-1/2", flush 49-1/8" x 30" x 24-1/2", trim 1/2" – 9/16"
+  – 0"), p. 2 (the standard cabinet, 28-1/2" (724 mm); the flush top view, 30"
+  (762 mm) between the cabinet's sides with a 3/4" reveal cleat inside each,
+  28-1/2" between the cleats, 24-1/2" of flush inset depth), p. 3; and
+  `mem301ws-manual.png` §5.6 the same, with "Flush installation requires two
+  side cleats to be attached inside the cabinet frame, recessed from the
+  front". PODS302B, `pods302b-spec.pdf` p. 1 (standard 47-3/8"-48-1/8" x
+  28-1/2" x 23-1/2", flush 49" x 30" x 24-1/2", trim 3/4"-1-1/2" – 9/16" – 0"),
+  pp. 2-3 as MEM301WS's. ME301YP and PO302W, which the towers also take, from
+  their own sheets, downloaded in round 92c from the URLs their rows cite
+  (`me301yp-spec.pdf`, `po302w-spec.pdf`): standard 27"-28-5/8" x 28-1/2" x
+  23-1/2" and 50"-51-1/2" x 28-1/2" x 23-1/2" (each p. 1, and p. 2's
+  wall-mount drawing, 28-1/2" (724 mm)). **No document gives a tower's outside
+  width or a side's thickness**: that is Leo's practice alone.
+- **What was built until round 92c was neither install**: a 30" hole with no
+  sides (`insetIn: 0`) and a separate 3/4" board outside it toward the range in
+  B and D — 30-3/4" — and nothing on the far side, which the board to the top
+  covered; in E a board outside each side, 31-1/2". The importer's note on
+  MEM301WS said standard (round 20), `standardInstall` worked out the 3/4" and
+  nothing drew it, and `column()`'s comment said a board each side as items of
+  the run — three records, three answers (D17's table).
+- **One answer: `ovenTower.ts`.** The package slot says how its tower is
+  installed (`towerInstall`, "standard" only for now); `ovenTowerOf` gives the
+  tower's overall width (the slot's 30"), its opening (the package's own oven's
+  standard cutout, 28-1/2") and each side ((30" - 28-1/2") / 2 = 3/4", worked
+  out, not written again). The run (`column`: the tower inset by its sides, no
+  board outside it), the slot's opening (slots.ts: the fit check, the vent, the
+  points in it), the trim (`standardInstall.sideIn`) and rule 12's check
+  (`d11-12`: no board of the run between the tower and the counter, the tower
+  inset by its sides) all ask it. An oven tower that does not say how it is
+  installed is refused loudly. The coffee towers are not oven towers and keep
+  their 3/4" board outside each end (Leo, round 92c).
+- **The vent in the top of the opening** follows round 32's rule in the new
+  opening: 28-1/2" less 3/4" each side, **27" x 3"** (Leo, round 92c).
+- **ME301YP's and PO302W's data are their standard cutouts now**, with their
+  bodies from p. 1 (`PUBLISHED_SPECS`, through `npm run import:csv`; the diff
+  is those two rows and the date). Their rows carried the flush cutout, 30"
+  wide, which in a 28-1/2" opening would have been refused as 1-1/2" too wide.
+  The heights are each range's short end, as PODS302B's is.
+- **What stands beside the tower on the side away from the cooking surface,**
+  Leo's site practice, round 92c: a stretch narrower than
+  `CABINET_STANDARDS.widthIn.min` (9", "窄到做不成吊柜"), the whole stretch
+  measured, is finished panel to the tower's top, as before (D's 3" filler with
+  the tower right of the range); 9" or more is counter with the bank's wall
+  cabinets over it, 12" deep from 54". Until round 92c any width was filled: B
+  as it opens stood a 24"-deep panel on the refrigerator's 15" landing (rule
+  6), D with the tower left of the range one on 28-1/2" of the corner's
+  worktop. `filledBesideTower` (layoutTemplate.ts) is the one answer; the wall
+  cabinets (`wallCuts`) and the drawing (`besideTheTower`, cabinets.ts) had
+  each said "the far side" on their own (D17's table). In the code since
+  2026-09-08 (`3075c10`), recorded nowhere here until round 92b's Open item.
+- **What it changes** (every buildable package and arrangement, round 92c's
+  code against round 92b's): A and C nothing. B: its room as it opens is 3/4"
+  shorter, 201-5/8" (Leo, round 92c: accepted; D18); the refrigerator's
+  landing is counter with a 15" wall cabinet over it. D: the 3/4" goes to the
+  stretch beside the tower (the corner landing, the refrigerator's) or off a
+  wall that was at its minimum; with the tower left of the range the corner is
+  counter with the bank run over it. E: its oven tower's 1-1/2" of boards go
+  to the sink's landing (24" to 25-1/2" as it opens) or off a grown wall. No
+  room is refused that built, or built that was refused.
+- **Tests.** `ovenTower.test.ts`, 20 cases — the tower 30" with its 3/4" sides
+  inside round a 28-1/2" opening, no board of the run against it, the same
+  side drawn each side, the trim's side, the vent 27", the coffee towers
+  unchanged, every oven the towers offer 28-1/2" and taking them on width, the
+  loud refusal, and the stretch beside the tower; 16 red on round 92b's code
+  (`c6b091b`), each for what it names, 4 green there by design (the coffee
+  towers, D's 3" filler, the trim's 3/4" — computed then and drawn by nothing —
+  and the reset). With the 9" broken to 20" on purpose, exactly the three cases
+  about it went red. Its first run found no tower at all — it read the slot
+  record's category, `microwave`, where the package's is `wall-oven` — and its
+  counts said so (D22, round 72). Rewritten, each with its reason:
+  `packageLayouts.test.ts`'s "fills the far side of the tower" (it held the
+  fault: B's landing under a panel) and its tower case, `packageD.test.ts`'s
+  rule 12 case and D's 223-1/2", `toeKick.test.ts`'s boards,
+  `coffeeTower.test.ts`'s 25-1/2", `openingAbove.test.ts`'s PO302W,
+  `autoGrow.test.ts`'s 206-3/4" and 201-5/8".
+- **The words on the list** change by one figure: the vent line and its
+  callout read 27" × 3" in B, D and E (`rule.towerVent`, `towerVent.callout`;
+  the wording is unchanged).
+- **Measured** (D17's way: round 92b's code built here, `index-C2bJK1v-.js`,
+  the live page's own, against round 92c's, `index-BV-PMbnY.js`, each from a
+  copy; the mouse at 1440 x 900, a finger at 390 x 844, `?quality=high`; each
+  build shot twice, and the four pairings between builds compared, the
+  closest taken, since runs of one build fall into the two states of the wash
+  in Open items):
+  - **A and C as they open: 0 pixels.**
+  - **B at its old wall** (`?back=202.375` on both builds — the first way, the
+    changed length put back): 15,143 pixels in Materials, 13,571 in the White
+    model, 25,900 in Install, **all inside x 671-985, y 256-609**: the oven
+    tower and the refrigerator's landing. As it opens B's room is 3/4" shorter
+    and the whole picture moves.
+  - **D and E as they open** (31,066 and 26,040 pixels): not zeroed by a
+    parameter — no setting puts the 3/4" (E's 1-1/2") back where it was. The
+    room dumps say what moved and by how much: in D the corner's stretch grows
+    3/4" and everything from it to the tower moves with it, the window
+    re-centred and the light through it on the floor with it; in E the sink's
+    landing grows 1-1/2", and the window and its light likewise. Every
+    arrangement's boxes against the standard install's prototype: identical,
+    320 of 320 rooms.
+  Before and after: `docs/fixes/round-92c-B-old-wall-before-after.png`,
+  `round-92c-D-before-after.png`, `round-92c-D-tower-left-before-after.png`,
+  `round-92c-E-before-after.png`.
 
 **Scheme 01 as laid out.** Left wall, from the far end back to the corner:
 refrigerator tower, 15" landing, corner cabinet. Back wall, from the corner
@@ -2731,6 +2847,8 @@ repository has them)* — one rule, written more than once:
 | round 87 | how a hood hangs, and so what is over it | the package's hood slot (`spec["slot-hood"].installType`) read by the wall cabinets over the hood (`banksOn`), its height (`slots.ts`, a chimney), the duct's route (the slot's data) and the housing-shape control; the chosen model's install type read by the strips beside it (`hoodSideFillers`), the fit's filler and the checklist's hood width | **one**: `hoodMount` in `hoodMount.ts`, from the chosen hood, which all of them ask (round 87) | **it had bitten, on the live site** (Leo, from use): A's hood swapped for the VCIN36GWS liner hung between the wall cabinets with no housing, B's and D's housing stayed over an under-cabinet hood, a chimney hood in A had a bridge over it and its spec card said "Up through cabinet", and an under-cabinet hood in C hung on bare wall. `hoodSwap.test.ts` holds every hood every opening takes. |
 | round 89 | how a refrigerator is built in, and so what stands round it | the package's refrigerator slot — `enclosure` read by the run (an enclosure or rule 11's parts), the machine's inset and the slot's cabinet type (`standsAlone`), `heightIn` by the cabinet over a counter-depth machine (`fridgeOpeningH`) and the bridge over an enclosure; only the machine's own drawing read the model | **one**: `fridgeMount` and `fridgeOpeningHeightIn` in `fridgeMount.ts`, from the chosen refrigerator, which the run and the slots ask through `slotsAsBuilt` (round 89) | **it had bitten, on the live site** (Leo, from use): C's counter-depth T36FT820NS changed for the built-in T36BT120NS drew the 84" machine running up behind the cabinet over C's 72" opening; A's built-in changed for T36FT820NS stood it in A's enclosure with a panel over it. `fridgeSwap.test.ts` holds every refrigerator every opening takes. |
 | round 92b | where a base cabinet is, floor to top, for a rough-in point "in the cabinet" | `BASE_BOX` in cabinets.ts, which draws the cabinet; and five copies of `[0, ROOM.counterHeight - ROOM.counterThickness]` in `roughIn.ts`, one per host — the neighbour's cabinet, the sink base, the cabinet beside a tower, the other neighbour, the island's cabinet beside an opening — each from the room's floor | **one**: `BASE_CABINET_BAND` in cabinets.ts, which the hosts read (round 92b) | **it never had**: the two agreed while the cabinet stood on the floor. It would have the moment the cabinets stood on the kick — every figure "from the bottom" of a base cabinet drawn 4" low, which is the round that found it. `toeKick.test.ts` counts the copies in `roughIn.ts` (none) and holds a sink-base point 4" up with its figure unchanged. *(Row added after round 92b's own write-up, which cited this table without one.)* |
+| round 92c | how an oven tower is installed, and so where its sides are and how wide its hole is | the importer's note on MEM301WS (standard: a 30" cabinet, a 28-1/2" hole, 3/4" each side — round 20); `standardInstall` in ovenTrim.ts, which worked out that 3/4" (`sideIn`) and which nothing read; and the run, which built a 30" hole (`insetIn: 0`) with a separate 3/4" board outside it toward the range in B and D and each side in E, its comment saying a board each side as items of the run; rule 12's check asked for that board | **one**: `ovenTowerOf` in `ovenTower.ts`, from the package slot's `towerInstall` and its own oven's standard cutout, which the run, the slot's opening, the trim and the check all ask (round 92c) | **it had bitten, on the live site**: every oven tower was neither install — B's and D's 30-3/4" with one side board, the far side open behind the board to the top, E's 31-1/2" — found when round 92c took that board away and the machine's steel side showed (Leo, from use of round 92b). `ovenTower.test.ts` holds every tower in B, D and E. |
+| round 92c | what stands beside an oven tower on the side away from the cooking surface, filled to its top | `besideTheTower` in cabinets.ts, which drew it, and `filled` inside `wallCuts` (layoutTemplate.ts), which kept the wall cabinets off it — each finding "the far side" on its own; they agreed | **one**: `filledBesideTower` in layoutTemplate.ts, with round 92c's 9" in it, which both ask (round 92c) | **it never had**: the two agreed. It would have the day one was given the 9" and the other not — a wall cabinet hung over a board to the ceiling, or a bare stretch of wall over a counter nobody filled. `ovenTower.test.ts` counts the copies (one). |
 
 Round 60's quarter-inch window step is a near relative rather than a member:
 one rule, but its search and its judgement worked to different resolutions,
@@ -2773,8 +2891,10 @@ from the package in four places and from the model in three. The fourteenth,
 round 89's, likewise: how a refrigerator is built in, read from the package
 everywhere but the machine's own drawing. The fifteenth, round 92b's, likewise:
 where a base cabinet is, written once to draw it and five times more to
-measure a rough-in point in it. The table has fourteen rows for those
-fifteen: round 60's has none of its own. The table is here so that the next one found
+measure a rough-in point in it. The sixteenth and seventeenth, round 92c's,
+likewise: how an oven tower is installed, three records and three answers, and
+what is filled beside it, judged twice. The table has sixteen rows for those
+seventeen: round 60's has none of its own. The table is here so that the next one found
 is added to it rather than rediscovered.
 
 **An exception written into a test is broken on purpose before it is
@@ -3085,6 +3205,7 @@ and a reason that were both wrong. The test that held the eighth
 
 **Package E has one switch without slack, by name.** *(Leo, round 69.)* Its
 room is 180" x 168"; moving its coffee cabinet to the left leg asks 176-1/8"
+*(174-5/8" since round 92c, below)*
 and grows the wall, rather than every E room opening eight inches deeper for one
 rare switch (D20, round 69). And E refuses a room with no island whatever the
 walls — its cooktop is in the island — which is a refusal by design, not for
@@ -3106,6 +3227,24 @@ eighth was the window bug, and the left wall is 178-3/4" again since round
 61.** The spare inches are handed to the landings in the reverse of the
 shrink order, as D13 already does. A package's default walls are a floor:
 choosing it never shortens a room somebody has made bigger.
+
+*Amended 2026-10-12 (round 92c), Leo: the oven tower's sides are inside it,
+so some minimums are 3/4" or 1-1/2" less.* Every oven tower is now a standard
+install, 30" overall with its sides inside (D11 rule 12, round 92c); B's and
+D's had a 3/4" board outside it and E's two. The figures above are kept as
+they were; what they are now:
+- **B as it opens is 201-5/8" x 144"**, not 202-3/8": B names no walls of its
+  own, so its room as it opens is its minimum grown from A's, and that is 3/4"
+  less. *Leo, round 92c: accepted.* A room somebody made longer keeps its
+  length (this entry: a switch never shortens a room).
+- **D**: the coffee cabinet on the back wall needs 223-1/2" (was 224-1/4"),
+  and the columns on the back leg 206-3/4" (was 207-1/2"). D's own room is
+  unchanged, 224-1/4" x 178-3/4", and has the 3/4" as slack.
+- **E**: moving its coffee cabinet to the left leg asks 174-5/8" (was
+  176-1/8"; with a lazy susan 168-5/8", was 170-1/8"), and still grows the
+  168" wall.
+- `autoGrow.test.ts` and `packageD.test.ts` hold the new figures, each with
+  the reason.
 
 **What this forbids:** refusing a switch that a longer wall within the slider's
 range would build; growing a wall further than the change needs; growing a wall
@@ -5600,7 +5739,9 @@ Registered, not scheduled. None of these is a round of its own.
     - **Allowed, the room not yet checked**: refrigerators (A's and B's
       built-in opening with T36FT820NS or T30IR905SP; C's counter-depth opening
       with T36IT100NP, T36BT120NS or T30IR905SP, each 12" taller than it); D's
-      wine column with PRW24C01CG; the oven towers (B's and E's with ME301YP,
+      wine column with PRW24C01CG; the oven towers *(round 92c: ME301YP and
+      PO302W carry their own sheets' standard cutouts now, 28-1/2", and the
+      towers are standard installs; still not looked at swapped in)* (B's and E's with ME301YP,
       PO302W, PODS302B; D's with ME301YP, MEM301WS, PO302W). Each was shot in
       round 86 on its own and the package's own model, flown to — 
       `docs/open-items/round-86-allowed-*.png` — for Leo to set the order.
@@ -5867,6 +6008,10 @@ Registered, not scheduled. None of these is a round of its own.
     only at a model the import still has; a model with a `verifiedAt` in the
     committed file that the import no longer produces at all is passed over.
     Build the two together.
+  - *Round 92c:* an oven tower's own oven is now read to build the tower
+    (`ovenTowerOf`, its standard cutout), and a package whose own oven has
+    left the catalogue is refused loudly there — the page would not load. The
+    import check above is what would stop it first.
 - ~~**The strips beside a hood and inside a tall unit's opening take no shadow
   and stand 3/4" behind the doors.**~~ **Done in round 85** (D13, round 85;
   D11 rule 12, round 85), with the half inch joined into one. What follows is
@@ -6045,6 +6190,20 @@ Registered, not scheduled. None of these is a round of its own.
       不是 RAL Classic 色号".
     - The input takes "5015", "RAL 5015" and "ral5015" (it already does; the
       round adds the cases to the test).
+- **A flush install for an oven tower, as an option a package chooses.**
+  *(Leo, round 92c: registered, later.)* Every oven tower is a standard install
+  since round 92c (D11 rule 12, round 92c; `towerInstall`, whose schema takes
+  only "standard"). Flush, Leo's site practice: "如果 MEM301WS 是 Flush 安装，侧板
+  要多出 3/4" 侧板出来" — a 30" hole with a 3/4" side outside it each side, 31-1/2"
+  overall. To read first, when it is built:
+  - **the 24-1/2" "flush inset depth"** on every sheet's flush top view
+    (MEM301WS and PODS302B p. 2, ME301YP p. 2, PO302W p. 2) against D13's 24"
+    tall cabinet — where it is measured from has not been settled;
+  - **the flush cutouts are taller**: 49-1/8" (MEM301WS) and 49" (PODS302B)
+    against 48-1/2" and 47-3/8" standard, so the box over the oven shortens;
+    the 1" reveal cleats inside the cabinet sides, recessed from the front;
+  - each machine's data then carries both cutouts, and the package's choice
+    picks one (round 92c keeps only the standard: Leo).
 - **This machine and CI on one Node version.** *(Leo, round 92a: registered,
   into round 93.)* CI runs Node 20 (`actions/setup-node`, `node-version: 20` in
   `.github/workflows/pages.yml`) and this machine Node 24, and round 92's first
@@ -6095,8 +6254,12 @@ Registered, not scheduled. None of these is a round of its own.
     move (D1) — the plan should say so in so many words. The door keeps only
     its hex, and since round 92 no two RAL codes share one (D15), so a link can
     carry the code and come back to the same colour.
-- **What stands beside an oven tower, on the side away from the range, is
-  carried to the tower's top however wide it is.** *(Found in round 92b from
+- ~~**What stands beside an oven tower, on the side away from the range, is
+  carried to the tower's top however wide it is.**~~ **Done in round 92c**
+  (D11 rule 12, round 92c): under 9" a board to the top, 9" and over counter
+  with the bank's wall cabinets over it, one answer (`filledBesideTower`); and
+  with it every oven tower made a standard install, its sides inside its 30"
+  (`ovenTower.ts`, Leo). What follows is the entry as it stood: *(Found in round 92b from
   Leo trying package D with "Oven tower: Left of the range" — the cabinet in
   the corner looked the wrong height. On the live site as well, round 92a; not
   round 92b's. Leo: a round of its own, not round 92b. **Round 92c, before
@@ -6194,7 +6357,8 @@ Registered, not scheduled. None of these is a round of its own.
        tower on the side away from the range — under 9" a board to the top,
        9" and over counter with wall cabinets over it (Leo; the entry "What
        stands beside an oven tower" above), found in round 92b and not part
-       of it; a plan first. **Round 94**, after 93: a share button (Leo, round 92; the entry
+       of it; and every oven tower a standard install, its sides inside its
+       30" (Leo) — *done in round 92c* (D11 rule 12, round 92c). **Round 94**, after 93: a share button (Leo, round 92; the entry
        "A link that rebuilds the same kitchen" above), a plan read out first.
        What each decides is written here when that round is built.
   1. **A hood's own outlet first.** The duct drawn and quoted follows the

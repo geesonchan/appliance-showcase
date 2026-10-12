@@ -415,6 +415,14 @@ export const packageSlotSchema = z.object({
    */
   beside: z.enum(["range", "run"]).nullable().default(null),
   /**
+   * How an oven tower is installed (round 92c, Leo). Standard only, for now:
+   * the tower is the slot's width overall, its two sides inside it, and the
+   * hole is the oven's standard cutout. `ovenTower.ts` is the one answer;
+   * a wall oven in a tall unit without one is refused there. Flush, as an
+   * option a package chooses, is registered (Open items).
+   */
+  towerInstall: z.enum(["standard"]).nullable().default(null),
+  /**
    * How far off the floor the opening starts, where it is not on the floor.
    *
    * A refrigerator stands on the floor of its opening; a wall oven hangs in a

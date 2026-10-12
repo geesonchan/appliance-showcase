@@ -38,6 +38,7 @@ const cooktopSlot: PackageSlot = {
   builtForCooktopIn: null,
   tallUnit: false,
   beside: null,
+  towerInstall: null,
   sillIn: 0,
   standsOver: null,
   enclosure: false,

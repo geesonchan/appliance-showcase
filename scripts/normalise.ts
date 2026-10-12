@@ -647,10 +647,10 @@ export const PUBLISHED_SPECS: Record<
   //
   // The standard cutout rather than the flush one the sheet's row carries.
   // Both are the machine's own published figures and the sheet is not wrong:
-  // Leo confirmed the standard install in round 20, and the tower it goes in
-  // is a 30" cabinet, which is a 28-1/2" hole with three quarters of an inch
-  // of cabinet each side of it. A flush install is a 30" hole and a different
-  // tower.
+  // every oven tower here is a standard install (pp. 1-3; Leo, rounds 20 and
+  // 92c). How the tower is built round that cutout — its overall width, its
+  // sides — is src/data/ovenTower.ts, the one answer; this entry is only the
+  // machine's figures.
   MEM301WS: {
     heightIn: 49,
     widthIn: 29.75,
@@ -686,6 +686,37 @@ export const PUBLISHED_SPECS: Record<
       basis:
         "Leo's site practice (D11 rule 12, rounds 37-39): open backs over the steam oven, the cabinets standing off the wall, and a grille under the crown. The sheet (docs/reference/pods302b-spec.pdf) states no ventilation requirement for the cabinet.",
     },
+  },
+  // Thermador ME301YP, from docs/reference/me301yp-spec.pdf (round 92c). The
+  // sheet's row carries the flush cutout, 30" x 29-1/8" x 24-1/2"; every oven
+  // tower here is a standard install (src/data/ovenTower.ts), so this is the
+  // standard one, p. 1 "27" – 28 5/8" x 28 1/2" x 23 1/2"" and p. 2's wall
+  // mount drawing, 28-1/2" (724 mm) wide — built at the short end of the
+  // height, as PODS302B's is. Neither the row nor this is wrong: two published
+  // installs. The body is p. 1's overall, 29" x 29-3/4" x 24-1/2", where the
+  // row had only the nominal 30".
+  ME301YP: {
+    heightIn: 29,
+    widthIn: 29.75,
+    depthIn: 24.5,
+    cutoutWidthIn: 28.5,
+    cutoutHeightIn: 27,
+    cutoutDepthIn: 23.5,
+    installType: ["single"],
+  },
+  // Thermador PO302W, from docs/reference/po302w-spec.pdf (round 92c). As
+  // ME301YP: the row carries the flush cutout, 52-3/16" x 30" x 24-1/2"; this
+  // is the standard one, p. 1 "50" – 51 1/2" x 28 1/2" x 23 1/2"" and p. 2's
+  // wall mount drawing, 28-1/2" (724 mm) wide, at the short end of the
+  // height. The body is p. 1's overall, 52-1/16" x 29-3/4" x 24-1/2".
+  PO302W: {
+    heightIn: 52.0625,
+    widthIn: 29.75,
+    depthIn: 24.5,
+    cutoutWidthIn: 28.5,
+    cutoutHeightIn: 50,
+    cutoutDepthIn: 23.5,
+    installType: ["double"],
   },
   // Thermador TCM24PS, from docs/reference/TCM24PS_Install_Manual.pdf. Its own
   // manual asks for air at its back (p. 11), and step 2 (p. 3) draws that air

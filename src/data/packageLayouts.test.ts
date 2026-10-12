@@ -747,14 +747,18 @@ describe("a bank of tall units", () => {
       const towerAt = run.segments.findIndex((s) => s.slot === "slot-microwave");
       expect(towerAt < rangeAt, where).toBe(towerSide === "left");
 
-      // Between them: the tower's own side panel, and open counter.
+      // Between them: open counter, and nothing of the run. Since round 92c the
+      // tower's sides are its own, 3/4" inside its 30" (a standard install,
+      // ovenTower.ts); until then a separate 3/4" board stood here.
       const [from, to] =
         towerAt < rangeAt ? [towerAt + 1, rangeAt] : [rangeAt + 1, towerAt];
       const between = run.segments.slice(from, to);
-      const side = between.find((segment) => segment.kind === "tall")!;
-      expect(side, `${where}: no side panel`).toBeTruthy();
-      expect(inches(side.to - side.from), `${where}: side panel`).toBeCloseTo(0.75, 6);
-      expect(side.modules.every((module) => module.kind === "panel"), where).toBe(true);
+      expect(between.some((segment) => segment.kind === "tall"), `${where}: a board between`).toBe(false);
+      const tower = run.segments[towerAt];
+      expect(
+        [inches(tower.to - tower.from), tower.modules.find((module) => module.kind === "tall")!.insetIn],
+        `${where}: the tower's own sides`,
+      ).toEqual([30, 0.75]);
 
       const counter = between
         .filter((segment) => segment.kind === "counter")
@@ -768,20 +772,20 @@ describe("a bank of tall units", () => {
   });
 
   /**
-   * No bare wall on the far side of a 96" tower — and counter on the near one.
+   * Counter on both sides of the tower, as B opens: nothing stands on either.
    *
-   * What finishes the run beside the tower is carried up to its top, so there
-   * is no strip of tile down that side. Between the tower and the cooking
-   * surface is the other case entirely: that stretch is the clearance the
-   * rangetop's sheet asks for, and it stays worktop.
+   * Until round 92c this said the far side was "carried up to its top", and on
+   * B that was the refrigerator's 15" landing (D11 rule 6) under a 24"-deep
+   * panel from the worktop to the ceiling — the test held the fault. Leo,
+   * round 92c, his site practice: only a stretch narrower than the narrowest
+   * cabinet is a board to the top; 9" or more is counter with the bank's wall
+   * cabinets over it (`filledBesideTower`). The near side is the clearance the
+   * rangetop's sheet asks for, as before.
    */
-  it("fills the far side of the tower and leaves the near side counter", () => {
+  it("leaves both sides of the tower counter, the refrigerator's landing among them", () => {
     activate("package-b");
     const run = RUNS.find((r) => r.segments.some((s) => s.slot === "slot-microwave"))!;
     const at = run.segments.findIndex((s) => s.slot === "slot-microwave");
-    const rangeAt = run.segments.findIndex((s) => s.slot === "slot-range");
-    const tower = run.segments[at];
-    const towerTop = tower.modules.find((m) => m.kind === "tall")!.heightIn!;
 
     // What stands *on* the counter over a stretch — joinery rising off the
     // worktop rather than a wall cabinet hung eighteen inches above it.
@@ -799,26 +803,13 @@ describe("a bank of tall units", () => {
         );
       });
 
-    for (const side of [at - 1, at + 1]) {
-      const neighbour = run.segments[side];
-      if (!neighbour || neighbour.kind !== "counter") continue;
-      const toward = Math.sign(rangeAt - at) === Math.sign(side - at);
-      const covering = standingOn(neighbour);
-
-      if (toward) {
-        // The clearance: nothing standing on that counter at all.
-        expect(
-          covering.map((box) => box.id),
-          `${neighbour.id} is the machine's clearance`,
-        ).toEqual([]);
-      } else {
-        expect(covering.length, `nothing over ${neighbour.id}`).toBeGreaterThan(0);
-        const top = Math.max(
-          ...covering.map((box) => inches(box.position[1] + box.size[1] / 2)),
-        );
-        expect(top, neighbour.id).toBeCloseTo(towerTop, 6);
-      }
-    }
+    const sides = [run.segments[at - 1], run.segments[at + 1]].filter((s) => s?.kind === "counter");
+    expect(
+      sides.map((side) => [side.id, inches(side.to - side.from), standingOn(side).map((box) => box.id)]),
+    ).toEqual([
+      ["back-tower-clearance-0", 18, []],
+      ["back-fridge-landing-0", 15, []],
+    ]);
   });
 
   /**

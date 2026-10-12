@@ -101,20 +101,23 @@ describe("a machine taller than an opening with something above it (round 86)", 
       // Round 90: 137 — HMCB36WS joined the catalogue and is offered for A's,
       // B's, C's and D's hood openings (refused on width in C's 30"; E's
       // island takes no wall hood). Nothing it adds is too tall.
+      // Round 92c: PO302W is 16" too tall, not 18-3/16": its cutout height is
+      // its own sheet's standard one now, 50" (po302w-spec.pdf p. 1, the short
+      // end), where the row carried the flush 52-3/16". Still refused.
       offered: 137,
       refused: [
         "A slot-microwave mem301ws +14.5 countertop",
-        "A slot-microwave po302w +18.188 countertop",
+        "A slot-microwave po302w +16 countertop",
         "A slot-microwave pods302b +13.375 countertop",
         "A slot-wine t18iw100sp +50 countertop",
         "A slot-wine t24iw905sp +50 countertop",
         "C slot-microwave mem301ws +14.5 countertop",
-        "C slot-microwave po302w +18.188 countertop",
+        "C slot-microwave po302w +16 countertop",
         "C slot-microwave pods302b +13.375 countertop",
         "C slot-wine t18iw100sp +50 countertop",
         "C slot-wine t24iw905sp +50 countertop",
         "D slot-microwave mem301ws +14.5 countertop",
-        "D slot-microwave po302w +18.188 countertop",
+        "D slot-microwave po302w +16 countertop",
         "D slot-microwave pods302b +13.375 countertop",
         "E slot-wine-2 t18iw100sp +50 coffee",
         "E slot-wine-2 t24iw905sp +50 coffee",

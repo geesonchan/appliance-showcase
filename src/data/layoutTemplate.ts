@@ -17,6 +17,7 @@ import { PACKAGE, slotsOf } from "./packages";
 import { dropsIntoCounter, rangeFillerIn, rangeModelFor } from "./cookingSurface";
 import { hoodMountFor, type HoodMount } from "./hoodMount";
 import { slotsAsBuilt } from "./fridgeMount";
+import { ovenTowerOf } from "./ovenTower";
 import { extentsOnAxis, faceRotation, onAxis, sizeOnAxis } from "./frame";
 import { LAYOUT_POLICY, shrinkRank, type ShrinkGroup } from "./layoutPolicy";
 import { comboSillFor } from "./columnModel";
@@ -1643,6 +1644,12 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
    */
   const column = (slotId: SlotId): Item => {
     const slot = spec[slotId];
+    // An oven tower is a standard install: the slot's width overall, its two
+    // sides inside it, the oven's standard cutout between them (round 92c,
+    // `ovenTower.ts`, the one answer). Any other tall unit's opening is the
+    // whole of it: a bank's panels are at its ends, and a coffee tower's
+    // boards are items of the run either side of it (`inRunGroup`).
+    const tower = ovenTowerOf(pkg, slot);
     return fixed(
       slotId.replace("slot-", ""),
       slot.widthIn,
@@ -1651,10 +1658,7 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
         heightIn: 96,
         slot: slotId,
         sillIn: sillFor(slot, params),
-        // The opening is the whole of it: the bank's panels are at its ends,
-        // and a tower beside the range has its own each side as items of the
-        // run rather than as inches taken out of the machine's hole.
-        insetIn: 0,
+        insetIn: tower ? tower.sideIn : 0,
         ...(slot.standsOver ? { lowerSlot: slot.standsOver } : {}),
       }),
       { slot: slotId },
@@ -1776,11 +1780,12 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
         gap("range-landing-right", landing.wideIn, "d11-4", { shrink: "range-to-sink" }),
       ];
     }
+    // The tower carries its own two sides inside its width (round 92c,
+    // `ovenTower.ts`): until then a 3/4" board stood outside it toward the
+    // range, an item of the run, and nothing on the other side.
     const beside = besideRange.map(column);
-    const { counterIn, wantIn, panelIn } = LAYOUT_LIMITS.towerSpacer;
-    // The tower's own side, floor to top: a board rather than a cabinet.
-    const side = fixed("tower-panel", panelIn, "tall", M(`PNL${panelIn}`, "panel", panelIn));
-    // And the counter between it and the machine, which is the clearance the
+    const { counterIn, wantIn } = LAYOUT_LIMITS.towerSpacer;
+    // The counter between the tower and the machine, which is the clearance the
     // rangetop's sheet asks for. It takes slack readily: five inches is the
     // least it may be, not what it wants to be.
     //
@@ -1811,8 +1816,8 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
       wantIn,
     });
     return params.towerSide === "left"
-      ? [...beside, side, clearance, cooking(), away]
-      : [away, cooking(), clearance, side, ...beside];
+      ? [...beside, clearance, cooking(), away]
+      : [away, cooking(), clearance, ...beside];
   };
 
   /**
@@ -1897,6 +1902,9 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
       const { panelIn } = LAYOUT_LIMITS.towerSpacer;
       const side = (end: "start" | "end") =>
         fixed(`${id}-panel-${end}`, panelIn, "tall", M(`PNL${panelIn}`, "panel", panelIn));
+      // An oven tower carries its own sides inside its width (round 92c,
+      // `ovenTower.ts`); a coffee tower keeps a board each end, outside it.
+      if (ovenTowerOf(pkg, slot)) return [column(slot.slotId)];
       return [side("start"), column(slot.slotId), side("end")];
     });
   const coffeeHere = (leg: "left" | "back") => inRun.length > 0 && params.coffeeLeg === leg;
@@ -2296,6 +2304,44 @@ function banksOn(
 }
 
 /**
+ * What stands beside an oven tower on the side away from the cooking surface
+ * and is finished panel to the tower's top — the one answer (round 92c).
+ *
+ * A tower in the middle of a run is 96" of joinery, and a strip of bare wall
+ * down the side of it is a detail nobody builds, so a strip there is carried
+ * up to its top (2026-09-08, `3075c10`). The side toward the cooking surface
+ * never is: that stretch is the clearance the rangetop's sheet asks for, and
+ * it reads as counter.
+ *
+ * Round 92c, Leo, his site practice: only a strip. A stretch narrower than
+ * the narrowest cabinet anybody stocks (`CABINET_STANDARDS.widthIn.min`, 9" —
+ * "窄到做不成吊柜") is finished panel to the top, as before; one 9" or wider,
+ * the whole stretch measured, is ordinary counter with the bank's wall
+ * cabinets over it, 12" deep from 54". It had no width test, and on B as it
+ * opens it stood a 24"-deep panel on the refrigerator's 15" landing (D11 rule
+ * 6), and on D with the tower left of the range a 28-1/2" one on the corner's
+ * worktop. Until round 92c it was also written twice — here, to keep the wall
+ * cabinets off it, and in cabinets.ts, to draw it — each saying "the far
+ * side" on its own (D17's table). Both ask this now.
+ */
+export function filledBesideTower(
+  segments: readonly RunSegment[],
+  spec: Partial<Record<SlotId, PackageSlot>>,
+): { segment: RunSegment; tower: RunSegment; topIn: number }[] {
+  const rangeAt = segments.findIndex((segment) => segment.slot === "slot-range");
+  return segments.flatMap((tower, at) => {
+    if (tower.kind !== "tall" || !tower.slot || spec[tower.slot]?.beside !== "range") return [];
+    const topIn = tower.modules.find((module) => module.kind === "tall")?.heightIn ?? 96;
+    return [at - 1, at + 1]
+      .filter((i) => !(rangeAt >= 0 && Math.sign(rangeAt - at) === Math.sign(i - at)))
+      .map((i) => segments[i])
+      .filter((neighbour): neighbour is RunSegment => !!neighbour && neighbour.kind === "counter")
+      .filter((neighbour) => (neighbour.to - neighbour.from) * 12 < CABINET_STANDARDS.widthIn.min - 1e-6)
+      .map((segment) => ({ segment, tower, topIn }));
+  });
+}
+
+/**
  * What breaks a leg's wall cabinets, windows aside.
  *
  * The tall units standing in the middle of it — a tower is 96" of carcass and
@@ -2314,21 +2360,6 @@ export function wallCuts(
   const stop = bankStop(segments);
   const hood = hoodSpan(segments, spec);
 
-  /**
-   * The stretch beside a mid-run tower that is filled to its top.
-   *
-   * The far side only. What is between the tower and the cooking surface is
-   * the clearance the machine's sheet asks for and stays counter, with wall
-   * cabinets over it like any other stretch. See `besideTheTower` in
-   * cabinets.ts, which draws the same distinction.
-   */
-  const rangeAt = segments.findIndex((segment) => segment.slot === "slot-range");
-  const filled = (at: number) =>
-    [at - 1, at + 1]
-      .filter((i) => !(rangeAt >= 0 && Math.sign(rangeAt - at) === Math.sign(i - at)))
-      .map((i) => segments[i])
-      .filter((neighbour) => neighbour && neighbour.kind === "counter");
-
   const towers = segments.filter(
     (segment) => segment.kind === "tall" && segment.from < stop - 1e-9,
   );
@@ -2341,15 +2372,12 @@ export function wallCuts(
     })),
     // And what is filled beside them: a wall cabinet over a stretch that is
     // already finished panel to the ceiling is a cabinet inside a cabinet.
-    // Only beside the oven tower, which is the one `cabinets.ts` fills: a
-    // coffee cabinet has its own side panels and counter with wall cabinets
-    // over it either side.
-    ...towers
-      .filter((tower) => !!tower.slot && spec[tower.slot]?.beside === "range")
-      .flatMap((tower) => filled(segments.indexOf(tower)))
-      .map((segment) => ({
-        from: segment!.from,
-        to: segment!.to,
+    // `filledBesideTower` is the one answer, which `cabinets.ts` draws from.
+    ...filledBesideTower(segments, spec)
+      .filter(({ tower }) => towers.includes(tower))
+      .map(({ segment }) => ({
+        from: segment.from,
+        to: segment.to,
         kind: "tall" as const,
         hood: false,
       })),

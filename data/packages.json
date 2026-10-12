@@ -126,6 +126,7 @@
         {
           "slotId": "slot-microwave",
           "category": "wall-oven",
+          "towerInstall": "standard",
           "widthIn": 30,
           "installType": "combo",
           "tallUnit": true,
@@ -332,6 +333,7 @@
         {
           "slotId": "slot-oven",
           "category": "wall-oven",
+          "towerInstall": "standard",
           "widthIn": 30,
           "installType": "double",
           "tallUnit": true,
@@ -445,6 +447,7 @@
         {
           "slotId": "slot-microwave",
           "category": "wall-oven",
+          "towerInstall": "standard",
           "widthIn": 30,
           "heightIn": 48.5,
           "installType": "combo",

@@ -1,7 +1,7 @@
 import type { SlotId } from "../types";
 import { HOOD_CABINET } from "./insertHood";
 import { hoodTopFt } from "./hood";
-import { islandAcross, islandAlong, islandHasCooktop, islandPoint } from "./layoutTemplate";
+import { filledBesideTower, islandAcross, islandAlong, islandHasCooktop, islandPoint } from "./layoutTemplate";
 import { axisIndex, extentsOnAxis, onAxis, sizeOnAxis, stripFacing, type Facing } from "./frame";
 import { COOKTOP_CABINET } from "./cooktop";
 import { openingAlong, rangeModelFor, standsOnTheFloor } from "./cookingSurface";
@@ -115,33 +115,16 @@ export const BASE_CABINET_BAND = BASE_BOX;
 const fridgeOpeningH = () => ft(SLOT_BY_ID["slot-fridge"].cutout.h);
 
 /**
- * Whether this stretch is filled to the top of the oven tower beside it.
- *
- * A tower in the middle of a run is 96" of joinery, and a strip of bare wall
- * down the side of it is a detail nobody builds — so what finishes the run
- * beside it is carried up to its top.
- *
- * The side toward the cooking surface is not, and that is the whole
- * difference: what is between the tower and the machine is the clearance the
- * rangetop's own sheet asks for — five inches to anything beside it — and it
- * has to read as counter, not as the tower's side carried down to the stone.
- * So the far side is filled and the near side keeps its worktop.
+ * Whether this stretch is filled to the top of the oven tower beside it, and
+ * to what height: `filledBesideTower` in layoutTemplate.ts is the one answer
+ * (round 92c) — the far side from the cooking surface, and only a strip
+ * narrower than the narrowest cabinet; the wall cabinets keep off it by the
+ * same answer. Until round 92c this asked "the far side" on its own and filled
+ * a stretch of any width.
  */
 function besideTheTower(run: CabinetRun, segment: RunSegment): number | null {
-  const at = run.segments.indexOf(segment);
-  if (segment.kind !== "counter") return null;
-  const rangeAt = run.segments.findIndex((s) => s.slot === "slot-range");
-
-  for (const towerAt of [at - 1, at + 1]) {
-    const tower = run.segments[towerAt];
-    if (!tower || tower.kind !== "tall" || !tower.slot) continue;
-    if (PACKAGE_SLOTS[tower.slot]?.beside !== "range") continue;
-    // Between the tower and the machine: that stretch is the clearance.
-    if (rangeAt >= 0 && Math.sign(rangeAt - towerAt) === Math.sign(at - towerAt)) continue;
-    const module = tower.modules.find((m) => m.kind === "tall");
-    return ft(module?.heightIn ?? 96);
-  }
-  return null;
+  const filled = filledBesideTower(run.segments, PACKAGE_SLOTS).find((entry) => entry.segment === segment);
+  return filled ? ft(filled.topIn) : null;
 }
 
 /**

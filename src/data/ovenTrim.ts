@@ -1,8 +1,14 @@
 import { ROOM } from "./room";
+import { ovenTowerOf } from "./ovenTower";
+import { PACKAGE, PACKAGE_SLOTS } from "./packages";
 import type { Appliance, Slot } from "../types";
 
 /**
  * How a hung oven sits in its tower: a standard install.
+ *
+ * How the tower itself is built round it — 30" overall, its sides inside, the
+ * standard cutout between them — is `ovenTower.ts`, the one answer (round
+ * 92c). This is the machine in the hole: its trim, its handle.
  *
  * Leo, round 36. The machine does not sit back in its hole. Its trim is wider
  * and taller than the cutout, laps over the cabinet round it, and its front is
@@ -69,8 +75,13 @@ export interface StandardInstall {
   /** What the trim laps over the cabinet round the cutout. */
   overlapIn: { top: number; sides: number; bottom: number };
   handleProudIn: number;
-  /** The standard cutout's width, and the cabinet side each side of it in the opening. */
+  /** The standard cutout's width. */
   cutoutWidthIn: number;
+  /**
+   * The tower's side each side of the cutout, inside its width: the one
+   * answer, `ovenTower.ts` (round 92c). It used to be worked out here, from the
+   * slot's 30" and the cutout, and nothing drew it.
+   */
   sideIn: number;
 }
 
@@ -101,6 +112,6 @@ export function standardInstall(slot: Slot, appliance: Appliance): StandardInsta
     overlapIn: { top, sides, bottom: trim.bottomIn },
     handleProudIn: trim.handleProudIn,
     cutoutWidthIn,
-    sideIn: Math.max(0, (slot.cutout.w - cutoutWidthIn) / 2),
+    sideIn: (PACKAGE_SLOTS[slot.id] && ovenTowerOf(PACKAGE, PACKAGE_SLOTS[slot.id])?.sideIn) || 0,
   };
 }

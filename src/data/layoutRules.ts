@@ -13,7 +13,8 @@ import {
   type RunSegment,
 } from "./room";
 import { openingAlong } from "./cookingSurface";
-import { PACKAGE_SLOTS } from "./packages";
+import { PACKAGE, PACKAGE_SLOTS } from "./packages";
+import { ovenTowerOf } from "./ovenTower";
 import { SLOT_BY_ID } from "./slots";
 import { cooktopLandingsIn, islandAcross } from "./layoutTemplate";
 import { acrossOf, axisIndex, extentsOnAxis, otherAxis, outward } from "./frame";
@@ -451,7 +452,7 @@ export function checkLayout(
           .filter((segment) => segment.kind === "counter")
           .reduce((sum, segment) => sum + widthIn(segment), 0) +
         inches(rangeFillerSide(range.run.segments[range.index], towerSide === -1 ? -1 : 1));
-      const { counterIn, panelIn } = LAYOUT_LIMITS.towerSpacer;
+      const { counterIn } = LAYOUT_LIMITS.towerSpacer;
       if (counter < counterIn - 1e-6) {
         fail(
           "d11-12",
@@ -459,14 +460,19 @@ export function checkLayout(
             `needs ${counterIn}"`,
         );
       }
-      // And what closes the tower is a board, not a cabinet.
-      const side = between.find((segment) => segment.kind === "tall");
-      if (!side) {
-        fail("d11-12", "the oven tower has no finished side toward the cooking surface");
-      } else if (Math.abs(widthIn(side) - panelIn) > 1e-6) {
+      // And the tower closes itself: a standard install carries its two
+      // sides inside its width (round 92c, `ovenTower.ts`), so nothing of the
+      // run stands between it and the counter, and its module is inset by
+      // exactly the side the one answer gives.
+      const towerSegment = range.run.segments[towerAt];
+      const tower = ovenTowerOf(PACKAGE, PACKAGE_SLOTS[towerSegment.slot!]);
+      const insetIn = towerSegment.modules.find((module) => module.kind === "tall")?.insetIn ?? 0;
+      if (between.some((segment) => segment.kind === "tall")) {
+        fail("d11-12", "a board stands between the oven tower and the counter; its sides are its own");
+      } else if (!tower || Math.abs(insetIn - tower.sideIn) > 1e-6) {
         fail(
           "d11-12",
-          `the oven tower's side is ${widthIn(side).toFixed(2)}", wants ${panelIn}"`,
+          `the oven tower's sides are ${insetIn}", wants ${tower ? tower.sideIn : "a standard install's"}"`,
         );
       }
     }

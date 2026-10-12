@@ -260,8 +260,13 @@ describe("package D · the steam oven tower", () => {
 
     const [from, to] = towerAt < rangeAt ? [towerAt + 1, rangeAt] : [rangeAt + 1, towerAt];
     const between = run.segments.slice(from, to);
-    const board = between.find((segment) => segment.kind === "tall")!;
-    expect(widthIn(board)).toBeCloseTo(0.75, 9);
+    // Round 92c: nothing of the run stands between the tower and the counter —
+    // its sides are its own, 3/4" inside its 30", round a 28-1/2" opening
+    // (standard install, PODS302B's sheet pp. 1-3; Leo). Until then a separate
+    // 3/4" board stood here.
+    expect(between.some((segment) => segment.kind === "tall")).toBe(false);
+    const tower = run.segments[towerAt];
+    expect([widthIn(tower), tower.modules.find((m) => m.kind === "tall")!.insetIn]).toEqual([30, 0.75]);
     const counter = between
       .filter((segment) => segment.kind === "counter")
       .reduce((sum, segment) => sum + widthIn(segment), 0);
@@ -686,7 +691,10 @@ describe("package D · the coffee cabinet", () => {
     if (result.ok) return;
     const short = result.reasons.find((reason) => reason.key === "refusal.wallShort")!;
     expect(short).toBeTruthy();
-    expect(Number(short.vars.minimumIn)).toBe(224.25);
+    // 223-1/2" since round 92c: the steam oven tower's sides are inside its 30"
+    // (a standard install, ovenTower.ts), so the 3/4" board that stood outside
+    // it toward the rangetop is off the bill. Until then 224-1/4", D's default.
+    expect(Number(short.vars.minimumIn)).toBe(223.5);
     expect(Number(short.vars.minimumIn)).toBeGreaterThan(204);
     expect(Number(short.vars.minimumIn)).toBeLessThanOrEqual(PARAM_LIMITS.backWallIn.max);
     expect(short.occupancy!.map((item) => item.labelKey)).toContain("requirement.coffee");

@@ -91,11 +91,15 @@ describe("which boards go to the floor, as each package opens", () => {
   // Written out by hand from each package's runs, not read back from the code.
   // Beside an oven or coffee tower a board stands on the kick; beside a
   // refrigerator or a column, and at a run's exposed end, it goes to the floor.
+  // Since round 92c an oven tower's two sides are its own, inside its 30"
+  // (`-panel-a`, `-panel-b`; ovenTower.ts), where B and D had one board outside
+  // it toward the range and E one each side; they stand on the kick with it.
   const BOARDS: Record<string, Record<string, number>> = {
     "package-a": { "left-fridge-panel-a": 0, "left-fridge-panel-b": 0 },
     "package-b": {
       "left-left-end-panel-PNL3-0": 0,
-      "back-tower-panel-PNL0.75-0": 4,
+      "back-microwave-panel-a": 4,
+      "back-microwave-panel-b": 4,
       "back-tall-inner-PNL3-0": 0,
       "back-tall-outer-PNL3-0": 0,
     },
@@ -105,13 +109,14 @@ describe("which boards go to the floor, as each package opens", () => {
       "left-coffee-panel-end-PNL0.75-0": 4,
       "left-tall-inner-PNL0.75-0": 0,
       "left-tall-outer-PNL0.75-0": 0,
-      "back-tower-panel-PNL0.75-0": 4,
+      "back-oven-panel-a": 4,
+      "back-oven-panel-b": 4,
     },
     "package-e": {
       "left-tall-inner-PNL0.75-0": 0,
       "left-tall-outer-PNL0.75-0": 0,
-      "back-microwave-panel-start-PNL0.75-0": 4,
-      "back-microwave-panel-end-PNL0.75-0": 4,
+      "back-microwave-panel-a": 4,
+      "back-microwave-panel-b": 4,
       "back-coffee-panel-start-PNL0.75-0": 4,
       "back-coffee-panel-end-PNL0.75-0": 4,
     },

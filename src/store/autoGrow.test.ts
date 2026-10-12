@@ -264,7 +264,10 @@ describe("a package's own room", () => {
     expect(store().layoutIssues).toEqual([]);
     expect(store().layoutParams.fridgeEnd).toBe("back");
     expect(store().layoutParams.sinkLeg).toBe("left");
-    expect(store().layoutParams.backWallIn).toBe(207.5);
+    // 206-3/4" since round 92c: the steam oven tower's sides are inside its 30"
+    // (ovenTower.ts), so its 3/4" board outside it is off the bill; 207-1/2"
+    // until then.
+    expect(store().layoutParams.backWallIn).toBe(206.75);
     // Round 60: the left wall stays at 178-3/4". Until then it grew an eighth,
     // to 178-7/8", and the toast said it was for the refrigerator. It was for
     // the window, which slid a quarter inch at a time and could not come out
@@ -333,7 +336,10 @@ describe("a package's own room", () => {
     openPackage("package-a");
     store().setPackageId("package-b");
     expect(store().toast?.key).toBe("toast.roomGrew");
-    expect(store().toast?.vars).toMatchObject({ backIn: 202.4, leftIn: 144 });
+    // 201-5/8" (shown 201.6) since round 92c: B's oven tower carries its sides
+    // inside its 30", and B's room as it opens is its minimum, so it is 3/4"
+    // shorter than the 202-3/8" it was (Leo, round 92c: accepted; D18).
+    expect(store().toast?.vars).toMatchObject({ backIn: 201.6, leftIn: 144 });
   });
 
   /**

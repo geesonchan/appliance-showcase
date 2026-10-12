@@ -97,7 +97,10 @@ describe("E's coffee cabinet, its connections in the base beside it", () => {
 
   it("is the 24-inch base beside the tower, as E opens", () => {
     open("package-e");
-    expect([b24().id, inches(Math.abs(b24().to - b24().from))]).toEqual(["back-sink-landing-0", 24]);
+    // 25-1/2" since round 92c: E's oven tower on this leg carries its two sides
+    // inside its 30" (a standard install, ovenTower.ts), and the 1-1/2" of
+    // boards that stood outside it came to this landing, the stretch with slack.
+    expect([b24().id, inches(Math.abs(b24().to - b24().from))]).toEqual(["back-sink-landing-0", 25.5]);
   });
 
   it("holds all four points, as E opens", () => {
