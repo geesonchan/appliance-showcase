@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PACKAGES } from "../data/packages";
 import { isMachineTranslated } from "../i18n";
 import { useT } from "../i18n/useT";
@@ -26,12 +26,16 @@ function useFullscreen() {
 
 /**
  * The share button: a link that rebuilds the kitchen on screen (D23, round
- * 94). On a phone it hands the link to the system's share sheet; on a desktop,
- * or where the browser has no share sheet (WeChat's, for one), it copies it.
+ * 94). On a phone it hands the link to the system's share sheet; where a
+ * phone's browser has none (WeChat's, for one), it copies it. On a desktop it
+ * copies the link and says so, as in round 94, and opens a box with the link,
+ * Copy and the link as a QR code, for a customer in the shop to scan (round 95,
+ * Leo).
  */
 function ShareButton() {
   const t = useT();
   const showToast = useAppStore((s) => s.showToast);
+  const [boxUrl, setBoxUrl] = useState<string | null>(null);
   const share = async () => {
     const url = shareUrl();
     const phone = window.matchMedia("(max-width: 767px)").matches;
@@ -46,27 +50,116 @@ function ShareButton() {
     }
     await copyText(url);
     showToast("share.copied");
+    if (!phone) setBoxUrl(url);
   };
   return (
-    <button
-      type="button"
-      data-share
-      onClick={() => void share()}
-      className="grid h-7 w-7 place-items-center rounded-full border border-line text-ink-muted transition-colors hover:border-accent hover:text-accent md:h-8 md:w-8"
-      aria-label={t("share.button")}
-      title={t("share.button")}
+    <>
+      <button
+        type="button"
+        data-share
+        onClick={() => void share()}
+        className="grid h-7 w-7 place-items-center rounded-full border border-line text-ink-muted transition-colors hover:border-accent hover:text-accent md:h-8 md:w-8"
+        aria-label={t("share.button")}
+        title={t("share.button")}
+      >
+        {/* A box with an arrow leaving it: the share mark on both phones. */}
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path
+            d="M7 1.5v7.5M4.2 4.2 7 1.5l2.8 2.7M4.5 6.5H3v6h8v-6H9.5"
+            stroke="currentColor"
+            strokeWidth="1.3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+      {boxUrl && <ShareBox url={boxUrl} onClose={() => setBoxUrl(null)} />}
+    </>
+  );
+}
+
+/**
+ * The share box on a desktop: the link, Copy, and the QR code. Round 95, Leo.
+ *
+ * The code is drawn by `shareQr.ts`, which with its library is loaded only
+ * now, when the box opens. Closed by its ×, by Escape, or by a press outside
+ * it. It is laid over the scene and moves no camera (D1).
+ */
+function ShareBox({ url, onClose }: { url: string; onClose: () => void }) {
+  const t = useT();
+  const showToast = useAppStore((s) => s.showToast);
+  const box = useRef<HTMLDivElement>(null);
+  const canvas = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    let live = true;
+    void import("./shareQr").then(({ drawQr }) => {
+      if (live && canvas.current) drawQr(canvas.current, url);
+    });
+    return () => {
+      live = false;
+    };
+  }, [url]);
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    const onPress = (event: PointerEvent) => {
+      const target = event.target as Node;
+      if (box.current?.contains(target)) return;
+      // The share button itself opens it again with a fresh link.
+      if ((target as Element).closest?.("[data-share]")) return;
+      onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("pointerdown", onPress);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("pointerdown", onPress);
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      ref={box}
+      role="dialog"
+      aria-label={t("share.box.title")}
+      data-share-box
+      className="fixed right-4 top-16 z-50 w-max rounded-2xl border border-line bg-surface p-4 shadow-[0_12px_32px_rgba(31,42,34,0.18)]"
     >
-      {/* A box with an arrow leaving it: the share mark on both phones. */}
-      <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-        <path
-          d="M7 1.5v7.5M4.2 4.2 7 1.5l2.8 2.7M4.5 6.5H3v6h8v-6H9.5"
-          stroke="currentColor"
-          strokeWidth="1.3"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+      <div className="mb-3 flex items-center justify-between gap-4">
+        <h2 className="text-[13px] font-medium text-ink">{t("share.box.title")}</h2>
+        <button
+          type="button"
+          data-share-box-close
+          onClick={onClose}
+          aria-label={t("mobile.close")}
+          className="grid h-7 w-7 place-items-center rounded-full border border-line text-[13px] text-ink-muted transition-colors hover:border-accent hover:text-accent"
+        >
+          ×
+        </button>
+      </div>
+      <div className="mb-3 flex items-center gap-2">
+        <input
+          readOnly
+          data-share-link
+          value={url}
+          onFocus={(event) => event.currentTarget.select()}
+          className="min-w-0 flex-1 rounded-lg border border-line bg-bg px-2 py-1.5 font-mono text-[11px] text-ink-muted"
         />
-      </svg>
-    </button>
+        <button
+          type="button"
+          data-share-copy
+          onClick={() => void copyText(url).then(() => showToast("share.copied"))}
+          className="shrink-0 rounded-full border border-line px-3 py-1.5 text-[11px] font-medium text-ink transition-colors hover:border-accent hover:text-accent"
+        >
+          {t("share.box.copy")}
+        </button>
+      </div>
+      <canvas ref={canvas} data-share-qr className="mx-auto block" />
+      <p className="mt-2 text-center text-[11px] text-ink-muted">{t("share.box.scan")}</p>
+    </div>
   );
 }
 

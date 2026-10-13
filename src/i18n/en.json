@@ -466,5 +466,8 @@
   "share.notice.catalogue": "{item}: {from} from the link is not in the catalogue now; shown here: {to}.",
   "share.notice.fit": "{item}: {from} from the link does not fit this position; shown here: {to}.",
   "share.notice.setting": "{item}: the link's setting cannot be used; shown here: {to}.",
-  "share.notice.unreadable": "This link could not be read; the default kitchen is shown."
+  "share.notice.unreadable": "This link could not be read; the default kitchen is shown.",
+  "share.box.title": "Share this kitchen",
+  "share.box.copy": "Copy",
+  "share.box.scan": "Scan with your phone camera to view this kitchen on your phone."
 }

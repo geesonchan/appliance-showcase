@@ -5142,6 +5142,52 @@ Before and after: `docs/fixes/round-94-desktop-before-after.png`,
 `round-94-phone-topbar-before-after.png`; the notice:
 `round-94-notice-desktop-zh.png`, `round-94-notice-phone-zh.png`.
 
+*Amended 2026-10-12 (round 95), Leo: on a desktop, Share also opens a box
+with the link, Copy and the link as a QR code,* for a customer in the shop to
+scan the kitchen onto a phone. From round 94's plan and Leo's decisions on it.
+- **Share does what it did, and then opens the box** (Leo, (a)): the link is
+  copied and "Link copied" is said, as in round 94 — `tests/shareLink.test.ts`
+  is unchanged and passes — and the box opens over the top right of the scene
+  with the link, Copy (copied again, said again) and the code. Closed by its ×,
+  by Escape or by a press outside it; it moves no camera (D1). On a phone
+  nothing changes: the share sheet, or a copy where there is none.
+- **The code** (`src/ui/shareQr.ts`; Leo's figures): error correction **L** —
+  shown on a screen, nothing smudges it, and fewer modules make each larger;
+  **4 CSS pixels a module**, each a whole number of device pixels
+  (`round(4 x devicePixelRatio)`) and drawn as a solid square, the canvas shown
+  at its own size with `image-rendering: pixelated`, so nothing is smoothed; a
+  quiet zone of 4 modules. The round's links are version 15-16 at L, 77-81
+  modules, so the code with its quiet zone is 340-356 CSS pixels square.
+- **Loaded only when the box opens** (Leo): `shareQr.ts` and the library,
+  `qrcode-generator` 1.4.4 (MIT, no dependencies, 2019), are a chunk of their
+  own, `shareQr-*.js`, 21.97 kB (8.25 kB gzip), fetched on the first opening;
+  the page as it opens does not ask for it and `index.html` does not name it.
+  **The first screen's bundle, before and after:** `index-*.js` 637.18 kB
+  (194.36 kB gzip) in round 94's build (`index-BUDpnmvL.js`, the live page's),
+  640.85 kB (195.59 kB gzip) in round 95's — 3.7 kB more, the box and its
+  words; `react-*` and `three-*` unchanged, the CSS 23.88 kB to 24.15 kB.
+- **Its words**, read by Leo before the push and locked in `reviewed.json`,
+  approval `read`: "Share this kitchen" / 「分享这个厨房」, "Copy" / 「复制」,
+  and under the code "Scan with your phone camera to view this kitchen on your
+  phone." / 「用手机相机扫码，在手机上查看这个厨房。」 — the last Leo's rewrite of
+  the round's draft, "Scan with a phone camera to open this kitchen." /
+  「用手机相机扫码，打开这个厨房。」.
+- **The box lies over the top of the right-hand panel** while it is open (Leo,
+  round 95: accepted, kept so); closing it gives the panel back.
+  Pictures, on the build pushed: `docs/fixes/round-95-share-box-en.png`,
+  `round-95-share-box-zh.png` (on a local preview, whose shorter address makes
+  a smaller code than the live page's: 73 modules there).
+- **How far a phone reads it** is Leo's to measure in the shop (Open items).
+- **Tests.** `tests/shareQr.test.ts`, 7 cases with the mouse: Share copies and
+  says so and opens the box with that link; the code drawn on the page's canvas
+  read back (jsQR, a development dependency) gives the link character for
+  character; it is L, 4 CSS pixels a module, the backing whole pixels, no grey
+  pixel and `pixelated`; its script is fetched only when the box opens; the
+  box's Copy copies again; it closes with ×, Escape and a press outside; and on
+  a phone no box opens. 6 of 7 red on round 94's build (`index-BUDpnmvL.js`):
+  no box. The phone case green on both by design, as nothing on a phone
+  changed.
+
 ## Open items
 
 Registered, not scheduled. None of these is a round of its own.
@@ -6537,15 +6583,35 @@ Registered, not scheduled. None of these is a round of its own.
     on round 92a's build (`index-FG51Hp_p.js`, served from a copy) against
     round 92b's changes only at the cabinets' feet and the dishwashers;
     nothing at the corner. Shots: `docs/open-items/round-92b-D-tower-left-corner.png`.
-- **A QR code for the share link: round 95.** *(Leo, round 94: registered,
+- ~~**A QR code for the share link: round 95.**~~ **Done in round 95** (D23,
+  round 95): the box on a desktop with the link, Copy and the code. *Corrected
+  in round 95, Leo:* this entry gave the code as "QR version 18-19 at the usual
+  M correction, about 90 x 90 modules", from the standard's capacity table and
+  not measured. Measured on the round's own links (round 95's plan): 483
+  characters is version 15 at L (77 x 77 modules), 17 at M (85), 21 at Q
+  (101); 562 characters is version 16 at L (81), 19 at M (93), 22 at Q (105).
+  What follows is the entry as it stood: *(Leo, round 94: registered,
   not built in 94.)* On a desktop, beside the link, so a customer in the shop
   can scan the kitchen onto a phone. Round 94's plan: a library to make the
   code, loaded only when it is opened; a dialog with the link, Copy and the
   code; a test decoding the code back to the link, character for character.
-  The link is written whole (D23), 483-562 characters, which makes a dense
-  code (QR version 18-19 at the usual M correction, about 90 x 90 modules — the
-  standard's capacity table, not measured here): to look at on the screen, at the
-  distance a phone scans from, when it is built.
+- **How far a phone reads the share box's code, measured in the shop.** *(Leo,
+  round 95, his shop practice.)* The shop shows the kitchen on one of two
+  screens, a 27" monitor or Leo's own 16" laptop; a customer scans with the
+  iPhone's own camera, not WeChat; and holds the phone about a hand and a half
+  from the screen, 15-30 cm. So the measurement is close up: at 15, 25 and
+  40 cm on each of the two screens with the iPhone's camera, and WeChat's
+  扫一扫 once, at 25 cm — on the record sheet given at the end of round 95's
+  report, a sheet per screen. *Corrected in round 95, Leo:* this entry first
+  said 20, 40 and 60 cm with both the camera and WeChat at each, which was not
+  what he decided. Round
+  95's plan worked it out, not measured: a decoder reads the code from about
+  2.4 camera pixels a module under ideal sampling (measured, jsQR), and with
+  an assumed camera (about 1,920 pixels across a 65° view) the box's code, 4
+  CSS pixels a module, would read to about 70 cm on a 24" 1920-wide screen and
+  about 53 cm on a 1440-wide laptop, half that with room to spare. **If it
+  will not scan, the code is drawn larger first; the link is not shortened**
+  (Leo, round 95).
 - **Registered rounds after 78, in Leo's order.** *(Leo, rounds 78-79; not
   started. Round 79 put the interface round first and moved the rest back.)*
   0. **An interface round, plan first, with phone and desktop sketches.**
@@ -6616,7 +6682,8 @@ Registered, not scheduled. None of these is a round of its own.
        30" (Leo) — *done in round 92c* (D11 rule 12, round 92c). **Round 94**, after 93: a share button (Leo, round 92; the entry
        "A link that rebuilds the same kitchen" above), a plan read out first —
        *done in round 94* (D23), with the phone's top bar (the "MT" entry
-       above). **Round 95**: the QR code (Leo, round 94; its entry above).
+       above). **Round 95**: the QR code (Leo, round 94; its entry above) —
+       *done in round 95* (D23, round 95).
        What each decides is written here when that round is built.
   1. **A hood's own outlet first.** The duct drawn and quoted follows the
      model's own outlet where its sheet gives one, rather than only the

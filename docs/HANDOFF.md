@@ -12,7 +12,7 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **round 94** (`docs/decisions.md` is the record of
+Covers the repository up to **round 95** (`docs/decisions.md` is the record of
 rounds; `git log` is the record of commits). It replaces the v1–v9 briefs that
 were pasted into chat.
 
@@ -58,9 +58,9 @@ every figure of it, is `data/packages.json`; D16 and D20 say how a package is
 put together and why E was built the way it was. **Do not copy those numbers
 anywhere**: the file is the one source, and the tests read it.
 
-### Where it stands (round 94)
+### Where it stands (round 95)
 
-- **All five packages are live.** Rounds 73–79, 81–90, 92, 92a, 92b, 92c, 93 and 94 each shipped
+- **All five packages are live.** Rounds 73–79, 81–90, 92, 92a, 92b, 92c, 93, 94 and 95 each shipped
   (round 80 built nothing; 91 waits, below), and each was checked against the live page's asset hashes
   after its workflow finished.
 - **The project is in real use.** Rounds 73–77 all came from Leo using package
@@ -99,7 +99,9 @@ anywhere**: the file is the one source, and the tests read it.
   test comparing the canvas by pixels and the HTML over it by position, and
   this machine and CI on one Node version (**done**, D17 round 93 and Open items: the tap not reproduced in 120 tries and its test keeping the evidence); 94 a
   share button, a plan first, and the phone's top bar holding every control
-  (**done**, D23 round 94; D1 round 94); 95 a QR code for the link; then a hood's
+  (**done**, D23 round 94; D1 round 94); 95 a QR code for the link, in a box
+  on the desktop (**done**, D23 round 95; how far a phone reads it is Leo's to
+  measure in the shop, Open items); then a hood's
   own outlet, then 79a (the doors of the
   cabinet over the hood and the outlet shown in it), then 79b. The 30" option
   in A is paused.
@@ -137,6 +139,7 @@ anywhere**: the file is the one source, and the tests read it.
 | `src/store/defaultDoors.test.ts`, `tests/defaultDoors.test.ts` | Every package opens with its doors in RAL 5015; the interface green and the accent palette unchanged (D15, round 92a). |
 | `src/store/shareLink.ts`, `src/store/openLink.ts` | The share link: one table every setting is written and read by, and the page opened from a link checked by what it already asks (D23, round 94). |
 | `src/store/shareLink.test.ts`, `tests/shareLink.test.ts` | A kitchen shared and opened comes back the same, settings, room and pins; older links and their notice; the table's completeness (D23, round 94). |
+| `src/ui/shareQr.ts`, `tests/shareQr.test.ts` | The share box's QR code — L, 4 CSS pixels a module, loaded only when the box opens — read back to the link character for character (D23, round 95). |
 | `tests/topBar.test.ts` | The phone's top bar: no control over another at 360–414px in both languages, and a share button (D23, round 94). |
 | `scripts/handFilled.test.ts` | The import stops when a checked model's hand-filled cells come in blank, unless `--allow-empty=MODEL` names it (D4, round 92). |
 | `scripts/screenshots.mjs` | Screenshot sets by round. |
