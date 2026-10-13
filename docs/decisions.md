@@ -4996,8 +4996,10 @@ the accent, the countertop, the floor, the tile size and the walls. Every
 field, default or not, so a link opens on the kitchen as shared even after a
 package's own default has changed. **The walls are always in it**: a room only
 grows (D18), so one package and the same choices can stand in different
-rooms. Measured: 483-556 characters for the five packages as they open, 491-562
-for the furthest each can be taken (`shareLink.test.ts`'s kitchen).
+rooms. Measured: 478-556 characters for the five packages as they open, 491-562
+for the furthest each can be taken (`shareLink.test.ts`'s kitchen). *(Measured
+again in round 95: this said 483-556, and package A's line had been cut from the
+run's printout; A as it opens is 478.)*
 - **The room as built**, not the parameters as last asked for: a slider
   dragged to a wall that is refused leaves the asked figure on the control and
   the room standing (D14), and the link is of the room standing.
@@ -6590,6 +6592,9 @@ Registered, not scheduled. None of these is a round of its own.
   not measured. Measured on the round's own links (round 95's plan): 483
   characters is version 15 at L (77 x 77 modules), 17 at M (85), 21 at Q
   (101); 562 characters is version 16 at L (81), 19 at M (93), 22 at Q (105).
+  The shortest, package A as it opens, is 478 characters (measured again in
+  round 95; D23), and version 15 at L as well: 77 modules, read back from the
+  live page's box after round 95's push.
   What follows is the entry as it stood: *(Leo, round 94: registered,
   not built in 94.)* On a desktop, beside the link, so a customer in the shop
   can scan the kitchen onto a phone. Round 94's plan: a library to make the
