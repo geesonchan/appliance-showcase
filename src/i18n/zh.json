@@ -456,5 +456,16 @@
   "rule.coffeeWine": "咖啡机下方的酒柜直接落地、用它自己的踢脚面板，底部的通风格栅任何时候都不能遮挡，所以前面不装柜子踢脚板（酒柜手册第 6、13 页）；背后至少留 1″ 给插头（第 14 页）",
   "rule.coffeeDrainOptional": "咖啡机排水可接可不接（现场做法）。接的话，排水接口至少比机器底边低 5-29/32″，排水管不能加长（咖啡机手册第 10 页）",
   "towerVent.callout": "切口顶板靠后墙的通风口：{size}",
-  "dimension.towerVent": "通风口，深 {depth}"
+  "dimension.towerVent": "通风口，深 {depth}",
+  "share.button": "分享",
+  "share.copied": "链接已复制",
+  "share.field.lang": "语言",
+  "share.value.lang.en": "English",
+  "share.value.lang.zh": "中文",
+  "share.value.noIsland": "无岛台",
+  "share.notice.except": "除以下几项外，均按链接显示：",
+  "share.notice.catalogue": "{item}：链接中的 {from} 目前不在产品目录中，此处显示 {to}。",
+  "share.notice.fit": "{item}：链接中的 {from} 不适合此位置，此处显示 {to}。",
+  "share.notice.setting": "{item}：链接中的设置无法使用，此处显示 {to}。",
+  "share.notice.unreadable": "此链接无法读取，显示的是默认厨房。"
 }

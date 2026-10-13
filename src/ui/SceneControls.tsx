@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { sayWith } from "../i18n";
 import { useT } from "../i18n/useT";
-import { useAppStore } from "../store/useAppStore";
+import { LINK_FIELDS, type Say } from "../store/shareLink";
+import { useAppStore, type NoticeLine } from "../store/useAppStore";
 import type { RenderMode } from "../types";
 import { IconButton, Segmented } from "./primitives";
 
@@ -148,6 +149,9 @@ export function Toast() {
       return;
     }
     setVisible(true);
+    // A share link's notice stays until it is closed: it is the first thing a
+    // customer opening the link reads, and may be read slowly (D23).
+    if (toast.notice) return;
     // Twenty seconds, round 35, Leo: nine was shorter than a sentence of
     // explanation, and Undo is gone when the toast is.
     const showFor = toast.undo ? 20000 : 3500;
@@ -167,6 +171,8 @@ export function Toast() {
 
   // A value named `...Key` is a message key of its own: the wall, the reason.
   const say = (key: string, vars?: Record<string, string | number>) => sayWith(t, key, vars);
+
+  if (toast.notice) return <ShareNotice notice={toast.notice} say={say} onClose={dismissToast} />;
   const message = toast.lines
     ? toast.lines.map((line) => say(line.key, line.vars)).join(" ")
     : say(toast.key, toast.vars);
@@ -195,6 +201,67 @@ export function Toast() {
           {t("toast.undo")}
         </button>
       )}
+    </div>
+  );
+}
+
+/**
+ * What a page opened from a share link shows of the link that it could not
+ * use, in Leo's words (reviewed.json; D23, round 94). One line for each thing,
+ * under "Everything is as in the link, except:"; or one line saying the link
+ * could not be read. Each line names what the link had and what is shown, and
+ * never what was changed (D10). It stays until closed, and has no Undo.
+ */
+function ShareNotice({
+  notice,
+  say,
+  onClose,
+}: {
+  notice: NoticeLine[] | "unreadable";
+  say: Say;
+  onClose: () => void;
+}) {
+  const t = useT();
+  const lines =
+    notice === "unreadable"
+      ? [say("share.notice.unreadable")]
+      : [
+          say("share.notice.except"),
+          ...notice.map((line) => {
+            const field = LINK_FIELDS.find((candidate) => candidate.name === line.field)!;
+            return say(`share.notice.${line.kind}`, {
+              item: say(field.labelKey),
+              from:
+                line.kind === "catalogue" ? (line.from ?? "") : field.show(line.from, say),
+              to: field.show(line.to, say),
+            });
+          }),
+        ];
+  return (
+    <div
+      role="status"
+      data-share-notice={notice === "unreadable" ? "unreadable" : notice.length}
+      className={[
+        "pointer-events-auto absolute bottom-28 left-1/2 z-20 flex w-max max-w-[min(92vw,560px)] -translate-x-1/2 items-start gap-3",
+        "rounded-2xl border border-line bg-ink px-4 py-2.5 text-[11px] leading-snug text-[#F7F5EF]",
+      ].join(" ")}
+    >
+      <div className="min-w-0 space-y-1">
+        {lines.map((line, index) => (
+          <p key={index} data-share-notice-line={index}>
+            {line}
+          </p>
+        ))}
+      </div>
+      <button
+        type="button"
+        data-share-notice-close
+        onClick={onClose}
+        aria-label={t("mobile.close")}
+        className="grid h-6 w-6 shrink-0 place-items-center rounded-full border border-[#F7F5EF]/40 text-[12px] text-[#F7F5EF] transition-colors hover:bg-[#F7F5EF]/10"
+      >
+        ×
+      </button>
     </div>
   );
 }

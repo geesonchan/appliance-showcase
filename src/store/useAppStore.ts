@@ -13,7 +13,22 @@ import type { LayoutParams, Refusal } from "../data/layoutTemplate";
 import { LAYOUT_ISSUES, REQUESTED_PARAMS } from "../data/room";
 import type { Lang, Lighting, RenderMode, SlotId, UtilityType } from "../types";
 import { readRails, writeRails } from "./railState";
-import { lookupRal } from "../data/ral";
+import {
+  ACCENT_COLORS,
+  ACCENT_RUNS,
+  CABINET_COLORS,
+  COUNTER_NAMES,
+  FLOOR_NAMES,
+  TILE_SIZES,
+  WALL_FINISHES,
+  paintFromName,
+  type AccentRun,
+  type CounterFinish,
+  type FloorFinish,
+  type TileSize,
+  type Finishes,
+} from "./finishes";
+import { isShareLink } from "../data/linkVersion";
 import type { WallFinish } from "../three/materials";
 
 export interface ToastMessage {
@@ -28,6 +43,25 @@ export interface ToastMessage {
   lines?: { key: string; vars?: Record<string, string | number> }[];
   /** What Undo puts back, when the toast offers it. */
   undo?: RoomSnapshot;
+  /**
+   * What a page opened from a share link could not show as the link had it,
+   * one line each, or that the link could not be read at all. Stays until it
+   * is closed, and offers no Undo: there was no room before it (D23).
+   */
+  notice?: NoticeLine[] | "unreadable";
+}
+
+/**
+ * One thing a share link had that the page does not show as it was: a model
+ * not in the catalogue, a model or blower that does not go in its place, or a
+ * setting it could not use. `field` is the link field's name (shareLink.ts);
+ * `from` is what the link had, `to` what is shown, each in that field's terms.
+ */
+export interface NoticeLine {
+  kind: "catalogue" | "fit" | "setting";
+  field: string;
+  from?: string;
+  to: unknown;
 }
 
 /** The room as it was before something changed it, for Undo. */
@@ -55,24 +89,8 @@ interface AppState {
   layoutVersion: number;
   renderMode: RenderMode;
   lighting: Lighting;
-  /**
-   * The finishes the room is shown in. Not part of the package and not on the
-   * quote: a customer choosing between four greens is choosing how to look at
-   * the kitchen, not what to buy. See docs/decisions.md D12.
-   */
-  finishes: {
-    cabinet: string;
-    /** The second colour, worn by one whole run. See docs/decisions.md D15. */
-    accent: string;
-    /** Which run wears it, or none — which is the default. */
-    accentRun: AccentRun;
-    counter: CounterFinish;
-    floor: FloorFinish;
-    /** The panel size of a tile floor. Kept when the floor is oak, for coming back. */
-    tileSize: TileSize;
-    /** The walls' paint. Warm grey unless somebody asks otherwise. Round 35. */
-    wall: WallFinish;
-  };
+  /** The finishes the room is shown in (finishes.ts; D12, D15). */
+  finishes: Finishes;
   /**
    * Render quality. Dropped automatically when the frame rate will not hold,
    * which is the only thing allowed to change it besides ?quality= in the URL.
@@ -162,58 +180,16 @@ interface AppState {
 let toastId = 0;
 
 export type Quality = "high" | "low";
-export type AccentRun = "none" | "left" | "back" | "island";
-export type CounterFinish = "quartz-white" | "marble-veined" | "wood-oak";
-export type FloorFinish = "floor-oak" | "floor-tile";
-/** Large-format panel sizes, long side first along the room. Round 33. */
-export type TileSize = "24x48" | "32x32" | "48x48";
-export const TILE_SIZES: TileSize[] = ["24x48", "32x32", "48x48"];
-export const WALL_FINISHES: WallFinish[] = ["warm-grey", "mid-grey", "taupe", "white"];
-
-/** RAL 5015's value, read from the RAL table rather than written again here. */
-const RAL_5015 = (() => {
-  const found = lookupRal("RAL 5015");
-  if (!found.ok) throw new Error("data/ral.json has no RAL 5015, the doors' default");
-  return found.colour.hex;
-})();
-
-/**
- * The cabinet colours, which are paint chips rather than data.
- *
- * The first is the doors every package opens with. RAL 5015, sky blue, since
- * round 92a (Leo): it replaced Scheme 01's forest green, #2E5C45, as the first
- * chip and the default. Only the doors: the interface's own green — buttons,
- * what is selected — is `--accent`, and stays.
- */
-export const CABINET_COLORS = [
-  { key: "finish.cabinet.skyBlue", value: RAL_5015, token: "painted" as const },
-  { key: "finish.cabinet.navy", value: "#2B3A4A", token: "painted" as const },
-  // Burgundy, round 35, Leo: a deep, cool wine red of the kind phones are sold
-  // in, never orange. It was clay, then walnut; wood is the oak swatch's and
-  // any RAL number's to cover now.
-  { key: "finish.cabinet.burgundy", value: "#6E2639", token: "painted" as const },
-  { key: "finish.cabinet.bone", value: "#E3DFD3", token: "painted" as const },
-  // Not a colour: a door made of something. Its swatch shows the wood rather
-  // than a flat brown, which is the whole difference between the two. The
-  // swatch is the wood's own mid tone, round 33.
-  { key: "finish.cabinet.oak", value: "#8B6B47", token: "wood-oak" as const },
-] as const;
-
-/**
- * The second palette, for the run that is doing something different.
- *
- * A different five, because an accent that is one of the five you just chose
- * from is not an accent — it is the same kitchen with a mistake in it. These
- * are the colours a designer reaches for beside a painted run: the wood, a
- * near-black, a deep clay, an off-white and a slate.
- */
-export const ACCENT_COLORS = [
-  { key: "finish.accent.oak", value: "#8B6B47", token: "wood-oak" as const },
-  { key: "finish.accent.ink", value: "#23282B", token: "painted" as const },
-  { key: "finish.accent.brick", value: "#8A4A38", token: "painted" as const },
-  { key: "finish.accent.cream", value: "#EFE8D8", token: "painted" as const },
-  { key: "finish.accent.slate", value: "#6B7375", token: "painted" as const },
-] as const;
+export {
+  ACCENT_COLORS,
+  CABINET_COLORS,
+  TILE_SIZES,
+  WALL_FINISHES,
+  type AccentRun,
+  type CounterFinish,
+  type FloorFinish,
+  type TileSize,
+} from "./finishes";
 
 /**
  * The finish a stretch of cabinetry is in, primary or accent.
@@ -261,34 +237,16 @@ function initialFinishes() {
   if (typeof window === "undefined") return defaults;
 
   const query = new URLSearchParams(window.location.search);
+  // A share link is read whole by its own table, after the page has loaded
+  // (round 94, openLink.ts); these older names are for screenshots.
+  if (isShareLink(query)) return defaults;
   // A swatch by name, or a RAL number from the table: `?cabinet=ral6005`.
-  const swatch = (palette: typeof CABINET_COLORS | typeof ACCENT_COLORS, asked: string | null) => {
-    if (!asked) return undefined;
-    // The third swatch was clay, then walnut, and is burgundy since round 35;
-    // the first was green until round 92a and is sky blue. A link from before
-    // still opens on the swatch in that place.
-    const name =
-      asked === "clay" || asked === "walnut" ? "burgundy" : asked === "green" ? "skyBlue" : asked;
-    const ral = lookupRal(name);
-    if (ral.ok) return { value: ral.colour.hex };
-    return palette.find((paint) => paint.key.endsWith(name));
-  };
-  const cabinet = swatch(CABINET_COLORS, query.get("cabinet"));
-  const accent = swatch(ACCENT_COLORS, query.get("accent"));
-  const runs: AccentRun[] = ["none", "left", "back", "island"];
-  const counters: Record<string, CounterFinish> = {
-    quartz: "quartz-white",
-    marble: "marble-veined",
-    oak: "wood-oak",
-  };
-  const floors: Record<string, FloorFinish> = { oak: "floor-oak", tile: "floor-tile" };
-
   return {
-    cabinet: cabinet?.value ?? defaults.cabinet,
-    accent: accent?.value ?? defaults.accent,
-    accentRun: runs.find((run) => run === query.get("accentRun")) ?? defaults.accentRun,
-    counter: counters[query.get("counter") ?? ""] ?? defaults.counter,
-    floor: floors[query.get("floor") ?? ""] ?? defaults.floor,
+    cabinet: paintFromName(CABINET_COLORS, query.get("cabinet")) ?? defaults.cabinet,
+    accent: paintFromName(ACCENT_COLORS, query.get("accent")) ?? defaults.accent,
+    accentRun: ACCENT_RUNS.find((run) => run === query.get("accentRun")) ?? defaults.accentRun,
+    counter: COUNTER_NAMES[query.get("counter") ?? ""] ?? defaults.counter,
+    floor: FLOOR_NAMES[query.get("floor") ?? ""] ?? defaults.floor,
     tileSize: TILE_SIZES.find((size) => size === query.get("tile")) ?? defaults.tileSize,
     wall: WALL_FINISHES.find((paint) => paint === query.get("wall")) ?? defaults.wall,
   };

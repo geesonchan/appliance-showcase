@@ -9,6 +9,7 @@ import { formatCfm } from "../data/ventilation";
 import { DEBUG } from "../debug";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
+import { copyText } from "./copyText";
 import { useActivePackage, useSelectedBlower, useSelection } from "../store/useSelection";
 import type { Severity } from "../data/rules";
 
@@ -71,21 +72,7 @@ export function QuotePage() {
   if (!open) return null;
 
   const copy = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-    } catch {
-      // Safari refuses the clipboard outside a gesture it recognises, and a
-      // page served over http has none at all. Fall back to a selection the
-      // user can copy by hand rather than failing silently.
-      const area = document.createElement("textarea");
-      area.value = text;
-      area.style.position = "fixed";
-      area.style.opacity = "0";
-      document.body.appendChild(area);
-      area.select();
-      document.execCommand("copy");
-      area.remove();
-    }
+    await copyText(text);
     showToast("quote.copied");
   };
 

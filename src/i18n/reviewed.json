@@ -360,6 +360,51 @@
       "text": "Pearl, metallic and luminous colours cannot be shown on a screen.",
       "approval": "read",
       "reviewed": "Leo's decision, round 89, as recorded in Open items; the line under the RAL input while a pearl, metallic or luminous colour is on the doors (decisions.md D15, round 92)"
+    },
+    "share.notice.except": {
+      "text": "Everything is as in the link, except:",
+      "approval": "read",
+      "reviewed": "Drafted by CC in round 94 and given back by Leo with his decisions, every line in both languages, word for word (decisions.md D23)"
+    },
+    "share.notice.catalogue": {
+      "text": "{item}: {from} from the link is not in the catalogue now; shown here: {to}.",
+      "approval": "read",
+      "reviewed": "Drafted by CC in round 94 and given back by Leo with his decisions, every line in both languages, word for word (decisions.md D23)"
+    },
+    "share.notice.fit": {
+      "text": "{item}: {from} from the link does not fit this position; shown here: {to}.",
+      "approval": "read",
+      "reviewed": "Drafted by CC in round 94 and given back by Leo with his decisions, every line in both languages, word for word (decisions.md D23)"
+    },
+    "share.notice.setting": {
+      "text": "{item}: the link's setting cannot be used; shown here: {to}.",
+      "approval": "read",
+      "reviewed": "Drafted by CC in round 94 and given back by Leo with his decisions, every line in both languages, word for word (decisions.md D23)"
+    },
+    "share.notice.unreadable": {
+      "text": "This link could not be read; the default kitchen is shown.",
+      "approval": "read",
+      "reviewed": "Drafted by CC in round 94 and given back by Leo with his decisions, every line in both languages, word for word (decisions.md D23)"
+    },
+    "share.button": {
+      "text": "Share",
+      "approval": "read",
+      "reviewed": "Drafted by CC in round 94; Leo read both languages and approved them unchanged before the push (decisions.md D23)"
+    },
+    "share.copied": {
+      "text": "Link copied",
+      "approval": "read",
+      "reviewed": "Drafted by CC in round 94; Leo read both languages and approved them unchanged before the push (decisions.md D23)"
+    },
+    "share.field.lang": {
+      "text": "Language",
+      "approval": "read",
+      "reviewed": "Drafted by CC in round 94; Leo read both languages and approved them unchanged before the push (decisions.md D23)"
+    },
+    "share.value.noIsland": {
+      "text": "No island",
+      "approval": "read",
+      "reviewed": "Drafted by CC in round 94; Leo read both languages and approved them unchanged before the push (decisions.md D23)"
     }
   },
   "zh": {
@@ -727,6 +772,51 @@
       "text": "珠光、金属和荧光色无法在屏幕上显示。",
       "approval": "written",
       "reviewed": "Leo's own wording, round 89; the line under the RAL input while a pearl, metallic or luminous colour is on the doors (decisions.md D15, round 92)"
+    },
+    "share.notice.except": {
+      "text": "除以下几项外，均按链接显示：",
+      "approval": "read",
+      "reviewed": "Drafted by CC in round 94 and given back by Leo with his decisions, every line in both languages, word for word (decisions.md D23); the Chinese first line, 「除以下几项外，均按链接显示：」, is Leo's own wording"
+    },
+    "share.notice.catalogue": {
+      "text": "{item}：链接中的 {from} 目前不在产品目录中，此处显示 {to}。",
+      "approval": "read",
+      "reviewed": "Drafted by CC in round 94 and given back by Leo with his decisions, every line in both languages, word for word (decisions.md D23)"
+    },
+    "share.notice.fit": {
+      "text": "{item}：链接中的 {from} 不适合此位置，此处显示 {to}。",
+      "approval": "read",
+      "reviewed": "Drafted by CC in round 94 and given back by Leo with his decisions, every line in both languages, word for word (decisions.md D23)"
+    },
+    "share.notice.setting": {
+      "text": "{item}：链接中的设置无法使用，此处显示 {to}。",
+      "approval": "read",
+      "reviewed": "Drafted by CC in round 94 and given back by Leo with his decisions, every line in both languages, word for word (decisions.md D23)"
+    },
+    "share.notice.unreadable": {
+      "text": "此链接无法读取，显示的是默认厨房。",
+      "approval": "read",
+      "reviewed": "Drafted by CC in round 94 and given back by Leo with his decisions, every line in both languages, word for word (decisions.md D23)"
+    },
+    "share.button": {
+      "text": "分享",
+      "approval": "read",
+      "reviewed": "Drafted by CC in round 94; Leo read both languages and approved them unchanged before the push (decisions.md D23)"
+    },
+    "share.copied": {
+      "text": "链接已复制",
+      "approval": "read",
+      "reviewed": "Drafted by CC in round 94; Leo read both languages and approved them unchanged before the push (decisions.md D23)"
+    },
+    "share.field.lang": {
+      "text": "语言",
+      "approval": "read",
+      "reviewed": "Drafted by CC in round 94; Leo read both languages and approved them unchanged before the push (decisions.md D23)"
+    },
+    "share.value.noIsland": {
+      "text": "无岛台",
+      "approval": "read",
+      "reviewed": "Drafted by CC in round 94; Leo read both languages and approved them unchanged before the push (decisions.md D23)"
     }
   }
 }

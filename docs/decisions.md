@@ -53,6 +53,13 @@ what it shows, on their own:
    stone over them, are not on its sight line — they stand where its own
    strips stood (D16, round 84, `inOwnFillers`).
 
+*Amended 2026-10-12 (round 94), Leo: a page opened from a share link starts
+at the default view, and that is the page loading — not a fourth reason for
+the camera to move.* The link carries no view (D23); the kitchen it carries is
+built before the first frame is drawn (`openSharedLink`, main.tsx), and the
+camera starts where every page starts. Nothing about opening a link moves the
+camera afterwards, and the notice it may show moves nothing either.
+
 **Forbidden:** switching render mode, toggling day/night, toggling a layer, or
 changing language must leave the camera pose bit-identical.
 
@@ -2855,6 +2862,7 @@ repository has them)* — one rule, written more than once:
 | round 92b | where a base cabinet is, floor to top, for a rough-in point "in the cabinet" | `BASE_BOX` in cabinets.ts, which draws the cabinet; and five copies of `[0, ROOM.counterHeight - ROOM.counterThickness]` in `roughIn.ts`, one per host — the neighbour's cabinet, the sink base, the cabinet beside a tower, the other neighbour, the island's cabinet beside an opening — each from the room's floor | **one**: `BASE_CABINET_BAND` in cabinets.ts, which the hosts read (round 92b) | **it never had**: the two agreed while the cabinet stood on the floor. It would have the moment the cabinets stood on the kick — every figure "from the bottom" of a base cabinet drawn 4" low, which is the round that found it. `toeKick.test.ts` counts the copies in `roughIn.ts` (none) and holds a sink-base point 4" up with its figure unchanged. *(Row added after round 92b's own write-up, which cited this table without one.)* |
 | round 92c | how an oven tower is installed, and so where its sides are and how wide its hole is | the importer's note on MEM301WS (standard: a 30" cabinet, a 28-1/2" hole, 3/4" each side — round 20); `standardInstall` in ovenTrim.ts, which worked out that 3/4" (`sideIn`) and which nothing read; and the run, which built a 30" hole (`insetIn: 0`) with a separate 3/4" board outside it toward the range in B and D and each side in E, its comment saying a board each side as items of the run; rule 12's check asked for that board | **one**: `ovenTowerOf` in `ovenTower.ts`, from the package slot's `towerInstall` and its own oven's standard cutout, which the run, the slot's opening, the trim and the check all ask (round 92c) | **it had bitten, on the live site**: every oven tower was neither install — B's and D's 30-3/4" with one side board, the far side open behind the board to the top, E's 31-1/2" — found when round 92c took that board away and the machine's steel side showed (Leo, from use of round 92b). `ovenTower.test.ts` holds every tower in B, D and E. |
 | round 92c | what stands beside an oven tower on the side away from the cooking surface, filled to its top | `besideTheTower` in cabinets.ts, which drew it, and `filled` inside `wallCuts` (layoutTemplate.ts), which kept the wall cabinets off it — each finding "the far side" on its own; they agreed | **one**: `filledBesideTower` in layoutTemplate.ts, with round 92c's 9" in it, which both ask (round 92c) | **it never had**: the two agreed. It would have the day one was given the 9" and the other not — a wall cabinet hung over a board to the ceiling, or a bare stretch of wall over a counter nobody filled. `ovenTower.test.ts` counts the copies (one). |
+| round 94 | what a layout figure in a page's address means: `?back=`, `?left=`, `?island=`, `?islandDepth=`, `?aisle=`, `?corner=` | `readParams` in room.ts, which reads them from a screenshot address (no `v`) and takes any finite number, refusing the whole set and opening the default room on one it cannot use; and the share link's table (`LAYOUT_FIELDS`, shareLink.ts), which reads the same names from a link (`v=1`), takes a length only inside its slider's ends, and shows the package's own for each one it cannot use | **still two**, recorded in round 94 as deliberate for now (Leo, round 94: accepted, to be joined when the condition beside it comes): `isShareLink` decides which reads an address, so no page reads one name both ways. The finishes' names, which the two also share, are one copy (`finishes.ts`, round 94) | **the day one is changed and not the other** — a new layout parameter given a name in one and not the other, or a range moved in one — or the day somebody hands a customer a screenshot address as a link. Join them then: `readParams` reading the table's fields. |
 
 Round 60's quarter-inch window step is a near relative rather than a member:
 one rule, but its search and its judgement worked to different resolutions,
@@ -2899,9 +2907,12 @@ everywhere but the machine's own drawing. The fifteenth, round 92b's, likewise:
 where a base cabinet is, written once to draw it and five times more to
 measure a rough-in point in it. The sixteenth and seventeenth, round 92c's,
 likewise: how an oven tower is installed, three records and three answers, and
-what is filled beside it, judged twice. The table has sixteen rows for those
-seventeen: round 60's has none of its own. The table is here so that the next one found
-is added to it rather than rediscovered.
+what is filled beside it, judged twice. The eighteenth, round 94's, is open
+and deliberate, as the first is: a layout figure in a page's address read by
+the screenshot parameters and by the share link's table, never both on one
+page. The table has seventeen rows for those eighteen: round 60's has none of
+its own. The table is here so that the next one found is added to it rather
+than rediscovered.
 
 **An exception written into a test is broken on purpose before it is
 trusted.** *(Leo, round 70.)* An exception is the easiest thing in a test to
@@ -4948,6 +4959,189 @@ to explain connections — a machine that must have water.
   the neighbouring cabinet, not 18" — still well past the 5-29/32" fall the
   manual asks, and well inside both hoses.
 
+## D23 · A link rebuilds the same kitchen
+
+**Decided:** 2026-10-12 (round 94), Leo, from the plan read out first (Open
+items, "A link that rebuilds the same kitchen").
+
+A **Share** button in the top bar makes a link of the kitchen on screen, and
+somebody opening it elsewhere sees the same kitchen. On a phone it hands the
+link to the system's share sheet; on a desktop, and wherever a browser has no
+share sheet (WeChat's, for one), it copies it and says "Link copied" / "链接已
+复制". It sells nothing and asks nothing of anybody, so it is not the kind of
+call to action D12 keeps off the main screen.
+
+**One table, read both ways** (Leo). `src/store/shareLink.ts` lists every
+setting a link carries — its name in the link, how it is written and read
+back, what it is called on screen and how its value is said — and both the
+button and a page opened from a link use it, so the two cannot drift (D17).
+`NOT_IN_LINK` beside it names, each with its reason, what the page holds and a
+link does not: Leo's four — the view, the machine selected, the display mode,
+day and night — and the page's own state (layer switches, rails, dialogs,
+render quality), and the three layout figures no control changes (the window,
+the sink under it, E's own seating overhang). `shareLink.test.ts` goes red on
+a setting in neither, on one in both, and on a name in the list the page no
+longer has; with the corner taken out of the table on purpose, the first went
+red and so did every package's round trip.
+
+**What a link carries, written whole** (Leo's choice (a)): the package; the
+language it was shared in, which the page opens in and the customer can still
+switch (Leo); both walls, the corner, which leg the refrigerator and the sink
+are on, what is past the refrigerator, the tower's side, the housing's shape,
+the coffee cabinet's leg and height, the microwave handle's height, the
+island — its length or none — which way it runs, its depth and the aisle;
+every opening's model by its model number; the blower, or `none`; the doors
+and the accent as a RAL number (`ral5015`) or a swatch's name, which run wears
+the accent, the countertop, the floor, the tile size and the walls. Every
+field, default or not, so a link opens on the kitchen as shared even after a
+package's own default has changed. **The walls are always in it**: a room only
+grows (D18), so one package and the same choices can stand in different
+rooms. Measured: 483-556 characters for the five packages as they open, 491-562
+for the furthest each can be taken (`shareLink.test.ts`'s kitchen).
+- **The room as built**, not the parameters as last asked for: a slider
+  dragged to a wall that is refused leaves the asked figure on the control and
+  the room standing (D14), and the link is of the room standing.
+- **The blower as the page keeps it.** It is kept as chosen when a hood with a
+  blower built in is picked, so a link carries it as kept.
+- **No price and nothing about the customer**: the table's fields are all there
+  is, and the test holds a link to them and to no catalogue price. The page
+  opened from a link has Quote and its prices as before, worked out from the
+  catalogue the day it is opened, never carried (Leo; D10: the quote is
+  derived, never stored).
+- **Day and night are not carried** (Leo).
+
+**A link says which version it is, `v=1`.** A query with no `v` is not a share
+link: the older screenshot parameters (`?cabinet=navy&back=180`) are read as
+before, by `readParams` and `initialFinishes`, and a share link is read only by
+the table (`src/data/linkVersion.ts` says which). The names of the finishes are
+one copy for both (`src/store/finishes.ts`, round 94; it had been in
+`initialFinishes`). The layout's names are read twice — a row in D17's table.
+
+**An older link is checked by what the page already asks** (Leo; D17's table,
+first row: no judgement of its own). `openSharedLink` (src/store/openLink.ts)
+puts each setting through the path a customer's own choice takes — the
+package's button, a pick on the model card, a finish in the panel — and asks
+first:
+- **a model**: is its number in the catalogue; then is it among
+  `candidatesFor` the opening, and does it fit (`fit.fits`) — exactly the chip
+  the card would let a customer press. Not `suitsPackageSlot`: that is the
+  package switch's carrying rule, and it refuses a model of another install
+  type that the card allows (a rangetop in A, round 83);
+- **a blower**: in the catalogue, and where the hood needs one, among
+  `blowersFor` it; otherwise what a package switch gives the hood
+  (`migrateBlower`);
+- **the layout**: the template builds it (`setLayoutParams`), or a wall grows
+  to take it as any switch does (`setLayoutParamsGrowing`, D18), or the
+  package's own room stands;
+- **a finish, the language**: the table's own reading of the value.
+What does not pass is shown as the page would show it otherwise — the
+package's own — and said. A link that names no version this page knows, or no
+package it builds, opens the default kitchen and says only that.
+
+**What the page says, in Leo's words** (round 94; locked in `reviewed.json`,
+approval `read`, the Chinese first line Leo's own wording). One line for each
+thing, under the first:
+- "Everything is as in the link, except:" / 「除以下几项外，均按链接显示：」
+- a model not in the catalogue: "{item}: {from} from the link is not in the
+  catalogue now; shown here: {to}." / 「{item}：链接中的 {from} 目前不在产品
+  目录中，此处显示 {to}。」
+- a model or blower that does not go in its place: "{item}: {from} from the
+  link does not fit this position; shown here: {to}." / 「{item}：链接中的
+  {from} 不适合此位置，此处显示 {to}。」
+- any other setting: "{item}: the link's setting cannot be used; shown here:
+  {to}." / 「{item}：链接中的设置无法使用，此处显示 {to}。」
+- the whole link: "This link could not be read; the default kitchen is shown."
+  / 「此链接无法读取，显示的是默认厨房。」
+They say what the link had and what is shown, never what was changed (D10):
+none of 改到, 移到, 更新为 or their English, held by a test. Leo replaced the
+plan's 「有 N 项已更新」 with these. The notice stays until it is closed, or
+until another message takes its place — a mode switch's, say — as any message
+on screen gives way to the next (Leo, round 94: kept so).
+
+**The button's own words, locked too** (Leo read them before the push;
+`reviewed.json`, approval `read`): "Share" / 「分享」, "Link copied" /
+「链接已复制」, and the two the notice can show as a setting's name or value,
+"Language" / 「语言」 and "No island" / 「无岛台」.
+
+**Opening a link is the page loading** (Leo). The kitchen is built before the
+first frame (main.tsx), and the camera starts at the default view, as every
+page does: not a fourth reason for it to move (D1, round 94).
+
+**And there is nothing to undo.** Undo is offered only by the message that a
+wall grew, and goes one step back to the room before it. A page opened from a
+link had no room before it in that tab, so its notice offers no Undo — a wall
+grown to take the link's layout included, which the notice says as a setting
+shown otherwise. After it has opened, everything behaves as it always has; the
+Share button does not touch Undo. The page never writes the kitchen back into
+its address, so the browser's Back goes to the previous address, as before.
+
+**The phone's top bar holds every control, with Share** (Leo: into round 94,
+from the Open item "the MT chip sits over the E package button"). Until round
+94, below 430px the bar's right-hand group was drawn over the package buttons.
+`tests/topBar.test.ts` measures every control in the bar by its box, at 360,
+375, 390 and 414px, in English and in Chinese, the language chosen by a tap;
+on round 93's build (`index-BJcYcDEW.js`, the live page's) it was red at:
+- 360px English: "E" over Quote, by 21.5px;
+- 375px English: "E" over Quote, by 6.5px;
+- 360px Chinese: "D" over the MT chip by 13.4px, "E" over the MT chip by
+  11.0px, "E" over 清单 by 11.7px;
+- 375px Chinese: "E" over the MT chip, by 24.4px;
+- 390px Chinese: "E" over the MT chip, by 14.0px;
+and green at 390px English and 414px in both. Below the desktop width the bar
+now takes tighter padding and gaps, and the package and language buttons
+narrower padding (`Segmented`'s `tight`); nothing is taken away, and the MT
+chip stays where D10 puts it. Measured on round 94's build: the closest is
+360px in Chinese, 14px between the package buttons and the group beside them
+(the bar's own gap is 8px of it); 360px English 30.5px.
+
+**Tests.**
+- `src/store/shareLink.test.ts`, 42 cases. Each package taken as far from its
+  own as the page lets a customer (every opening that offers another model, the
+  layout's switches and walls an odd number of eighths, every finish, RAL codes,
+  Chinese), shared and opened on a fresh page: the same settings, the same room
+  box by box, no notice, the default view and nothing selected — 25 cases. The
+  table's completeness (6); an older link — a model not in the catalogue, one
+  that does not fit (A's island wine opening with a wine column, D20 round 86),
+  a setting it cannot use, two bad among good ones, a wall grown for the link's
+  layout, two unreadable links, and no version (8); a link carries only its
+  fields and no price (1); the notice's five lines in both languages, and none
+  saying what was changed (2). Broken on purpose: the corner out of the table
+  (12 red), the models not applied (14), the finishes not applied (6), each for
+  what it names.
+- `tests/shareLink.test.ts`, 5 cases with real input: package D, a hood picked
+  on the card, RAL 7016 typed, the island turned, the back wall two steps from
+  the keyboard, Chinese, Share with the mouse and the link read off the
+  clipboard, opened in a fresh browser — the same settings, room and pin
+  labels; package E on a phone by touch through the share sheet (caught, as the
+  system's cannot be driven), opened on a fresh phone; the Chinese notice word
+  for word; an unreadable link; the notice staying until closed. With the
+  finishes not applied, on purpose, the desktop case went red on the door
+  colour alone (#373F43 for #2874B2).
+- `tests/topBar.test.ts`, 10 cases: the eight above, and a share button on a
+  phone and on a desktop; 7 of 10 red on round 93's build, as listed.
+
+**Measured** (D17's third way: round 93's code built here, `index-BJcYcDEW.js`,
+the live page's own, against round 94's, `index-CyyEg39G.js`, each served from
+a copy; the five packages as they open, the mouse at 1440 x 900, a finger at
+390 x 844 in English and 360 x 844 in Chinese, `?quality=high`; each build shot
+twice, the four pairings between builds compared and the pair whose runs agree
+taken):
+- **Desktop: 978 pixels in every package, all inside x 1132-1233, y 12-43** —
+  the top bar's right-hand group, where Share now stands and Quote has moved
+  left by it. The room and the panels: 0.
+- **Phone: changed only inside y 11-43, the top bar**, in every package at both
+  widths (3,718 to 4,418 pixels).
+- ⚠️ **Found by it: on the live site, at 360px in Chinese, a tap on "E" opens
+  the Quote page.** 清单 lies over the E button and its group over the rest of
+  it, so package E cannot be chosen by tap there at all; the first run of the
+  shots came back with the quote (配置单) where E should be. With E reached on
+  both builds the same way — in English, at the edge of its button that is
+  clear there, then 中 — the pair changes only in the top bar (4,158 pixels).
+  Gone with the fix.
+Before and after: `docs/fixes/round-94-desktop-before-after.png`,
+`round-94-phone-topbar-before-after.png`; the notice:
+`round-94-notice-desktop-zh.png`, `round-94-notice-phone-zh.png`.
+
 ## Open items
 
 Registered, not scheduled. None of these is a round of its own.
@@ -5710,7 +5904,11 @@ Registered, not scheduled. None of these is a round of its own.
   label, from A's microwave, could not be picked. A customer switching
   packages in front of the salesperson meets it too. Reset view brings them
   back.
-- **On a phone in Chinese, the "MT" chip sits over the "E" package button.**
+- ~~**On a phone in Chinese, the "MT" chip sits over the "E" package button.**~~
+  **Fixed in round 94** (D23, Leo: into the share round, with a place for the
+  share button): no control over another at 360, 375, 390 and 414px in either
+  language, `tests/topBar.test.ts`, red on round 93's build at five of the
+  eight. What follows is the entry as it stood:
   *(Found round 82, on the live site as well; Leo: fix with the right panel's
   round, now round 91 — Leo moved it back in rounds 86, 87 and 88.)* The top
   bar at 390px: the machine-translation chip is drawn over the last package
@@ -6260,7 +6458,11 @@ Registered, not scheduled. None of these is a round of its own.
   (`data-ral-current`, `truncate`), where the English "Set" leaves it its 51.
   "应用" is wider than "Set". Screenshot: `docs/fixes/round-92-ral-panel-zh.png`,
   the last panel.
-- **A link that rebuilds the same kitchen: a share button.** *(Leo, round 92:
+- ~~**A link that rebuilds the same kitchen: a share button.**~~ **Done in
+  round 94** (D23; D1, round 94): the plan read out first, Leo's seven
+  decisions on it, the link written whole from one table, older links checked
+  by what the page asks, the notice in Leo's words. What follows is the entry
+  as it stood: *(Leo, round 92:
   registered for round 94, after 93; not started. That round reads out a plan
   first and builds nothing until Leo has it.)* The settings chosen make a link,
   and somebody opening it elsewhere sees the same kitchen. The plan is to
@@ -6335,6 +6537,15 @@ Registered, not scheduled. None of these is a round of its own.
     on round 92a's build (`index-FG51Hp_p.js`, served from a copy) against
     round 92b's changes only at the cabinets' feet and the dishwashers;
     nothing at the corner. Shots: `docs/open-items/round-92b-D-tower-left-corner.png`.
+- **A QR code for the share link: round 95.** *(Leo, round 94: registered,
+  not built in 94.)* On a desktop, beside the link, so a customer in the shop
+  can scan the kitchen onto a phone. Round 94's plan: a library to make the
+  code, loaded only when it is opened; a dialog with the link, Copy and the
+  code; a test decoding the code back to the link, character for character.
+  The link is written whole (D23), 483-562 characters, which makes a dense
+  code (QR version 18-19 at the usual M correction, about 90 x 90 modules — the
+  standard's capacity table, not measured here): to look at on the screen, at the
+  distance a phone scans from, when it is built.
 - **Registered rounds after 78, in Leo's order.** *(Leo, rounds 78-79; not
   started. Round 79 put the interface round first and moved the rest back.)*
   0. **An interface round, plan first, with phone and desktop sketches.**
@@ -6379,6 +6590,8 @@ Registered, not scheduled. None of these is a round of its own.
        "MT" chip over "E" on a Chinese phone (Leo, round 85, moved back by Leo
        in rounds 86, 87 and 88); round 86's first plan for it is in the "MT"
        entry above. *Waiting for Leo's feedback from use (Leo, round 92).*
+       *The "MT" chip went into round 94 (Leo) and is done there; the tabs
+       and the `Slider` warning still wait.*
        **Round 92**: every RAL Classic colour (Leo, round 88; the entry above),
        built ahead of 91 with its number kept (Leo), and with it the importer
        stopping when hand-filled cells go empty (Leo, round 90; the entry
@@ -6401,7 +6614,9 @@ Registered, not scheduled. None of these is a round of its own.
        stands beside an oven tower" above), found in round 92b and not part
        of it; and every oven tower a standard install, its sides inside its
        30" (Leo) — *done in round 92c* (D11 rule 12, round 92c). **Round 94**, after 93: a share button (Leo, round 92; the entry
-       "A link that rebuilds the same kitchen" above), a plan read out first.
+       "A link that rebuilds the same kitchen" above), a plan read out first —
+       *done in round 94* (D23), with the phone's top bar (the "MT" entry
+       above). **Round 95**: the QR code (Leo, round 94; its entry above).
        What each decides is written here when that round is built.
   1. **A hood's own outlet first.** The duct drawn and quoted follows the
      model's own outlet where its sheet gives one, rather than only the

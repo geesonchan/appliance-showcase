@@ -10,6 +10,7 @@ import {
   type FloorFinish,
   type TileSize,
 } from "../store/useAppStore";
+import { TILE_LABEL } from "../store/finishes";
 import type { WallFinish } from "../three/materials";
 import { PanelSection, Segmented } from "./primitives";
 
@@ -170,11 +171,6 @@ function RalInput({
   );
 }
 
-const TILE_LABEL: Record<TileSize, string> = {
-  "24x48": "24″ × 48″",
-  "32x32": "32″ × 32″",
-  "48x48": "48″ × 48″",
-};
 
 export function FinishPicker() {
   const t = useT();

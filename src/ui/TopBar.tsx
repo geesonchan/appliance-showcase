@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { PACKAGES } from "../data/packages";
 import { isMachineTranslated } from "../i18n";
 import { useT } from "../i18n/useT";
+import { shareUrl } from "../store/openLink";
 import { useAppStore } from "../store/useAppStore";
+import { copyText } from "./copyText";
 import { Segmented } from "./primitives";
 
 function useFullscreen() {
@@ -22,6 +24,52 @@ function useFullscreen() {
   return { isFullscreen, toggle };
 }
 
+/**
+ * The share button: a link that rebuilds the kitchen on screen (D23, round
+ * 94). On a phone it hands the link to the system's share sheet; on a desktop,
+ * or where the browser has no share sheet (WeChat's, for one), it copies it.
+ */
+function ShareButton() {
+  const t = useT();
+  const showToast = useAppStore((s) => s.showToast);
+  const share = async () => {
+    const url = shareUrl();
+    const phone = window.matchMedia("(max-width: 767px)").matches;
+    if (phone && typeof navigator.share === "function") {
+      try {
+        await navigator.share({ title: t("app.title"), url });
+        return;
+      } catch (error) {
+        // Closing the sheet is an answer, not a failure.
+        if ((error as DOMException)?.name === "AbortError") return;
+      }
+    }
+    await copyText(url);
+    showToast("share.copied");
+  };
+  return (
+    <button
+      type="button"
+      data-share
+      onClick={() => void share()}
+      className="grid h-7 w-7 place-items-center rounded-full border border-line text-ink-muted transition-colors hover:border-accent hover:text-accent md:h-8 md:w-8"
+      aria-label={t("share.button")}
+      title={t("share.button")}
+    >
+      {/* A box with an arrow leaving it: the share mark on both phones. */}
+      <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+        <path
+          d="M7 1.5v7.5M4.2 4.2 7 1.5l2.8 2.7M4.5 6.5H3v6h8v-6H9.5"
+          stroke="currentColor"
+          strokeWidth="1.3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </button>
+  );
+}
+
 export function TopBar() {
   const t = useT();
   const lang = useAppStore((s) => s.lang);
@@ -32,8 +80,11 @@ export function TopBar() {
   const setPackageId = useAppStore((s) => s.setPackageId);
   const { isFullscreen, toggle } = useFullscreen();
 
+  // Below the desktop width every control is held on one line down to a
+  // 360px phone, in both languages, with room for Share: tighter padding and
+  // gaps, nothing taken away (round 94, D23; tests/topBar.test.ts).
   return (
-    <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-line bg-surface px-4 md:px-6">
+    <header className="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-line bg-surface px-3 md:gap-4 md:px-6">
       <div className="flex min-w-0 items-center gap-3 md:gap-5">
         {/* The title gives way first. On a narrow phone the header has to hold
             the package switch and the quote, and both of those are controls —
@@ -48,6 +99,7 @@ export function TopBar() {
         <div className="shrink-0">
           <Segmented
             size="sm"
+            tight
             name="package"
             value={packageId}
             onChange={setPackageId}
@@ -73,12 +125,13 @@ export function TopBar() {
         </span>
       </div>
 
-      <div className="flex shrink-0 items-center gap-2 md:gap-3">
+      <div className="flex shrink-0 items-center gap-1.5 md:gap-3">
         {/* Unreviewed copy says so, rather than passing for finished work. */}
         {isMachineTranslated(lang) && (
           <span
+            data-mt-chip
             title={t("translation.machine")}
-            className="rounded-sm border border-line px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wide text-ink-muted"
+            className="rounded-sm border border-line px-1 py-0.5 md:px-1.5 font-mono text-[9px] uppercase tracking-wide text-ink-muted"
           >
             MT
           </span>
@@ -87,12 +140,14 @@ export function TopBar() {
         <button
           type="button"
           onClick={() => setQuoteOpen(true)}
-          className="whitespace-nowrap rounded-full border border-line px-3 py-1.5 text-[11px] font-medium text-ink transition-colors hover:border-accent hover:text-accent"
+          className="whitespace-nowrap rounded-full border border-line px-2.5 py-1.5 text-[11px] font-medium text-ink transition-colors hover:border-accent hover:text-accent md:px-3"
         >
           {t("topbar.quote")}
         </button>
+        <ShareButton />
         <Segmented
           size="sm"
+          tight
           value={lang}
           onChange={setLang}
           options={[
@@ -103,7 +158,7 @@ export function TopBar() {
         <button
           type="button"
           onClick={() => setHelpOpen(true)}
-          className="grid h-8 w-8 place-items-center rounded-full border border-line text-[12px] text-ink-muted transition-colors hover:border-accent hover:text-accent"
+          className="grid h-7 w-7 place-items-center md:h-8 md:w-8 rounded-full border border-line text-[12px] text-ink-muted transition-colors hover:border-accent hover:text-accent"
           aria-label={t("topbar.help")}
           title={t("topbar.help")}
         >

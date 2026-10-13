@@ -156,6 +156,7 @@ export function Segmented<T extends string>({
   onChange,
   size = "md",
   wrap = true,
+  tight = false,
   name,
 }: {
   options: SegmentOption<T>[];
@@ -173,12 +174,19 @@ export function Segmented<T extends string>({
    * takes the tighter padding on a phone, which is what keeps it on one line.
    */
   wrap?: boolean;
+  /**
+   * Narrower padding below the desktop width, for the phone's top bar, which
+   * has to hold every control on one line at 360px (round 94, D23).
+   */
+  tight?: boolean;
   /** Names the control in the DOM, so a test can reach it without its label. */
   name?: string;
 }) {
   const pad =
     size === "sm"
-      ? "px-3 py-1 text-[11px]"
+      ? tight
+        ? "px-[7px] py-1 text-[11px] md:px-3"
+        : "px-3 py-1 text-[11px]"
       : wrap
         ? "px-4 py-1.5 text-[12px]"
         : "px-2.5 py-1 text-[11px] sm:px-4 sm:py-1.5 sm:text-[12px]";

@@ -18,6 +18,7 @@ import {
 import type { ResolvedWindow } from "./windows";
 import type { FixtureId, SlotId } from "../types";
 import { alongIsToTheRight, onAxis, sizeOnAxis } from "./frame";
+import { isShareLink } from "./linkVersion";
 
 export * from "./roomShell";
 export { PARAM_LIMITS, DEFAULT_PARAMS } from "./layoutTemplate";
@@ -326,6 +327,10 @@ function readParams(): { params: LayoutParams; issues: Refusal[] } {
   if (typeof window === "undefined") return { params: DEFAULT_PARAMS, issues: [] };
 
   const query = new URLSearchParams(window.location.search);
+  // A share link is read whole by its own table once the page has loaded
+  // (round 94, src/store/openLink.ts): the room starts as the default, and
+  // these older names are for screenshots.
+  if (isShareLink(query)) return { params: DEFAULT_PARAMS, issues: [] };
   const issues: Refusal[] = [];
   const params = { ...DEFAULT_PARAMS };
 
