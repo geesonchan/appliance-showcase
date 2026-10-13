@@ -12,7 +12,7 @@ import { inchesSpoken } from "../data/inches";
 import type { LayoutParams, Refusal } from "../data/layoutTemplate";
 import { LAYOUT_ISSUES, REQUESTED_PARAMS } from "../data/room";
 import type { Lang, Lighting, RenderMode, SlotId, UtilityType } from "../types";
-import { readRails, writeRails } from "./railState";
+import { readRails, readTab, writeRails, writeTab, type RightTab } from "./railState";
 import {
   ACCENT_COLORS,
   ACCENT_RUNS,
@@ -140,6 +140,17 @@ interface AppState {
   rightOpen: boolean;
   /** Mobile drawer state; ignored at desktop widths. */
   mobilePanel: "none" | "list" | "config";
+  /**
+   * Which tab the right panel shows, and the phone sheet when it shows the
+   * settings. Round 91 (railState.ts): Look by default, kept for the browser tab.
+   */
+  rightTab: RightTab;
+  /**
+   * The tab to go back to on leaving Install mode, when entering it jumped the
+   * panel to Install; null when it did not, or when somebody chose a tab while
+   * in Install, which then stays (Leo, round 91).
+   */
+  tabBeforeInstall: RightTab | null;
   toast: ToastMessage | null;
   /** Set when a render-mode switch starts, for the ?debug=1 overlay. */
   modeSwitchStartedAt: number | null;
@@ -170,6 +181,8 @@ interface AppState {
   openSpec: (slot: SlotId) => void;
   closeSpec: () => void;
   setMobilePanel: (panel: "none" | "list" | "config") => void;
+  /** A tab chosen by somebody: it is kept, and it stays when Install mode ends. */
+  setRightTab: (tab: RightTab) => void;
   showToast: (key: string, vars?: Record<string, string | number>) => void;
   dismissToast: () => void;
   /** Put back the room the current toast offers to undo. */
@@ -333,6 +346,8 @@ export const useAppStore = create<AppState>((set, get) => ({
   // told otherwise. See railState.ts and docs/decisions.md D12.
   ...readRails(),
   mobilePanel: "none",
+  rightTab: readTab(),
+  tabBeforeInstall: null,
   toast: null,
   modeSwitchStartedAt: null,
   modeSwitchMs: null,
@@ -386,8 +401,20 @@ export const useAppStore = create<AppState>((set, get) => ({
     }));
   },
   setRenderMode: (renderMode) => {
-    if (get().renderMode === renderMode) return;
-    set({ renderMode, modeSwitchStartedAt: performance.now() });
+    const was = get().renderMode;
+    if (was === renderMode) return;
+    // Install mode brings the Install tab forward, and leaving it puts back
+    // the tab that was showing — unless somebody chose a tab meanwhile, which
+    // then stays (Leo, round 80's plan, decision 4, and round 91).
+    const tabs =
+      renderMode === "install"
+        ? get().rightTab === "install"
+          ? {}
+          : { rightTab: "install" as const, tabBeforeInstall: get().rightTab }
+        : was === "install" && get().tabBeforeInstall
+          ? { rightTab: get().tabBeforeInstall!, tabBeforeInstall: null }
+          : {};
+    set({ renderMode, modeSwitchStartedAt: performance.now(), ...tabs });
     get().showToast(`mode.toast.${renderMode}`);
   },
   setLighting: (lighting) => set({ lighting }),
@@ -550,6 +577,10 @@ export const useAppStore = create<AppState>((set, get) => ({
   openSpec: (specSlot) => set({ specSlot }),
   closeSpec: () => set({ specSlot: null }),
   setMobilePanel: (mobilePanel) => set({ mobilePanel }),
+  setRightTab: (rightTab) => {
+    writeTab(rightTab);
+    set({ rightTab, tabBeforeInstall: null });
+  },
   showToast: (key, vars) => set({ toast: { id: ++toastId, key, vars } }),
   dismissToast: () => set({ toast: null }),
   undo: () => {

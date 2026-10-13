@@ -139,6 +139,10 @@ describe("the doors every package opens with", () => {
 
   it("shows RAL 5015 among the scheme's dots under the package summary, and no green", async () => {
     const { page } = await open();
+    // Round 91: the package summary is on the List tab. The one step added
+    // to this file for the tabs.
+    await mouse(page, page.locator('[data-right-tab="list"]'));
+    await page.waitForTimeout(400);
     expect({
       blue: await page.locator(`span[title="#2874B2"]`).count(),
       green: await page.locator(`span[title="#2E5C45"]`).count(),

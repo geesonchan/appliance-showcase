@@ -3,13 +3,21 @@ import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
 import { LeftPanel } from "./LeftPanel";
 import { RightPanel } from "./RightPanel";
+import type { RightTab } from "../store/railState";
 
 /** Sheet heights, in vh. */
 const SNAP = { half: 50, low: 26 };
 /** Dragged below this, the sheet dismisses instead of snapping. */
 const DISMISS_BELOW = 18;
 
-type Panel = "list" | "config";
+/** The sheet's five tabs: the appliance list, then the right panel's four. Round 91. */
+type SheetTab = "appliances" | RightTab;
+const CONFIG_TABS: { tab: RightTab; key: string }[] = [
+  { tab: "look", key: "panel.tab.look" },
+  { tab: "layout", key: "panel.tab.layout" },
+  { tab: "install", key: "panel.tab.install" },
+  { tab: "list", key: "panel.tab.list" },
+];
 
 /**
  * The phone version of the two side columns.
@@ -23,6 +31,9 @@ export function MobileSheet() {
   const t = useT();
   const panel = useAppStore((s) => s.mobilePanel);
   const setMobilePanel = useAppStore((s) => s.setMobilePanel);
+  const rightTab = useAppStore((s) => s.rightTab);
+  const setRightTab = useAppStore((s) => s.setRightTab);
+  const showing: SheetTab = panel === "list" ? "appliances" : rightTab;
   const [heightVh, setHeightVh] = useState(SNAP.half);
   const drag = useRef<{ startY: number; startHeight: number } | null>(null);
 
@@ -63,13 +74,23 @@ export function MobileSheet() {
     });
   }, [setMobilePanel]);
 
-  const tab = (value: Panel, label: string) => (
+  // Round 91: five tabs where there were two, so each gives up 2px of padding
+  // a side (Leo) — five fit at 360px in English with room to spare
+  // (tests/sheetTabs.test.ts).
+  const tab = (value: SheetTab, label: string) => (
     <button
       type="button"
-      onClick={() => setMobilePanel(value)}
+      data-sheet-tab={value}
+      onClick={() => {
+        if (value === "appliances") setMobilePanel("list");
+        else {
+          setRightTab(value);
+          setMobilePanel("config");
+        }
+      }}
       className={[
-        "rounded-full px-3 py-1 text-[12px] font-medium transition-colors",
-        panel === value ? "bg-accent text-[#F7F5EF]" : "text-ink-muted",
+        "rounded-full px-2.5 py-1 text-[12px] font-medium transition-colors",
+        showing === value ? "bg-accent text-[#F7F5EF]" : "text-ink-muted",
       ].join(" ")}
     >
       {label}
@@ -126,8 +147,8 @@ export function MobileSheet() {
 
           <div className="flex shrink-0 items-center justify-between px-3 pb-2">
             <div className="flex gap-1">
-              {tab("list", t("mobile.appliances"))}
-              {tab("config", t("mobile.config"))}
+              {tab("appliances", t("mobile.appliances"))}
+              {CONFIG_TABS.map(({ tab: value, key }) => tab(value, t(key)))}
             </div>
             <button
               type="button"
@@ -140,7 +161,7 @@ export function MobileSheet() {
           </div>
 
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain border-t border-line">
-            {panel === "list" ? <LeftPanel /> : <RightPanel />}
+            {panel === "list" ? <LeftPanel /> : <RightPanel tabs={false} />}
           </div>
         </div>
       )}

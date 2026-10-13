@@ -34,8 +34,9 @@ import {
  *
  * **Written whole** (Leo, round 94, his choice (a)): every field, whether or
  * not it is the package's default, so a link opens on the kitchen as it was
- * shared even after a package's default has changed. About 470-530
- * characters. No price and nothing about the customer is in it: the fields
+ * shared even after a package's default has changed. Measured (D23): 478-556
+ * characters for the five packages as they open, 562 at the longest. No
+ * price and nothing about the customer is in it: the fields
  * below are all there is.
  *
  * What a link may not be used for — whether a model it names still goes in
@@ -344,6 +345,9 @@ export const NOT_IN_LINK: Record<string, string> = {
   quoteOpen: "a dialog open",
   leftOpen: "a rail open (per tab, D12)",
   rightOpen: "a rail open (per tab, D12)",
+  // Round 91: the panel's tabs are the page's own, like the rails.
+  rightTab: "a tab of the right panel and the phone's sheet: the page's own state, like the rails, kept per browser tab (D12)",
+  tabBeforeInstall: "the tab to go back to after Install mode: the page's own state",
   mobilePanel: "the phone's sheet open",
   toast: "a message on screen",
   modeSwitchStartedAt: "a timing for ?debug=1",

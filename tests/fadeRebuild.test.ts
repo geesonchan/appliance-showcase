@@ -379,9 +379,19 @@ async function swapHood(s: Session) {
   return () => press(s, s.page.getByRole("button", { name: /AK7300AS/ }).filter({ visible: true }).first());
 }
 
+/**
+ * Round 91: the wall sliders and the island's switch are on the Layout tab —
+ * the right panel's on a desktop, the sheet's on a phone. The one step added
+ * to this file for the tabs.
+ */
+async function layoutTab(s: Session) {
+  await press(s, s.page.locator('[data-right-tab="layout"], [data-sheet-tab="layout"]').filter({ visible: true }).first());
+}
+
 /** Dragging the back wall slider by hand, a step and a half. */
 async function dragBackWall(s: Session) {
   await fadedWithHood(s, "config");
+  await layoutTab(s);
   const slider = s.page.locator("label", { hasText: "Back wall" }).first().locator('input[type="range"]');
   await slider.scrollIntoViewIfNeeded();
   await steady(s);
@@ -404,6 +414,7 @@ async function dragBackWall(s: Session) {
 /** Turning the island across the room. */
 async function turnIsland(s: Session) {
   await fadedWithHood(s, "config");
+  await layoutTab(s);
   const across = s.page.getByRole("button", { name: "Across the room", exact: true }).filter({ visible: true }).first();
   await across.scrollIntoViewIfNeeded();
   await steady(s);
@@ -490,6 +501,7 @@ const INSTALL_PATHS = [
     "dragging the back wall slider",
     async (s: Session) => {
       await inInstall(s, "config");
+      await layoutTab(s);
       const slider = s.page.locator("label", { hasText: "Back wall" }).first().locator('input[type="range"]');
       await slider.scrollIntoViewIfNeeded();
       return async () => {
@@ -509,6 +521,7 @@ const INSTALL_PATHS = [
     "turning the island",
     async (s: Session) => {
       await inInstall(s, "config");
+      await layoutTab(s);
       const across = s.page.getByRole("button", { name: "Across the room", exact: true }).filter({ visible: true }).first();
       await across.scrollIntoViewIfNeeded();
       return () => press(s, across);

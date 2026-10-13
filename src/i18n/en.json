@@ -469,5 +469,9 @@
   "share.notice.unreadable": "This link could not be read; the default kitchen is shown.",
   "share.box.title": "Share this kitchen",
   "share.box.copy": "Copy",
-  "share.box.scan": "Scan with your phone camera to view this kitchen on your phone."
+  "share.box.scan": "Scan with your phone camera to view this kitchen on your phone.",
+  "panel.tab.look": "Look",
+  "panel.tab.layout": "Layout",
+  "panel.tab.install": "Install",
+  "panel.tab.list": "List"
 }

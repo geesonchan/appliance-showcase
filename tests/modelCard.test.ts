@@ -251,6 +251,10 @@ describe("the model card", () => {
     await press(s, s.page.locator('[data-model-card] [data-candidate$="ak7300as"]').first());
     await s.page.waitForTimeout(2500);
     const line = (await s.page.locator("[data-card-narrow]").innerText()).trim();
+    // Round 91: the checklist is on the List tab. The one step added to this
+    // file for the tabs.
+    await press(s, s.page.locator('[data-right-tab="list"]').first());
+    await s.page.waitForTimeout(400);
     const panel = await s.page.locator("aside").nth(1).innerText();
     expect({
       before,

@@ -470,5 +470,9 @@
   "share.notice.unreadable": "此链接无法读取，显示的是默认厨房。",
   "share.box.title": "分享这个厨房",
   "share.box.copy": "复制",
-  "share.box.scan": "用手机相机扫码，在手机上查看这个厨房。"
+  "share.box.scan": "用手机相机扫码，在手机上查看这个厨房。",
+  "panel.tab.look": "外观",
+  "panel.tab.layout": "布局",
+  "panel.tab.install": "安装",
+  "panel.tab.list": "清单"
 }

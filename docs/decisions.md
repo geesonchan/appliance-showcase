@@ -1684,6 +1684,86 @@ items). Sketched first at 1440 x 900, the list rail folded and open.
   the smoke test "swaps a model in place", which read the card with the rail
   open. The phone cases are unchanged.
 
+*Amended 2026-10-13 (round 91, built after 95), Leo: the right panel in four
+tabs.* From round 80's plan (`docs/plans/round-80-interface-plan.md`, section 2
+and decision 4) and Leo's decisions on round 91's plan.
+- **Look / Layout / Install / List** (外观 / 布局 / 安装 / 清单; Leo's words,
+  round 80, locked in `reviewed.json`, approval `read`), at the panel's top.
+  Every section is as it was, only where it is changed: **Look** the finishes
+  and the atmosphere; **Layout** the layout, the room's dimensions and the
+  plan; **Install** the utility layers, the rough-in points and the dimension
+  lines' switch — the lines are drawn only in Install mode, so the switch is
+  where they are (Leo, round 91; round 80's plan had it on Layout); **List**
+  the package and the install checklist.
+- **Look first, kept for the browser tab** (sessionStorage, as the rails, this
+  entry's round 31): the next customer, in a fresh tab, gets Look. Only a tab
+  somebody chose is kept (`railState.ts`).
+- **Install mode brings the Install tab forward; leaving it puts back the tab
+  that was showing — unless somebody chose a tab while in Install, which then
+  stays** (Leo, round 91). A tab is the page's own state and is not in a share
+  link (`NOT_IN_LINK`: `rightTab`, `tabBeforeInstall`; D23).
+- **The checklist folded by machine** (Leo): only the machine selected is
+  open; the fold over the whole list went. With nothing selected every
+  machine is one line — its name, the dot of its most serious line and how
+  many lines it has — and opens by itself; a machine opened or closed by hand
+  stays so, the others follow the selection.
+- **The phone's sheet: Appliances / 家电, Look, Layout, Install, List** (Leo:
+  the first named as the desktop's list rail is). The closed sheet's two
+  buttons stay: Appliances opens the list, Configure the settings tab last
+  shown, Look at first. Each tab has 10px of padding a side, 2px less than the
+  two had (Leo); at 360px in English the five end 28.9px short of the close
+  button (round 91's plan, measured).
+- **The `Slider` warning** (Open items) fixed with it: `backgroundImage`.
+- **What each tab holds, measured with the mouse** on round 91's build
+  (`index-CPfoV7sv.js`), 1440 x 900, the panel 755px tall under its tabs:
+
+  | Tab | A | B | C | D | E |
+  |---|---|---|---|---|---|
+  | Look | 732 | 732 | 732 | 732 | 732 |
+  | Layout | 1,159 | 1,394 | 1,159 | 1,518 | 1,450 |
+  | Install | 901 | 892 | 618 | 894 | 950 |
+  | List, nothing selected | 435 | 408 | 382 | 514 | 462 |
+  | List, its longest machine open | 710 | 703 | 574 | 1,237 | 1,184 |
+
+  In English; the Chinese is shorter (Look 647, List with nothing selected
+  367-499). So Look and the folded List are each under one screen in every
+  package; D's and E's List is longest with the coffee machine open.
+- **Tests.** `tests/rightTabs.test.ts`, 9 cases with the mouse (Look first;
+  Layout's sliders; Install mode there and back; a tab chosen in Install
+  stays; the dimension lines' switch on Install; the checklist folded, only
+  the selected machine open, no whole fold; the tab kept for the browser tab,
+  Look in a fresh one); `tests/sheetTabs.test.ts`, 10 by touch (five tabs on
+  one line, 10px a side, none over another, at 360-414px in both languages;
+  the two closed-sheet buttons); `src/store/rightTab.test.ts`, 9 (the rule
+  and the storage); `tests/sliderWarning.test.ts`, 1, on the development
+  server, which it stops and checks has let its port go. All red on round 95's
+  code or build — the 19 browser cases on `index-CojLAhxC.js`, the warning
+  test with its four warnings — and the share link's completeness test went
+  red with `rightTab` taken out of `NOT_IN_LINK`. The browser files that
+  reach the panel take one step to the tab first and no assertion changed:
+  `fadeRebuild` (Layout, before the back wall slider and the island's switch,
+  four places, through one helper), `hoodHousing` (Layout, on opening, desktop
+  only), `modelCard` (List, before reading the checklist), `shareLink`
+  (Layout, before the island and the slider), `defaultDoors` (List, before the
+  package summary's dots), `smoke` (Layout before the coffee slider; and in
+  the phone sheet's test, the sheet's Look tab where it pressed "Configure",
+  which is the closed sheet's button now — a step changed, not added; Leo,
+  round 91: accepted, its assertions unchanged). `ralColours` and `modelLine` needed
+  none: Look is where they work, and the left rail is untouched.
+- **Measured** (D17's third way: round 95's code as live, `index-CojLAhxC.js`,
+  against round 91's, `index-CPfoV7sv.js`, each from a copy; the five packages
+  as they open, the mouse at 1440 x 900, a finger at 390 x 844 in English and
+  360 x 844 in Chinese, `?quality=high`; each build shot twice, the pair whose
+  runs agree taken): **on a desktop about 47,085 pixels, all inside x
+  1182-1439 — the right panel; the room 0** (D's and E's box reaching the one
+  pixel at (144, 225) that also differs between runs of one build); **on a
+  phone with the sheet closed, 0 in every package at both widths.** Pictures:
+  `docs/fixes/round-91-desktop-before-after.png`, and the tabs open:
+  `round-91-desktop-D-list-nothing-selected.png`,
+  `round-91-desktop-A-install-mode.png`,
+  `round-91-phone-390-en-sheet-look.png`,
+  `round-91-phone-360-zh-sheet-layout.png`.
+
 ---
 
 ## D13 · The dimensions a kitchen is actually built to
@@ -5253,7 +5333,16 @@ Registered, not scheduled. None of these is a round of its own.
   run and the callout in the next. The cause was not found. Clicks work and the
   rough-in list reaches every point, so it is not chased now. *(Noted
   2026-09-14, round 45, Leo.)*
-- **A React style warning from the wall sliders.** `Slider` in
+- ~~**A React style warning from the wall sliders.**~~ **Fixed in round 91**
+  (D12, round 91): `Slider` sets `backgroundImage`. *Corrected in round 91,
+  measured:* the warning is React's development build's only — the production
+  build a customer is served never printed it — and it came when a switch
+  moved a slider's feasible band (the corner, the island turned, the package:
+  four warnings for those three), not when a slider was dragged, nor "on
+  every rerender" as written below. `tests/sliderWarning.test.ts` serves the
+  working tree through Vite's development server to see it, and caught the
+  four on round 95's code before the fix. What follows is the entry as it
+  stood: `Slider` in
   `src/ui/primitives.tsx` sets `background` and `backgroundSize` on the same
   input, and React warns about mixing a shorthand with one of its parts on
   every rerender. It came in on 2026-09-06 (`db0c9a8`, the feasible band under a
@@ -6617,6 +6706,26 @@ Registered, not scheduled. None of these is a round of its own.
   about 53 cm on a 1440-wide laptop, half that with room to spare. **If it
   will not scan, the code is drawn larger first; the link is not shortened**
   (Leo, round 95).
+- **Two runs stopped with exit code 4, cause not looked into.** *(Leo, round
+  91: registered, not fixed this round.)* Neither script exits with 4 of its
+  own; both times the session's next message was Leo's 继续 ("go on"), so the
+  run very likely ended with the session that started it — not shown.
+  - **Round 95, the browser tests after the build.** One command: `npm run
+    build`, then `npx vitest run tests/shareQr.test.ts tests/shareLink.test.ts
+    tests/topBar.test.ts`, its output to a file and its exit code to another.
+    The build finished (`index-B-H7dkVj.js`); the output file holds
+    `shareLink.test.ts` 5 of 5 and `shareQr.test.ts` 7 of 7 passed and stops
+    before `topBar.test.ts` reports; the exit-code file was never written.
+    Handled: the run was not counted; `topBar.test.ts` was run again on its
+    own, 10 of 10, exit code 0, and port 4174 found free.
+  - **Round 91, the before-and-after shots.** In the background: two `vite
+    preview` servers (4201, round 95's build; 4202, round 91's), and
+    `shots.mjs` against each twice, alternating. It stopped in the first of
+    the four runs, round 95's: 10 of its 15 shots written (A to C, and D on a
+    desktop), the list of bundles it writes last not written, and both servers
+    gone. Handled: that folder deleted, both servers started again, and all
+    four runs shot again from the start, exit code 0; the comparison in D12,
+    round 91, is of those.
 - **Registered rounds after 78, in Leo's order.** *(Leo, rounds 78-79; not
   started. Round 79 put the interface round first and moved the rest back.)*
   0. **An interface round, plan first, with phone and desktop sketches.**
@@ -6662,7 +6771,9 @@ Registered, not scheduled. None of these is a round of its own.
        in rounds 86, 87 and 88); round 86's first plan for it is in the "MT"
        entry above. *Waiting for Leo's feedback from use (Leo, round 92).*
        *The "MT" chip went into round 94 (Leo) and is done there; the tabs
-       and the `Slider` warning still wait.*
+       and the `Slider` warning still wait.* *Done in round 91, built after
+       95* (D12, round 91): the tabs, from Leo's round-80 decisions, and the
+       `Slider` warning.
        **Round 92**: every RAL Classic colour (Leo, round 88; the entry above),
        built ahead of 91 with its number kept (Leo), and with it the importer
        stopping when hand-filled cells go empty (Leo, round 90; the entry

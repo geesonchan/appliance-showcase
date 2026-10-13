@@ -45,3 +45,33 @@ export function writeRails(rails: Rails, storage: Store | null = session()) {
     // A browser that refuses storage still gets the rails; it just forgets them.
   }
 }
+
+/**
+ * The right panel's tab, and the phone sheet's settings tab with it. Round 91,
+ * Leo (round 80's plan, section 9, decision 4): Look by default, kept for the
+ * browser tab like the rails and for the same reason — the next customer, in a
+ * fresh tab, gets Look. Only the tab somebody chose is kept: the jump to
+ * Install that Install mode makes is the page's, and is undone on leaving it.
+ */
+export type RightTab = "look" | "layout" | "install" | "list";
+export const RIGHT_TABS: RightTab[] = ["look", "layout", "install", "list"];
+export const TAB_DEFAULT: RightTab = "look";
+
+const TAB_KEY = "appliance-showcase:right-tab";
+
+export function readTab(storage: Store | null = session()): RightTab {
+  try {
+    const raw = storage?.getItem(TAB_KEY);
+    return RIGHT_TABS.find((tab) => tab === raw) ?? TAB_DEFAULT;
+  } catch {
+    return TAB_DEFAULT;
+  }
+}
+
+export function writeTab(tab: RightTab, storage: Store | null = session()) {
+  try {
+    storage?.setItem(TAB_KEY, tab);
+  } catch {
+    // As the rails: a browser that refuses storage keeps the tab until reload.
+  }
+}

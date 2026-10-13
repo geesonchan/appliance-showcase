@@ -140,6 +140,9 @@ describe("a shared kitchen opens the same", () => {
     await s.page.keyboard.type("7016");
     await s.page.keyboard.press("Enter");
     // The island turned, and the back wall two steps longer from the keyboard.
+    // Round 91: both on the Layout tab. The one step added to this file for
+    // the tabs.
+    await press(s, s.page.locator('[data-right-tab="layout"]').first());
     await press(s, s.page.getByRole("button", { name: "Across the room" }).first());
     await settle(s);
     const slider = s.page.locator("label", { hasText: "Back wall" }).first().locator(`input[type="range"]`);

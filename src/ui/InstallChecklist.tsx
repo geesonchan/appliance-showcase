@@ -3,6 +3,7 @@ import { useChecklist } from "../data/useChecklist";
 import { SLOT_BY_ID } from "../data/slots";
 import { DEBUG } from "../debug";
 import { useT } from "../i18n/useT";
+import { useAppStore } from "../store/useAppStore";
 import { useRefusalText } from "./RefusalNote";
 import type { Severity } from "../data/rules";
 
@@ -18,6 +19,13 @@ const DOT: Record<Severity, string> = {
  * Grouped by appliance, because that is how the conversation goes on site, and
  * ordered blockers first. Every line carries the rule that produced it, which is
  * what the quote sheet will serialise. Rule ids are shown under ?debug=1.
+ *
+ * Round 91, Leo: folded by machine, and only the machine selected open; the
+ * fold over the whole list went (it has a tab of its own now). With nothing
+ * selected every machine is folded to one line — its name, the dot of its
+ * most serious line, and how many lines it has — and any of them opens by
+ * itself. A machine somebody opened or closed stays so; the others follow
+ * the selection.
  */
 export function InstallChecklist() {
   const t = useT();
@@ -26,7 +34,11 @@ export function InstallChecklist() {
   // it — and a checklist that substituted the key raw printed "leg.left".
   const say = useRefusalText();
   const { findings, blockers, warnings } = useChecklist();
-  const [open, setOpen] = useState(true);
+  const selectedSlot = useAppStore((s) => s.selectedSlot);
+  // Only the groups somebody opened or closed by hand; the rest follow the
+  // selection.
+  const [chosen, setChosen] = useState<Record<string, boolean>>({});
+  const isOpen = (slotId: string) => chosen[slotId] ?? slotId === selectedSlot;
 
   const bySlot = new Map<string, typeof findings>();
   const order: Severity[] = ["blocker", "warning", "info"];
@@ -41,69 +53,71 @@ export function InstallChecklist() {
 
   return (
     <section className="border-b border-line last:border-b-0">
-      <button
-        type="button"
-        onClick={() => setOpen((value) => !value)}
-        aria-expanded={open}
-        className="flex w-full items-center justify-between px-5 py-4 text-left"
-      >
+      <div className="flex w-full items-center justify-between px-5 py-4">
         <span className="tracking-label text-[10px] text-ink-muted">
           {t("checklist.title")}
         </span>
-        <span className="flex items-center gap-2">
-          <span className="text-[10px] tabular-nums text-ink-muted">
-            {findings.length === 0
-              ? t("checklist.clear")
-              : t("checklist.count", { blockers, warnings })}
-          </span>
-          <span
-            className={
-              "text-[10px] text-ink-muted transition-transform " + (open ? "rotate-180" : "")
-            }
-            aria-hidden="true"
-          >
-            ▾
-          </span>
+        <span className="text-[10px] tabular-nums text-ink-muted">
+          {findings.length === 0
+            ? t("checklist.clear")
+            : t("checklist.count", { blockers, warnings })}
         </span>
-      </button>
+      </div>
 
       {/* Round 70, Leo: which way left is. The whole of that round's fault was
           the side left was seen from, and whoever reads the list was never told. */}
-      {open && findings.length > 0 && (
+      {findings.length > 0 && (
         <p data-sides-note className="px-5 pb-3 text-[10px] leading-snug text-ink-muted">
           {t("roughIn.sidesNote")}
         </p>
       )}
-      {open && findings.length > 0 && (
-        <ul className="space-y-3 px-5 pb-5">
-          {[...bySlot.entries()].map(([slotId, group]) => (
-            <li key={slotId}>
-              <p className="text-[11px] font-medium text-ink">
-                {t(SLOT_BY_ID[slotId as keyof typeof SLOT_BY_ID].labelKey)}
-              </p>
-              <ul className="mt-1 space-y-1">
-                {group.map((finding) => (
-                  <li
-                    key={finding.ruleId}
-                    className="flex items-start gap-2 text-[11px] leading-snug text-ink-muted"
-                  >
-                    <span
-                      className={"mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full " + DOT[finding.severity]}
-                      title={t(`checklist.${finding.severity}`)}
-                    />
-                    <span>
-                      {say(finding.messageKey, finding.params ?? {})}
-                      {DEBUG && (
-                        <span className="ml-1.5 font-mono text-[9px] text-ink-muted/60">
-                          {finding.ruleId}
+      {findings.length > 0 && (
+        <ul className="space-y-1.5 px-5 pb-5">
+          {[...bySlot.entries()].map(([slotId, group]) => {
+            const open = isOpen(slotId);
+            return (
+              <li key={slotId} data-checklist-group={slotId}>
+                <button
+                  type="button"
+                  aria-expanded={open}
+                  onClick={() => setChosen((was) => ({ ...was, [slotId]: !open }))}
+                  className="flex w-full items-center gap-2 py-0.5 text-left"
+                >
+                  <span className="w-2.5 text-[10px] text-ink-muted" aria-hidden="true">
+                    {open ? "▾" : "▸"}
+                  </span>
+                  <span className={"h-1.5 w-1.5 shrink-0 rounded-full " + DOT[group[0].severity]} />
+                  <span className="min-w-0 flex-1 text-[11px] font-medium text-ink">
+                    {t(SLOT_BY_ID[slotId as keyof typeof SLOT_BY_ID].labelKey)}
+                  </span>
+                  <span className="text-[10px] tabular-nums text-ink-muted">{group.length}</span>
+                </button>
+                {open && (
+                  <ul className="mb-2 mt-1 space-y-1 pl-[18px]">
+                    {group.map((finding) => (
+                      <li
+                        key={finding.ruleId}
+                        className="flex items-start gap-2 text-[11px] leading-snug text-ink-muted"
+                      >
+                        <span
+                          className={"mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full " + DOT[finding.severity]}
+                          title={t(`checklist.${finding.severity}`)}
+                        />
+                        <span>
+                          {say(finding.messageKey, finding.params ?? {})}
+                          {DEBUG && (
+                            <span className="ml-1.5 font-mono text-[9px] text-ink-muted/60">
+                              {finding.ruleId}
+                            </span>
+                          )}
                         </span>
-                      )}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </li>
-          ))}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            );
+          })}
         </ul>
       )}
     </section>

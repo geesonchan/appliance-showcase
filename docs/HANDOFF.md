@@ -12,7 +12,7 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **round 95** (`docs/decisions.md` is the record of
+Covers the repository up to **round 91**, built after round 95 (`docs/decisions.md` is the record of
 rounds; `git log` is the record of commits). It replaces the v1–v9 briefs that
 were pasted into chat.
 
@@ -58,10 +58,10 @@ every figure of it, is `data/packages.json`; D16 and D20 say how a package is
 put together and why E was built the way it was. **Do not copy those numbers
 anywhere**: the file is the one source, and the tests read it.
 
-### Where it stands (round 95)
+### Where it stands (round 91, after 95)
 
-- **All five packages are live.** Rounds 73–79, 81–90, 92, 92a, 92b, 92c, 93, 94 and 95 each shipped
-  (round 80 built nothing; 91 waits, below), and each was checked against the live page's asset hashes
+- **All five packages are live.** Rounds 73–79, 81–90, 92, 92a, 92b, 92c, 93, 94, 95 and 91 each shipped
+  (round 80 built nothing; 91 was built after 95, below), and each was checked against the live page's asset hashes
   after its workflow finished.
 - **The project is in real use.** Rounds 73–77 all came from Leo using package
   E himself: a wine cooler under the coffee machine (73), E's combination oven
@@ -93,8 +93,8 @@ anywhere**: the file is the one source, and the tests read it.
   round 87, from Leo using package A); 88 the model card at the left of the scene on a desktop (**done**, D12 round 88; the phone's later); 89 a refrigerator's surround following the model chosen (**done**, D16 round 89); 90 the 36" chimney hood HMCB36WS (**done**, D16 round 90); 92 every RAL
   Classic colour, built before 91 with its number kept, and the importer
   stopping when hand-filled cells come in blank (**done**, D15 and D4 round
-  92); 92a the doors opening in RAL 5015 (D15 round 92a); 92b every base cabinet on a toe kick that shows (D22 and D13 round 92b); 92c every oven tower a standard install, its sides inside its 30", and beside it on the far side a board only under 9" (D11 rule 12 round 92c); 91 the right panel's tabs and the `Slider` warning (waiting for Leo's
-  feedback from use; the "MT" chip over "E" on a Chinese phone went into 94); 93 why a tap on
+  92); 92a the doors opening in RAL 5015 (D15 round 92a); 92b every base cabinet on a toe kick that shows (D22 and D13 round 92b); 92c every oven tower a standard install, its sides inside its 30", and beside it on the far side a board only under 9" (D11 rule 12 round 92c); 91 the right panel's tabs and the `Slider` warning, built after 95 (**done**,
+  D12 round 91; the "MT" chip over "E" on a Chinese phone went into 94); 93 why a tap on
   the phone card now and then rebuilds nothing, and the mouse-or-script smoke
   test comparing the canvas by pixels and the HTML over it by position, and
   this machine and CI on one Node version (**done**, D17 round 93 and Open items: the tap not reproduced in 120 tries and its test keeping the evidence); 94 a
@@ -140,6 +140,8 @@ anywhere**: the file is the one source, and the tests read it.
 | `src/store/shareLink.ts`, `src/store/openLink.ts` | The share link: one table every setting is written and read by, and the page opened from a link checked by what it already asks (D23, round 94). |
 | `src/store/shareLink.test.ts`, `tests/shareLink.test.ts` | A kitchen shared and opened comes back the same, settings, room and pins; older links and their notice; the table's completeness (D23, round 94). |
 | `src/ui/shareQr.ts`, `tests/shareQr.test.ts` | The share box's QR code — L, 4 CSS pixels a module, loaded only when the box opens — read back to the link character for character (D23, round 95). |
+| `tests/rightTabs.test.ts`, `tests/sheetTabs.test.ts`, `src/store/rightTab.test.ts` | The right panel's four tabs and the phone sheet's five: Look first, Install mode there and back, the checklist folded by machine, the tab kept for the browser tab (D12, round 91). |
+| `tests/sliderWarning.test.ts` | No React style warning from the wall sliders, on Vite's development server, which it starts and stops (D12, round 91). |
 | `tests/topBar.test.ts` | The phone's top bar: no control over another at 360–414px in both languages, and a share button (D23, round 94). |
 | `scripts/handFilled.test.ts` | The import stops when a checked model's hand-filled cells come in blank, unless `--allow-empty=MODEL` names it (D4, round 92). |
 | `scripts/screenshots.mjs` | Screenshot sets by round. |

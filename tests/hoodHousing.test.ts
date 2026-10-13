@@ -65,7 +65,11 @@ async function open(phone: boolean): Promise<Session> {
   await page.goto(PREVIEW_URL + "?quality=high", { waitUntil: "networkidle", timeout: 90_000 });
   await page.waitForSelector("canvas", { timeout: 60_000 });
   await page.waitForTimeout(2000);
-  return { page, phone, errors };
+  const session = { page, phone, errors };
+  // Round 91: the housing-shape control is on the Layout tab. The one step
+  // added to this file for the tabs; on a phone the sheet stays closed.
+  if (!phone) await press(session, page.locator('[data-right-tab="layout"]').first());
+  return session;
 }
 
 async function press(s: Session, locator: ReturnType<Page["locator"]>) {

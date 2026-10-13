@@ -420,6 +420,31 @@
       "text": "Scan with your phone camera to view this kitchen on your phone.",
       "approval": "read",
       "reviewed": "Drafted by CC in round 95; Leo read both languages before the push (decisions.md D23, round 95); the wording of this line, in both languages, is Leo's own rewrite of the draft"
+    },
+    "panel.tab.look": {
+      "text": "Look",
+      "approval": "read",
+      "reviewed": "Leo's own words, decided in round 80 (docs/plans/round-80-interface-plan.md, section 9, decision 4) and locked in round 91"
+    },
+    "panel.tab.layout": {
+      "text": "Layout",
+      "approval": "read",
+      "reviewed": "Leo's own words, decided in round 80 (docs/plans/round-80-interface-plan.md, section 9, decision 4) and locked in round 91"
+    },
+    "panel.tab.install": {
+      "text": "Install",
+      "approval": "read",
+      "reviewed": "Leo's own words, decided in round 80 (docs/plans/round-80-interface-plan.md, section 9, decision 4) and locked in round 91"
+    },
+    "panel.tab.list": {
+      "text": "List",
+      "approval": "read",
+      "reviewed": "Leo's own words, decided in round 80 (docs/plans/round-80-interface-plan.md, section 9, decision 4) and locked in round 91"
+    },
+    "mobile.appliances": {
+      "text": "Appliances",
+      "approval": "read",
+      "reviewed": "The phone sheet's first tab and its entry button, named as the desktop's list rail is (Leo, round 91); locked in round 91"
     }
   },
   "zh": {
@@ -847,6 +872,31 @@
       "text": "用手机相机扫码，在手机上查看这个厨房。",
       "approval": "read",
       "reviewed": "Drafted by CC in round 95; Leo read both languages before the push (decisions.md D23, round 95); the wording of this line, in both languages, is Leo's own rewrite of the draft"
+    },
+    "panel.tab.look": {
+      "text": "外观",
+      "approval": "read",
+      "reviewed": "Leo's own words, decided in round 80 (docs/plans/round-80-interface-plan.md, section 9, decision 4) and locked in round 91"
+    },
+    "panel.tab.layout": {
+      "text": "布局",
+      "approval": "read",
+      "reviewed": "Leo's own words, decided in round 80 (docs/plans/round-80-interface-plan.md, section 9, decision 4) and locked in round 91"
+    },
+    "panel.tab.install": {
+      "text": "安装",
+      "approval": "read",
+      "reviewed": "Leo's own words, decided in round 80 (docs/plans/round-80-interface-plan.md, section 9, decision 4) and locked in round 91"
+    },
+    "panel.tab.list": {
+      "text": "清单",
+      "approval": "read",
+      "reviewed": "Leo's own words, decided in round 80 (docs/plans/round-80-interface-plan.md, section 9, decision 4) and locked in round 91"
+    },
+    "mobile.appliances": {
+      "text": "家电",
+      "approval": "read",
+      "reviewed": "The phone sheet's first tab and its entry button, named as the desktop's list rail is (Leo, round 91); locked in round 91"
     }
   }
 }

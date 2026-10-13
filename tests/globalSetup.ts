@@ -69,6 +69,28 @@ export async function startPreview(port: number): Promise<() => Promise<void>> {
 }
 
 /**
+ * Serve the working tree through Vite's development server on `port`, and give
+ * back what stops it. Round 91.
+ *
+ * For the one thing the production build cannot show: React's development
+ * warnings, which its production build leaves out (the `Slider` style warning,
+ * `tests/sliderWarning.test.ts`). Started and stopped as `startPreview` is —
+ * Vite's own script with this node, no shell, stopping waits for the exit —
+ * and only by that file, which the suite runs on its own (fileParallelism off).
+ */
+export async function startDev(port: number): Promise<() => Promise<void>> {
+  const server: ChildProcess = spawn(process.execPath, [VITE, "--port", String(port), "--strictPort"], {
+    stdio: "ignore",
+  });
+  const exited = new Promise<void>((resolve) => server.once("exit", () => resolve()));
+  await waitForServer(`http://localhost:${port}`, 60_000);
+  return async () => {
+    if (server.exitCode === null && server.signalCode === null) server.kill();
+    await exited;
+  };
+}
+
+/**
  * Serves the production build for the smoke suite.
  *
  * Run `npm run build` first, or use `npm test`, which does it for you. Testing

@@ -135,7 +135,11 @@ export function Slider({
           const next = Number(event.target.value);
           onChange(feasible && next < feasible.minIn ? feasible.minIn : next);
         }}
-        style={band ? { background: band, backgroundSize: "100% 4px" } : undefined}
+        // The image, not the `background` shorthand: the shorthand beside
+        // `backgroundSize` made React warn whenever the band moved (round 91,
+        // tests/sliderWarning.test.ts). Colour, position and repeat are the
+        // classes' — the gradient covers the whole track either way.
+        style={band ? { backgroundImage: band, backgroundSize: "100% 4px" } : undefined}
         className="mt-1.5 h-1 w-full cursor-pointer appearance-none rounded-full bg-line bg-center bg-no-repeat accent-accent"
       />
       {caption && <span className="mt-1 block text-[10px] leading-tight text-ink-muted">{caption}</span>}

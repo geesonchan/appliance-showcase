@@ -432,7 +432,10 @@ describe("mobile", () => {
     await page.waitForTimeout(800);
     expect(await page.locator("[data-sheet]").count()).toBe(1);
 
-    await page.getByRole("button", { name: "Configure" }).click();
+    // Round 91: the open sheet's settings are its Look tab, where "Show
+    // cabinets" is; the sheet has no "Configure" tab now (that name is the
+    // closed sheet's button). The one step changed in this test, for the tabs.
+    await page.locator('[data-sheet-tab="look"]').click();
     await page.waitForTimeout(400);
     await page.getByRole("switch", { name: "Show cabinets" }).click();
     await page.waitForTimeout(400);
@@ -1203,6 +1206,9 @@ describe("the coffee height slider", () => {
     const { page, errors } = await openPage(DESKTOP);
     await page.locator(`[data-segment="package"] button`, { hasText: "E" }).first().click();
     await page.waitForTimeout(1800);
+    // Round 91: the slider is on the Layout tab. Added for the tabs.
+    await page.locator('[data-right-tab="layout"]').first().click();
+    await page.waitForTimeout(300);
     const control = page.locator("label", { hasText: "Coffee machine height" }).first();
     const slider = control.locator(`input[type="range"]`);
     await slider.focus();
