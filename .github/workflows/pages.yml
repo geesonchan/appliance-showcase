@@ -48,6 +48,16 @@ jobs:
       # `npm run build` type-checks first, so a build that publishes is a build
       # that compiled.
       - run: npm run build
+        env:
+          # The visit counter's address (D24), as geesonchan/game-of-life sets
+          # its own. The repository variable GOATCOUNTER first (Settings →
+          # Secrets and variables → Actions → Variables), changed without
+          # touching code; failing that, only this repository falls back to the
+          # address below — a copy deployed by somebody else counts nothing.
+          # The address is no secret: it is in the page the build publishes.
+          # It makes the live page's main chunk differ from a plain local build,
+          # so a hash check builds with it (D17, D24).
+          VITE_GOATCOUNTER: ${{ vars.GOATCOUNTER || (github.repository == 'geesonchan/appliance-showcase' && 'https://geesonchan.goatcounter.com/count' || '') }}
 
       - uses: actions/upload-pages-artifact@v5
         with:

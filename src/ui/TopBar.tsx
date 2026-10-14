@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { PACKAGES } from "../data/packages";
 import { isMachineTranslated } from "../i18n";
 import { useT } from "../i18n/useT";
+import { EVENTS, countEvent } from "../analytics";
 import { shareUrl } from "../store/openLink";
 import { useAppStore } from "../store/useAppStore";
 import { copyText } from "./copyText";
@@ -37,6 +38,8 @@ function ShareButton() {
   const showToast = useAppStore((s) => s.showToast);
   const [boxUrl, setBoxUrl] = useState<string | null>(null);
   const share = async () => {
+    // Counted on the live site: every press, the share sheet or the copy (D24).
+    countEvent(EVENTS.share);
     const url = shareUrl();
     const phone = window.matchMedia("(max-width: 767px)").matches;
     if (phone && typeof navigator.share === "function") {
@@ -50,7 +53,11 @@ function ShareButton() {
     }
     await copyText(url);
     showToast("share.copied");
-    if (!phone) setBoxUrl(url);
+    if (!phone) {
+      // The one place the QR box opens; counted on the live site (D24).
+      countEvent(EVENTS.qrBox);
+      setBoxUrl(url);
+    }
   };
   return (
     <>
@@ -232,7 +239,11 @@ export function TopBar() {
         {/* The one way to the package and its prices. See docs/decisions.md D12. */}
         <button
           type="button"
-          onClick={() => setQuoteOpen(true)}
+          onClick={() => {
+            setQuoteOpen(true);
+            // The one place the quote opens; counted on the live site (D24).
+            countEvent(EVENTS.quote);
+          }}
           className="whitespace-nowrap rounded-full border border-line px-2.5 py-1.5 text-[11px] font-medium text-ink transition-colors hover:border-accent hover:text-accent md:px-3"
         >
           {t("topbar.quote")}

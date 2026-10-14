@@ -1,9 +1,26 @@
 # Appliance Showcase
 
-An isometric 3D kitchen that presents six appliances as real cutouts, real cabinet
-runs and real utility rough-ins. See `appliance-showcase-brief.md` for the product
-brief. M1 (skeleton) is complete; M2 is in progress — the data pipeline is in,
-swap-in-place and the rules engine are not yet.
+An interactive 3D kitchen that a salesperson of high-end kitchen appliances uses
+in front of a customer, to explain a layout and how its machines are installed.
+In English and Chinese.
+
+Live: <https://geesonchan.github.io/appliance-showcase/>
+
+Where the project stands, and how the work is done: [docs/HANDOFF.md](docs/HANDOFF.md).
+
+The hosted copy carries one anonymous page-view counter
+([GoatCounter](https://www.goatcounter.com/) — no cookies, no personal data); a
+copy you run yourself has none.
+
+一个可交互的 3D 厨房：高端厨电的销售人员在顾客面前用它讲解厨房的布局，
+以及机器怎么安装。中英双语。
+
+线上地址：<https://geesonchan.github.io/appliance-showcase/>
+
+项目现状和工作方法见 [docs/HANDOFF.md](docs/HANDOFF.md)。
+
+线上版本只有一个匿名的访问计数（[GoatCounter](https://www.goatcounter.com/)，
+无 cookie、不采集个人信息）；自己下载下来跑的版本没有。
 
 ## Run
 
@@ -18,109 +35,39 @@ npm run dev
 | `npm run build` | Type-check and build to `dist/` |
 | `npm run preview` | Serve the production build on :4173 |
 | `npm run typecheck` | Types only |
-| `npm test` | Build, then unit and smoke tests |
-| `npm run test:unit` | Schema and data invariants only, no browser |
-| `npm run screenshots` | Capture the review set (see below) |
+| `npm test` | Build, then the unit and browser tests |
+| `npm run test:unit` | The unit tests only, no browser — what CI runs |
+| `npm run screenshots` | Capture a set of screenshots (below) |
 | `npm run import:csv -- file.csv` | Rebuild the catalogue from a `showcase_export` CSV |
 
-### Review screenshots
+The Node version is the one in `.nvmrc`.
 
-With a server running, capture the set from §10 of the brief:
+### Screenshots
+
+With a server running:
 
 ```bash
 npm run screenshots -- 2
 ```
 
-That writes `screenshots/round-2/` with a `mobile-` and a `desktop-` set, each
-covering overview / white model / install / flown-in / night, plus
-`mobile-sheet.png` for the half-height panel. `SET=mobile` or `SET=desktop`
-captures only one; `BASE_URL=http://localhost:4173` points it at the production
-build. The directory is git-ignored; the images are for side-by-side review,
-not history.
+writes `screenshots/round-2/`. `BASE_URL=http://localhost:4173` points it at
+the production build; `SET=` picks one of the sets listed at the top of
+`scripts/screenshots.mjs`. The directory is git-ignored.
 
 ### Diagnostics
 
-Load any URL with `?debug=1` for a small overlay showing the live frame rate
-and how long the last render-mode switch took to reach the screen. It also puts
-a few handles on `window`, which is how the smoke suite asserts things a
-screenshot cannot: `__applianceBoxes` (what each machine actually measures),
-`__pinLayout`, `__faded`, `__generic`, and `__cabinetPanels()` — call it for the
-distinct colours currently on the room's cabinet panels, which should never be
-more than the picked colour and the accent.
-
-## How it is put together
-
-```
-data/                   Source of truth, validated with zod at import time
-  appliances.json       Catalogue, generated from the inventory sheet CSV
-  slots.json            The product half of each slot: cutout, cabinet, utilities
-  schemes.json          Which appliance fills each slot by default
-
-src/
-  types.ts              Domain types, derived from the zod schemas
-  data/
-    schema.ts           zod schemas and the loader that fails loudly
-    catalogue.ts        Appliances and schemes, indexed by id and by slot
-    slots.ts            slots.json merged with the placement from room.ts
-    room.ts             Room shell, cabinet run segments, slot placement
-    cabinets.ts         L-shaped cabinet run derived from the slot openings
-    fit.ts              Does this model go in this opening, and by how much not
-    utilities.ts        What the rough-in becomes given what is actually in the slot
-    packageSummary.ts   Package totals shown in both side panels
-  i18n/                 t(key, vars) over two JSON tables; en only for now
-  store/useAppStore.ts  zustand: render mode, lighting, layers, selection, toasts
-  three/                Scene graph, one file per layer
-  ui/                   Panels, toolbar, pin overlay, mobile sheet
-scripts/
-  normalise.ts          Every cleaning rule for the sheet's raw columns
-  csv-to-json.ts        CSV in, validated data/appliances.json out
-tests/                  Smoke suite: a real browser against the real build
-docs/decisions.md       Standing decisions, and what each one forbids
-docs/data-sheet-spec.md App field to sheet column, with every mapping rule
-```
-
-Three things are worth knowing before changing anything:
-
-**Selection is store state, and everything reads it.** `useSelection()` resolves
-the store's slot-to-id map into appliances. The scene, the pins, both panels and
-the utility layers all read it, so a swap updates every one of them from a single
-write; `data/utilities.ts` turns the selected appliance's `requires` into what
-the install view draws.
-
-**Product data is JSON; room geometry is code.** `data/*.json` is what Leo
-maintains and what the Sheet export will replace. Where the oven tower stands is
-scene construction and lives in `src/data/room.ts`; `slots.ts` merges the two.
-See docs/decisions.md D3.
-
-**Scene units are feet.** Every inch measurement from the brief crosses the
-boundary through `ft()` in `data/slots.ts`. Slot positions are the floor-level
-centre of the appliance footprint (except the hood and the wall oven, which are
-mounted at height).
-
-**Layers are mounted once and toggled by `visible`.** `CabinetLayer`,
-`ApplianceLayer` and the four `UtilityLayer`s never unmount. Render mode changes
-material properties and visibility only, so switching modes cannot rebuild the
-scene graph. The one exception is deliberate: a `key` on the materials that flip
-`transparent`, because three.js needs a fresh material rather than a property
-write when that flag changes.
-
-**Pins live in the DOM, not the scene.** `ui/PinOverlay` renders the labels;
-`three/PinProjector` projects each anchor to screen space every frame and writes
-`transform` and `opacity` straight onto the elements, so following the camera
-costs no React renders. Occlusion is a raycast against the room shell and
-cabinetry, run every fourth frame. Two things that look like details are not:
-the ray runs along the camera's forward axis because the camera is orthographic,
-and only visible meshes count as occluders, because three.js raycasts invisible
-objects and line thresholds are measured in world units.
-
-## Swapping the procedural models for glTF
-
-`ApplianceModel` takes `slot`, `category` and `finish` and nothing else. To move
-to real assets (brief §4, option B), replace the body of that component with a
-glTF lookup keyed on category; the layers, pins, camera and interaction code do
-not need to change.
+Load any URL with `?debug=1` for a small overlay with the frame rate and how
+long the last render-mode switch took, and a few handles on `window` that the
+browser tests read (`__kitchen()`, `__room()`, `__pinLayout`, `__faded` and
+others).
 
 ## Deployment
 
-`vite.config.ts` sets `base: "./"`, so the same `dist/` works at a domain root or
-under a GitHub Pages project path.
+Every push to `master` builds and publishes the site through
+`.github/workflows/pages.yml`. `vite.config.ts` sets `base: "./"`, so the same
+`dist/` works at a domain root or under a GitHub Pages project path. The
+workflow gives the build the visit counter's address, and only in this
+repository; a copy built anywhere else counts nothing. To check the live site
+against a local build, build with the same address
+(`VITE_GOATCOUNTER=https://geesonchan.goatcounter.com/count npm run build`) —
+see `docs/HANDOFF.md`.

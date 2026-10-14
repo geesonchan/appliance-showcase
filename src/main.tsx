@@ -3,9 +3,14 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import { CABINETS } from "./data/cabinets";
 import { ISLAND, LAYOUT_PARAMS, RUNS, SLOT_PLACEMENT } from "./data/room";
+import { setupAnalytics } from "./analytics";
 import { DEBUG } from "./debug";
 import { kitchenNow, openSharedLink, shareUrl } from "./store/openLink";
 import "./index.css";
+
+// The visit counter, on the live site only and before the link is read, so a
+// page opened from a link counts its view and then the link (D24).
+setupAnalytics();
 
 // A page opened from a share link builds the link's kitchen before anything
 // is drawn, so the first frame is that kitchen at the default view (D1, D23).

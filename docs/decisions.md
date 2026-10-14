@@ -3214,6 +3214,16 @@ build` again, then compare. The vendor chunks (`react-*`, `three-*`) and the CSS
 do not carry the commit and match either way, which is what makes the odd one
 out readable rather than alarming.
 
+*Amended 2026-10-13 (round 96, D24), Leo: and build with the
+counter's address, as the workflow does.* The live build carries
+`VITE_GOATCOUNTER` (`.github/workflows/pages.yml`), which is compiled into the
+main chunk; a plain `npm run build` has none, so its `index-*.js` never matches
+the live one — the same false alarm as round 52's. The build a hash check
+compares is `VITE_GOATCOUNTER=https://geesonchan.goatcounter.com/count npm run
+build` (or with the repository variable `GOATCOUNTER`'s value, where it is
+set). The tests, the screenshots and a local preview build without it, and
+count nothing (D24).
+
 ⚠️ **A click from script is not a click.** *(Leo, round 59.)* `button.click()`,
 `$eval(..., b => b.click())` and a dispatched click event go down a different
 path through the page from a mouse, a tap or a key press, and **what one of
@@ -5270,6 +5280,126 @@ scan the kitchen onto a phone. From round 94's plan and Leo's decisions on it.
   no box. The phone case green on both by design, as nothing on a phone
   changed.
 
+## D24 · The live site counts visits, anonymously, and only there
+
+**Decided:** 2026-10-13 (round 96), Leo, from the
+plan read out first.
+
+The live page counts its page views and four things done on it with
+GoatCounter, in the site it shares with geesonchan/game-of-life
+(`https://geesonchan.goatcounter.com/count`). **Nothing is shown on the page:**
+the figures are read in GoatCounter's own dashboard (Leo).
+
+**Every figure is a lower bound.** A browser that blocks GoatCounter (an ad
+blocker), one switched off with `#toggle-goatcounter` (the shop's own, below),
+one without JavaScript, a page in a frame and a local copy are never counted;
+GoatCounter's own bot filter takes out more.
+
+**Where the address comes from — as game-of-life does it, written again, not
+shared** (Leo; its `src/analytics.js` and `.github/workflows/deploy.yml` line
+43, read in this round's plan). The build variable `VITE_GOATCOUNTER`, which
+`.github/workflows/pages.yml` sets for the build step: the repository variable
+`GOATCOUNTER` first, else, **only in geesonchan/appliance-showcase**, the
+address above — a copy of the repository deployed by somebody else counts
+nothing. With no address, or on localhost or 127.0.0.1 (`shouldCount`, as
+game-of-life's), nothing at all runs. The tests, the screenshots and the local
+previews build without it. A hash check after a push builds with it (D17,
+amended for this).
+
+**Not GoatCounter's count.js** (Leo, "甲"). count.js sends the page's query
+string with every request — `q: location.search`, its `get_data`, line 30 —
+whatever path it is told, and this page's share link is its query (D23); and
+GoatCounter documents no way to drop it. So `src/analytics.ts` sends its own
+requests to the documented `/count` endpoint (GoatCounter's help, "Tracking
+pixel" and "JavaScript API"), with **every field count.js sends but `q`**
+(Leo), each from count.js as read in this round (the copy served at
+`https://gc.zgo.at/count.js` on 2026-10-13, 9,213 bytes):
+
+| Field | What | count.js |
+|---|---|---|
+| `p` | the path, `location.pathname` only (Leo: never the query); for an event, its name | line 24; the path as `get_path` (line 99) gives it, less the query |
+| `r` | the referrer — where the visitor came from, WeChat or elsewhere (Leo) | line 25, `document.referrer` at line 38 |
+| `t` | the page's title | line 26, `document.title` at line 39 |
+| `e` | an event, not a page view; left out when false | line 27; `urlencode` drops false, lines 69-75 |
+| `s` | the screen's width | line 28 |
+| `b` | the signs of a headless browser, 0 for none, sent | line 29, `is_bot` at lines 54-66 |
+| `rnd` | five random characters, against caches | line 130 |
+| ~~`q`~~ | **not sent** | line 30 |
+
+It is sent as count.js sends it, by `navigator.sendBeacon` (line 148), else by
+an image that, unlike count.js's (lines 151-160), is never put in the page. It
+skips what count.js's `filter` skips (lines 111-123: a frame, a local network
+address, a file, a browser switched off), and counts the view once the page is
+visible (lines 249-264).
+
+**Four events, each in the one place it happens** (D17's table, first row),
+named under `appliance-showcase/` to keep them apart from game-of-life's (Leo):
+
+| Event | Where |
+|---|---|
+| `appliance-showcase/open-link-D` — with the link's package letter | `openSharedLink`, once the link's package stands; a link that cannot be read is not counted (Leo) |
+| `appliance-showcase/share` | the Share button, every press: the share sheet or the copy |
+| `appliance-showcase/qr-box` | where the share box opens — on a desktop every Share opens it, so there `share` and `qr-box` are the same count, and their difference is the phone's shares |
+| `appliance-showcase/quote` | the top bar's Quote, the one way to the quote |
+
+**The shop's own browsers: `#toggle-goatcounter`** (Leo: GoatCounter's own
+switch, not an IP filter). Opening the page with that ending switches the
+browser off, and again switches it back, with count.js's own two sentences,
+word for word, in English, for the staff (Leo: not translated, not in
+`reviewed.json`'s Chinese): "GoatCounter tracking is now DISABLED in this
+browser until {the address} is loaded again." / "GoatCounter tracking is now
+ENABLED in this browser." The switch is count.js's own key, `skipgc`, in the
+browser's storage for `geesonchan.github.io` — **so one switch covers both this
+site and game-of-life** in that browser.
+
+**Nothing on the page changes.** No element is added, nothing waits on the
+request, and a request blocked or failed is let go. Measured (D17's way; the
+five packages as they open, the mouse at 1440 x 900, a finger at 390 x 844 in
+English and 360 x 844 in Chinese, `?quality=high`; each build shot twice, then
+more where its runs fell into the two states of the wash):
+- **Round 91's code as live (`index-BUdoeqcg.js`, built here from `3f4db83`)
+  against this round's built without an address (`index-ChIuomZo.js`): 0
+  pixels in all fifteen shots**, between runs in the same state. Package B at
+  360px in Chinese differed by 20,428 pixels in all four first pairings, none
+  over 32 levels; shot four more times each, both builds gave both states
+  (runs of one build 0 or 20,428 apart), and every same-state pair was 0.
+- **This round's built with an address (`index-CaeG_yWX.js`), served as the
+  live site, its counter answered against its counter blocked: 0 pixels in all
+  fifteen**, the one pixel at (144, 225) aside that also differs between runs
+  of one build. Answered, the counter took fifteen page views a run, one a
+  shot; blocked, none. Package E at 390px in English differed by 25,736 pixels
+  in all four first pairings; shot four more times each, both gave both states,
+  every same-state pair 0.
+
+**The README** says it: "The hosted copy carries one anonymous page-view
+counter (GoatCounter — no cookies, no personal data); a copy you run yourself
+has none." (Leo's ending), and the same in Chinese. It now says only what this
+is, the live address, where the project stands (`docs/HANDOFF.md`) and how to
+run it — English, then the same in Chinese — and none of the progress, counts
+or descriptions of the code it had carried, which had gone out of date (Leo,
+round 96).
+
+**Tests.** `src/analytics.test.ts`, 19 cases: game-of-life's six for
+`shouldCount`, count.js's filter, the request's fields with no `q`, the event
+names, the four calls each in its one place, no address written in the source,
+the workflow's variable and its fallback for this repository only, the
+README's sentence. `tests/analytics.test.ts`, 12, against the page built with
+an address and served as the live site, every request to the counter caught
+(none leaves the machine): one page view, its path without the query and
+nothing of a link in any request; the fields; each event once for one action
+and only then; on a phone a share and no box; nothing on localhost, with
+`skipgc`, for no link or one that cannot be read; the toggle's two sentences;
+and the counter blocked, the link's kitchen, the box and the quote as ever,
+with no error. 8 of 12 red on round 91's code (nothing sent); the four that
+were green there, checks that nothing is sent, went red with the gates broken
+on purpose (localhost counted, `skipgc` ignored, an unreadable link counted),
+each for what it names. The case with the counter blocked was broken on
+purpose too (Leo, round 96): with the sending step made to throw and nothing
+catching it, it went red because the page threw "sending failed, on purpose
+(round 96)" as it loaded and never drew — the counter could have taken the
+page down; with the whole sending step inside a catch, it went green with the
+throw still in; the throw was then taken out. That catch is now in the code.
+
 ## Open items
 
 Registered, not scheduled. None of these is a round of its own.
@@ -6706,10 +6836,12 @@ Registered, not scheduled. None of these is a round of its own.
   about 53 cm on a 1440-wide laptop, half that with room to spare. **If it
   will not scan, the code is drawn larger first; the link is not shortened**
   (Leo, round 95).
-- **Two runs stopped with exit code 4, cause not looked into.** *(Leo, round
-  91: registered, not fixed this round.)* Neither script exits with 4 of its
-  own; both times the session's next message was Leo's 继续 ("go on"), so the
-  run very likely ended with the session that started it — not shown.
+- **Runs stopped part way: twice with exit code 4, once with the session's
+  end.** *(Leo, round 91: registered, not fixed this round; round 96: the
+  third written as confirmed, the first two still a guess; not closed.)* Neither
+  script exits with 4 of its own; after the first two the session's next
+  message was Leo's 继续 ("go on"), so those two very likely ended with the
+  session that started them — **a guess, not shown**.
   - **Round 95, the browser tests after the build.** One command: `npm run
     build`, then `npx vitest run tests/shareQr.test.ts tests/shareLink.test.ts
     tests/topBar.test.ts`, its output to a file and its exit code to another.
@@ -6726,6 +6858,13 @@ Registered, not scheduled. None of these is a round of its own.
     gone. Handled: that folder deleted, both servers started again, and all
     four runs shot again from the start, exit code 0; the comparison in D12,
     round 91, is of those.
+  - **Round 96, the whole suite: confirmed, the session ended while it ran.**
+    `npm test` in the background, its output to a file and its exit code to
+    another: it stopped after 14 of the unit files had reported, with no exit
+    code written and nothing left listening on 4173-4175, and the notice that
+    came back said the run had not finished before the session ended.
+    Handled: not counted; the suite run again from the start, 119 files and
+    2,819 tests passed, exit code 0.
 - **Registered rounds after 78, in Leo's order.** *(Leo, rounds 78-79; not
   started. Round 79 put the interface round first and moved the rest back.)*
   0. **An interface round, plan first, with phone and desktop sketches.**

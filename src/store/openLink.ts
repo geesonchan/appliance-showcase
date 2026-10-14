@@ -1,3 +1,4 @@
+import { EVENTS, countEvent } from "../analytics";
 import { candidatesFor } from "../data/candidates";
 import { APPLIANCE_BY_ID, blowersFor, migrateBlower } from "../data/catalogue";
 import { setLayoutParams, setLayoutParamsGrowing } from "../data/layoutState";
@@ -66,6 +67,9 @@ export function openSharedLink(search: string): void {
     store.setState({ toast: { id: Date.now(), key: "share.notice.unreadable", notice: "unreadable" } });
     return;
   }
+  // Counted on the live site, with the package's letter, once the link's
+  // package stands; a link that cannot be read is not (Leo, D24).
+  countEvent(EVENTS.openLink(entry.code));
 
   // The layout, all of it asked at once, over the package's own room.
   const standing = store.getState().layoutParams;

@@ -12,7 +12,7 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **round 91**, built after round 95 (`docs/decisions.md` is the record of
+Covers the repository up to **round 96** (`docs/decisions.md` is the record of
 rounds; `git log` is the record of commits). It replaces the v1–v9 briefs that
 were pasted into chat.
 
@@ -58,11 +58,14 @@ every figure of it, is `data/packages.json`; D16 and D20 say how a package is
 put together and why E was built the way it was. **Do not copy those numbers
 anywhere**: the file is the one source, and the tests read it.
 
-### Where it stands (round 91, after 95)
+### Where it stands (round 96)
 
-- **All five packages are live.** Rounds 73–79, 81–90, 92, 92a, 92b, 92c, 93, 94, 95 and 91 each shipped
+- **All five packages are live.** Rounds 73–79, 81–90, 92, 92a, 92b, 92c, 93, 94, 95, 91 and 96 each shipped
   (round 80 built nothing; 91 was built after 95, below), and each was checked against the live page's asset hashes
   after its workflow finished.
+- **The live site counts visits, anonymously** (D24): page views and four events
+  in GoatCounter's dashboard, nothing on the page; a lower bound, since a
+  blocked or switched-off browser is never counted.
 - **The project is in real use.** Rounds 73–77 all came from Leo using package
   E himself: a wine cooler under the coffee machine (73), E's combination oven
   hanging at 0" (74), the coffee machine at its manual's height (75), the
@@ -101,7 +104,8 @@ anywhere**: the file is the one source, and the tests read it.
   share button, a plan first, and the phone's top bar holding every control
   (**done**, D23 round 94; D1 round 94); 95 a QR code for the link, in a box
   on the desktop (**done**, D23 round 95; how far a phone reads it is Leo's to
-  measure in the shop, Open items); then a hood's
+  measure in the shop, Open items); 96 the live site counting visits,
+  anonymously (**done**, D24); then a hood's
   own outlet, then 79a (the doors of the
   cabinet over the hood and the outlet shown in it), then 79b. The 30" option
   in A is paused.
@@ -142,6 +146,7 @@ anywhere**: the file is the one source, and the tests read it.
 | `src/ui/shareQr.ts`, `tests/shareQr.test.ts` | The share box's QR code — L, 4 CSS pixels a module, loaded only when the box opens — read back to the link character for character (D23, round 95). |
 | `tests/rightTabs.test.ts`, `tests/sheetTabs.test.ts`, `src/store/rightTab.test.ts` | The right panel's four tabs and the phone sheet's five: Look first, Install mode there and back, the checklist folded by machine, the tab kept for the browser tab (D12, round 91). |
 | `tests/sliderWarning.test.ts` | No React style warning from the wall sliders, on Vite's development server, which it starts and stops (D12, round 91). |
+| `src/analytics.ts`, `src/analytics.test.ts`, `tests/analytics.test.ts` | The visit counter: its own requests to GoatCounter's `/count`, every field count.js sends but `q`; the four events, each in its one place; nothing off the live site (D24). |
 | `tests/topBar.test.ts` | The phone's top bar: no control over another at 360–414px in both languages, and a share button (D23, round 94). |
 | `scripts/handFilled.test.ts` | The import stops when a checked model's hand-filled cells come in blank, unless `--allow-empty=MODEL` names it (D4, round 92). |
 | `scripts/screenshots.mjs` | Screenshot sets by round. |
@@ -182,6 +187,7 @@ order puts D15 before D14 — read by number, not by position.)
 | D21 | A line says where its figure comes from: the three install-view tiers. |
 | D22 | Which way a thing faces is recorded, and written in one place — and the rough-in rules that follow from it. |
 | D23 | A link rebuilds the same kitchen: one table, older links checked by what the page asks, the notice in Leo's words. |
+| D24 | The live site counts visits, anonymously, and only there: GoatCounter, not its count.js; four events; a lower bound. |
 
 ---
 
@@ -246,6 +252,9 @@ what to go and read.
 - **Do not run the tests and the screenshots together**, and do not build while
   the smoke suite runs. D17.
 - **Push, wait for the workflow, rebuild, compare the asset hashes.** D17.
+  Rebuild **with the counter's address**, as the workflow builds:
+  `VITE_GOATCOUNTER=https://geesonchan.goatcounter.com/count npm run build` —
+  without it the main chunk never matches the live one (D17, amended for D24).
 - **A round held for Leo's look says the live site does not have it**, names
   the live commit and bundle, gives a local preview to try, and labels every
   screenshot with its bundle; **a stopped preview server is checked to have
