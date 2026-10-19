@@ -19,6 +19,13 @@ export const categorySchema = z.enum([
   "dishwasher",
   "hood",
   "microwave",
+  /**
+   * An over-the-range microwave. A microwave by its sheet, and the hood by
+   * where it goes: it hangs over the cooking surface in the hood's place, under
+   * a cabinet, and only the hood slot takes it (round 97). Its own category so
+   * that the slot a model is offered in stays a matter of category alone.
+   */
+  "otr",
   "wine",
   /**
    * A freezer column: a full-height machine that is all freezer, sold to stand
@@ -277,6 +284,13 @@ export const utilitiesSchema = z.object({
       // `through-ceiling` since round 58: a chimney hood's cover and an island
       // hood's run up to the ceiling with no cabinet over them.
       route: z.enum(["up-through-cabinet", "back-wall", "recirc", "through-ceiling"]),
+      /**
+       * A rectangular duct, as its sheet writes it: out from the wall, then
+       * along it. An over-the-range microwave's 3-1/4" x 10" (round 97). Never
+       * in slots.json: what a slot was roughed in for is round; this is what
+       * the machine chosen takes (`deriveUtilities`).
+       */
+      rectangleIn: z.tuple([z.number().positive(), z.number().positive()]).optional(),
     })
     .nullable(),
 });

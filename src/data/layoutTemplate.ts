@@ -15,7 +15,7 @@ import {
 import type { FixtureId, Package, PackageSlot, SlotId } from "../types";
 import { PACKAGE, slotsOf } from "./packages";
 import { dropsIntoCounter, rangeFillerIn, rangeModelFor } from "./cookingSurface";
-import { hoodMountFor, type HoodMount } from "./hoodMount";
+import { aboveCookingSurfaceIn, hoodMountFor, hungUnderACabinet, leftOutByHood, type HoodMount } from "./hoodMount";
 import { slotsAsBuilt } from "./fridgeMount";
 import { ovenTowerOf } from "./ovenTower";
 import { extentsOnAxis, faceRotation, onAxis, sizeOnAxis } from "./frame";
@@ -342,11 +342,17 @@ export interface GeneratedLayout {
   /**
    * What the package names and the room was built without.
    *
-   * Only ever the island's two machines, and only ever in a room with no
-   * island to put them on. Everything that draws or counts reads this; the
-   * checklist says it out loud.
+   * Only ever the island's two machines: in a room with no island to put them
+   * on, for want of wall (D18), and the microwave drawer under an
+   * over-the-range microwave, with an island or without (round 97).
+   * Everything that draws, counts, quotes or lists reads this.
    */
   omitted: readonly SlotId[];
+  /**
+   * The part of `omitted` the wall was too short for: what the checklist and
+   * the appliance count say out loud, naming only those (D18, round 97).
+   */
+  omittedForWall: readonly SlotId[];
   /** The windows, with their place on the wall worked out. */
   windows: ResolvedWindow[];
 }
@@ -1330,6 +1336,7 @@ function islandFor(
   spec: Record<SlotId, PackageSlot>,
   halfX: number,
   halfZ: number,
+  omitted: readonly SlotId[] = [],
 ): IslandLayout {
   const backFace = -halfZ + ROOM.counterDepth;
   const leftFace = -halfX + ROOM.counterDepth;
@@ -1363,9 +1370,12 @@ function islandFor(
 
   // Zero for a machine that stands in the tall bank instead: the island is
   // then a prep island, and an extent for something that is not on it would be
-  // a place for the scene to put a machine that is somewhere else.
-  const microwave = isSpare(spec["slot-microwave"]) ? ft(openingIn(spec["slot-microwave"])) : 0;
-  const wine = isSpare(spec["slot-wine"]) ? ft(openingIn(spec["slot-wine"])) : 0;
+  // a place for the scene to put a machine that is somewhere else. Zero too for
+  // one the room is built without — the microwave drawer under an
+  // over-the-range microwave (round 97) — and its opening is cabinets.
+  const onIsland = (slotId: SlotId) => isSpare(spec[slotId]) && !omitted.includes(slotId);
+  const microwave = onIsland("slot-microwave") ? ft(openingIn(spec["slot-microwave"])) : 0;
+  const wine = onIsland("slot-wine") ? ft(openingIn(spec["slot-wine"])) : 0;
   // Flush to the ends on a short island, inset on a long one.
   const inset = Math.min(ft(6), Math.max(0, (length - microwave - wine) / 2));
   // The cooktop is centred along the island, so its landings are equal: on E's
@@ -2058,11 +2068,15 @@ export const SPARE_SLOTS = ["slot-microwave", "slot-wine"] as const;
  * least its rule allows and the wall is still short, no amount of shrinking
  * gets the two machines on, and they go. Anything longer keeps them.
  */
-export function omittedSlots(params: LayoutParams, pkg: Package = PACKAGE): readonly SlotId[] {
+export function omittedForWall(params: LayoutParams, pkg: Package = PACKAGE): readonly SlotId[] {
   if (params.hasIsland) return [];
   const spec = slotsOf(pkg);
+  // A machine the hood has already taken out of the room (round 97) is not
+  // one the wall is short of, and the wall is judged without it.
+  const byHood = leftOutByHood(pkg);
   const spare = SPARE_SLOTS.filter(
-    (slotId) => pkg.slots.some((slot) => slot.slotId === slotId) && isSpare(spec[slotId]),
+    (slotId) =>
+      pkg.slots.some((slot) => slot.slotId === slotId) && isSpare(spec[slotId]) && !byHood.includes(slotId),
   );
   if (spare.length === 0) return [];
   // Only the leg they would stand on is asked. A room refused over the *other*
@@ -2070,8 +2084,18 @@ export function omittedSlots(params: LayoutParams, pkg: Package = PACKAGE): read
   // cabinet out would not make it any bigger.
   const leg = params.fridgeEnd === "left" ? ("left" as const) : ("back" as const);
   const key = leg === "back" ? ("backWallIn" as const) : ("leftWallIn" as const);
-  const fits = params[key] >= requirementFor(params, leg, pkg, []).minimumIn;
+  const fits = params[key] >= requirementFor(params, leg, pkg, byHood).minimumIn;
   return fits ? [] : spare;
+}
+
+/**
+ * Everything the room is built without: the machine the hood chosen takes out
+ * (`leftOutByHood`, round 97) and what the wall is too short for
+ * (`omittedForWall`, D18). Only the second is said out loud as a shortage.
+ */
+export function omittedSlots(params: LayoutParams, pkg: Package = PACKAGE): readonly SlotId[] {
+  const forWall = omittedForWall(params, pkg);
+  return [...leftOutByHood(pkg), ...forWall.filter((slotId) => !leftOutByHood(pkg).includes(slotId))];
 }
 
 /**
@@ -2266,14 +2290,16 @@ function banksOn(
   const hoodIn = Math.round((hood[1] - hood[0]) * 12);
   // How the chosen hood hangs, not how the package's own does (round 87): an
   // under-cabinet hood has a bridge over it, an insert a housing, a chimney
-  // hood nothing. `hoodMount` in hoodMount.ts.
-  const bridged = mount === "under-cabinet";
+  // hood nothing. An over-the-range microwave has a bridge, as an
+  // under-cabinet hood does (round 97). `hoodMount` in hoodMount.ts.
+  const bridged = hungUnderACabinet(mount);
   // A housing is cabinetry, and it is the cabinetry over this stretch of wall:
   // from where the liner hangs to the ceiling, in one piece, in the door
   // finish. `hoodCabinetParts` gives it its shape.
   const housed = mount === "insert";
   const mountY = ft(
-    (spec["slot-hood"].builtForCooktopIn ?? 36) + CABINET_STANDARDS.hood.aboveCooktopMinIn,
+    (spec["slot-hood"].builtForCooktopIn ?? 36) +
+      aboveCookingSurfaceIn(mount, CABINET_STANDARDS.hood.aboveCooktopMinIn),
   );
 
   const hoodBank: UpperBank = {
@@ -2898,7 +2924,7 @@ export function generateLayout(
   );
   if (blocked.length > 0) return { ok: false, reasons: blocked };
 
-  const island = islandFor(params, spec, halfX, halfZ);
+  const island = islandFor(params, spec, halfX, halfZ, omitted);
 
   // D11 rule 4 on the island (D20): an island too short for its cooktop's
   // landings is refused rather than built, on the same figures the rule holds a
@@ -2987,6 +3013,7 @@ export function generateLayout(
       slots: placed.slots,
       fixtures: placed.fixtures,
       omitted,
+      omittedForWall: omittedForWall(params, pkg),
       windows,
     },
   };

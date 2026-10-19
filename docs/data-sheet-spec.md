@@ -53,7 +53,7 @@ docs/decisions.md D4.
 | `depthIn` | Depth | Blank → `null`. `PUBLISHED_SPECS` comes first where it has one. A bare `CD` here is an install form, not a measurement: it sets `counter-depth` and leaves `depthIn` null. |
 | `heightIn` | Height | Blank → `null`. `PUBLISHED_SPECS` comes first where it has one. |
 | `doorConfig` | Feature | Refrigerators only, and `PUBLISHED_SPECS` first. Otherwise read off Feature's words: `Column` or `All Freezer`/`All Refrigerator` → column; `Side by Side` → side-by-side; `French` or `FD` → french door, with two drawers if it also says `4 Door` or `2 Drawer`; `Bottom Mount`/`Bottom Freezer` → bottom-freezer. Nothing recognised → `null`, and the room draws the commonest front (`french-door-1-drawer`) and marks it a guess. |
-| `slot` | *derived* | From `category`, via each slot's `compatibleCategories` in `data/slots.json`, so the two cannot drift. A category no slot accepts is skipped and counted. |
+| `slot` | *derived* | From `category`, via each slot's `compatibleCategories` in `data/slots.json`, so the two cannot drift. A category no slot accepts is skipped and counted. **One category is decided after the install form** (round 97): a `microwave` whose install form includes `otr` — by its Appliance Type `OTR` or by `PUBLISHED_SPECS` — is filed as `otr`, an over-the-range microwave, which only `slot-hood` takes (`categoryOf` in `scripts/normalise.ts`). |
 
 ## Filled in by hand in `showcase_specs`, looked up by Model
 
@@ -179,7 +179,8 @@ catch every fuel prefix without a row per combination.
 | `Single Oven` | `wall-oven` | `single` |
 | `Double Oven`, `Steam Double Oven` | `wall-oven` | `double` |
 | `Speed Combo Oven`, `Microwave Combo Oven`, `Steam Combo Oven`, `Triple Combo Oven` | `wall-oven` | `combo` |
-| `OTR`, `Microwave` | `microwave` | — |
+| `OTR` | `microwave` — and then `otr`, by the install form it implies (below) | `otr` |
+| `Microwave` | `microwave` | — |
 | `Microwave Drawer` | `microwave` | `drawer` |
 | `Built-In Microwave` | `microwave` | `built-in` |
 | `Countertop Microwave` | `microwave` | `countertop` |
@@ -254,8 +255,9 @@ not this paragraph.
 that is the whole answer: the sheet's columns are not read for it. This is how
 a machine's install is set when its words in the sheet say nothing, or the
 wrong thing — CIT367YG's `drop-in` (its guide, pages 6-8), PCG366W's
-`rangetop`, HMCB30WS's `wall-mount` + `chimney`, VCIN36GWS's `insert`, and the
-towers' and columns' forms. **A wrong install type is fixed there, from the
+`rangetop`, HMCB30WS's `wall-mount` + `chimney`, VCIN36GWS's `insert`,
+JVM3160RFSS's `otr` (its manual, round 97), and the towers' and columns'
+forms. **A wrong install type is fixed there, from the
 model's own document, not by adding a word to Feature**: `drop-in` is not in
 the word list below, so no Feature cell can produce it, and a word added to the
 sheet to steer the importer is a rule that lives in the sheet, which D4
@@ -277,6 +279,7 @@ every word below is looked for in both — then Width and Depth:
 | Looks for (Feature or Appliance Type) | Produces |
 | --- | --- |
 | `Slide-In` | `slide-in` |
+| `OTR`, `Over-the-Range` | `otr` — and a `microwave` with it is filed as category `otr` (round 97) |
 | `Under Cabinet` | `under-cabinet` |
 | `Chimney` | `wall-mount` |
 | `Insert`, `Island`, `Downdraft`, `Column`, `Drawer`, `Single`, `Double`, `Steam`, `Combo`, `Countertop`, `Undercounter`, `Rangetop` | the same word, lower cased |

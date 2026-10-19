@@ -5,6 +5,7 @@ import { formatPrice } from "../data/packageSummary";
 import { buildQuote, formatQuote, type Quote, type QuoteLine } from "../data/quote";
 import { SLOTS, SLOT_BY_ID } from "../data/slots";
 import { useChecklist } from "../data/useChecklist";
+import { ductSizeText } from "../data/utilities";
 import { formatCfm } from "../data/ventilation";
 import { DEBUG } from "../debug";
 import { useT } from "../i18n/useT";
@@ -233,7 +234,7 @@ function Row({ line, quote }: { line: QuoteLine; quote: Quote }) {
       ]
         .filter(Boolean)
         .join("/")}`,
-    utilities.duct && `${t("spec.duct")} ${utilities.duct.diameterIn}"`,
+    utilities.duct && `${t("spec.duct")} ${ductSizeText(utilities.duct)}`,
   ].filter(Boolean) as string[];
 
   const triple = (w: number | null, h: number | null, d: number | null) =>

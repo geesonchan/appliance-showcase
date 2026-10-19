@@ -445,6 +445,36 @@
       "text": "Appliances",
       "approval": "read",
       "reviewed": "The phone sheet's first tab and its entry button, named as the desktop's list rail is (Leo, round 91); locked in round 91"
+    },
+    "dimension.shopPractice": {
+      "text": "shop practice",
+      "approval": "read",
+      "reviewed": "Drafted by CC in the round-97 plan (section 7); Leo approved it unchanged (round 97, decisions.md D16)"
+    },
+    "rule.ductSizeOtr": {
+      "text": "{cfm} CFM; the duct is 3-1/4\" x 10\" rectangular, or 6\" round with a transition (GE installation instructions)",
+      "approval": "read",
+      "reviewed": "Drafted by CC in the round-97 plan (section 7); Leo approved it unchanged (round 97, decisions.md D16)"
+    },
+    "rule.otrCabinetHoles": {
+      "text": "The cabinet above also needs a hole for the power cord and holes for three screws (GE installation instructions, p. 17)",
+      "approval": "read",
+      "reviewed": "Drafted by CC in the round-97 plan (section 7); Leo approved it unchanged (round 97, decisions.md D16)"
+    },
+    "rule.otrGasBtu": {
+      "text": "{model} is for cooking appliances of 63,000 BTU or less combined — GE installation instructions, p. 6: \"suitable for installation over electric or gas cooking appliances with a combined BTU of 63,000 BTU or less\". This {range} is {btu} BTU in all.",
+      "approval": "read",
+      "reviewed": "Drafted by CC in round 97; Leo read it and approved it (round 97, decisions.md D16 and D18)"
+    },
+    "rule.noIslandOmittedWine": {
+      "text": "No island: wine cooler omitted; add an island or lengthen the left wall to include it.",
+      "approval": "read",
+      "reviewed": "Drafted by CC in round 97; Leo read it and approved it (round 97, decisions.md D16 and D18)"
+    },
+    "rule.noIslandOmittedMicrowave": {
+      "text": "No island: microwave drawer omitted; add an island or lengthen the left wall to include it.",
+      "approval": "read",
+      "reviewed": "Drafted by CC in round 97; Leo read it and approved it (round 97, decisions.md D16 and D18)"
     }
   },
   "zh": {
@@ -897,6 +927,36 @@
       "text": "家电",
       "approval": "read",
       "reviewed": "The phone sheet's first tab and its entry button, named as the desktop's list rail is (Leo, round 91); locked in round 91"
+    },
+    "dimension.shopPractice": {
+      "text": "店内做法",
+      "approval": "read",
+      "reviewed": "Drafted by CC in the round-97 plan (section 7); Leo approved it unchanged (round 97, decisions.md D16)"
+    },
+    "rule.ductSizeOtr": {
+      "text": "{cfm} CFM；风管用 3-1/4\" x 10\" 长方形，或经转接用 6\" 圆管（GE 安装说明）",
+      "approval": "read",
+      "reviewed": "Drafted by CC in the round-97 plan (section 7); Leo approved it unchanged (round 97, decisions.md D16)"
+    },
+    "rule.otrCabinetHoles": {
+      "text": "上方吊柜底板还要开电源线孔和三个螺丝孔（GE 安装说明第 17 页）",
+      "approval": "read",
+      "reviewed": "Drafted by CC in the round-97 plan (section 7); Leo approved it unchanged (round 97, decisions.md D16)"
+    },
+    "rule.otrGasBtu": {
+      "text": "{model} 只能装在总火力不超过 63,000 BTU 的炉具上方。GE 安装说明第 6 页原文：\"suitable for installation over electric or gas cooking appliances with a combined BTU of 63,000 BTU or less\"。这台 {range} 总火力 {btu} BTU。",
+      "approval": "read",
+      "reviewed": "Drafted by CC in round 97; Leo changed the last sentence to 「这台 {range} 总火力 {btu} BTU。」 and approved it (round 97, decisions.md D16)"
+    },
+    "rule.noIslandOmittedWine": {
+      "text": "无岛台：已省略酒柜；增设岛台或加长左墙即可纳入。",
+      "approval": "read",
+      "reviewed": "Drafted by CC in round 97; Leo read it and approved it (round 97, decisions.md D16 and D18)"
+    },
+    "rule.noIslandOmittedMicrowave": {
+      "text": "无岛台：已省略微波抽屉；增设岛台或加长左墙即可纳入。",
+      "approval": "read",
+      "reviewed": "Drafted by CC in round 97; Leo read it and approved it (round 97, decisions.md D16 and D18)"
     }
   }
 }

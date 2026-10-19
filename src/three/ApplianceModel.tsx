@@ -520,6 +520,9 @@ function Body({
         </group>
       );
 
+    case "otr":
+      return <OverRange w={w} h={h} d={d} body={body} trim={trim} glass={glass} />;
+
     case "microwave":
       return (
         <group>
@@ -547,6 +550,76 @@ function Body({
         </mesh>
       );
   }
+}
+
+/**
+ * An over-the-range microwave, from the front elevation on its spec sheet
+ * (docs/reference/jvm3160rfss-spec.pdf, p. 3): a door with a window on the
+ * left, the control panel on the right, and the vent grille along the top of
+ * the front. Round 97.
+ *
+ * The envelope is the sheet's, 29-7/8" x 16-1/2" x 15-1/4", its back against
+ * the wall and its top against the cabinet over it. How the front divides —
+ * the door's share of the width, the grille's height, the handle — is a
+ * display figure, read off the elevation by eye, with no dimension behind it.
+ */
+const OTR_FRONT = {
+  /** The door's share of the width, from the left. */
+  door: 0.76,
+  /** The grille across the top of the front, as a share of the height. */
+  grille: 0.13,
+};
+
+function OverRange({
+  w,
+  h,
+  d,
+  body,
+  trim,
+  glass,
+}: {
+  w: number;
+  h: number;
+  d: number;
+  body: SurfaceProps;
+  trim: SurfaceProps;
+  glass: SurfaceProps;
+}) {
+  const face = d / 2 + 0.004;
+  const doorW = w * OTR_FRONT.door;
+  const panelW = w - doorW;
+  const grilleH = h * OTR_FRONT.grille;
+  const doorH = h - grilleH;
+  const doorX = -w / 2 + doorW / 2;
+  const panelX = w / 2 - panelW / 2;
+  return (
+    <group>
+      <mesh position={[0, h / 2, 0]} castShadow>
+        <boxGeometry args={[w, h, d]} />
+        <Mat s={body} />
+      </mesh>
+      {/* The window in the door. */}
+      <mesh position={[doorX - doorW * 0.03, doorH * 0.5, face]}>
+        <boxGeometry args={[doorW * 0.8, doorH * 0.72, 0.01]} />
+        <Mat s={glass} />
+      </mesh>
+      {/* The handle, up the door's right edge. */}
+      <mesh position={[doorX + doorW / 2 - ft(1.25), doorH * 0.5, face + ft(0.5)]}>
+        <boxGeometry args={[ft(0.9), doorH * 0.7, ft(0.9)]} />
+        <Mat s={trim} />
+      </mesh>
+      {/* The control panel. */}
+      <mesh position={[panelX, doorH * 0.52, face]}>
+        <boxGeometry args={[panelW * 0.78, doorH * 0.78, 0.01]} />
+        <Mat s={glass} />
+      </mesh>
+      {/* The vent grille along the top of the front. */}
+      <mesh position={[0, doorH + grilleH / 2, face]}>
+        <boxGeometry args={[w * 0.94, grilleH * 0.5, 0.01]} />
+        <Mat s={trim} />
+      </mesh>
+    </group>
+  );
 }
 
 /**

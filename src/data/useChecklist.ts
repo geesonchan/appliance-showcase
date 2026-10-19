@@ -17,7 +17,7 @@ import {
   isDouble,
 } from "./columnModel";
 import { chimneyOf, chimneyParts, isChimney } from "./hood";
-import { ISLAND, LAYOUT_LIMITS, LAYOUT_PARAMS, OMITTED_SLOTS, ROOM, RUNS } from "./room";
+import { ISLAND, LAYOUT_LIMITS, LAYOUT_PARAMS, OMITTED_FOR_WALL, OMITTED_SLOTS, ROOM, RUNS } from "./room";
 import { COFFEE_HEIGHT } from "./layoutTemplate";
 import { formatDimension } from "./dimensions";
 import { OVEN_GRILLE, towerVents, ventsAtRear, type TowerVent } from "./towerVent";
@@ -101,7 +101,13 @@ export function checklistFor(
       // reach this ceiling on its own takes an extension, and the number is
       // the room's rather than the model's.
       ...installParts(selection, counter),
-    ];
+    ].filter(
+      // Nothing for a machine the room was built without: its socket and its
+      // bracket are not roughed in for a machine that is not there. Until round
+      // 97 a no-island room listed the omitted drawer's two (seen on the live
+      // site, package D). The line saying it was left out stays.
+      (finding) => !OMITTED_SLOTS.includes(finding.slot) || finding.ruleId === "no-island-omitted",
+    );
     return {
       findings,
       blockers: findings.filter((f) => f.severity === "blocker").length,
@@ -435,6 +441,22 @@ function towerLanding(): Finding[] {
 }
 
 /**
+ * The line for what the wall was too short for, naming only what was left out
+ * (D18; Leo, round 97: "只说实际省掉了哪台"). The microwave drawer an
+ * over-the-range microwave takes out is not in the list it is given
+ * (`OMITTED_FOR_WALL`), and is not said: the room was not too small for it.
+ * The panel beside the appliance count says the same line.
+ */
+export function omittedForWallKey(omitted: readonly SlotId[]): string | null {
+  const wine = omitted.includes("slot-wine");
+  const microwave = omitted.includes("slot-microwave");
+  if (wine && microwave) return "rule.noIslandOmitted";
+  if (wine) return "rule.noIslandOmittedWine";
+  if (microwave) return "rule.noIslandOmittedMicrowave";
+  return null;
+}
+
+/**
  * Where the island's two machines went, when there is no island.
  *
  * A room without one still has to put the microwave drawer and the wine cabinet
@@ -451,13 +473,15 @@ function towerLanding(): Finding[] {
 function noIslandFallback(): Finding[] {
   if (ISLAND.present) return [];
 
-  if (OMITTED_SLOTS.length > 0) {
+  const key = omittedForWallKey(OMITTED_FOR_WALL);
+  if (key) {
     return [
       {
         ruleId: "no-island-omitted",
         severity: "warning",
-        messageKey: "rule.noIslandOmitted",
-        slot: "slot-microwave",
+        messageKey: key,
+        // Filed under the machine it names, the first where it names both.
+        slot: OMITTED_FOR_WALL[0],
         params: {},
       },
     ];

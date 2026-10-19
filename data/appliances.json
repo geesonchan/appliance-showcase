@@ -1,7 +1,7 @@
 {
   "_meta": {
     "generatedBy": "scripts/csv-to-json.ts from ../showcase_export.csv",
-    "updatedAt": "2026-10-12",
+    "updatedAt": "2026-10-19",
     "provenance": "Derived from the showcase_export tab of the 2026 AA Inventory Manager. Brand, Model, Appliance Type, Feature, Width, Depth, Height and Color come from Stock current; everything else is hand entered. Normalisation lives in scripts/normalise.ts, not in the sheet. verifiedAt is null until a row has been checked against its sourceUrl."
   },
   "appliances": [
@@ -159,16 +159,16 @@
     },
     {
       "id": "ge-jvm3160rfss",
-      "slot": "slot-microwave",
-      "category": "microwave",
+      "slot": "slot-hood",
+      "category": "otr",
       "brand": "GE",
       "model": "JVM3160RFSS",
       "series": null,
       "msrpUSD": 249,
       "sourceUrl": "https://www.geappliances.com/appliance/GE-1-6-Cu-Ft-Over-the-Range-Microwave-Oven-JVM3160RFSS",
-      "verifiedAt": "2026-09-07",
+      "verifiedAt": "2026-10-18",
       "installType": [
-        "freestanding"
+        "otr"
       ],
       "fuel": null,
       "blower": null,
@@ -176,9 +176,9 @@
       "topDepthIn": null,
       "frontLipIn": null,
       "rearVent": null,
-      "widthIn": 30,
-      "heightIn": null,
-      "depthIn": null,
+      "widthIn": 29.875,
+      "heightIn": 16.5,
+      "depthIn": 15.25,
       "burners": null,
       "cooktopIn": null,
       "backguardIn": null,
@@ -188,8 +188,8 @@
       "doorConfig": null,
       "doorSplit": null,
       "cutoutWidthIn": 30,
-      "cutoutHeightIn": 16.125,
-      "cutoutDepthIn": 15.625,
+      "cutoutHeightIn": 16.5,
+      "cutoutDepthIn": 15.25,
       "finish": [
         "stainless"
       ],
@@ -204,7 +204,7 @@
         "amps": 15,
         "gasBTU": null,
         "water": false,
-        "cfm": null
+        "cfm": 300
       }
     },
     {

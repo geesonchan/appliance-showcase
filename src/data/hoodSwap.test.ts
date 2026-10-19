@@ -81,6 +81,11 @@ describe("what is over a hood follows the hood chosen (round 87)", () => {
       // nothing over it and its duct through the ceiling; its cover reaches
       // 42" too, so it hangs where the 30" does in every opening.
       "A hmcb36ws": "nothing at 66.75 through-ceiling",
+      // Round 97: the over-the-range microwave JVM3160RFSS, in every 36" wall
+      // opening as a narrower hood (Leo) and in C's 30": a bridge over it, its
+      // underside 24" over the cooking surface the wall was drilled for (Leo's
+      // shop practice), its duct up through the cabinet.
+      "A jvm3160rfss": "bridge 36 at 60.75 up-through-cabinet",
       // B and D: 36-7/16" of rangetop, so 66-7/16"; a chimney goes up to
       // 66-1/2" so its cover reaches the 108-1/2" ceiling (D19).
       "B ak7136bs-bf": "bridge 36 at 66.438 up-through-cabinet",
@@ -90,10 +95,12 @@ describe("what is over a hood follows the hood chosen (round 87)", () => {
       "B ph36hws": "bridge 36 at 66.438 up-through-cabinet",
       "B hmcb30ws": "nothing at 66.5 through-ceiling",
       "B hmcb36ws": "nothing at 66.5 through-ceiling",
+      "B jvm3160rfss": "bridge 36 at 60.438 up-through-cabinet",
       // C: a 36" range; its own chimney hood hangs at 66-1/2" as before, an
       // under-cabinet one at the 30" minimum with a cabinet to hang from.
       "C ak7300as": "bridge 30 at 66 up-through-cabinet",
       "C hmcb30ws": "nothing at 66.5 through-ceiling",
+      "C jvm3160rfss": "bridge 30 at 60 up-through-cabinet",
       "D ak7136bs-bf": "bridge 36 at 66.438 up-through-cabinet",
       "D ak7300as": "bridge 36 at 66.438 up-through-cabinet",
       "D vcin36gws": "housing 36 at 66.438 up-through-cabinet",
@@ -101,6 +108,7 @@ describe("what is over a hood follows the hood chosen (round 87)", () => {
       "D ph36hws": "bridge 36 at 66.438 up-through-cabinet",
       "D hmcb30ws": "nothing at 66.5 through-ceiling",
       "D hmcb36ws": "nothing at 66.5 through-ceiling",
+      "D jvm3160rfss": "bridge 36 at 60.438 up-through-cabinet",
       // E: hung from the ceiling over the island at 72" (D20).
       "E hmib42ws": "nothing at 72 through-ceiling",
     });

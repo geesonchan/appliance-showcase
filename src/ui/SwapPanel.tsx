@@ -1,6 +1,5 @@
 import { blowerListUnverified, blowersFor } from "../data/catalogue";
 import { candidatesFor } from "../data/candidates";
-import { slotAvailability } from "../data/availability";
 import { formatInches, requiredOpening, type FitResult } from "../data/fit";
 import { SLOT_BY_ID } from "../data/slots";
 import { DebugBadge } from "./DebugBadge";
@@ -9,7 +8,7 @@ import { SCHEME_FALLBACKS } from "../data/catalogue";
 import { formatCfm } from "../data/ventilation";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
-import { useActivePackage, useSelectedAppliance, useSelectedBlower, useSelection } from "../store/useSelection";
+import { useActivePackage, useSelectedAppliance, useSelectedBlower } from "../store/useSelection";
 import type { Appliance, SlotId } from "../types";
 
 /**
@@ -31,9 +30,6 @@ export function SwapPanel({ slotId }: { slotId: SlotId }) {
   const selectAppliance = useAppStore((s) => s.selectAppliance);
   const selectSlot = useAppStore((s) => s.selectSlot);
   const openSpec = useAppStore((s) => s.openSpec);
-  const selection = useSelection();
-  const availability = slotAvailability(selection)[slotId];
-  const unavailable = availability?.available === false;
 
   return (
     <div className="flex h-full flex-col overflow-y-auto">
@@ -68,15 +64,6 @@ export function SwapPanel({ slotId }: { slotId: SlotId }) {
         </button>
       </div>
 
-      {unavailable && (
-        <div className="border-b border-line bg-[rgba(217,48,37,0.06)] px-5 py-3">
-          <p className="text-[11px] font-medium text-ink">{t("swap.unavailable")}</p>
-          <p className="mt-1 text-[11px] leading-snug text-ink-muted">
-            {t(availability.reasonKey!, { takenBy: availability.takenBy! })}
-          </p>
-        </div>
-      )}
-
       <div className="flex items-baseline justify-between px-5 pb-2 pt-4">
         <h3 className="tracking-label text-[10px] text-ink-muted">{t("swap.title")}</h3>
         <span className="text-[10px] text-ink-muted/70">
@@ -84,14 +71,13 @@ export function SwapPanel({ slotId }: { slotId: SlotId }) {
         </span>
       </div>
 
-      <ul className={"pb-6 " + (unavailable ? "pointer-events-none opacity-40" : "")}>
+      <ul className="pb-6 ">
         {candidates.map(({ appliance, fit }) => (
           <CandidateRow
             key={appliance.id}
             appliance={appliance}
             fit={fit}
             selected={appliance.id === selectedId}
-            disabled={unavailable}
             onSelect={() => selectAppliance(slotId, appliance.id)}
           />
         ))}
@@ -264,17 +250,15 @@ function CandidateRow({
   appliance,
   fit,
   selected,
-  disabled = false,
   onSelect,
 }: {
   appliance: Appliance;
   fit: FitResult;
   selected: boolean;
-  disabled?: boolean;
   onSelect: () => void;
 }) {
   const t = useT();
-  const blocked = disabled || !fit.fits;
+  const blocked = !fit.fits;
 
   return (
     <li>

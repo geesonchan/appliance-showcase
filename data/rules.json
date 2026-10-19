@@ -176,6 +176,11 @@
           "fact": "package.effectiveCfm",
           "op": "gt",
           "value": 0
+        },
+        {
+          "fact": "appliance.category",
+          "op": "ne",
+          "value": "otr"
         }
       ],
       "params": {
@@ -183,6 +188,28 @@
         "duct": "package.ductDiameterIn"
       },
       "scope": "package"
+    },
+    {
+      "id": "duct-size-otr",
+      "severity": "info",
+      "messageKey": "rule.ductSizeOtr",
+      "when": [
+        {
+          "fact": "appliance.category",
+          "op": "eq",
+          "value": "otr"
+        },
+        {
+          "fact": "package.effectiveCfm",
+          "op": "gt",
+          "value": 0
+        }
+      ],
+      "params": {
+        "cfm": "package.effectiveCfm"
+      },
+      "scope": "package",
+      "basis": "GE JVM3160RF/EF spec sheet (docs/reference/jvm3160rfss-spec.pdf) p. 2: \"The hood exhaust has been designed to mate with a standard 3-1/4\" x 10\" rectangular duct. If a round duct is required, a rectangular-to-round transition adaptor must be used. Do not use less than a 6\" diameter duct\". Round 97: an over-the-range microwave's duct is its own, not the airflow band's."
     },
     {
       "id": "integrated-lead-time",
@@ -193,20 +220,6 @@
           "fact": "appliance.installType",
           "op": "includes",
           "value": "integrated"
-        }
-      ],
-      "params": {},
-      "scope": "slot"
-    },
-    {
-      "id": "otr-conflicts-with-hood",
-      "severity": "blocker",
-      "messageKey": "rule.otrConflict",
-      "when": [
-        {
-          "fact": "appliance.installType",
-          "op": "includes",
-          "value": "otr"
         }
       ],
       "params": {},
@@ -291,15 +304,39 @@
       }
     },
     {
+      "id": "otr-gas-btu",
+      "scope": "package",
+      "severity": "blocker",
+      "messageKey": "rule.otrGasBtu",
+      "when": [
+        {
+          "fact": "appliance.category",
+          "op": "eq",
+          "value": "otr"
+        },
+        {
+          "fact": "package.cookingGasBtu",
+          "op": "gt",
+          "value": 63000
+        }
+      ],
+      "params": {
+        "model": "appliance.model",
+        "range": "package.cookingModelText",
+        "btu": "package.cookingGasBtu"
+      },
+      "basis": "GE installation instructions 31-7000341 (docs/reference/jvm3160rfss-install.pdf) p. 6: \"This microwave is suitable for installation over electric or gas cooking appliances with a combined BTU of 63,000 BTU or less.\" Leo, round 97: allowed, and a blocker on the list, not a warning."
+    },
+    {
       "id": "hood-cabinet-cutout",
       "scope": "slot",
       "severity": "info",
       "messageKey": "rule.hoodCabinetCutout",
       "when": [
         {
-          "fact": "appliance.category",
+          "fact": "slot.id",
           "op": "eq",
-          "value": "hood"
+          "value": "slot-hood"
         },
         {
           "fact": "slot.utilities.duct.route",
@@ -315,6 +352,21 @@
       "params": {
         "size": "package.hoodOutletSize"
       }
+    },
+    {
+      "id": "otr-cabinet-holes",
+      "scope": "slot",
+      "severity": "info",
+      "messageKey": "rule.otrCabinetHoles",
+      "when": [
+        {
+          "fact": "appliance.category",
+          "op": "eq",
+          "value": "otr"
+        }
+      ],
+      "params": {},
+      "basis": "GE installation instructions 31-7000341 (docs/reference/jvm3160rfss-install.pdf) p. 17, step B2: \"You need to drill holes for the top support screws, a hole large enough for the power cord to fit through, and a cutout large enough for the exhaust adaptor.\" The top cabinet template (docs/reference/jvm3160rfss-top-cabinet-template.pdf): 3/8\" holes A, B and C, a 2\" hole D for the power cord. Round 97."
     },
     {
       "id": "insert-vent-outside",

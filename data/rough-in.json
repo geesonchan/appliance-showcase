@@ -343,6 +343,21 @@
         }
       ]
     },
+    "ge-jvm3160rfss": {
+      "sourceUrl": "docs/reference/jvm3160rfss-install.pdf",
+      "points": [
+        {
+          "type": "power",
+          "location": "above-cabinet",
+          "x": 21.25,
+          "y": "bottom",
+          "z": "rear",
+          "note": "120V grounded outlet on a separate 15-20A branch circuit, in the cabinet above; the cord comes up through a 2\" hole in its floor",
+          "provenance": "inferred",
+          "basis": "In the cabinet above is the manual's: GE installation instructions 31-7000341 p. 2, \"The outlet box should be located in the cabinet above the microwave oven.\" Where in it is not given: drawn low on the cabinet's back wall, in line with the power cord's hole, which is the top cabinet template's (D, 6-1/4\" right of the centre line: 21-1/4\" from the left side of a 30\" cabinet). Round 97."
+        }
+      ]
+    },
     "thermador-tcm24ps": {
       "sourceUrl": "docs/reference/TCM24PS_Install_Manual.pdf",
       "points": [

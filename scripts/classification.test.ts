@@ -3,6 +3,7 @@ import {
   ACCESSORY_LIKE,
   BLANK_TYPE,
   SKIPPED_TYPES,
+  categoryOf as fileUnder,
   classify,
   toFuel,
   toInstallType,
@@ -229,5 +230,32 @@ describe("blank and unrecognised", () => {
 
   it("reports anything else as unknown", () => {
     expect(classify("Sous Vide Circulator")).toEqual({ kind: "unknown" });
+  });
+});
+
+/**
+ * An over-the-range microwave (round 97, Leo: GE's JVM3160RFSS). Its type is
+ * a microwave's, and where it goes is the hood's: the install form says which,
+ * and only a microwave is filed under `otr` by it.
+ */
+describe("an over-the-range microwave", () => {
+  it("reads OTR in the type as installing over the range", () => {
+    expect(toInstallType("", "OTR", "30")).toEqual(["otr"]);
+  });
+
+  it("reads over-the-range in the Feature as the same", () => {
+    expect(toInstallType("Over-the-Range, Convection", "Microwave", "30")).toContain("otr");
+  });
+
+  it("files a microwave that installs over the range as otr", () => {
+    expect(fileUnder("microwave", ["otr"])).toBe("otr");
+  });
+
+  it("files a microwave drawer as a microwave, as before", () => {
+    expect(fileUnder("microwave", ["drawer"])).toBe("microwave");
+  });
+
+  it("files nothing but a microwave by it", () => {
+    expect(fileUnder("hood", ["otr", "under-cabinet"])).toBe("hood");
   });
 });

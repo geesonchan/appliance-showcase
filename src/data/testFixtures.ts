@@ -221,14 +221,23 @@ export const FIXTURES = {
     cutoutHeightIn: 16,
     cutoutDepthIn: 22,
   }),
+  /**
+   * An over-the-range microwave, in the hood's place (round 97). Its model is
+   * the catalogue's, because its template's figures are kept by model
+   * (`OVER_RANGE` in hood.ts) and an OTR with none is refused loudly.
+   */
   microwaveOtr: appliance({
     id: "microwave-otr",
-    slot: "slot-microwave",
-    category: "microwave",
+    model: "JVM3160RFSS",
+    slot: "slot-hood",
+    category: "otr",
     installType: ["otr"],
-    widthIn: 30,
+    widthIn: 29.875,
+    heightIn: 16.5,
+    depthIn: 15.25,
     cutoutWidthIn: 30,
-    cutoutHeightIn: 16,
-    cutoutDepthIn: 22,
+    cutoutHeightIn: 16.5,
+    cutoutDepthIn: 15.25,
+    requires: { voltage: 120, amps: 15, gasBTU: null, water: false, cfm: 300 },
   }),
 };

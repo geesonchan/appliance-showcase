@@ -58,9 +58,9 @@ every figure of it, is `data/packages.json`; D16 and D20 say how a package is
 put together and why E was built the way it was. **Do not copy those numbers
 anywhere**: the file is the one source, and the tests read it.
 
-### Where it stands (round 96)
+### Where it stands (round 97)
 
-- **All five packages are live.** Rounds 73–79, 81–90, 92, 92a, 92b, 92c, 93, 94, 95, 91 and 96 each shipped
+- **All five packages are live.** Rounds 73–79, 81–90, 92, 92a, 92b, 92c, 93, 94, 95, 91, 96 and 97 each shipped
   (round 80 built nothing; 91 was built after 95, below), and each was checked against the live page's asset hashes
   after its workflow finished.
 - **The live site counts visits, anonymously** (D24): page views and four events
@@ -105,7 +105,10 @@ anywhere**: the file is the one source, and the tests read it.
   (**done**, D23 round 94; D1 round 94); 95 a QR code for the link, in a box
   on the desktop (**done**, D23 round 95; how far a phone reads it is Leo's to
   measure in the shop, Open items); 96 the live site counting visits,
-  anonymously (**done**, D24); then a hood's
+  anonymously (**done**, D24); 97 an over-the-range microwave, GE's
+  JVM3160RFSS, in the hood's place, from Leo's shop — the microwave drawer
+  leaving the room with it, its own rectangular outlet, 24" over the cooking
+  surface (**done**, D16, D13 and D18 round 97); then a hood's
   own outlet, then 79a (the doors of the
   cabinet over the hood and the outlet shown in it), then 79b. The 30" option
   in A is paused.
@@ -261,7 +264,10 @@ what to go and read.
   stopped** (its port free, its Vite process gone). D17, round 87.
 - Windows: PowerShell splits `"` in a commit message (`git commit -F`), and
   `\n` written through a shell or Python lands as a real newline — use the
-  editor tools for i18n strings and scripts.
+  editor tools for i18n strings and scripts. Python writes CRLF here unless
+  told `newline="\n"`; every text file is LF (`.gitattributes`), and
+  `lineEndings.test.ts` goes red on CRLF (D17, round 97). Quote a diff's size
+  from `git -c core.autocrlf=false diff --stat`.
 
 ---
 

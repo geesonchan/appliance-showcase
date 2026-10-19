@@ -188,6 +188,21 @@ const CATEGORY_RULES: { match: (type: string) => boolean; category: Category }[]
   { match: (t) => /^trash\s+compactor$/i.test(t), category: "other" },
 ];
 
+/**
+ * The category a row is filed under, once its install form is known.
+ *
+ * The sheet's type decides it (`classify`), with one exception: a microwave
+ * that installs over the range is the hood's machine, not the microwave
+ * slot's — it hangs over the cooking surface under a cabinet, in the hood's
+ * place — so it is its own category, `otr`, which only the hood slot takes.
+ * Round 97, Leo: GE's JVM3160RFSS. Read from the install form, which is its
+ * Appliance Type "OTR" or `PUBLISHED_SPECS`, so a row that says neither is a
+ * microwave as before.
+ */
+export function categoryOf(category: Category, installType: readonly string[]): Category {
+  return category === "microwave" && installType.includes("otr") ? "otr" : category;
+}
+
 /** The summary key for rows the sheet left unclassified. */
 export const BLANK_TYPE = "blank type";
 
@@ -287,6 +302,8 @@ export function toFuel(type: string): Fuel | null {
  */
 const INSTALL_WORDS: { pattern: RegExp; value: string }[] = [
   { pattern: /\bslide[- ]in\b/i, value: "slide-in" },
+  // An over-the-range microwave, by its Appliance Type "OTR" (round 97).
+  { pattern: /\botr\b|\bover[- ]the[- ]range\b/i, value: "otr" },
   { pattern: /\bunder[- ]cabinet\b/i, value: "under-cabinet" },
   { pattern: /\bchimney\b/i, value: "wall-mount" },
   { pattern: /\binsert\b/i, value: "insert" },
@@ -606,6 +623,19 @@ export const PUBLISHED_SPECS: Record<
     depthIn: 23.1875,
     frontLipIn: 5,
     installType: ["wall-mount", "chimney"],
+  },
+  // GE JVM3160RFSS, an over-the-range microwave, from its spec sheet
+  // (docs/reference/jvm3160rfss-spec.pdf, JVM3160RF/EF, revised 1/26) p. 1:
+  // 29-7/8" wide, 16-1/2" tall at the rear (15-3/4" at the front), 15-1/4"
+  // deep. How it installs is its manual's title, "Over the Range Microwave
+  // Oven" (docs/reference/jvm3160rfss-install.pdf, 31-7000341), and p. 2:
+  // "mounted to BOTH a top cabinet AND a wall". The importer's default
+  // `freestanding` was all its row carried (D4's hazard). Round 97, Leo.
+  JVM3160RFSS: {
+    widthIn: 29.875,
+    heightIn: 16.5,
+    depthIn: 15.25,
+    installType: ["otr"],
   },
   // Thermador T36FT820NS, from docs/reference/t36ft820ns-spec.png. A 24" body
   // held 1" off the wall by its own spacers, with the doors and then the handles

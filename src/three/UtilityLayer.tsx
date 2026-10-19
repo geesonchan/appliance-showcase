@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import { CABINET_STANDARDS, ROOM, SLOTS, ft } from "../data/slots";
 import { FIXTURES } from "../data/fixtures";
-import { ceilingStub, ductCallout, ductRoute, hoodCabinetFloor, hoodOutlet } from "../data/hood";
+import { ceilingStub, cordHole, ductCallout, ductRoute, hoodCabinetFloor, hoodOutlet } from "../data/hood";
 import { deriveUtilities } from "../data/utilities";
 import { useAppStore } from "../store/useAppStore";
 import { useSelection, useSelectedBlower } from "../store/useSelection";
@@ -80,6 +80,66 @@ function Pipe({
     <mesh position={position} quaternion={quaternion} userData={{ tier: "unreviewed" }}>
       <cylinderGeometry args={[thin(radius), thin(radius), length, 8, 1]} />
       {unreviewedMaterial()}
+    </mesh>
+  );
+}
+
+/**
+ * A hole drawn in D21's "reviewed, to confirm" look: a dashed grey circle,
+ * flat. An over-the-range microwave's cord hole whose place is measured on its
+ * template rather than printed (round 97).
+ */
+function DashedRing({ name, centre, radius }: { name: string; centre: [number, number, number]; radius: number }) {
+  const [x, y, z] = centre;
+  const ring = useMemo(() => {
+    const points = Array.from({ length: 33 }, (_, i) => {
+      const a = (i / 32) * Math.PI * 2;
+      return new THREE.Vector3(x + Math.cos(a) * radius, y, z + Math.sin(a) * radius);
+    });
+    const drawn = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints(points),
+      new THREE.LineDashedMaterial({ color: UNCONFIRMED, dashSize: ft(0.25), gapSize: ft(0.18) }),
+    );
+    drawn.computeLineDistances();
+    drawn.name = name;
+    drawn.userData = { tier: "unconfirmed" };
+    return drawn;
+  }, [name, x, y, z, radius]);
+  return <primitive object={ring} />;
+}
+
+/**
+ * How tall the collar on an over-the-range microwave's top is drawn: a display
+ * figure, with no outside source — enough to read as the 3-1/4" x 10" outlet
+ * standing up through the cabinet's cut, which is the spec sheet's (round 97).
+ */
+const OTR_COLLAR = ft(1.5);
+
+/**
+ * An over-the-range microwave's exhaust adaptor: the 3-1/4" x 10" rectangle on
+ * its top, its long side along the wall, in the duct's colour. Its size is the
+ * spec sheet's (p. 2), so it is drawn solid; its height is `OTR_COLLAR`.
+ */
+function OutletCollar({
+  position,
+  widthFt,
+  depthFt,
+  rotationY,
+}: {
+  position: [number, number, number];
+  widthFt: number;
+  depthFt: number;
+  rotationY: number;
+}) {
+  return (
+    <mesh
+      name="otr-outlet"
+      position={[position[0], position[1] + OTR_COLLAR / 2, position[2]]}
+      rotation={[0, rotationY, 0]}
+      userData={{ tier: "drawing" }}
+    >
+      <boxGeometry args={[widthFt, OTR_COLLAR, depthFt]} />
+      <meshBasicMaterial color={UTILITY_COLORS.duct} />
     </mesh>
   );
 }
@@ -489,13 +549,17 @@ function DuctRuns({
         // Off the opening in the canopy's top, which is well behind the front
         // edge — and is why the cabinet above needs a hole in its floor.
         const outlet = hoodOutlet(slot, selection[slot.id]);
-        const collarY = outlet.position[1] + ft(DUCT.outletAboveBodyIn);
+        // An over-the-range microwave's exhaust adaptor sits in the cabinet's
+        // floor, on its top: no collar above it (round 97).
+        const collarY = outlet.rectangular ? outlet.position[1] : outlet.position[1] + ft(DUCT.outletAboveBodyIn);
         const x = outlet.position[0];
         const z = outlet.position[2];
 
         // Where the blower ends up: in the canopy, part-way along the run, or
         // out at the termination.
-        const type = blower?.installType ?? [];
+        // An over-the-range microwave has its own fan and takes no blower,
+        // whatever the store still holds for the hood it replaced (round 97).
+        const type = outlet.rectangular ? [] : (blower?.installType ?? []);
         const place = type.includes("inline")
           ? "inline"
           : type.includes("external") || type.includes("remote")
@@ -506,8 +570,9 @@ function DuctRuns({
         // actually against — which used to be the back wall whatever it hung
         // on. Round 52, D22 step 3.
         const { runsUp, end, inlineAt } = ductRoute(slot, outlet, collarY, duct.route);
-        const cutout = { w: outlet.widthFt, d: outlet.depthFt };
+        const cutout = { w: outlet.cutoutWidthFt, d: outlet.cutoutDepthFt };
         const cabinetFloor = hoodCabinetFloor();
+        const cord = cordHole(slot, selection[slot.id]);
         const callout = ductCallout(slot, duct.route);
         const stub = ceilingStub(slot, outlet, duct.route);
 
@@ -521,33 +586,88 @@ function DuctRuns({
             onPointerOver={() => (document.body.style.cursor = "pointer")}
             onPointerOut={() => (document.body.style.cursor = "auto")}
           >
-            {/* The hole this duct needs in the floor of the cabinet above. */}
-            {runsUp && cabinetFloor !== null && (
+            {/* The hole this duct needs in the floor of the cabinet above. An
+                over-the-range microwave's is its template's, turned with the
+                wall it is on (round 97). */}
+            {runsUp && cabinetFloor !== null && !outlet.rectangular && (
               <mesh position={[x, cabinetFloor, z]} rotation={[-Math.PI / 2, 0, 0]}>
                 <planeGeometry args={[cutout.w, cutout.d]} />
                 <meshBasicMaterial color={UTILITY_COLORS.duct} side={THREE.DoubleSide} />
               </mesh>
             )}
-            {/* The transition off the canopy, with its back-draft damper. */}
-            <Pipe
-              from={[x, outlet.position[1], z]}
-              to={[x, collarY, z]}
-              radius={radius}
-              color={UTILITY_COLORS.duct}
-              hollow
-            />
-            <Fitting
-              position={[x, collarY, z]}
-              size={[radius * 2.4, ft(1.5), radius * 2.4]}
-              color={UTILITY_COLORS.duct}
-            />
-            <Pipe
-              from={[x, collarY, z]}
-              to={end}
-              radius={radius}
-              color={UTILITY_COLORS.duct}
-              hollow
-            />
+            {runsUp && cabinetFloor !== null && outlet.rectangular && (
+              <group position={[x, cabinetFloor + ft(0.05), z]} rotation={[0, slot.rotationY, 0]}>
+                <mesh name="otr-cabinet-cutout" rotation={[-Math.PI / 2, 0, 0]} userData={{ tier: "drawing" }}>
+                  <planeGeometry args={[cutout.w, cutout.d]} />
+                  <meshBasicMaterial color={UTILITY_COLORS.duct} side={THREE.DoubleSide} />
+                </mesh>
+              </group>
+            )}
+            {/* The power cord's hole beside it, the template's D (round 97):
+                in the look its weakest figure earns (D21) — dashed grey, its
+                place across being measured on the template, not printed. */}
+            {cord && cabinetFloor !== null &&
+              (cord.provenance === "drawing" ? (
+                <mesh
+                  name="otr-cord-hole"
+                  position={[cord.position[0], cabinetFloor + ft(0.05), cord.position[2]]}
+                  rotation={[-Math.PI / 2, 0, 0]}
+                  userData={{ tier: "drawing" }}
+                >
+                  <circleGeometry args={[cord.diameterFt / 2, 24]} />
+                  <meshBasicMaterial color={UTILITY_COLORS.power120} side={THREE.DoubleSide} />
+                </mesh>
+              ) : (
+                <DashedRing
+                  name="otr-cord-hole"
+                  centre={[cord.position[0], cabinetFloor + ft(0.05), cord.position[2]]}
+                  radius={cord.diameterFt / 2}
+                />
+              ))}
+            {outlet.rectangular ? (
+              <>
+                {/* The exhaust adaptor on the OTR's top, 3-1/4" x 10", in the
+                    cabinet's cut: the spec sheet's outlet, solid (round 97). */}
+                <OutletCollar
+                  position={[x, outlet.position[1], z]}
+                  widthFt={outlet.widthFt}
+                  depthFt={outlet.depthFt}
+                  rotationY={slot.rotationY}
+                />
+                {/* Then the house's duct up to the ceiling, generic as every
+                    run is (D21). */}
+                <Pipe
+                  from={[x, outlet.position[1] + OTR_COLLAR, z]}
+                  to={end}
+                  radius={radius}
+                  color={UTILITY_COLORS.duct}
+                  hollow
+                />
+              </>
+            ) : (
+              <>
+                {/* The transition off the canopy, with its back-draft damper. */}
+                <Pipe
+                  from={[x, outlet.position[1], z]}
+                  to={[x, collarY, z]}
+                  radius={radius}
+                  color={UTILITY_COLORS.duct}
+                  hollow
+                />
+                <Fitting
+                  position={[x, collarY, z]}
+                  size={[radius * 2.4, ft(1.5), radius * 2.4]}
+                  color={UTILITY_COLORS.duct}
+                />
+                <Pipe
+                  from={[x, collarY, z]}
+                  to={end}
+                  radius={radius}
+                  color={UTILITY_COLORS.duct}
+                  hollow
+                />
+              </>
+            )}
             {/* On through the ceiling, where the hood's own guide shows it:
                 dashed grey, D21's reviewed-but-inferred tier. Round 58. */}
             {stub && <CeilingStub from={stub.from} to={stub.to} />}
@@ -565,7 +685,7 @@ function DuctRuns({
                 color={UTILITY_COLORS.duct}
               />
             )}
-            {place === "integral" && blower && (
+            {place === "integral" && blower && !outlet.rectangular && (
               <Fitting
                 position={[x, slot.position[1] + ft(slot.cutout.h) / 2, z]}
                 size={[ft(12), ft(8), ft(10)]}

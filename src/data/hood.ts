@@ -5,6 +5,7 @@ import { SLOT_BY_ID } from "./slots";
 import { SCRIBE_IN } from "./cookingSurface";
 import { hoodModelFor, hoodMount } from "./hoodMount";
 import { PACKAGE } from "./packages";
+import { formatDimension } from "./dimensions";
 import type { Appliance, Slot } from "../types";
 
 /**
@@ -158,6 +159,75 @@ export const CHIMNEYS: Record<string, ChimneyFigures> = {
     source: "docs/reference/hmcb36ws-spec.pdf",
   },
 };
+
+/**
+ * An over-the-range microwave's own figures for what goes up through the
+ * cabinet over it, from GE's top cabinet template (Pub. No. 31-2004067 Rev. 0
+ * 04-26, docs/reference/jvm3160rfss-top-cabinet-template.pdf) and its spec
+ * sheet. Round 97. Each figure is the drawing's; one is measured off it rather
+ * than printed, and says so. An OTR with no entry is refused loudly
+ * (`overRangeOf`), as a chimney hood with no chimney is.
+ *
+ * In the cabinet floor's own frame: across from its centre line (right as you
+ * face the wall), and out from the wall.
+ */
+export interface OverRangeFigures {
+  /**
+   * The exhaust adaptor and the duct it takes, rectangular: 10" along the
+   * wall, 3-1/4" out from it. Spec sheet p. 2, "a standard 3-1/4" x 10"
+   * rectangular duct". Drawn centred in the cabinet's cutout, the adaptor
+   * being adjusted to the house duct after mounting (installation
+   * instructions, p. 19, step B7).
+   */
+  duct: { widthIn: number; depthIn: number };
+  /** The cut in the cabinet's floor for it, E on the template: 12-1/2" x 4-1/2", centred, against the wall. */
+  cutout: { widthIn: number; depthIn: number };
+  /**
+   * The power cord's hole, D on the template: 2" across, its centre 4-1/4"
+   * from the wall (printed) and 6-1/4" right of the centre line — measured on
+   * the template, which is printed full size (32.3" x 15.25"), not printed as
+   * D's own figure; it is the half-width of E, on the same line.
+   */
+  cordHole: {
+    diameterIn: number;
+    rightOfCentreIn: number;
+    fromWallIn: number;
+    /**
+     * Where its figures come from (D21): the weakest of them. Drawn in that
+     * tier's look in the install view.
+     */
+    provenance: "drawing" | "uncertain";
+    basis: string;
+  };
+  /** The three 3/8" holes for the screws through the cabinet floor, A, B and C. */
+  screwHoles: number;
+  source: string;
+}
+
+export const OVER_RANGE: Record<string, OverRangeFigures> = {
+  JVM3160RFSS: {
+    duct: { widthIn: 10, depthIn: 3.25 },
+    cutout: { widthIn: 12.5, depthIn: 4.5 },
+    cordHole: {
+      diameterIn: 2,
+      rightOfCentreIn: 6.25,
+      fromWallIn: 4.25,
+      // Leo, round 97: "从 GE 上柜模板量得，图上未标".
+      provenance: "uncertain",
+      basis:
+        "The 2\" and the 4-1/4\" from the wall are printed on the template (D). The 6-1/4\" right of the centre line is measured on GE's top cabinet template, printed full size, and is not printed on it (从 GE 上柜模板量得，图上未标): the drawing leaves it unclear, D21's dashed tier.",
+    },
+    screwHoles: 3,
+    source: "docs/reference/jvm3160rfss-top-cabinet-template.pdf",
+  },
+};
+
+/** An over-the-range microwave's figures, or a loud refusal where none were read. */
+export function overRangeOf(hood: Pick<Appliance, "model" | "id">): OverRangeFigures {
+  const figures = OVER_RANGE[hood.model];
+  if (!figures) throw new Error(`${hood.id}: an over-the-range microwave with no figures from its template`);
+  return figures;
+}
 
 /**
  * How much bigger the outer section is than the inner, all round. Nearly
@@ -417,6 +487,15 @@ export interface HoodOutlet {
   /** The same rectangle in inches, for the copy that quotes it. */
   widthIn: number;
   depthIn: number;
+  /**
+   * The hole cut in the floor of the cabinet over it, in feet: the opening
+   * itself for a canopy, and an over-the-range microwave's template cut, wider
+   * than its duct (round 97).
+   */
+  cutoutWidthFt: number;
+  cutoutDepthFt: number;
+  /** Whether the duct off it is rectangular rather than round: an OTR's 3-1/4" x 10" (round 97). */
+  rectangular: boolean;
 }
 
 /**
@@ -428,7 +507,12 @@ export interface HoodOutlet {
  * disagreement between them is a duct that misses its hole.
  */
 export function hoodOutlet(slot: Slot, appliance: Appliance | undefined): HoodOutlet {
-  const { outlet } = CABINET_STANDARDS.hood;
+  // An over-the-range microwave's own, from its template (round 97): the
+  // duct centred in the cut, against the wall.
+  const otr = appliance && hoodMount(appliance) === "otr" ? overRangeOf(appliance) : null;
+  const outlet = otr
+    ? { widthIn: otr.duct.widthIn, depthIn: otr.duct.depthIn, fromWallIn: otr.cutout.depthIn / 2 }
+    : CABINET_STANDARDS.hood.outlet;
   const depthFt = ft(slot.cutout.d);
   // Out of the canopy's own back face, not out of the back wall. The two are
   // the same point for a hood on the back run and for no other, which is why
@@ -448,7 +532,25 @@ export function hoodOutlet(slot: Slot, appliance: Appliance | undefined): HoodOu
     depthFt: ft(outlet.depthIn),
     widthIn: outlet.widthIn,
     depthIn: outlet.depthIn,
+    cutoutWidthFt: ft(otr ? otr.cutout.widthIn : outlet.widthIn),
+    cutoutDepthFt: ft(otr ? otr.cutout.depthIn : outlet.depthIn),
+    rectangular: !!otr,
   };
+}
+
+/**
+ * The power cord's hole in the floor of the cabinet over an over-the-range
+ * microwave, in world feet: its centre and its diameter. Template D (round
+ * 97). Null for anything else.
+ */
+export function cordHole(
+  slot: Slot,
+  appliance: Appliance | undefined,
+): { position: [number, number, number]; diameterFt: number; provenance: "drawing" | "uncertain" } | null {
+  if (!appliance || slot.mount === "island" || hoodMount(appliance) !== "otr") return null;
+  const { cordHole: hole } = overRangeOf(appliance);
+  const [x, z] = toPlan(slot, ft(hole.rightOfCentreIn), -ft(slot.cutout.d) / 2 + ft(hole.fromWallIn));
+  return { position: [x, hoodTopFt(slot, appliance), z], diameterFt: ft(hole.diameterIn), provenance: hole.provenance };
 }
 
 /**
@@ -486,6 +588,13 @@ export function hoodCabinetFloor(): number | null {
 export const outletSize = () => {
   const hood = SLOT_BY_ID["slot-hood"];
   const duct = hood.utilities.duct;
+  // The cut an over-the-range microwave's template gives, which is wider than
+  // its 3-1/4" x 10" duct: what the cabinet's floor is cut for (round 97).
+  const model = hoodModel();
+  if (model && hoodMount(model) === "otr") {
+    const { cutout } = overRangeOf(model);
+    return `${formatDimension(cutout.widthIn)} × ${formatDimension(cutout.depthIn)}`;
+  }
   // A hood over an island leaves through an 8" round transition (HMIB42WS's
   // guide, page 11), not the wall canopy's rectangular collar. Round 58.
   return (housed() || hood.mount === "island") && duct

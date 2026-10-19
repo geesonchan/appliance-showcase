@@ -2,6 +2,7 @@ import { SCHEME, SCHEME_FALLBACKS, SLOT_ORDER } from "../data/catalogue";
 import { usePackageSummary } from "../data/packageSummary";
 import { listWidth } from "../data/fit";
 import { formatDimension } from "../data/dimensions";
+import { omittedForWallKey } from "../data/useChecklist";
 import { ROOM, SLOT_BY_ID, isOmitted } from "../data/slots";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
@@ -70,7 +71,7 @@ export function LeftPanel() {
           customer did not ask for. */}
       {summary.omitted.length > 0 && (
         <p className="border-b border-line bg-[rgba(46,92,69,0.05)] px-5 py-3 text-[11px] leading-[1.5] text-ink-muted">
-          {t("rule.noIslandOmitted")}
+          {t(omittedForWallKey(summary.omitted)!)}
         </p>
       )}
 

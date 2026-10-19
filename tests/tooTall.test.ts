@@ -157,12 +157,14 @@ describe("a machine that cannot go into an opening (round 86)", () => {
     await s.page.context().close();
   });
 
-  it("keeps a microwave drawer and an over-the-range microwave out of B's combination-oven tower", async () => {
+  // Round 97: the over-the-range microwave JVM3160RFSS is not offered here at
+  // all now — it is the hood slot's (`otr`) — so only the drawer is left to
+  // refuse.
+  it("keeps a microwave drawer out of B's combination-oven tower, and offers no over-the-range microwave there", async () => {
     const s = await open(false);
     await selectOnCard(s, "B", "slot-microwave");
     const rows = await cardRows(s);
     expect(rows.filter((row) => /jvm3160rfss|md24bs/.test(row))).toEqual([
-      "ge-jvm3160rfss:false The manufacturer has not confirmed it can go in a tall cabinet",
       "thermador-md24bs:false The manufacturer has not confirmed it can go in a tall cabinet",
     ]);
     await s.page.context().close();

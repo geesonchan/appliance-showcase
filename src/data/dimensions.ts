@@ -14,6 +14,7 @@ import {
 import { SLOT_BY_ID } from "./slots";
 import { towerVents } from "./towerVent";
 import { ISLAND_HOOD } from "./hood";
+import { hoodMount } from "./hoodMount";
 import { onAxis, toWorld } from "./frame";
 import type { Appliance, SlotId } from "../types";
 
@@ -153,12 +154,16 @@ export function dimensionsFor(
     vertical("cooktop-to-canopy", 0, cooktop, hoodBottom, {
       // A wall canopy's drawing gives gas 30"-40"; an island hood's guide gives
       // 30" for gas and induction alike and no maximum. Round 69.
+      // An over-the-range microwave's 24" is Leo's shop practice (round 97,
+      // `aboveCookingSurfaceIn`), not a canopy's 30"-40".
       ...(hood.mount === "island"
         ? {
             noteKey: "dimension.clearanceMinIsland",
             noteVars: { min: ISLAND_HOOD.aboveCookingSurfaceMinIn },
           }
-        : {
+        : hoodAppliance && hoodMount(hoodAppliance) === "otr"
+          ? { noteKey: "dimension.shopPractice", noteVars: {} }
+          : {
             noteKey: "dimension.clearanceRange",
             noteVars: { min: hoodStd.aboveCooktopMinIn, max: hoodStd.aboveCooktopMaxIn },
           }),

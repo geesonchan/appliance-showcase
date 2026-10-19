@@ -11,7 +11,6 @@ import {
   packageContext,
 } from "./rules";
 import { outletSize } from "./hood";
-import { slotAvailability } from "./availability";
 import type { Appliance, SlotId } from "../types";
 
 const slot = (id: SlotId) => SLOT_BY_ID[id];
@@ -234,28 +233,62 @@ describe("a complete package", () => {
   });
 });
 
-describe("slot availability", () => {
+/**
+ * The over-the-range microwave's own lines (round 97). Until round 97 an OTR
+ * was a microwave-slot machine that closed the hood slot (`availability.ts`
+ * and `otr-conflicts-with-hood`, neither of which ever fired); it is the hood
+ * slot's own choice now, and these are its lines. One sample each way.
+ */
+describe("the over-the-range microwave's lines (round 97)", () => {
   const otr = FIXTURES.microwaveOtr;
+  /** The package-scope rules for a hood over a given cooking surface. */
+  const over = (hood: Appliance, range: Appliance) =>
+    evaluateSlot(slot("slot-hood"), hood, packageContext(hood, null, range), "package").map(
+      (finding) => finding.ruleId,
+    );
 
-  it("closes the hood slot when an over-the-range microwave takes the wall", () => {
-    const availability = slotAvailability({ "slot-microwave": otr });
-    expect(availability["slot-hood"]?.available).toBe(false);
-    expect(availability["slot-hood"]?.takenBy).toContain(otr.model);
+  it("otr-gas-btu: blocks an OTR over a range of more than 63,000 BTU in all", () => {
+    expect(over(otr, FIXTURES.gasRange36)).toContain("otr-gas-btu");
   });
 
-  it("leaves it open for a drawer microwave", () => {
-    const availability = slotAvailability({
-      "slot-microwave": FIXTURES.microwaveDrawer,
+  it("otr-gas-btu: not over a gas range of 63,000 BTU or less", () => {
+    expect(over(otr, FIXTURES.gasRangeSmallBtu)).not.toContain("otr-gas-btu");
+  });
+
+  it("otr-gas-btu: not over an induction range, which burns no gas", () => {
+    expect(over(otr, FIXTURES.inductionRange30)).not.toContain("otr-gas-btu");
+  });
+
+  it("otr-gas-btu: not for a canopy over the same range", () => {
+    expect(over(FIXTURES.hoodIntegrated600, FIXTURES.gasRange36)).not.toContain("otr-gas-btu");
+  });
+
+  it("otr-gas-btu: is a blocker, and names the model, the range and its BTU", () => {
+    const finding = evaluateSlot(slot("slot-hood"), otr, packageContext(otr, null, FIXTURES.gasRange36), "package").find(
+      (f) => f.ruleId === "otr-gas-btu",
+    );
+    expect({ severity: finding?.severity, params: finding?.params }).toEqual({
+      severity: "blocker",
+      params: { model: "JVM3160RFSS", range: "Test GAS-RANGE-36", btu: "119,500" },
     });
-    expect(availability["slot-hood"]).toBeUndefined();
   });
 
-  // Scheme 01 cannot reach this state: the island opening is 24" and every OTR
-  // is 30", so the fit check blocks it first. The rule is here for Scheme 02,
-  // where the microwave goes back over the range.
-  it("is unreachable in Scheme 01, because no OTR fits the island", () => {
-    const microwaveSlot = slot("slot-microwave");
-    expect(microwaveSlot.cutout.w).toBe(24);
+  it("duct-size-otr: an OTR's duct is its own sheet's, not the airflow band's", () => {
+    expect(firePackage(otr, null).filter((id) => id.startsWith("duct-size"))).toEqual(["duct-size-otr"]);
+  });
+
+  it("duct-size-otr: a canopy's is still the airflow band's", () => {
+    expect(firePackage(FIXTURES.hoodIntegrated600, null).filter((id) => id.startsWith("duct-size"))).toEqual([
+      "duct-size",
+    ]);
+  });
+
+  it("otr-cabinet-holes: the cabinet over an OTR is drilled for its cord and screws", () => {
+    expect(fire("slot-hood", otr)).toContain("otr-cabinet-holes");
+  });
+
+  it("otr-cabinet-holes: not the cabinet over a canopy", () => {
+    expect(fire("slot-hood", FIXTURES.hoodIntegrated600)).not.toContain("otr-cabinet-holes");
   });
 });
 

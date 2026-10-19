@@ -1,6 +1,7 @@
 import { APPLIANCE_BY_ID } from "./catalogue";
 import { recordRangeModel } from "./cookingSurface";
 import { recordFridgeModel } from "./fridgeMount";
+import { recordHoodModel } from "./hoodMount";
 import { setLayoutParams } from "./layoutState";
 import { DEFAULT_PARAMS } from "./layoutTemplate";
 import { DEFAULT_PACKAGE, PACKAGE_BY_ID, setPackage } from "./packages";
@@ -36,6 +37,10 @@ export function resetRoom() {
   recordRangeModel(DEFAULT_PACKAGE.id, undefined);
   // Nor a refrigerator: each package is built round its own (round 89).
   recordFridgeModel(undefined, DEFAULT_PACKAGE.id);
+  // Nor a hood: until round 97 a hood chosen in one test stayed chosen for its
+  // package in the next, which round 97's OTR — a room without its drawer —
+  // was the first to show.
+  recordHoodModel(undefined, DEFAULT_PACKAGE.id);
   setPackage(DEFAULT_PACKAGE.id);
   const result = setLayoutParams(DEFAULT_PARAMS);
   if (!result.ok) {

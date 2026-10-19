@@ -43,10 +43,11 @@ export function PinOverlay() {
         ))}
       </svg>
 
-      {SLOT_ORDER.map((slotId, index) => {
-        // A slot the room was built without has no pin: the projector hides
-        // one whose label never registers.
-        if (isOmitted(slotId)) return null;
+      {SLOT_ORDER.filter((slotId) => !isOmitted(slotId)).map((slotId, index) => {
+        // A slot the room was built without has no pin and no number: the
+        // pins count what is in the room, as the card and the list do. Until
+        // round 97 they counted it, unseen while the omitted machines were the
+        // last in the order; C's drawer under an OTR is the first in the middle.
         const slot = SLOT_BY_ID[slotId];
         const selected = selectedSlot === slotId;
         return (

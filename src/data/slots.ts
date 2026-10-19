@@ -1,7 +1,7 @@
 import slotsFile from "../../data/slots.json";
 import type { OpeningAbove, PackageSlot, Slot, SlotId, SlotRecord } from "../types";
 import { PACKAGE, PACKAGE_SLOTS } from "./packages";
-import { ductRouteFor, hoodModelFor, hoodMountFor } from "./hoodMount";
+import { aboveCookingSurfaceIn, ductRouteFor, hoodModelFor, hoodMountFor } from "./hoodMount";
 import { CABINET_STANDARDS, OMITTED_SLOTS, ROOM, SLOT_PLACEMENT, ft } from "./room";
 import { parseDataFile, slotsFileSchema } from "./schema";
 import { ISLAND_HOOD, assertHoodRoute, chimneyOf } from "./hood";
@@ -9,7 +9,7 @@ import { slotsAsBuilt } from "./fridgeMount";
 import { inColumnBank } from "./layoutTemplate";
 import { ovenTowerOf } from "./ovenTower";
 
-export { ft, CABINET_STANDARDS, ROOM, RUN, RUNS, RUN_BY_ID, PANEL, FRIDGE_OPENING, HOOD_OPENING, ISLAND, OMITTED_SLOTS, isOmitted } from "./room";
+export { ft, CABINET_STANDARDS, ROOM, RUN, RUNS, RUN_BY_ID, PANEL, FRIDGE_OPENING, HOOD_OPENING, ISLAND, OMITTED_SLOTS, OMITTED_FOR_WALL, isOmitted } from "./room";
 
 /**
  * The six slots.
@@ -173,7 +173,9 @@ function place(record: SlotRecord & Pick<Slot, "above" | "tallUnitFor" | "inColu
   }
   if (record.builtForCooktopIn === null) return { ...record, ...placement };
   const { aboveCooktopMinIn } = CABINET_STANDARDS.hood;
-  const clearanceIn = record.builtForCooktopIn + aboveCooktopMinIn;
+  // A canopy's clearance, or an over-the-range microwave's 24" (round 97, Leo):
+  // one answer, `aboveCookingSurfaceIn`.
+  const clearanceIn = record.builtForCooktopIn + aboveCookingSurfaceIn(hoodMountFor(PACKAGE), aboveCooktopMinIn);
   // A chimney hood's duct cover has to reach the ceiling, and it is rated for
   // 42" from the canopy's underside. Under the 108-1/2" ceiling that puts the
   // canopy of package C's hood at 66-1/2" rather than on the 30" minimum over

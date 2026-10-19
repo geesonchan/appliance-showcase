@@ -113,7 +113,8 @@ describe("blowers", () => {
 
   it("keeps blowers out of the hood picker", () => {
     const hoods = APPLIANCES_BY_SLOT["slot-hood"];
-    expect(hoods.every((item) => item.category === "hood")).toBe(true);
+    // Round 97: an over-the-range microwave is offered in the hood's place too.
+    expect(hoods.every((item) => item.category === "hood" || item.category === "otr")).toBe(true);
     expect(BLOWERS.every((item) => item.category === "blower")).toBe(true);
   });
 

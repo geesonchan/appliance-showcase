@@ -1,5 +1,7 @@
 import type { Appliance, Slot, Utilities } from "../types";
 import { ductDiameterFor, gasPipeFor } from "./rules";
+import { overRangeOf } from "./hood";
+import { formatDimension } from "./dimensions";
 
 /**
  * What the rough-in actually has to be for a given appliance in a given slot.
@@ -47,6 +49,20 @@ export function deriveUtilities(
             // (round 78). This read 8" at exactly 400 CFM where the table says 6".
             diameterIn: ductDiameterFor(cfm)!,
             route: slot.utilities.duct.route,
+            // An over-the-range microwave's own duct, from its spec sheet:
+            // rectangular, whatever the airflow band says (round 97).
+            ...(appliance.category === "otr"
+              ? (() => {
+                  const { duct } = overRangeOf(appliance);
+                  return { rectangleIn: [duct.depthIn, duct.widthIn] as [number, number] };
+                })()
+              : {}),
           },
   };
+}
+
+/** A duct's size as the spec card and the quote say it: 8" round, or 3-1/4" × 10". */
+export function ductSizeText(duct: NonNullable<Utilities["duct"]>): string {
+  if (duct.rectangleIn) return `${formatDimension(duct.rectangleIn[0])} × ${formatDimension(duct.rectangleIn[1])}`;
+  return `${duct.diameterIn}"`;
 }

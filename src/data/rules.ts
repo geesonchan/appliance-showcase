@@ -172,6 +172,14 @@ interface Context {
     /** The two widths as a cabinetmaker writes them, 29-7/8, for the line. */
     hoodWidthText: string | null;
     cookingWidthText: string | null;
+    /**
+     * The gas the cooking surface under the hood burns, all burners together,
+     * and what it is, for the line that quotes it: an over-the-range
+     * microwave is for 63,000 BTU or less (GE's manual, p. 6; round 97). Null
+     * for an electric one.
+     */
+    cookingGasBtu: number | null;
+    cookingModelText: string | null;
   };
 }
 
@@ -289,6 +297,8 @@ export function packageContext(
     hoodNarrowerByIn: hoodIn === null || cookingIn === null ? null : cookingIn - hoodIn,
     hoodWidthText: widthText(hoodIn),
     cookingWidthText: widthText(cookingIn),
+    cookingGasBtu: cooking?.requires.gasBTU ?? null,
+    cookingModelText: cooking ? `${cooking.brand} ${cooking.model}` : null,
     blower,
     effectiveCfm: cfm,
     ductDiameterIn: ductDiameterFor(cfm),

@@ -104,7 +104,11 @@ describe("a machine taller than an opening with something above it (round 86)", 
       // Round 92c: PO302W is 16" too tall, not 18-3/16": its cutout height is
       // its own sheet's standard one now, 50" (po302w-spec.pdf p. 1, the short
       // end), where the row carried the flush 52-3/16". Still refused.
-      offered: 137,
+      // Round 97: 136 — the over-the-range microwave JVM3160RFSS left the five
+      // microwave openings (A's, C's and D's drawer, B's and E's tower) for
+      // A's, B's, C's and D's hood openings: its own category, `otr`, which
+      // only the hood slot takes. Nothing it adds is too tall.
+      offered: 136,
       refused: [
         "A slot-microwave mem301ws +14.5 countertop",
         "A slot-microwave po302w +16 countertop",
@@ -206,10 +210,12 @@ describe("another kind of machine in a tall unit (round 86)", () => {
         if (fit.notForTallUnit) refused.push(`${code} ${slotId} ${short(model.id)}`);
       }
     });
+    // Round 97: JVM3160RFSS is no longer offered here at all — an
+    // over-the-range microwave is the hood slot's (`otr`), and its manual
+    // mounts it "only above countertop level" (p. 6), so the tower never had
+    // a case for it. MD24BS still waits for a manual (Open items).
     expect(refused.sort()).toEqual([
-      "B slot-microwave jvm3160rfss",
       "B slot-microwave md24bs",
-      "E slot-microwave jvm3160rfss",
       "E slot-microwave md24bs",
     ]);
   });
@@ -235,12 +241,14 @@ describe("every other model (round 86)", () => {
         // refused too, and held in fridgeSwap.test.ts — T36FT820NS in B's, D's
         // and E's refrigerator openings, three set aside here (in D's and E's
         // 30" it is too wide as well). So 111 compared, where round 86 had 114;
-        // and 115 since round 90, with HMCB36WS offered in four hood openings.
+        // and 115 since round 90, with HMCB36WS offered in four hood openings;
+        // 116 since round 97, JVM3160RFSS compared in A's, B's, C's and D's
+        // hood openings where it had been in A's, C's and D's drawer openings.
         if (fit.tooTallIn !== null || fit.notForTallUnit || fit.notInColumnBank) continue;
         compared += 1;
         if (fit.fits !== fit.widthOverIn <= 1e-6) changed.push(`${code} ${slotId} ${short(model.id)}`);
       }
     });
-    expect({ compared, changed }).toEqual({ compared: 115, changed: [] });
+    expect({ compared, changed }).toEqual({ compared: 116, changed: [] });
   });
 });

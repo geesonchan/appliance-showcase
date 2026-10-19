@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useIsMobile } from "../hooks/useIsMobile";
-import { slotAvailability } from "../data/availability";
 import { candidatesFor, type Candidate } from "../data/candidates";
 import { SLOT_ORDER } from "../data/catalogue";
 import { useChecklist } from "../data/useChecklist";
@@ -78,8 +77,6 @@ export function ModelCard() {
   // The specified model first: it is what the customer is looking at.
   fitting.sort((a, b) => Number(b.appliance.id === current.id) - Number(a.appliance.id === current.id));
   const refused = candidates.filter((candidate) => !candidate.fit.fits);
-  const availability = slotAvailability(selection)[selectedSlot];
-  const unavailable = availability?.available === false;
   const narrow = checklist.findings.find(
     (finding) => finding.ruleId === "hood-narrower-than-cooking" && finding.slot === selectedSlot,
   );
@@ -95,7 +92,7 @@ export function ModelCard() {
 
   const chip = ({ appliance, fit }: Candidate) => {
     const selected = appliance.id === current.id;
-    const blocked = unavailable || !fit.fits;
+    const blocked = !fit.fits;
     return (
       <li key={appliance.id} className="shrink-0">
         <button
@@ -138,12 +135,6 @@ export function ModelCard() {
       {narrow && (
         <p data-card-narrow className="mt-2 text-[11px] leading-snug text-[#8A4B12]">
           {say(narrow.messageKey, narrow.params ?? {})}
-        </p>
-      )}
-      {unavailable && (
-        <p className="mt-2 text-[11px] leading-snug text-ink-muted">
-          <span className="font-medium text-ink">{t("swap.unavailable")}</span>{" "}
-          {t(availability.reasonKey!, { takenBy: availability.takenBy! })}
         </p>
       )}
     </>

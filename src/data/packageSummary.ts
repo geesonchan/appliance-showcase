@@ -1,5 +1,5 @@
 import type { SlotId } from "../types";
-import { OMITTED_SLOTS } from "./room";
+import { OMITTED_FOR_WALL, OMITTED_SLOTS } from "./room";
 import { useSelection, useSelectedBlower } from "../store/useSelection";
 import { formatUSD } from "./money";
 
@@ -38,8 +38,11 @@ export function usePackageSummary() {
 
   return {
     items,
-    /** Named on the panel beside the count they are missing from. */
-    omitted: OMITTED_SLOTS,
+    /**
+     * Named on the panel beside the count they are missing from: what the wall
+     * was too short for (D18), not the drawer an OTR takes out (round 97).
+     */
+    omitted: OMITTED_FOR_WALL,
     blower: hood?.blower === "required" ? blower : null,
     count: items.length,
     pricedCount: priced.length,

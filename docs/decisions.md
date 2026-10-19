@@ -265,6 +265,15 @@ rows of `data/appliances.json` whose `installType` is exactly
 added to Feature, is written where the importer is described:
 docs/data-sheet-spec.md, **Install form**.
 
+*Round 97 (Leo):* the over-the-range microwave JVM3160RFSS leaves the bucket.
+`PUBLISHED_SPECS` gives it `otr` from its manual (31-7000341, "Over the Range
+Microwave Oven"; p. 2, "mounted to BOTH a top cabinet AND a wall"), with its
+body from its spec sheet. And the importer now reads `OTR` (or "over the
+range") in Feature or Appliance Type as the install form `otr`, and files a
+microwave with it under a category of its own, `otr`, which only the hood slot
+takes (`categoryOf`, scripts/normalise.ts): the slot a model is offered in is
+still a matter of category alone (docs/data-sheet-spec.md, `slot`).
+
 *Amended 2026-10-11 (round 92), Leo: hand-filled cells that come in blank stop
 the import.* T18IW100SP's price, source, check date, cutout and amps came in
 empty twice after edits to the sheet — round 87's first import and round 90's
@@ -455,6 +464,16 @@ microwave occupying the hood's wall is different in kind from the checklist
 rules: those describe extra work, this one removes a choice. It lives in
 `src/data/availability.ts` and drives an explicit unavailable state in the
 picker.
+
+*Amended 2026-10-18 (round 97), Leo: there is no slot availability any more.*
+`availability.ts` had one case — an over-the-range microwave in the microwave
+slot closing the hood slot — and `otr-conflicts-with-hood` in rules.json was the
+same fact a second time; neither ever fired, the one OTR in the catalogue having
+come in as `freestanding` (D4). An over-the-range microwave is the hood slot's
+own choice now (D16, round 97), so the hood is never closed by anything: the
+module, the rule, the "slot unavailable" state on the card and the panel, and
+their three strings in each language are gone. Nothing removes a choice that is
+not refused by the fit check (D20, round 86).
 
 **The install checklist is the quote sheet's input.** Each finding carries its
 rule id and the slot it is about, so a line on the quote can be traced back to
@@ -2018,6 +2037,48 @@ VTN1DZ fits the 30" Thermador hood and not the 36". A hood nobody has checked
 offers everything in stock and says the list is unverified, rather than
 narrowing to nothing.
 
+*Amended 2026-10-18 (round 97), Leo: an over-the-range microwave hangs 24"
+over the cooking surface.* His shop practice, his words: "安装高度：OTR 底部离炉
+头平面默认 24"". Over package C's 36" cooking surface (the surface the wall was
+drilled for, `builtForCooktopIn`, which a canopy hangs from too):
+
+| | off the floor |
+|---|---|
+| the OTR's underside (at the rear, its lowest; JVM3160RFSS is 16-1/2" tall at the rear and 15-3/4" at the front) | 60" |
+| its top, which is the underside of the cabinet over it | 76-1/2" |
+| the cabinet over it | 76-1/2" to 96", **19-1/2"**, with the 12" box stacked on it to 108" (D19, scheme A) and the crown over that |
+| the wall cabinets beside it | 54" to 96", 42", stacked to 108" |
+
+Against the cabinets beside it: the OTR's underside is 6" above theirs, the
+cabinet over it starts 22-1/2" above theirs, and its top and its stack are level
+with theirs (0"). Leo: "上方过桥柜按你算的 19-1/2" 画（76-1/2"→96"），上面叠 12" 柜到
+108"。"
+
+**Against its manual** (docs/reference/jvm3160rfss-install.pdf and
+jvm3160rfss-spec.pdf), every figure clears: "Bottom edge of cabinet needs to be
+30" or more from the cooking surface" (p. 6; p. 8, "30" to Cooktop") — 40-1/2";
+"66" or more from the floor to the top of the oven" (p. 6) — 76-1/2"; "allow
+minimum of 2" from bottom of microwave oven to top of range backguard" (spec
+sheet p. 1) — MFGS4030RS's backguard tops out at 47-7/8", 12-1/8" under it. The
+manual sets no figure for the OTR's own underside; the least those three allow
+over C's range is 13-7/8". 24" is not below it, so the round went on.
+
+**Where a drawing disagrees, and which is followed.**
+`docs/reference/OTR-hood-clearance.png`, from a cooking appliance's manual
+whose maker is not known, draws C from the burners to the OTR's underside:
+"min. 30" (762 mm) to non-combustible material above the cooking surface. Refer
+to OTR manufacturer's installation manual for clearances." 24" is under that
+line. **GE's manual is followed** (Leo, round 97): the drawing itself defers to
+the OTR maker's manual for the clearance, and GE's 30" is to the bottom of the
+cabinet over the OTR, not to the OTR. The README's row for the drawing said C
+was "the OTR's own manual" too; that was not so, and it is corrected there.
+
+It is one figure, `OTR_ABOVE_COOKING_SURFACE_IN`, asked through
+`aboveCookingSurfaceIn` (hoodMount.ts) by where the hood hangs (`slots.ts`), the
+housing's band (`banksOn`) and the D13 check (`layoutRules.ts`, which holds an
+OTR to 24" and a canopy to 30"-40"). The dimension drawn from the cooking
+surface to it says "shop practice" / "店内做法" (approved by Leo, round 97).
+
 **What this forbids:** a cabinet width off the 3" grid; a canopy hung by eye; a
 wall cabinet that stops short of the canopy's top; offering a blower because it
 shares a badge; putting any of these numbers in the geometry instead of in
@@ -2674,6 +2735,176 @@ hood is narrower than the cooking surface" (D13, round 79).
   each with the reason; `chimney.test.ts` and `stackedTops.test.ts` take
   HMCB30WS's cover by name.
 
+**Amended 2026-10-18 (round 97), Leo: an over-the-range microwave in the
+hood's place, GE's JVM3160RFSS.** From his shop ("来自我店里的使用反馈"). Until
+now the catalogue's one OTR was filed under the microwave slot as
+`freestanding` — the importer's default (D4) — where it fitted no opening, and
+the two places that said "an OTR takes the hood's wall" (`availability.ts`, the
+rule `otr-conflicts-with-hood`) never fired.
+- **Its documents**, downloaded in round 97 from GE's page for the model and
+  read page by page (docs/reference/README.md): the installation instructions
+  (31-7000341), the spec sheet (JVM3160RF/EF, revised 1/26) and the top cabinet
+  template (31-2004067), printed full size.
+- **Where it is offered.** Its own category, `otr`, which only `slot-hood`
+  takes (D4, round 97): it has left the five microwave openings and is offered
+  in the four wall hood openings. Whether it fits one is the judgement every
+  hood has (`offeredFor`, `suitsPackageSlot` — D17's table, the first row:
+  still two, no third written). C's is the only 30" hood opening, and it fits.
+  A's, B's and D's 36" take it as a narrower hood, by the rules there are (Leo,
+  round 97: "按现有规则允许 OTR 作为较窄的油烟机出现，加补板。…不写新的判断"):
+  the strip each side of a narrow wall hood (D13, round 79), and the line that
+  it is narrower than the cooking surface (round 79). Its manual says the
+  same, its way, p. 6: "If the space between the cabinets is greater than 30",
+  a Filler Panel Kit may be used to fill in the gap between the microwave oven
+  and the cabinets. Your Owner's Manual contains the kit number for your
+  model." The strips are drawn as for any hood; the kit's number is not in
+  docs/reference. E's island never offers it, by the rule that keeps a wall
+  hood off an island (round 45) — and by its manual, p. 2: "this product cannot
+  be installed in cabinet arrangements such as an island or a peninsula."
+- **How it hangs**: `hoodMount` says `otr` (D17's table, the thirteenth: still
+  one answer). Under a cabinet it is screwed to, as an under-cabinet hood is —
+  a bridge over it, the strips beside it in a wider opening — its duct up
+  through that cabinet, at the height in D13, round 97.
+- **Leo's shop practice, four points, in his words** (round 97), and where the
+  manual says otherwise:
+  1. **The microwave drawer goes.** "选了 OTR，岛台下的微波抽屉就不需要了：微波
+     抽屉从房间、报价单和安装清单里去掉，它的开口按现有规则变回普通柜子。"
+     His words for why: "安装了 OTR 之后，岛台的 microwave drawer 就不需要了。有
+     OTR 的厨房多半是老式的小厨房，很大机会没有岛台。" And: "换回烟罩时，微波
+     抽屉要回来，房间和换之前一模一样。" Built as one place, `leftOutByHood`
+     (hoodMount.ts): with an OTR chosen, the package's microwave opening that
+     is not a tall unit is left out of the room (`omittedSlots`), so the scene,
+     the pins, the list, the quote and the install list all lose it; on the
+     island its opening is cabinets, as a package with no drawer there has
+     them; in a room with no island it is not put on a wall. The choice is
+     kept, so the hood put back brings it back, and the share link carries it.
+     The manual says nothing either way.
+  2. **Vented outside.** "排风默认外排：从 OTR 往上穿过上方吊柜，再往外排。出风口
+     是长方形的，尺寸按 JVM3160RFSS 的手册写，不要自己定。安装视图按这个画。" The
+     manual allows three (p. 11: recirculating, outside top, outside back); this
+     is the second. The outlet is the spec sheet's, p. 2, "a standard 3-1/4" x
+     10" rectangular duct … Do not use less than a 6" diameter duct"; the
+     cabinet's cut is the template's E, 12-1/2" x 4-1/2", against the wall; the
+     cord's hole its D, 2", 4-1/4" off the wall and 6-1/4" right of centre (that
+     last measured on the full-size template). `OVER_RANGE` in hood.ts, one entry
+     per template, refused loudly where there is none.
+  3. **24" over the cooking surface** — D13, round 97, with the manual's figures
+     and the drawing that disagrees.
+  4. **Every 30" hood opening.** "所有 30" 油烟机开口都能选 OTR，不只套餐 C。"
+     Today that is C's; the 36" ones above.
+  And for a room with no island: "没有岛台的房间（D18 那套规则）选 OTR 时，微波抽屉
+  本来就可能不在房间里，计划里说明这种情况怎么处理，不要多出一条提示。" The
+  drawer an OTR takes out is not one the wall was short of, and is not said
+  (D18, round 97).
+- **Its gas limit, a blocker** (Leo, round 97: "选乙，允许选，但安装清单里用红色
+  （阻碍）那一级，不用黄色。原文引用 GE 手册 p.6 那句 63,000 BTU，并写出这台灶的总
+  BTU。"). The manual, p. 6: "This microwave is suitable for installation over
+  electric or gas cooking appliances with a combined BTU of 63,000 BTU or
+  less." `otr-gas-btu` in rules.json, the 63,000 there once. C's own
+  MFGS4030RS is 69,000 BTU and raises it; so does PRG304WH (86,500); HIS8055U,
+  electric, does not; every 36" option does (PRG366WH 119,500, PCG366W 99,000).
+- **Its duct is its own**: 3-1/4" x 10" on the spec card, on the quote's
+  services and in its own install line, "{cfm} CFM; the duct is 3-1/4" x 10"
+  rectangular, or 6" round with a transition (GE installation instructions)"
+  (approved by Leo). A canopy's is still the airflow band's; a hood's own
+  outlet is the next round, and this is its first case.
+- **What it adds to the install list**: the cut in the cabinet's floor, in the
+  words a bridge always had ("needs a 12-1/2" × 4-1/2" cutout"); "The cabinet
+  above also needs a hole for the power cord and holes for three screws (GE
+  installation instructions, p. 17)" (approved by Leo); the outlet "in the
+  cabinet above" (p. 2; where in it is inferred, drawn dashed, D21); the gas
+  line above. No makeup air at 300 CFM. **Package C as it opens, with the OTR
+  chosen:** the quote loses HMCB30WS ($2,749) and MD24BS ($2,449) and gains
+  JVM3160RFSS ($249) — five lines and $9,695, from six and $14,644; the list
+  loses the drawer's outlet and anti-tip lines, the makeup-air warning and the
+  8" duct line.
+- **The install view**: the cut on the cabinet's floor and the 3-1/4" x 10"
+  outlet standing in it, solid, from the template and the sheet; the cord's
+  hole beside it **grey dashed** — D21's "the drawing is unclear here"
+  (`uncertain`), its place across being measured on the template, not printed
+  (Leo: "从 GE 上柜模板量得，图上未标", written on the figure in `OVER_RANGE`);
+  the house's duct up from the outlet to the ceiling, a thin grey line as every
+  run is (D21); the outlet's box dashed in the cabinet over it.
+- **Pins count what is in the room.** They numbered every slot the package
+  names, omitted or not, while the card and the list number what is in the
+  room; it was never seen, the omitted machines being the last in the order.
+  C's drawer is the first in the middle (its wine cabinet's pin said 06 and
+  the list 05), so the pins count as the others do now.
+- **Measured** (D17's third way: round 96's code built here, `index-Bg6MPZC1.js`
+  — the live page's own code, built without the counter's address — against
+  round 97's, `index-CS1ViBz-.js`, each served from a copy; the mouse at 1440
+  x 900, a finger at 390 x 844, `?quality=high`). Seventeen states shot on
+  both builds, each at least twice — the packages as they open and the phone up
+  to six times, for the wash below. **The room alone (the canvas, everything
+  over it hidden): for every state, a run of round 96 and a run of round 97
+  identical to the pixel** — every package as it opens, C's hood flown to, A's,
+  B's and D's hood cards, A's microwave card, C's and D's install lists with no
+  island, and the round's own case: **C put back to HMCB30WS after the OTR, with
+  an island and without, and in the install view, against C's hood flown to on
+  round 96.** One build's runs differed among themselves (up to about 208,000
+  pixels: the scene caught at one of two or three moments of settling), and
+  every such image was made by both builds — but for one, C's list with no
+  island, where three images were made by round 97's build only. Its
+  difference is the whole scene's grain (floor, counters, edges), not a place
+  in the room, and shot again after ten seconds of settling instead of one and
+  a half, A, C and D as they open and that list fell into images both builds
+  made (A as it opens: one image, three runs of each). That list, three pairs
+  at ten seconds: in two the room is identical to the pixel and the page
+  differs only in the right panel's list (x 1204-1419, y 281-606), the change
+  intended; in the third, round 97's run fell on the other settled image, the
+  one round 96's own second run made — not this round's (Leo, round 97). A pin
+  label differing in
+  a page diff (A as it opens, A's microwave card) is a label caught fading in:
+  every label's box and transform, read from the page, is the same on both
+  builds to a thousandth of a pixel, as it opens and with the microwave flown
+  to. **The page as a whole** is the same
+  for the five packages as they open and on the phone, and changed only where
+  intended: the hood card's list (JVM3160RFSS added in A, B, C and D), A's
+  microwave card ("5 more don't fit", where it was 6), the right panel's
+  install list with no island (C and D, below). Diff images and the OTR in C, A
+  and on the phone: `docs/fixes/round-97-*.png`.
+- **Tests.** `overRange.test.ts` (unit, 35 cases) — 30 red on round 96's code,
+  each for what it names (the model not offered in C's hood opening and still in
+  the microwave openings, its install type `freestanding`, the old code unable
+  to hang it, so the room, the list and the quote unchanged; D's list with the
+  drawer's lines and the line naming both machines), 5 green there by design
+  (E's island never offers it, no line with an island, no makeup air, the
+  drawer's lines unchanged by a pick that failed, C's line for both machines as
+  before). Its "the same room after the OTR and back" was broken on purpose —
+  the room not rebuilt on the way back from an OTR — and went red in all three
+  of its cases. `tests/overRange.test.ts` (browser, 8 cases) — the OTR picked
+  and the hood put back by mouse and by touch, its spec card, its outlet, cut
+  and cord hole in the install view, the pins' numbers, the BTU blocker on the
+  list, and D with no island: 7 red on round 96's build (`index-Bg6MPZC1.js`:
+  the OTR not on the card; D's three lines and the line naming both), the
+  eighth, the pins, added after and red on the round's own build with the pins
+  as they were ("06", wanted "05"). `rules.test.ts` gives the three new rules
+  a sample each way and loses the availability cases; `classification.test.ts`
+  and `csv-to-json.test.ts` the importer's OTR; `lineEndings.test.ts`, D17
+  round 97. Round 87's `hoodSwap.test.ts` table gains A's, B's, C's and D's
+  JVM3160RFSS; round 86's `openingAbove.test.ts` goes from 137 offered to 136
+  and 115 compared to 116, and B's and E's tower refusals lose JVM3160RFSS;
+  `fit.test.ts` takes an OTR in the hood picker; round 88's
+  `modelCardSide.test.ts` counts eight models on B's hood card, and its two
+  checks on the tallest card move from A's microwave drawer with its refused
+  models open (four now, 679px, which a 1366 x 768 laptop no longer scrolls)
+  to A's hood card, eight models (703px at 1440 x 900; at 1366 x 768 held at
+  680px and scrolling); round 86's `tooTall.test.ts` finds only MD24BS to
+  refuse in B's tower — each with the reason. The first full run had these
+  four red, for these reasons, and nothing else. And
+  `testRoom.ts`'s `resetRoom` forgets the hood chosen, as it forgets the range
+  and the refrigerator: until round 97 one test's hood stayed chosen in the
+  next, which no hood before the OTR made visible (Leo accepted).
+- **Imported** through `npm run import:csv` (D4) from Leo's sheet, after he
+  set JVM3160RFSS's `cfm` (300), `cutoutHeightIn` (16.5) and `cutoutDepthIn`
+  (15.25) from the spec sheet; its Appliance Type is `OTR`, unchanged. Read 35,
+  exported 35, skipped 0. The diff is the row and the file's date; the row
+  matches, field for field (40 of 40), the one written by hand to build the
+  round on before the export came, and the other 34 rows are unchanged. Leo
+  then set its check date in `showcase_specs` to 2026-10-18 and exported again:
+  imported a second time, `verifiedAt` went from 2026-09-07 to 2026-10-18 and
+  nothing else in the file moved.
+
 ## D17 · A push is not a deploy
 
 **Decided:** 2026-09-08 (round 21), Leo, after four failed deploys in a row.
@@ -2994,6 +3225,13 @@ page. The table has seventeen rows for those eighteen: round 60's has none of
 its own. The table is here so that the next one found is added to it rather
 than rediscovered.
 
+*Round 97:* no new row. Two existing rows were asked about and hold: the
+first — an over-the-range microwave is offered and judged in the hood's place
+by the same two judgements as any hood, and `availability.ts`, which wrote "an
+OTR takes the hood's wall" apart from both, is gone (D7, D16 round 97); and the
+thirteenth — how a hood hangs is still `hoodMount`'s one answer, which now
+says `otr`.
+
 **An exception written into a test is broken on purpose before it is
 trusted.** *(Leo, round 70.)* An exception is the easiest thing in a test to
 write too wide, and a test that lets through more than it says still passes.
@@ -3214,6 +3452,20 @@ build` again, then compare. The vendor chunks (`react-*`, `three-*`) and the CSS
 do not carry the commit and match either way, which is what makes the odd one
 out readable rather than alarming.
 
+*Amended 2026-10-18 (round 97), Leo: every text file is LF.* The round's
+edits came out of this Windows machine with CRLF in twenty-eight files —
+Python writes its newlines as CRLF here unless told not to — and
+`layoutState.ts`, changed by nothing else, among them; git's
+`core.autocrlf` hid it from `git diff`, and the diff Leo read was 20,263
+lines added and 19,405 removed for about a thousand. Sixty-three files nobody
+had touched this round were CRLF in this working tree too, from earlier
+checkouts (the index had LF for every one). Now `.gitattributes` says
+`* text=auto eol=lf`, every text file is LF in the index and the working
+tree, and `src/lineEndings.test.ts` reads `git ls-files --eol` and goes red
+on CRLF in any tracked text file, in either — red on the working tree as it
+stood (92 of 291), green after. A diff is quoted with
+`git -c core.autocrlf=false diff --stat`, which counts what is on disk.
+
 *Amended 2026-10-13 (round 96, D24), Leo: and build with the
 counter's address, as the workflow does.* The live build carries
 `VITE_GOATCOUNTER` (`.github/workflows/pages.yml`), which is compiled into the
@@ -3352,6 +3604,40 @@ they were; what they are now:
   168" wall.
 - `autoGrow.test.ts` and `packageD.test.ts` hold the new figures, each with
   the reason.
+
+*Amended 2026-10-18 (round 97), Leo: the line names what was left out, and
+the list keeps nothing for it.*
+- **What the wall was too short for is one list, and what an OTR took out is
+  another** (`omittedForWall` and `leftOutByHood`, layoutTemplate.ts and
+  hoodMount.ts; `omittedSlots` is both). Only the first is said: the line on
+  the install list and beside the appliance count. Leo: "不要多出一条提示".
+- **The line names only what was left out** (Leo: "只说实际省掉了哪台"). It had
+  one wording for both machines, and said it whatever was left out: package D,
+  whose wine is a column standing in the room, was told its wine cooler had
+  been left out. Now the existing sentence when both were left out, and one for each
+  alone, drafted in round 97 and approved by Leo as drafted (locked, approval
+  `read`): "No island: wine cooler omitted; add an island or lengthen the left
+  wall to include it." / "无岛台：已省略酒柜；增设岛台或加长左墙即可纳入。" and "No
+  island: microwave drawer omitted; add an island or lengthen the left wall to
+  include it." / "无岛台：已省略微波抽屉；增设岛台或加长左墙即可纳入。" ("left wall"
+  is the existing sentence's, unchanged). The line is filed under the machine
+  it names, the first where it names both.
+- **Nothing is listed for a machine the room was built without.** Seen on the
+  live site (index-DHSK5gJv.js, by mouse, `docs/open-items/round-97-live-d-no-
+  island-list.png`): package D with no island, its drawer left out, listed
+  under "Microwave" the line saying so and the drawer's outlet ("rear wall of
+  the opening, 4" from the left side, 14-5/8" up") and anti-tip bracket. The
+  quote had dropped it; the install list had not. **Before and after**, the
+  no-island rooms as the page builds them (round 96's code against
+  round 97's, each package's own machines, its walls as it opens):
+  - **A and C** (168" x 144"; the drawer and the wine cabinet left out): under
+    "Microwave", the line for both, the drawer's outlet and its anti-tip
+    bracket; under "Wine cabinet", its outlet and the line that it has no
+    cabinet beside it. **After:** under "Microwave", the line for both, alone.
+  - **D** (224-1/4" x 178-3/4"; the drawer left out): under "Microwave", the
+    line naming both machines, the drawer's outlet and its bracket. **After:**
+    "No island: microwave drawer omitted; …", alone.
+  - **B** (nothing left out, both machines in towers): unchanged.
 
 **What this forbids:** refusing a switch that a longer wall within the slider's
 range would build; growing a wall further than the change needs; growing a wall
@@ -5404,6 +5690,23 @@ throw still in; the throw was then taken out. That catch is now in the code.
 
 Registered, not scheduled. None of these is a round of its own.
 
+- **Found in round 97, not changed — each seen in a probe or in the code, not
+  yet on the page.** *(Round 97; for Leo to order.)*
+  - **A blower drawn in a hood that has its own.** The install view draws a
+    blower in the canopy whenever the store holds one (`UtilityLayer`, the duct
+    group's `place === "integral" && blower`), not only when the hood needs
+    one; and changing the hood on the card leaves the store's blower as it was
+    (`selectAppliance` does not touch `blowerId`). So D's VCIN36GWS changed to
+    HMCB36WS, a hood with its own blower, would draw VTN2FZ in the canopy in
+    the install view. The quote and the list are right (they ask
+    `hood.blower === "required"`). Round 97 keeps it off the OTR only.
+  - **A canopy's cutout is quoted as `8.8125" × 6.8125"`** on the install list
+    ("Cabinet above the hood needs a … cutout") and in the duct's callout —
+    the figures written raw, where every other size is a builder's fraction
+    (8-13/16" × 6-13/16"). `outletSize` in hood.ts; the OTR's is formatted.
+    Seen in a round-97 test run with a canopy over an OTR's place (package A's
+    under-cabinet hoods carry it on the live site, by the code).
+
 - ~~**GitHub Actions on Node 20.**~~ **Done in round 93** (Leo), with the
   workflow's Node: `actions/checkout@v7`, `actions/setup-node@v7`,
   `actions/upload-pages-artifact@v5` (which runs `actions/upload-artifact`
@@ -6242,6 +6545,11 @@ Registered, not scheduled. None of these is a round of its own.
   loosened for it. The English of the reason, "The manufacturer has not
   confirmed it can go in a tall cabinet", was drafted in round 86 and
   approved by Leo unchanged; it is locked.
+  *Round 97: the over-the-range half is closed.* JVM3160RFSS is not offered in
+  a tall unit at all now — an OTR is the hood slot's (D16, round 97) — and its
+  own manual mounts it "only above countertop level" and "to BOTH a top cabinet
+  AND a wall" (31-7000341, pp. 6 and 2), so no manual will allow it. The item is
+  MD24BS's alone.
 - **Three "taller than the opening" notes that mislead.** *(Found in round
   86's planning; Leo: registered, not changed this round.)* The soft line
   "{delta} taller than the opening" (`swap.tallNote`, on the card, in the list
@@ -6865,6 +7173,17 @@ Registered, not scheduled. None of these is a round of its own.
     came back said the run had not finished before the session ended.
     Handled: not counted; the suite run again from the start, 119 files and
     2,819 tests passed, exit code 0.
+  - **Round 97, a run stopped on purpose — and what it left behind.** The
+    second whole suite was stopped part way at Leo's word (its data was about
+    to be imported again, so it had to be run again anyway); not one of the
+    exit-code-4 kind, and not counted. **Stopping the task did not stop its
+    children**: `npm test`, vitest and its worker, the `vite preview` on 4174
+    and four of Playwright's browsers were all still running afterwards, found
+    by listing the ports and the node and browser processes, and stopped one
+    by one; then nothing listened on 4174 or 4175 and no Vite, vitest or test
+    browser was left. **When a run is stopped part way, its child processes
+    are checked for and ended by hand, every port and every process, before
+    the next run starts** (Leo, round 97).
 - **Registered rounds after 78, in Leo's order.** *(Leo, rounds 78-79; not
   started. Round 79 put the interface round first and moved the rest back.)*
   0. **An interface round, plan first, with phone and desktop sketches.**
@@ -6938,7 +7257,11 @@ Registered, not scheduled. None of these is a round of its own.
        "A link that rebuilds the same kitchen" above), a plan read out first —
        *done in round 94* (D23), with the phone's top bar (the "MT" entry
        above). **Round 95**: the QR code (Leo, round 94; its entry above) —
-       *done in round 95* (D23, round 95).
+       *done in round 95* (D23, round 95). **Round 96**: the live site counting
+       visits — *done in round 96* (D24). **Round 97**, before a hood's own
+       outlet (Leo): the over-the-range microwave JVM3160RFSS in the hood's
+       place, from his shop — *done in round 97* (D16, D13 and D18, round 97);
+       its rectangular outlet is the first model's own outlet, from its sheet.
        What each decides is written here when that round is built.
   1. **A hood's own outlet first.** The duct drawn and quoted follows the
      model's own outlet where its sheet gives one, rather than only the

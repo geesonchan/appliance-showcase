@@ -1,0 +1,4 @@
+# Every text file is LF, in the repository and in every checkout (round 97, Leo:
+# a Windows checkout had written CRLF into the round's files). Git decides
+# what is text; the PDFs and the images are left alone.
+* text=auto eol=lf

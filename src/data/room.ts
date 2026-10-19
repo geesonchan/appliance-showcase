@@ -91,14 +91,21 @@ export let ISLAND: GeneratedLayout["island"];
 
 export let SLOT_PLACEMENT: Partial<Record<SlotId, SlotPlacement>>;
 /**
- * The machines this room was built without: never more than the island's two,
- * and only in a room with no island short of the wall to carry them.
+ * The machines this room was built without: never more than the island's two —
+ * in a room with no island short of the wall to carry them (D18), and the
+ * microwave drawer under an over-the-range microwave (round 97).
  *
  * Read it before drawing or counting anything keyed by slot. They keep their
  * entries everywhere else — a missing key is a crash rather than an absence —
  * so this is the one place that says what is actually in the room.
  */
 export let OMITTED_SLOTS: readonly SlotId[] = [];
+/**
+ * The part of `OMITTED_SLOTS` the wall was too short for (D18): the machines
+ * the no-island line names. The microwave drawer an over-the-range microwave
+ * takes out (round 97) is not one of them.
+ */
+export let OMITTED_FOR_WALL: readonly SlotId[] = [];
 /** Whether a slot is one the room was built without. */
 export const isOmitted = (slotId: SlotId) => OMITTED_SLOTS.includes(slotId);
 export let FIXTURE_PLACEMENT: Record<FixtureId, SlotPlacement>;
@@ -135,6 +142,7 @@ export function applyLayout(layout: GeneratedLayout, requested: LayoutParams, is
   ISLAND = layout.island;
   SLOT_PLACEMENT = layout.slots;
   OMITTED_SLOTS = layout.omitted;
+  OMITTED_FOR_WALL = layout.omittedForWall;
   FIXTURE_PLACEMENT = layout.fixtures;
   WINDOWS = layout.windows;
 }

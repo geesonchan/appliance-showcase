@@ -170,10 +170,16 @@ describe("the new families, end to end", () => {
     ["VTN2FZ", "slot-hood", "internal"],
     ["T24UR915LS", "slot-fridge", "undercounter"],
     ["RB24S25MKIW1", "slot-fridge", "drawer"],
+    // Round 97: an over-the-range microwave is the hood slot's, by its type.
+    ["JVM6175SKSS", "slot-hood", "otr"],
   ])("%s lands in %s as %s", (model, slot, form) => {
     const appliance = byModel(model);
     expect(appliance?.slot).toBe(slot);
     expect(appliance?.installType).toContain(form);
+  });
+
+  it("files an OTR as otr, not as a microwave (round 97)", () => {
+    expect(byModel("JVM6175SKSS")?.category).toBe("otr");
   });
 
   it("reads the fuel off a rangetop prefix", () => {

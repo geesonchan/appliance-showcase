@@ -254,7 +254,9 @@ describe("the model card at the left of the scene, on a desktop", () => {
   // B's hood took six models when this was written (round 88) and seven since
   // round 90, HMCB36WS among them; the count is in the expectation so the
   // card compared is the one meant.
-  it("is as tall as what it holds: E's coffee machine, one model, below B's hood, seven, and well clear of the foot", async () => {
+  // Round 97: B's hood card holds eight — the over-the-range microwave
+  // JVM3160RFSS joined it as a narrower hood.
+  it("is as tall as what it holds: E's coffee machine, one model, below B's hood, eight, and well clear of the foot", async () => {
     const s = await open();
     const read = async (pkg: string, machine: string) => {
       await switchTo(s, pkg);
@@ -279,28 +281,29 @@ describe("the model card at the left of the scene, on a desktop", () => {
       // "Clearly above the foot": at least a third of the scene left under it.
       coffeeWellClear: coffee.belowFoot > coffee.sceneHeight / 3,
       errors: s.errors,
-    }).toEqual({ hoodModels: 7, coffeeModels: 1, coffeeShorter: true, coffeeWellClear: true, errors: [] });
+    }).toEqual({ hoodModels: 8, coffeeModels: 1, coffeeShorter: true, coffeeWellClear: true, errors: [] });
     await s.page.context().close();
   });
 
-  // A's microwave drawer with its five refused models open is the tallest card
-  // there is: 756-1/2px, measured in round 88 at 1440 x 900, where the scene is
-  // 844px and the card ends 71px above its foot, so there it has nothing to
-  // scroll. On a 1366 x 768 laptop the scene is 712px and the card is held at
-  // 680px and scrolls. Both are held.
-  it("stays inside the scene with A's microwave drawer's refused models open, at 1440 x 900", async () => {
+  // The tallest card there is. In round 88 it was A's microwave drawer with its
+  // five refused models open: 756-1/2px at 1440 x 900, where the scene is 844px.
+  // Since round 97 that list is four — the over-the-range microwave JVM3160RFSS
+  // left it for the hood's — and the drawer's card is 679px, which a 1366 x 768
+  // laptop no longer has to scroll. The tallest is A's hood card, eight models
+  // with the OTR among them: 703px at 1440 x 900, and at 1366 x 768, where the
+  // scene is 712px, held at 680px and scrolling (measured on round 97's build).
+  // Both are held, on that card.
+  it("stays inside the scene with A's hood card, eight models, at 1440 x 900", async () => {
     const s = await open();
     await toggleRail(s);
-    await press(s, row(s, "Microwave"));
+    await press(s, row(s, "Ventilation hood"));
     await s.page.waitForTimeout(400);
     await toggleRail(s);
     await settle(s);
-    await press(s, s.page.locator("[data-model-card] [data-card-refused-toggle]"));
-    await s.page.waitForTimeout(400);
-    const refused = await s.page.locator('[data-model-card] [data-candidate][data-fits="false"]').count();
+    const models = await s.page.locator('[data-model-card] [data-candidate][data-fits="true"]').count();
     const p = (await placement(s))!;
-    expect({ refused, top: p.top, insideScene: p.belowFoot >= INSET - 0.5, errors: s.errors }).toEqual({
-      refused: 5,
+    expect({ models, top: p.top, insideScene: p.belowFoot >= INSET - 0.5, errors: s.errors }).toEqual({
+      models: 8,
       top: INSET,
       insideScene: true,
       errors: [],
@@ -311,13 +314,11 @@ describe("the model card at the left of the scene, on a desktop", () => {
   it("stops 16px above the scene's foot and scrolls inside itself when that is not room enough, at 1366 x 768", async () => {
     const s = await open({ width: 1366, height: 768 });
     await toggleRail(s);
-    await press(s, row(s, "Microwave"));
+    await press(s, row(s, "Ventilation hood"));
     await s.page.waitForTimeout(400);
     await toggleRail(s);
     await settle(s);
-    await press(s, s.page.locator("[data-model-card] [data-card-refused-toggle]"));
-    await s.page.waitForTimeout(400);
-    const refused = await s.page.locator('[data-model-card] [data-candidate][data-fits="false"]').count();
+    const models = await s.page.locator('[data-model-card] [data-candidate][data-fits="true"]').count();
     const p = (await placement(s))!;
     const scroller = await s.page.evaluate(() => {
       const list = document.querySelector<HTMLElement>("[data-model-card] [data-card-scroll]");
@@ -329,8 +330,8 @@ describe("the model card at the left of the scene, on a desktop", () => {
       const box = list.getBoundingClientRect();
       return { overflows, lastInView: last.bottom <= box.bottom + 0.5 && last.top >= box.top - 0.5 };
     });
-    expect({ refused, belowFoot: Math.round(p.belowFoot), scroller, errors: s.errors }).toEqual({
-      refused: 5,
+    expect({ models, belowFoot: Math.round(p.belowFoot), scroller, errors: s.errors }).toEqual({
+      models: 8,
       belowFoot: INSET,
       scroller: { overflows: true, lastInView: true },
       errors: [],

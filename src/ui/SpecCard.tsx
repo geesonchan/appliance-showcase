@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { fitCheck, formatInches, requiredOpening } from "../data/fit";
 import { formatPrice } from "../data/packageSummary";
 import { SLOT_BY_ID } from "../data/slots";
-import { deriveUtilities } from "../data/utilities";
+import { deriveUtilities, ductSizeText } from "../data/utilities";
 import { hasGenericRoughIn } from "../data/roughIn";
 import { DebugBadge } from "./DebugBadge";
 import { useChecklist } from "../data/useChecklist";
@@ -157,7 +157,7 @@ export function SpecCard() {
               label={t("spec.duct")}
               value={
                 utilities.duct
-                  ? `${utilities.duct.diameterIn}" · ${t(`duct.${utilities.duct.route}`)}` +
+                  ? `${ductSizeText(utilities.duct)} · ${t(`duct.${utilities.duct.route}`)}` +
                     (cfm !== null ? ` · ${t("blower.cfm", { cfm: formatCfm(cfm) })}` : "")
                   : null
               }

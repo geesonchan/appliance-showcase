@@ -32,6 +32,7 @@ import {
   toId,
   toInstallType,
   toWidthIn,
+  categoryOf,
 } from "./normalise.ts";
 
 export interface ConversionSummary {
@@ -177,7 +178,12 @@ export function convert(
       }
       return;
     }
-    const category = classified.category;
+    // How it installs, before which slot takes it: an over-the-range microwave
+    // is the hood's (`categoryOf`, round 97).
+    const installType =
+      toPublished((row.Model ?? "").trim()).installType ??
+      toInstallType(row.Feature ?? "", type, row.Width ?? "", row.Depth ?? "");
+    const category = categoryOf(classified.category, installType);
 
     const slot = slotForCategory(category, slots);
     if (slot === null) {
@@ -225,9 +231,7 @@ export function convert(
       // checks it against that drawing: re-typing a figure is not checking it.
       sourceUrl: published.sourceUrl ?? textOrNull(row.sourceUrl),
       verifiedAt: published.unverified ? null : textOrNull(row.verifiedAt),
-      installType:
-        published.installType ??
-        toInstallType(row.Feature ?? "", type, row.Width ?? "", row.Depth ?? ""),
+      installType,
       fuel: toFuel(type),
       blower: published.blower ?? toBlower(category, row.blower ?? ""),
       compatibleBlowers: toCompatibleBlowers(category, model),
