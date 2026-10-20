@@ -1,5 +1,6 @@
 import {
   DEFAULT_PARAMS,
+  cooksOnTheRun,
   fridgeOpeningOf,
   generateLayout,
   type GeneratedLayout,
@@ -134,7 +135,8 @@ export function applyLayout(layout: GeneratedLayout, requested: LayoutParams, is
   >;
 
   FRIDGE_OPENING = fridgeOpeningOf(layout);
-  const range = segmentForSlot("slot-range");
+  // The cooking surface on a run: a range, or one wall's cooktop (round 98b).
+  const range = RUNS.flatMap((run) => run.segments).find(cooksOnTheRun);
   HOOD_OPENING = range ? ([range.from, range.to] as const) : ([0, 0] as const);
 
   ISLAND = layout.island;
@@ -270,6 +272,9 @@ export function fridgeReturnWall(): {
   if (LAYOUT_PARAMS?.fridgeEndAbuts !== "wall") return null;
   const run = fridgeRun();
   if (!run) return null;
+  // One wall's refrigerator stands against the room's own left wall (round
+  // 98b), which is drawn whole: there is no return to draw beside it.
+  if (run.ends[0] === "wall") return null;
 
   const thickness = ft(4.5);
   const depth = ft(LAYOUT_LIMITS.fridge.wallReturnIn);
@@ -311,6 +316,14 @@ export function fridgeWallClearance(): {
   if (LAYOUT_PARAMS?.fridgeEndAbuts !== "wall") return null;
   const run = fridgeRun();
   if (!run) return null;
+  // On one wall the refrigeration stands at the run's first end, against the
+  // wall (round 98b), and its clearance is the first thing on the run.
+  if (run.ends[0] === "wall") {
+    const first = run.segments[0];
+    const filler = first?.modules[0];
+    if (!filler || filler.kind !== "filler") return null;
+    return { run, from: first.from, to: first.from + ft(filler.widthIn), widthIn: filler.widthIn };
+  }
   const last = run.segments[run.segments.length - 1];
   const filler = last?.modules[last.modules.length - 1];
   if (!filler || filler.kind !== "filler") return null;

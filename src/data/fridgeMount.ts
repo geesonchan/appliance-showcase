@@ -1,6 +1,7 @@
 import appliancesFile from "../../data/appliances.json";
 import type { Appliance, Package, PackageSlot, SlotId } from "../types";
-import { slotsOf } from "./packages";
+import { PACKAGE_SHAPE, shapeOfPackage, slotsOf } from "./packages";
+import type { LayoutShape } from "./layoutShape";
 
 /**
  * How a refrigerator installs, and so what stands round it. Round 89, Leo.
@@ -58,15 +59,21 @@ export function fridgeOpeningHeightIn(fridge: Pick<Appliance, "cutoutHeightIn" |
  * records the new package's refrigerator, and that room is built round its
  * own, not the one chosen in the package left.
  */
-let CHOSEN: { packageId: string; appliance: Appliance } | null = null;
+let CHOSEN: { packageId: string; shape: LayoutShape; appliance: Appliance } | null = null;
 
-export function recordFridgeModel(appliance: Appliance | undefined, packageId: string) {
-  CHOSEN = appliance ? { packageId, appliance } : null;
+export function recordFridgeModel(appliance: Appliance | undefined, packageId: string, shape: LayoutShape = PACKAGE_SHAPE) {
+  CHOSEN = appliance ? { packageId, shape, appliance } : null;
 }
 
-/** The refrigerator a package's room is built round: the one chosen in it, or its own. */
+/**
+ * The refrigerator a package's room is built round: the one chosen in it, or its own.
+ *
+ * And to its shape (round 98b): a package's room on one wall is built round
+ * the model chosen in it there, not the one chosen in its L — package D's
+ * 24" refrigerator opening on one wall is not where its L's 30" column goes.
+ */
 export function fridgeModelFor(pkg: Package): Appliance | undefined {
-  if (CHOSEN && CHOSEN.packageId === pkg.id) return CHOSEN.appliance;
+  if (CHOSEN && CHOSEN.packageId === pkg.id && CHOSEN.shape === shapeOfPackage(pkg)) return CHOSEN.appliance;
   const id = pkg.defaultSelection["slot-fridge"];
   if (!id) return undefined;
   const rows = (appliancesFile as unknown as { appliances: Appliance[] }).appliances;

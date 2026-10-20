@@ -934,6 +934,12 @@ the session where this was written down and has not been read here.** It is
 Leo's figure with a drawing behind it, which is a stronger footing than most —
 but before anything is built on it, the drawing itself goes into
 `docs/reference/` and this note says which sheet and which dimension.
+*Round 98: it is in.* Every Freedom column installation instruction in
+`docs/reference/` (`freedom-wine-columns-905-install.pdf`, its fresh-food,
+freezer and 900-series freezer siblings), page 9: beside a heat-producing
+appliance, "a ≥ 1-3/16\" (a ≥ 30 mm)" between the two; on the same page, a
+partition of 5/8" to under 6-1/4" between two columns takes the HEATRKIT20
+heater kit, and 6-1/4" or more takes nothing. Still not implemented, as above.
 
 **A window is a fact of the building, not a fitting.** It is a layout
 parameter — which wall, where along it, how wide, how high, how far off the
@@ -7391,7 +7397,99 @@ Registered, not scheduled. None of these is a round of its own.
     12 answers, was the plan's error: the two legs' bills added without their
     counters merged. And the left end at a wall is today's return-wall setting,
     so what item 9's switch does on one wall is Leo's to say.
-  - **Left after the second batch** (Leo, round 98a: to be answered before
+  - **One wall: Leo's shop practice (round 98), the third batch, in his
+    words, for 98b** (recorded after 98a was committed, `c94a898`): "1. 一字型
+    墙长上限回到 240"。2. 烤箱塔和炉头之间的台面按现在 L 型实际做出来的 18"。B 因
+    此是 244-1/8"，超过 240"：B 直接加长墙身。3. D 省掉咖啡机和第二台洗碗机后，不
+    再省别的机器，改成换窄柱：Freezer Column 改 18"（目录里有 T18IF900SP）；
+    Refrigerator Column 改 24"（目录里还没有，我来选型号、加进表格后告诉你）；Wine
+    Column 改 18"（目录里有 T18IW100SP）。换完还不够长的，补足墙身。请核对：18" 酒
+    柜柱 T18IW100SP 是 100 系列，D 现有的柱子是 905 系列平嵌柱，两个系列放在同一
+    排，按手册外观和安装是否对得齐；对不齐的话报告给我。4. D 的排法对：两座塔都在冰
+    箱和炉头之间，烤箱塔紧挨炉头左边。5. 回墙开关在一字型里：冰箱外侧靠墙。第 1、
+    2、3 条合起来，一字型滑杆的上限由最长的那个套餐决定。请用精确数字算出 B、D 按
+    上面做法要多长，按 6" 一格取整，把一字型的实际上限报给我确认。" It answers
+    the five left after the second batch below; the figures it asks for are in
+    the plan's section 4, to confirm.
+  - **98b's first step, the import of 2026-10-20, stopped; nothing written**
+    (`~/Downloads/showcase_export.csv`, SHA-256 `7974af064e58…`). Read 36,
+    exported 36, skipped 0; then round 92's check (D4): Thermador T18IW100SP's
+    seven hand-filled cells came in blank — msrpUSD, sourceUrl, verifiedAt, the
+    three cutout figures, amps — the third time after rounds 87 and 90, its
+    `showcase_specs` lookup by Model finding nothing. `--allow-empty` is
+    Leo's, and was not used on the repository. Run into a scratch folder with
+    it, to read the new row: **Thermador T24IR905SP**, 24" "Flush Custom Fresh
+    Food Column", slot-fridge, cutout 24" x 84" x 25", body height and depth
+    blank, $8,099, sourceUrl its own spec sheet (`16173445_T24IR905SP-…`),
+    verifiedAt 2026-10-20, installType `column` — from its Appliance Type,
+    "Refrigerator Column", not the importer's default; finish `stainless` and
+    doorConfig null, the defaults for blank Color and Feature cells, as the
+    four 905/900 columns already in the catalogue are. Every other row as
+    committed but T18IW100SP's seven.
+  - **Imported again 2026-10-20, after Leo mended the sheet** (SHA-256
+    `d8a800899afe…`; D4, no `--allow-empty`): read 36, exported 36, skipped 0,
+    written. T18IW100SP's seven cells back, its row the committed one field
+    for field; the other 34 rows unchanged; the diff is the new row and the
+    file's date. **T18IW905SP, which Leo chose for D's 18" wine column, is not
+    in the export**: the new row is T24IR905SP alone. Three hand-written
+    tables go red on it and nothing else, each for the model now offered in
+    every refrigerator opening — `openingAbove.test.ts` (136 offered to 141,
+    116 compared to 121) and `fridgeSwap.test.ts` (13 openings and models to
+    18): for 98b to rewrite with the reason. Not committed.
+  - **Imported a third time 2026-10-20, with T18IW905SP in the sheet**
+    (SHA-256 `ca5b28050af6…`): `data/appliances.json` put back to the committed
+    file first (`c94a898`), then D4, `../showcase_export.csv`, no
+    `--allow-empty`: read 37, exported 37, skipped 0, written. New: T24IR905SP
+    (above) and **T18IW905SP**, 18" "Flush Custom Wine Preservation Column",
+    slot-wine, cutout 18" x 84" x 25", body height and depth blank, $7,099,
+    sourceUrl its own spec sheet (`16173464_T18IW905SP-…`), verifiedAt
+    2026-10-20, installType `column` (from "Wine Column"). T18IW100SP the
+    committed row field for field; the other 34 unchanged; the diff the two
+    rows and the date. The unit suite: 2,777 of 2,780, the same three tables
+    red and nothing else — `fridgeSwap.test.ts` gains T24IR905SP in A's,
+    B's and C's enclosures and D's and E's 30" columns (13 to 18);
+    `openingAbove.test.ts` 136 offered to 146, 116 compared to 123, and three
+    more refused as too tall, T18IW905SP under A's and C's island countertop
+    and under E's coffee machine (+50" each). Expected values not changed:
+    98b's, with the reason. Not committed.
+  - **Found in that step, for Leo:** T18IW100SP's own sheet
+    (`t18iw100sp-spec.pdf`, p. 5) says COMBIKIT10 is for side-by-side "built-in
+    columns (model# Txxxx1)" and COMBIKIT20 the "Retrofit kit required for
+    side-by-side installation of legacy built-in columns (model# Txxxx9) with
+    built-in columns (model# Txxxx1)": the 100 series beside a 905 or 900
+    column wants COMBIKIT20, where the app draws COMBIKIT10's 5/8" between
+    every pair. Its door panel (p. 4) is 79-7/8" tall with a window 6-1/4" from
+    the top, 9-9/16" from the bottom and 3-1/8" from each side, where
+    `WINE_COLUMN` (from the T18IW905SP panel drawing, not in the repository)
+    has 10-1/8" top and bottom and 3-3/4" sides. And T18IF900SP's row cites
+    a T18IF905SP sheet (`17016674_16588583_T18IF905SP-…`): another model's,
+    as AK7136AS-BF's was (round 78). No 905 or 900 sheet is in
+    `docs/reference/` (HANDOFF section 7).
+  - **The columns side by side, from their own documents** (Leo, round 98:
+    download them; read in round 98, `docs/reference/README.md` has each page):
+    - **No 900 or 905 document names a COMBIKIT.** COMBIKIT10 and COMBIKIT20
+      are on T18IW100SP's sheet alone, for the 100 series ("Txxxx1"). The
+      Freedom columns' installation instructions join two columns case to
+      case with brackets and screws (the wine columns' pp. 43-45; the same
+      section in the other three), and give no dimension between the cases.
+      Their page 9: a partition of 5/8" to under 6-1/4" between two columns, or
+      humidity over 65%, takes HEATRKIT20; 6-1/4" or more, nothing; beside a hot
+      appliance, at least 1-3/16". T18IF900SP's own sheet, p. 3: "When two
+      appliances are installed side-by-side a sealing kit must be used. For
+      combinations that involve a freezer column, this kit is included", and
+      HEATRKIT20 is bought for "non-traditional" pairs, "two wine columns, two
+      bottom freezers". So for D's narrow bank: the freezer beside the
+      refrigerator, the kit in the freezer's box; the refrigerator beside the
+      wine column, not said either way. **The app's 5/8" `COLUMN_SPACER`
+      named COMBIKIT10 (D11 rule 12, round 30) has no 900/905 document behind
+      it** — for 98b, Leo's.
+    - **The doors line up, by each sheet's page 3**: T18IF900SP, T24IR905SP and
+      T18IW905SP each a 79-7/8" door 4" off the floor, the wine column's
+      window 10-1/8" from top and bottom and 3-3/4" from each side — exactly
+      `WINE_COLUMN`'s figures, which had come from the missing
+      `t18iw905sp-panel.png`. That drawing is T18IW905SP's sheet, page 3.
+  - **Left after the second batch** (answered by the third batch and by
+    round 98b's answers below, but for the 5/8"; Leo, round 98a: to be answered before
     98b; in the plan's section 4 as "等 Leo"): the one-wall top, 234", 240" or
     246"; the counter between the oven tower and the cooking surface, 6" or
     18"; which two to leave out of D after the coffee machine and the second
@@ -7402,6 +7500,280 @@ Registered, not scheduled. None of these is a round of its own.
     (After the first batch this listed what the second answered: the order,
     the ends, the towers, the window, the return wall, the corner control, the
     depth slider, the wall, the shortest wall, A's and C's two machines.)
+  - **Leo's answers to the 98b plan (round 98b), in his words**, "以这条为准":
+    "1. 一字型里 D 改用组合烤箱：D 切到一字型时，烤箱位置改成组合烤箱开口，默认
+    MEM301WS，只放组合烤箱；不再配微波抽屉。切回 L 型时，烤箱恢复 PODS302B，微波抽
+    屉回到岛台。L 型的 D 不变。E 不用改，它本来就是 MEM301WS，没有微波抽屉。三根柱子
+    仍按 18"/24"/18" 窄款。2. 墙长上限：重算五个套餐的一字型长度表给我。按我的粗算，
+    D 减掉 24" 后约 249-1/4"（252"），最长的变成 E 的 256-1/8"，上限应为 258"。以你
+    重算的为准，上限取最长的那个。3. 分两步：98b-1 数据和生成器（页面不变，照 98a 证
+    明），98b-2 界面。导入带出的 3 个红测试和 appliances.json 一起放进 98b-1，逐个写
+    明改了什么、为什么。4. 共同的 5 个问题：五个套餐打开时都是 L 型。一字型切回 L
+    型：恢复客户原来在 L 型里的选择。切形状算 D18 的开关：墙不够自动加长、提示、可撤
+    销；切回 L 型时墙回到切换前的长度，房间和切换前一模一样。点缀色在一字型里只保留
+    "无"和墙上那一段，岛台选项藏起来。段的名字列给我审。画整面左墙；默认视角保持右前
+    方 45°；切形状时相机不动（D1）。5. D 的提示：中文：一字型：已省略咖啡机、第二台
+    洗碗机和微波抽屉；烤箱为带微波的组合烤箱；冷冻柱、冷藏柱、酒柜柱为 18" / 24" /
+    18" 款。英文：One wall: coffee machine, second dishwasher and microwave drawer
+    omitted; the oven is a combination oven with microwave; freezer, refrigerator
+    and wine columns are the 18" / 24" / 18" models. 6. E 切到一字型后，把变了的开口
+    和默认型号列给我，我定要不要也写一行。7. 新加的十份 PDF 保留，和 98b-1 一起提交。
+    还没答的两件是现场做法，我单独回答：E 的排法和灶台下的柜子、9 系列柱子之间的
+    5/8"。柱子之间那 5/8" 不论怎么定，都不放进 98b-1，因为它会改到现在 L 型的 D。先
+    做 98b-1。做完起本地预览给我看，确认后再提交。" And, in the same message, E's
+    arrangement: "1. E 一字型从左到右：左墙 → 咖啡塔（下面的酒柜不变）→ 冷冻柱 → 冷
+    藏柱 → 15" 台面 → 组合烤箱塔 → 18" 台面 → 电磁灶 → 水槽柜 → 洗碗机 → 开放端。咖
+    啡塔放在冰箱远离灶台的那一侧，一字型里就是左墙那端。咖啡机不是做饭的主力，所以离
+    开灶台。烤箱塔挨着灶台，两者之间照 B、D 的规则取 18" 台面。电磁灶下面是平开门
+    柜，不是抽屉底柜。只在一字型里这样排；切回 L 型时，咖啡塔回到客户原来选的那段。
+    2. 请查文件并报页码：咖啡塔（咖啡机和它下面的酒柜）贴着冷冻柱装，冷冻柱手册第 9 页
+    "挨着发热电器至少隔 1-3/16"" 算不算适用；咖啡机自己的安装资料对侧面间距有没有要
+    求。查不到的写"文件没写"，不要推断。3. 墙和上限：咖啡塔靠左墙那一端要什么填板或
+    侧板，按现有规则做，在长度表里逐项列出。重算 E 的一字型长度，上限仍取五个套餐里
+    最长的那个（我粗算 E 约 262-1/8"，取整约 264"，以你算的为准）。还没答的只剩一件：9
+    系列柱子之间的 5/8"，我单独回答，它不放进 98b-1。"
+  - **98b-1, built (round 98b) and shipped after Leo's look at the local
+    preview.** The data and the template: one wall as a shape
+    (`SHAPES["one-wall"]`, one run on the back wall, `ends` wall then open);
+    D's and E's one-wall versions written in `data/packages.json` (`shapes`,
+    `packageInShape`); one wall's run (`oneWallRun` in `planLegs`); a run's ends
+    recorded on the run, which the rules read (d11-1 at either end, d13-terminal
+    at a wall end, d11-10 only from a corner, d11-6 after a bank at the run's
+    start, d13-leg to `ONE_WALL_MAX_IN` on a run with no corner, d11-4 for a
+    cooktop on a run); the store's `setLayoutShape`, which no control calls yet
+    and a share link does; a link's back wall read up to 264". **The L's page is
+    unchanged**: every L room the template builds, 1,045 of them (515 built,
+    530 refused, every model swap), byte for byte the same as before this round,
+    by round 98a's dump; and pixels, D17's third way: the code before this
+    round (`c94a898` with this round's import, `index-_Uasm051.js`) and this
+    round's (`index-BpSsCZ7q.js`) built and shot twice each, 45 states (five
+    packages on a desktop by mouse in three modes and two fly-ins, round 97's
+    links with and without an island, a phone at 390 and in Chinese at 360 by
+    touch): 41 identical, three a single pixel at 1-2 levels (x 144, y 225,
+    the pixel that differs between two runs of one build in other states),
+    and the phone at 360 in Chinese on B 20,428 pixels in every pairing, on
+    the floor, the worktops and the steel doors, each build's two runs the
+    same as each other. **That is the new build at the low quality tier**:
+    shot again as the runs shoot it, the old build at `?quality=high` kept
+    its 512-pixel textures and matched its runs to the pixel; the new build
+    dropped to 256 and matched its runs; both forced to low are identical. The quality
+    guard drops after two seconds in a row under 55 fps (`QualityGuard`); the
+    seconds after tapping B dip on both builds (old 57 59, 49 60; new 45 54,
+    49 57), and the new one went under twice running in 3 of 6 shootings, the
+    old in none of 6. The main thread's long tasks after the tap, five runs
+    each, total ms: old 321, 0, 266, 249, 439; new 463, 309, 317, 256, 244.
+    Held for Leo (round 98b: "如果是新代码两轮都掉，先不要提交，等我回复").
+    **Looked into (Leo, round 98b: "先查原因"), and it is not 98b-1's**: after
+    tapping B, both builds hold the same three.js objects (geometries 238 to
+    333, textures 9 to 10, shader programs 21 to 15, draw calls 226 to 265) and
+    React the same work (3 commits, 2,363 components), three runs each; the
+    data side of the switch takes the same 1.3-1.5 ms in either tree; in an L
+    `useActivePackage` hands back the package as written, the same object as
+    before. Ten runs each, old and new alternated so the machine's state falls
+    on both: **old dropped 1 in 10, new 1 in 10.** The drop is the quality
+    guard counting the second or two after a package switch, which sit near
+    its 55 fps line on this machine on either build; the earlier 4 drops of 11
+    on the new build were that luck falling one way. Once dropped, a page
+    stays low until it is loaded again: `setQuality("low")` is the only call
+    there is. `scripts/qualityDrop.mjs` runs the check (HANDOFF section 3).
+    Whether the guard should leave the seconds after a switch out is Leo's: it
+    changes the live L.
+  - **The one-wall lengths, worked by the template** (each stretch at its
+    rule's minimum, the 18" beside an oven tower as built — third batch 2):
+    | Package | Left to right | Wall | Slider step |
+    |---|---|---|---|
+    | A | built-in enclosure 42" \| 15" \| wine 24" \| 3/4" board \| microwave drawer 24" \| 12" \| range 36" \| 18" \| sink 30" \| dishwasher 24" \| open end 9" + 3" panel | 237-3/4" | 240" |
+    | B | 3-1/2" filler \| refrigerator 36" \| 5/8" kit \| wine column 18" \| 3" panel \| 15" \| combination oven tower 30" \| 18" \| rangetop 36" \| 18" \| sink 30" \| dishwasher 24" \| open end 12" | 244-1/8" | 246" |
+    | C | 3-1/2" filler + 36" opening + 3" panel \| 15" \| wine 24" \| 3/4" \| microwave drawer 24" \| 12" \| range 30" \| 18" \| sink 30" \| dishwasher 24" \| open end 12" | 232-1/4" | 234" |
+    | D | 3-1/2" filler \| 3/4" board \| freezer 18" \| 5/8" \| refrigerator 24" \| 5/8" \| wine 18" \| 3/4" board \| 15" \| combination oven tower 30" \| 18" \| rangetop 36" \| 18" \| sink 30" \| dishwasher 24" \| open end 12" | 249-1/4" | 252" |
+    | E | 3" filler at the wall (D13's, any run against a wall) \| 3/4" board \| coffee tower 24" (wine cooler under it) \| 3/4" board \| 3/4" board \| freezer 18" \| 5/8" \| refrigerator 30" \| 3/4" board \| 15" \| combination oven tower 30" \| 18" \| cooktop 36" (door base) \| 18" \| sink 30" \| dishwasher 24" \| open end 12" | 261-5/8" | **264"** |
+
+    **The one-wall slider's top: 264", set by E** (`ONE_WALL_MAX_IN`, held to
+    the packages by `oneWall.test.ts`). Leo's rough E, 262-1/8", is the same
+    run with the 3-1/2" refrigerator door clearance at the wall instead of
+    D13's 3" filler: which rule the coffee tower's wall end takes is the one
+    figure here not Leo's own (see TCM24PS below). Between the cooktop and the
+    sink, 18": Leo's E list goes from the cooktop to the sink base, and rule 4's
+    landing and rule 10's are there, merged, as on every other package.
+  - **E on one wall, what changes** (Leo, round 98b, 6: his to decide whether
+    it says a line): no island, so no seating overhang, island hood or
+    cooking aisle; the cooktop CIT367YG (model unchanged) on the run where a
+    range stands, over a base cabinet with a door (`B36`), its hole cut in the
+    run's stone, its camera view the range's (azimuth 40°, pitch 28°); the hood
+    opening 36" chimney with an 8" duct through the ceiling, HMCB36WS by
+    default in place of the island's HMIB42WS (no blower: its own); the
+    combination oven tower MEM301WS (model unchanged) beside the cooktop, 18"
+    of counter between, where in the L it stands in the run on its own; the
+    coffee tower TCM24PS with the wine cooler under it (models unchanged) at
+    the left wall; freezer and refrigerator columns unchanged, 18" and 30";
+    the return-wall switch has nothing to do (the refrigeration stands beside
+    the coffee tower, not a wall).
+  - **What the documents say about E's coffee tower at the wall and beside
+    the freezer** (Leo, round 98b, 2: pages, and "文件没写" where they do not):
+    - The freezer columns' installation instructions, page 9 (900:
+      8001141200_C; 905: 8001252459_B), is a drawing with no words: "a ≥
+      1-3/16" (≥ 30 mm)" between a column and a box marked with the hot-surface
+      warning sign. **Which appliances that sign means: 文件没写.** Nothing in
+      either manual's text, or in T18IF900SP's sheet, names a heat source.
+      T18IF900SP's sheet, page 3, does say HEATRKIT20 is bought for "instances
+      where any appliances are installed less than 6-inches (152 mm) apart from
+      one another but not connected side-by-side".
+    - TCM24PS's installation instructions (8001250535), page 9: "Do not mount
+      the appliance directly over or under or on side of a heating appliance";
+      "Do not install in the same cabinet with other appliances"; "Do not
+      install in the same cutout with unapproved combinations." **Whether a
+      freezer column beside it, or the wine cooler under it, is approved:
+      文件没写.**
+    - TCM24PS, page 11 and step 2's first drawing (page 3): **the door needs a
+      distance to the wall** — at least 3-15/16" (100 mm) for a 92° opening,
+      13-3/4" (350 mm) for the 110° it is delivered at, 25-9/16" (650 mm) for
+      155°; the drawing has the wall on the machine's left, the hinge side
+      (step 6). On E's one wall the machine stands about 4" from the left wall
+      (3" filler, 3/4" board, and its 23-3/8" in a 24" tower): enough for 92°,
+      not for the 110° it comes at. The spec sheet: nothing on side spacing.
+    - PRW24C01CG's guide, page 14: "An installation next to a wall will
+      require a minimum 2-1/4" door clearance to accommodate the Zephyr
+      handle"; pages 5-6: away from "sources of heat (stove, heater, radiator,
+      etc.)". About 3-13/16" from the wall here.
+  - **Left after round 98b's answers**: the 5/8" between the 9-series columns
+    (Leo answers it separately; not in 98b-1, since it changes the L's D);
+    the coffee tower's wall end against TCM24PS's door distance (above);
+    98b-2, the interface: the switch, the hidden controls, the D note in Leo's
+    words, the accent colour's names, the left wall, the camera. Seen on a
+    one-wall room opened from a link in 98b-1's preview, for 98b-2: the
+    Layout tab still shows the L's controls (the refrigerator's leg, the
+    sink's, the corner, the coffee cabinet's leg, the island, the tower's side,
+    the return wall); the back-wall slider's ends are the L's 96"-240"; the
+    coffee height slider shows for D, which has no coffee machine on one wall,
+    and the microwave-handle slider does not, which its combination oven
+    hangs from — `LayoutControls` asks the package's slots, and since round
+    98b `useActivePackage` gives the package as the room's shape builds it,
+    so these follow when the panel reads the shape.
+  - **Leo, after the 98b-1 preview (round 98b), in short**: the preview is
+    right. Accepted: the fourth test changed, \`tests/tooTall.test.ts\`; the
+    three things decided for him (on one wall B's, D's and E's oven tower on
+    the refrigerator's side of the cooking surface; a wall dragged short drops
+    A's and C's drawer and wine cabinet and says so, D18; a package switch on
+    one wall forgets the L kept); and that a link edited by hand opens a
+    half-finished one wall on the live site until 98b-2.
+    - **The refusals are right; the expected values were changed.** T18IW905SP
+      is an 84" column, and an 84" column does not go into an opening under a
+      countertop or under a coffee machine: it is refused, by 50", in A's and
+      C's island wine openings and in E's \`slot-wine-2\`, as T18IW100SP and
+      T24IW905SP beside it are. What changed in \`openingAbove.test.ts\` and
+      \`tests/tooTall.test.ts\` is the expected list, which gains it; no
+      refusal was mistaken and none was taken away.
+    - **B, D and E dragged short on one wall** have no machine the wall can
+      do without (their wine is a column in the bank; D's drawer and E's island
+      machines are not on one wall): below the wall each asks for, the counter
+      beside the oven tower gives up its slack from 18" to 6", three inches at
+      a time; below that the wall is refused with the bill and the change that
+      fits, "lengthen to". B: asks 244-1/8", builds to 233", refused at 232";
+      D: 249-1/4", 238", 237"; E: 261-5/8", 250", 249".
+    - **What a package keeps when the shape changes**: the L room kept on the
+      way into one wall is put back exactly, controls clicked on one wall
+      included (island, tower side, sink, corner, coffee leg: none come back).
+      Once the package changes on one wall that L is forgotten, and back in an
+      L the room starts from the one on screen — and so do the choices: there
+      is no memory of what each package had chosen in its L, in an L either.
+      The page holds one selection; a switch carries each model across by slot
+      where it still fits and the new package's own where it does not or where
+      the old package's default was standing (\`migrateSelection\`, as every
+      package switch since round 16). So back in an L after a package switch,
+      the clicks made on one wall are the room's too. **Leo's to decide**
+      whether each package should keep its own L choices.
+    - **A one-wall package slot is the whole slot, not a difference**
+      (\`packageInShape\`: a slot in \`shapes.one-wall.slots\` replaces the L's by
+      id). D's \`slot-oven\` is written as a combination oven tower in full,
+      after B's; it has no \`sillIn\`, so it takes the schema's 0, which nothing
+      reads for a combination oven: \`sillFor\` hangs one from where its
+      microwave's handle lands (\`comboSillFor\`, round 74), as B's and E's,
+      which have none either (\`oneWall.test.ts\` holds D's to the handle). E's
+      \`slot-microwave\` and \`slot-cooktop\`, and D's three columns, repeat their
+      L slot with one field changed.
+  - **What TCM24PS's documents say about its door** (Leo, round 98b: before
+    he answers the coffee tower's wall end): the installation instructions
+    (8001250535), page 2, step 1's drawing: the hinge on the machine's left;
+    110° and 155° set at the hinge's restrictors, and **92° with a part, "№
+    10020041", marked with the shopping-cart sign** — bought, not in the box.
+    Page 11's text names only "Two opening angles", 110° as delivered and 155°
+    with both restrictors removed, and the wall distances for each (step 2's
+    drawing on page 3 adds 92°'s 3-15/16"). **Whether the hinge can go on the
+    other side: 文件没写** — every drawing has it on the left, and nothing says
+    either way. The spec sheet says nothing about the door.
+  - **98b-2's list, from Leo's look at the preview** (round 98b):
+    - On one wall, hide what does not apply: the refrigerator's leg, the
+      sink's, the corner, the coffee cabinet's leg, the oven tower's side, the
+      island and its orientation. Until they are hidden they show the L's
+      values, which are not the room's (E on one wall: the island on, the tower
+      "Right of the range"; the room has no island and its tower on the left).
+    - D's one-wall bill calls its oven "steam oven tower" (\`requirement.oven\`):
+      a combination oven.
+    - A one-wall slot written whole repeats the L's fields (above): write only
+      what differs, or a test holding the rest to the L's (D17, one rule
+      written once).
+    - The L's labels — B's and E's combination oven tower "Microwave" /
+      「微波炉」, B's tower "microwave drawer" in the bill — are not 98b's: a
+      small round of their own, since they change the live L.
+    - E's hood on one wall: HMCB36WS by default, a chimney wall hood (the
+      stainless canopy, its cover to the ceiling, nothing over it), and no
+      Hood housing option, by the switch and by an L link edited by hand alike.
+      The one-wall hood card offers eight 36" wall hoods, VCIN36GWS among
+      them; chosen, it is an insert in a housing and the Hood housing option
+      shows, as for A with it (round 87). A housing on E's one wall is that
+      hood chosen. If Leo saw one with the default, his link is wanted to find
+      out how.
+  - **Names for the one-wall accent run, for Leo to review** (round 98b, 4:
+    "段的名字列给我审"): today's options are None / Left leg / Back leg / Island
+    (无 / 左段 / 后段 / 岛台). On one wall: None and the wall's one run. For that
+    run: "Wall run" / 「靠墙柜列」 (柜列 is the word the page already uses for a
+    run; 「墙面」 is taken by the Walls finish), or "Whole run" / 「整排」.
+  - **Seen while building 98b-1, not changed**: B's and E's combination oven
+    tower is labelled "Microwave" / 「微波炉」 on the room's pins and the list
+    in the L, its slot being `slot-microwave` (D's one-wall oven now says
+    "Combination oven", from its own package slot, round 98b); and the wall's
+    bill names B's tower "microwave drawer" (`requirement.microwave`) and, on
+    one wall, D's "steam oven tower" (`requirement.oven`).
+- **The quality guard misjudges the seconds after a package switch.** *(Leo,
+  round 98b: registered as a thing of its own; a round of its own, which
+  proves on its own that the L is unchanged, since it changes the live L;
+  before or after 98b-2 is his to say.)* \`QualityGuard\` drops a page to the
+  low tier — half-size textures, a coarser pixel ratio — after two seconds in
+  a row under 55 fps, and **never raises it again until the page is loaded
+  again** (\`setQuality("low")\` is the only call). The second or two after a
+  package switch sit near 55 fps on this machine, so a switch now and then
+  drops a page that draws at 60 the rest of the time: round 98b measured 1 in
+  10 on a 360 phone in Chinese tapping B, on \`c94a898\` and on 98b-1 alike
+  (\`scripts/qualityDrop.mjs\`; the round-98b entry under the layout shape
+  switch above has the figures).
+- **Which model each opening keeps between one wall and the L.** *(Leo, round
+  98b: for 98b-2, with tests; not in 98b-1.)* His rule: where the two shapes'
+  openings differ — refrigerator, freezer, wine, oven, cooking surface, hood —
+  each shape keeps its own choice; where they are the same — dishwasher, sink
+  and the rest — there is one choice, and a change made in either shape
+  counts in both. What 98b-1 does instead: the page holds one selection, and
+  - going into one wall, each opening keeps the model chosen in the L where it
+    still fits the opening as one wall writes it and was not the L package's
+    own default, and takes one wall's default otherwise (\`migrateSelection\`);
+    so a refrigerator chosen in the L that fits D's 24" opening would go
+    across, where the rule keeps it in the L;
+  - coming back to the L it left, the whole L selection is put back as it
+    was (\`lRoom\`): a dishwasher changed on one wall is lost, where the rule
+    keeps it; a hood changed on one wall stays on one wall, as the rule has it;
+  - coming back after a package switch on one wall (no L kept), the same
+    carrying across as going in: E's VCIN36GWS does not come back into the L
+    only because an insert does not fit an island hood opening — the size
+    stops it, not a rule.
+
+  98b-2's tests: a dishwasher changed on one wall is still that dishwasher
+  back in the L; a hood changed on one wall leaves the L's own hood in the L.
+- **How a flush column's finish is recorded.** *(Leo, round 98: registered,
+  not changed; how they are to be recorded is his to decide.)* The six flush
+  columns in the catalogue — T18IF900SP, T24IF905SP, T24IR905SP, T30IR905SP,
+  T18IW905SP, T24IW905SP — have `finish: ["stainless"]`, the importer's
+  default for a blank Color cell (docs/data-sheet-spec.md, `finish`). Such a
+  column takes a custom door panel or a panel bought for it, so stainless says
+  more than anybody has decided.
 - **One Chinese word for two things on screen: 清单.** *(Leo, round 98:
   registered, not changed this round.)* On the Chinese page the top bar's
   Quote button (`topbar.quote`) and the right panel's List tab

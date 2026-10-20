@@ -16,6 +16,9 @@ import { towerVents } from "./towerVent";
 import { ISLAND_HOOD } from "./hood";
 import { hoodMount } from "./hoodMount";
 import { onAxis, toWorld } from "./frame";
+import { cooksOnTheRun } from "./layoutTemplate";
+import { LEFT_WALL_FACING } from "./layoutShape";
+import { wallBehind } from "./roomWalls";
 import type { Appliance, SlotId } from "../types";
 
 export interface Dimension {
@@ -85,9 +88,12 @@ export function dimensionsFor(
    * room and read 4". The same order the template hangs the hood in, and rule
    * 4 checks it in: a range on a run first, the island's cooktop otherwise.
    */
-  const rangeSegment = RUNS.flatMap((run) => run.segments).find((s) => s.slot === "slot-range");
+  //
+  // Round 98b: on one wall the cooktop is on the run where a range would be,
+  // and the chain is set out from it the same way.
+  const rangeSegment = RUNS.flatMap((run) => run.segments).find(cooksOnTheRun);
   const onIsland = !rangeSegment && SLOT_BY_ID["slot-cooktop"]?.mount === "island";
-  const cookingSlot: SlotId = onIsland ? "slot-cooktop" : "slot-range";
+  const cookingSlot: SlotId = onIsland ? "slot-cooktop" : (rangeSegment?.slot ?? "slot-range");
   const range = SLOT_BY_ID[cookingSlot];
 
   // In front of the run's face, so the lines are not buried in the cabinets:
@@ -245,7 +251,12 @@ function windowDimensions(): Dimension[] {
   const out: Dimension[] = [];
   for (const [index, window] of WINDOWS.entries()) {
     const back = window.wall === "back";
-    const run = RUN_BY_ID[window.wall];
+    // The run on that wall, or on one wall's left wall, which has none (round
+    // 98b), where a run would stand.
+    const run = RUN_BY_ID[window.wall] ?? {
+      facing: LEFT_WALL_FACING,
+      centre: wallBehind(LEFT_WALL_FACING).at + LEFT_WALL_FACING.sign * (ROOM.counterDepth / 2),
+    };
     // In front of the wall by a foot and a half, which clears the worktop and
     // the cabinets either side: toward the room the run faces (round 98a).
     const plane = run.centre + run.facing.sign * (ROOM.counterDepth / 2) + run.facing.sign * 0.35;

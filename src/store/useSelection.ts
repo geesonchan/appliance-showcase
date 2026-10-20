@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { APPLIANCE_BY_ID, SLOT_ORDER } from "../data/catalogue";
-import { DEFAULT_PACKAGE, PACKAGE_BY_ID } from "../data/packages";
+import { DEFAULT_PACKAGE, PACKAGE_BY_ID, packageInShape } from "../data/packages";
 import type { Appliance, SlotId } from "../types";
 import { useAppStore } from "./useAppStore";
 
@@ -42,6 +42,10 @@ export function useSelectedBlower(): Appliance | null {
 export function useActivePackage() {
   const packageId = useAppStore((s) => s.packageId);
   const lang = useAppStore((s) => s.lang);
-  const entry = PACKAGE_BY_ID[packageId] ?? DEFAULT_PACKAGE;
+  // As the room's shape builds it (round 98b): on one wall, package D's 18"
+  // freezer opening is what its model card offers models for, not its L's 24".
+  // In an L it is the package as written, the same object as before.
+  const shape = useAppStore((s) => s.layoutParams.shape);
+  const entry = packageInShape(PACKAGE_BY_ID[packageId] ?? DEFAULT_PACKAGE, shape);
   return { entry, name: entry.name[lang] ?? entry.name.en };
 }

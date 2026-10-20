@@ -18,9 +18,9 @@ import { alongOf, type Axis, type Facing } from "./frame";
  * Leo's answers.
  */
 
-/** The shapes this page builds. Only the L until 98b. */
-export type LayoutShape = "L";
-export const LAYOUT_SHAPES: readonly LayoutShape[] = ["L"];
+/** The shapes this page builds: the L, and one wall since round 98b. */
+export type LayoutShape = "L" | "one-wall";
+export const LAYOUT_SHAPES: readonly LayoutShape[] = ["L", "one-wall"];
 
 /** A run's name. The L's two legs; a later shape adds its own. */
 export type RunId = "back" | "left";
@@ -75,7 +75,26 @@ export const SHAPES: Record<LayoutShape, ShapeSpec> = {
     ],
     corners: [{ owner: "left", other: "back" }],
   },
+  /**
+   * One wall: one run along the back wall, facing +z, with no corner. Round
+   * 98b, Leo (round 98, second batch 1, 4 and 6): on the back wall; the
+   * refrigerator at the left end as you face it, and that end against a wall;
+   * the right end open to the room. The left wall is drawn whole (Leo, round
+   * 98b: "画整面左墙"); nothing stands along it.
+   */
+  "one-wall": {
+    runs: [{ id: "back", axis: "x", facing: { axis: "z", sign: 1 }, ends: ["wall", "open"] }],
+    corners: [],
+  },
 };
+
+/**
+ * Which way the room's left wall faces, whether or not a run stands along it:
+ * the way the L's left run faces, which backs onto it. One wall draws it whole
+ * with nothing on it (round 98b), and a service still turns the corner onto it
+ * only where a run is there to need one.
+ */
+export const LEFT_WALL_FACING: Facing = SHAPES.L.runs.find((run) => run.id === "left")!.facing;
 
 /** The shape's description, or a loud refusal for a shape no template builds. */
 export function shapeSpec(shape: string): ShapeSpec {

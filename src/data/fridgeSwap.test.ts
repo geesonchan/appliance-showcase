@@ -96,6 +96,13 @@ describe("what stands round a refrigerator follows the model chosen (round 89)",
       const fitting = candidatesFor("slot-fridge", entry).filter(({ fit }) => fit.fits);
       for (const { appliance } of fitting) seen[`${entry.code} ${short(appliance.id)}`] = row(swapTo(entry.code, appliance.id));
     }
+    // Round 98b: the 24" column T24IR905SP joined the catalogue (the third
+    // import of round 98) and is offered in every opening it is narrow enough
+    // for, as any model is (D20, round 46 — Leo accepted it in round 98b): in
+    // A's, B's and C's enclosures and in D's and E's 30" column openings. In
+    // each it stands as the 30" column beside it does; what goes in the rest
+    // of the opening is the opening's, not the model's. Five rows, nothing
+    // else changed.
     expect(seen).toEqual({
       // A's 42" enclosure: a built-in or a column stands in it, its bridge
       // from the head of the 84" opening; the counter-depth machine gets rule
@@ -103,21 +110,26 @@ describe("what stands round a refrigerator follows the model chosen (round 89)",
       "A t36bt120ns": "T4296 (42) over from 84",
       "A t36it100np": "T4296 (42) over from 84",
       "A t30ir905sp": "T4296 (42) over from 84",
+      "A t24ir905sp": "T4296 (42) over from 84",
       "A t36ft820ns": "PNL3 RO36 PNL3 (42) over from 73",
       // B's refrigerator stands in a bank with its wine column: built-ins and
       // the column only; the counter-depth machine is refused (Leo).
       "B t36bt120ns": "T3696 (36) over from 84",
       "B t36it100np": "T3696 (36) over from 84",
       "B t30ir905sp": "T3696 (36) over from 84",
+      "B t24ir905sp": "T3696 (36) over from 84",
       // C's own 42" of rule 11; a built-in or a column gets an enclosure in
       // it, its bridge from 84" — Leo's case.
       "C t36ft820ns": "PNL3 RO36 PNL3 (42) over from 73",
       "C t36bt120ns": "T4296 (42) over from 84",
       "C t36it100np": "T4296 (42) over from 84",
       "C t30ir905sp": "T4296 (42) over from 84",
-      // D's and E's 30" column in their banks: the column alone fits.
+      "C t24ir905sp": "T4296 (42) over from 84",
+      // D's and E's 30" column in their banks: the columns alone fit.
       "D t30ir905sp": "T3096 (30) over from 84",
+      "D t24ir905sp": "T3096 (30) over from 84",
       "E t30ir905sp": "T3096 (30) over from 84",
+      "E t24ir905sp": "T3096 (30) over from 84",
     });
   });
 

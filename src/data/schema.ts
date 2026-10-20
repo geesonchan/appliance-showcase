@@ -475,6 +475,12 @@ export const packageSlotSchema = z.object({
    */
   panelReady: z.boolean().nullable().default(null),
   /**
+   * What the slot is called, where this package's machine is not what the
+   * slot was named for: package D's oven on one wall is a combination oven,
+   * where its L's is a steam oven (round 98b). Absent keeps the slot's own.
+   */
+  labelKey: z.string().min(1).optional(),
+  /**
    * Where the camera comes in from, where this package stands the machine
    * somewhere else entirely.
    *
@@ -515,6 +521,30 @@ export const packageSlotSchema = z.object({
     })
     .nullable()
     .default(null),
+});
+
+/**
+ * What a package is in a shape other than the L, where that is not the L's
+ * own list. Round 98b, Leo: the package says which machines a kitchen has,
+ * the shape which wall each stands on (D16) — and on one wall two packages
+ * have different machines.
+ *
+ * Package D on one wall leaves out the coffee machine, the second dishwasher
+ * and the microwave drawer, its oven is a combination oven with a microwave,
+ * and its three columns are the 18", 24" and 18" ones (Leo, round 98, third
+ * batch 3; round 98b, 1 and 5). Package E's cooktop stands on the wall where a
+ * range would, under a 36" chimney hood, with its oven tower beside it (Leo,
+ * round 98, second batch 13; round 98b's E arrangement). What is written here
+ * is the whole slot, as the package's own list writes one, so that a slot on
+ * one wall is read where it stands rather than as a difference.
+ */
+export const packageShapeSchema = z.object({
+  /** Slots the package does not have in this shape. */
+  omit: z.array(slotIdSchema).default([]),
+  /** Slots that are written differently in this shape, each in full. */
+  slots: z.array(packageSlotSchema).default([]),
+  /** The model each of those slots opens with, in this shape. */
+  defaultSelection: z.partialRecord(slotIdSchema, z.string().min(1)).default({}),
 });
 
 export const packageSchema = z
@@ -586,6 +616,12 @@ export const packageSchema = z
      * the other. Null keeps the template's own order for a bank.
      */
     columnOrder: z.array(slotIdSchema).nullable().default(null),
+    /**
+     * The package in a shape other than the L, where it differs
+     * (`packageShapeSchema`; `packageInShape` in packages.ts). None is the L's
+     * own list in every shape.
+     */
+    shapes: z.partialRecord(z.enum(["one-wall"]), packageShapeSchema).default({}),
   })
   .refine((p) => !p.available || p.slots.length > 0, {
     message: "an available package declares its slots",

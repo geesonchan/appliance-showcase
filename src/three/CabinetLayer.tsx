@@ -415,7 +415,10 @@ function CounterSlab() {
     const island = islandHasCooktop(ISLAND)
       ? { layout: ISLAND, slot: SLOT_BY_ID["slot-cooktop"], appliance: cooktop }
       : undefined;
-    const { pieces, band } = counterOutline(RUNS, range, island);
+    // On one wall the cooktop stands on the run, and its hole is in the run's
+    // stone (round 98b).
+    const onARun = RUNS.some((run) => run.segments.some((segment) => segment.slot === "slot-cooktop"));
+    const { pieces, band } = counterOutline(RUNS, range, island, onARun ? cooktop : undefined);
     // One extrusion for all of them: a freestanding range cuts the run into two
     // slabs, and they are still one countertop as far as the scene is concerned
     // — one geometry, one material, one shadow.

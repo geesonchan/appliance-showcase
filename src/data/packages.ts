@@ -1,6 +1,7 @@
 import packagesFile from "../../data/packages.json";
 import type { Package, PackageSlot, SlotId } from "../types";
 import { packagesFileSchema, parseDataFile } from "./schema";
+import type { LayoutShape } from "./layoutShape";
 
 /**
  * The packages on offer, and which one the room is currently built to.
@@ -35,6 +36,72 @@ if (BUILDABLE_PACKAGES.length === 0) {
 
 export const DEFAULT_PACKAGE = BUILDABLE_PACKAGES[0];
 
+/** The package as written, for one made in a shape: its own list in the L. */
+const BASES = new WeakMap<Package, Package>();
+const SHAPED = new WeakMap<Package, Map<LayoutShape, Package>>();
+
+/**
+ * A package as it is built in a shape. Round 98b.
+ *
+ * The package's own list is the L's. A shape it writes differently
+ * (`shapes` in data/packages.json, `packageShapeSchema`) leaves slots out,
+ * writes others in full, and opens them with its own models; a shape it does
+ * not write is the L's list unchanged. The same object every time it is asked
+ * for, and the same answer whichever shape the package it is given was made
+ * in: the L's list is always where it starts.
+ */
+export function packageInShape(entry: Package, shape: LayoutShape): Package {
+  const base = BASES.get(entry) ?? entry;
+  const over = shape === "L" ? undefined : base.shapes?.[shape];
+  if (!over) return base;
+  const made = SHAPED.get(base)?.get(shape);
+  if (made) return made;
+
+  const omit = new Set(over.omit);
+  for (const slotId of [...over.omit, ...over.slots.map((slot) => slot.slotId)]) {
+    if (!base.slots.some((slot) => slot.slotId === slotId)) {
+      throw new Error(`data/packages.json: ${base.id} in ${shape} names ${slotId}, which it does not have`);
+    }
+  }
+  const slots = base.slots
+    .filter((slot) => !omit.has(slot.slotId))
+    .map((slot) => over.slots.find((written) => written.slotId === slot.slotId) ?? slot);
+  const defaultSelection = Object.fromEntries(
+    Object.entries({ ...base.defaultSelection, ...over.defaultSelection }).filter(
+      ([slotId]) => !omit.has(slotId as SlotId),
+    ),
+  ) as Package["defaultSelection"];
+  for (const slot of slots) {
+    if (!defaultSelection[slot.slotId]) {
+      throw new Error(`data/packages.json: ${base.id} in ${shape} opens ${slot.slotId} with no model`);
+    }
+  }
+  const shaped: Package = {
+    ...base,
+    slots,
+    defaultSelection,
+    columnOrder: base.columnOrder ? base.columnOrder.filter((slotId) => !omit.has(slotId)) : null,
+  };
+  BASES.set(shaped, base);
+  SHAPE_OF.set(shaped, shape);
+  SHAPED.set(base, new Map([...(SHAPED.get(base) ?? []), [shape, shaped]]));
+  return shaped;
+}
+
+/** The package as written, whichever shape this one was made in. */
+export const packageAsWritten = (entry: Package): Package => BASES.get(entry) ?? entry;
+
+/** The shape a package was made in: the L for a package as written. */
+export const shapeOfPackage = (entry: Package): LayoutShape => SHAPE_OF.get(entry) ?? "L";
+const SHAPE_OF = new WeakMap<Package, LayoutShape>();
+
+// Every package in every shape it writes, made once at load: a slot named
+// that the package does not have, or a slot left with no model, is a fault in
+// the data file and says so here rather than in front of a customer.
+for (const entry of PACKAGES) {
+  for (const shape of Object.keys(entry.shapes ?? {}) as LayoutShape[]) packageInShape(entry, shape);
+}
+
 /**
  * The package the room is built to.
  *
@@ -43,6 +110,8 @@ export const DEFAULT_PACKAGE = BUILDABLE_PACKAGES[0];
  * order in `layoutState.ts` is what makes the move take effect.
  */
 export let PACKAGE: Package = DEFAULT_PACKAGE;
+/** The shape `PACKAGE` is made in (round 98b): the L until a room in another stands. */
+export let PACKAGE_SHAPE: LayoutShape = "L";
 export let PACKAGE_SLOTS: Record<SlotId, PackageSlot>;
 
 /** What a package says about each of its slots, by id. */
@@ -67,10 +136,12 @@ export const slotOrderOf = (entry: Package): SlotId[] => entry.slots.map((slot) 
  */
 export let SLOT_ORDER: SlotId[] = [];
 
-export function setPackage(id: string) {
-  const next = PACKAGE_BY_ID[id];
-  if (!next) throw new Error(`No package "${id}"`);
-  if (!next.available) throw new Error(`Package "${id}" is registered but has no slots`);
+export function setPackage(id: string, shape: LayoutShape = PACKAGE_SHAPE) {
+  const written = PACKAGE_BY_ID[id];
+  if (!written) throw new Error(`No package "${id}"`);
+  if (!written.available) throw new Error(`Package "${id}" is registered but has no slots`);
+  const next = packageInShape(written, shape);
+  PACKAGE_SHAPE = shape;
   PACKAGE = next;
   PACKAGE_SLOTS = slotsOf(next);
   SLOT_ORDER = slotOrderOf(next);

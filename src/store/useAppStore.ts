@@ -4,10 +4,13 @@ import {
   migrateBlower,
   migrateSelection,
 } from "../data/catalogue";
-import { DEFAULT_PACKAGE, PACKAGE_BY_ID } from "../data/packages";
+import { DEFAULT_PACKAGE, PACKAGE_BY_ID, PACKAGE_SHAPE, packageInShape, setPackage } from "../data/packages";
 import { setActivePackage, setFridgeModel, setHoodModel, setLayoutParams, setLayoutParamsGrowing, setRangeModel } from "../data/layoutState";
 import { recordRangeModel } from "../data/cookingSurface";
 import { recordFridgeModel } from "../data/fridgeMount";
+import { recordHoodModel } from "../data/hoodMount";
+import { oneWallWantedIn, paramLimitsFor } from "../data/layoutTemplate";
+import type { LayoutShape } from "../data/layoutShape";
 import { inchesSpoken } from "../data/inches";
 import type { LayoutParams, Refusal } from "../data/layoutTemplate";
 import { LAYOUT_ISSUES, REQUESTED_PARAMS } from "../data/room";
@@ -120,6 +123,13 @@ interface AppState {
    * selection instead of in it. See docs/decisions.md D6.
    */
   blowerId: string | null;
+  /**
+   * The L room as it stood when the shape was switched away from it, to put
+   * back exactly when the shape comes back to the L (round 98b, Leo: "一字型切
+   * 回 L 型：恢复客户原来在 L 型里的选择 … 房间和切换前一模一样"). Null in an L,
+   * and after a package switch: the L kept is that package's.
+   */
+  lRoom: RoomSnapshot | null;
   /** Bumped to ask the camera rig to return to the default isometric view. */
   resetToken: number;
   /** Bumped by the +/- buttons; positive steps in, negative steps out. */
@@ -172,6 +182,12 @@ interface AppState {
   selectAppliance: (slot: SlotId, applianceId: string) => void;
   selectBlower: (blowerId: string | null) => void;
   setPackageId: (packageId: string) => void;
+  /**
+   * Change the layout's shape (round 98b). No control calls it yet — 98b-2
+   * adds the switch — but a share link does. Returns the back wall when it
+   * grew, for the switch to say so and offer Undo (D18).
+   */
+  setLayoutShape: (shape: LayoutShape) => { ok: boolean; grown: { fromIn: number; toIn: number } | null };
   resetView: () => void;
   requestZoom: (direction: 1 | -1) => void;
   setHelpOpen: (open: boolean) => void;
@@ -278,6 +294,17 @@ const snapshot = (state: {
   blowerId: state.blowerId,
 });
 
+/**
+ * The hood, the cooking surface and the refrigerator a room is built round,
+ * recorded for a package in a shape before the room is generated (round 98b):
+ * the run stands under what is chosen (rounds 83, 87, 89).
+ */
+function recordModels(selection: Record<SlotId, string>, packageId: string, shape: LayoutShape) {
+  recordHoodModel(APPLIANCE_BY_ID[selection["slot-hood"]], packageId, shape);
+  recordRangeModel(packageId, APPLIANCE_BY_ID[selection["slot-range"]], shape);
+  recordFridgeModel(APPLIANCE_BY_ID[selection["slot-fridge"]], packageId, shape);
+}
+
 /** The switches a room can grow for, each with the words for why. */
 const GROW_REASONS = [
   "fridgeEndAbuts",
@@ -337,6 +364,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   // then on; the scene, the summary and the utility layers all read it.
   selection: migrateSelection(DEFAULT_PACKAGE),
   blowerId: DEFAULT_PACKAGE.defaultBlower,
+  lRoom: null,
   resetToken: 0,
   zoomRequest: { token: 0, direction: 1 },
   helpOpen: false,
@@ -505,7 +533,11 @@ export const useAppStore = create<AppState>((set, get) => ({
       return;
     }
     set((s) => {
-      const selection = migrateSelection(entry, s.selection, PACKAGE_BY_ID[s.packageId]);
+      // In the shape the room is in (round 98b): on one wall, each package as
+      // that shape builds it.
+      const shape = s.layoutParams.shape;
+      const shaped = packageInShape(entry, shape);
+      const selection = migrateSelection(shaped, s.selection, packageInShape(PACKAGE_BY_ID[s.packageId], shape));
       const hood = APPLIANCE_BY_ID[selection["slot-hood"]];
       setHoodModel(hood);
       // The range carried across installs the way the new slot does, so the
@@ -518,7 +550,9 @@ export const useAppStore = create<AppState>((set, get) => ({
       return {
         packageId,
         selection,
-        blowerId: migrateBlower(entry, hood, s.blowerId),
+        blowerId: migrateBlower(shaped, hood, s.blowerId),
+        // The L kept is the package left's; a new package's L is its own.
+        lRoom: null,
         // The room the package landed in, which is not always the one it was
         // offered. Leaving the panel's own copy on the old figures meant the
         // next thing the customer touched was judged against a room that no
@@ -557,6 +591,70 @@ export const useAppStore = create<AppState>((set, get) => ({
       };
     });
   },
+  setLayoutShape: (shape) => {
+    const s = get();
+    const was = s.layoutParams.shape;
+    if (shape === was) return { ok: true, grown: null };
+    const before = snapshot(s);
+    const written = PACKAGE_BY_ID[s.packageId];
+
+    // Back to the L it left: exactly that room, with exactly those choices.
+    if (shape === "L" && s.lRoom?.packageId === s.packageId) {
+      const back = s.lRoom;
+      recordModels(back.selection, back.packageId, "L");
+      const result = setLayoutParams(back.layoutParams);
+      if (!result.ok) {
+        recordModels(s.selection, s.packageId, was);
+        set({ layoutIssues: result.reasons });
+        return { ok: false, grown: null };
+      }
+      set((now) => ({
+        selection: back.selection,
+        blowerId: back.blowerId,
+        layoutParams: back.layoutParams,
+        layoutIssues: [],
+        layoutVersion: now.layoutVersion + 1,
+        selectedSlot: null,
+        lRoom: null,
+      }));
+      return { ok: true, grown: null };
+    }
+
+    // Into a shape: the package as it builds it, each model carried across
+    // where it still suits its slot as that shape writes it, and the shape's
+    // own model where it does not or where the package's default was standing
+    // (`migrateSelection`). Package D on one wall: its three narrow columns and
+    // MEM301WS; package E: HMCB36WS.
+    const from = packageInShape(written, was);
+    const to = packageInShape(written, shape);
+    const selection = migrateSelection(to, s.selection, from);
+    recordModels(selection, s.packageId, shape);
+    // The wall the package needs in this shape, never shorter than it stands
+    // (D18); the L's own ceiling where it comes back to an L it did not leave.
+    const limits = paramLimitsFor(shape);
+    const backWallIn =
+      shape === "one-wall"
+        ? Math.max(s.layoutParams.backWallIn, oneWallWantedIn(s.layoutParams, written))
+        : Math.min(s.layoutParams.backWallIn, limits.backWallIn.max);
+    const result = setLayoutParamsGrowing({ ...s.layoutParams, shape, backWallIn });
+    if (!result.ok) {
+      recordModels(s.selection, s.packageId, was);
+      set({ layoutIssues: result.reasons });
+      return { ok: false, grown: null };
+    }
+    const hood = APPLIANCE_BY_ID[selection["slot-hood"]];
+    set((now) => ({
+      selection,
+      blowerId: migrateBlower(to, hood, now.blowerId),
+      layoutParams: result.params,
+      layoutIssues: [],
+      layoutVersion: now.layoutVersion + 1,
+      selectedSlot: null,
+      lRoom: was === "L" ? before : now.lRoom,
+    }));
+    const grew = result.params.backWallIn > s.layoutParams.backWallIn;
+    return { ok: true, grown: grew ? { fromIn: s.layoutParams.backWallIn, toIn: result.params.backWallIn } : null };
+  },
   resetView: () => set((s) => ({ resetToken: s.resetToken + 1, selectedSlot: null })),
   requestZoom: (direction) =>
     set((s) => ({ zoomRequest: { token: s.zoomRequest.token + 1, direction } })),
@@ -590,6 +688,9 @@ export const useAppStore = create<AppState>((set, get) => ({
     // round; then the exact room and choices that were standing, which built
     // then and builds now.
     if (back.packageId !== get().packageId) setActivePackage(back.packageId);
+    // In the shape the room put back was in (round 98b), so the choices below
+    // are recorded for the package as that shape builds it.
+    if (back.layoutParams.shape !== PACKAGE_SHAPE) setPackage(back.packageId, back.layoutParams.shape);
     setHoodModel(APPLIANCE_BY_ID[back.selection["slot-hood"]]);
     recordRangeModel(back.packageId, APPLIANCE_BY_ID[back.selection["slot-range"]]);
     recordFridgeModel(APPLIANCE_BY_ID[back.selection["slot-fridge"]], back.packageId);

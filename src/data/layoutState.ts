@@ -2,13 +2,14 @@ import { rebuildCabinets } from "./cabinets";
 import { rebuildFixtures } from "./fixtures";
 import {
   DEFAULT_PARAMS,
-  PARAM_LIMITS,
   generateLayout,
+  oneWallWantedIn,
   openingIn,
+  paramLimitsFor,
   type LayoutParams,
   type Refusal,
 } from "./layoutTemplate";
-import { PACKAGE, PACKAGE_BY_ID, setPackage, slotsOf } from "./packages";
+import { PACKAGE, PACKAGE_BY_ID, PACKAGE_SHAPE, setPackage, slotsOf } from "./packages";
 import { LAYOUT, REQUESTED_PARAMS, applyLayout } from "./room";
 import { rebuildSlots } from "./slots";
 import { hoodModelFor, hoodMount, recordHoodModel } from "./hoodMount";
@@ -157,6 +158,10 @@ export function setLayoutParams(params: LayoutParams): { ok: boolean; reasons: R
     return { ok: false, reasons: attempt.reasons };
   }
 
+  // The package as the room's shape builds it (round 98b): on one wall,
+  // package D's three narrow columns and its combination oven. Only once the
+  // room stands, so a refused shape leaves the package as the room on screen.
+  if (PACKAGE_SHAPE !== params.shape) setPackage(PACKAGE.id, params.shape);
   applyLayout(attempt.layout, params, []);
   rebuildSlots();
   rebuildFixtures();
@@ -274,7 +279,7 @@ export function setLayoutParamsGrowing(params: LayoutParams): {
     for (const key of WALL_KEYS) {
       const value = wanted[key];
       if (value === undefined) continue;
-      if (value > PARAM_LIMITS[key].max) return refuse();
+      if (value > paramLimitsFor(params.shape)[key].max) return refuse();
       if (value > next[key]) {
         next = { ...next, [key]: value };
         changed = true;
@@ -368,12 +373,16 @@ export function setActivePackage(id: string): {
       (released as Record<string, unknown>)[key] = DEFAULT_PARAMS[key];
     }
   }
+  // On one wall the back wall is the package's own one-wall wall (round 98b):
+  // everything it has, nothing left out for want of wall — the same rule as
+  // the shape switch (`oneWallWantedIn`, D18). Its L figures are the L's.
+  const oneWall = asked.shape === "one-wall";
   const arranged: LayoutParams = {
     ...asked,
     ...released,
     ...defaults,
-    backWallIn: Math.max(asked.backWallIn, defaults.backWallIn ?? 0),
-    leftWallIn: Math.max(asked.leftWallIn, defaults.leftWallIn ?? 0),
+    backWallIn: Math.max(asked.backWallIn, oneWall ? oneWallWantedIn(asked, PACKAGE) : (defaults.backWallIn ?? 0)),
+    leftWallIn: Math.max(asked.leftWallIn, oneWall ? 0 : (defaults.leftWallIn ?? 0)),
   };
   const moved: Partial<LayoutParams> = {};
   for (const key of [...Object.keys(defaults), ...Object.keys(released)] as (keyof LayoutParams)[]) {

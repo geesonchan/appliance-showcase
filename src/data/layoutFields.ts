@@ -1,6 +1,6 @@
 import { inchesSpoken } from "./inches";
 import { LAYOUT_SHAPES } from "./layoutShape";
-import { PARAM_LIMITS, type LayoutParams } from "./layoutTemplate";
+import { PARAM_LIMITS, paramLimitsFor, type LayoutParams } from "./layoutTemplate";
 
 /**
  * Every layout setting a page's address carries, by its name there: one table,
@@ -67,7 +67,13 @@ function inches(
   key: keyof typeof PARAM_LIMITS & keyof LayoutParams,
   labelKey: string,
 ): LayoutField<number> {
-  const limits = PARAM_LIMITS[key];
+  // Within the ends any shape's slider has (round 98b: one wall's back wall
+  // goes to 264"). Whether the room takes it in its own shape is the
+  // template's to say, as it is for every other figure a link carries.
+  const limits = {
+    min: Math.min(...LAYOUT_SHAPES.map((each) => paramLimitsFor(each)[key].min)),
+    max: Math.max(...LAYOUT_SHAPES.map((each) => paramLimitsFor(each)[key].max)),
+  };
   return {
     name,
     labelKey,

@@ -1,6 +1,7 @@
 import { facingOf } from "./frame";
 import { againstWall, wallBehind } from "./roomWalls";
 import { RUN_BY_ID } from "./room";
+import { LEFT_WALL_FACING } from "./layoutShape";
 import type { ServicePoint } from "../types";
 
 /**
@@ -38,6 +39,7 @@ export function wallAnchor(
   // left run — the wall it backs onto — rather than from naming an axis here.
   // The left wall by where it is as well as which way it runs: a wall across
   // the room from it runs the same way (round 98a).
-  const leftWall = wallBehind(RUN_BY_ID.left.facing);
+  // On one wall there is no left run (round 98b); the left wall is still there.
+  const leftWall = wallBehind(RUN_BY_ID.left?.facing ?? LEFT_WALL_FACING);
   return { onLeftWall: wall.axis === leftWall.axis && wall.at === leftWall.at, x, z };
 }

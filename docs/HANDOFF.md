@@ -12,7 +12,7 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **round 98a** (`docs/decisions.md` is the record of
+Covers the repository up to **round 98b-1** (`docs/decisions.md` is the record of
 rounds; `git log` is the record of commits). It replaces the v1–v9 briefs that
 were pasted into chat.
 
@@ -58,9 +58,9 @@ every figure of it, is `data/packages.json`; D16 and D20 say how a package is
 put together and why E was built the way it was. **Do not copy those numbers
 anywhere**: the file is the one source, and the tests read it.
 
-### Where it stands (round 98a)
+### Where it stands (round 98b-1)
 
-- **All five packages are live.** Rounds 73–79, 81–90, 92, 92a, 92b, 92c, 93, 94, 95, 91, 96, 97 and 98a each shipped
+- **All five packages are live.** Rounds 73–79, 81–90, 92, 92a, 92b, 92c, 93, 94, 95, 91, 96, 97, 98a and 98b-1 each shipped
   (round 80 built nothing; 91 was built after 95, below), and each was checked against the live page's asset hashes
   after its workflow finished.
 - **The live site counts visits, anonymously** (D24): page views and four events
@@ -114,8 +114,12 @@ anywhere**: the file is the one source, and the tests read it.
   on the page changed — every run records which way it faces, the L written
   once as a shape, a share link `v=2` with the shape and `v=1` read as an L,
   the screenshot parameters read by the link's table (**done**, D22 and D23
-  round 98a; D17's table, the eighteenth row, closed); then 98b one wall
-  (Leo's first five answers in the Open items), then a galley, then a U; then
+  round 98a; D17's table, the eighteenth row, closed); then 98b one wall,
+  in two steps (Leo, round 98b): 98b-1 the data and the template, the page
+  unchanged — one wall as a shape, D's and E's one-wall packages, the rules
+  reading a run's ends, the store's switch with no control yet, reached only
+  by a link edited by hand (**done**, round 98b-1, after Leo's look at the
+  local preview; Open items, round 98b), then 98b-2 the interface; then a galley, then a U; then
   a hood's own outlet, then 79a (the doors of the
   cabinet over the hood and the outlet shown in it), then 79b. The 30" option
   in A is paused.
@@ -163,10 +167,14 @@ anywhere**: the file is the one source, and the tests read it.
 | `tests/topBar.test.ts` | The phone's top bar: no control over another at 360–414px in both languages, and a share button (D23, round 94). |
 | `scripts/handFilled.test.ts` | The import stops when a checked model's hand-filled cells come in blank, unless `--allow-empty=MODEL` names it (D4, round 92). |
 | `scripts/screenshots.mjs` | Screenshot sets by round. |
+| `scripts/qualityDrop.mjs` | How often a build drops to the low quality tier on a 360 phone after tapping 中 then B, with fps each second; given two addresses, the old build and the new alternated run by run. Run it in any round that touches what the scene draws or how often it renders, against the build before the round (Leo, round 98b; D17). |
+| `src/data/oneWall.test.ts`, `src/store/oneWallSwitch.test.ts` | One wall (round 98b): each package's run left to right, its wall, the rules, D's and E's one-wall packages; the shape switch putting the L back exactly, and a link to a one-wall kitchen. |
 
 Commands: `npm run dev`, `npm run build`, `npm run test:unit` (unit only,
 `vitest.unit.config.ts`), `npm test` (build then the whole suite including the
-browser smoke tests, `vitest.config.ts`), `npm run screenshots`.
+browser smoke tests, `vitest.config.ts`), `npm run screenshots`, and
+`node scripts/qualityDrop.mjs <old url> <new url>` against two preview
+builds (`RUNS=10` by default).
 
 ---
 
@@ -301,14 +309,12 @@ list here:
   entry).
 - **T36IT100NP's own sheet** — the 84" it is drawn to is an inference (D4,
   round 40).
-- **The T18IF900SP door panel drawing** — the 18" freezer column's panel is
-  drawn from the 18" wine column's (D20).
-- **Thermador's column-spacing drawing** — the 1-3/16" clear between hot and
-  cold is recorded and deliberately not implemented (D11, the round-53 note
-  after rule 15).
-- **The flush columns' own sheets** — T18IF900SP, T24IF905SP, T30IR905SP,
-  T24IW905SP. That they stand on the floor of an 84" niche is inferred from
-  their family's T18IW100SP sheet (`towerSill.test.ts`).
+- ~~The T18IF900SP door panel drawing, Thermador's column-spacing drawing, the
+  flush columns' own sheets~~ — **in since round 98**: the six flush columns'
+  sheets (T18IF900SP's own, page 3 its panel) and the four Freedom column
+  installation instructions, page 9 the spacing and the 1-3/16" beside a hot
+  appliance (D11's round-53 note). What each says, page by page:
+  `docs/reference/README.md`.
 - **SHX78CM5N's opening height** — the 34" under D's coffee machine is the
   slot's own figure (D11 rule 14, round 75).
 - **HMCB30WS's installation manual** — package C's duct route,
@@ -319,8 +325,9 @@ list here:
   items; D16, round 83).
 - **PRG304WH's own document** — it carries PRG366WH's figures (Open items,
   the 30" option in A).
-- **The 18" column's panel drawing, `t18iw905sp-panel.png`** — its figures
-  are in `WINE_COLUMN`, and the README row says the file is not here.
+- **The 18" column's panel drawing, `t18iw905sp-panel.png`** — not here, and
+  not needed since round 98: `t18iw905sp-spec.pdf` page 3 is the same drawing,
+  and `WINE_COLUMN`'s figures are its own.
 
 What is inferred rather than read off a drawing is marked in the data itself:
 every rough-in point carries a `provenance`, and the install view draws the

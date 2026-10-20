@@ -1,6 +1,8 @@
 import appliancesFile from "../../data/appliances.json";
 import type { Appliance, Package } from "../types";
 import type { RunSegment } from "./roomShell";
+import { PACKAGE_SHAPE, shapeOfPackage } from "./packages";
+import type { LayoutShape } from "./layoutShape";
 
 /**
  * Whether a cooking machine drops into the counter or stands on the floor —
@@ -120,15 +122,21 @@ export function openingAlong(segment: Pick<RunSegment, "from" | "to" | "modules"
  * only when it installs the way the new slot does (`suitsPackageSlot`), so the
  * incoming package's own range answers the same.
  */
-let CHOSEN: { packageId: string; appliance: Kind } | null = null;
+let CHOSEN: { packageId: string; shape: LayoutShape; appliance: Kind } | null = null;
 
-export function recordRangeModel(packageId: string, appliance: Kind | undefined) {
-  CHOSEN = appliance ? { packageId, appliance } : null;
+export function recordRangeModel(packageId: string, appliance: Kind | undefined, shape: LayoutShape = PACKAGE_SHAPE) {
+  CHOSEN = appliance ? { packageId, shape, appliance } : null;
 }
 
-/** The range a package's room is built round: the one chosen in it, or its own. */
+/**
+ * The range a package's room is built round: the one chosen in it, or its own.
+ *
+ * And to its shape (round 98b): a package's room on one wall is built round
+ * the model chosen in it there, not the one chosen in its L — package D's
+ * 24" refrigerator opening on one wall is not where its L's 30" column goes.
+ */
 export function rangeModelFor(pkg: Package): Kind | undefined {
-  if (CHOSEN && CHOSEN.packageId === pkg.id) return CHOSEN.appliance;
+  if (CHOSEN && CHOSEN.packageId === pkg.id && CHOSEN.shape === shapeOfPackage(pkg)) return CHOSEN.appliance;
   const id = pkg.defaultSelection["slot-range"];
   if (!id) return undefined;
   const rows = (appliancesFile as { appliances: { id: string }[] }).appliances;

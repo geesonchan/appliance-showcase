@@ -1,6 +1,6 @@
 import type { FixtureId, SlotId } from "../types";
 import type { Facing } from "./frame";
-import type { RunId } from "./layoutShape";
+import type { RunEnd, RunId } from "./layoutShape";
 
 /**
  * The room's fixed dimensions and the vocabulary a layout is written in.
@@ -392,11 +392,20 @@ export interface CabinetRun {
    * it (docs/plans/round-98-layout-shape-plan.md, section 2.3).
    */
   facing: Facing;
+  /**
+   * What is at its low end and its high end along its axis: the corner box,
+   * a wall, or the room (`RunEnd`). From the shape, recorded since round 98b,
+   * where a run's first end had always been a corner: on one wall it is the
+   * wall the refrigerator stands against, and the rules about what finishes a
+   * run, and how far a sink is from a corner, ask which.
+   */
+  ends: readonly [RunEnd, RunEnd];
   /** The run's centre line on the other horizontal axis, in feet. */
   centre: number;
   /**
-   * Segments in order, starting at the corner. "End of the run" therefore
-   * means the last entry, which is what rule 1 is about.
+   * Segments in order, from the run's low end: the corner in an L, the wall
+   * on one wall. "End of the run" therefore means the last entry in an L,
+   * which is what rule 1 is about; on one wall both are ends.
    */
   segments: RunSegment[];
   uppers: UpperBank[];

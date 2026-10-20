@@ -13,7 +13,7 @@ import {
   type UpperBank,
 } from "./roomShell";
 import type { FixtureId, Package, PackageSlot, SlotId } from "../types";
-import { PACKAGE, slotsOf } from "./packages";
+import { PACKAGE, packageInShape, slotsOf } from "./packages";
 import { dropsIntoCounter, rangeFillerIn, rangeModelFor } from "./cookingSurface";
 import { aboveCookingSurfaceIn, hoodMountFor, hungUnderACabinet, leftOutByHood, type HoodMount } from "./hoodMount";
 import { slotsAsBuilt } from "./fridgeMount";
@@ -180,6 +180,65 @@ export const PARAM_LIMITS = {
   // that; sixty is as high as anybody reaches to take a cup out.
   coffeeSillIn: { min: 36, max: 60, step: 1 },
 };
+
+/**
+ * The longest wall a one-wall kitchen goes to. Round 98b, Leo (round 98, third
+ * batch 1-3; round 98b, 2): the one-wall slider's top is set by the package
+ * that needs the longest wall, to the slider's next 6" step. That is package
+ * E, laid out as Leo arranged it (round 98b), at the wall it is built at:
+ * 261-5/8", so 264". `oneWall.test.ts` holds it to that figure, worked out
+ * from the packages, so a package that grows moves the test and not this line
+ * silently. It is longer than D13's 216" run because Leo has said so for one
+ * wall; the L keeps its 240".
+ */
+export const ONE_WALL_MAX_IN = 264;
+
+/** The slider ends a shape's walls take: the L's, and one wall's longer back wall. */
+export function paramLimitsFor(shape: LayoutShape): typeof PARAM_LIMITS {
+  if (shape !== "one-wall") return PARAM_LIMITS;
+  return { ...PARAM_LIMITS, backWallIn: { ...PARAM_LIMITS.backWallIn, max: ONE_WALL_MAX_IN } };
+}
+
+/**
+ * The room as a shape builds it, from what was asked. Round 98b.
+ *
+ * The L builds what it is asked for. One wall has no island (Leo, round 98,
+ * first batch 2), its tower stands on the refrigerator's side of the cooking
+ * surface (third batch 4: "烤箱塔紧挨炉头左边"), everything is on its one run,
+ * and the refrigerator's outer side is against the wall (third batch 5) —
+ * unless a coffee tower stands at the wall instead, which is package E's
+ * (round 98b, Leo: "咖啡塔放在冰箱远离灶台的那一侧，一字型里就是左墙那端"), and
+ * then the refrigeration stands beside a cabinet. The room stands as this
+ * says, and a link written from it says it too.
+ */
+function asBuilt(params: LayoutParams, pkg: Package): LayoutParams {
+  if (params.shape !== "one-wall") return params;
+  const coffeeAtWall = pkg.slots.some((slot) => slot.tallUnit && slot.beside === "run");
+  return {
+    ...params,
+    hasIsland: false,
+    towerSide: "left",
+    fridgeEnd: "back",
+    sinkLeg: "back",
+    coffeeLeg: "back",
+    fridgeEndAbuts: coffeeAtWall ? "cabinet" : "wall",
+  };
+}
+
+/**
+ * The back wall a one-wall room is built at when the shape or a package is
+ * chosen: everything the package has, at what its stretches ask for — the
+ * wall a package is put into when it is chosen (`wantedIn`), with nothing
+ * left out for want of wall. D18; Leo, round 98, first batch 4: "一面墙放不下时，
+ * 默认先把墙加长". A wall dragged shorter afterwards is the slider's, and is
+ * judged on its own terms, as in an L.
+ */
+export function oneWallWantedIn(params: LayoutParams, pkg: Package = PACKAGE): number {
+  return wallRequirement({ ...params, shape: "one-wall", backWallIn: ONE_WALL_MAX_IN }, "back", pkg).wantedIn;
+}
+
+/** Whether a cooktop stands on a run where a range would: on one wall, where there is no island (round 98b). */
+const cooktopOnARun = (params: Pick<LayoutParams, "shape">) => params.shape === "one-wall";
 
 /**
  * Where the coffee machine's opening starts, off the floor. Round 75, Leo.
@@ -486,19 +545,29 @@ function farEnd(shape: ShapeSpec, id: RunId): "wall" | "open" {
 }
 
 /**
- * The L template lays out two legs, `left` and `back`, with the corner box the
- * left leg's first: what goes on each leg is written for that (the sink's leg,
- * the refrigerator's). A shape that is not that is not the L template's to
- * build, and is refused loudly here rather than drawn wrong. Round 98a; a
- * one-wall kitchen is 98b's.
+ * The template lays out two legs, `left` and `back`, with the corner box the
+ * left leg's first (the L, round 98a), or the back run alone with no corner
+ * (one wall, round 98b): what goes on each is written for those two. A shape
+ * that is neither is not this template's to build, and is refused loudly here
+ * rather than drawn wrong.
  */
-function lTemplateBuilds(shape: ShapeSpec) {
+function templateBuilds(shape: ShapeSpec) {
   const ids = shape.runs.map((run) => run.id).join(",");
   const corner = shape.corners.map((c) => `${c.owner}>${c.other}`).join(",");
-  if (ids !== "left,back" || corner !== "left>back") {
-    throw new Error(`layoutTemplate: the L template cannot build runs ${ids} with corners ${corner}`);
+  const builds = (ids === "left,back" && corner === "left>back") || (ids === "back" && corner === "");
+  if (!builds) {
+    throw new Error(`layoutTemplate: the template cannot build runs ${ids} with corners ${corner}`);
   }
 }
+
+/**
+ * Whether a segment is the cooking surface standing on a run: a range, or on
+ * one wall a cooktop where a range would be (round 98b). The hood is hung over
+ * it, and an oven tower is judged from it. In an L a cooktop is in the island
+ * and never on a run, so there the answer is the range's alone, as it was.
+ */
+export const cooksOnTheRun = (segment: Pick<RunSegment, "slot">) =>
+  segment.slot === "slot-range" || segment.slot === "slot-cooktop";
 
 /** The openings, dimensioned to the appliances that go in them. */
 /** The sink base, which is a fixture's cabinet rather than an opening. */
@@ -1079,8 +1148,12 @@ function fillWidth(
 // --- validation -----------------------------------------------------------
 
 /** Inside the parameter's own range, whatever the slider's step is. */
-function within(name: keyof typeof PARAM_LIMITS, value: number): Refusal | null {
-  const { min, max, step: increment } = PARAM_LIMITS[name];
+function within(
+  name: keyof typeof PARAM_LIMITS,
+  value: number,
+  limits: typeof PARAM_LIMITS = PARAM_LIMITS,
+): Refusal | null {
+  const { min, max, step: increment } = limits[name];
   const vars = { paramKey: `param.${name}`, min, max, step: increment, value };
   return value < min || value > max ? { key: "refusal.outOfRange", vars } : null;
 }
@@ -1127,8 +1200,9 @@ function validate(params: LayoutParams): Refusal[] {
     if (reason) reasons.push(reason);
   };
 
-  push(within("backWallIn", params.backWallIn));
-  push(within("leftWallIn", params.leftWallIn));
+  const limits = paramLimitsFor(params.shape);
+  push(within("backWallIn", params.backWallIn, limits));
+  push(within("leftWallIn", params.leftWallIn, limits));
   // A height a hand reaches to, so it is an inch at a time rather than a step.
   push(within("microwaveHandleIn", params.microwaveHandleIn));
   push(within("coffeeSillIn", params.coffeeSillIn));
@@ -1136,7 +1210,10 @@ function validate(params: LayoutParams): Refusal[] {
   // The tower and the sink base both need a run's worth of wall behind them,
   // and D13 caps a leg at 144". One leg will not carry a range, a sink, a
   // dishwasher and a 42" tower however long the wall is.
-  if (params.fridgeEnd === params.sinkLeg) {
+  //
+  // An L's rule: one wall carries everything on its one run (Leo, round 98,
+  // first batch 5: "在一字型里取消").
+  if (shapeSpec(params.shape).runs.length > 1 && params.fridgeEnd === params.sinkLeg) {
     const other = params.sinkLeg === "back" ? "left" : "back";
     reasons.push({
       key: "refusal.oneLegBoth",
@@ -1311,7 +1388,11 @@ function firstSuggestion(
     params.cornerType === "blind" ? ("lazy-susan" as const) : ("blind" as const);
 
   const otherCoffee = params.coffeeLeg === "back" ? ("left" as const) : ("back" as const);
-  const candidates: NonNullable<Refusal["suggestion"]>[] = [
+  // Moving something to the other leg, changing what turns the corner, putting
+  // an island back: an L's moves. One wall has no other leg, no corner and no
+  // island (round 98b), so the wall itself is what moves.
+  const rearranges = shapeSpec(params.shape).runs.length > 1;
+  const candidates: NonNullable<Refusal["suggestion"]>[] = !rearranges ? [] : [
     // The cheapest move of all where there is a coffee cabinet: it is one
     // tower with counter either side, and the other leg may have the room.
     ...(pkg.slots.some((slot) => slot.beside === "run")
@@ -1449,7 +1530,17 @@ function islandFor(
  * have to live on the perimeter, and they go on opposite legs: it is the only
  * way they still face opposite ways, which is what D11 rule 7 is about.
  */
-function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[] = []) {
+/** What a run is asked to carry: its items, and the wall it has for them. */
+interface RunPlan {
+  items: Item[];
+  availableIn: number;
+}
+
+function planLegs(
+  params: LayoutParams,
+  pkg: Package,
+  omitted: readonly SlotId[] = [],
+): Partial<Record<RunId, RunPlan>> {
   const corner = CORNERS[params.cornerType];
   const shape = shapeSpec(params.shape);
   const { sink: sinkRule } = LAYOUT_LIMITS;
@@ -1527,6 +1618,20 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
    * base. It shows a base cabinet.)
    */
   const cooking = (): Item => {
+    // One wall's cooktop (round 98b), where a range would stand: Leo, round 98,
+    // second batch 13, "cooktop 移到靠墙安装，放在第 5 条炉头的位置"; and round 98b,
+    // "电磁灶下面是平开门柜，不是抽屉底柜" — a base cabinet with a door, under the
+    // stone the cooktop drops into.
+    if (!spec["slot-range"]) {
+      const widthIn = openingIn(spec["slot-cooktop"]);
+      return fixed(
+        "cooktop",
+        widthIn,
+        "appliance",
+        M(`B${widthIn}`, "base", widthIn, { slot: "slot-cooktop" }),
+        { slot: "slot-cooktop" },
+      );
+    }
     const slot = spec["slot-range"];
     const widthIn = openingIn(slot);
     const chosen = rangeModelFor(pkg);
@@ -1683,7 +1788,11 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
   // The bank at the end of the run. A tall unit that stands beside the range
   // is not part of it — it is built into the middle of the back leg, which is
   // the exception rule 12 makes to rule 1.
-  const tallSlots = columnsAlongRun(pkg, params.fridgeEnd);
+  //
+  // One wall reads from the wall end, so its bank is read outer end first:
+  // the order the L's left leg builds it in, turned round (`fromTheWall`).
+  const oneWall = params.shape === "one-wall";
+  const tallSlots = columnsAlongRun(pkg, oneWall ? "left" : params.fridgeEnd);
 
   /**
    * One full-height unit: the machine's own opening in a 96" carcass.
@@ -1822,8 +1931,9 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
   const cookingBlock = (): Item[] => {
     // Nothing cooks against the wall when the cooking surface is in the island:
     // no opening, and no landings either side of it. Rule 4's island branch is
-    // what holds the landings there. Round 52, D22 step 3.
-    if (!spec["slot-range"]) return [];
+    // what holds the landings there. Round 52, D22 step 3. On one wall the
+    // cooktop is on the run (round 98b), and its landings are rule 4's.
+    if (!spec["slot-range"] && !(cooktopOnARun(params) && spec["slot-cooktop"])) return [];
     if (besideRange.length === 0) {
       return [
         gap("range-landing-left", landing.narrowIn, "d11-4", { shrink: "corner-to-range" }),
@@ -1967,6 +2077,8 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
     );
   }
 
+  if (oneWall) return { back: { items: mergeGaps(oneWallRun()), availableIn: params.backWallIn } };
+
   if (params.fridgeEnd === "left") {
     if (coffeeHere("left")) left.push(...inRunGroup());
     left.push(...spare, gap("fridge-landing", LAYOUT_LIMITS.fridgeLandingIn, "d11-6"), ...tower);
@@ -1982,6 +2094,46 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
     left: { items: mergeGaps(left), availableIn: params.leftWallIn },
     back: { items: mergeGaps(back), availableIn: params.backWallIn - corner.acrossIn },
   };
+
+  /**
+   * One wall, left to right as you face it. Round 98b, Leo.
+   *
+   * Round 98, second batch 4-7: the refrigerator at the left end, against a
+   * wall; then the cooking surface, the sink and the dishwasher; the right end
+   * open. The towers as the L has them, straightened: an oven tower beside
+   * the cooking surface on the refrigerator's side of it (third batch 4), 18"
+   * of counter between them (third batch 2). A and C without their island put
+   * the wine cabinet and the microwave drawer on the wall, where the L's leg
+   * puts them, straightened (second batch 3). Package E's coffee tower stands
+   * at the wall, on the refrigeration's far side from the cooktop (round 98b:
+   * "咖啡机不是做饭的主力，所以离开灶台"), with the same 3" filler against the
+   * wall any run takes (D13), full height beside a tall cabinet.
+   *
+   * Every stretch of counter is the L's, by its own rule: the refrigerator's
+   * 15" (rule 6), the cooking surface's landings (rule 4), the sink's (rule
+   * 10), and the open end's cabinet and panel (D13).
+   */
+  function oneWallRun(): Item[] {
+    const items: Item[] = [];
+    if (inRun.length > 0) {
+      const atWall = LAYOUT_POLICY.terminalIn.atWall;
+      items.push(fixed("wall-end", atWall, "tall", M(`BF${atWall}`, "filler", atWall)), ...inRunGroup());
+    }
+    items.push(...fromTheWall(tower), gap("fridge-landing", LAYOUT_LIMITS.fridgeLandingIn, "d11-6"));
+    items.push(...[...spare].reverse(), ...cookingBlock(), ...sinkGroup(), ...terminal("back-end", farEnd(shape, "back")));
+    return items;
+  }
+}
+
+/**
+ * Items built to finish the far end of a run, turned round to start one: the
+ * order reversed, and each item's own pieces with it, so what was against the
+ * far end is against the wall at the start. The refrigerator on one wall
+ * (round 98b): its panel, opening and filler, or its bank, read outer end
+ * first.
+ */
+function fromTheWall(items: Item[]): Item[] {
+  return [...items].reverse().map((item) => (item.kind === "fixed" ? { ...item, modules: [...item.modules].reverse() } : item));
 }
 
 /**
@@ -2002,6 +2154,13 @@ function requirementFor(
   const plan = planLegs(params, pkg, omitted)[leg];
   const corner = CORNERS[params.cornerType];
   const items: RequirementItem[] = [];
+  const limits = paramLimitsFor(params.shape);
+  // A wall with no run on it — one wall's left wall (round 98b) — carries
+  // nothing, and holds the room to nothing but the slider's own ends.
+  if (!plan) {
+    const key = leg === "back" ? "backWallIn" : "leftWallIn";
+    return { leg, items, minimumIn: limits[key].min, wantedIn: limits[key].min, maximumIn: limits[key].max };
+  }
 
   // The corner cabinet stands on one leg and eats into the other, so it is on
   // both bills: 36" of the left wall as a cabinet, and 36" of the back wall as
@@ -2074,7 +2233,10 @@ function requirementFor(
 
   // What the stretches on this leg ask for over their minimums, which is what
   // the room grows by when a package is chosen rather than dragged into.
-  const maximumIn = CABINET_STANDARDS.legIn.longMax + across;
+  //
+  // One wall's run goes past D13's 216", to the slider's own top: Leo, round
+  // 98 (third batch 1-3), for one wall only (`ONE_WALL_MAX_IN`).
+  const maximumIn = params.shape === "one-wall" ? limits.backWallIn.max : CABINET_STANDARDS.legIn.longMax + across;
   const wanted = plan.items.reduce(
     (sum, item) =>
       sum + (item.kind === "gap" ? Math.max(0, (item.wantIn ?? 0) - item.minIn) : 0),
@@ -2111,7 +2273,9 @@ export const SPARE_SLOTS = ["slot-microwave", "slot-wine"] as const;
  * least its rule allows and the wall is still short, no amount of shrinking
  * gets the two machines on, and they go. Anything longer keeps them.
  */
-export function omittedForWall(params: LayoutParams, pkg: Package = PACKAGE): readonly SlotId[] {
+export function omittedForWall(asked: LayoutParams, written: Package = PACKAGE): readonly SlotId[] {
+  const pkg = packageInShape(written, asked.shape);
+  const params = asBuilt(asked, pkg);
   if (params.hasIsland) return [];
   const spec = slotsOf(pkg);
   // A machine the hood has already taken out of the room (round 97) is not
@@ -2136,7 +2300,9 @@ export function omittedForWall(params: LayoutParams, pkg: Package = PACKAGE): re
  * (`leftOutByHood`, round 97) and what the wall is too short for
  * (`omittedForWall`, D18). Only the second is said out loud as a shortage.
  */
-export function omittedSlots(params: LayoutParams, pkg: Package = PACKAGE): readonly SlotId[] {
+export function omittedSlots(asked: LayoutParams, written: Package = PACKAGE): readonly SlotId[] {
+  const pkg = packageInShape(written, asked.shape);
+  const params = asBuilt(asked, pkg);
   const forWall = omittedForWall(params, pkg);
   return [...leftOutByHood(pkg), ...forWall.filter((slotId) => !leftOutByHood(pkg).includes(slotId))];
 }
@@ -2150,10 +2316,12 @@ export function omittedSlots(params: LayoutParams, pkg: Package = PACKAGE): read
  * interface itself does not believe.
  */
 export function wallRequirement(
-  params: LayoutParams,
+  asked: LayoutParams,
   leg: "left" | "back",
-  pkg: Package = PACKAGE,
+  written: Package = PACKAGE,
 ): WallRequirement {
+  const pkg = packageInShape(written, asked.shape);
+  const params = asBuilt(asked, pkg);
   return requirementFor(params, leg, pkg, omittedSlots(params, pkg));
 }
 
@@ -2170,7 +2338,7 @@ export function feasibleRange(
   key: "backWallIn" | "leftWallIn",
   pkg: Package = PACKAGE,
 ): { minIn: number; maxIn: number } | null {
-  const { min, max, step } = PARAM_LIMITS[key];
+  const { min, max, step } = paramLimitsFor(params.shape)[key];
   let onStep: number | null = null;
   let maxIn = min;
   for (let value = min; value <= max; value += step) {
@@ -2281,7 +2449,7 @@ export function hoodSpan(
   segments: RunSegment[],
   spec: Record<SlotId, PackageSlot>,
 ): readonly [number, number] | null {
-  const range = segments.find((segment) => segment.slot === "slot-range");
+  const range = segments.find(cooksOnTheRun);
   if (!range) return null;
   const centre = (range.from + range.to) / 2;
   const half = Math.max((range.to - range.from) / 2, ft(spec["slot-hood"].widthIn) / 2);
@@ -2397,7 +2565,7 @@ export function filledBesideTower(
   segments: readonly RunSegment[],
   spec: Partial<Record<SlotId, PackageSlot>>,
 ): { segment: RunSegment; tower: RunSegment; topIn: number }[] {
-  const rangeAt = segments.findIndex((segment) => segment.slot === "slot-range");
+  const rangeAt = segments.findIndex(cooksOnTheRun);
   return segments.flatMap((tower, at) => {
     if (tower.kind !== "tall" || !tower.slot || spec[tower.slot]?.beside !== "range") return [];
     const topIn = tower.modules.find((module) => module.kind === "tall")?.heightIn ?? 96;
@@ -2655,7 +2823,7 @@ function placements(
    * cooktop. Round 52 (D22 step 3) — this was `slot-range` alone, so a package
    * that cooked on the island threw on its way out of the generator.
    */
-  const cookingOnARun = spec["slot-range"] ? find((s) => s.slot === "slot-range") : null;
+  const cookingOnARun = runs.some((run) => run.segments.some(cooksOnTheRun)) ? find(cooksOnTheRun) : null;
   // A placeholder height: `slots.ts` hangs the canopy off the cooking surface
   // the wall was actually drilled for. See docs/decisions.md D13.
   const hoodY = ft(36.75 + CABINET_STANDARDS.hood.aboveCooktopMinIn);
@@ -2734,8 +2902,9 @@ function placements(
         };
       }
     } else if (slot === "slot-cooktop") {
-      // In the island's counter, on the side the cook works from. D20.
-      slots[slot] = islandSlot(island.cooktop, "working");
+      // In the island's counter, on the side the cook works from. D20. Or on
+      // one wall, on the run where a range would stand (round 98b).
+      slots[slot] = onARun(slot) ? wall(slot) : islandSlot(island.cooktop, "working");
     } else if (slot === "slot-microwave" || slot === "slot-wine") {
       const [opening, face] =
         slot === "slot-microwave"
@@ -2764,15 +2933,20 @@ function placements(
 }
 
 export function generateLayout(
-  params: LayoutParams,
-  pkg: Package = PACKAGE,
+  asked: LayoutParams,
+  written: Package = PACKAGE,
 ): GenerateResult {
   // Which walls the runs stand on (round 98a). A shape no template builds is a
   // fault in whatever asked for it, not a room to refuse: a link and a
   // screenshot address are read through the table, which takes only the shapes
   // there are.
-  const shape = shapeSpec(params.shape);
-  lTemplateBuilds(shape);
+  const shape = shapeSpec(asked.shape);
+  templateBuilds(shape);
+  // The package as this shape builds it, and the room as this shape builds it
+  // (round 98b): the L's own list and what was asked, unless the shape says
+  // otherwise.
+  const pkg = packageInShape(written, asked.shape);
+  const params = asBuilt(asked, pkg);
   const reasons = validate(params);
   if (reasons.length > 0) return { ok: false, reasons };
 
@@ -2803,7 +2977,7 @@ export function generateLayout(
     };
   }
 
-  if (!params.hasIsland && pkg.slots.some((slot) => slot.slotId === "slot-cooktop")) {
+  if (!params.hasIsland && !cooktopOnARun(params) && pkg.slots.some((slot) => slot.slotId === "slot-cooktop")) {
     return {
       ok: false,
       reasons: [
@@ -2834,7 +3008,7 @@ export function generateLayout(
   // other waiting is the worst way to learn a room is too small. A wall that is
   // wrong carries what is standing on it and one change that would make it fit.
   const wrongLength: Refusal[] = [];
-  for (const leg of ["left", "back"] as const) {
+  for (const { id: leg } of shape.runs) {
     const key = leg === "back" ? ("backWallIn" as const) : ("leftWallIn" as const);
     const requirement = requirementFor(params, leg, pkg, omitted);
     const vars = {
@@ -2867,38 +3041,32 @@ export function generateLayout(
   }
   if (wrongLength.length > 0) return { ok: false, reasons: wrongLength };
 
-  const packedLeft = packLeg(plan.left.availableIn, plan.left.items);
-  const packedBack = packLeg(plan.back.availableIn, plan.back.items);
-  if ("shortIn" in packedLeft || "shortIn" in packedBack) {
-    // The requirement above is the same arithmetic, so this cannot normally
-    // happen; if it ever does, it is a bug rather than a room that is too small.
-    throw new Error("layoutTemplate: a wall passed its requirement and would not pack");
-  }
-
   // Each run starts at the low end of its wall, and the run the corner box
   // eats into starts where that box stops (D11 rule 8). From the shape since
   // round 98a: the left run at -halfZ, the back run past the corner.
   const halfAlong = (id: RunId) => alongOf(shapeRun(shape, id).axis, halfX, halfZ);
   const runStart = (id: RunId, acrossIn: number) =>
     turnedInto(shape, id) ? -halfAlong(id) + ft(acrossIn) : -halfAlong(id);
-  const legs = {
-    left: { start: runStart("left", corner.acrossIn), items: plan.left.items, widths: packedLeft.widths },
-    back: {
-      start: runStart("back", corner.acrossIn),
-      items: plan.back.items,
-      widths: packedBack.widths,
-    },
-  };
-  const cut = (leg: "left" | "back") =>
-    layOut(leg, legs[leg].start, legs[leg].items, legs[leg].widths);
+  const legs: Partial<Record<RunId, { start: number; items: Item[]; widths: number[] }>> = {};
+  for (const { id } of shape.runs) {
+    const packed = packLeg(plan[id]!.availableIn, plan[id]!.items);
+    if ("shortIn" in packed) {
+      // The requirement above is the same arithmetic, so this cannot normally
+      // happen; if it ever does, it is a bug rather than a room that is too small.
+      throw new Error("layoutTemplate: a wall passed its requirement and would not pack");
+    }
+    legs[id] = { start: runStart(id, corner.acrossIn), items: plan[id]!.items, widths: packed.widths };
+  }
+  const cut = (leg: RunId) => layOut(leg, legs[leg]!.start, legs[leg]!.items, legs[leg]!.widths);
 
   // Where the windows land, which needs the run laid out: a window with no
   // figure of its own goes over the sink, and the sink is wherever the leg's
-  // arithmetic has put it.
-  let leftSegments = cut("left");
-  let backSegments = cut("back");
-  const segmentsOf = (leg: "left" | "back") =>
-    leg === "left" ? leftSegments : backSegments;
+  // arithmetic has put it. A wall with no run on it (one wall's left wall,
+  // round 98b) has no segments.
+  const laid: Partial<Record<RunId, RunSegment[]>> = {};
+  for (const { id } of shape.runs) laid[id] = cut(id);
+  const segmentsOf = (leg: RunId): RunSegment[] => laid[leg] ?? [];
+  const hasRun = (leg: RunId) => laid[leg] !== undefined;
 
   // And then the sink slides under the window, where the parameter asks for it
   // and the window named a place of its own. The slack comes off the stretch
@@ -2908,16 +3076,12 @@ export function generateLayout(
     for (const window of params.windows) {
       if (window.centerIn === null) continue;
       const leg = wallFor(window, params.sinkLeg);
-      const moved = slideToWindow(
-        legs[leg].items,
-        legs[leg].widths,
-        segmentsOf(leg),
-        resolveWindow(window, segmentsOf(leg)),
-      );
+      const run = legs[leg];
+      if (!run) continue;
+      const moved = slideToWindow(run.items, run.widths, segmentsOf(leg), resolveWindow(window, segmentsOf(leg)));
       if (!moved) continue;
-      legs[leg].widths = moved;
-      if (leg === "left") leftSegments = cut("left");
-      else backSegments = cut("back");
+      run.widths = moved;
+      laid[leg] = cut(leg);
     }
   }
 
@@ -2934,6 +3098,11 @@ export function generateLayout(
     const wall = wallFor(window, params.sinkLeg);
     const segments = segmentsOf(wall);
     const placed = { ...resolveWindow({ ...window, wall }, segments), wall };
+    // In a wall nothing stands along, there is nothing to fit it between.
+    if (!hasRun(wall)) {
+      windows.push(placed);
+      continue;
+    }
     const fitted = fitWindow(placed, {
       runId: wall,
       segments,
@@ -2973,7 +3142,7 @@ export function generateLayout(
   // What a window may not be behind, and how far the sink ended up from it.
   const blocked = windowRefusals(
     windows,
-    { left: leftSegments, back: backSegments },
+    { left: segmentsOf("left"), back: segmentsOf("back") },
     spec,
     params,
   );
@@ -3027,6 +3196,7 @@ export function generateLayout(
     id: run.id,
     axis: run.axis,
     facing: run.facing,
+    ends: run.ends,
     centre: runCentre(run, halfX, halfZ, ROOM.counterDepth),
     segments: segmentsOf(run.id),
     uppers: banksOn(

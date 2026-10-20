@@ -1,5 +1,7 @@
 import appliancesFile from "../../data/appliances.json";
 import type { Appliance, Package, SlotId } from "../types";
+import { PACKAGE_SHAPE, shapeOfPackage } from "./packages";
+import type { LayoutShape } from "./layoutShape";
 
 /**
  * How a hood hangs, and so what stands over it. Round 87, Leo.
@@ -106,15 +108,21 @@ export function aboveCookingSurfaceIn(mount: HoodMount | null, canopyIn: number)
  * the new room before the store records the new package's hood, and that room
  * has to be built round its own hood, not the one chosen in the package left.
  */
-let CHOSEN: { packageId: string; appliance: Appliance } | null = null;
+let CHOSEN: { packageId: string; shape: LayoutShape; appliance: Appliance } | null = null;
 
-export function recordHoodModel(appliance: Appliance | undefined, packageId: string) {
-  CHOSEN = appliance ? { packageId, appliance } : null;
+export function recordHoodModel(appliance: Appliance | undefined, packageId: string, shape: LayoutShape = PACKAGE_SHAPE) {
+  CHOSEN = appliance ? { packageId, shape, appliance } : null;
 }
 
-/** The hood a package's room is built round: the one chosen in it, or its own. */
+/**
+ * The hood a package's room is built round: the one chosen in it, or its own.
+ *
+ * And to its shape (round 98b): a package's room on one wall is built round
+ * the model chosen in it there, not the one chosen in its L — package D's
+ * 24" refrigerator opening on one wall is not where its L's 30" column goes.
+ */
 export function hoodModelFor(pkg: Package): Appliance | undefined {
-  if (CHOSEN && CHOSEN.packageId === pkg.id) return CHOSEN.appliance;
+  if (CHOSEN && CHOSEN.packageId === pkg.id && CHOSEN.shape === shapeOfPackage(pkg)) return CHOSEN.appliance;
   const id = pkg.defaultSelection["slot-hood"];
   if (!id) return undefined;
   const rows = (appliancesFile as unknown as { appliances: Appliance[] }).appliances;

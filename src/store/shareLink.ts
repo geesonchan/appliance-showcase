@@ -2,7 +2,8 @@ import { APPLIANCES, APPLIANCE_BY_ID } from "../data/catalogue";
 import type { LayoutParams } from "../data/layoutTemplate";
 import { LAYOUT_FIELDS, type AnyValue, type Field } from "../data/layoutFields";
 import { LINK_VERSION, LINK_VERSIONS } from "../data/linkVersion";
-import { PACKAGES, PACKAGE_BY_ID } from "../data/packages";
+import { PACKAGES, PACKAGE_BY_ID, packageInShape } from "../data/packages";
+import type { LayoutShape } from "../data/layoutShape";
 import { SLOT_RECORDS } from "../data/slots";
 import type { Appliance, Lang, SlotId } from "../types";
 import {
@@ -217,6 +218,7 @@ export const NOT_IN_LINK: Record<string, string> = {
   // Round 91: the panel's tabs are the page's own, like the rails.
   rightTab: "a tab of the right panel and the phone's sheet: the page's own state, like the rails, kept per browser tab (D12)",
   tabBeforeInstall: "the tab to go back to after Install mode: the page's own state",
+  lRoom: "the L room kept while the shape is another, to put back when it returns (round 98b): this tab's own history; a link is the room standing",
   mobilePanel: "the phone's sheet open",
   toast: "a message on screen",
   modeSwitchStartedAt: "a timing for ?debug=1",
@@ -240,8 +242,11 @@ export const LINK_FIELDS: Field<AnyValue>[] = [
 ];
 
 /** The slots a package has, in its order, with their fields. */
-export const modelFieldsOf = (packageId: string) =>
-  PACKAGE_BY_ID[packageId].slots.map(
+export const modelFieldsOf = (packageId: string, shape: LayoutShape = "L") =>
+  // The package's openings as the room's shape builds it (round 98b): on one
+  // wall package D has no coffee machine, second dishwasher or microwave
+  // drawer to carry a model for.
+  packageInShape(PACKAGE_BY_ID[packageId], shape).slots.map(
     (slot) => MODEL_FIELDS.find((field) => field.slotId === slot.slotId)!,
   );
 
@@ -256,7 +261,7 @@ export function writeLink(kitchen: Kitchen): string {
   query.set(PACKAGE_FIELD.name, PACKAGE_FIELD.write(kitchen.packageId));
   query.set(LANG_FIELD.name, LANG_FIELD.write(kitchen.lang));
   for (const field of LAYOUT_FIELDS) query.set(field.name, field.write(field.get(kitchen.layoutParams)));
-  for (const field of modelFieldsOf(kitchen.packageId)) {
+  for (const field of modelFieldsOf(kitchen.packageId, kitchen.layoutParams.shape)) {
     const id = kitchen.selection[field.slotId];
     if (!id) throw new Error(`no model in ${field.slotId} to write into a link`);
     query.set(field.name, field.write(id));

@@ -1,7 +1,7 @@
 {
   "_meta": {
     "generatedBy": "scripts/csv-to-json.ts from ../showcase_export.csv",
-    "updatedAt": "2026-10-19",
+    "updatedAt": "2026-10-20",
     "provenance": "Derived from the showcase_export tab of the 2026 AA Inventory Manager. Brand, Model, Appliance Type, Feature, Width, Depth, Height and Color come from Stock current; everything else is hand entered. Normalisation lives in scripts/normalise.ts, not in the sheet. verifiedAt is null until a row has been checked against its sourceUrl."
   },
   "appliances": [
@@ -1021,6 +1021,56 @@
       }
     },
     {
+      "id": "thermador-t18iw905sp",
+      "slot": "slot-wine",
+      "category": "wine",
+      "brand": "Thermador",
+      "model": "T18IW905SP",
+      "series": null,
+      "msrpUSD": 7099,
+      "sourceUrl": "https://media3.bsh-group.com/Documents/16173464_T18IW905SP-18-INCH-FLUSH-CUSTOM-WINE-PRESERVATION-COLUMN-Specifications.pdf",
+      "verifiedAt": "2026-10-20",
+      "installType": [
+        "column"
+      ],
+      "fuel": null,
+      "blower": null,
+      "compatibleBlowers": [],
+      "topDepthIn": null,
+      "frontLipIn": null,
+      "rearVent": null,
+      "widthIn": 18,
+      "heightIn": null,
+      "depthIn": null,
+      "burners": null,
+      "cooktopIn": null,
+      "backguardIn": null,
+      "depthWithDoorsIn": null,
+      "depthWithHandleIn": null,
+      "rearSpacerIn": null,
+      "doorConfig": null,
+      "doorSplit": null,
+      "cutoutWidthIn": 18,
+      "cutoutHeightIn": 84,
+      "cutoutDepthIn": 25,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": null,
+      "highlights": {
+        "en": [],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
+        "gasBTU": null,
+        "water": false,
+        "cfm": null
+      }
+    },
+    {
       "id": "thermador-t24if905sp",
       "slot": "slot-freezer",
       "category": "freezer",
@@ -1030,6 +1080,56 @@
       "msrpUSD": 8099,
       "sourceUrl": "https://media3.bsh-group.com/Documents/16173437_T24IF905SP-24-INCH-FLUSH-FREEZER-COLUMN-WITH-INTERNAL-ICE-MAKER-Specifications.pdf",
       "verifiedAt": "2026-09-12",
+      "installType": [
+        "column"
+      ],
+      "fuel": null,
+      "blower": null,
+      "compatibleBlowers": [],
+      "topDepthIn": null,
+      "frontLipIn": null,
+      "rearVent": null,
+      "widthIn": 24,
+      "heightIn": null,
+      "depthIn": null,
+      "burners": null,
+      "cooktopIn": null,
+      "backguardIn": null,
+      "depthWithDoorsIn": null,
+      "depthWithHandleIn": null,
+      "rearSpacerIn": null,
+      "doorConfig": null,
+      "doorSplit": null,
+      "cutoutWidthIn": 24,
+      "cutoutHeightIn": 84,
+      "cutoutDepthIn": 25,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": null,
+      "highlights": {
+        "en": [],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
+        "gasBTU": null,
+        "water": false,
+        "cfm": null
+      }
+    },
+    {
+      "id": "thermador-t24ir905sp",
+      "slot": "slot-fridge",
+      "category": "refrigerator",
+      "brand": "Thermador",
+      "model": "T24IR905SP",
+      "series": null,
+      "msrpUSD": 8099,
+      "sourceUrl": "https://media3.bsh-group.com/Documents/16173445_T24IR905SP-24-INCH-FLUSH-CUSTOM-FRESH-FOOD-COLUMN-Specifications.pdf",
+      "verifiedAt": "2026-10-20",
       "installType": [
         "column"
       ],

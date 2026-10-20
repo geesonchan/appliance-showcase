@@ -2,7 +2,7 @@ import { EVENTS, countEvent } from "../analytics";
 import { candidatesFor } from "../data/candidates";
 import { APPLIANCE_BY_ID, blowersFor, migrateBlower } from "../data/catalogue";
 import { setLayoutParams, setLayoutParamsGrowing } from "../data/layoutState";
-import { PACKAGE_BY_ID } from "../data/packages";
+import { PACKAGE_BY_ID, packageInShape } from "../data/packages";
 import { LAYOUT_PARAMS } from "../data/room";
 import {
   BLOWER_FIELD,
@@ -71,13 +71,24 @@ export function openSharedLink(search: string): void {
   // package stands; a link that cannot be read is not (Leo, D24).
   countEvent(EVENTS.openLink(entry.code));
 
-  // The layout, all of it asked at once, over the package's own room.
-  const standing = store.getState().layoutParams;
   // A field a link of its version did not carry yet is not read: the link
   // was written when the page had only one value for it, and that is what it
   // gets, with nothing said (round 98a: a `v=1` link is an L).
   const version = Number(query.get("v"));
   const older = (field: (typeof LAYOUT_FIELDS)[number]) => field.since !== undefined && version < field.since.version;
+
+  // The shape first, as its switch changes it (round 98b): it decides which
+  // openings the package has and how the room is laid out, so the rest of the
+  // layout is asked over the room in that shape. A shape the room will not
+  // take leaves it as it stands, and the line for it below says so.
+  const shapeField = LAYOUT_FIELDS.find((field) => field.name === "shape")!;
+  const shapeRead = older(shapeField) ? null : readField(shapeField, query);
+  if (shapeRead?.state === "ok" && shapeRead.value !== store.getState().layoutParams.shape) {
+    store.getState().setLayoutShape(shapeRead.value);
+  }
+
+  // The layout, all of it asked at once, over the package's own room.
+  const standing = store.getState().layoutParams;
   let asked = { ...standing };
   for (const field of LAYOUT_FIELDS) {
     if (older(field)) asked = { ...asked, ...field.put(field.since!.before) };
@@ -103,8 +114,10 @@ export function openSharedLink(search: string): void {
     }
   }
 
-  // Each opening's model, as a pick on the card makes it.
-  for (const field of modelFieldsOf(entry.id)) {
+  // Each opening's model, as a pick on the card makes it: the package's
+  // openings in the shape the room was built in (round 98b).
+  const shaped = packageInShape(entry, built.shape);
+  for (const field of modelFieldsOf(entry.id, built.shape)) {
     const read = readField(field, query);
     const shown = () => store.getState().selection[field.slotId];
     if (read.state !== "ok") {
@@ -116,7 +129,7 @@ export function openSharedLink(search: string): void {
       lines.push({ kind: "catalogue", field: field.name, from: read.value, to: shown() });
       continue;
     }
-    const offered = candidatesFor(field.slotId, entry).find(
+    const offered = candidatesFor(field.slotId, shaped).find(
       (candidate) => candidate.appliance.id === appliance.id,
     );
     if (offered?.fit.fits && shown() !== appliance.id) {

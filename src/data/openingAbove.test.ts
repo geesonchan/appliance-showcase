@@ -108,22 +108,32 @@ describe("a machine taller than an opening with something above it (round 86)", 
       // microwave openings (A's, C's and D's drawer, B's and E's tower) for
       // A's, B's, C's and D's hood openings: its own category, `otr`, which
       // only the hood slot takes. Nothing it adds is too tall.
-      offered: 136,
+      // Round 98b: 146 — the third import of round 98 added two columns, each
+      // offered in every opening of its category it is narrow enough for (D20,
+      // round 46; Leo accepted it in round 98b): the 24" T24IR905SP in the
+      // five refrigerator openings, the 18" T18IW905SP in the five wine
+      // openings (A's, B's, C's and D's slot-wine, E's slot-wine-2). Three of
+      // the ten are an 84" column under a counter or a coffee machine, refused
+      // by 50" as the T18IW100SP and T24IW905SP beside them are.
+      offered: 146,
       refused: [
         "A slot-microwave mem301ws +14.5 countertop",
         "A slot-microwave po302w +16 countertop",
         "A slot-microwave pods302b +13.375 countertop",
         "A slot-wine t18iw100sp +50 countertop",
+        "A slot-wine t18iw905sp +50 countertop",
         "A slot-wine t24iw905sp +50 countertop",
         "C slot-microwave mem301ws +14.5 countertop",
         "C slot-microwave po302w +16 countertop",
         "C slot-microwave pods302b +13.375 countertop",
         "C slot-wine t18iw100sp +50 countertop",
+        "C slot-wine t18iw905sp +50 countertop",
         "C slot-wine t24iw905sp +50 countertop",
         "D slot-microwave mem301ws +14.5 countertop",
         "D slot-microwave po302w +16 countertop",
         "D slot-microwave pods302b +13.375 countertop",
         "E slot-wine-2 t18iw100sp +50 coffee",
+        "E slot-wine-2 t18iw905sp +50 coffee",
         "E slot-wine-2 t24iw905sp +50 coffee",
       ],
     });
@@ -244,11 +254,15 @@ describe("every other model (round 86)", () => {
         // and 115 since round 90, with HMCB36WS offered in four hood openings;
         // 116 since round 97, JVM3160RFSS compared in A's, B's, C's and D's
         // hood openings where it had been in A's, C's and D's drawer openings.
+        // 123 since round 98b: the two columns of round 98's third import,
+        // offered on width (D20, round 46) — T24IR905SP in the five
+        // refrigerator openings, T18IW905SP in B's and D's wine columns; its
+        // other three openings refuse it as too tall, above.
         if (fit.tooTallIn !== null || fit.notForTallUnit || fit.notInColumnBank) continue;
         compared += 1;
         if (fit.fits !== fit.widthOverIn <= 1e-6) changed.push(`${code} ${slotId} ${short(model.id)}`);
       }
     });
-    expect({ compared, changed }).toEqual({ compared: 116, changed: [] });
+    expect({ compared, changed }).toEqual({ compared: 123, changed: [] });
   });
 });

@@ -87,6 +87,8 @@ function size(
     // The hood is hung off the cooking surface the wall was drilled for, and
     // which surface that is belongs to the package. See D13 and D16.
     ...(spec.builtForCooktopIn === null ? {} : { builtForCooktopIn: spec.builtForCooktopIn }),
+    // What it is called, where the package names its machine otherwise (round 98b).
+    labelKey: spec.labelKey ?? record.labelKey,
     cutout: { ...record.cutout, ...box },
     // Where the fly-in comes from, when this package has moved the machine to
     // another wall. See `bestView` on the package slot.

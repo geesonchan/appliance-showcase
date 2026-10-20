@@ -155,8 +155,11 @@ export function Lights() {
           the line they should. Off in daylight, and off in the modes that are
           deliberately without atmosphere. */}
       {[
-        // Six inches into the room from each run's centre line, the way it faces.
-        { position: [RUN_BY_ID.left.centre + RUN_BY_ID.left.facing.sign * ft(6), ROOM.upperBottom - ft(1), 0] as const },
+        // Six inches into the room from each run's centre line, the way it
+        // faces. One wall has no left run, and no strip there (round 98b).
+        ...(RUN_BY_ID.left
+          ? [{ position: [RUN_BY_ID.left.centre + RUN_BY_ID.left.facing.sign * ft(6), ROOM.upperBottom - ft(1), 0] as const }]
+          : []),
         { position: [0, ROOM.upperBottom - ft(1), RUN_BY_ID.back.centre + RUN_BY_ID.back.facing.sign * ft(6)] as const },
       ].map((strip, i) => (
         <pointLight

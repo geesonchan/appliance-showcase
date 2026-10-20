@@ -17,7 +17,7 @@ import { PACKAGE, PACKAGE_SLOTS } from "./packages";
 import { ovenTowerOf } from "./ovenTower";
 import { OTR_ABOVE_COOKING_SURFACE_IN, hoodMountFor } from "./hoodMount";
 import { SLOT_BY_ID } from "./slots";
-import { cooktopLandingsIn, islandAcross } from "./layoutTemplate";
+import { ONE_WALL_MAX_IN, cooksOnTheRun, cooktopLandingsIn, islandAcross } from "./layoutTemplate";
 import { acrossOf, axisIndex, extentsOnAxis, otherAxis, outward } from "./frame";
 import type { Appliance, Slot, SlotId } from "../types";
 
@@ -140,7 +140,7 @@ function besideTheRange(run: CabinetRun, index: number): boolean {
   for (const step of [-1, 1]) {
     for (let at = index + step; at >= 0 && at < run.segments.length; at += step) {
       const segment = run.segments[at];
-      if (segment.slot === "slot-range") return true;
+      if (cooksOnTheRun(segment)) return true;
       const passable =
         segment.kind === "counter" ||
         (segment.kind === "tall" && segment.modules.every((m) => m.kind === "panel"));
@@ -169,7 +169,7 @@ function hasWorktop(segment: RunSegment): boolean {
   if (segment.kind !== "appliance" || !segment.slot) return false;
   // Named, and base height. Anything else is a segment this cannot vouch for.
   return (
-    segment.slot !== "slot-range" &&
+    !cooksOnTheRun(segment) &&
     SLOT_BY_ID[segment.slot]?.cabinetConfig.type === "base"
   );
 }
@@ -249,6 +249,14 @@ export function checkLayout(
           fail("d13-terminal", `${run.id} run finishes on ${segment.slot ?? segment.id}`);
         }
       }
+      // And at its first end where that is not a corner: one wall's run starts
+      // at the wall the refrigerator stands against (round 98b).
+      if (i === 0 && run.ends[0] !== "corner") {
+        const first = segment.modules[0];
+        if (first && (first.kind === "opening" || first.kind === "tall-open")) {
+          fail("d13-terminal", `${run.id} run starts on ${segment.slot ?? segment.id}`);
+        }
+      }
 
       if (segment.kind !== "tall") continue;
 
@@ -263,8 +271,14 @@ export function checkLayout(
       // counter without crossing the kitchen. `beside` on the package slot is
       // what says a unit is that one, and it has to actually be there — one
       // cabinet from the machine, no further.
+      //
+      // A run has two ends. In an L the first is the corner, and nothing tall
+      // stands there; on one wall it is the wall, and the refrigeration stands
+      // against it with the whole run of counter after it (round 98b). So the
+      // counter the rule is against is counter on both sides.
       const after = run.segments.slice(i + 1).filter((s) => s.kind !== "tall");
-      if (after.length > 0 && !besideTheRange(run, i)) {
+      const before = run.segments.slice(0, i).filter((s) => s.kind !== "tall");
+      if (after.length > 0 && before.length > 0 && !besideTheRange(run, i)) {
         fail(
           "d11-1",
           `${segment.id} is a tall cabinet with ${after.length} segment(s) of counter after it`,
@@ -361,7 +375,10 @@ export function checkLayout(
     const legIn = inches(
       run.segments[run.segments.length - 1].to - run.segments[0].from,
     );
-    const { shortMin, longMax } = CABINET_STANDARDS.legIn;
+    // A run with no corner — one wall — goes to the one-wall slider's top,
+    // past D13's 216" (Leo, round 98, third batch 1-3; `ONE_WALL_MAX_IN`).
+    const { shortMin } = CABINET_STANDARDS.legIn;
+    const longMax = run.ends.includes("corner") ? CABINET_STANDARDS.legIn.longMax : ONE_WALL_MAX_IN;
     if (legIn < shortMin) {
       fail("d13-leg", `the ${run.id} leg is ${legIn}", wants at least ${shortMin}"`);
     }
@@ -378,7 +395,10 @@ export function checkLayout(
   // only for `slot-range`, failing "no range on any run" for package E, and it
   // held an island hood to `slot-range` standing on the island — an early
   // prototype's shape — so E's hood was never checked at all.
-  const range = locate(runs, "slot-range");
+  // On one wall the cooktop is on the run where a range would be (round 98b),
+  // and is held to everything a range on a run is.
+  const range = locate(runs, "slot-range") ?? locate(runs, "slot-cooktop");
+  const rangeSlot: SlotId = range ? range.run.segments[range.index].slot! : "slot-range";
   const cooktop = slots["slot-cooktop"]?.mount === "island" ? slots["slot-cooktop"] : null;
   if (!range && !cooktop) {
     fail("d11-4", "no cooking surface: no range on a run and no cooktop in the island");
@@ -477,14 +497,14 @@ export function checkLayout(
         );
       }
     }
-    const rangeW = slots["slot-range"].cutout.w;
+    const rangeW = slots[rangeSlot].cutout.w;
     const hoodW = slots["slot-hood"].cutout.w;
     if (hoodW < rangeW) fail("d13-hood-width", `hood is ${hoodW}" over a ${rangeW}" range`);
     // And centred on it. Against a wall that is along the run, which is x: the
     // range is only ever on the back leg. (A hood over an island is checked
     // against the island's cooktop, above; round 48 found the x-only compare
     // letting a hood slid along an island turned across the room pass.)
-    if (Math.abs(slots["slot-hood"].position[0] - slots["slot-range"].position[0]) > 1e-6) {
+    if (Math.abs(slots["slot-hood"].position[0] - slots[rangeSlot].position[0]) > 1e-6) {
       fail("d11-4", "hood is not centred over the range");
     }
   }
@@ -601,12 +621,16 @@ export function checkLayout(
     // The corner cabinet's door has to clear the sink base. On the leg that
     // carries the corner that is the corner segment; on the other leg it is
     // where the run starts, which is where the corner box stops.
+    //
+    // A run with no corner at its first end — one wall, round 98b — has no
+    // corner door to clear: its first end is the wall.
     const cornerAt = sinkRun.segments.findIndex((s) => s.kind === "corner");
     const between = sinkRun.segments
       .slice(cornerAt + 1, index)
       .filter((s) => s.kind === "counter")
       .reduce((sum, s) => sum + widthIn(s), 0);
-    if (between < fromCornerIn - 1e-6) {
+    const fromACorner = cornerAt >= 0 || sinkRun.ends[0] === "corner";
+    if (fromACorner && between < fromCornerIn - 1e-6) {
       fail(
         "d11-10",
         `sink base is ${between.toFixed(0)}" of counter from the corner, needs ${fromCornerIn}"`,
@@ -631,9 +655,14 @@ export function checkLayout(
     // machine it is not part of says nothing about that machine's landing, and
     // measuring in front of it found none.
     const at = bank >= 0 && bank <= fridge.index ? bank : fridge.index;
+    // Or after the bank, where the bank stands at the run's first end: one
+    // wall's refrigeration against the wall, its counter past it (round 98b).
+    let last = fridge.index;
+    while (fridge.run.segments[last + 1]?.kind === "tall") last += 1;
     const best = Math.max(
       landing(fridge.run, at, -1),
       landing(fridge.run, fridge.index, 1),
+      landing(fridge.run, last, 1),
     );
     if (best < LAYOUT_LIMITS.fridgeLandingIn - 1e-6) {
       fail(

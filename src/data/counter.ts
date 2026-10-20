@@ -67,9 +67,34 @@ export function counterOutline(
    * is still a box in cabinets.ts: this is only the top that needs a hole.
    */
   island?: IslandTop,
+  /**
+   * The cooktop specified, where it stands on a run rather than in an island:
+   * one wall's (round 98b). Its hole is cut where a range's would be.
+   */
+  cooktop?: Appliance,
 ): CounterOutline {
-  const left = runs.find((run) => run.id === "left")!;
+  const left = runs.find((run) => run.id === "left");
   const back = runs.find((run) => run.id === "back")!;
+  const holes = [...rangeHoles(runs, range), ...cooktopHoles(runs, cooktop), ...sinkHoles(runs)];
+  const islandPieces = island ? [islandTop(island)] : [];
+  const band = [ROOM.counterHeight - ROOM.counterThickness, ROOM.counterHeight] as const;
+
+  // One wall (round 98b): one run and no corner to turn, so the stone is the
+  // stretches between its cuts, from the wall at its first end.
+  if (!left) {
+    const zBackOnly = back.centre - back.facing.sign * (ROOM.counterDepth / 2);
+    const zFrontOnly = back.centre + back.facing.sign * (ROOM.counterDepth / 2) + back.facing.sign * ROOM.counterOverhang;
+    const outlines = spans(back.segments[0].from, runEnd(back), cuts(back, range)).map((span) =>
+      rect(span, ordered(zBackOnly, zFrontOnly), "x"),
+    );
+    return {
+      pieces: [
+        ...outlines.map((outline) => ({ outline, holes: holes.filter((hole) => inside(centroid(hole), outline)) })),
+        ...islandPieces,
+      ],
+      band,
+    };
+  }
 
   // Back edges sit on the walls; front edges stand proud by the overhang,
   // toward the room each run faces (round 98a). The slab turning the corner is
@@ -109,17 +134,15 @@ export function counterOutline(
     ...backSpans.slice(cornered ? 1 : 0).map((span) => rect(span, [zBack, zFront], "x")),
   ];
 
-  const holes = [...rangeHoles(runs, range), ...sinkHoles(runs)];
-
   return {
     pieces: [
       ...outlines.map((outline) => ({
         outline,
         holes: holes.filter((hole) => inside(centroid(hole), outline)),
       })),
-      ...(island ? [islandTop(island)] : []),
+      ...islandPieces,
     ],
-    band: [ROOM.counterHeight - ROOM.counterThickness, ROOM.counterHeight] as const,
+    band,
   };
 }
 
@@ -251,6 +274,26 @@ function rangeHoles(runs: CabinetRun[], appliance?: Appliance): Point2[][] {
     holes.push(
       rect([centre - half, centre + half], ordered(run.centre + toRoom * back, run.centre + toRoom * front), run.axis),
     );
+  }
+  return holes;
+}
+
+/**
+ * A cooktop standing on a run — one wall's (round 98b) — drops into the top as
+ * it does in an island: the machine's own published cutout, centred on the
+ * cabinet under it along the run and across it, as `islandCooktopHole` centres
+ * it on the island's drawer base. The slot's own opening where nothing is
+ * specified.
+ */
+function cooktopHoles(runs: CabinetRun[], appliance?: Appliance): Point2[][] {
+  const holes: Point2[][] = [];
+  for (const run of runs) {
+    const segment = run.segments.find((each) => each.slot === "slot-cooktop");
+    if (!segment) continue;
+    const centre = (segment.from + segment.to) / 2;
+    const halfW = appliance?.cutoutWidthIn ? ft(appliance.cutoutWidthIn) / 2 : (segment.to - segment.from) / 2;
+    const halfD = ft(appliance?.cutoutDepthIn ?? ROOM.counterDepth * 12 - 1) / 2;
+    holes.push(rect([centre - halfW, centre + halfW], [run.centre - halfD, run.centre + halfD], run.axis));
   }
   return holes;
 }

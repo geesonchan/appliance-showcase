@@ -12,6 +12,7 @@ import { serviceRoute } from "../data/serviceRoute";
 import { alongOf, facingOf, onAxis, otherAxis, sizeOnPlan } from "../data/frame";
 import { wallBehind } from "../data/roomWalls";
 import { RUN_BY_ID } from "../data/room";
+import { LEFT_WALL_FACING } from "../data/layoutShape";
 import { wallAnchor } from "../data/wallAnchor";
 import type { Appliance, ServicePoint, SlotId, UtilityType, Utilities } from "../types";
 import { UNCONFIRMED, UNREVIEWED, UTILITY_COLORS, UTILITY_RADIUS_IN } from "./materials";
@@ -231,13 +232,18 @@ const entry = (standoff: number) => {
   return { x, z };
 };
 
-/** Inside corner, where the two runs' walls meet. */
+/**
+ * Inside corner, where the two runs' walls meet. The left wall's facing where
+ * there is no left run, on one wall (round 98b): nothing there needs a
+ * service, but the corner is still where the two walls are.
+ */
 const corner = (standoff: number) => {
   const back = wallOf(RUN_BY_ID.back);
-  const left = wallOf(RUN_BY_ID.left);
+  const leftFacing = RUN_BY_ID.left?.facing ?? LEFT_WALL_FACING;
+  const left = wallBehind(leftFacing);
   const [x, , z] = onAxis(
     otherAxis(back.axis),
-    left.at + RUN_BY_ID.left.facing.sign * standoff,
+    left.at + leftFacing.sign * standoff,
     back.at + RUN_BY_ID.back.facing.sign * standoff,
   );
   return { x, z };
