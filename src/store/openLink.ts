@@ -73,8 +73,16 @@ export function openSharedLink(search: string): void {
 
   // The layout, all of it asked at once, over the package's own room.
   const standing = store.getState().layoutParams;
-  const reads = LAYOUT_FIELDS.map((field) => ({ field, read: readField(field, query) }));
+  // A field a link of its version did not carry yet is not read: the link
+  // was written when the page had only one value for it, and that is what it
+  // gets, with nothing said (round 98a: a `v=1` link is an L).
+  const version = Number(query.get("v"));
+  const older = (field: (typeof LAYOUT_FIELDS)[number]) => field.since !== undefined && version < field.since.version;
   let asked = { ...standing };
+  for (const field of LAYOUT_FIELDS) {
+    if (older(field)) asked = { ...asked, ...field.put(field.since!.before) };
+  }
+  const reads = LAYOUT_FIELDS.filter((field) => !older(field)).map((field) => ({ field, read: readField(field, query) }));
   for (const { field, read } of reads) {
     if (read.state === "ok") asked = { ...asked, ...field.put(read.value) };
   }

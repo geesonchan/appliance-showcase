@@ -1,7 +1,7 @@
 import { APPLIANCES, APPLIANCE_BY_ID } from "../data/catalogue";
-import { inchesSpoken } from "../data/inches";
-import { PARAM_LIMITS, type LayoutParams } from "../data/layoutTemplate";
-import { LINK_VERSION } from "../data/linkVersion";
+import type { LayoutParams } from "../data/layoutTemplate";
+import { LAYOUT_FIELDS, type AnyValue, type Field } from "../data/layoutFields";
+import { LINK_VERSION, LINK_VERSIONS } from "../data/linkVersion";
 import { PACKAGES, PACKAGE_BY_ID } from "../data/packages";
 import { SLOT_RECORDS } from "../data/slots";
 import type { Appliance, Lang, SlotId } from "../types";
@@ -54,145 +54,14 @@ export interface Kitchen {
   finishes: Finishes;
 }
 
-/** How a message is said in the page's language: `sayWith` over `t`. */
-export type Say = (key: string, vars?: Record<string, string | number>) => string;
-
-/**
- * One setting in a link.
- *
- * `read` gives undefined for a value it cannot take, which the page reports
- * as a setting it could not use rather than guessing at.
- */
-export interface Field<V> {
-  /** Its name in the link. */
-  name: string;
-  /** What it is called on screen, for a line saying it could not be used. */
-  labelKey: string;
-  /** The page's own names for what it carries, for the completeness test. */
-  carries: string[];
-  write: (value: V) => string;
-  read: (raw: string) => V | undefined;
-  /** The value as a customer reads it. */
-  show: (value: V, say: Say) => string;
-}
-
-export interface LayoutField<V> extends Field<V> {
-  get: (params: LayoutParams) => V;
-  put: (value: V) => Partial<LayoutParams>;
-}
+// The layout's fields, and the shape of a field, are the screenshot
+// parameters' as well since round 98a: src/data/layoutFields.ts.
+export { LAYOUT_FIELDS, type AnyValue, type Field, type LayoutField, type Say } from "../data/layoutFields";
 
 export interface FinishField<V> extends Field<V> {
   get: (finishes: Finishes) => V;
   put: (value: V) => Partial<Finishes>;
 }
-
-// ---------------------------------------------------------------- codecs ---
-
-/**
- * A length or a height, in inches, within the slider's ends. Written as the
- * number itself, so 224-1/4" is `224.25` and the round trip is exact.
- */
-function inches(
-  name: string,
-  key: keyof typeof PARAM_LIMITS & keyof LayoutParams,
-  labelKey: string,
-): LayoutField<number> {
-  const limits = PARAM_LIMITS[key];
-  return {
-    name,
-    labelKey,
-    carries: [`layoutParams.${key}`],
-    get: (params) => params[key] as number,
-    put: (value) => ({ [key]: value }),
-    write: (value) => String(value),
-    read: (raw) => {
-      if (!/^\d+(\.\d+)?$/.test(raw)) return undefined;
-      const value = Number(raw);
-      return value >= limits.min && value <= limits.max ? value : undefined;
-    },
-    show: (value) => inchesSpoken(value),
-  };
-}
-
-/** One of a few named values, each with the label its control shows. */
-function choice<K extends keyof LayoutParams>(
-  name: string,
-  key: K,
-  labelKey: string,
-  options: Record<string, string>,
-): LayoutField<LayoutParams[K]> {
-  return {
-    name,
-    labelKey,
-    carries: [`layoutParams.${key}`],
-    get: (params) => params[key],
-    put: (value) => ({ [key]: value }) as Partial<LayoutParams>,
-    write: (value) => String(value),
-    read: (raw) => (raw in options ? (raw as LayoutParams[K]) : undefined),
-    show: (value, say) => say(options[String(value)]),
-  };
-}
-
-const LEGS = { left: "panel.layout.leg.left", back: "panel.layout.leg.back" };
-
-/**
- * The island, which is a length or none at all — the names the screenshot
- * parameters already use (`?island=96`, `?island=none`). An island switched
- * off keeps no length in the link: the page shows none, whatever length it
- * would come back at.
- */
-const island: LayoutField<number | "none"> = {
-  name: "island",
-  labelKey: "panel.layout.island",
-  carries: ["layoutParams.hasIsland", "layoutParams.islandLengthIn"],
-  get: (params) => (params.hasIsland ? params.islandLengthIn : "none"),
-  put: (value) => (value === "none" ? { hasIsland: false } : { hasIsland: true, islandLengthIn: value }),
-  write: (value) => String(value),
-  read: (raw) => (raw === "none" ? "none" : inches("island", "islandLengthIn", "").read(raw)),
-  show: (value, say) => (value === "none" ? say("share.value.noIsland") : inchesSpoken(value)),
-};
-
-/**
- * A field of any value. Each field's own type is held where it is made; the
- * lists hold them side by side, and a value read by a field only ever goes
- * back into that same field.
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnyValue = any;
-
-/** The layout, in the order the Configuration panel shows it. */
-export const LAYOUT_FIELDS: LayoutField<AnyValue>[] = [
-  inches("back", "backWallIn", "panel.room.backWall"),
-  inches("left", "leftWallIn", "panel.room.leftWall"),
-  choice("corner", "cornerType", "panel.room.corner", {
-    blind: "panel.room.corner.blind",
-    "lazy-susan": "panel.room.corner.lazySusan",
-  }),
-  choice("fridgeLeg", "fridgeEnd", "panel.layout.fridge", LEGS),
-  choice("fridgeAbuts", "fridgeEndAbuts", "panel.layout.fridgeAbuts", {
-    cabinet: "panel.layout.abuts.cabinet",
-    wall: "panel.layout.abuts.wall",
-  }),
-  choice("sinkLeg", "sinkLeg", "panel.layout.sink", LEGS),
-  choice("towerSide", "towerSide", "panel.layout.tower", {
-    left: "panel.layout.tower.left",
-    right: "panel.layout.tower.right",
-  }),
-  choice("housing", "housingStyle", "panel.layout.housing", {
-    box: "panel.layout.housing.box",
-    sweep: "panel.layout.housing.sweep",
-  }),
-  choice("coffeeLeg", "coffeeLeg", "panel.layout.coffee", LEGS),
-  inches("coffeeSill", "coffeeSillIn", "panel.layout.coffeeSill"),
-  inches("handle", "microwaveHandleIn", "panel.layout.microwaveHandle"),
-  island,
-  choice("islandTurn", "islandOrientation", "panel.layout.islandOrientation", {
-    parallel: "panel.layout.island.parallel",
-    perpendicular: "panel.layout.island.perpendicular",
-  }),
-  inches("islandDepth", "islandDepthIn", "panel.layout.islandDepth"),
-  inches("aisle", "aisleIn", "panel.layout.aisle"),
-];
 
 /** A door colour: a RAL number (`ral5015`) or a swatch's name (`navy`). */
 function paint(name: string, key: "cabinet" | "accent", palette: Palette, labelKey: string): FinishField<string> {
@@ -418,7 +287,7 @@ export function readLink(
 ): { kind: "none" } | { kind: "unreadable" } | { kind: "link"; packageId: string } {
   const version = query.get("v");
   if (version === null) return { kind: "none" };
-  if (version !== LINK_VERSION) return { kind: "unreadable" };
+  if (!LINK_VERSIONS.includes(version)) return { kind: "unreadable" };
   const pkg = readField(PACKAGE_FIELD, query);
   return pkg.state === "ok" ? { kind: "link", packageId: pkg.value } : { kind: "unreadable" };
 }

@@ -1,4 +1,4 @@
-import { facingOf, stripFacing } from "./frame";
+import { facingOf } from "./frame";
 import { againstWall, wallBehind } from "./roomWalls";
 import { RUN_BY_ID } from "./room";
 import type { ServicePoint } from "../types";
@@ -36,6 +36,8 @@ export function wallAnchor(
   // The trunks care which of the two walls it is, because a run to the left
   // wall turns the inside corner on the way. Which one that is comes from the
   // left run — the wall it backs onto — rather than from naming an axis here.
-  const leftWall = wallBehind(stripFacing(RUN_BY_ID.left.axis, 1));
-  return { onLeftWall: wall.axis === leftWall.axis, x, z };
+  // The left wall by where it is as well as which way it runs: a wall across
+  // the room from it runs the same way (round 98a).
+  const leftWall = wallBehind(RUN_BY_ID.left.facing);
+  return { onLeftWall: wall.axis === leftWall.axis && wall.at === leftWall.at, x, z };
 }

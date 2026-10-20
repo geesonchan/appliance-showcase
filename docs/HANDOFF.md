@@ -12,7 +12,7 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **round 96** (`docs/decisions.md` is the record of
+Covers the repository up to **round 98a** (`docs/decisions.md` is the record of
 rounds; `git log` is the record of commits). It replaces the v1–v9 briefs that
 were pasted into chat.
 
@@ -58,9 +58,9 @@ every figure of it, is `data/packages.json`; D16 and D20 say how a package is
 put together and why E was built the way it was. **Do not copy those numbers
 anywhere**: the file is the one source, and the tests read it.
 
-### Where it stands (round 97)
+### Where it stands (round 98a)
 
-- **All five packages are live.** Rounds 73–79, 81–90, 92, 92a, 92b, 92c, 93, 94, 95, 91, 96 and 97 each shipped
+- **All five packages are live.** Rounds 73–79, 81–90, 92, 92a, 92b, 92c, 93, 94, 95, 91, 96, 97 and 98a each shipped
   (round 80 built nothing; 91 was built after 95, below), and each was checked against the live page's asset hashes
   after its workflow finished.
 - **The live site counts visits, anonymously** (D24): page views and four events
@@ -108,8 +108,15 @@ anywhere**: the file is the one source, and the tests read it.
   anonymously (**done**, D24); 97 an over-the-range microwave, GE's
   JVM3160RFSS, in the hood's place, from Leo's shop — the microwave drawer
   leaving the room with it, its own rectangular outlet, 24" over the cooking
-  surface (**done**, D16, D13 and D18 round 97); then a hood's
-  own outlet, then 79a (the doors of the
+  surface (**done**, D16, D13 and D18 round 97); 98, a layout shape switch
+  — one wall, U, galley — from a colleague's use, planned in four rounds
+  (`docs/plans/round-98-layout-shape-plan.md`): 98a the preparation, nothing
+  on the page changed — every run records which way it faces, the L written
+  once as a shape, a share link `v=2` with the shape and `v=1` read as an L,
+  the screenshot parameters read by the link's table (**done**, D22 and D23
+  round 98a; D17's table, the eighteenth row, closed); then 98b one wall
+  (Leo's first five answers in the Open items), then a galley, then a U; then
+  a hood's own outlet, then 79a (the doors of the
   cabinet over the hood and the outlet shown in it), then 79b. The 30" option
   in A is paused.
 
@@ -120,7 +127,7 @@ anywhere**: the file is the one source, and the tests read it.
 | Path | What it holds |
 |---|---|
 | `data/*.json` | The product data: appliances, packages, slots, fixtures, rules, rough-in points, colours. Validated on load by `src/data/schema.ts` (D3). |
-| `docs/decisions.md` | Every decision, numbered D1–D23, and the Open items. The record. |
+| `docs/decisions.md` | Every decision, numbered D1–D24, and the Open items. The record. |
 | `docs/data-sheet-spec.md` | Where each field of `appliances.json` comes from in Leo's inventory sheet, and what the importer does to it. |
 | `docs/reference/` | Manufacturer drawings and manuals, with `README.md` listing every file and what it settles. A figure with no entry here is not a source (D21). |
 | `src/data/` | The geometry and the rules: room and runs, cabinets, layout template, layout rules, rough-in, quote, checklist. |
@@ -145,6 +152,9 @@ anywhere**: the file is the one source, and the tests read it.
 | `src/data/toeKick.test.ts`, `tests/toeKick.test.ts` | What stands on the toe kick and what goes to the floor, where the kick runs, the corner piece, the island's 3", a dishwasher's kick panel, and rough-in in a base cabinet read from `cabinets.ts` (D22, round 92b). |
 | `src/store/defaultDoors.test.ts`, `tests/defaultDoors.test.ts` | Every package opens with its doors in RAL 5015; the interface green and the accent palette unchanged (D15, round 92a). |
 | `src/store/shareLink.ts`, `src/store/openLink.ts` | The share link: one table every setting is written and read by, and the page opened from a link checked by what it already asks (D23, round 94). |
+| `src/data/layoutFields.ts`, `src/data/screenshotParams.test.ts` | The layout's half of that table, read by a link and by a screenshot address (`paramsFromQuery`, room.ts) alike; a field's `since` for links older than it, and the two old screenshot names as aliases (D23, round 98a). |
+| `src/store/shareLinkV2.test.ts`, `src/store/shareLink.round97.json` | A link is `v=2` with the shape; five `v=1` links written by round 97's code open as an L, say nothing, and open round 97's room by its hash (D23, round 98a). |
+| `src/data/layoutShape.ts`, `src/data/layoutShape.test.ts` | The layout's shape: the L's runs, the wall each is on, which way each faces, its ends, its corner; every run and box facing its run, left and right on four walls (D22, round 98a). |
 | `src/store/shareLink.test.ts`, `tests/shareLink.test.ts` | A kitchen shared and opened comes back the same, settings, room and pins; older links and their notice; the table's completeness (D23, round 94). |
 | `src/ui/shareQr.ts`, `tests/shareQr.test.ts` | The share box's QR code — L, 4 CSS pixels a module, loaded only when the box opens — read back to the link character for character (D23, round 95). |
 | `tests/rightTabs.test.ts`, `tests/sheetTabs.test.ts`, `src/store/rightTab.test.ts` | The right panel's four tabs and the phone sheet's five: Look first, Install mode there and back, the checklist folded by machine, the tab kept for the browser tab (D12, round 91). |
@@ -210,9 +220,10 @@ what to go and read.
 - **One rule is written once.** D17 carries the table of every time it was
   written twice: seventeen rows, for eighteen times it happened — round 60's
   quarter-inch window step is counted as a near relative, the fifth, and has
-  no row of its own. Two are still open, both deliberate: the first, and the
+  no row of its own. One is still open, deliberate: the first. The
   eighteenth (round 94, a layout figure in a page's address read by the
-  screenshot parameters and by the share link's table); the twelfth (round 84,
+  screenshot parameters and by the share link's table) was joined in round 98a
+  (D23); the twelfth (round 84,
   the half inch that is a scribe) was closed in round 85, and the thirteenth
   (round 87, how a hood hangs), the fourteenth (round 89, how a
   refrigerator is built in), the fifteenth (round 92b, where a base
@@ -324,9 +335,11 @@ Three things, each with its source:
 - **A Run Composer** — registered in D14, before building it.
 - **The two run towers on separate legs** — D22, round 55: "splitting them
   across two legs is not being built now".
-- **U-shaped and galley layouts** — only mentioned, in D22 (the fly-in rule
-  and `roomWalls.ts` are written so they would need no new rule). Never
-  registered as work.
+- **A layout shape switch: one wall, U-shaped, galley** — registered in round
+  98, from a colleague's feedback from use; round 98 is its plan, not started
+  (Open items, "A layout shape switch"). Until then only mentioned, in D22 (the
+  fly-in rule and `roomWalls.ts` are written so they would need no new rule);
+  round 98's plan reads where that holds in the code and where it does not.
 
 And the rounds Leo has queued, with what he decided for each: the last entry of
 the Open items, "Registered rounds after 78".

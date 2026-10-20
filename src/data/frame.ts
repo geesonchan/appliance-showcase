@@ -70,11 +70,16 @@ export function faceRotation(axis: Axis, sign: -1 | 1): number {
  * Whether further along a run is to the right of a machine standing in it.
  *
  * "Right" is the machine's own: its local +x, which is what the hinge and the
- * trim kit are written in. A machine faces out of the run's +1 side.
+ * trim kit are written in. A machine faces the way its run does, and the run
+ * says which way that is (round 98a): the back wall's run faces +z and the
+ * left wall's +x, but a run on a right wall faces -x and the answer turns
+ * over with it. Until round 98a this took the run's axis and assumed the +1
+ * side, which is the left-and-right fault of round 70 waiting for the first
+ * run that faces the other way.
  */
-export function alongIsToTheRight(axis: Axis): boolean {
-  const [rx, rz] = turnPlan(faceRotation(axis, 1), 1, 0);
-  return alongOf(axis, rx, rz) > 0;
+export function alongIsToTheRight(facing: Facing): boolean {
+  const [rx, rz] = turnPlan(rotationOf(facing), 1, 0);
+  return alongOf(otherAxis(facing.axis), rx, rz) > 0;
 }
 
 // --- a machine turned by rotationY ----------------------------------------------

@@ -47,7 +47,7 @@ here is in the directory unless its row says otherwise.
 an inference until it is. PRG366WH's sheet is not here either (see the end of
 this file).
 
-The sixteen PDFs are the manufacturer's own specification sheets and installation
+The nineteen PDFs are the manufacturer's own specification sheets and installation
 guides, committed whole rather than as figures pulled out of them: a sheet is
 one file and a round of questions about it is answered by opening the file.
 

@@ -81,7 +81,9 @@ describe("a strip laid along an axis", () => {
   it("has further along to a machine's right on the back wall and to its left on the left wall", () => {
     // Facing the back wall, the run goes away from the corner to your right;
     // facing the left wall it goes away from the corner to your left.
-    expect(alongIsToTheRight("x")).toBe(true);
-    expect(alongIsToTheRight("z")).toBe(false);
+    // Since round 98a the helper takes the run's facing, not its axis: the back
+    // wall's run faces +z, the left wall's +x. The answers are unchanged.
+    expect(alongIsToTheRight({ axis: "z", sign: 1 })).toBe(true);
+    expect(alongIsToTheRight({ axis: "x", sign: 1 })).toBe(false);
   });
 });

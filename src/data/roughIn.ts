@@ -13,7 +13,6 @@ import {
   facingOf,
   onAxis,
   sizeOnPlan,
-  stripFacing,
   toPlan,
   type Facing,
 } from "./frame";
@@ -362,7 +361,7 @@ function hostFor(slot: Slot, appliance: Appliance, point: RoughInPoint): HostBox
   // A neighbour on the same run, on the installer's left or right. Round 70:
   // this used to read "right" as further from the corner, which is the
   // installer's right on the back run and their left on the left run.
-  const toRight = alongIsToTheRight(found!.run.axis) ? 1 : -1;
+  const toRight = alongIsToTheRight(found!.run.facing) ? 1 : -1;
   const step = point.location === "adjacent-cabinet-left" ? -toRight : toRight;
   const neighbour = pickNeighbour(found!.run.segments, found!.index, step as -1 | 1);
   if (!neighbour) return null;
@@ -528,7 +527,7 @@ export function resolveRoughIn(slotId: SlotId, appliance: Appliance | undefined)
     // that is `frame.ts`'s answer: further along is their right on the back
     // run and their left on the left run. An island opening is measured in the
     // machine's own frame, whose +x is the right of somebody facing it.
-    const toRight = host.frame ? 1 : alongIsToTheRight(host.run.axis) ? 1 : -1;
+    const toRight = host.frame ? 1 : alongIsToTheRight(host.run.facing) ? 1 : -1;
     const endOn = (side: Side) => ((side === "left") === toRight > 0 ? host.along[0] : host.along[1]);
     const inward = (side: Side) => (side === "left" ? toRight : -toRight);
     const sideOf = (step: -1 | 1): Side => (step === toRight ? "right" : "left");
@@ -616,13 +615,15 @@ export function resolveRoughIn(slotId: SlotId, appliance: Appliance | undefined)
     }
 
     // Rear means against the wall the run stands on; centre, the middle of the
-    // box's depth, which is where a hood's duct leaves it.
+    // box's depth, which is where a hood's duct leaves it. The wall is behind
+    // the way the run faces (round 98a: the run says which way that is).
+    const toRoom = host.run.facing.sign;
     const across =
       at.z === "center"
         ? host.run.centre
         : at.z === "rear"
-          ? host.run.centre - ROOM.counterDepth / 2 + size[2] / 2
-          : host.run.centre + ROOM.counterDepth / 2 - size[2] / 2;
+          ? host.run.centre - toRoom * (ROOM.counterDepth / 2) + toRoom * (size[2] / 2)
+          : host.run.centre + toRoom * (ROOM.counterDepth / 2) - toRoom * (size[2] / 2);
 
     const position = onAxis(host.run.axis, along, across, y);
     const min = onAxis(host.run.axis, host.along[0], host.run.centre - ROOM.counterDepth / 2, host.band[0]);
@@ -633,7 +634,7 @@ export function resolveRoughIn(slotId: SlotId, appliance: Appliance | undefined)
       position,
       size,
       // A run's cabinetry opens to the room.
-      host: { id: host.id, min, max, facing: stripFacing(host.run.axis, 1) },
+      host: { id: host.id, min, max, facing: host.run.facing },
       sides,
       noCabinet,
       noCabinetNotes,

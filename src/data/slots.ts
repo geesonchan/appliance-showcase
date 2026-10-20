@@ -9,7 +9,7 @@ import { slotsAsBuilt } from "./fridgeMount";
 import { inColumnBank } from "./layoutTemplate";
 import { ovenTowerOf } from "./ovenTower";
 
-export { ft, CABINET_STANDARDS, ROOM, RUN, RUNS, RUN_BY_ID, PANEL, FRIDGE_OPENING, HOOD_OPENING, ISLAND, OMITTED_SLOTS, OMITTED_FOR_WALL, isOmitted } from "./room";
+export { ft, CABINET_STANDARDS, ROOM, RUNS, RUN_BY_ID, PANEL, FRIDGE_OPENING, HOOD_OPENING, ISLAND, OMITTED_SLOTS, OMITTED_FOR_WALL, isOmitted } from "./room";
 
 /**
  * The six slots.

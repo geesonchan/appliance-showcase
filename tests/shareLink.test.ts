@@ -162,7 +162,7 @@ describe("a shared kitchen opens the same", () => {
     const opened = await reading(o);
     const notice = await o.page.locator("[data-share-notice]").count();
     expect({
-      link: /^http:\/\/localhost:\d+\/\?v=1&pkg=D&lang=zh&/.test(link),
+      link: /^http:\/\/localhost:\d+\/\?v=2&pkg=D&lang=zh&/.test(link),
       kitchen: opened.kitchen,
       room: opened.room,
       pins: opened.pins,

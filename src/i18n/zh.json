@@ -321,6 +321,8 @@
   "panel.room.corner.blind": "盲角",
   "panel.layout.leg.left": "左段",
   "panel.layout.leg.back": "后段",
+  "panel.layout.shape": "布局形状",
+  "panel.layout.shape.L": "L 型",
   "panel.layout.sink": "水槽",
   "panel.layout.islandLength": "岛台长度",
   "panel.layout.islandDepth": "岛台进深",

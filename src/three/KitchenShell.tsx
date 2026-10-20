@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { HOOD_OPENING, ROOM, RUN, WINDOWS, ft, fridgeReturnWall } from "../data/room";
+import { HOOD_OPENING, ROOM, RUN_BY_ID, WINDOWS, ft, fridgeReturnWall } from "../data/room";
 import { useAppStore } from "../store/useAppStore";
 import { finish, floorColor, wallColor, type FinishToken } from "./materials";
 import { Surface } from "./Surface";
@@ -183,7 +183,12 @@ function Backsplash() {
   return (
     <mesh
       name="backsplash"
-      position={[(from + to) / 2, ROOM.counterHeight + height / 2, RUN.backZ - ROOM.counterDepth / 2 + ft(0.5)]}
+      position={[
+        (from + to) / 2,
+        ROOM.counterHeight + height / 2,
+        // On the back run's wall, half an inch into the room it faces.
+        RUN_BY_ID.back.centre - RUN_BY_ID.back.facing.sign * (ROOM.counterDepth / 2) + RUN_BY_ID.back.facing.sign * ft(0.5),
+      ]}
       receiveShadow
     >
       <planeGeometry args={[to - from, height]} />

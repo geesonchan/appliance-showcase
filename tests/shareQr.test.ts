@@ -112,7 +112,7 @@ describe("the share box on a desktop", () => {
     const copied = await clipboard(s);
     const shown = await s.page.$eval("[data-share-link]", (input) => (input as HTMLInputElement).value);
     const toast = await s.page.locator('[role="status"]').first().innerText();
-    expect({ link: /^http:\/\/localhost:\d+\/\?v=1&pkg=A&/.test(copied), shown, toast, errors: s.errors }).toEqual({
+    expect({ link: /^http:\/\/localhost:\d+\/\?v=2&pkg=A&/.test(copied), shown, toast, errors: s.errors }).toEqual({
       link: true,
       shown: copied,
       toast: "Link copied",

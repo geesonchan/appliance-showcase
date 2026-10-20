@@ -9,7 +9,7 @@ import { useSelection, useSelectedBlower } from "../store/useSelection";
 import { effectiveCfm } from "../data/ventilation";
 import { resolveRoughIn } from "../data/roughIn";
 import { serviceRoute } from "../data/serviceRoute";
-import { alongOf, facingOf, onAxis, otherAxis, sizeOnPlan, stripFacing } from "../data/frame";
+import { alongOf, facingOf, onAxis, otherAxis, sizeOnPlan } from "../data/frame";
 import { wallBehind } from "../data/roomWalls";
 import { RUN_BY_ID } from "../data/room";
 import { wallAnchor } from "../data/wallAnchor";
@@ -212,8 +212,8 @@ function FloorService({
   );
 }
 
-/** The wall a run's machines back onto. */
-const wallOf = (run: typeof RUN_BY_ID.back) => wallBehind(stripFacing(run.axis, 1));
+/** The wall a run's machines back onto: behind the way the run faces (round 98a). */
+const wallOf = (run: typeof RUN_BY_ID.back) => wallBehind(run.facing);
 
 /**
  * Every service enters on the back run's wall, at its open end.
@@ -224,8 +224,10 @@ const wallOf = (run: typeof RUN_BY_ID.back) => wallBehind(stripFacing(run.axis, 
  * a run's. Round 52 (D22 step 3).
  */
 const entry = (standoff: number) => {
-  const wall = wallOf(RUN_BY_ID.back);
-  const [x, , z] = onAxis(otherAxis(wall.axis), ROOM.halfX - ft(4), wall.at + standoff);
+  const run = RUN_BY_ID.back;
+  const wall = wallOf(run);
+  // Off the wall into the room, the way the run faces.
+  const [x, , z] = onAxis(otherAxis(wall.axis), ROOM.halfX - ft(4), wall.at + run.facing.sign * standoff);
   return { x, z };
 };
 
@@ -233,7 +235,11 @@ const entry = (standoff: number) => {
 const corner = (standoff: number) => {
   const back = wallOf(RUN_BY_ID.back);
   const left = wallOf(RUN_BY_ID.left);
-  const [x, , z] = onAxis(otherAxis(back.axis), left.at + standoff, back.at + standoff);
+  const [x, , z] = onAxis(
+    otherAxis(back.axis),
+    left.at + RUN_BY_ID.left.facing.sign * standoff,
+    back.at + RUN_BY_ID.back.facing.sign * standoff,
+  );
   return { x, z };
 };
 

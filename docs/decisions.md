@@ -3173,7 +3173,7 @@ repository has them)* — one rule, written more than once:
 | round 92b | where a base cabinet is, floor to top, for a rough-in point "in the cabinet" | `BASE_BOX` in cabinets.ts, which draws the cabinet; and five copies of `[0, ROOM.counterHeight - ROOM.counterThickness]` in `roughIn.ts`, one per host — the neighbour's cabinet, the sink base, the cabinet beside a tower, the other neighbour, the island's cabinet beside an opening — each from the room's floor | **one**: `BASE_CABINET_BAND` in cabinets.ts, which the hosts read (round 92b) | **it never had**: the two agreed while the cabinet stood on the floor. It would have the moment the cabinets stood on the kick — every figure "from the bottom" of a base cabinet drawn 4" low, which is the round that found it. `toeKick.test.ts` counts the copies in `roughIn.ts` (none) and holds a sink-base point 4" up with its figure unchanged. *(Row added after round 92b's own write-up, which cited this table without one.)* |
 | round 92c | how an oven tower is installed, and so where its sides are and how wide its hole is | the importer's note on MEM301WS (standard: a 30" cabinet, a 28-1/2" hole, 3/4" each side — round 20); `standardInstall` in ovenTrim.ts, which worked out that 3/4" (`sideIn`) and which nothing read; and the run, which built a 30" hole (`insetIn: 0`) with a separate 3/4" board outside it toward the range in B and D and each side in E, its comment saying a board each side as items of the run; rule 12's check asked for that board | **one**: `ovenTowerOf` in `ovenTower.ts`, from the package slot's `towerInstall` and its own oven's standard cutout, which the run, the slot's opening, the trim and the check all ask (round 92c) | **it had bitten, on the live site**: every oven tower was neither install — B's and D's 30-3/4" with one side board, the far side open behind the board to the top, E's 31-1/2" — found when round 92c took that board away and the machine's steel side showed (Leo, from use of round 92b). `ovenTower.test.ts` holds every tower in B, D and E. |
 | round 92c | what stands beside an oven tower on the side away from the cooking surface, filled to its top | `besideTheTower` in cabinets.ts, which drew it, and `filled` inside `wallCuts` (layoutTemplate.ts), which kept the wall cabinets off it — each finding "the far side" on its own; they agreed | **one**: `filledBesideTower` in layoutTemplate.ts, with round 92c's 9" in it, which both ask (round 92c) | **it never had**: the two agreed. It would have the day one was given the 9" and the other not — a wall cabinet hung over a board to the ceiling, or a bare stretch of wall over a counter nobody filled. `ovenTower.test.ts` counts the copies (one). |
-| round 94 | what a layout figure in a page's address means: `?back=`, `?left=`, `?island=`, `?islandDepth=`, `?aisle=`, `?corner=` | `readParams` in room.ts, which reads them from a screenshot address (no `v`) and takes any finite number, refusing the whole set and opening the default room on one it cannot use; and the share link's table (`LAYOUT_FIELDS`, shareLink.ts), which reads the same names from a link (`v=1`), takes a length only inside its slider's ends, and shows the package's own for each one it cannot use | **still two**, recorded in round 94 as deliberate for now (Leo, round 94: accepted, to be joined when the condition beside it comes): `isShareLink` decides which reads an address, so no page reads one name both ways. The finishes' names, which the two also share, are one copy (`finishes.ts`, round 94) | **the day one is changed and not the other** — a new layout parameter given a name in one and not the other, or a range moved in one — or the day somebody hands a customer a screenshot address as a link. Join them then: `readParams` reading the table's fields. |
+| round 94 | what a layout figure in a page's address means: `?back=`, `?left=`, `?island=`, `?islandDepth=`, `?aisle=`, `?corner=` | `readParams` in room.ts, which reads them from a screenshot address (no `v`) and takes any finite number, refusing the whole set and opening the default room on one it cannot use; and the share link's table (`LAYOUT_FIELDS`, shareLink.ts), which reads the same names from a link (`v=1`), takes a length only inside its slider's ends, and shows the package's own for each one it cannot use | **one since round 98a**: `paramsFromQuery` in room.ts reads a screenshot address through the table, moved to `src/data/layoutFields.ts` so the room can read it at load; room.ts's two names of its own, `fridge` and `sink`, are the table's aliases (D23, round 98a). Recorded in round 94 as two, deliberate for now (Leo, round 94: accepted, to be joined when the condition beside it came); the finishes' names were one copy from round 94 (`finishes.ts`) | **it came in round 98a**, before it bit: the layout's shape, a new layout parameter, would have had a name in one and not the other (Leo: "形状只在字段表里写一处"). Until then it would have bitten — a new layout parameter given a name in one and not the other, or a range moved in one — or the day somebody hands a customer a screenshot address as a link. Join them then: `readParams` reading the table's fields. |
 
 Round 60's quarter-inch window step is a near relative rather than a member:
 one rule, but its search and its judgement worked to different resolutions,
@@ -3218,10 +3218,11 @@ everywhere but the machine's own drawing. The fifteenth, round 92b's, likewise:
 where a base cabinet is, written once to draw it and five times more to
 measure a rough-in point in it. The sixteenth and seventeenth, round 92c's,
 likewise: how an oven tower is installed, three records and three answers, and
-what is filled beside it, judged twice. The eighteenth, round 94's, is open
+what is filled beside it, judged twice. The eighteenth, round 94's, was open
 and deliberate, as the first is: a layout figure in a page's address read by
 the screenshot parameters and by the share link's table, never both on one
-page. The table has seventeen rows for those eighteen: round 60's has none of
+page; it was joined in round 98a, when the layout's shape was the new
+parameter its row was waiting for. The table has seventeen rows for those eighteen: round 60's has none of
 its own. The table is here so that the next one found is added to it rather
 than rediscovered.
 
@@ -5335,6 +5336,93 @@ to explain connections — a machine that must have water.
   the neighbouring cabinet, not 18" — still well past the 5-29/32" fall the
   manual asks, and well inside both hoses.
 
+*Amended 2026-10-19 (round 98a), Leo: a run records which way it faces, and
+the layout has a shape.* The preparation for the layout shape switch
+(`docs/plans/round-98-layout-shape-plan.md`, sections 2.3 and 3; Leo: "98a 和 98b
+分开做", and for 98a "页面上没有任何变化"). Round 98's reading found that this
+entry's two sentences — the fly-in rule "will hold for the U-shaped and galley
+templates without being defined again" (round 51) and `roomWalls.ts` "need no
+new rule" (round 52) — hold for those two functions and not for the code round
+them: a run did not record which way it faced, and everything that needed it
+wrote "out of the run's +1 side", which is the back wall's +z and the left
+wall's +x and no other wall's.
+- **`CabinetRun.facing`**, set where the run is made, from the shape. What
+  read the +1 side now reads it: the machines' turn (`placements`), every box
+  on a run (`onRun`, the susan's toe kick, `standOffFromWall`), a rough-in
+  point's rear and front and its host's facing, the return wall, the
+  countertop's edges, the range's and the sink's holes in it, the dimension
+  lines' planes, the island aisle's front edge, the service trunks' wall and
+  stand-off, the left wall's test in `wallAnchor` (by where it is as well as
+  which way it runs), the under-cabinet lights and the backsplash.
+  `alongIsToTheRight` takes the run's facing, not its axis: on a run facing
+  the other way left and right turn over, which is round 70's fault waiting
+  for its first run (D17's table, the sixth row). `RUN`, the two centre lines
+  kept for the scene, went: nothing reads it now.
+- **`src/data/layoutShape.ts`**: the L written once — its runs, the wall each
+  stands on, which way each faces, what is at each end (the back run's far end
+  a wall, the left run's open), and which run's first box is the corner. The
+  generator builds its runs from it (each run's centre line, start, bank start
+  and far end) and refuses loudly a shape it has no template for.
+  `LayoutParams.shape`, `"L"` and nothing else until 98b; no control sets it.
+- **Still the L's, and named for 98b and after:** what goes on each leg
+  (`planLegs`: the refrigerator's leg, the sink's), the six-cornered slab
+  turning the corner (`counter.ts`), the susan's diagonal door, which faces +x
+  and +z (`diagonalDoor`), its toe kick at the run's low end, the walls drawn
+  (`KitchenShell`), the trunks' one bend at one corner, the camera, the plan
+  thumbnail and the sliders.
+- **Tests.** `layoutShape.test.ts`, 65 cases: each run's facing stated from the
+  room, every box on a run facing its run and every machine turned out of it,
+  in every package in the arrangements of four it builds (18); further along a run to a machine's
+  right on four walls, two pairs facing opposite ways; the shape the L, and an
+  unknown one refused loudly. On round 97's code 63 red, each for what it names
+  (no facing on a run; no shape); 2 of the 4 walls green there, as they must be
+  on any code that gets the back and left walls right. `frame.test.ts`'s case
+  for `alongIsToTheRight` passes the two walls' facings where it passed their
+  axes; its answers unchanged.
+- **Measured: the L did not change, by its geometry and by its pixels** (Leo:
+  "先做几何逐字节对比，探测器先故意改一处、证明它抓得到；再做像素对比，房间处
+  处是 0").
+  - **The geometry, byte for byte.** A script dumped every room the template
+    builds — each package in 195 arrangements (sink leg, refrigerator end,
+    coffee leg, tower side, corner, what is past the refrigerator, the island
+    along, across or none, and two more) and with every model each opening
+    offers that fits, one at a time: 508 rooms and 530 refusals, each with its
+    runs, segments and modules, every cabinet box, every machine's place and
+    turn, the counter's outline, every rough-in point with its sentence in
+    both languages, the dimension lines, the service routes, the fly-in
+    angles, the hinges and the kits, the return wall and the walls' bills.
+    Round 97's code (`11a9af5`, a worktree of its own) and round 98a's gave
+    the same file to the byte (SHA-256 `d23407d2c946…` both), with only what
+    this round adds left out of both: the layout's `shape` and a run's
+    `facing`, each asked for in the tests above, and round 97's `RUN` written
+    from the runs' centre lines it was made from. **The detector shown first**:
+    round 97's code with the left run's left and right turned over gave 326
+    rooms different, and with the toe kick 1/8" deeper all 508; one build
+    dumped twice, the same to the byte.
+  - **The pixels** (D17's third way: round 97's code built here,
+    `index-Qfb9IOrj.js`, against round 98a's, `index-Cgoa81AK.js`, both
+    without the counter's address, each served from a copy; the mouse at 1440
+    x 900, a finger at 390 x 844 in English and 360 x 844 in Chinese,
+    `?quality=high`; each build shot twice, alternately, and the four
+    pairings between builds compared; whole page, the panels and the bars
+    included). 45 states: every package as it opens in Materials, White model
+    and Install; its refrigerator and its dishwasher flown to from the list
+    rail; round 97's five `v=1` links (above) opened, and each again with
+    `island=none`; every package on the two phones. **44 at 0 pixels** between
+    builds in the closest pairing; runs of one build differed by up to 3,949,
+    the wash in Open items, and by the one pixel that also differs between
+    runs. **The forty-fifth, package A on the Chinese phone, was 1,556 pixels in
+    every pairing**, each build's two runs alike, up to more than 32 levels,
+    all on the text of four pin labels (x 219-321, y 298-560). **Zeroed, not
+    explained:** every label's and dot's box, transform and opacity and every
+    leader line read from both pages the same to the thousandth; shot again
+    ten seconds after the language was tapped instead of about two, twice on
+    each build, all four pairings 0. The first shots caught the labels'
+    text before it settled after the switch, at a different moment on each
+    build.
+  Before and after, one run of each build: `docs/fixes/round-98a-desktop-before-after.png`,
+  `round-98a-links-before-after.png`, `round-98a-phone-before-after.png`.
+
 ## D23 · A link rebuilds the same kitchen
 
 **Decided:** 2026-10-12 (round 94), Leo, from the plan read out first (Open
@@ -5565,6 +5653,66 @@ scan the kitchen onto a phone. From round 94's plan and Leo's decisions on it.
   a phone no box opens. 6 of 7 red on round 94's build (`index-BUDpnmvL.js`):
   no box. The phone case green on both by design, as nothing on a phone
   changed.
+
+*Amended 2026-10-19 (round 98a), Leo: a link says `v=2` and carries the
+layout's shape; a `v=1` link is an L, and says nothing about it.* Leo's words:
+"分享链接升到 v=2：v=1 旧链接一律当 L 型打开，不提示，房间和第 97 轮完全一样".
+- **Why a version and not a field that may be missing.** A setting missing
+  from a link has always been said (above: "any other setting … the link's
+  setting cannot be used"), so a shape field added alone would have put a line
+  under every link already sent. The version is what this entry gave a link
+  for: a field records the version that first carried it and the one value
+  the page had before (`since` in `src/data/layoutFields.ts`); a link older
+  than that is given that value and nothing is said. A `v=2` link without a
+  shape is said, as any field is. `LINK_VERSIONS` (linkVersion.ts) is what a
+  page reads, "1" and "2"; it writes "2".
+- **The shape is `shape=L`**, first in the table (it will be the Layout tab's
+  first control). Its two words, "Layout shape" / 「布局形状」 and "L-shaped" /
+  「L 型」, are the two this round adds, and a page shows them only in the line
+  for a `v=2` link whose shape it cannot use; not locked, for Leo to read with
+  98b's.
+- **One table for the screenshot parameters too** (Leo: "截图参数和链接字段表在
+  98a 里合成一份（D17 表第 18 行的 'Join them then'），形状只在字段表里写一
+  处"). The layout's fields moved from the store to `src/data/layoutFields.ts`,
+  because the room reads them at load before any store exists, and
+  `paramsFromQuery` in room.ts reads a page's address through them: by the
+  table's names and within the sliders' ends. What that changes for an
+  address without a version, all checked in `screenshotParams.test.ts`:
+  - every layout setting has a name there now, not eight of them —
+    `?towerSide=left`, `?coffeeLeg=back`, `?shape=L`;
+  - `fridge` and `sink`, the two names room.ts had of its own, are the table's
+    `fridgeLeg` and `sinkLeg`, and the old two are kept as aliases, read and
+    never written, so `scripts/screenshots.mjs` and old notes still work;
+  - a length outside its slider's ends is refused when it is read
+    (`refusal.notALength`), where it used to be refused by the template; the
+    room is the default either way;
+  - `?island=none` no longer clears every other refusal: room.ts read "none" as
+    a length, refused it, then wiped all refusals to undo its own; the table
+    reads "none".
+  D17's table, the eighteenth row, is closed.
+- **Tests.** `src/store/shareLinkV2.test.ts`, 21 cases: five `v=1` links
+  written by round 97's own code, one per package, each taken as far from its
+  package's own as the page allows (`shareLink.round97.json`, with how they
+  were made) — each opens as an L, says nothing, and opens round 97's room,
+  every run, opening and cabinet box, by its hash; a link written now is
+  `v=2` with `shape=L` and is read; a `v=2` link with no shape or one the page
+  does not build says one line, the shape; `v=3` is not read.
+  `src/data/screenshotParams.test.ts`, 21 cases: every name the table carries
+  read from an address, the two aliases, a value it cannot use, no island
+  beside a length, a share link left alone. On round 97's code: all 21 of the
+  second red (no `paramsFromQuery`); 8 of the first red — the shape, the
+  version, the two lines — and 13 green there by design, since a round-97 link
+  opened on round 97 is its own room; twelve of those 13 were broken on purpose
+  on the new code and went red (the thirteenth counts the five links): a `v=1`
+  link's missing shape said (the five "says nothing"), every run moved 1/8" off its wall (the five rooms), `v=2` not
+  read, `v=3` read; and with the shape left out of the table, the completeness
+  test above went red. Two existing cases changed, and only their expected
+  version: `tests/shareLink.test.ts` and `tests/shareQr.test.ts` each held the
+  link copied to start `?v=1&pkg=`, and now `?v=2&pkg=` — red in round 98a's
+  first full run for exactly that, and green with it. Two expected values
+  changed, then, and Leo accepted both (round 98a): they follow from the
+  decision to write `v=2`, and nothing else in any existing test's
+  expectations moved.
 
 ## D24 · The live site counts visits, anonymously, and only there
 
@@ -7184,6 +7332,84 @@ Registered, not scheduled. None of these is a round of its own.
     browser was left. **When a run is stopped part way, its child processes
     are checked for and ended by hand, every port and every process, before
     the next run starts** (Leo, round 97).
+- **A layout shape switch: one wall, U-shaped, galley.** *(Leo, round 98:
+  registered, from a colleague's feedback from use; round 98 is its plan, not
+  started.)* Besides today's L, a kitchen on one wall, a U, and perhaps a
+  galley (two parallel walls). Leo's decisions, in his words: "这是"布局形状"，
+  做成布局标签里的一个开关，五个套餐都能套用，不另开套餐。套餐管放哪些机器，形状
+  管机器放在哪面墙，两件事分开" — a switch on the Layout tab that every package
+  takes, not a new package; the package says which machines, the shape which
+  wall they stand on, which is D16's split (the package carries the size and
+  the joinery, `room.ts` the placement; Leo, round 98: D16, not the D14 his
+  brief first cited); and it goes before a hood's own outlet in the queue
+  (the last entry). Until round 98 it was only mentioned, in D22 (the fly-in
+  rule, round 51, and `roomWalls.ts`, round 52, written so these shapes "need
+  no new rule"), and never registered (D17, round 77). The plan, with the
+  questions only Leo can answer from site: `docs/plans/round-98-layout-shape-plan.md`.
+  - **One wall: Leo's shop practice (round 98), in his words, for 98b** (98a,
+    the preparation, goes ahead unaffected):
+    1. "冰箱默认在左边，都在末尾端。"
+    2. "一字型不配岛台。"
+    3. "一字型墙长上限 240"。"
+    4. "一面墙放不下时，默认先把墙加长。"
+    5. ""冰箱和水槽不能在同一段"这条规则，在一字型里取消。" — the rule is
+       `refusal.oneLegBoth` (layoutTemplate.ts), with the store's swap of the
+       two onto different legs (useAppStore.ts).
+  - **Not decided yet (Leo, round 98):** what is done when B or D still does
+    not fit at 240" (worked out roughly from the L template's own bills, not
+    built: about 250" and 295" — B's figure wrong, 232-1/8" worked out again
+    below, so B's half of this no longer stands); and what is done when E, whose cooktop is in
+    its island (D20), is put on one wall, which has no island.
+  - **One wall: Leo's shop practice (round 98), the second batch, in his
+    words, for 98b** (98a not interrupted or changed by it): "1. 一字型放后墙。
+    2. 墙长下限：放得下 30" Range、36" Fridge、24" Dishwasher、30" Hood 的长度。
+    请按这几台加上水槽、D11 和 D13 现有的台面要求算出具体数字报给我确认，不要自
+    己定。3. A、C 不配岛台时，微波抽屉和酒柜放到墙上。放在哪个位置，按现在 L 型无
+    岛台时的规则拉直，报告给我。4. "冰箱默认在左边"指面对这面墙时的左端。5. 面对
+    墙，从左到右：冰箱、炉头、水槽、洗碗机。6. 两端：左端（冰箱一端）靠墙，右端开
+    放。7. B、D 的烤箱塔，D、E 的咖啡塔，都当作把 L 型拉直。8. 窗默认在水槽上方。
+    9. 冰箱旁边的回墙还可以选。10. 转角柜那一项在一字型里藏起来。11. 一字型不要房
+    间进深滑杆。12. 放不下时：B：不省任何机器，直接加长墙身。一字型的墙长上限因此
+    放宽到刚好放得下 B：请精确算出 B 一字型需要的长度，按滑杆 6" 一格往上取整，作
+    为一字型的上限，报给我确认，不要自己定。这条取代第 3 条之前说的 240" 上限。D：
+    先加长到这个上限；仍放不下，就省掉咖啡机和第二台洗碗机，并写一行说明（选丁）。
+    请精确算出 D 省掉这两台以后要多长（包括一字型下要上墙的微波抽屉等），够不够；还
+    放不下的，列出接下来可以省哪台、每台能腾出多少，我再定。13. E 选一字型时，
+    cooktop 移到靠墙安装，放在第 5 条炉头的位置，默认配 HMCB36WS。" The three
+    shapes' five common questions are still Leo's to answer, listed again in
+    98b's plan.
+  - **The figures Leo asked for, reported in round 98 and not yet confirmed**
+    (worked from the L template's own bills straightened by his order, each
+    stretch at its rule's minimum, not built; the working is in the plan's
+    section 4): the shortest wall 171" (a freestanding refrigerator at the wall
+    171-1/2"), 174" on the slider; A with no island 237-3/4", C 232-1/4"; B
+    232-1/8", 234" on the slider — so a 234" top would not take A with no
+    island; D 316-3/4", 279-1/4" without the coffee machine and the second
+    dishwasher, and any two of the microwave drawer (24"), the wine column
+    (24-5/8"), the freezer column (24-5/8") and the oven tower (24") more. The
+    "about 250"" given for B in round 98's plan, which the second batch's item
+    12 answers, was the plan's error: the two legs' bills added without their
+    counters merged. And the left end at a wall is today's return-wall setting,
+    so what item 9's switch does on one wall is Leo's to say.
+  - **Left after the second batch** (Leo, round 98a: to be answered before
+    98b; in the plan's section 4 as "等 Leo"): the one-wall top, 234", 240" or
+    246"; the counter between the oven tower and the cooking surface, 6" or
+    18"; which two to leave out of D after the coffee machine and the second
+    dishwasher; whether D's order, both towers between the refrigerator and the
+    cooking surface, is right; what the return-wall switch does on one wall;
+    and besides those, the other figures above to confirm; what stands under
+    E's cooktop on the wall; and the three shapes' five common questions.
+    (After the first batch this listed what the second answered: the order,
+    the ends, the towers, the window, the return wall, the corner control, the
+    depth slider, the wall, the shortest wall, A's and C's two machines.)
+- **One Chinese word for two things on screen: 清单.** *(Leo, round 98:
+  registered, not changed this round.)* On the Chinese page the top bar's
+  Quote button (`topbar.quote`) and the right panel's List tab
+  (`panel.tab.list`, locked in `reviewed.json` since round 91) both read
+  「清单」, while the page Quote opens is titled 「配置单」 (`quote.title`). The
+  next round that changes the interface's words proposes new names, and Leo
+  decides. *(Seen in round 98: `bottom.quote`, 「生成配置单」, is in both
+  language files and read by no component.)*
 - **Registered rounds after 78, in Leo's order.** *(Leo, rounds 78-79; not
   started. Round 79 put the interface round first and moved the rest back.)*
   0. **An interface round, plan first, with phone and desktop sketches.**
@@ -7262,6 +7488,11 @@ Registered, not scheduled. None of these is a round of its own.
        outlet (Leo): the over-the-range microwave JVM3160RFSS in the hood's
        place, from his shop — *done in round 97* (D16, D13 and D18, round 97);
        its rectangular outlet is the first model's own outlet, from its sheet.
+       **Round 98**, before a hood's own outlet (Leo, round 98): a layout
+       shape switch — one wall, U-shaped, galley — from a colleague's use (the
+       entry "A layout shape switch" above), in four rounds (Leo): **98a**,
+       the preparation, nothing on the page changed — *done in round 98a*
+       (D22 and D23, round 98a); then 98b one wall, a galley, a U.
        What each decides is written here when that round is built.
   1. **A hood's own outlet first.** The duct drawn and quoted follows the
      model's own outlet where its sheet gives one, rather than only the

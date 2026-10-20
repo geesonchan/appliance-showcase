@@ -90,8 +90,9 @@ export function dimensionsFor(
   const cookingSlot: SlotId = onIsland ? "slot-cooktop" : "slot-range";
   const range = SLOT_BY_ID[cookingSlot];
 
-  // In front of the run's face, so the lines are not buried in the cabinets.
-  const plane = backRun.centre + ROOM.counterDepth / 2 + 0.35;
+  // In front of the run's face, so the lines are not buried in the cabinets:
+  // toward the room the run faces (round 98a).
+  const plane = backRun.centre + backRun.facing.sign * (ROOM.counterDepth / 2) + backRun.facing.sign * 0.35;
   /**
    * A point on the chain: left of the cooking opening, stepping outward.
    *
@@ -208,12 +209,12 @@ export function dimensionsFor(
             from: [
               ISLAND.x[0] + 1,
               0.03,
-              backRun.centre + ROOM.counterDepth / 2 + ROOM.counterOverhang,
+              backRun.centre + backRun.facing.sign * (ROOM.counterDepth / 2) + backRun.facing.sign * ROOM.counterOverhang,
             ] as [number, number, number],
             to: [ISLAND.x[0] + 1, 0.03, ISLAND.z[0] - ROOM.counterOverhang] as [number, number, number],
             valueIn: Number(
               (
-                (ISLAND.z[0] - ROOM.counterOverhang - backRun.centre - ROOM.counterDepth / 2 - ROOM.counterOverhang) *
+                (ISLAND.z[0] - ROOM.counterOverhang - backRun.centre - backRun.facing.sign * (ROOM.counterDepth / 2) - backRun.facing.sign * ROOM.counterOverhang) *
                 12
               ).toFixed(3),
             ),
@@ -246,8 +247,8 @@ function windowDimensions(): Dimension[] {
     const back = window.wall === "back";
     const run = RUN_BY_ID[window.wall];
     // In front of the wall by a foot and a half, which clears the worktop and
-    // the cabinets either side.
-    const plane = run.centre + ROOM.counterDepth / 2 + 0.35;
+    // the cabinets either side: toward the room the run faces (round 98a).
+    const plane = run.centre + run.facing.sign * (ROOM.counterDepth / 2) + run.facing.sign * 0.35;
     const at = (along: number, y: number): [number, number, number] =>
       back ? [along, y, plane] : [plane, y, along];
 
@@ -301,7 +302,7 @@ function fridgeClearance(): Dimension[] {
   if (!clearance) return [];
   const { run, from, to } = clearance;
   const filler = { widthIn: clearance.widthIn };
-  const across = run.centre + ROOM.counterDepth / 2 + 0.2;
+  const across = run.centre + run.facing.sign * (ROOM.counterDepth / 2) + run.facing.sign * 0.2;
   const at = (along: number): [number, number, number] => onAxis(run.axis, along, across, 0.03);
 
   return [

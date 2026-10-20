@@ -1,0 +1,25 @@
+{
+  "_source": "Written by round 97 (commit 11a9af5) with src/store/shareLink.test.ts`s lopsided() kitchen for each package, shared with writeLink and opened on a fresh page; room is the sha256 of JSON.stringify({ params, runs, slots, island, cabinets }) of the room it opened, as round 97 held them. Round 98a, docs/decisions.md D23.",
+  "links": {
+    "A": {
+      "link": "?v=1&pkg=A&lang=zh&back=177.375&left=151.125&corner=lazy-susan&fridgeLeg=left&fridgeAbuts=wall&sinkLeg=back&towerSide=left&housing=sweep&coffeeLeg=left&coffeeSill=40&handle=50&island=72&islandTurn=perpendicular&islandDepth=42&aisle=45&fridge=T36IT100NP&range=PRG304WH&hood=HMCB36WS&dishwasher=SHX78CM5N&microwave=MD24BS&wine=PRW24C01CG&blower=VTN2FZ&cabinet=ral7016&accentRun=island&accent=ral1015&counter=marble&floor=tile&tile=32x32&wall=taupe",
+      "room": "c230577c5dd767a53a4d37fd330ada324c4e831a42555e33ced3dc8fd8510238"
+    },
+    "B": {
+      "link": "?v=1&pkg=B&lang=zh&back=211&left=151.125&corner=lazy-susan&fridgeLeg=back&fridgeAbuts=wall&sinkLeg=left&towerSide=left&housing=sweep&coffeeLeg=left&coffeeSill=40&handle=50&island=72&islandTurn=perpendicular&islandDepth=42&aisle=45&fridge=T36IT100NP&range=PRG366WH&hood=HMCB36WS&dishwasher=SHV78CM3N&microwave=PODS302B&wine=T18IW100SP&blower=VTN2FZ&cabinet=ral7016&accentRun=island&accent=ral1015&counter=marble&floor=tile&tile=32x32&wall=taupe",
+      "room": "1f532450fe1c61aeefa81da56aa7f0af1bae39100e1ef37a27779ae9364f247b"
+    },
+    "C": {
+      "link": "?v=1&pkg=C&lang=zh&back=177.375&left=151.125&corner=lazy-susan&fridgeLeg=left&fridgeAbuts=wall&sinkLeg=back&towerSide=left&housing=sweep&coffeeLeg=left&coffeeSill=40&handle=50&island=72&islandTurn=perpendicular&islandDepth=42&aisle=45&fridge=T36BT120NS&range=PRG304WH&hood=AK7300AS&dishwasher=SHV78CM3N&microwave=MD24BS&wine=PRW24C01CG&blower=none&cabinet=ral7016&accentRun=island&accent=ral1015&counter=marble&floor=tile&tile=32x32&wall=taupe",
+      "room": "9c98dd3be08ad559dc0d0d9b6507c5fc8b4a529c74b6487b42c779120fd04de2"
+    },
+    "D": {
+      "link": "?v=1&pkg=D&lang=zh&back=233.625&left=185.875&corner=lazy-susan&fridgeLeg=left&fridgeAbuts=wall&sinkLeg=back&towerSide=left&housing=sweep&coffeeLeg=left&coffeeSill=40&handle=50&island=72&islandTurn=perpendicular&islandDepth=42&aisle=45&freezer=T18IF900SP&fridge=T30IR905SP&wine=T18IW100SP&range=PRG366WH&hood=HMCB36WS&oven=PO302W&coffee=TCM24PS&dishwasher=SHV78CM3N&dishwasher-2=SHV78CM3N&microwave=MD24BS&blower=VTN2FZ&cabinet=ral7016&accentRun=island&accent=ral1015&counter=marble&floor=tile&tile=32x32&wall=taupe",
+      "room": "360d42793efee7fba5197cd6dd4c6fde45187b22dde0549f23789ce3b652d855"
+    },
+    "E": {
+      "link": "?v=1&pkg=E&lang=zh&back=189.375&left=175.125&corner=lazy-susan&fridgeLeg=left&fridgeAbuts=wall&sinkLeg=back&towerSide=left&housing=sweep&coffeeLeg=back&coffeeSill=40&handle=50&island=72&islandTurn=perpendicular&islandDepth=30&aisle=51&freezer=T18IF900SP&fridge=T30IR905SP&microwave=PODS302B&coffee=TCM24PS&wine-2=PRW24C01CG&dishwasher=SHX78CM5N&cooktop=CIT367YG&hood=HMIB42WS&blower=none&cabinet=ral7016&accentRun=island&accent=ral1015&counter=marble&floor=tile&tile=32x32&wall=taupe",
+      "room": "9251af0becb3c5b60bbc3f669701be24b7ad6033662ed06a92d2cfa8e7ba0c46"
+    }
+  }
+}

@@ -688,7 +688,10 @@ export function checkLayout(
     // The run the island is parallel to is the one it stands off.
     const run = runs.find((r) => r.axis === island.axis)!;
     const lap = ROOM.counterOverhang;
-    const front = run.centre + ROOM.counterDepth / 2 + lap;
+    // Its front edge, toward the room the run faces (round 98a). The aisle
+    // below is measured as the island standing on that side of it, which every
+    // L does;  a galley's two runs either side of an island are that shape's round's.
+    const front = run.centre + run.facing.sign * (ROOM.counterDepth / 2) + run.facing.sign * lap;
     const aisle = inches(islandAcross(island)[0] - lap - front);
     const cooking = slots["slot-cooktop"]?.mount === "island";
     const needIn = cooking ? LAYOUT_LIMITS.cooktopAisleIn : LAYOUT_LIMITS.aisleIn;

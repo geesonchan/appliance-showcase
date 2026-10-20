@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { ROOM, RUN, WINDOWS, ft, type ResolvedWindow } from "../data/room";
+import { ROOM, RUN_BY_ID, WINDOWS, ft, type ResolvedWindow } from "../data/room";
 import { useAppStore } from "../store/useAppStore";
 import type { Lighting, RenderMode } from "../types";
 
@@ -155,8 +155,9 @@ export function Lights() {
           the line they should. Off in daylight, and off in the modes that are
           deliberately without atmosphere. */}
       {[
-        { position: [RUN.leftX + ft(6), ROOM.upperBottom - ft(1), 0] as const },
-        { position: [0, ROOM.upperBottom - ft(1), RUN.backZ + ft(6)] as const },
+        // Six inches into the room from each run's centre line, the way it faces.
+        { position: [RUN_BY_ID.left.centre + RUN_BY_ID.left.facing.sign * ft(6), ROOM.upperBottom - ft(1), 0] as const },
+        { position: [0, ROOM.upperBottom - ft(1), RUN_BY_ID.back.centre + RUN_BY_ID.back.facing.sign * ft(6)] as const },
       ].map((strip, i) => (
         <pointLight
           key={i}

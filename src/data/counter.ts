@@ -71,11 +71,13 @@ export function counterOutline(
   const left = runs.find((run) => run.id === "left")!;
   const back = runs.find((run) => run.id === "back")!;
 
-  // Back edges sit on the walls; front edges stand proud by the overhang.
-  const xBack = left.centre - ROOM.counterDepth / 2;
-  const xFront = left.centre + ROOM.counterDepth / 2 + ROOM.counterOverhang;
-  const zBack = back.centre - ROOM.counterDepth / 2;
-  const zFront = back.centre + ROOM.counterDepth / 2 + ROOM.counterOverhang;
+  // Back edges sit on the walls; front edges stand proud by the overhang,
+  // toward the room each run faces (round 98a). The slab turning the corner is
+  // the L's: six corners, its inside corner where these two runs meet.
+  const xBack = left.centre - left.facing.sign * (ROOM.counterDepth / 2);
+  const xFront = left.centre + left.facing.sign * (ROOM.counterDepth / 2) + left.facing.sign * ROOM.counterOverhang;
+  const zBack = back.centre - back.facing.sign * (ROOM.counterDepth / 2);
+  const zFront = back.centre + back.facing.sign * (ROOM.counterDepth / 2) + back.facing.sign * ROOM.counterOverhang;
 
   // Each leg as the stretches between its cuts, from the corner outward.
   const leftSpans = spans(zBack, runEnd(left), cuts(left, range));
@@ -243,8 +245,11 @@ function rangeHoles(runs: CabinetRun[], appliance?: Appliance): Point2[][] {
     const half = appliance?.cutoutWidthIn
       ? ft(appliance.cutoutWidthIn) / 2
       : (range.to - range.from) / 2;
+    // `front` and `back` are toward the room and toward the wall of the way
+    // the run faces (round 98a).
+    const toRoom = run.facing.sign;
     holes.push(
-      rect([centre - half, centre + half], [run.centre + back, run.centre + front], run.axis),
+      rect([centre - half, centre + half], ordered(run.centre + toRoom * back, run.centre + toRoom * front), run.axis),
     );
   }
   return holes;
@@ -259,15 +264,20 @@ function sinkHoles(runs: CabinetRun[]): Point2[][] {
       const bowl = bowlExtent(FIXTURE_BY_ID[segment.fixture]);
       if (!bowl) continue;
       const centre = (segment.from + segment.to) / 2;
-      const across = [
-        run.centre + bowl.acrossCentre - bowl.acrossHalf,
-        run.centre + bowl.acrossCentre + bowl.acrossHalf,
-      ] as const;
+      // The bowl is set toward the room, the way the run faces (round 98a).
+      const toRoom = run.facing.sign;
+      const across = ordered(
+        run.centre + toRoom * bowl.acrossCentre - bowl.acrossHalf,
+        run.centre + toRoom * bowl.acrossCentre + bowl.acrossHalf,
+      );
       holes.push(rect([centre - bowl.alongHalf, centre + bowl.alongHalf], across, run.axis));
     }
   }
   return holes;
 }
+
+/** Two figures across a run, low first, whichever way the run faces. */
+const ordered = (a: number, b: number): readonly [number, number] => (a <= b ? [a, b] : [b, a]);
 
 function rect(
   along: readonly [number, number],

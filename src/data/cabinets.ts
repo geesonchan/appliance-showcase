@@ -206,11 +206,12 @@ function onRun(
   along: readonly [number, number],
   y: readonly [number, number],
   depth: number,
-  /** Shift toward the room, for a countertop's overhang. */
+  /** Shift toward the room, for a countertop's overhang; negative is toward the wall. */
   offset = 0,
   extra: Partial<CabinetBox> = {},
 ): CabinetBox {
-  const across = run.centre + offset;
+  // Toward the room is the way the run faces (round 98a: recorded on the run).
+  const across = run.centre + run.facing.sign * offset;
   const [sizeX, sizeZ] = sizeOnAxis(run.axis, span(along), depth);
   return {
     id,
@@ -219,7 +220,7 @@ function onRun(
     size: [sizeX, span(y), sizeZ],
     run: run.id,
     // A run's cabinetry faces the room, away from the wall it stands on.
-    facing: stripFacing(run.axis, 1),
+    facing: run.facing,
     ...extra,
   };
 }
@@ -600,8 +601,9 @@ function stackOn(run: CabinetRun, box: CabinetBox): CabinetBox[] {
  *
  * The cabinets over a steam oven stand off the wall with their backs open
  * (D11 rule 12, round 39): shallower by the stand-off, the same face to the
- * room. Only run boxes stand over an oven, and a run's boxes face +x on the
- * left wall and +z on the back one.
+ * room. Only run boxes stand over an oven, and a run's boxes face the way the
+ * run does — +x on the left wall and +z on the back one, and the other way on a
+ * wall opposite either (round 98a).
  */
 export function standOffFromWall(
   box: CabinetBox,
@@ -612,7 +614,7 @@ export function standOffFromWall(
   const size = [...box.size] as [number, number, number];
   const position = [...box.position] as [number, number, number];
   size[axis] -= off;
-  position[axis] += off / 2;
+  position[axis] += (box.facing.sign * off) / 2;
   return { ...box, size, position };
 }
 
@@ -757,8 +759,9 @@ function cornerKick(run: CabinetRun): CabinetBox | null {
   const front = ROOM.counterDepth - ROOM.toeRecess;
   // The chord is a + c = leg + counter depth; the kick's front 3" behind it.
   const line = leg + ROOM.counterDepth - ROOM.toeRecess * Math.SQRT2;
-  const wall = run.centre - ROOM.counterDepth / 2;
-  const world = (a: number, c: number) => onAxis(run.axis, segment.from + a, wall + c, 0);
+  const toRoom = run.facing.sign;
+  const wall = run.centre - toRoom * (ROOM.counterDepth / 2);
+  const world = (a: number, c: number) => onAxis(run.axis, segment.from + a, wall + toRoom * c, 0);
   const p1 = world(front, line - front);
   const p2 = world(line - front, front);
   const inner = world(front, front);
@@ -772,7 +775,7 @@ function cornerKick(run: CabinetRun): CabinetBox | null {
     id: `${run.id}-toe-corner`,
     kind: "toe",
     run: run.id,
-    facing: stripFacing(run.axis, 1),
+    facing: run.facing,
     position: [mid[0] + (toward[0] * depth) / 2, ROOM.toeKick / 2, mid[1] + (toward[1] * depth) / 2],
     size: [length, ROOM.toeKick, depth],
     rotationY: Math.atan2(-(p2[2] - p1[2]), p2[0] - p1[0]),

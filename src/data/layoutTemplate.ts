@@ -18,7 +18,8 @@ import { dropsIntoCounter, rangeFillerIn, rangeModelFor } from "./cookingSurface
 import { aboveCookingSurfaceIn, hoodMountFor, hungUnderACabinet, leftOutByHood, type HoodMount } from "./hoodMount";
 import { slotsAsBuilt } from "./fridgeMount";
 import { ovenTowerOf } from "./ovenTower";
-import { extentsOnAxis, faceRotation, onAxis, sizeOnAxis } from "./frame";
+import { alongOf, extentsOnAxis, faceRotation, onAxis, rotationOf, sizeOnAxis } from "./frame";
+import { runCentre, shapeRun, shapeSpec, type LayoutShape, type RunEnd, type RunId, type ShapeSpec } from "./layoutShape";
 import { LAYOUT_POLICY, shrinkRank, type ShrinkGroup } from "./layoutPolicy";
 import { comboSillFor } from "./columnModel";
 import { hoodCabinetBand } from "./insertHood";
@@ -147,6 +148,12 @@ export interface LayoutParams {
    * depth slider is the cabinets alone. See D20.
    */
   islandOverhangIn?: number;
+  /**
+   * The layout's shape: which walls the runs stand on (`layoutShape.ts`). Only
+   * the L until round 98b; no control on the page sets it yet, a share link
+   * and a screenshot address carry it (round 98a).
+   */
+  shape: LayoutShape;
 }
 
 /**
@@ -241,6 +248,7 @@ export const DEFAULT_PARAMS: LayoutParams = {
   islandLengthIn: 72,
   islandDepthIn: 36,
   aisleIn: 42,
+  shape: "L",
 };
 
 export interface SlotPlacement {
@@ -459,6 +467,38 @@ export const CORNERS = {
     upper: { code: "WBC2442", alongIn: 24, acrossIn: 12, depthIn: CABINET_STANDARDS.upper.depthIn },
   },
 } as const;
+
+/** Whether a run's first box is a corner it holds. */
+const holdsCorner = (shape: ShapeSpec, id: RunId) => shape.corners.some((corner) => corner.owner === id);
+/** Whether a run starts where another run's corner box stops. */
+const turnedInto = (shape: ShapeSpec, id: RunId) => shape.corners.some((corner) => corner.other === id);
+
+/**
+ * What finishes a run at its far end, from the shape: against a wall, or open
+ * to the room (D13). The L's back run ends at the right-hand wall and its left
+ * run in the open, as they always have; until round 98a the two were written as
+ * literals where the template finished each leg.
+ */
+function farEnd(shape: ShapeSpec, id: RunId): "wall" | "open" {
+  const end: RunEnd = shapeRun(shape, id).ends[1];
+  if (end === "corner") throw new Error(`layoutTemplate: the L template cannot finish the ${id} run at a corner`);
+  return end;
+}
+
+/**
+ * The L template lays out two legs, `left` and `back`, with the corner box the
+ * left leg's first: what goes on each leg is written for that (the sink's leg,
+ * the refrigerator's). A shape that is not that is not the L template's to
+ * build, and is refused loudly here rather than drawn wrong. Round 98a; a
+ * one-wall kitchen is 98b's.
+ */
+function lTemplateBuilds(shape: ShapeSpec) {
+  const ids = shape.runs.map((run) => run.id).join(",");
+  const corner = shape.corners.map((c) => `${c.owner}>${c.other}`).join(",");
+  if (ids !== "left,back" || corner !== "left>back") {
+    throw new Error(`layoutTemplate: the L template cannot build runs ${ids} with corners ${corner}`);
+  }
+}
 
 /** The openings, dimensioned to the appliances that go in them. */
 /** The sink base, which is a fixture's cabinet rather than an opening. */
@@ -1411,6 +1451,7 @@ function islandFor(
  */
 function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[] = []) {
   const corner = CORNERS[params.cornerType];
+  const shape = shapeSpec(params.shape);
   const { sink: sinkRule } = LAYOUT_LIMITS;
   // The refrigerator's slot as the model chosen in this package is built in (round 89).
   const spec = slotsAsBuilt(pkg);
@@ -1929,12 +1970,12 @@ function planLegs(params: LayoutParams, pkg: Package, omitted: readonly SlotId[]
   if (params.fridgeEnd === "left") {
     if (coffeeHere("left")) left.push(...inRunGroup());
     left.push(...spare, gap("fridge-landing", LAYOUT_LIMITS.fridgeLandingIn, "d11-6"), ...tower);
-    back.push(...terminal("back-end", "wall"));
+    back.push(...terminal("back-end", farEnd(shape, "back")));
   } else {
     if (coffeeHere("back")) back.push(...inRunGroup());
     back.push(...spare, gap("fridge-landing", LAYOUT_LIMITS.fridgeLandingIn, "d11-6"), ...tower);
     if (coffeeHere("left")) left.push(...inRunGroup());
-    left.push(...terminal("left-end", "open"));
+    left.push(...terminal("left-end", farEnd(shape, "left")));
   }
 
   return {
@@ -1964,8 +2005,10 @@ function requirementFor(
 
   // The corner cabinet stands on one leg and eats into the other, so it is on
   // both bills: 36" of the left wall as a cabinet, and 36" of the back wall as
-  // the bite it takes out of it. One box, two walls.
-  if (leg === "back") {
+  // the bite it takes out of it. One box, two walls. Which wall is bitten is the
+  // shape's (round 98a).
+  const bitten = turnedInto(shapeSpec(params.shape), leg);
+  if (bitten) {
     items.push({
       widthIn: corner.acrossIn,
       code: corner.code,
@@ -1991,7 +2034,7 @@ function requirementFor(
     }
   }
 
-  const across = leg === "back" ? corner.acrossIn : 0;
+  const across = bitten ? corner.acrossIn : 0;
   const legIn = items.reduce((sum, item) => sum + item.widthIn, 0) - across;
   const floor = CABINET_STANDARDS.legIn.shortMin;
   if (legIn < floor) {
@@ -2551,8 +2594,9 @@ function placements(
 ) {
   const onRun = (run: CabinetRun, at: number): [number, number, number] =>
     onAxis(run.axis, at, run.centre);
-  // A run's machines face the room, out of the run's +1 side.
-  const facing = (run: CabinetRun) => faceRotation(run.axis, 1);
+  // A run's machines face the room, the way the run does (round 98a: recorded
+  // on the run, where it had been "out of the run's +1 side").
+  const facing = (run: CabinetRun) => rotationOf(run.facing);
 
   const find = (match: (segment: RunSegment) => boolean) => {
     for (const run of runs) {
@@ -2723,6 +2767,12 @@ export function generateLayout(
   params: LayoutParams,
   pkg: Package = PACKAGE,
 ): GenerateResult {
+  // Which walls the runs stand on (round 98a). A shape no template builds is a
+  // fault in whatever asked for it, not a room to refuse: a link and a
+  // screenshot address are read through the table, which takes only the shapes
+  // there are.
+  const shape = shapeSpec(params.shape);
+  lTemplateBuilds(shape);
   const reasons = validate(params);
   if (reasons.length > 0) return { ok: false, reasons };
 
@@ -2825,10 +2875,16 @@ export function generateLayout(
     throw new Error("layoutTemplate: a wall passed its requirement and would not pack");
   }
 
+  // Each run starts at the low end of its wall, and the run the corner box
+  // eats into starts where that box stops (D11 rule 8). From the shape since
+  // round 98a: the left run at -halfZ, the back run past the corner.
+  const halfAlong = (id: RunId) => alongOf(shapeRun(shape, id).axis, halfX, halfZ);
+  const runStart = (id: RunId, acrossIn: number) =>
+    turnedInto(shape, id) ? -halfAlong(id) + ft(acrossIn) : -halfAlong(id);
   const legs = {
-    left: { start: -halfZ, items: plan.left.items, widths: packedLeft.widths },
+    left: { start: runStart("left", corner.acrossIn), items: plan.left.items, widths: packedLeft.widths },
     back: {
-      start: -halfX + ft(corner.acrossIn),
+      start: runStart("back", corner.acrossIn),
       items: plan.back.items,
       widths: packedBack.widths,
     },
@@ -2871,8 +2927,7 @@ export function generateLayout(
   // Then fitted: three inches of scribe each side of the casing comes out of
   // the bank, and a window that cannot have both slides along the wall in
   // whole cabinet steps until it can. See D11 rule 13.
-  const bankStart = (wall: "back" | "left") =>
-    wall === "back" ? -halfX + ft(corner.upper.acrossIn) : -halfZ;
+  const bankStart = (wall: RunId) => runStart(wall, corner.upper.acrossIn);
   const unfitted: Refusal[] = [];
   const windows: ResolvedWindow[] = [];
   for (const window of params.windows) {
@@ -2883,7 +2938,7 @@ export function generateLayout(
       runId: wall,
       segments,
       start: bankStart(wall),
-      corner: wall === "left" ? corner : null,
+      corner: holdsCorner(shape, wall) ? corner : null,
       spec,
       housingStyle: params.housingStyle,
       mount,
@@ -2964,43 +3019,27 @@ export function generateLayout(
     }
   }
 
-  // The left leg's bank starts at the wall; the back leg's picks up where the
-  // corner wall cabinet stops, which is 24" in over a lazy susan and 12" in
-  // over a blind corner.
-  const runs: CabinetRun[] = [
-    {
-      id: "left",
-      axis: "z",
-      centre: -halfX + ROOM.counterDepth / 2,
-      segments: leftSegments,
-      uppers: banksOn(
-        "left",
-        leftSegments,
-        -halfZ,
-        corner,
-        spec,
-        params.housingStyle,
-        windows,
-        mount,
-      ),
-    },
-    {
-      id: "back",
-      axis: "x",
-      centre: -halfZ + ROOM.counterDepth / 2,
-      segments: backSegments,
-      uppers: banksOn(
-        "back",
-        backSegments,
-        -halfX + ft(corner.upper.acrossIn),
-        null,
-        spec,
-        params.housingStyle,
-        windows,
-        mount,
-      ),
-    },
-  ];
+  // Each run as the shape places it: on its wall, facing the room. The bank of
+  // the run that holds the corner starts at the wall with the corner wall
+  // cabinet; the other picks up where that cabinet stops, which is 24" in over a
+  // lazy susan and 12" in over a blind corner.
+  const runs: CabinetRun[] = shape.runs.map((run) => ({
+    id: run.id,
+    axis: run.axis,
+    facing: run.facing,
+    centre: runCentre(run, halfX, halfZ, ROOM.counterDepth),
+    segments: segmentsOf(run.id),
+    uppers: banksOn(
+      run.id,
+      segmentsOf(run.id),
+      bankStart(run.id),
+      holdsCorner(shape, run.id) ? corner : null,
+      spec,
+      params.housingStyle,
+      windows,
+      mount,
+    ),
+  }));
 
   const placed = placements(runs, island, spec, omitted, params);
 

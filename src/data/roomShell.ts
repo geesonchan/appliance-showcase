@@ -1,4 +1,6 @@
 import type { FixtureId, SlotId } from "../types";
+import type { Facing } from "./frame";
+import type { RunId } from "./layoutShape";
 
 /**
  * The room's fixed dimensions and the vocabulary a layout is written in.
@@ -380,9 +382,16 @@ export interface UpperBank {
 }
 
 export interface CabinetRun {
-  id: "back" | "left";
+  id: RunId;
   /** The axis this run travels along. */
   axis: "x" | "z";
+  /**
+   * Which way its cabinetry and machines face, away from the wall it stands
+   * on: the back run +z, the left run +x. Recorded since round 98a, where it
+   * had been assumed — "out of the run's +1 side" — by everything that needed
+   * it (docs/plans/round-98-layout-shape-plan.md, section 2.3).
+   */
+  facing: Facing;
   /** The run's centre line on the other horizontal axis, in feet. */
   centre: number;
   /**

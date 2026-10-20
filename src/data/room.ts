@@ -19,6 +19,7 @@ import type { ResolvedWindow } from "./windows";
 import type { FixtureId, SlotId } from "../types";
 import { alongIsToTheRight, onAxis, sizeOnAxis } from "./frame";
 import { isShareLink } from "./linkVersion";
+import { LAYOUT_FIELDS } from "./layoutFields";
 
 export * from "./roomShell";
 export { PARAM_LIMITS, DEFAULT_PARAMS } from "./layoutTemplate";
@@ -60,8 +61,6 @@ export let LAYOUT_PARAMS: LayoutParams;
 export let RUNS: CabinetRun[];
 export let RUN_BY_ID: Record<CabinetRun["id"], CabinetRun>;
 
-/** Centre lines of the two runs, kept as named values for the scene code. */
-export let RUN: { backZ: number; leftX: number };
 
 /**
  * The refrigerator opening, inset from its enclosure by one finished panel
@@ -133,7 +132,6 @@ export function applyLayout(layout: GeneratedLayout, requested: LayoutParams, is
     CabinetRun["id"],
     CabinetRun
   >;
-  RUN = { backZ: RUN_BY_ID.back.centre, leftX: RUN_BY_ID.left.centre };
 
   FRIDGE_OPENING = fridgeOpeningOf(layout);
   const range = segmentForSlot("slot-range");
@@ -163,7 +161,7 @@ export function hingeAwayFrom(slotId: SlotId, neighbour: SlotId): -1 | 1 {
   const other = run?.segments.find((s) => s.slot === neighbour);
   if (!run || !mine || !other) return 1;
   const furtherAlong = other.from > mine.from;
-  return furtherAlong === alongIsToTheRight(run.axis) ? -1 : 1;
+  return furtherAlong === alongIsToTheRight(run.facing) ? -1 : 1;
 }
 
 /**
@@ -189,7 +187,7 @@ export function trimKitBeside(slotId: SlotId): { side: -1 | 1; widthIn: number }
     const neighbour = run.segments[at + step];
     const kit = neighbour?.modules.find((module) => module.kind === "spacer");
     if (!kit) continue;
-    const side = (step > 0) === alongIsToTheRight(run.axis) ? 1 : -1;
+    const side = (step > 0) === alongIsToTheRight(run.facing) ? 1 : -1;
     return { side, widthIn: kit.widthIn };
   }
   return null;
@@ -229,7 +227,7 @@ export function trimKitsBeside(slotId: SlotId): { side: -1 | 1; widthIn: number 
   for (const step of [-1, 1] as const) {
     const kit = run.segments[at + step]?.modules.find((module) => module.kind === "spacer");
     if (!kit) continue;
-    const side = (step > 0) === alongIsToTheRight(run.axis) ? 1 : -1;
+    const side = (step > 0) === alongIsToTheRight(run.facing) ? 1 : -1;
     kits.push({ side, widthIn: kit.widthIn });
   }
   return kits;
@@ -279,8 +277,10 @@ export function fridgeReturnWall(): {
   // one, past a built-in refrigerator's own tower where there is not — and
   // returning into the room from the wall the run stands against.
   const face = run.segments[run.segments.length - 1].to + thickness / 2;
-  const back = run.centre - ROOM.counterDepth / 2;
-  const mid = back + depth / 2;
+  // The wall the run stands on is behind the way it faces (round 98a).
+  const toRoom = run.facing.sign;
+  const back = run.centre - toRoom * (ROOM.counterDepth / 2);
+  const mid = back + toRoom * (depth / 2);
   const [sizeX, sizeZ] = sizeOnAxis(run.axis, thickness, depth);
   return {
     position: onAxis(run.axis, face, mid, ROOM.wallHeight / 2),
@@ -325,56 +325,44 @@ export const extent = (s: RunSegment) => [s.from, s.to] as const;
 export const spanOf = (s: RunSegment) => s.to - s.from;
 
 /**
- * The starting parameters, from the query string.
+ * The starting parameters, from a page's address.
  *
- * Every parameter has a name there — `?island=96&fridge=back&corner=blind` —
+ * Every parameter has a name there — `?island=96&fridgeLeg=back&corner=blind` —
  * because a link is a reproducible room where a slider drag is not, and the
  * screenshot runs need to ask for a particular kitchen without clicking.
+ *
+ * Read by the share link's own table (`LAYOUT_FIELDS`), by its names, within
+ * its ranges, since round 98a (Leo: D17's table, the eighteenth row, "Join
+ * them then"): until then these were eight names of room.ts's own, read here
+ * and nowhere else. The two older names screenshots used, `fridge` and
+ * `sink`, are the table's aliases. One the page cannot use opens the default
+ * room and says why, as before.
  */
-function readParams(): { params: LayoutParams; issues: Refusal[] } {
-  if (typeof window === "undefined") return { params: DEFAULT_PARAMS, issues: [] };
-
-  const query = new URLSearchParams(window.location.search);
+export function paramsFromQuery(query: URLSearchParams): { params: LayoutParams; issues: Refusal[] } {
   // A share link is read whole by its own table once the page has loaded
-  // (round 94, src/store/openLink.ts): the room starts as the default, and
-  // these older names are for screenshots.
+  // (round 94, src/store/openLink.ts): the room starts as the default.
   if (isShareLink(query)) return { params: DEFAULT_PARAMS, issues: [] };
   const issues: Refusal[] = [];
-  const params = { ...DEFAULT_PARAMS };
-
-  const number = (name: string, key: "backWallIn" | "leftWallIn" | "islandLengthIn" | "islandDepthIn" | "aisleIn") => {
-    const raw = query.get(name);
-    if (raw === null) return;
-    if (!Number.isFinite(Number(raw))) issues.push({ key: "refusal.notALength", vars: { raw } });
-    else params[key] = Number(raw);
-  };
-  const choice = <K extends "fridgeEnd" | "sinkLeg" | "cornerType">(
-    name: string,
-    key: K,
-    allowed: readonly LayoutParams[K][],
-  ) => {
-    const raw = query.get(name) as LayoutParams[K] | null;
-    if (raw === null) return;
-    if (!allowed.includes(raw))
-      issues.push({ key: "refusal.notAChoice", vars: { raw, allowed: allowed.join(", ") } });
-    else params[key] = raw;
-  };
-
-  number("back", "backWallIn");
-  number("left", "leftWallIn");
-  number("island", "islandLengthIn");
-  number("islandDepth", "islandDepthIn");
-  number("aisle", "aisleIn");
-  choice("fridge", "fridgeEnd", ["left", "back"]);
-  choice("sink", "sinkLeg", ["left", "back"]);
-  choice("corner", "cornerType", ["lazy-susan", "blind"]);
-  if (query.get("island") === "none") {
-    params.hasIsland = false;
-    params.islandLengthIn = DEFAULT_PARAMS.islandLengthIn;
-    issues.length = 0;
+  let params = { ...DEFAULT_PARAMS };
+  for (const field of LAYOUT_FIELDS) {
+    const name = [field.name, ...(field.aliases ?? [])].find((each) => query.get(each) !== null);
+    if (name === undefined) continue;
+    const raw = query.get(name)!;
+    const value = field.read(raw);
+    if (value === undefined) {
+      issues.push(
+        field.allowed
+          ? { key: "refusal.notAChoice", vars: { raw, allowed: field.allowed.join(", ") } }
+          : { key: "refusal.notALength", vars: { raw } },
+      );
+    } else params = { ...params, ...field.put(value) };
   }
-
   return issues.length > 0 ? { params: DEFAULT_PARAMS, issues } : { params, issues: [] };
+}
+
+function readParams(): { params: LayoutParams; issues: Refusal[] } {
+  if (typeof window === "undefined") return { params: DEFAULT_PARAMS, issues: [] };
+  return paramsFromQuery(new URLSearchParams(window.location.search));
 }
 
 const requested = readParams();

@@ -320,6 +320,8 @@
   "panel.room.corner.blind": "Blind",
   "panel.layout.leg.left": "Left leg",
   "panel.layout.leg.back": "Back leg",
+  "panel.layout.shape": "Layout shape",
+  "panel.layout.shape.L": "L-shaped",
   "panel.layout.sink": "Sink",
   "panel.layout.islandLength": "Island length",
   "panel.layout.islandDepth": "Island depth",
