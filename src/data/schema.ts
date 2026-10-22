@@ -535,14 +535,29 @@ export const packageSlotSchema = z.object({
  * batch 3; round 98b, 1 and 5). Package E's cooktop stands on the wall where a
  * range would, under a 36" chimney hood, with its oven tower beside it (Leo,
  * round 98, second batch 13; round 98b's E arrangement). What is written here
- * is the whole slot, as the package's own list writes one, so that a slot on
- * one wall is read where it stands rather than as a difference.
+ * is only what differs from the L's slot, laid over it (round 98b-2, Leo:
+ * D17, one rule written once) — a field the L changes, the shape follows.
  */
+export const packageSlotOverrideSchema = z
+  .object(
+    Object.fromEntries(
+      Object.entries(packageSlotSchema.shape).map(([key, type]) => [
+        key,
+        // Every field but the slot's id optional, and with no default: what is
+        // not written here is the L's, not the schema's.
+        key === "slotId" ? type : (type instanceof z.ZodDefault ? type.unwrap() : type).optional(),
+      ]),
+    ) as z.ZodRawShape,
+  )
+  .strict() as unknown as z.ZodType<
+  { slotId: z.infer<typeof slotIdSchema> } & Partial<z.infer<typeof packageSlotSchema>>
+>;
+
 export const packageShapeSchema = z.object({
   /** Slots the package does not have in this shape. */
   omit: z.array(slotIdSchema).default([]),
-  /** Slots that are written differently in this shape, each in full. */
-  slots: z.array(packageSlotSchema).default([]),
+  /** What differs in each slot written differently in this shape, over the L's. */
+  slots: z.array(packageSlotOverrideSchema).default([]),
   /** The model each of those slots opens with, in this shape. */
   defaultSelection: z.partialRecord(slotIdSchema, z.string().min(1)).default({}),
 });

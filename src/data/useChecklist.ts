@@ -19,6 +19,7 @@ import {
 import { chimneyOf, chimneyParts, isChimney } from "./hood";
 import { ISLAND, LAYOUT_LIMITS, LAYOUT_PARAMS, OMITTED_FOR_WALL, OMITTED_SLOTS, ROOM, RUNS } from "./room";
 import { COFFEE_HEIGHT } from "./layoutTemplate";
+import type { LayoutShape } from "./layoutShape";
 import { formatDimension } from "./dimensions";
 import { OVEN_GRILLE, towerVents, ventsAtRear, type TowerVent } from "./towerVent";
 import { overhangSupportZone } from "./overhang";
@@ -446,13 +447,18 @@ function towerLanding(): Finding[] {
  * over-the-range microwave takes out is not in the list it is given
  * (`OMITTED_FOR_WALL`), and is not said: the room was not too small for it.
  * The panel beside the appliance count says the same line.
+ *
+ * On one wall in its own words (round 98b-2, Leo: "要一字型自己的说法"): there
+ * is no island to add there, and the wall to lengthen is the back wall. The
+ * words are Leo's to give; until then a draft of CC's, marked so in the plan.
  */
-export function omittedForWallKey(omitted: readonly SlotId[]): string | null {
+export function omittedForWallKey(omitted: readonly SlotId[], shape: LayoutShape = "L"): string | null {
   const wine = omitted.includes("slot-wine");
   const microwave = omitted.includes("slot-microwave");
-  if (wine && microwave) return "rule.noIslandOmitted";
-  if (wine) return "rule.noIslandOmittedWine";
-  if (microwave) return "rule.noIslandOmittedMicrowave";
+  const stem = shape === "one-wall" ? "rule.oneWallOmitted" : "rule.noIslandOmitted";
+  if (wine && microwave) return stem;
+  if (wine) return `${stem}Wine`;
+  if (microwave) return `${stem}Microwave`;
   return null;
 }
 
@@ -473,7 +479,7 @@ export function omittedForWallKey(omitted: readonly SlotId[]): string | null {
 function noIslandFallback(): Finding[] {
   if (ISLAND.present) return [];
 
-  const key = omittedForWallKey(OMITTED_FOR_WALL);
+  const key = omittedForWallKey(OMITTED_FOR_WALL, LAYOUT_PARAMS.shape);
   if (key) {
     return [
       {
@@ -485,6 +491,16 @@ function noIslandFallback(): Finding[] {
         params: {},
       },
     ];
+  }
+
+  // On one wall both stand on the one run, between the refrigerator and the
+  // cooking surface, and the L's line about which leg each finishes is not
+  // true of it (round 98b-2; the words Leo's to give).
+  if (LAYOUT_PARAMS.shape === "one-wall") {
+    const placed = (["slot-wine", "slot-microwave"] as const).every((slot) =>
+      RUNS.some((run) => run.segments.some((segment) => segment.slot === slot)),
+    );
+    return placed ? [{ ruleId: "no-island-fallback", severity: "info", messageKey: "rule.oneWallSpares", slot: "slot-microwave", params: {} }] : [];
   }
 
   const runOf = (slot: SlotId) =>

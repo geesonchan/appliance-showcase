@@ -7586,9 +7586,10 @@ Registered, not scheduled. None of these is a round of its own.
     | B | 3-1/2" filler \| refrigerator 36" \| 5/8" kit \| wine column 18" \| 3" panel \| 15" \| combination oven tower 30" \| 18" \| rangetop 36" \| 18" \| sink 30" \| dishwasher 24" \| open end 12" | 244-1/8" | 246" |
     | C | 3-1/2" filler + 36" opening + 3" panel \| 15" \| wine 24" \| 3/4" \| microwave drawer 24" \| 12" \| range 30" \| 18" \| sink 30" \| dishwasher 24" \| open end 12" | 232-1/4" | 234" |
     | D | 3-1/2" filler \| 3/4" board \| freezer 18" \| 5/8" \| refrigerator 24" \| 5/8" \| wine 18" \| 3/4" board \| 15" \| combination oven tower 30" \| 18" \| rangetop 36" \| 18" \| sink 30" \| dishwasher 24" \| open end 12" | 249-1/4" | 252" |
-    | E | 3" filler at the wall (D13's, any run against a wall) \| 3/4" board \| coffee tower 24" (wine cooler under it) \| 3/4" board \| 3/4" board \| freezer 18" \| 5/8" \| refrigerator 30" \| 3/4" board \| 15" \| combination oven tower 30" \| 18" \| cooktop 36" (door base) \| 18" \| sink 30" \| dishwasher 24" \| open end 12" | 261-5/8" | **264"** |
+    | E (98b-2, option 戊) | 3" filler at the wall (D13's, any run against a wall) \| 12" base with its worktop (TCM24PS's 110° door wants 13-3/4" from the wall; 16-1/16" here) \| 3/4" board \| coffee tower 24" (wine cooler under it) \| 3/4" board \| 3/4" board \| freezer 18" \| 5/8" \| refrigerator 30" \| 3/4" board \| 15" \| combination oven tower 30" \| 18" \| cooktop 36" (door base) \| 18" \| sink 30" \| dishwasher 24" \| open end 12" | 273-5/8" | **276"** |
 
-    **The one-wall slider's top: 264", set by E** (`ONE_WALL_MAX_IN`, held to
+    (In 98b-1, before the coffee door's room, E was 261-5/8" and the top 264".)
+    **The one-wall slider's top: 276", set by E** (98b-2) (`ONE_WALL_MAX_IN`, held to
     the packages by `oneWall.test.ts`). Leo's rough E, 262-1/8", is the same
     run with the 3-1/2" refrigerator door clearance at the wall instead of
     D13's 3" filler: which rule the coffee tower's wall end takes is the one
@@ -7635,6 +7636,133 @@ Registered, not scheduled. None of these is a round of its own.
       require a minimum 2-1/4" door clearance to accommodate the Zephyr
       handle"; pages 5-6: away from "sources of heat (stove, heater, radiator,
       etc.)". About 3-13/16" from the wall here.
+  - **Leo, on 98b-2's plan (round 98b)**: do it as planned. The coffee
+    tower's wall end is option 戊: the 3" filler D13 puts at a wall, a 12" base
+    cabinet with its worktop, then the coffee tower — 16-1/16" from the wall to
+    the machine's hinge side; E 273-5/8", the one-wall top 276", changed first.
+    **An opening differs between the shapes by the opening itself** — its
+    width, category, install type, height and depth — not by where it stands
+    or the view of it (`beside`, `bestView`): where it differs each shape keeps
+    its own model, where it does not there is one choice for both (E's cooktop,
+    the same 36" drop-in on the wall as in the island, is one choice). The
+    words (the plan's sections 6 and 7) come from Leo in one go; until then
+    the steps that need none are done with today's words, marked to be
+    settled.
+  - **98b-2, built (round 98b) and shipped after Leo's look at the local
+    preview and the screenshots** (Leo, round 98b-2: "预览和截图看过了，可以提交
+    98b-2"; the English shape switch on two lines stays as it is, "和布局标签里其他
+    两行排的控件一致，不改"). As the plan (`docs/plans/round-98b2-plan.md`) has it, the
+    words aside:
+    - E's coffee tower stands clear of the wall by option 戊
+      (`COFFEE_AT_WALL`): 3" filler, a 12" base and its worktop, then the
+      tower — 16-1/16" from the wall to the machine's hinge side, measured in
+      `oneWall.test.ts`. E 273-5/8"; `ONE_WALL_MAX_IN` 276".
+    - **D11 rule 1, amended (Leo, round 98b-2: approved): a tall unit joined
+      to a coffee tower is judged as the coffee tower is.** Why: option 戊
+      puts a 12" base and its worktop between the wall and E's coffee tower,
+      so the refrigeration standing against the tower has counter on both
+      sides, which rule 1 refuses of a tall unit — and rule 14 already lets
+      the coffee tower itself stand mid-run. Its reach: only a tall unit in
+      one unbroken tall group with a tower that stands in the run (`beside:
+      "run"`), nothing between them but tall segments (`joinedToACoffeeTower`
+      in layoutRules.ts); the same refrigeration with counter between it and
+      the tower is refused as before, by name, in `oneWall.test.ts`. The L is
+      untouched: there the coffee tower always has counter between it and any
+      other tall unit, and every L room the template builds, 1,045, is byte
+      for byte as before.
+    - One wall's slots are written as what differs from the L's
+      (`packageSlotOverrideSchema`, laid over the L's slot). The five one-wall
+      packages come out as 98b-1's field for field but one: D's oven takes the
+      L's `sillIn` of 12", which no combination oven reads. Two tests hold it:
+      nothing a one-wall slot does not write differs from the L, and nothing it
+      writes repeats the L.
+    - Models between the shapes, Leo's rule (`slotsKeptPerShape`, the store's
+      `shapePicks`): D keeps its freezer, refrigerator, wine, oven and the three
+      one wall leaves out apart; E its hood; every other opening of every
+      package is one choice. Back in the L it left, the room is put back as it
+      was and the models by the rule.
+    - A share link's format is unchanged (`v=2`, the same fields). Ten links
+      written by 98b-1's code (`shareLink.round98b1.json`): nine open to the
+      room 98b-1 opened, byte for byte by their hash, saying nothing. The tenth,
+      E on one wall, cannot: 98b-1's E is not a room this code builds (option
+      戊). It opens at its own 261-5/8" back wall, which E still builds at, with
+      the 12" base in and the counter beside its oven tower down from 18" to
+      the 6" rule 12 stops at, saying nothing — as a link opens any wall that
+      builds (D23). **Leo, round 98b-2: so it stays** — opened as it is, not
+      grown, nothing said. Such a link could only be had by editing a 98b-1
+      link by hand, and keeping its wall is what dragging the slider to that
+      length gives, which is D23's rule for a link.
+    - The Layout tab: the shape first; on one wall only the hood housing (for
+      an insert), the back wall (96"-276"), the microwave handle (where there
+      is a combination oven) and the coffee height (where there is a coffee
+      machine) — `shapeControls.ts`, held to the settings one wall decides
+      itself (`ONE_WALL_SETS`) by `shapeControls.test.ts`.
+    - The switch says the wall grew as a package switch does, with Undo back
+      to the shape, the room and the models before, in a message of its own,
+      since one wall grows only its back wall (`toast.shapeGrew`); every Undo
+      button names where it goes back to (`toast.undo.package`, `.layout`,
+      `.shape`). **Leo's words (round 98b-2), locked in `reviewed.json`**: 「{package}
+      需要更大的厨房，已把后墙加到 X″、左墙加到 Y″。」 / "{package} needs a bigger
+      kitchen: the back wall is now X″ and the left wall Y″."; 「一字型厨房需要
+      更长的墙，已把后墙加到 X″。」 / "A single-wall kitchen needs a longer wall:
+      the back wall is now X″."; 「退回 {package}」 / "Back to {package}", 「退回 L 型」 / "Back to
+      L", 「撤销这次改动」 / "Undo this change"; and one wall's short-wall lines
+      (`rule.oneWallOmitted*`, 「墙不够长，已省略…。加长后墙即可放回。」) and its
+      line on where A's and C's two stand (`rule.oneWallSpares`). Tests hold
+      each button's words in both languages.
+    - D's and E's one-wall lines in Leo's words, where the room's shortfalls
+      are said, locked in `reviewed.json`. The accent run on one wall: none, or
+      the one run, 「整排」 / "Whole run", a key of its own
+      (`finish.accentRun.whole`), not the L's "Back leg". The bill
+      calls D's one-wall oven by its slot's own name (`requirement.comboOven`).
+    - **The L, unchanged but for the Layout tab's new first row**: every L
+      room the template builds, 1,045 (515 built, 530 refused, every model
+      swap), byte for byte as 98b-1 and as round 98a (round 98a's dump).
+      Pixels, D17's third way: 98b-1's code (`e61bb58`, `index-BYbveSKw.js`)
+      and this round's (`index-Y07uGhCM.js`), each shot twice, 45 states: 42
+      identical; package D's install mode and its two fly-ins differed in every
+      pairing with each build's two runs alike, and shot again, old and new
+      alternated twice, all five of D's desktop states are identical (a single
+      pixel in one, which differs between two runs of one build too) — the old
+      runs had been in another state, their re-shoots matching the new runs.
+      `scripts/qualityDrop.mjs`, ten runs each alternated: 0 drops on either. The unit
+      suite 2,854 of 2,854; the whole suite, browser tests and all, 3,070 of
+      3,070. Proved again once Leo's names were in, since the L's own side of
+      the switch changed: every L room, 1,045, byte for byte as 98b-1; the
+      Layout tab, in Chinese, A to E, 98b-1 (`index-BYbveSKw.js`) against
+      this round (`index-CDiy2Mi5.js`): word for word the same but for the
+      added row (「布局形状」, 「L 型厨房」, 「一字型厨房」), and below its 70 px
+      the same pixels in B, D and E, two rows of anti-aliasing in A and C, as
+      before; the whole suite 3,113 of 3,113.
+    - **Leo's names (round 98b-2), locked in `reviewed.json`**: the switch,
+      the two sides alike, 「L 型厨房」 / "L-shaped kitchen" and 「一字型厨房」 /
+      "Single-wall kitchen" — the L's side changes too, so the L is proved
+      again below; a share link whose shape cannot be used says these same
+      names (`share.notice.setting` fills its value from
+      `panel.layout.shape.*`). In the sentences the Chinese keeps 「一字型」 and
+      the English says "Single wall" where it said "One wall": D's and E's
+      notes and `rule.oneWallSpares` begin "Single wall:", the rest word for
+      word as before. The bill: "cooktop" / 「灶台」 (kept), "filler against
+      the wall" / 「靠墙填充板」, "cabinet beside the coffee machine's door" /
+      「咖啡机旁的侧柜」 (option 戊's 12" base), "combination oven tower" /
+      「组合烤箱塔」, and the slot "Combination oven" / 「组合烤箱」. And one found
+      building it: A's and C's "No island: … omitted; add an island or
+      lengthen the left wall" (`rule.noIslandOmitted*`, locked) was said on one
+      wall too, where the wall to lengthen is the back wall and there is no
+      island to add; and the checklist's line on where the two stand
+      (`rule.noIslandFallback`, "…finishes the back leg") was not true of one
+      wall. Since round 98b-2 one wall has keys of its own,
+      `rule.oneWallOmitted*` and `rule.oneWallSpares`, in Leo's words (above;
+      Leo, round 98b-2: "先把代码做成一字型用自己的键").
+  - **Leo's answers before 98b-2 (round 98b)**: the coffee machine keeps
+    room for the 110° it is delivered at — on E's one wall at least 13-3/4"
+    from its hinge side to the left wall (TCM24PS p. 11); how, from the
+    options in `docs/plans/round-98b2-plan.md` section 1, is his to choose,
+    and then the length table and `ONE_WALL_MAX_IN` (every option makes the
+    top 276"). E's one-wall note, in his words: 「一字型：不配岛台；电磁灶改到墙
+    上，油烟机为 36" 墙挂烟囱式 HMCB36WS。」 / "One wall: no island; the induction
+    cooktop moves to the wall, with the 36" chimney wall hood HMCB36WS." The
+    quality guard: a round of its own, after 98b-2.
   - **Left after round 98b's answers**: the 5/8" between the 9-series columns
     (Leo answers it separately; not in 98b-1, since it changes the L's D);
     the coffee tower's wall end against TCM24PS's door distance (above);
@@ -7644,13 +7772,13 @@ Registered, not scheduled. None of these is a round of its own.
     Layout tab still shows the L's controls (the refrigerator's leg, the
     sink's, the corner, the coffee cabinet's leg, the island, the tower's side,
     the return wall); the back-wall slider's ends are the L's 96"-240"; the
-    coffee height slider shows for D, which has no coffee machine on one wall,
-    and the microwave-handle slider does not, which its combination oven
-    hangs from — `LayoutControls` asks the package's slots, and since round
-    98b `useActivePackage` gives the package as the room's shape builds it,
-    so these follow when the panel reads the shape.
+    coffee height slider showed for D, which has no coffee machine on one wall,
+    and the microwave-handle slider did not, which its combination oven
+    hangs from — put right before 98b-1 was committed: `LayoutControls`
+    asks `useActivePackage`, which gives the package as the room's shape
+    builds it (checked on the live `index-D8OB7JcE.js`).
   - **Leo, after the 98b-1 preview (round 98b), in short**: the preview is
-    right. Accepted: the fourth test changed, \`tests/tooTall.test.ts\`; the
+    right. Accepted: the fourth test changed, `tests/tooTall.test.ts`; the
     three things decided for him (on one wall B's, D's and E's oven tower on
     the refrigerator's side of the cooking surface; a wall dragged short drops
     A's and C's drawer and wine cabinet and says so, D18; a package switch on
@@ -7659,9 +7787,9 @@ Registered, not scheduled. None of these is a round of its own.
     - **The refusals are right; the expected values were changed.** T18IW905SP
       is an 84" column, and an 84" column does not go into an opening under a
       countertop or under a coffee machine: it is refused, by 50", in A's and
-      C's island wine openings and in E's \`slot-wine-2\`, as T18IW100SP and
-      T24IW905SP beside it are. What changed in \`openingAbove.test.ts\` and
-      \`tests/tooTall.test.ts\` is the expected list, which gains it; no
+      C's island wine openings and in E's `slot-wine-2`, as T18IW100SP and
+      T24IW905SP beside it are. What changed in `openingAbove.test.ts` and
+      `tests/tooTall.test.ts` is the expected list, which gains it; no
       refusal was mistaken and none was taken away.
     - **B, D and E dragged short on one wall** have no machine the wall can
       do without (their wine is a column in the bank; D's drawer and E's island
@@ -7678,18 +7806,18 @@ Registered, not scheduled. None of these is a round of its own.
       is no memory of what each package had chosen in its L, in an L either.
       The page holds one selection; a switch carries each model across by slot
       where it still fits and the new package's own where it does not or where
-      the old package's default was standing (\`migrateSelection\`, as every
+      the old package's default was standing (`migrateSelection`, as every
       package switch since round 16). So back in an L after a package switch,
       the clicks made on one wall are the room's too. **Leo's to decide**
       whether each package should keep its own L choices.
     - **A one-wall package slot is the whole slot, not a difference**
-      (\`packageInShape\`: a slot in \`shapes.one-wall.slots\` replaces the L's by
-      id). D's \`slot-oven\` is written as a combination oven tower in full,
-      after B's; it has no \`sillIn\`, so it takes the schema's 0, which nothing
-      reads for a combination oven: \`sillFor\` hangs one from where its
-      microwave's handle lands (\`comboSillFor\`, round 74), as B's and E's,
-      which have none either (\`oneWall.test.ts\` holds D's to the handle). E's
-      \`slot-microwave\` and \`slot-cooktop\`, and D's three columns, repeat their
+      (`packageInShape`: a slot in `shapes.one-wall.slots` replaces the L's by
+      id). D's `slot-oven` is written as a combination oven tower in full,
+      after B's; it has no `sillIn`, so it takes the schema's 0, which nothing
+      reads for a combination oven: `sillFor` hangs one from where its
+      microwave's handle lands (`comboSillFor`, round 74), as B's and E's,
+      which have none either (`oneWall.test.ts` holds D's to the handle). E's
+      `slot-microwave` and `slot-cooktop`, and D's three columns, repeat their
       L slot with one field changed.
   - **What TCM24PS's documents say about its door** (Leo, round 98b: before
     he answers the coffee tower's wall end): the installation instructions
@@ -7707,14 +7835,20 @@ Registered, not scheduled. None of these is a round of its own.
       island and its orientation. Until they are hidden they show the L's
       values, which are not the room's (E on one wall: the island on, the tower
       "Right of the range"; the room has no island and its tower on the left).
-    - D's one-wall bill calls its oven "steam oven tower" (\`requirement.oven\`):
+    - D's one-wall bill calls its oven "steam oven tower" (`requirement.oven`):
       a combination oven.
     - A one-wall slot written whole repeats the L's fields (above): write only
       what differs, or a test holding the rest to the L's (D17, one rule
       written once).
     - The L's labels — B's and E's combination oven tower "Microwave" /
       「微波炉」, B's tower "microwave drawer" in the bill — are not 98b's: a
-      small round of their own, since they change the live L.
+      small round of their own, since they change the live L. With them
+      (Leo, round 98b-2: registered, the same small round): E's coffee cabinet
+      is "coffee and dishwasher cabinet" / 「咖啡机+洗碗机柜」 on the wall's bill
+      (`requirement.coffee`), where E's has a wine cooler under the machine;
+      and the 3" filler that finishes the L's back run against the right-hand
+      wall is "cabinet at the open end" / 「收尾柜」 there
+      (`requirement.back-end`), where it is a filler at a wall.
     - E's hood on one wall: HMCB36WS by default, a chimney wall hood (the
       stainless canopy, its cover to the ceiling, nothing over it), and no
       Hood housing option, by the switch and by an L link edited by hand alike.
@@ -7728,6 +7862,8 @@ Registered, not scheduled. None of these is a round of its own.
     (无 / 左段 / 后段 / 岛台). On one wall: None and the wall's one run. For that
     run: "Wall run" / 「靠墙柜列」 (柜列 is the word the page already uses for a
     run; 「墙面」 is taken by the Walls finish), or "Whole run" / 「整排」.
+    **Leo, round 98b-2: 「整排」 / "Whole run"**, a key of its own
+    (`finish.accentRun.whole`), no longer borrowing `panel.layout.leg.back`.
   - **Seen while building 98b-1, not changed**: B's and E's combination oven
     tower is labelled "Microwave" / 「微波炉」 on the room's pins and the list
     in the L, its slot being `slot-microwave` (D's one-wall oven now says
@@ -7737,14 +7873,14 @@ Registered, not scheduled. None of these is a round of its own.
 - **The quality guard misjudges the seconds after a package switch.** *(Leo,
   round 98b: registered as a thing of its own; a round of its own, which
   proves on its own that the L is unchanged, since it changes the live L;
-  before or after 98b-2 is his to say.)* \`QualityGuard\` drops a page to the
+  before or after 98b-2 is his to say.)* `QualityGuard` drops a page to the
   low tier — half-size textures, a coarser pixel ratio — after two seconds in
   a row under 55 fps, and **never raises it again until the page is loaded
-  again** (\`setQuality("low")\` is the only call). The second or two after a
+  again** (`setQuality("low")` is the only call). The second or two after a
   package switch sit near 55 fps on this machine, so a switch now and then
   drops a page that draws at 60 the rest of the time: round 98b measured 1 in
-  10 on a 360 phone in Chinese tapping B, on \`c94a898\` and on 98b-1 alike
-  (\`scripts/qualityDrop.mjs\`; the round-98b entry under the layout shape
+  10 on a 360 phone in Chinese tapping B, on `c94a898` and on 98b-1 alike
+  (`scripts/qualityDrop.mjs`; the round-98b entry under the layout shape
   switch above has the figures).
 - **Which model each opening keeps between one wall and the L.** *(Leo, round
   98b: for 98b-2, with tests; not in 98b-1.)* His rule: where the two shapes'
@@ -7754,11 +7890,11 @@ Registered, not scheduled. None of these is a round of its own.
   counts in both. What 98b-1 does instead: the page holds one selection, and
   - going into one wall, each opening keeps the model chosen in the L where it
     still fits the opening as one wall writes it and was not the L package's
-    own default, and takes one wall's default otherwise (\`migrateSelection\`);
+    own default, and takes one wall's default otherwise (`migrateSelection`);
     so a refrigerator chosen in the L that fits D's 24" opening would go
     across, where the rule keeps it in the L;
   - coming back to the L it left, the whole L selection is put back as it
-    was (\`lRoom\`): a dishwasher changed on one wall is lost, where the rule
+    was (`lRoom`): a dishwasher changed on one wall is lost, where the rule
     keeps it; a hood changed on one wall stays on one wall, as the rule has it;
   - coming back after a package switch on one wall (no L kept), the same
     carrying across as going in: E's VCIN36GWS does not come back into the L
@@ -7767,6 +7903,53 @@ Registered, not scheduled. None of these is a round of its own.
 
   98b-2's tests: a dishwasher changed on one wall is still that dishwasher
   back in the L; a hood changed on one wall leaves the L's own hood in the L.
+  **Done in round 98b-2** (the 98b-2 entry above; `src/store/oneWallSwitch.test.ts`).
+- **The "room grew" message and its Undo say too little.** *(Leo, round 98b:
+  registered; the words are his. It is changed in 98b-2, where the shape
+  switch uses the same message — Leo, round 98b: "放进 98b-2，以这次为准".)* `toast.roomGrew`
+  and its button: Undo puts back the package before the switch, its room and
+  its models, and the button does not say where it goes back to; the Chinese
+  「需要更长的柜列」 is not how it is said.
+  - **Every message with Undo today** (`src/store/useAppStore.ts`; the button
+    `toast.undo`, Undo / 撤销, in `src/ui/SceneControls.tsx`, shown 20 s):
+    - `toast.roomGrew` — a package chosen that needs longer walls than the
+      room has (`setPackageId`). Undo: the package before, every layout
+      setting, every slot's model and the blower, as they stood.
+    - `toast.wallGrew`, one line per wall — a switch in the Layout tab that
+      needs more wall (return wall, tower side, sink leg, refrigerator leg,
+      coffee leg, corner, hood housing, island, its orientation, window, sink
+      under the window; `setLayout` through `setLayoutParamsGrowing`), not a
+      wall slider. Undo: the room before the switch, the same package and
+      models.
+    - Either offers Undo only when the room before it was standing; a share
+      link opening offers none (D23).
+  - **A button that names where it goes back to** ("Back to B" / 「退回 B
+    套餐」; "Back to L" / 「退回 L 型」 for a shape): `toast.undo` gives way
+    to keys with the target — `toast.undo.package` {package},
+    `toast.undo.layout`, `toast.undo.shape` {shape} — the message carries
+    which, and `SceneControls.tsx` shows it; `toast.roomGrew` reworded. No key
+    is locked in `reviewed.json`. Tests: `src/store/autoGrow.test.ts` holds
+    the keys and what Undo puts back and stays as it is; new cases for each
+    button's words and for the shape switch's message; no browser test reads
+    the button's words. (98b-2's plan, section 7.)
+  - **Done in round 98b-2, in Leo's words**, locked in `reviewed.json` (the
+    98b-2 entry above): the shape switch has a message of its own,
+    `toast.shapeGrew`, and its button says 「退回 L 型」 / "Back to L" with no
+    variable.
+- **The L's coffee machine and what is beside its door's hinge.** *(Round 98b:
+  looked at for Leo; **D's arrangement is a fault on the live L**, a small
+  round of its own, not in 98b — Leo: the front of the left run's cabinets
+  across the corner stands in the door's swing and counts as the wall, 11/16"
+  short of 13-3/4"; E's, toward an open end, is not a fault.)* TCM24PS's door, at the 110° it
+  is delivered at, wants 13-3/4" to a wall on its hinge side, its own left
+  (installation instructions p. 11, p. 3 step 2). In the L no coffee machine is
+  that close to a wall — the nearest, D's on the back leg, is 37-1/16" from
+  the left wall — but two arrangements put its hinge side 13-1/16" from
+  something else: D with the coffee cabinet on the back leg and the
+  refrigerator on the left leg, from the left run's cabinets across the
+  corner (either corner cabinet); E with the coffee cabinet on the left leg and
+  the refrigerator on the back leg, from that run's open end, where nothing
+  stands. Whether cabinets across a corner count as the drawing's wall: 文件没写.
 - **How a flush column's finish is recorded.** *(Leo, round 98: registered,
   not changed; how they are to be recorded is his to decide.)* The six flush
   columns in the catalogue — T18IF900SP, T24IF905SP, T24IR905SP, T30IR905SP,
@@ -7782,6 +7965,20 @@ Registered, not scheduled. None of these is a round of its own.
   next round that changes the interface's words proposes new names, and Leo
   decides. *(Seen in round 98: `bottom.quote`, 「生成配置单」, is in both
   language files and read by no component.)*
+- **Not yet done after round 98b-2, as one group; the order is Leo's to
+  set.** *(Leo, round 98b-2: "把还没做的列成一组，顺序我再定".)* His list, in his
+  words; each has its entry above, which holds its figures and sources:
+  - 「画质守卫（降档后不会升回来；切换后那一两秒被误判）」 — "The quality guard
+    misjudges the seconds after a package switch".
+  - 「L 型标签小轮：B、E 的组合烤箱塔叫"微波炉"、配置单里 B 的塔叫"微波抽屉"、D 的叫"蒸烤箱
+    塔"、E 的咖啡柜叫"咖啡机+洗碗机柜"、右墙 3" 填板叫"收尾柜"」 — "98b-2's list"
+    and "Seen while building 98b-1, not changed".
+  - 「L 型 D 的咖啡机门：咖啡柜在后段、冰箱在左段时，离转角对面柜子 13-1/16"，比 13-3/4"
+    少 11/16"」 — "The L's coffee machine and what is beside its door's hinge".
+  - 「9 系列柱子之间的 5/8"（等我答现场做法）」 — "Left after round 98b's answers"
+    and "The columns side by side, from their own documents".
+  - 「走廊式、U 型」 — "A layout shape switch" and round 98 in the registered
+    rounds below.
 - **Registered rounds after 78, in Leo's order.** *(Leo, rounds 78-79; not
   started. Round 79 put the interface round first and moved the rest back.)*
   0. **An interface round, plan first, with phone and desktop sketches.**
@@ -7864,7 +8061,9 @@ Registered, not scheduled. None of these is a round of its own.
        shape switch — one wall, U-shaped, galley — from a colleague's use (the
        entry "A layout shape switch" above), in four rounds (Leo): **98a**,
        the preparation, nothing on the page changed — *done in round 98a*
-       (D22 and D23, round 98a); then 98b one wall, a galley, a U.
+       (D22 and D23, round 98a); then 98b one wall — *done in rounds 98b-1
+       and 98b-2* (the entries under "A layout shape switch" above) — a
+       galley, a U.
        What each decides is written here when that round is built.
   1. **A hood's own outlet first.** The duct drawn and quoted follows the
      model's own outlet where its sheet gives one, rather than only the

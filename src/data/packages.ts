@@ -63,9 +63,13 @@ export function packageInShape(entry: Package, shape: LayoutShape): Package {
       throw new Error(`data/packages.json: ${base.id} in ${shape} names ${slotId}, which it does not have`);
     }
   }
+  // What a shape writes for a slot is what differs from the L's, laid over it.
   const slots = base.slots
     .filter((slot) => !omit.has(slot.slotId))
-    .map((slot) => over.slots.find((written) => written.slotId === slot.slotId) ?? slot);
+    .map((slot) => {
+      const differs = over.slots.find((written) => written.slotId === slot.slotId);
+      return differs ? ({ ...slot, ...differs } as PackageSlot) : slot;
+    });
   const defaultSelection = Object.fromEntries(
     Object.entries({ ...base.defaultSelection, ...over.defaultSelection }).filter(
       ([slotId]) => !omit.has(slotId as SlotId),
@@ -86,6 +90,44 @@ export function packageInShape(entry: Package, shape: LayoutShape): Package {
   SHAPE_OF.set(shaped, shape);
   SHAPED.set(base, new Map([...(SHAPED.get(base) ?? []), [shape, shaped]]));
   return shaped;
+}
+
+/**
+ * What makes an opening the same opening in two shapes: the opening itself.
+ * Round 98b-2, Leo: "开口不同就按开口本身（宽、类别、安装方式、高、深）判断" —
+ * where it stands and the view of it (`beside`, `bestView`) do not count, so
+ * E's cooktop, the same 36" drop-in on the wall as in the island, is one
+ * opening.
+ */
+const OPENING_FIELDS = ["widthIn", "category", "installType", "heightIn", "depthIn"] as const;
+
+/**
+ * The slots whose opening is not the same in the L and in `shape`: each shape
+ * keeps its own model there (Leo, round 98b-2: "开口不同的位置各记各的；开口一样
+ * 的位置共用一个选择"). A slot the shape leaves out is one of them — it has an
+ * opening in one shape and none in the other. None for a shape the package
+ * does not write.
+ */
+export function slotsKeptPerShape(entry: Package, shape: LayoutShape): SlotId[] {
+  const base = BASES.get(entry) ?? entry;
+  if (shape === "L") return [];
+  const shaped = packageInShape(base, shape);
+  return base.slots
+    .filter((slot) => {
+      const there = shaped.slots.find((each) => each.slotId === slot.slotId);
+      return !there || OPENING_FIELDS.some((field) => JSON.stringify(there[field]) !== JSON.stringify(slot[field]));
+    })
+    .map((slot) => slot.slotId);
+}
+
+/**
+ * The line a package says about itself in a shape it writes differently:
+ * D's and E's on one wall, in Leo's words (round 98b). Null where the shape
+ * is the L's list unchanged.
+ */
+export function shapeNoteKey(entry: Package, shape: LayoutShape): string | null {
+  const base = BASES.get(entry) ?? entry;
+  return shape !== "L" && base.shapes?.[shape] ? `shape.note.${shape}.${base.code}` : null;
 }
 
 /** The package as written, whichever shape this one was made in. */

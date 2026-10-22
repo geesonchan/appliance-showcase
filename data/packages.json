@@ -421,57 +421,21 @@
           "slots": [
             {
               "slotId": "slot-freezer",
-              "category": "freezer",
-              "widthIn": 18,
-              "installType": "column",
-              "tallUnit": true,
-              "enclosure": true,
-              "heightIn": 84,
-              "depthIn": 25,
-              "panelReady": false
+              "widthIn": 18
             },
             {
               "slotId": "slot-fridge",
-              "category": "refrigerator",
-              "widthIn": 24,
-              "installType": "column",
-              "tallUnit": true,
-              "enclosure": true,
-              "heightIn": 84,
-              "depthIn": 25,
-              "panelReady": false
+              "widthIn": 24
             },
             {
               "slotId": "slot-wine",
-              "category": "wine",
-              "widthIn": 18,
-              "installType": "column",
-              "tallUnit": true,
-              "enclosure": true,
-              "heightIn": 84,
-              "depthIn": 25,
-              "panelReady": false,
-              "utilities": {
-                "gas": null,
-                "power": {
-                  "voltage": 120,
-                  "amps": 15,
-                  "dedicated": true
-                }
-              }
+              "widthIn": 18
             },
             {
               "slotId": "slot-oven",
-              "category": "wall-oven",
               "labelKey": "slot.comboOven",
-              "towerInstall": "standard",
-              "widthIn": 30,
               "installType": "combo",
-              "tallUnit": true,
-              "enclosure": true,
               "heightIn": 48.5,
-              "beside": "range",
-              "panelReady": false,
               "utilities": {
                 "gas": null,
                 "power": {
@@ -479,10 +443,6 @@
                   "amps": 50,
                   "dedicated": true
                 }
-              },
-              "bestView": {
-                "azimuth": 45,
-                "pitch": 26
               }
             }
           ],
@@ -648,45 +608,10 @@
           "slots": [
             {
               "slotId": "slot-microwave",
-              "category": "wall-oven",
-              "towerInstall": "standard",
-              "widthIn": 30,
-              "heightIn": 48.5,
-              "installType": "combo",
-              "tallUnit": true,
-              "beside": "range",
-              "enclosure": true,
-              "panelReady": false,
-              "bestView": {
-                "azimuth": 45,
-                "pitch": 26
-              },
-              "utilities": {
-                "gas": null,
-                "power": {
-                  "voltage": 240,
-                  "amps": 50,
-                  "dedicated": true
-                },
-                "duct": null
-              }
+              "beside": "range"
             },
             {
               "slotId": "slot-cooktop",
-              "category": "cooktop",
-              "widthIn": 36,
-              "installType": "drop-in",
-              "tallUnit": false,
-              "enclosure": false,
-              "utilities": {
-                "gas": null,
-                "power": {
-                  "voltage": 240,
-                  "amps": 50,
-                  "dedicated": true
-                },
-                "duct": null
-              },
               "bestView": {
                 "azimuth": 40,
                 "pitch": 28
@@ -694,16 +619,8 @@
             },
             {
               "slotId": "slot-hood",
-              "category": "hood",
               "widthIn": 36,
-              "installType": "chimney",
-              "builtForCooktopIn": 36,
-              "utilities": {
-                "duct": {
-                  "diameterIn": 8,
-                  "route": "through-ceiling"
-                }
-              }
+              "installType": "chimney"
             }
           ],
           "defaultSelection": {

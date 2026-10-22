@@ -150,6 +150,17 @@ function besideTheRange(run: CabinetRun, index: number): boolean {
   return false;
 }
 
+/** Whether a tall segment is in one unbroken tall group with a tower that stands in the run (D11 rule 14). */
+function joinedToACoffeeTower(run: CabinetRun, index: number): boolean {
+  let from = index;
+  let to = index;
+  while (run.segments[from - 1]?.kind === "tall") from -= 1;
+  while (run.segments[to + 1]?.kind === "tall") to += 1;
+  return run.segments
+    .slice(from, to + 1)
+    .some((segment) => !!segment.slot && PACKAGE_SLOTS[segment.slot]?.beside === "run");
+}
+
 /**
  * Counter available beside a segment, walking outward until something that is
  * not plain counter stops it.
@@ -278,7 +289,14 @@ export function checkLayout(
       // counter the rule is against is counter on both sides.
       const after = run.segments.slice(i + 1).filter((s) => s.kind !== "tall");
       const before = run.segments.slice(0, i).filter((s) => s.kind !== "tall");
-      if (after.length > 0 && before.length > 0 && !besideTheRange(run, i)) {
+      //
+      // And a tall unit standing joined to a coffee tower stands where that
+      // tower does: on E's one wall the refrigeration is against the coffee
+      // tower, which is clear of the wall by a 12" base for its door (round
+      // 98b-2, Leo's option 戊), so the group has counter both sides and rule
+      // 14 is what puts it there. In an L the coffee tower always has counter
+      // between it and any other tall unit, so this never applies there.
+      if (after.length > 0 && before.length > 0 && !besideTheRange(run, i) && !joinedToACoffeeTower(run, i)) {
         fail(
           "d11-1",
           `${segment.id} is a tall cabinet with ${after.length} segment(s) of counter after it`,

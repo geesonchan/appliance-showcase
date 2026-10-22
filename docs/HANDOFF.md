@@ -12,7 +12,7 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **round 98b-1** (`docs/decisions.md` is the record of
+Covers the repository up to **round 98b-2** (`docs/decisions.md` is the record of
 rounds; `git log` is the record of commits). It replaces the v1–v9 briefs that
 were pasted into chat.
 
@@ -58,9 +58,9 @@ every figure of it, is `data/packages.json`; D16 and D20 say how a package is
 put together and why E was built the way it was. **Do not copy those numbers
 anywhere**: the file is the one source, and the tests read it.
 
-### Where it stands (round 98b-1)
+### Where it stands (round 98b-2)
 
-- **All five packages are live.** Rounds 73–79, 81–90, 92, 92a, 92b, 92c, 93, 94, 95, 91, 96, 97, 98a and 98b-1 each shipped
+- **All five packages are live, as an L and on one wall.** Rounds 73–79, 81–90, 92, 92a, 92b, 92c, 93, 94, 95, 91, 96, 97, 98a, 98b-1 and 98b-2 each shipped
   (round 80 built nothing; 91 was built after 95, below), and each was checked against the live page's asset hashes
   after its workflow finished.
 - **The live site counts visits, anonymously** (D24): page views and four events
@@ -119,10 +119,26 @@ anywhere**: the file is the one source, and the tests read it.
   unchanged — one wall as a shape, D's and E's one-wall packages, the rules
   reading a run's ends, the store's switch with no control yet, reached only
   by a link edited by hand (**done**, round 98b-1, after Leo's look at the
-  local preview; Open items, round 98b), then 98b-2 the interface; then a galley, then a U; then
+  local preview; Open items, round 98b), then 98b-2 the interface — the
+  shape switch on the Layout tab, one wall showing only the controls it
+  has, D's and E's notes, the switch's own message with Undo back to the L,
+  every Undo button naming where it goes back to, all in Leo's words
+  (**done**, round 98b-2, after Leo's look at the local preview; Open
+  items, round 98b); then a galley, then a U; then
   a hood's own outlet, then 79a (the doors of the
   cabinet over the hood and the outlet shown in it), then 79b. The 30" option
   in A is paused.
+
+### Not yet done, one group (Leo, round 98b-2: the order is his to set)
+
+Named here only; each is an entry in the Open items of `docs/decisions.md`,
+"Not yet done after round 98b-2", which says where its figures are:
+
+- the quality guard;
+- the L's labels, a small round;
+- the L's D, the coffee machine's door beside the corner;
+- the 5/8" between the 9-series columns, waiting for Leo's site practice;
+- a galley and a U.
 
 ---
 
@@ -168,7 +184,9 @@ anywhere**: the file is the one source, and the tests read it.
 | `scripts/handFilled.test.ts` | The import stops when a checked model's hand-filled cells come in blank, unless `--allow-empty=MODEL` names it (D4, round 92). |
 | `scripts/screenshots.mjs` | Screenshot sets by round. |
 | `scripts/qualityDrop.mjs` | How often a build drops to the low quality tier on a 360 phone after tapping 中 then B, with fps each second; given two addresses, the old build and the new alternated run by run. Run it in any round that touches what the scene draws or how often it renders, against the build before the round (Leo, round 98b; D17). |
-| `src/data/oneWall.test.ts`, `src/store/oneWallSwitch.test.ts` | One wall (round 98b): each package's run left to right, its wall, the rules, D's and E's one-wall packages; the shape switch putting the L back exactly, and a link to a one-wall kitchen. |
+| `src/data/oneWall.test.ts`, `src/store/oneWallSwitch.test.ts` | One wall (round 98b): each package's run left to right, its wall, the rules, D's and E's one-wall packages; the shape switch putting the L back exactly, and a link to a one-wall kitchen; which model each opening keeps between the shapes, and every Undo button's words (round 98b-2). |
+| `src/ui/shapeControls.ts`, `src/ui/shapeControls.test.ts` | Which Layout tab controls one wall shows, held to the settings one wall decides itself (round 98b-2). |
+| `src/store/shareLinkRound98b1.test.ts`, `src/store/shareLink.round98b1.json` | Ten links written by 98b-1's code open the same room by its hash, but E on one wall, which opens at its own wall (round 98b-2). |
 
 Commands: `npm run dev`, `npm run build`, `npm run test:unit` (unit only,
 `vitest.unit.config.ts`), `npm test` (build then the whole suite including the
@@ -342,11 +360,12 @@ Three things, each with its source:
 - **A Run Composer** — registered in D14, before building it.
 - **The two run towers on separate legs** — D22, round 55: "splitting them
   across two legs is not being built now".
-- **A layout shape switch: one wall, U-shaped, galley** — registered in round
-  98, from a colleague's feedback from use; round 98 is its plan, not started
-  (Open items, "A layout shape switch"). Until then only mentioned, in D22 (the
-  fly-in rule and `roomWalls.ts` are written so they would need no new rule);
-  round 98's plan reads where that holds in the code and where it does not.
+- **The rest of the layout shape switch: U-shaped and galley** — registered
+  in round 98, from a colleague's feedback from use; one wall is built
+  (rounds 98a, 98b-1, 98b-2), the galley and the U are not started (Open
+  items, "A layout shape switch"). Round 98's plan,
+  `docs/plans/round-98-layout-shape-plan.md`, reads where the code holds for
+  them and where it does not.
 
 And the rounds Leo has queued, with what he decided for each: the last entry of
 the Open items, "Registered rounds after 78".

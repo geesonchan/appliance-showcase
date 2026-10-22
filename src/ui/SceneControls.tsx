@@ -198,7 +198,7 @@ export function Toast() {
           onClick={undo}
           className="shrink-0 rounded-full border border-[#F7F5EF]/40 px-2.5 py-0.5 text-[11px] font-medium text-[#F7F5EF] transition-colors hover:bg-[#F7F5EF]/10"
         >
-          {t("toast.undo")}
+          {say(toast.undoLabel?.key ?? "toast.undo", toast.undoLabel?.vars)}
         </button>
       )}
     </div>

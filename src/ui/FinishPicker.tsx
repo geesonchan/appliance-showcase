@@ -175,6 +175,24 @@ function RalInput({
 export function FinishPicker() {
   const t = useT();
   const finishes = useAppStore((s) => s.finishes);
+  // The runs a colour can go on: on one wall none but the one, the island and
+  // the left leg not there to choose (Leo, round 98b). A run chosen in an L
+  // that one wall has not got shows as none, which is what the room shows;
+  // the choice is kept for the L. The one run is the whole run (Leo, round
+  // 98b-2: "整排"), a key of its own.
+  const shape = useAppStore((s) => s.layoutParams.shape);
+  const runs: { value: AccentRun; label: string }[] =
+    shape === "one-wall"
+      ? [
+          { value: "none", label: t("finish.accentRun.none") },
+          { value: "back", label: t("finish.accentRun.whole") },
+        ]
+      : [
+          { value: "none", label: t("finish.accentRun.none") },
+          { value: "left", label: t("panel.layout.leg.left") },
+          { value: "back", label: t("panel.layout.leg.back") },
+          { value: "island", label: t("panel.layout.island") },
+        ];
   const setFinish = useAppStore((s) => s.setFinish);
 
   return (
@@ -192,14 +210,9 @@ export function FinishPicker() {
         <Segmented
           size="sm"
           name="accent-run"
-          value={finishes.accentRun}
+          value={runs.some((run) => run.value === finishes.accentRun) ? finishes.accentRun : "none"}
           onChange={(accentRun: AccentRun) => setFinish({ accentRun })}
-          options={[
-            { value: "none" as const, label: t("finish.accentRun.none") },
-            { value: "left" as const, label: t("panel.layout.leg.left") },
-            { value: "back" as const, label: t("panel.layout.leg.back") },
-            { value: "island" as const, label: t("panel.layout.island") },
-          ]}
+          options={runs}
         />
       </div>
 

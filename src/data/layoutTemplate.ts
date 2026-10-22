@@ -186,12 +186,13 @@ export const PARAM_LIMITS = {
  * batch 1-3; round 98b, 2): the one-wall slider's top is set by the package
  * that needs the longest wall, to the slider's next 6" step. That is package
  * E, laid out as Leo arranged it (round 98b), at the wall it is built at:
- * 261-5/8", so 264". `oneWall.test.ts` holds it to that figure, worked out
+ * 273-5/8" since its coffee tower stands clear of the wall for its door
+ * (`COFFEE_AT_WALL`, round 98b-2; 261-5/8" and 264" in 98b-1), so 276". `oneWall.test.ts` holds it to that figure, worked out
  * from the packages, so a package that grows moves the test and not this line
  * silently. It is longer than D13's 216" run because Leo has said so for one
  * wall; the L keeps its 240".
  */
-export const ONE_WALL_MAX_IN = 264;
+export const ONE_WALL_MAX_IN = 276;
 
 /** The slider ends a shape's walls take: the L's, and one wall's longer back wall. */
 export function paramLimitsFor(shape: LayoutShape): typeof PARAM_LIMITS {
@@ -211,6 +212,8 @@ export function paramLimitsFor(shape: LayoutShape): typeof PARAM_LIMITS {
  * then the refrigeration stands beside a cabinet. The room stands as this
  * says, and a link written from it says it too.
  */
+export const ONE_WALL_SETS = ["hasIsland", "towerSide", "fridgeEnd", "sinkLeg", "coffeeLeg", "fridgeEndAbuts"] as const;
+
 function asBuilt(params: LayoutParams, pkg: Package): LayoutParams {
   if (params.shape !== "one-wall") return params;
   const coffeeAtWall = pkg.slots.some((slot) => slot.tallUnit && slot.beside === "run");
@@ -236,6 +239,20 @@ function asBuilt(params: LayoutParams, pkg: Package): LayoutParams {
 export function oneWallWantedIn(params: LayoutParams, pkg: Package = PACKAGE): number {
   return wallRequirement({ ...params, shape: "one-wall", backWallIn: ONE_WALL_MAX_IN }, "back", pkg).wantedIn;
 }
+
+/**
+ * What stands between the wall and a coffee tower at one wall's wall end
+ * (package E's, round 98b). TCM24PS's door, at the 110° it is delivered at,
+ * wants at least 13-3/4" from its hinge side to a wall (its installation
+ * instructions, p. 11 and p. 3, step 2; the hinge on the machine's left,
+ * which is the wall's side here). Leo, round 98b, chose how: option 戊 of
+ * docs/plans/round-98b2-plan.md — D13's 3" filler at the wall, then a 12"
+ * base cabinet with its worktop, then the tower's own 3/4" board: 3 + 12 +
+ * 3/4 + 5/16 (the 23-3/8" machine centred in its 24") = 16-1/16". A 9"
+ * cabinet, the narrowest stocked, would leave 13-1/16"; 12" is the next
+ * size up. `oneWall.test.ts` measures it.
+ */
+export const COFFEE_AT_WALL = { doorToWallIn: 13.75, cabinetIn: 12 } as const;
 
 /** Whether a cooktop stands on a run where a range would: on one wall, where there is no island (round 98b). */
 const cooktopOnARun = (params: Pick<LayoutParams, "shape">) => params.shape === "one-wall";
@@ -440,6 +457,12 @@ export interface RequirementItem {
   /** The rule that puts it there, when it is a stretch of counter: "d11-4". */
   rule?: string;
   labelKey: string;
+}
+
+/** The bill's word for a slot that names its own machine (`slot.comboOven` → `requirement.comboOven`). */
+function labelOfSlot(pkg: Package, slotId: SlotId | undefined): string | undefined {
+  const own = slotId ? pkg.slots.find((slot) => slot.slotId === slotId)?.labelKey : undefined;
+  return own ? own.replace(/^slot\./, "requirement.") : undefined;
 }
 
 /** What has to go on a leg, and the wall lengths that hold it. */
@@ -2106,8 +2129,8 @@ function planLegs(
    * the wine cabinet and the microwave drawer on the wall, where the L's leg
    * puts them, straightened (second batch 3). Package E's coffee tower stands
    * at the wall, on the refrigeration's far side from the cooktop (round 98b:
-   * "咖啡机不是做饭的主力，所以离开灶台"), with the same 3" filler against the
-   * wall any run takes (D13), full height beside a tall cabinet.
+   * "咖啡机不是做饭的主力，所以离开灶台"), clear of the wall by what its door
+   * needs (`COFFEE_AT_WALL`).
    *
    * Every stretch of counter is the L's, by its own rule: the refrigerator's
    * 15" (rule 6), the cooking surface's landings (rule 4), the sink's (rule
@@ -2116,8 +2139,12 @@ function planLegs(
   function oneWallRun(): Item[] {
     const items: Item[] = [];
     if (inRun.length > 0) {
-      const atWall = LAYOUT_POLICY.terminalIn.atWall;
-      items.push(fixed("wall-end", atWall, "tall", M(`BF${atWall}`, "filler", atWall)), ...inRunGroup());
+      const { cabinetIn } = COFFEE_AT_WALL;
+      items.push(
+        ...terminal("wall-end", "wall"),
+        gap("coffee-door", cabinetIn, "d11-14", { maxIn: cabinetIn }),
+        ...inRunGroup(),
+      );
     }
     items.push(...fromTheWall(tower), gap("fridge-landing", LAYOUT_LIMITS.fridgeLandingIn, "d11-6"));
     items.push(...[...spare].reverse(), ...cookingBlock(), ...sinkGroup(), ...terminal("back-end", farEnd(shape, "back")));
@@ -2183,7 +2210,11 @@ function requirementFor(
         // surround is a panel, an opening and whatever closes the far end, and
         // the bill under a refusal should say so rather than name one of them.
         code: item.modules.map((module) => module.code).join(" + "),
-        labelKey: `requirement.${item.id}`,
+        // A slot that names its machine itself names it on the bill too: D's
+        // oven on one wall is a combination oven tower (round 98b-2), where the
+        // bill's own word for `slot-oven` is the L's steam oven tower. No slot
+        // in an L names its own, so the L's bill is as it was.
+        labelKey: labelOfSlot(pkg, item.slot) ?? `requirement.${item.id}`,
       });
     } else {
       // Every stretch, at its minimum. Nothing is optional any more, so the

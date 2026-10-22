@@ -1,5 +1,8 @@
 import { useMemo } from "react";
 import { PARAM_LIMITS, feasibleRange, wallRequirement, type LayoutParams } from "../data/room";
+import { LAYOUT_SHAPES } from "../data/layoutShape";
+import { paramLimitsFor } from "../data/layoutTemplate";
+import { showsControl, type LayoutControl } from "./shapeControls";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
 import { useActivePackage, useSelectedAppliance } from "../store/useSelection";
@@ -117,6 +120,11 @@ export function LayoutControls() {
   const hasHousing = !!hood && hoodMount(hood) === "insert";
   const issues = useAppStore((s) => s.layoutIssues);
   const setLayout = useAppStore((s) => s.setLayout);
+  const setLayoutShape = useAppStore((s) => s.setLayoutShape);
+  // What the shape shows (round 98b-2): one wall hides what it has not got
+  // and what it decides itself (`shapeControls.ts`).
+  const on = (control: LayoutControl) => showsControl(params.shape, control);
+  const limits = paramLimitsFor(params.shape);
 
   // Probing the generator, so the greyed band and the room can never disagree.
   const feasible = useMemo(
@@ -138,44 +146,61 @@ export function LayoutControls() {
       {/* What is where. These are the decisions a designer makes first and
           changes most, so they sit above the dimensions they are made in. */}
       <PanelSection title={t("panel.layout")}>
+        {/* The layout's shape, first: it decides which of the rest apply.
+            Round 98b-2. Switching it grows the wall where the package needs
+            it, says so and offers Undo (D18), and leaves the camera (D1). */}
         <Choice
-          label={t("panel.layout.fridge")}
-          value={params.fridgeEnd}
-          onChange={(fridgeEnd) => setLayout({ fridgeEnd })}
-          options={legs}
+          label={t("panel.layout.shape")}
+          value={params.shape}
+          onChange={(shape) => setLayoutShape(shape)}
+          options={LAYOUT_SHAPES.map((shape) => ({ value: shape, label: t(`panel.layout.shape.${shape}`) }))}
         />
+        {on("fridgeEnd") && (
+          <Choice
+            label={t("panel.layout.fridge")}
+            value={params.fridgeEnd}
+            onChange={(fridgeEnd) => setLayout({ fridgeEnd })}
+            options={legs}
+          />
+        )}
         {/* What is past the refrigerator. A door opens through more than the
             machine's own width, and against a wall that costs three and a half
             inches of the run. See docs/decisions.md D11 rule 11. */}
-        <Choice
-          label={t("panel.layout.fridgeAbuts")}
-          value={params.fridgeEndAbuts}
-          onChange={(fridgeEndAbuts) => setLayout({ fridgeEndAbuts })}
-          options={[
-            { value: "cabinet" as const, label: t("panel.layout.abuts.cabinet") },
-            { value: "wall" as const, label: t("panel.layout.abuts.wall") },
-          ]}
-        />
-        <Choice
-          label={t("panel.layout.sink")}
-          value={params.sinkLeg}
-          onChange={(sinkLeg) => setLayout({ sinkLeg })}
-          options={legs}
-        />
+        {on("fridgeEndAbuts") && (
+          <Choice
+            label={t("panel.layout.fridgeAbuts")}
+            value={params.fridgeEndAbuts}
+            onChange={(fridgeEndAbuts) => setLayout({ fridgeEndAbuts })}
+            options={[
+              { value: "cabinet" as const, label: t("panel.layout.abuts.cabinet") },
+              { value: "wall" as const, label: t("panel.layout.abuts.wall") },
+            ]}
+          />
+        )}
+        {on("sinkLeg") && (
+          <Choice
+            label={t("panel.layout.sink")}
+            value={params.sinkLeg}
+            onChange={(sinkLeg) => setLayout({ sinkLeg })}
+            options={legs}
+          />
+        )}
 
-        <Choice
-          label={t("panel.room.corner")}
-          value={params.cornerType}
-          onChange={(cornerType) => setLayout({ cornerType })}
-          options={[
-            { value: "blind" as const, label: t("panel.room.corner.blind") },
-            { value: "lazy-susan" as const, label: t("panel.room.corner.lazySusan") },
-          ]}
-        />
+        {on("cornerType") && (
+          <Choice
+            label={t("panel.room.corner")}
+            value={params.cornerType}
+            onChange={(cornerType) => setLayout({ cornerType })}
+            options={[
+              { value: "blind" as const, label: t("panel.room.corner.blind") },
+              { value: "lazy-susan" as const, label: t("panel.room.corner.lazySusan") },
+            ]}
+          />
+        )}
 
         {/* Only where the hood is a liner in a housing somebody builds. A
             canopy has a shape of its own and nothing to choose. */}
-        {hasHousing && (
+        {hasHousing && on("housingStyle") && (
           <Choice
             label={t("panel.layout.housing")}
             value={params.housingStyle}
@@ -189,7 +214,7 @@ export function LayoutControls() {
 
         {/* Only where there is a tower to put on a side. A control that does
             nothing in two packages out of three is a question nobody asked. */}
-        {hasTower && (
+        {hasTower && on("towerSide") && (
           <Choice
             label={t("panel.layout.tower")}
             value={params.towerSide}
@@ -201,7 +226,7 @@ export function LayoutControls() {
           />
         )}
 
-        {hasCoffee && (
+        {hasCoffee && on("coffeeLeg") && (
           <Choice
             label={t("panel.layout.coffee")}
             value={params.coffeeLeg}
@@ -210,15 +235,17 @@ export function LayoutControls() {
           />
         )}
 
-        <div className="mt-1 border-t border-line pt-1">
-          <Toggle
-            label={t("panel.layout.island")}
-            checked={params.hasIsland}
-            onChange={(hasIsland) => setLayout({ hasIsland })}
-          />
-        </div>
+        {on("hasIsland") && (
+          <div className="mt-1 border-t border-line pt-1">
+            <Toggle
+              label={t("panel.layout.island")}
+              checked={params.hasIsland}
+              onChange={(hasIsland) => setLayout({ hasIsland })}
+            />
+          </div>
+        )}
 
-        {params.hasIsland && (
+        {params.hasIsland && on("islandOrientation") && (
           <Choice
             label={t("panel.layout.islandOrientation")}
             value={params.islandOrientation}
@@ -246,22 +273,24 @@ export function LayoutControls() {
         <Slider
           label={t("panel.room.backWall")}
           value={params.backWallIn}
-          {...PARAM_LIMITS.backWallIn}
+          {...limits.backWallIn}
           feasible={feasible.backWallIn}
           caption={<WallMinimum params={params} leg="back" />}
           onChange={(backWallIn) => setLayout({ backWallIn })}
         />
-        <Slider
-          label={t("panel.room.leftWall")}
-          value={params.leftWallIn}
-          {...PARAM_LIMITS.leftWallIn}
-          feasible={feasible.leftWallIn}
-          caption={<WallMinimum params={params} leg="left" />}
-          onChange={(leftWallIn) => setLayout({ leftWallIn })}
-        />
+        {on("leftWallIn") && (
+          <Slider
+            label={t("panel.room.leftWall")}
+            value={params.leftWallIn}
+            {...PARAM_LIMITS.leftWallIn}
+            feasible={feasible.leftWallIn}
+            caption={<WallMinimum params={params} leg="left" />}
+            onChange={(leftWallIn) => setLayout({ leftWallIn })}
+          />
+        )}
         {/* Where a hand reaches, which is what the oven tower is built round:
             the hole is cut from this rather than the other way about. */}
-        {hasMicrowaveTower && (
+        {hasMicrowaveTower && on("microwaveHandleIn") && (
           <Slider
             label={t("panel.layout.microwaveHandle")}
             value={params.microwaveHandleIn}
@@ -270,7 +299,7 @@ export function LayoutControls() {
             onChange={(microwaveHandleIn) => setLayout({ microwaveHandleIn })}
           />
         )}
-        {hasCoffee && (
+        {hasCoffee && on("coffeeSillIn") && (
           <Slider
             label={t("panel.layout.coffeeSill")}
             value={params.coffeeSillIn}
@@ -296,7 +325,7 @@ export function LayoutControls() {
             onChange={(position) => setLayout({ coffeeSillIn: snapCoffeeSill(position) })}
           />
         )}
-        {params.hasIsland && (
+        {params.hasIsland && on("islandLengthIn") && (
           <>
             <Slider
               label={t("panel.layout.islandLength")}

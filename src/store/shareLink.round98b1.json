@@ -1,0 +1,45 @@
+{
+ "_about": "Ten v=2 share links written by round 98b-1's code (e61bb58), every package as it opens in the L and on one wall, each with the room that code opens it to: sha256 of the layout parameters, the runs, the machines' places, the island, the cabinet boxes and the selection. Written by a script against a checkout of e61bb58 (round 98b-2); 98b-2's code must open each to the same room, saying nothing.",
+ "links": {
+  "A L": {
+   "link": "?v=2&pkg=A&lang=en&shape=L&back=168&left=144&corner=blind&fridgeLeg=left&fridgeAbuts=cabinet&sinkLeg=back&towerSide=right&housing=box&coffeeLeg=left&coffeeSill=37.4375&handle=54&island=72&islandTurn=parallel&islandDepth=36&aisle=42&fridge=T36BT120NS&range=PRG366WH&hood=PH36HWS&dishwasher=SHV78CM3N&microwave=MD24BS&wine=PRW24C01CG&blower=VTN2FZ&cabinet=ral5015&accentRun=none&accent=oak&counter=quartz&floor=oak&tile=24x48&wall=warm-grey",
+   "room": "f735a9e07e84c3737c87e131b0bb2948fc2ecbb9488cb24ac52ce45e275a3254"
+  },
+  "A one-wall": {
+   "link": "?v=2&pkg=A&lang=en&shape=one-wall&back=237.75&left=144&corner=blind&fridgeLeg=back&fridgeAbuts=wall&sinkLeg=back&towerSide=left&housing=box&coffeeLeg=back&coffeeSill=37.4375&handle=54&island=none&islandTurn=parallel&islandDepth=36&aisle=42&fridge=T36BT120NS&range=PRG366WH&hood=PH36HWS&dishwasher=SHV78CM3N&microwave=MD24BS&wine=PRW24C01CG&blower=VTN2FZ&cabinet=ral5015&accentRun=none&accent=oak&counter=quartz&floor=oak&tile=24x48&wall=warm-grey",
+   "room": "262996d5b2b0635f5a4e33e569fde9f156a010c5fc650898c648b08f661184b7"
+  },
+  "B L": {
+   "link": "?v=2&pkg=B&lang=en&shape=L&back=201.625&left=144&corner=blind&fridgeLeg=back&fridgeAbuts=cabinet&sinkLeg=left&towerSide=right&housing=box&coffeeLeg=left&coffeeSill=37.4375&handle=54&island=72&islandTurn=parallel&islandDepth=36&aisle=42&fridge=T36BT120NS&range=PCG366W&hood=VCIN36GWS&dishwasher=SHX78CM5N&microwave=MEM301WS&wine=T18IW100SP&blower=VTN2FZ&cabinet=ral5015&accentRun=none&accent=oak&counter=quartz&floor=oak&tile=24x48&wall=warm-grey",
+   "room": "f0695889fd865ec498b45731e30a86b602dff655002d719bb6084f6674d2b54a"
+  },
+  "B one-wall": {
+   "link": "?v=2&pkg=B&lang=en&shape=one-wall&back=244.125&left=144&corner=blind&fridgeLeg=back&fridgeAbuts=wall&sinkLeg=back&towerSide=left&housing=box&coffeeLeg=back&coffeeSill=37.4375&handle=54&island=none&islandTurn=parallel&islandDepth=36&aisle=42&fridge=T36BT120NS&range=PCG366W&hood=VCIN36GWS&dishwasher=SHX78CM5N&microwave=MEM301WS&wine=T18IW100SP&blower=VTN2FZ&cabinet=ral5015&accentRun=none&accent=oak&counter=quartz&floor=oak&tile=24x48&wall=warm-grey",
+   "room": "579ecaa840c0aba721665efb99de8a344bb43ac4c3f8c893e476a778a85d5d9d"
+  },
+  "C L": {
+   "link": "?v=2&pkg=C&lang=en&shape=L&back=168&left=144&corner=blind&fridgeLeg=left&fridgeAbuts=cabinet&sinkLeg=back&towerSide=right&housing=box&coffeeLeg=left&coffeeSill=37.4375&handle=54&island=72&islandTurn=parallel&islandDepth=36&aisle=42&fridge=T36FT820NS&range=MFGS4030RS&hood=HMCB30WS&dishwasher=SHX78CM5N&microwave=MD24BS&wine=PRW24C01CG&blower=none&cabinet=ral5015&accentRun=none&accent=oak&counter=quartz&floor=oak&tile=24x48&wall=warm-grey",
+   "room": "4bdf9d5ed14e9973ed0f24228ae968a45aa52905bfd8e836e03daad79ea8f6b5"
+  },
+  "C one-wall": {
+   "link": "?v=2&pkg=C&lang=en&shape=one-wall&back=232.25&left=144&corner=blind&fridgeLeg=back&fridgeAbuts=wall&sinkLeg=back&towerSide=left&housing=box&coffeeLeg=back&coffeeSill=37.4375&handle=54&island=none&islandTurn=parallel&islandDepth=36&aisle=42&fridge=T36FT820NS&range=MFGS4030RS&hood=HMCB30WS&dishwasher=SHX78CM5N&microwave=MD24BS&wine=PRW24C01CG&blower=none&cabinet=ral5015&accentRun=none&accent=oak&counter=quartz&floor=oak&tile=24x48&wall=warm-grey",
+   "room": "b9ddced42b8520dda7e55365fdb94ea007ec97f1a4c21b0f62d96a67d4b66715"
+  },
+  "D L": {
+   "link": "?v=2&pkg=D&lang=en&shape=L&back=224.25&left=178.75&corner=blind&fridgeLeg=left&fridgeAbuts=cabinet&sinkLeg=back&towerSide=right&housing=box&coffeeLeg=left&coffeeSill=37.4375&handle=54&island=72&islandTurn=parallel&islandDepth=36&aisle=42&freezer=T24IF905SP&fridge=T30IR905SP&wine=T24IW905SP&range=PCG366W&hood=VCIN36GWS&oven=PODS302B&coffee=TCM24PS&dishwasher=SHX78CM5N&dishwasher-2=SHX78CM5N&microwave=MD24BS&blower=VTN2FZ&cabinet=ral5015&accentRun=none&accent=oak&counter=quartz&floor=oak&tile=24x48&wall=warm-grey",
+   "room": "0458edc104df0053ce400630f4e3002ecb934128e8d90b429a0c5b13ffc1dcc6"
+  },
+  "D one-wall": {
+   "link": "?v=2&pkg=D&lang=en&shape=one-wall&back=249.25&left=178.75&corner=blind&fridgeLeg=back&fridgeAbuts=wall&sinkLeg=back&towerSide=left&housing=box&coffeeLeg=back&coffeeSill=37.4375&handle=54&island=none&islandTurn=parallel&islandDepth=36&aisle=42&freezer=T18IF900SP&fridge=T24IR905SP&wine=T18IW905SP&range=PCG366W&hood=VCIN36GWS&oven=MEM301WS&dishwasher=SHX78CM5N&blower=VTN2FZ&cabinet=ral5015&accentRun=none&accent=oak&counter=quartz&floor=oak&tile=24x48&wall=warm-grey",
+   "room": "2c26693be720006bd634ce4ce54ac6a1675e05570615106b8b305f094a1082af"
+  },
+  "E L": {
+   "link": "?v=2&pkg=E&lang=en&shape=L&back=180&left=168&corner=blind&fridgeLeg=left&fridgeAbuts=cabinet&sinkLeg=back&towerSide=right&housing=box&coffeeLeg=back&coffeeSill=37.4375&handle=54&island=72&islandTurn=parallel&islandDepth=24&aisle=48&freezer=T18IF900SP&fridge=T30IR905SP&microwave=MEM301WS&coffee=TCM24PS&wine-2=PRW24C01CG&dishwasher=SHV78CM3N&cooktop=CIT367YG&hood=HMIB42WS&blower=none&cabinet=ral5015&accentRun=none&accent=oak&counter=quartz&floor=oak&tile=24x48&wall=warm-grey",
+   "room": "ebb4805ee917d881581bed21d27c38795c65833679cf365dd621c92cdf2ba2ed"
+  },
+  "E one-wall": {
+   "link": "?v=2&pkg=E&lang=en&shape=one-wall&back=261.625&left=168&corner=blind&fridgeLeg=back&fridgeAbuts=cabinet&sinkLeg=back&towerSide=left&housing=box&coffeeLeg=back&coffeeSill=37.4375&handle=54&island=none&islandTurn=parallel&islandDepth=24&aisle=48&freezer=T18IF900SP&fridge=T30IR905SP&microwave=MEM301WS&coffee=TCM24PS&wine-2=PRW24C01CG&dishwasher=SHV78CM3N&cooktop=CIT367YG&hood=HMCB36WS&blower=none&cabinet=ral5015&accentRun=none&accent=oak&counter=quartz&floor=oak&tile=24x48&wall=warm-grey",
+   "room": "3bc9e39bcd7ad4c0f93560e619e0cf537cc5061f3c5a1c1c49d0319fe443b2fd"
+  }
+ }
+}

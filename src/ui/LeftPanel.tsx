@@ -6,7 +6,8 @@ import { omittedForWallKey } from "../data/useChecklist";
 import { ROOM, SLOT_BY_ID, isOmitted } from "../data/slots";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
-import { useSelection } from "../store/useSelection";
+import { useActivePackage, useSelection } from "../store/useSelection";
+import { shapeNoteKey } from "../data/packages";
 import { DebugBadge } from "./DebugBadge";
 import { ModelLine } from "./ModelLine";
 import { SwapPanel } from "./SwapPanel";
@@ -26,6 +27,8 @@ function feetInches(feet: number) {
 export function LeftPanel() {
   const t = useT();
   const summary = usePackageSummary();
+  const shape = useAppStore((s) => s.layoutParams.shape);
+  const shapeNote = shapeNoteKey(useActivePackage().entry, shape);
   const selection = useSelection();
   const selectedSlot = useAppStore((s) => s.selectedSlot);
   const selectSlot = useAppStore((s) => s.selectSlot);
@@ -69,9 +72,16 @@ export function LeftPanel() {
       {/* Two machines short of the package, and why: the count above is the
           room as drawn, and the difference is the one thing on this screen the
           customer did not ask for. */}
+      {/* What a package is on a shape it writes differently, in Leo's words:
+          D and E on one wall (round 98b-2). */}
+      {shapeNote && (
+        <p data-shape-note className="border-b border-line bg-[rgba(46,92,69,0.05)] px-5 py-3 text-[11px] leading-[1.5] text-ink-muted">
+          {t(shapeNote)}
+        </p>
+      )}
       {summary.omitted.length > 0 && (
         <p className="border-b border-line bg-[rgba(46,92,69,0.05)] px-5 py-3 text-[11px] leading-[1.5] text-ink-muted">
-          {t(omittedForWallKey(summary.omitted)!)}
+          {t(omittedForWallKey(summary.omitted, shape)!)}
         </p>
       )}
 

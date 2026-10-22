@@ -1,9 +1,11 @@
 import { afterAll, describe, expect, it } from "vitest";
 import { APPLIANCE_BY_ID } from "./catalogue";
 import { checkLayout } from "./layoutRules";
+import { checklistFor, omittedForWallKey } from "./useChecklist";
 import { setActivePackage, setLayoutParams, setLayoutParamsGrowing } from "./layoutState";
 import {
   DEFAULT_PARAMS,
+  COFFEE_AT_WALL,
   ONE_WALL_MAX_IN,
   PARAM_LIMITS,
   generateLayout,
@@ -55,7 +57,7 @@ const standing = () =>
 describe("each package on one wall (round 98b)", () => {
   it("is built at the wall it asks for there, to the eighth", () => {
     const walls = Object.fromEntries(CODES.map((code) => [code, oneWall(code).ok ? LAYOUT_PARAMS.backWallIn : null]));
-    expect(walls).toEqual({ A: 237.75, B: 244.125, C: 232.25, D: 249.25, E: 261.625 });
+    expect(walls).toEqual({ A: 237.75, B: 244.125, C: 232.25, D: 249.25, E: 273.625 });
   });
 
   it("tops the one-wall slider at the next 6-inch step over the longest of them, which is package E's", () => {
@@ -91,9 +93,11 @@ describe("each package on one wall (round 98b)", () => {
       // Freezer, refrigerator, wine as you face them; no coffee cabinet and no
       // microwave drawer; the combination oven beside the rangetop (round 98b, 1).
       D: ["tall-clearance", "tall-outer", "slot-freezer", "tall-spacer", "slot-fridge", "tall-spacer", "slot-wine", "tall-inner", "fridge-landing", "slot-oven", "tower-clearance", "slot-range", "range-landing", "fixture-sink", "slot-dishwasher", "back-end", "back-end-panel"],
-      // Leo's E (round 98b): the coffee tower at the left wall, then the
-      // freezer and the refrigerator, 15", the oven tower, 18", the cooktop.
-      E: ["wall-end", "coffee-panel-start", "slot-coffee", "coffee-panel-end", "tall-outer", "slot-freezer", "tall-spacer", "slot-fridge", "tall-inner", "fridge-landing", "slot-microwave", "tower-clearance", "slot-cooktop", "range-landing", "fixture-sink", "slot-dishwasher", "back-end", "back-end-panel"],
+      // Leo's E (round 98b): the coffee tower at the left wall — clear of it
+      // by D13's 3" filler and a 12" base for its door, option 戊 (98b-2) —
+      // then the freezer and the refrigerator, 15", the oven tower, 18", the
+      // cooktop.
+      E: ["wall-end", "coffee-door", "coffee-panel-start", "slot-coffee", "coffee-panel-end", "tall-outer", "slot-freezer", "tall-spacer", "slot-fridge", "tall-inner", "fridge-landing", "slot-microwave", "tower-clearance", "slot-cooktop", "range-landing", "fixture-sink", "slot-dishwasher", "back-end", "back-end-panel"],
     });
   });
 
@@ -106,8 +110,9 @@ describe("each package on one wall (round 98b)", () => {
     );
     // A's built-in stands in its own 42" enclosure against the wall (D11 rule
     // 11 asks a door clearance of a freestanding machine and a bank); B's, C's
-    // and D's take the 3-1/2"; E's coffee tower takes the 3" any run takes at a
-    // wall (D13), and its refrigeration stands beside a cabinet.
+    // and D's take the 3-1/2"; E's run starts with the 3" any run takes at a
+    // wall (D13), before the base its coffee tower stands clear of the wall by,
+    // and its refrigeration stands beside a cabinet.
     expect(ends).toEqual({ A: "wall T4296", B: "wall BF3.5", C: "wall BF3.5", D: "wall BF3.5", E: "cabinet BF3" });
   });
 
@@ -184,6 +189,22 @@ describe("package D on one wall (Leo, round 98b, 1)", () => {
 });
 
 describe("package E on one wall (Leo, round 98, second batch 13; round 98b)", () => {
+  it("stands its coffee machine's hinge side at least 13-3/4 inches from the wall, for the 110-degree door it is delivered with", () => {
+    oneWall("E");
+    // TCM24PS: 23-3/8" across its front (installation instructions, p. 2),
+    // centred in its tower; its hinge on its own left, the wall's side here
+    // (p. 2, step 1); 13-3/4" to a wall for 110° (p. 11). Measured off the room.
+    const coffee = RUNS[0].segments.find((s) => s.slot === "slot-coffee")!;
+    const hingeIn = (((coffee.from + coffee.to) / 2 - 23.375 / 24 - RUNS[0].segments[0].from) * 12);
+    expect({ hingeIn: Math.round(hingeIn * 16) / 16, atLeast: hingeIn >= COFFEE_AT_WALL.doorToWallIn }).toEqual({ hingeIn: 16.0625, atLeast: true });
+  });
+
+  it("stands a 12-inch base with its worktop between the wall's filler and the coffee tower (Leo's option 戊)", () => {
+    oneWall("E");
+    const [wall, cabinet] = RUNS[0].segments;
+    expect([wall, cabinet].map((s) => s.modules.map((m) => `${m.code} ${m.kind}`).join(" + "))).toEqual(["BF3 filler", "B12 base"]);
+  });
+
   it("stands its cooktop on the run, over a cabinet with a door", () => {
     oneWall("E");
     const cooktop = RUNS[0].segments.find((s) => s.slot === "slot-cooktop")!;
@@ -216,6 +237,29 @@ describe("package E on one wall (Leo, round 98, second batch 13; round 98b)", ()
   });
 });
 
+describe("D11 rule 1 and a coffee tower (round 98b-2, Leo)", () => {
+  /** E's one wall, with a 12" stretch of counter put between its coffee tower and its refrigeration. */
+  function apart() {
+    oneWall("E");
+    const segments = RUNS[0].segments;
+    const at = segments.findIndex((segment) => segment.id === "back-coffee-panel-end") + 1;
+    const foot = 1;
+    const counter = { id: "back-test-counter", kind: "counter" as const, from: segments[at].from, to: segments[at].from + foot, modules: [{ code: "B12", kind: "base" as const, widthIn: 12 }] };
+    const shifted = segments.slice(at).map((segment) => ({ ...segment, from: segment.from + foot, to: segment.to + foot }));
+    return [{ ...RUNS[0], segments: [...segments.slice(0, at), counter, ...shifted] }];
+  }
+  const rule1 = (runs: typeof RUNS) => checkLayout(runs, standing()).filter((p) => p.code === "d11-1").map((p) => p.message.split(" ")[0]);
+
+  it("passes E's refrigeration joined to its coffee tower, counter beyond both", () => {
+    oneWall("E");
+    expect(rule1(RUNS)).toEqual([]);
+  });
+
+  it("still refuses the same refrigeration with counter between it and the coffee tower", () => {
+    expect(rule1(apart())).toEqual(["back-tall-outer", "back-freezer", "back-tall-spacer-1", "back-fridge", "back-tall-inner"]);
+  });
+});
+
 describe("the walls one wall takes", () => {
   it("refuses a back wall over its own top, and the L keeps its 240", () => {
     resetRoom();
@@ -233,6 +277,49 @@ describe("the walls one wall takes", () => {
     oneWall("A");
     const short = setLayoutParams({ ...LAYOUT_PARAMS, backWallIn: 200 });
     expect({ ok: short.ok, omitted: OMITTED_FOR_WALL }).toEqual({ ok: true, omitted: ["slot-microwave", "slot-wine"] });
+  });
+
+  it("writes in each one-wall slot only what differs from the L's, and takes the rest from the L (D17)", () => {
+    // Round 98b-2, Leo. D's oven on one wall then has the L's `sillIn` of 12",
+    // which no combination oven reads: it hangs from its handle (above).
+    const notTheL = PACKAGES.flatMap((entry) =>
+      (entry.shapes["one-wall"]?.slots ?? []).flatMap((written) => {
+        const l = entry.slots.find((slot) => slot.slotId === written.slotId)!;
+        const shaped = packageInShape(entry, "one-wall").slots.find((slot) => slot.slotId === written.slotId)!;
+        return (Object.keys(l) as (keyof typeof l)[])
+          .filter((key) => !(key in written) && JSON.stringify(shaped[key]) !== JSON.stringify(l[key]))
+          .map((key) => `${entry.code} ${written.slotId} ${key}`);
+      }),
+    );
+    expect(notTheL).toEqual([]);
+  });
+
+  it("writes nothing in a one-wall slot that the L's already says", () => {
+    const repeated = PACKAGES.flatMap((entry) =>
+      (entry.shapes["one-wall"]?.slots ?? []).flatMap((written) => {
+        const l = entry.slots.find((slot) => slot.slotId === written.slotId)! as Record<string, unknown>;
+        return Object.entries(written)
+          .filter(([key, value]) => key !== "slotId" && JSON.stringify(value) === JSON.stringify(l[key]))
+          .map(([key]) => `${entry.code} ${written.slotId} ${key}`);
+      }),
+    );
+    expect(repeated).toEqual([]);
+  });
+
+  it("says what a short one wall left out in one wall's own words, and the L's still in the L's", () => {
+    oneWall("A");
+    setLayoutParams({ ...LAYOUT_PARAMS, backWallIn: 200 });
+    const onOneWall = checklistFor(standing(), null).findings.find((finding) => finding.ruleId === "no-island-omitted")?.messageKey;
+    expect({ onOneWall, inAnL: omittedForWallKey(["slot-wine", "slot-microwave"]) }).toEqual({
+      onOneWall: "rule.oneWallOmitted",
+      inAnL: "rule.noIslandOmitted",
+    });
+  });
+
+  it("says where A's wine cooler and microwave drawer stand on one wall in one wall's own words", () => {
+    oneWall("A");
+    const line = checklistFor(standing(), null).findings.find((finding) => finding.ruleId === "no-island-fallback");
+    expect({ key: line?.messageKey, params: line?.params }).toEqual({ key: "rule.oneWallSpares", params: {} });
   });
 
   it("leaves every package's L as it was written: one wall changes only D's and E's", () => {

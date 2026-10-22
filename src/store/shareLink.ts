@@ -219,6 +219,7 @@ export const NOT_IN_LINK: Record<string, string> = {
   rightTab: "a tab of the right panel and the phone's sheet: the page's own state, like the rails, kept per browser tab (D12)",
   tabBeforeInstall: "the tab to go back to after Install mode: the page's own state",
   lRoom: "the L room kept while the shape is another, to put back when it returns (round 98b): this tab's own history; a link is the room standing",
+  shapePicks: "the models the other shape had in the openings that differ (round 98b-2): this tab's own memory; a link is the room standing, its models those on screen",
   mobilePanel: "the phone's sheet open",
   toast: "a message on screen",
   modeSwitchStartedAt: "a timing for ?debug=1",

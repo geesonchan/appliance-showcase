@@ -4,7 +4,7 @@ import {
   migrateBlower,
   migrateSelection,
 } from "../data/catalogue";
-import { DEFAULT_PACKAGE, PACKAGE_BY_ID, PACKAGE_SHAPE, packageInShape, setPackage } from "../data/packages";
+import { DEFAULT_PACKAGE, PACKAGE_BY_ID, PACKAGE_SHAPE, packageInShape, setPackage, slotsKeptPerShape } from "../data/packages";
 import { setActivePackage, setFridgeModel, setHoodModel, setLayoutParams, setLayoutParamsGrowing, setRangeModel } from "../data/layoutState";
 import { recordRangeModel } from "../data/cookingSurface";
 import { recordFridgeModel } from "../data/fridgeMount";
@@ -46,6 +46,12 @@ export interface ToastMessage {
   lines?: { key: string; vars?: Record<string, string | number> }[];
   /** What Undo puts back, when the toast offers it. */
   undo?: RoomSnapshot;
+  /**
+   * What the Undo button says: where it goes back to (round 98b-2) — the
+   * package before, the room before, the shape before. Its words are Leo's
+   * to give; until then each says "Undo".
+   */
+  undoLabel?: { key: string; vars?: Record<string, string | number> };
   /**
    * What a page opened from a share link could not show as the link had it,
    * one line each, or that the link could not be read at all. Stays until it
@@ -130,6 +136,12 @@ interface AppState {
    * and after a package switch: the L kept is that package's.
    */
   lRoom: RoomSnapshot | null;
+  /**
+   * The model each shape last had in the openings that differ between shapes,
+   * by package (round 98b-2, Leo: "开口不同的位置各记各的"). The openings that
+   * are the same in both share the one selection and are not kept here.
+   */
+  shapePicks: Record<string, Partial<Record<LayoutShape, Partial<Record<SlotId, string>>>>>;
   /** Bumped to ask the camera rig to return to the default isometric view. */
   resetToken: number;
   /** Bumped by the +/- buttons; positive steps in, negative steps out. */
@@ -365,6 +377,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   selection: migrateSelection(DEFAULT_PACKAGE),
   blowerId: DEFAULT_PACKAGE.defaultBlower,
   lRoom: null,
+  shapePicks: {},
   resetToken: 0,
   zoomRequest: { token: 0, direction: 1 },
   helpOpen: false,
@@ -424,6 +437,7 @@ export const useAppStore = create<AppState>((set, get) => ({
               })),
               // Only a room that was standing can be gone back to.
               undo: built ? before : undefined,
+              undoLabel: { key: "toast.undo.layout" },
             }
           : s.toast,
     }));
@@ -580,6 +594,10 @@ export const useAppStore = create<AppState>((set, get) => ({
                 leftIn: Number(REQUESTED_PARAMS.leftWallIn.toFixed(1)),
               },
               undo: built ? before : undefined,
+              undoLabel: {
+                key: "toast.undo.package",
+                vars: { package: PACKAGE_BY_ID[s.packageId]?.name[s.lang] ?? s.packageId },
+              },
             }
           : // A toast that offers Undo is about the room before this switch —
             // "Package D needs a longer run", and Undo back to where D came
@@ -597,11 +615,35 @@ export const useAppStore = create<AppState>((set, get) => ({
     if (shape === was) return { ok: true, grown: null };
     const before = snapshot(s);
     const written = PACKAGE_BY_ID[s.packageId];
+    const from = packageInShape(written, was);
+    const to = packageInShape(written, shape);
 
-    // Back to the L it left: exactly that room, with exactly those choices.
+    // The models, by Leo's rule (round 98b-2): an opening that differs between
+    // the shapes takes the model last chosen for it in the shape arrived in, or
+    // that shape's own; an opening the same in both keeps the one choice,
+    // wherever it was made. Package D on one wall: its three narrow columns and
+    // MEM301WS; package E: HMCB36WS — and the L's back, coming back.
+    const kept = slotsKeptPerShape(written, shape === "L" ? was : shape);
+    const picksHere = Object.fromEntries(
+      from.slots.filter((slot) => kept.includes(slot.slotId)).map((slot) => [slot.slotId, s.selection[slot.slotId]]),
+    ) as Partial<Record<SlotId, string>>;
+    const picks = { ...s.shapePicks, [s.packageId]: { ...s.shapePicks[s.packageId], [was]: picksHere } };
+    const remembered = picks[s.packageId]?.[shape] ?? {};
+    const selection = Object.fromEntries(
+      to.slots.map((slot) => [
+        slot.slotId,
+        kept.includes(slot.slotId)
+          ? (remembered[slot.slotId] ?? to.defaultSelection[slot.slotId]!)
+          : (s.selection[slot.slotId] ?? to.defaultSelection[slot.slotId]!),
+      ]),
+    ) as Record<SlotId, string>;
+    const hood = APPLIANCE_BY_ID[selection["slot-hood"]];
+    recordModels(selection, s.packageId, shape);
+
+    // Back to the L it left: exactly that room (Leo, round 98b: "房间和切换前一
+    // 模一样"), with the models above.
     if (shape === "L" && s.lRoom?.packageId === s.packageId) {
       const back = s.lRoom;
-      recordModels(back.selection, back.packageId, "L");
       const result = setLayoutParams(back.layoutParams);
       if (!result.ok) {
         recordModels(s.selection, s.packageId, was);
@@ -609,26 +651,17 @@ export const useAppStore = create<AppState>((set, get) => ({
         return { ok: false, grown: null };
       }
       set((now) => ({
-        selection: back.selection,
-        blowerId: back.blowerId,
+        selection,
+        blowerId: migrateBlower(to, hood, now.blowerId),
         layoutParams: back.layoutParams,
         layoutIssues: [],
         layoutVersion: now.layoutVersion + 1,
         selectedSlot: null,
         lRoom: null,
+        shapePicks: picks,
       }));
       return { ok: true, grown: null };
     }
-
-    // Into a shape: the package as it builds it, each model carried across
-    // where it still suits its slot as that shape writes it, and the shape's
-    // own model where it does not or where the package's default was standing
-    // (`migrateSelection`). Package D on one wall: its three narrow columns and
-    // MEM301WS; package E: HMCB36WS.
-    const from = packageInShape(written, was);
-    const to = packageInShape(written, shape);
-    const selection = migrateSelection(to, s.selection, from);
-    recordModels(selection, s.packageId, shape);
     // The wall the package needs in this shape, never shorter than it stands
     // (D18); the L's own ceiling where it comes back to an L it did not leave.
     const limits = paramLimitsFor(shape);
@@ -642,7 +675,8 @@ export const useAppStore = create<AppState>((set, get) => ({
       set({ layoutIssues: result.reasons });
       return { ok: false, grown: null };
     }
-    const hood = APPLIANCE_BY_ID[selection["slot-hood"]];
+    const grew = result.params.backWallIn > s.layoutParams.backWallIn;
+    const built = s.layoutIssues.length === 0;
     set((now) => ({
       selection,
       blowerId: migrateBlower(to, hood, now.blowerId),
@@ -651,8 +685,23 @@ export const useAppStore = create<AppState>((set, get) => ({
       layoutVersion: now.layoutVersion + 1,
       selectedSlot: null,
       lRoom: was === "L" ? before : now.lRoom,
+      shapePicks: picks,
+      // The wall grown for the shape is said, and can be undone, as a package
+      // switch's is (Leo, round 98b: "形状切换用同一种提示"), in its own words:
+      // one wall grows only its back wall (Leo, round 98b-2). Only one wall
+      // grows a wall on the way in; the L comes back to the room it left.
+      toast: grew
+        ? {
+            id: ++toastId,
+            key: "toast.shapeGrew",
+            vars: { backIn: Number(result.params.backWallIn.toFixed(1)) },
+            undo: built ? before : undefined,
+            undoLabel: { key: "toast.undo.shape" },
+          }
+        : now.toast?.undo
+          ? null
+          : now.toast,
     }));
-    const grew = result.params.backWallIn > s.layoutParams.backWallIn;
     return { ok: true, grown: grew ? { fromIn: s.layoutParams.backWallIn, toIn: result.params.backWallIn } : null };
   },
   resetView: () => set((s) => ({ resetToken: s.resetToken + 1, selectedSlot: null })),
@@ -704,6 +753,8 @@ export const useAppStore = create<AppState>((set, get) => ({
       layoutVersion: s.layoutVersion + 1,
       selectedSlot: null,
       toast: null,
+      // Back in an L there is no other shape's room to keep (round 98b-2).
+      lRoom: back.layoutParams.shape === "L" ? null : s.lRoom,
     }));
   },
   reportModeSwitch: (ms) => set({ modeSwitchMs: Math.round(ms), modeSwitchStartedAt: null }),
