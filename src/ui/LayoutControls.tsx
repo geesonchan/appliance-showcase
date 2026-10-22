@@ -5,7 +5,8 @@ import { paramLimitsFor } from "../data/layoutTemplate";
 import { showsControl, type LayoutControl } from "./shapeControls";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
-import { useActivePackage, useSelectedAppliance } from "../store/useSelection";
+import { useActivePackage, useSelectedAppliance, useSelection } from "../store/useSelection";
+import { billLabelKey } from "../data/machineLabel";
 import { hoodMount } from "../data/hoodMount";
 import { comboHandleAt, comboSillFor } from "../data/columnModel";
 import { atCoffeeManualHeight, snapCoffeeSill, underCoffee } from "../data/layoutTemplate";
@@ -55,6 +56,7 @@ function Choice<T extends string>({
 function WallMinimum({ params, leg }: { params: LayoutParams; leg: "left" | "back" }) {
   const t = useT();
   const requirement = useMemo(() => wallRequirement(params, leg), [params, leg]);
+  const selection = useSelection();
 
   return (
     <>
@@ -62,7 +64,7 @@ function WallMinimum({ params, leg }: { params: LayoutParams; leg: "left" | "bac
         {t("panel.room.minimum", { value: requirement.minimumIn })}
       </span>{" "}
       {requirement.items.map((item, index) => (
-        <span key={`${item.labelKey}-${index}`} title={t(item.labelKey)}>
+        <span key={`${billLabelKey(item, selection)}-${index}`} title={t(billLabelKey(item, selection))}>
           {index > 0 && " + "}
           <span className="tabular-nums">{item.widthIn}&quot;</span>{" "}
           <span className="opacity-65">{item.code ?? item.rule?.toUpperCase()}</span>

@@ -475,12 +475,6 @@ export const packageSlotSchema = z.object({
    */
   panelReady: z.boolean().nullable().default(null),
   /**
-   * What the slot is called, where this package's machine is not what the
-   * slot was named for: package D's oven on one wall is a combination oven,
-   * where its L's is a steam oven (round 98b). Absent keeps the slot's own.
-   */
-  labelKey: z.string().min(1).optional(),
-  /**
    * Where the camera comes in from, where this package stands the machine
    * somewhere else entirely.
    *

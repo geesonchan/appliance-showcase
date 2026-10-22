@@ -323,8 +323,8 @@
     },
     "rule.rangetopCornerSupports": {
       "text": "2\" x 4\" corner supports in the cabinet under the rangetop, under the corners of its cutout, to carry it (142 lb).",
-      "approval": "read",
-      "reviewed": "Proposed in round 83 and approved by Leo unchanged: PCG366W's sheet p. 3 (decisions.md D16, round 83)"
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
     },
     "swap.tooTall.countertop": {
       "text": "{delta} too tall — the countertop is above this opening",
@@ -468,8 +468,8 @@
     },
     "rule.noIslandOmittedWine": {
       "text": "No island: wine cooler omitted; add an island or lengthen the left wall to include it.",
-      "approval": "read",
-      "reviewed": "Drafted by CC in round 97; Leo read it and approved it (round 97, decisions.md D16 and D18)"
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
     },
     "rule.noIslandOmittedMicrowave": {
       "text": "No island: microwave drawer omitted; add an island or lengthen the left wall to include it.",
@@ -514,12 +514,12 @@
     "rule.oneWallOmitted": {
       "text": "Not enough wall: the microwave drawer and wine cooler are left out. Lengthen the back wall to put them back.",
       "approval": "written",
-      "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
     },
     "rule.oneWallOmittedWine": {
       "text": "Not enough wall: the wine cooler is left out. Lengthen the back wall to put it back.",
       "approval": "written",
-      "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
     },
     "rule.oneWallOmittedMicrowave": {
       "text": "Not enough wall: the microwave drawer is left out. Lengthen the back wall to put it back.",
@@ -529,7 +529,7 @@
     "rule.oneWallSpares": {
       "text": "Single wall: the wine cooler and the microwave drawer sit under the counter, the wine cooler on the refrigerator side and the microwave drawer on the range side.",
       "approval": "written",
-      "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
     },
     "panel.layout.shape.L": {
       "text": "L-shaped kitchen",
@@ -544,12 +544,12 @@
     "requirement.cooktop": {
       "text": "cooktop",
       "approval": "written",
-      "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
     },
     "requirement.wall-end": {
       "text": "filler against the wall",
       "approval": "written",
-      "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
     },
     "requirement.coffee-door": {
       "text": "cabinet beside the coffee machine's door",
@@ -559,17 +559,187 @@
     "requirement.comboOven": {
       "text": "combination oven tower",
       "approval": "written",
-      "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
     },
     "slot.comboOven": {
       "text": "Combination oven",
       "approval": "written",
-      "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
     },
     "finish.accentRun.whole": {
       "text": "Whole run",
       "approval": "written",
       "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
+    },
+    "slot.singleOven": {
+      "text": "Single oven",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "slot.doubleOven": {
+      "text": "Double oven",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "slot.oven": {
+      "text": "Steam combo oven",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "slot.microwave": {
+      "text": "Microwave drawer",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "slot.otr": {
+      "text": "OTR",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "slot.rangetop": {
+      "text": "Rangetop",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "slot.cooktop": {
+      "text": "Cooktop",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "slot.range": {
+      "text": "Range",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "slot.wine": {
+      "text": "Wine cooler",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "slot.wine2": {
+      "text": "Wine cooler",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "requirement.singleOven": {
+      "text": "single oven tower",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "requirement.doubleOven": {
+      "text": "double oven tower",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "requirement.oven": {
+      "text": "steam combo oven tower",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "requirement.microwave": {
+      "text": "microwave drawer",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "requirement.rangetop": {
+      "text": "rangetop",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "requirement.range": {
+      "text": "range",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "requirement.wine": {
+      "text": "wine cooler",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "requirement.fridgeColumn": {
+      "text": "refrigerator column",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "requirement.coffeeOverWine": {
+      "text": "beverage tower",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "requirement.coffeeOverCabinet": {
+      "text": "bottom cabinet",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "requirement.endPanel": {
+      "text": "filler",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "requirement.coffee": {
+      "text": "coffee and dishwasher cabinet",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "requirement.freezer": {
+      "text": "freezer column",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "rule.noIslandFallback": {
+      "text": "No island: the microwave drawer is in the base beside the range on the {microwaveLeg} leg, and the wine cooler finishes the {wineLeg} leg",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "rule.noIslandOmitted": {
+      "text": "No island: wine cooler and microwave drawer omitted; add an island or lengthen the left wall to include them.",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "suggestion.island": {
+      "text": "Put the island back — it takes the microwave drawer and the wine cooler off the wall — and {param}'s minimum becomes {minimumIn}\".",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "panel.layout.coffeeSill.caption.wine": {
+      "text": "Machine starts {sillIn}\" off the floor; wine cooler under it",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "rule.coffeeWine": {
+      "text": "Wine cooler under the coffee machine: it stands on the floor on its own kick panel, and the vent in its base must never be covered, so there is no cabinet toe kick in front of it (its manual, pp. 6 and 13); at least 1\" behind it for the plug (p. 14)",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "panel.layout.tower.left": {
+      "text": "Left of the cooking surface",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "panel.layout.tower.right": {
+      "text": "Right of the cooking surface",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "rule.d11-4": {
+      "text": "D11 rule 4 · counter each side of the cooking surface",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "refusal.oneLegBoth": {
+      "text": "The {leg} leg cannot take both the sink and the refrigerator: a leg stops at {maxIn}\", and those two plus the cooking surface need more than that.",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "slot.wineColumn": {
+      "text": "Wine column",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "requirement.wineColumn": {
+      "text": "wine column",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
     }
   },
   "zh": {
@@ -899,9 +1069,9 @@
       "reviewed": "Leo's own wording, round 83: an anti-tip bracket for every range that stands on the floor, freestanding or slide-in; his site practice until PRG366WH's manual is in docs/reference (decisions.md D16, round 83)"
     },
     "rule.rangetopCornerSupports": {
-      "text": "柜内在 Rangetop 开孔的角部下方加 2\" × 4\" 木方支撑，承托灶的重量（142 磅）。",
+      "text": "柜内在炉灶头开孔的角部下方加 2\" × 4\" 木方支撑，承托炉灶头的重量（142 磅）。",
       "approval": "written",
-      "reviewed": "Leo's own wording, round 83: 木方 is what the shop and the installers call these supports — his site term (decisions.md D16, round 83)"
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
     },
     "swap.tooTall.countertop": {
       "text": "高出 {delta}，开口上方是台面",
@@ -1044,9 +1214,9 @@
       "reviewed": "Drafted by CC in round 97; Leo changed the last sentence to 「这台 {range} 总火力 {btu} BTU。」 and approved it (round 97, decisions.md D16)"
     },
     "rule.noIslandOmittedWine": {
-      "text": "无岛台：已省略酒柜；增设岛台或加长左墙即可纳入。",
-      "approval": "read",
-      "reviewed": "Drafted by CC in round 97; Leo read it and approved it (round 97, decisions.md D16 and D18)"
+      "text": "无岛台：已省略小酒柜；增设岛台或加长左墙即可纳入。",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
     },
     "rule.noIslandOmittedMicrowave": {
       "text": "无岛台：已省略微波抽屉；增设岛台或加长左墙即可纳入。",
@@ -1089,14 +1259,14 @@
       "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
     },
     "rule.oneWallOmitted": {
-      "text": "墙不够长，已省略微波抽屉和酒柜。加长后墙即可放回。",
+      "text": "墙不够长，已省略微波抽屉和小酒柜。加长后墙即可放回。",
       "approval": "written",
-      "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
     },
     "rule.oneWallOmittedWine": {
-      "text": "墙不够长，已省略酒柜。加长后墙即可放回。",
+      "text": "墙不够长，已省略小酒柜。加长后墙即可放回。",
       "approval": "written",
-      "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
     },
     "rule.oneWallOmittedMicrowave": {
       "text": "墙不够长，已省略微波抽屉。加长后墙即可放回。",
@@ -1104,9 +1274,9 @@
       "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
     },
     "rule.oneWallSpares": {
-      "text": "一字型：酒柜和微波抽屉都在台面下，酒柜靠冰箱一侧，微波抽屉靠灶台一侧。",
+      "text": "一字型：小酒柜和微波抽屉都在台面下，小酒柜靠冰箱一侧，微波抽屉靠灶台一侧。",
       "approval": "written",
-      "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
     },
     "panel.layout.shape.L": {
       "text": "L 型厨房",
@@ -1119,14 +1289,14 @@
       "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
     },
     "requirement.cooktop": {
-      "text": "灶台",
+      "text": "Drop in 炉灶片",
       "approval": "written",
-      "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
     },
     "requirement.wall-end": {
       "text": "靠墙填充板",
       "approval": "written",
-      "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
     },
     "requirement.coffee-door": {
       "text": "咖啡机旁的侧柜",
@@ -1136,17 +1306,187 @@
     "requirement.comboOven": {
       "text": "组合烤箱塔",
       "approval": "written",
-      "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
     },
     "slot.comboOven": {
       "text": "组合烤箱",
       "approval": "written",
-      "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
     },
     "finish.accentRun.whole": {
       "text": "整排",
       "approval": "written",
       "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
+    },
+    "slot.singleOven": {
+      "text": "单门烤箱",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "slot.doubleOven": {
+      "text": "双门烤箱",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "slot.oven": {
+      "text": "蒸烤箱",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "slot.microwave": {
+      "text": "微波抽屉",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "slot.otr": {
+      "text": "微波炉油烟机",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "slot.rangetop": {
+      "text": "炉灶头",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "slot.cooktop": {
+      "text": "Drop in 炉灶片",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "slot.range": {
+      "text": "炉头",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "slot.wine": {
+      "text": "小酒柜",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "slot.wine2": {
+      "text": "小酒柜",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "requirement.singleOven": {
+      "text": "单门烤箱塔",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "requirement.doubleOven": {
+      "text": "双门烤箱塔",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "requirement.oven": {
+      "text": "蒸烤箱塔",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "requirement.microwave": {
+      "text": "微波抽屉",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "requirement.rangetop": {
+      "text": "炉灶头",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "requirement.range": {
+      "text": "炉头",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "requirement.wine": {
+      "text": "小酒柜",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "requirement.fridgeColumn": {
+      "text": "冰箱柜体",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "requirement.coffeeOverWine": {
+      "text": "饮品柜",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "requirement.coffeeOverCabinet": {
+      "text": "普通下柜",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "requirement.endPanel": {
+      "text": "侧板",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "requirement.coffee": {
+      "text": "咖啡机+洗碗机柜",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "requirement.freezer": {
+      "text": "冷冻柱",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "rule.noIslandFallback": {
+      "text": "无岛台：微波抽屉在{microwaveLeg}侧灶台旁的地柜内，小酒柜收在{wineLeg}侧末端",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "rule.noIslandOmitted": {
+      "text": "无岛台：已省略小酒柜与微波抽屉；增设岛台或加长左墙即可纳入。",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "suggestion.island": {
+      "text": "把岛台加回来（微波抽屉和小酒柜就不占墙了），{param}最小变 {minimumIn}\"。",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "panel.layout.coffeeSill.caption.wine": {
+      "text": "咖啡机底边离地 {sillIn}″，下方为小酒柜",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "rule.coffeeWine": {
+      "text": "咖啡机下方的小酒柜直接落地、用它自己的踢脚面板，底部的通风格栅任何时候都不能遮挡，所以前面不装柜子踢脚板（小酒柜手册第 6、13 页）；背后至少留 1″ 给插头（第 14 页）",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "panel.layout.tower.left": {
+      "text": "灶台左侧",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "panel.layout.tower.right": {
+      "text": "灶台右侧",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "rule.d11-4": {
+      "text": "D11 规则 4 · 灶台两侧台面",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "refusal.oneLegBoth": {
+      "text": "{leg}段放不下水槽和冰箱：单段上限 {maxIn}\"，这两样加上灶台已经超了。",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "slot.wineColumn": {
+      "text": "酒柜柱",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "requirement.wineColumn": {
+      "text": "酒柜柱",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
     }
   }
 }

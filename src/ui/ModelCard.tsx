@@ -8,7 +8,7 @@ import { listWidth } from "../data/fit";
 import { SLOT_BY_ID, isOmitted } from "../data/slots";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
-import { useActivePackage, useSelection } from "../store/useSelection";
+import { useActivePackage, useSelection, useSlotLabel } from "../store/useSelection";
 import type { SlotId } from "../types";
 import { ModelLine } from "./ModelLine";
 import { useRefusalText } from "./RefusalNote";
@@ -50,6 +50,7 @@ import { FitNotes } from "./SwapPanel";
  */
 export function ModelCard() {
   const t = useT();
+  const slotLabel = useSlotLabel();
   const say = useRefusalText();
   const phone = useIsMobile();
   const selectedSlot = useAppStore((s) => s.selectedSlot);
@@ -155,7 +156,7 @@ export function ModelCard() {
         <div className="shrink-0 px-3 pt-3">
           <div className="flex items-start justify-between gap-2">
             <p data-card-title className="tracking-label min-w-0 truncate pt-1.5 text-[9px] text-ink-muted">
-              {String(number).padStart(2, "0")} · {t(slot.labelKey)}
+              {String(number).padStart(2, "0")} · {t(slotLabel(slot.id))}
             </p>
             <button
               type="button"
@@ -242,7 +243,7 @@ export function ModelCard() {
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="tracking-label text-[9px] text-ink-muted">
-            {String(number).padStart(2, "0")} · {t(slot.labelKey)}
+            {String(number).padStart(2, "0")} · {t(slotLabel(slot.id))}
           </p>
           <div className="mt-1 flex items-baseline gap-2">
             <ModelLine className="min-w-0 text-[14px] text-ink" brand={current.brand} model={current.model} />

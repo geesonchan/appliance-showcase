@@ -1,7 +1,9 @@
 import type { Refusal, RequirementItem } from "../data/room";
 import { sayWith } from "../i18n";
 import { useT } from "../i18n/useT";
+import { billLabelKey } from "../data/machineLabel";
 import { useAppStore } from "../store/useAppStore";
+import { useSelection } from "../store/useSelection";
 
 /**
  * A refusal, rendered as an argument rather than an apology.
@@ -21,12 +23,13 @@ export function useRefusalText() {
 /** One line of the bill: a width, and the cabinet or rule that asks for it. */
 export function OccupancyList({ items }: { items: RequirementItem[] }) {
   const t = useT();
+  const selection = useSelection();
   return (
     <ul className="mt-1.5 flex flex-wrap gap-x-1.5 gap-y-1">
       {items.map((item, index) => (
         <li
-          key={`${item.labelKey}-${index}`}
-          title={`${t(item.labelKey)} · ${item.code ?? t(`rule.${item.rule}`)}`}
+          key={`${billLabelKey(item, selection)}-${index}`}
+          title={`${t(billLabelKey(item, selection))} · ${item.code ?? t(`rule.${item.rule}`)}`}
           className="rounded-sm border border-[#E5C6C2] px-1 py-px text-[10px] leading-tight text-[#8A2018]"
         >
           <span className="tabular-nums font-medium">{item.widthIn}&quot;</span>{" "}

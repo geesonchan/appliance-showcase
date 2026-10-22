@@ -5,6 +5,7 @@ import { formatUSD } from "./money";
 import { deriveUtilities } from "./utilities";
 import { effectiveCfm, formatCfm } from "./ventilation";
 import { sayWith } from "../i18n";
+import { slotLabelKey as labelKeyOf } from "./machineLabel";
 
 /**
  * The configuration as a document.
@@ -101,7 +102,7 @@ export function buildQuote(input: QuoteInput): Quote {
       const fit = fitCheck(slot, appliance);
       return {
         slot: slot.id,
-        slotLabelKey: slot.labelKey,
+        slotLabelKey: labelKeyOf(slot.id, appliance),
         applianceId: appliance.id,
         brand: appliance.brand,
         model: appliance.model,

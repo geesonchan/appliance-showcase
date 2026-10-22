@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { sayWith } from "../i18n";
 import { useT } from "../i18n/useT";
-import { LINK_FIELDS, type Say } from "../store/shareLink";
+import { LINK_FIELDS, noticeItemKey, type Say } from "../store/shareLink";
 import { useAppStore, type NoticeLine } from "../store/useAppStore";
 import type { RenderMode } from "../types";
 import { IconButton, Segmented } from "./primitives";
@@ -230,7 +230,7 @@ function ShareNotice({
           ...notice.map((line) => {
             const field = LINK_FIELDS.find((candidate) => candidate.name === line.field)!;
             return say(`share.notice.${line.kind}`, {
-              item: say(field.labelKey),
+              item: say(noticeItemKey(line.field, line.to)),
               from:
                 line.kind === "catalogue" ? (line.from ?? "") : field.show(line.from, say),
               to: field.show(line.to, say),

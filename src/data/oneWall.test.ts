@@ -1,6 +1,7 @@
 import { afterAll, describe, expect, it } from "vitest";
 import { APPLIANCE_BY_ID } from "./catalogue";
 import { checkLayout } from "./layoutRules";
+import { slotLabelKey } from "./machineLabel";
 import { checklistFor, omittedForWallKey } from "./useChecklist";
 import { setActivePackage, setLayoutParams, setLayoutParamsGrowing } from "./layoutState";
 import {
@@ -177,7 +178,7 @@ describe("package D on one wall (Leo, round 98b, 1)", () => {
 
   it("calls its oven a combination oven", () => {
     oneWall("D");
-    expect(SLOT_BY_ID["slot-oven"].labelKey).toBe("slot.comboOven");
+    expect(slotLabelKey("slot-oven", APPLIANCE_BY_ID[PACKAGE.defaultSelection["slot-oven"]!])).toBe("slot.comboOven");
   });
 
   it("leaves the L's package D as it was written", () => {

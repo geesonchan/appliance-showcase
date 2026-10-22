@@ -8,7 +8,7 @@ import { SCHEME_FALLBACKS } from "../data/catalogue";
 import { formatCfm } from "../data/ventilation";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
-import { useActivePackage, useSelectedAppliance, useSelectedBlower } from "../store/useSelection";
+import { useActivePackage, useSelectedAppliance, useSelectedBlower, useSlotLabel } from "../store/useSelection";
 import type { Appliance, SlotId } from "../types";
 
 /**
@@ -20,6 +20,7 @@ import type { Appliance, SlotId } from "../types";
  */
 export function SwapPanel({ slotId }: { slotId: SlotId }) {
   const t = useT();
+  const slotLabel = useSlotLabel();
   const slot = SLOT_BY_ID[slotId];
   // Only what hangs the way this package's slot hangs; width still refuses in
   // the row rather than hiding it. Round 45. The same list the model card
@@ -43,7 +44,7 @@ export function SwapPanel({ slotId }: { slotId: SlotId }) {
           {t("swap.back")}
         </button>
         <h2 className="mt-3 flex items-center gap-2 font-display text-[24px] leading-tight text-ink">
-          {t(slot.labelKey)}
+          {t(slotLabel(slot.id))}
           {SCHEME_FALLBACKS[slotId] && (
             <DebugBadge
               labelKey="debug.fallback"

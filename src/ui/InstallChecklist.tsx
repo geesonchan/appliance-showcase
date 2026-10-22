@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useChecklist } from "../data/useChecklist";
-import { SLOT_BY_ID } from "../data/slots";
 import { DEBUG } from "../debug";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
+import { useSlotLabel } from "../store/useSelection";
 import { useRefusalText } from "./RefusalNote";
 import type { Severity } from "../data/rules";
+import type { SlotId } from "../types";
 
 const DOT: Record<Severity, string> = {
   blocker: "bg-[#D93025]",
@@ -29,6 +30,7 @@ const DOT: Record<Severity, string> = {
  */
 export function InstallChecklist() {
   const t = useT();
+  const slotLabel = useSlotLabel();
   // One convention, both renderers: a param whose name ends in `Key` is itself
   // a key. Rules have no language — they name the string rather than writing
   // it — and a checklist that substituted the key raw printed "leg.left".
@@ -88,7 +90,7 @@ export function InstallChecklist() {
                   </span>
                   <span className={"h-1.5 w-1.5 shrink-0 rounded-full " + DOT[group[0].severity]} />
                   <span className="min-w-0 flex-1 text-[11px] font-medium text-ink">
-                    {t(SLOT_BY_ID[slotId as keyof typeof SLOT_BY_ID].labelKey)}
+                    {t(slotLabel(slotId as SlotId))}
                   </span>
                   <span className="text-[10px] tabular-nums text-ink-muted">{group.length}</span>
                 </button>

@@ -11,7 +11,7 @@ import { DEBUG } from "../debug";
 import { sayWith } from "../i18n";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
-import { useSelectedBlower, useSelection } from "../store/useSelection";
+import { useSelectedBlower, useSelection, useSlotLabel } from "../store/useSelection";
 import type { Severity } from "../data/rules";
 
 const DOT: Record<Severity, string> = {
@@ -32,6 +32,7 @@ const DOT: Record<Severity, string> = {
  */
 export function SpecCard() {
   const t = useT();
+  const slotLabel = useSlotLabel();
   const lang = useAppStore((s) => s.lang);
   const slotId = useAppStore((s) => s.specSlot);
   const closeSpec = useAppStore((s) => s.closeSpec);
@@ -77,7 +78,7 @@ export function SpecCard() {
       >
         <header className="flex items-start justify-between gap-3 border-b border-line px-5 py-4">
           <div className="min-w-0">
-            <p className="tracking-label text-[9px] text-ink-muted">{t(slot.labelKey)}</p>
+            <p className="tracking-label text-[9px] text-ink-muted">{t(slotLabel(slot.id))}</p>
             <h2 className="mt-1 font-display text-[21px] leading-tight text-ink">
               {appliance.brand}
             </h2>

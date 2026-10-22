@@ -2,6 +2,7 @@ import { SLOT_ORDER } from "../data/catalogue";
 import { SLOT_BY_ID, isOmitted } from "../data/slots";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
+import { useSlotLabel } from "../store/useSelection";
 import { registerPinPart } from "../three/pinRegistry";
 
 /**
@@ -19,6 +20,7 @@ import { registerPinPart } from "../three/pinRegistry";
  */
 export function PinOverlay() {
   const t = useT();
+  const slotLabel = useSlotLabel();
   const showLabels = useAppStore((s) => s.showLabels);
   const selectedSlot = useAppStore((s) => s.selectedSlot);
   const selectSlot = useAppStore((s) => s.selectSlot);
@@ -83,7 +85,7 @@ export function PinOverlay() {
               >
                 {String(index + 1).padStart(2, "0")}
               </span>
-              {t(slot.labelKey)}
+              {t(slotLabel(slot.id))}
             </button>
           </div>
         );

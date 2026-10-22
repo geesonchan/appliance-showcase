@@ -493,6 +493,13 @@ function noIslandFallback(): Finding[] {
     ];
   }
 
+  // Said only where both are machines of their own under the counter: A's and
+  // C's microwave drawer and wine cabinet (Leo, round 99: "只在有微波抽屉和独立酒柜
+  // 的套餐出现"). B's oven tower and wine column, and D's wine column, stand
+  // where the package puts them, which is not what either line says.
+  const underTheCounter = (slot: SlotId) => SLOT_BY_ID[slot] !== undefined && SLOT_BY_ID[slot].tallUnitFor === null;
+  if (!underTheCounter("slot-wine") || !underTheCounter("slot-microwave")) return [];
+
   // On one wall both stand on the one run, between the refrigerator and the
   // cooking surface, and the L's line about which leg each finishes is not
   // true of it (round 98b-2; the words Leo's to give).

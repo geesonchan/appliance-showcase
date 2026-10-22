@@ -3,7 +3,7 @@ import { formatInches, requiredOpening } from "../data/fit";
 import { formatUSD } from "../data/money";
 import { formatPrice } from "../data/packageSummary";
 import { buildQuote, formatQuote, type Quote, type QuoteLine } from "../data/quote";
-import { SLOTS, SLOT_BY_ID } from "../data/slots";
+import { SLOTS } from "../data/slots";
 import { useChecklist } from "../data/useChecklist";
 import { ductSizeText } from "../data/utilities";
 import { formatCfm } from "../data/ventilation";
@@ -218,7 +218,6 @@ function Total({ label, value }: { label: string; value: string }) {
 /** One appliance: model, opening, services, findings, price. */
 function Row({ line, quote }: { line: QuoteLine; quote: Quote }) {
   const t = useT();
-  const slot = SLOT_BY_ID[line.slot];
   const appliance = useSelection()[line.slot];
   const needs = requiredOpening(appliance);
   const mine = quote.findings.filter((finding) => finding.slot === line.slot);
@@ -244,7 +243,7 @@ function Row({ line, quote }: { line: QuoteLine; quote: Quote }) {
     <li className="bg-surface px-4 py-4 md:px-5">
       <div className="flex items-baseline justify-between gap-3">
         <div className="min-w-0">
-          <p className="tracking-label text-[9px] text-ink-muted">{t(slot.labelKey)}</p>
+          <p className="tracking-label text-[9px] text-ink-muted">{t(line.slotLabelKey)}</p>
           <p className="mt-1 text-[13px] text-ink">
             {line.brand} {line.model}
           </p>

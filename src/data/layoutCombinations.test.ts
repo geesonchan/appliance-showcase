@@ -4,6 +4,7 @@ import { FIXTURE_BY_ID, sinkParts } from "./fixtures";
 import { counterOutline, isRectilinearL } from "./counter";
 import { setLayoutParams } from "./layoutState";
 import { checkLayout } from "./layoutRules";
+import { billLabelKey } from "./machineLabel";
 import {
   CORNERS,
   DEFAULT_PARAMS,
@@ -483,7 +484,7 @@ describe("what the shortest wall is made of", () => {
     for (const leg of ["left", "back"] as const) {
       for (const item of wallRequirement(params(), leg).items) {
         expect(Boolean(item.code) !== Boolean(item.rule), JSON.stringify(item)).toBe(true);
-        expect(item.labelKey).toMatch(/^requirement\./);
+        expect(billLabelKey(item, {})).toMatch(/^requirement\./);
         expect(item.widthIn).toBeGreaterThan(0);
       }
     }

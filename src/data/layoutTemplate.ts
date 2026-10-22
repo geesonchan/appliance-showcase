@@ -456,13 +456,15 @@ export interface RequirementItem {
   code?: string;
   /** The rule that puts it there, when it is a stretch of counter: "d11-4". */
   rule?: string;
-  labelKey: string;
-}
-
-/** The bill's word for a slot that names its own machine (`slot.comboOven` → `requirement.comboOven`). */
-function labelOfSlot(pkg: Package, slotId: SlotId | undefined): string | undefined {
-  const own = slotId ? pkg.slots.find((slot) => slot.slotId === slotId)?.labelKey : undefined;
-  return own ? own.replace(/^slot\./, "requirement.") : undefined;
+  /**
+   * What it is called, where the template names it: a landing, a filler, a
+   * panel, the coffee cabinet. A machine standing on the wall is named by the
+   * machine chosen instead (round 99): read every word through
+   * `billLabelKey` (machineLabel.ts), never this field alone.
+   */
+  labelKey?: string;
+  /** The slot whose machine it holds, when it holds one. */
+  slot?: SlotId;
 }
 
 /** What has to go on a leg, and the wall lengths that hold it. */
@@ -750,6 +752,16 @@ export function underCoffee(slots: readonly PackageSlot[]): "dishwasher" | "wine
 }
 
 /**
+ * The coffee cabinet's word on a wall's bill, by what stands under the
+ * machine (Leo, round 99: "咖啡柜按咖啡机下面放的东西取名，三种情况都要有键").
+ */
+const COFFEE_CABINET_WORD = {
+  dishwasher: "requirement.coffee",
+  wine: "requirement.coffeeOverWine",
+  cabinet: "requirement.coffeeOverCabinet",
+} as const;
+
+/**
  * Whether a slot is one of the two an island carries.
  *
  * The island's machines are the ones that are neither on the perimeter by
@@ -817,6 +829,8 @@ export type Item =
       modules: CabinetModule[];
       slot?: SlotId;
       fixture?: FixtureId;
+      /** Its word on the bill, where it is not the machine's (round 99). */
+      labelKey?: string;
     }
   | {
       kind: "gap";
@@ -862,7 +876,7 @@ const fixed = (
   widthIn: number,
   segmentKind: RunSegment["kind"],
   module: CabinetModule,
-  extra: { slot?: SlotId; fixture?: FixtureId } = {},
+  extra: { slot?: SlotId; fixture?: FixtureId; labelKey?: string } = {},
 ): Item => ({ kind: "fixed", id, widthIn, segmentKind, modules: [module], ...extra });
 
 /** Eighths of an inch, which is how a cabinetmaker writes a part width. */
@@ -1708,9 +1722,14 @@ function planLegs(
     if (at === "open") {
       return [
         gap(id, CABINET_STANDARDS.widthIn.min, "d13-terminal", { shrink: "landing" }),
-        fixed(`${id}-panel`, PANEL_IN, "counter", M(`PNL${PANEL_IN}`, "panel", PANEL_IN)),
+        fixed(`${id}-panel`, PANEL_IN, "counter", M(`PNL${PANEL_IN}`, "panel", PANEL_IN), {
+          labelKey: "requirement.endPanel",
+        }),
       ];
     }
+    // The same filler one wall's run starts with: one thing, one word (Leo,
+    // round 99: "同一个东西只用一个词"). It was "cabinet at the open end", the
+    // open end's word, at the wall.
     const widthIn = LAYOUT_POLICY.terminalIn.atWall;
     return [
       {
@@ -1719,6 +1738,7 @@ function planLegs(
         widthIn,
         segmentKind: "counter",
         modules: [M(`BF${widthIn}`, "filler", widthIn)],
+        labelKey: "requirement.wall-end",
       },
     ];
   };
@@ -1844,7 +1864,7 @@ function planLegs(
         insetIn: tower ? tower.sideIn : 0,
         ...(slot.standsOver ? { lowerSlot: slot.standsOver } : {}),
       }),
-      { slot: slotId },
+      { slot: slotId, ...(slot.category === "coffee" ? { labelKey: COFFEE_CABINET_WORD[underCoffee(pkg.slots)] } : {}) },
     );
   };
   const bank = (): Item[] => {
@@ -1880,7 +1900,13 @@ function planLegs(
       items.push(column(slotId));
     });
     if (wall && !pkg.columnOrder) {
-      items.push(fixed("tall-outer", outerIn, "tall", M(`BF${round8(outerIn)}`, "filler", outerIn)));
+      // A filler against the wall, not the group's side panel (round 99, Leo:
+      // "靠墙填充板"), as `tall-clearance` below and a run's end at a wall are.
+      items.push(
+        fixed("tall-outer", outerIn, "tall", M(`BF${round8(outerIn)}`, "filler", outerIn), {
+          labelKey: "requirement.wall-end",
+        }),
+      );
     } else {
       items.push(fixed("tall-outer", outerIn, "tall", M(`PNL${outerIn}`, "panel", outerIn)));
       if (wall) {
@@ -1890,6 +1916,7 @@ function planLegs(
             clearanceIn,
             "tall",
             M(`BF${round8(clearanceIn)}`, "filler", clearanceIn),
+            { labelKey: "requirement.wall-end" },
           ),
         );
       }
@@ -2210,11 +2237,12 @@ function requirementFor(
         // surround is a panel, an opening and whatever closes the far end, and
         // the bill under a refusal should say so rather than name one of them.
         code: item.modules.map((module) => module.code).join(" + "),
-        // A slot that names its machine itself names it on the bill too: D's
-        // oven on one wall is a combination oven tower (round 98b-2), where the
-        // bill's own word for `slot-oven` is the L's steam oven tower. No slot
-        // in an L names its own, so the L's bill is as it was.
-        labelKey: labelOfSlot(pkg, item.slot) ?? `requirement.${item.id}`,
+        // A machine on the wall is named by the machine chosen, which the
+        // template does not know (round 99, `billLabelKey`); anything else by
+        // the template's own word for it.
+        ...(item.slot && !item.labelKey
+          ? { slot: item.slot }
+          : { labelKey: item.labelKey ?? `requirement.${item.id}`, ...(item.slot ? { slot: item.slot } : {}) }),
       });
     } else {
       // Every stretch, at its minimum. Nothing is optional any more, so the

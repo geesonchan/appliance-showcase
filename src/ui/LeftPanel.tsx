@@ -6,7 +6,7 @@ import { omittedForWallKey } from "../data/useChecklist";
 import { ROOM, SLOT_BY_ID, isOmitted } from "../data/slots";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
-import { useActivePackage, useSelection } from "../store/useSelection";
+import { useActivePackage, useSelection, useSlotLabel } from "../store/useSelection";
 import { shapeNoteKey } from "../data/packages";
 import { DebugBadge } from "./DebugBadge";
 import { ModelLine } from "./ModelLine";
@@ -26,6 +26,7 @@ function feetInches(feet: number) {
  */
 export function LeftPanel() {
   const t = useT();
+  const slotLabel = useSlotLabel();
   const summary = usePackageSummary();
   const shape = useAppStore((s) => s.layoutParams.shape);
   const shapeNote = shapeNoteKey(useActivePackage().entry, shape);
@@ -119,7 +120,7 @@ export function LeftPanel() {
                 <span className="min-w-0 flex-1">
                   <span className="flex items-baseline gap-2">
                     <span className="flex min-w-0 flex-1 items-center gap-1.5 text-[13px] leading-[1.3] text-ink">
-                      <span className="truncate">{t(slot.labelKey)}</span>
+                      <span className="truncate">{t(slotLabel(slot.id))}</span>
                       {SCHEME_FALLBACKS[slotId] && (
                         <DebugBadge
                           labelKey="debug.fallback"

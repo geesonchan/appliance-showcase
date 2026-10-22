@@ -588,6 +588,62 @@ is Chinese. `roughInChinese.test.ts` takes exactly those three out before it
 checks that no Chinese rough-in line carries a Latin letter, so the exception
 cannot quietly widen. **Do not "fix" them.**
 
+**A machine is called what it is, by its category and how it installs.**
+*(Leo, round 99: "标签跟着选中的机器走，按类别和安装方式取词，所有显示的地方都经同一个函数".)*
+A slot's name used to be the slot's whatever stood in it: B's and E's
+combination oven MEM301WS was "Microwave" / 「微波炉」 on every pin, card, list
+and quote line from the day it went in, and an oven tower swapped to a double
+oven kept "Steam oven". Now one function, `slotLabelKey`
+(`src/data/machineLabel.ts`), names a machine from its category and install
+type, and every place that names a slot asks it: the pins, the list, the model
+card, the swap panel, the spec card, the quote and its plain text, the
+checklist's groups, the rough-in list, and a share link's notice. The bill of
+a wall (the hover over each figure under a wall slider, and a refusal's list)
+asks its twin, `billLabelKey`, for a machine on the wall; the template names
+the rest itself — landings, fillers, panels, the coffee cabinet by what stands
+under the machine. A slot keeps a name of its own only where it says more of
+the same machine: D's second dishwasher.
+- **Leo's names (round 99), locked in `reviewed.json`**: a label capitalised at
+  the start only, the bill all lower case, as it always was.
+
+  | Machine | Label | On the bill |
+  |---|---|---|
+  | single oven (ME301YP) | 单门烤箱 / Single oven | 单门烤箱塔 / single oven tower |
+  | double oven (PO302W) | 双门烤箱 / Double oven | 双门烤箱塔 / double oven tower |
+  | double steam oven (PODS302B) | 蒸烤箱 / Steam combo oven | 蒸烤箱塔 / steam combo oven tower |
+  | combination oven (MEM301WS) | 组合烤箱 / Combination oven | 组合烤箱塔 / combination oven tower |
+  | microwave drawer (MD24BS) | 微波抽屉 / Microwave drawer | 微波抽屉 / microwave drawer |
+  | over-the-range microwave (JVM3160RFSS) | 微波炉油烟机 / OTR | — |
+  | rangetop (PCG366W) | 炉灶头 / Rangetop | 炉灶头 / rangetop |
+  | drop-in cooktop (CIT367YG) | Drop in 炉灶片 / Cooktop | Drop in 炉灶片 / cooktop |
+  | range, all in one (PRG366WH, MFGS4030RS …) | 炉头 / Range | 炉头 / range |
+  | wine cooler (PRW24C01CG) | 小酒柜 / Wine cooler | 小酒柜 / wine cooler |
+  | wine column (T18IW905SP, T24IW905SP, T18IW100SP) | 酒柜柱 / Wine column | 酒柜柱 / wine column |
+  | refrigerator column (T24IR905SP, T30IR905SP) | (冰箱 / Refrigerator, as before) | 冰箱柜体 / refrigerator column |
+
+  The coffee cabinet on the bill, by what is under the machine: a dishwasher,
+  「咖啡机+洗碗机柜」 / "coffee and dishwasher cabinet" (as before); a wine
+  cooler, 「饮品柜」 / "beverage tower"; a plain cabinet, 「普通下柜」 /
+  "bottom cabinet". A filler against a wall is 「靠墙填充板」 / "filler against
+  the wall" wherever it stands: the L's 3" at the right-hand wall (which said
+  "cabinet at the open end"), and the 3-1/2" between a column group and the
+  wall (`tall-clearance`, which had no words at all, and `tall-outer`, which
+  said "column group side panel"). The 3" panel at an open end, which had no
+  words either, is 「侧板」 / "filler". "Wine cabinet" and 「红酒柜」 are gone.
+- **Any cooking surface, as against one kind.** *(Leo, round 99.)* A line
+  about whatever cooks there says 「灶台」 in Chinese and "cooking surface" in
+  English; a line about one kind uses its label — 炉灶头 / Rangetop, Drop in
+  炉灶片 / Cooktop, 炉头 / Range. Round 99 changed only the English that broke
+  it: the oven tower's side, "Left / Right of the cooking surface" (was "of the
+  range"), D11 rule 4's "counter each side of the cooking surface", and the
+  one-leg refusal's "plus the cooking surface". The Chinese stays.
+- **Tests** (`src/data/machineLabel.test.ts`, read red on the old code first):
+  every model each slot can hold, in all five packages and both shapes, named
+  by what it is (107), and named alike in a share link's notice; every machine
+  on a wall's bill, for every model its slot can hold (678); every filler a
+  filler's word and every panel a panel's (271); every word on a bill in both
+  languages; the no-island lines only for A and C.
+
 ---
 
 ## D11 · The cabinet layout rules
@@ -7754,6 +7810,17 @@ Registered, not scheduled. None of these is a round of its own.
       wall. Since round 98b-2 one wall has keys of its own,
       `rule.oneWallOmitted*` and `rule.oneWallSpares`, in Leo's words (above;
       Leo, round 98b-2: "先把代码做成一字型用自己的键").
+    - **Live, checked file by file** (round 98b-2): commit `cc251d5`, the
+      Pages run 39697491715 a success, both its jobs — build (00:05:50 UTC,
+      2026-10-22) and deploy (00:06:04) — each a success. Built at
+      `cc251d5` with `VITE_GOATCOUNTER=https://geesonchan.goatcounter.com/count`,
+      every file of the build fetched from the live site and compared byte
+      for byte, all six identical: `index.html` (901 bytes),
+      `assets/index-DIetOK0j.js` (676,720), `assets/index-DMNQdOmy.css`
+      (23,812), `assets/react-i_nGBwMY.js` (145,992),
+      `assets/shareQr-BXYgausd.js` (21,968), `assets/three-DN8glM5f.js`
+      (704,111); the live `index.html` asks for nothing the build does not
+      have. Leo read `cc251d5` in the live page's footer.
   - **Leo's answers before 98b-2 (round 98b)**: the coffee machine keeps
     room for the 110° it is delivered at — on E's one wall at least 13-3/4"
     from its hinge side to the left wall (TCM24PS p. 11); how, from the
@@ -7965,9 +8032,50 @@ Registered, not scheduled. None of these is a round of its own.
   next round that changes the interface's words proposes new names, and Leo
   decides. *(Seen in round 98: `bottom.quote`, 「生成配置单」, is in both
   language files and read by no component.)*
+- **Round 99, the L's labels, built — waiting for Leo's look at the local
+  preview.** The plan, `docs/plans/round-99-plan.md`, Leo's answers to its
+  section 3 and the sentences he reviewed, `docs/plans/round-99-sentences.md`;
+  the rule and every name in D10 ("A machine is called what it is").
+  - **Found while reading, beyond the four Leo listed**: three bill words with
+    no text in either language (`left-end-panel`, `back-end-panel`,
+    `tall-clearance`, since round 32), the hover showing the key itself; B's
+    3-1/2" filler against the wall called "column group side panel", in the L
+    with the refrigerator against the wall as well as on one wall; a label
+    that never followed a swap (B's and E's tower to three other ovens, D's to
+    three, an OTR in the hood's place, a rangetop in A's range opening); the
+    no-island line on where the microwave drawer and wine cooler stand said in
+    B (32 rooms) and D (8), and its one-wall twin in B, which have neither —
+    now said only where both stand under the counter, A and C (Leo, round 99:
+    "只在有微波抽屉和独立酒柜的套餐出现"; the one-wall twin by the same
+    condition, the same fault); and a share link's notice naming a slot from
+    `data/slots.json`, so D's one-wall oven was a "steam oven" there.
+  - **The L unchanged but for its words**: every L room, 1,045, byte for byte
+    as `cc251d5` with the words set aside (the same dump on `cc251d5` checked
+    first against round 98b-2's: 1,045 of 1,045); every word that changed one
+    of the round's list, none outside it (`geomcmp99.mjs`): the bill and the
+    labels by key, the checklist by sentence — B's 32 and D's 8 no-island
+    lines gone, and the Chinese of the coffee cabinet's wine cooler, the
+    no-island omitted line and the rangetop's supports.
+  - **Pixels**, D17's third way: `cc251d5`'s code built here
+    (`index-DkvOnxRx.js`) and this round's (`index-DnNMT1Gk.js`), each shot
+    twice, alternated, round 98a's 45 states, each also shot as the 3D canvas
+    alone with everything over it hidden. The canvas: 0 pixels in all 45. The
+    screen: in 43 states every pixel that differs is in an element whose text
+    changed or on the leader line of a pin that moved with it. The other two:
+    one pixel of one level in `link-D-noisland`, where the old build's own
+    two runs differ by 3,948; and pins 01–03 on the 390 phone in A, text and
+    box the same, their edges a run apart — the old build shot once more
+    matches the new build there to the pixel, and its own first shot by
+    1,003. `scripts/qualityDrop.mjs`, ten runs each alternated: 0 drops on
+    either. The unit suite 2,972 of 2,972; the whole suite 3,188 of 3,188.
+    Every state, what changed in it and where: `docs/plans/round-99-pixels.md`.
 - **Not yet done after round 98b-2, as one group; the order is Leo's to
-  set.** *(Leo, round 98b-2: "把还没做的列成一组，顺序我再定".)* His list, in his
-  words; each has its entry above, which holds its figures and sources:
+  set.** *(Leo, round 98b-2: "把还没做的列成一组，顺序我再定".)* **His order
+  (round 98b-2)**: round 99 the L's labels, words only; round 100 the quality
+  guard; round 101 the L's D, its two changes to the geometry in one round
+  (the coffee machine's door, the 5/8"); then a galley, then a U. His list,
+  in his words; each has its entry above, which holds its figures and
+  sources:
   - 「画质守卫（降档后不会升回来；切换后那一两秒被误判）」 — "The quality guard
     misjudges the seconds after a package switch".
   - 「L 型标签小轮：B、E 的组合烤箱塔叫"微波炉"、配置单里 B 的塔叫"微波抽屉"、D 的叫"蒸烤箱

@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { APPLIANCE_BY_ID, SLOT_ORDER } from "../data/catalogue";
+import { slotLabelKey } from "../data/machineLabel";
 import { DEFAULT_PACKAGE, PACKAGE_BY_ID, packageInShape } from "../data/packages";
 import type { Appliance, SlotId } from "../types";
 import { useAppStore } from "./useAppStore";
@@ -19,6 +20,16 @@ export function useSelection(): Record<SlotId, Appliance> {
       ) as Record<SlotId, Appliance>,
     [selection],
   );
+}
+
+/**
+ * What each slot is called, with the machine chosen for it (round 99): every
+ * pin, card, list and line names a slot through this, which asks
+ * `slotLabelKey`, the one place a machine's name is chosen.
+ */
+export function useSlotLabel(): (slotId: SlotId) => string {
+  const selection = useSelection();
+  return (slotId) => slotLabelKey(slotId, selection[slotId]);
 }
 
 export function useSelectedAppliance(slotId: SlotId): Appliance {

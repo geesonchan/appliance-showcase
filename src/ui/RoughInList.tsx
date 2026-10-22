@@ -2,11 +2,10 @@ import { useMemo } from "react";
 import type { LineTier } from "../data/roughIn";
 import { roughInWords } from "../data/roughIn";
 import { TIER_ORDER, listRoughIn, roughInCallout, type RoughInItem } from "../data/roughInList";
-import { SLOT_BY_ID } from "../data/slots";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
 import { useRoughInFocus } from "../store/useRoughInFocus";
-import { useSelection } from "../store/useSelection";
+import { useSelection, useSlotLabel } from "../store/useSelection";
 import { UNCONFIRMED, UNREVIEWED } from "../three/materials";
 import { PanelSection } from "./primitives";
 
@@ -44,6 +43,7 @@ function TierSample({ tier }: { tier: LineTier }) {
  */
 export function RoughInList() {
   const t = useT();
+  const slotLabel = useSlotLabel();
   const selection = useSelection();
   const renderMode = useAppStore((s) => s.renderMode);
   const setRenderMode = useAppStore((s) => s.setRenderMode);
@@ -89,7 +89,7 @@ export function RoughInList() {
                             (active === item.key ? "text-accent" : "text-ink-muted")
                           }
                         >
-                          {t(SLOT_BY_ID[item.slotId].labelKey)} · {t(roughInWords(item.resolved).typeKey)}
+                          {t(slotLabel(item.slotId))} · {t(roughInWords(item.resolved).typeKey)}
                           <span className="block text-[10px] text-ink-muted/80">
                             {t(roughInWords(item.resolved).whereKey)}
                           </span>

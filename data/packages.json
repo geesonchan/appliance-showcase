@@ -433,7 +433,6 @@
             },
             {
               "slotId": "slot-oven",
-              "labelKey": "slot.comboOven",
               "installType": "combo",
               "heightIn": 48.5,
               "utilities": {

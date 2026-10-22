@@ -5,6 +5,7 @@ import { APPLIANCE_BY_ID } from "./catalogue";
 import { STEAM_OVEN, WINE_COLUMN, steamOvenSillIn, wineColumnParts } from "./columnModel";
 import { doorSplitOf, fridgeParts } from "./fridgeModel";
 import { checkLayout } from "./layoutRules";
+import { billLabelKey } from "./machineLabel";
 import { setActivePackage, setLayoutParams } from "./layoutState";
 import {
   DEFAULT_PARAMS,
@@ -114,9 +115,10 @@ describe("package D · the column group", () => {
     )!;
     expect(short, JSON.stringify(result.reasons)).toBeTruthy();
     const order = short.occupancy!
-      .map((item) => item.labelKey)
-      .filter((key) => ["requirement.freezer", "requirement.fridge", "requirement.wine"].includes(key));
-    expect(order).toEqual(["requirement.freezer", "requirement.fridge", "requirement.wine"]);
+      .map((item) => billLabelKey(item, {}))
+      .filter((key) => ["requirement.freezer", "requirement.fridgeColumn", "requirement.wineColumn"].includes(key));
+    // Columns each, by their own words since round 99.
+    expect(order).toEqual(["requirement.freezer", "requirement.fridgeColumn", "requirement.wineColumn"]);
   });
 
   it("keeps them together with nothing but the kits between, 80-3/4 inches overall", () => {
@@ -697,7 +699,7 @@ describe("package D · the coffee cabinet", () => {
     expect(Number(short.vars.minimumIn)).toBe(223.5);
     expect(Number(short.vars.minimumIn)).toBeGreaterThan(204);
     expect(Number(short.vars.minimumIn)).toBeLessThanOrEqual(PARAM_LIMITS.backWallIn.max);
-    expect(short.occupancy!.map((item) => item.labelKey)).toContain("requirement.coffee");
+    expect(short.occupancy!.map((item) => billLabelKey(item, {}))).toContain("requirement.coffee");
     const total = short.occupancy!.reduce((sum, item) => sum + item.widthIn, 0);
     expect(total).toBeCloseTo(Number(short.vars.minimumIn), 9);
     expect(short.suggestion?.patch.coffeeLeg).toBe("left");

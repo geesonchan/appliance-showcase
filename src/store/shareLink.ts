@@ -2,6 +2,7 @@ import { APPLIANCES, APPLIANCE_BY_ID } from "../data/catalogue";
 import type { LayoutParams } from "../data/layoutTemplate";
 import { LAYOUT_FIELDS, type AnyValue, type Field } from "../data/layoutFields";
 import { LINK_VERSION, LINK_VERSIONS } from "../data/linkVersion";
+import { slotLabelKey } from "../data/machineLabel";
 import { PACKAGES, PACKAGE_BY_ID, packageInShape } from "../data/packages";
 import type { LayoutShape } from "../data/layoutShape";
 import { SLOT_RECORDS } from "../data/slots";
@@ -241,6 +242,18 @@ export const LINK_FIELDS: Field<AnyValue>[] = [
   BLOWER_FIELD,
   ...FINISH_FIELDS,
 ];
+
+/**
+ * What a notice line calls the setting it is about: `{item}` in
+ * `share.notice.*`. A model's opening is named for the model shown in it, by
+ * the page's own `slotLabelKey` (round 99): the slot's name in data/slots.json
+ * called D's one-wall combination oven a steam oven here.
+ */
+export function noticeItemKey(fieldName: string, to: unknown): string {
+  const model = MODEL_FIELDS.find((candidate) => candidate.name === fieldName);
+  if (model) return slotLabelKey(model.slotId, APPLIANCE_BY_ID[String(to)]);
+  return LINK_FIELDS.find((candidate) => candidate.name === fieldName)!.labelKey;
+}
 
 /** The slots a package has, in its order, with their fields. */
 export const modelFieldsOf = (packageId: string, shape: LayoutShape = "L") =>

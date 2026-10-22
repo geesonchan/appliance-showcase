@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { APPLIANCE_BY_ID } from "../data/catalogue";
 import { recordHoodModel } from "../data/hoodMount";
-import { DEFAULT_PACKAGE, PACKAGE, PACKAGE_BY_ID, shapeNoteKey, slotsKeptPerShape } from "../data/packages";
+import { DEFAULT_PACKAGE, PACKAGE, PACKAGE_BY_ID, packageInShape, shapeNoteKey, slotsKeptPerShape } from "../data/packages";
+import { billLabelKey } from "../data/machineLabel";
 import { DEFAULT_PARAMS, feasibleRange, wallRequirement } from "../data/layoutTemplate";
 import { LAYOUT_PARAMS, RUNS } from "../data/room";
 import { resetRoom } from "../data/testRoom";
@@ -247,10 +248,14 @@ describe("what the switch says, and what Undo puts back (round 98b-2)", () => {
   });
 
   it("calls D's one-wall oven a combination oven tower on the wall's bill, and the L's still a steam oven tower", () => {
-    const label = (shape: "L" | "one-wall") =>
-      wallRequirement({ ...DEFAULT_PARAMS, ...PACKAGE_BY_ID["package-d"].defaultLayout, shape, backWallIn: shape === "L" ? 224.25 : 276 }, "back", PACKAGE_BY_ID["package-d"]).items.find(
-        (item) => item.code?.includes("T3096") && item.labelKey.includes("ven"),
-      )?.labelKey;
+    const label = (shape: "L" | "one-wall") => {
+      const shaped = packageInShape(PACKAGE_BY_ID["package-d"], shape);
+      const standing = Object.fromEntries(shaped.slots.map((slot) => [slot.slotId, APPLIANCE_BY_ID[shaped.defaultSelection[slot.slotId]!]]));
+      const tower = wallRequirement({ ...DEFAULT_PARAMS, ...PACKAGE_BY_ID["package-d"].defaultLayout, shape, backWallIn: shape === "L" ? 224.25 : 276 }, "back", PACKAGE_BY_ID["package-d"]).items.find(
+        (item) => item.slot === "slot-oven",
+      );
+      return tower && billLabelKey(tower, standing);
+    };
     expect({ oneWall: label("one-wall"), l: label("L") }).toEqual({ oneWall: "requirement.comboOven", l: "requirement.oven" });
   });
 });
