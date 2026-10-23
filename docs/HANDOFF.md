@@ -12,7 +12,7 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **round 99** (`docs/decisions.md` is the record of
+Covers the repository up to **round 99b** (`docs/decisions.md` is the record of
 rounds; `git log` is the record of commits). It replaces the v1–v9 briefs that
 were pasted into chat.
 
@@ -58,9 +58,9 @@ every figure of it, is `data/packages.json`; D16 and D20 say how a package is
 put together and why E was built the way it was. **Do not copy those numbers
 anywhere**: the file is the one source, and the tests read it.
 
-### Where it stands (round 99)
+### Where it stands (round 99b)
 
-- **All five packages are live, as an L and on one wall.** Rounds 73–79, 81–90, 92, 92a, 92b, 92c, 93, 94, 95, 91, 96, 97, 98a, 98b-1, 98b-2 and 99 each shipped
+- **All five packages are live, as an L and on one wall.** Rounds 73–79, 81–90, 92, 92a, 92b, 92c, 93, 94, 95, 91, 96, 97, 98a, 98b-1, 98b-2, 99, 99a and 99b each shipped
   (round 80 built nothing; 91 was built after 95, below), and each was checked against the live page's asset hashes
   after its workflow finished.
 - **The live site counts visits, anonymously** (D24): page views and four events
@@ -130,20 +130,40 @@ anywhere**: the file is the one source, and the tests read it.
   in A is paused. Round 99, the L's labels, words only: a machine is named by
   its category and how it installs, wherever the page names it, in Leo's
   words (**done**, round 99, after Leo's look at the local preview; D10,
-  "A machine is called what it is").
+  "A machine is called what it is"). Round 99a, from Leo using one wall: a
+  narrow machine chosen in A, B or C is the one the room is built round on
+  one wall too (`shapeOfChoice`), and the Layout tab's wall figures follow a
+  model swap, worked out in idle time (**done**, round 99a, after Leo's look
+  at the local preview, live at `102f05e`; Open items, round 99a).
+  Round 99b: with the Layout tab open, a package tapped no longer blanks
+  the page — the bill's words are worked out with its figures (**done**, round
+  99b, after Leo's look at the local preview; Open items, the first).
 
 ### Next, in Leo's order (after round 98b-2)
 
 Named here only; each is an entry in the Open items of `docs/decisions.md`,
 "Not yet done after round 98b-2", which says where its figures are:
 
-1. ~~Round 99, the L's labels~~ — **done**, round 99.
-2. **Round 100, the quality guard.**
-3. **Round 101, the L's D, two changes to its geometry in one round**: the
+1. ~~Round 99, the L's labels~~ — **done**, round 99. Round 99a, one wall
+   and a machine chosen narrower than its opening, came in between —
+   **done**, round 99a. Round 99b, the Layout tab blanking the page on a
+   package switch, came in before round 100 — **done**, round 99b.
+2. **Round 100, the quality guard** — Leo's answers to its plan
+   (`docs/plans/round-100-plan.md`): option A, the two seconds after a
+   rebuild not judged; what counts as a rebuild, and the proofs, in the
+   Open items entry "The quality guard misjudges the seconds after a
+   package switch".
+3. **Registered for after round 100 (Leo, round 99b), plans first, no
+   code**: round 99c — a machine with no name found falls back to a general
+   name, and the right panel and the 3D scene each fenced off
+   (`docs/plans/round-99c-plan.md`); and the geometries that climb with
+   every model swap (`docs/plans/geometry-leak-plan.md`). Their order
+   against round 101 is Leo's to set.
+4. **Round 101, the L's D, two changes to its geometry in one round**: the
    coffee machine's door 11/16" short of its distance to the cabinets across
    the corner, and the 5/8" between the 9-series columns (waiting for Leo's
    site practice).
-4. **Then a galley, then a U.**
+5. **Then a galley, then a U.**
 
 ---
 
@@ -191,6 +211,7 @@ Named here only; each is an entry in the Open items of `docs/decisions.md`,
 | `scripts/qualityDrop.mjs` | How often a build drops to the low quality tier on a 360 phone after tapping 中 then B, with fps each second; given two addresses, the old build and the new alternated run by run. Run it in any round that touches what the scene draws or how often it renders, against the build before the round (Leo, round 98b; D17). `VIEW=desktop TAB=layout`: a 1440 desktop by mouse, the Layout tab open, as the shop uses it (round 99a). |
 | `src/data/oneWall.test.ts`, `src/store/oneWallSwitch.test.ts` | One wall (round 98b): each package's run left to right, its wall, the rules, D's and E's one-wall packages; the shape switch putting the L back exactly, and a link to a one-wall kitchen; which model each opening keeps between the shapes, and every Undo button's words (round 98b-2). |
 | `src/data/oneWallSwaps.test.ts`, `tests/rangeSwapBill.test.ts`, `tests/lightStrips.test.ts` | One wall builds its room round the range, hood and refrigerator chosen (`shapeOfChoice`, packages.ts); a range swapped shows on the wall's bill at once, in either shape; the under-cabinet strips follow the runs (round 99a). |
+| `tests/layoutTabSwitch.test.ts` | With the Layout tab open, every package tapped after every other keeps the page, in both shapes, on a 1440 desktop, a 768 tablet and a 390 phone (round 99b). |
 | `src/data/roomSets.ts`, `scripts/lDump.ts`, `scripts/oneWallDump.ts` | The rooms every proof builds, listed once: the L's 1,045 (round 98a) and one wall's 91 (round 99a). The two dumps write them out as geometry and words, one a line — run each on the commit before a round (`ROOT=<tree>`) and on the round, and compare; `machineLabel.test.ts` reads every word on their bills (round 99a). |
 | `src/ui/useIdleValue.ts`, `src/store/staleBand.test.ts` | The Layout tab's wall figures and greyed band worked out in the page's idle time after a rebuild; a wall length asked for while the band is still the room's before is refused by the room (round 99a). |
 | `src/data/machineLabel.ts`, `src/data/machineLabel.test.ts` | What a machine is called: `slotLabelKey` for every pin, card, list, quote line and share notice, `billLabelKey` for a wall's bill; every model each slot can hold named by what it is (D10, round 99). |

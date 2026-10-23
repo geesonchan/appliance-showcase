@@ -13,14 +13,15 @@ import { useAppStore } from "./useAppStore";
  */
 export function useSelection(): Record<SlotId, Appliance> {
   const selection = useAppStore((s) => s.selection);
-  return useMemo(
-    () =>
-      Object.fromEntries(
-        SLOT_ORDER.map((slotId) => [slotId, APPLIANCE_BY_ID[selection[slotId]]]),
-      ) as Record<SlotId, Appliance>,
-    [selection],
-  );
+  return useMemo(() => selectionOf(selection), [selection]);
 }
+
+/** A selection of ids as appliances, for code that reads the store outside a render. */
+export const selectionOf = (selection: Record<SlotId, string>): Record<SlotId, Appliance> =>
+  Object.fromEntries(SLOT_ORDER.map((slotId) => [slotId, APPLIANCE_BY_ID[selection[slotId]]])) as Record<
+    SlotId,
+    Appliance
+  >;
 
 /**
  * What each slot is called, with the machine chosen for it (round 99): every

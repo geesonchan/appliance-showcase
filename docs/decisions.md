@@ -5900,6 +5900,64 @@ throw still in; the throw was then taken out. That catch is now in the code.
 
 Registered, not scheduled. None of these is a round of its own.
 
+- **A package tapped with the Layout tab open blanked the page — live since
+  round 99; round 99b, built, waiting for Leo's look at the local preview.**
+  *(Found the night of 2026-10-23 while measuring round 100; Leo, round 99b:
+  "先做 99b（白屏修法），单独上线…从 102f05e 开始，只放 … patch 的内容，不带第
+  100 轮".)* With the Layout tab open, tapping D then A in the L, or A then D on
+  one wall, threw `machineLabel: no bill word for slot-oven with nothing in
+  it` (`slot-microwave` on one wall) and React took the whole page down: no
+  canvas, no controls, until the page is loaded again — on a desktop, a
+  tablet and a phone alike.
+  - **Why**: the bill under each wall slider is the room before's for a
+    render or two after a switch — kept per room setting in round 99
+    (`useMemo` on the walls, so D to A at the same walls kept D's items),
+    worked out in idle time since round 99a (`useIdleValue`) — while its
+    words were looked up at render in the new package's selection. Since
+    round 99 `billLabelKey` throws for a slot with nothing in it, which is
+    right for a fault and fatal here.
+  - **Where** (a probe over every ordered pair, the old room's items named in
+    the new selection): 24 of the 40 switches — in the L, A, B or C to E; D to
+    A, B, C or E; E to A, B or C; on one wall, A, B or C to D or E; D to A, B,
+    C or E; E to A, B, C or D. Seen by mouse on builds of `5afb98b` (the L's
+    D to A blank; one wall's A to E not, its walls growing) and `102f05e`
+    (both).
+  - **How it got past**: the words test names every room's bill in that
+    room's own selection; `rangeSwapBill` swaps within A; `qualityDrop.mjs`
+    with `TAB=layout` taps A to B only.
+  - **The fix**, round 99b, `102f05e` and nothing else of round 100's: the
+    words are worked out with the figures, from the machines standing at that
+    moment (`WallMinimum` in `LayoutControls.tsx`; `selectionOf` in
+    `useSelection.ts`).
+  - **The test**: `tests/layoutTabSwitch.test.ts` taps every package after
+    every other once — a circuit of the twenty ordered pairs — in each shape,
+    on a 1440 desktop by the mouse, a 768 tablet and a 390 phone by a finger
+    (Leo, round 99b: the three widths; the phone's Layout is a section of its
+    Configure sheet). On `102f05e` all six red: the L at D to A on all three
+    devices (`slot-oven`), one wall at A to D on all three
+    (`slot-microwave`). On round 99b all six green.
+  - **Proofs**: `scripts/lDump.ts` 1,045 of 1,045 and `scripts/oneWallDump.ts`
+    91 of 91 byte for byte as `102f05e`. Pixels, round 99's 45 states at
+    `?quality=high`, `102f05e` against round 99b, each shot twice, alternated:
+    the 3D canvas the same in 44 in the closest pairing; in `link-E` both of
+    99b's first two runs differed from both of `102f05e`'s, every textured
+    surface, and three more runs of each came out the same as `102f05e` to the
+    pixel — the page's texture tier, not the build; on screen, `link-D` and
+    `desk-D-materials` 1 pixel, which comes and goes in either build's own
+    runs (`desk-D-materials` shot three more times each). This run was noisier
+    than round 100's, each build's own two runs differing in 22 states — the
+    tier or the camera, both builds alike. The suite 3,203 of 3,203 (4,401 s);
+    the unit suite 2,978 of 2,978. Main chunk
+    `index-CGAN8VC9.js` (a plain build).
+  - **Still open, registered for after round 100 (Leo, round 99b)**: round
+    99c — a machine with no name found falls back to a general name instead
+    of throwing, and the right panel and the 3D scene each fenced off so a
+    fault in one shows its own message and leaves the page standing; and the
+    geometries that climb with every model swap — 238 with the page open,
+    2,019 after fifty swaps on a 1440 desktop in A's L, the same on
+    `102f05e` to the geometry (measured for round 100, which records it) —
+    found out first, which boxes and why, and the ways to fix it listed, not
+    changed.
 - **Found in round 97, not changed — each seen in a probe or in the code, not
   yet on the page.** *(Round 97; for Leo to order.)*
   - **A blower drawn in a hood that has its own.** The install view draws a
@@ -8065,7 +8123,8 @@ Registered, not scheduled. None of these is a round of its own.
   the left run's end panel at 69"–72", the stone to 72"; A on one wall — the
   panel at 115-7/8"–118-7/8", the stone to 118-7/8".
 - **Round 99a, one wall and a machine chosen narrower than its opening —
-  built, waiting for Leo's look at the local preview.** The plan,
+  built and shipped after Leo's look at the local preview** (Leo, round
+  99a: "第 99a 轮预览看过了（index-Bh3Snm2C.js），可以提交"). The plan,
   `docs/plans/round-99a-plan.md`. Leo, from the live site: A on one wall with
   its 36" range swapped for a 30" one left the range standing in the 36"
   opening with the wall showing beside it, and the bill under the back wall
@@ -8207,6 +8266,19 @@ Registered, not scheduled. None of these is a round of its own.
     thread's long tasks in the six seconds after the tap: old median 187 ms
     (longest single 227), new 159 (longest 259) — no more work in the new
     build. The drops are the guard round 100 is for.
+  - **Live, checked file by file**: commit `102f05e`, the Pages run
+    39920461855 a success, both its jobs — build (07:50:25 to 07:51:14 UTC,
+    2026-10-23) and deploy (07:51:19 to 07:51:36) — each a success. Before
+    the push, CI's own two steps here: `npm run test:unit` 2,978 of 2,978,
+    `npm run build` with the main chunk `index-Bh3Snm2C.js`, the one Leo
+    looked at. Built at `102f05e` with
+    `VITE_GOATCOUNTER=https://geesonchan.goatcounter.com/count`, every file
+    fetched from the live site and compared byte for byte, all six
+    identical: `index.html` (901 bytes), `assets/index-Djm95iQh.js`
+    (680,850), `assets/index-DMNQdOmy.css` (23,812),
+    `assets/react-i_nGBwMY.js` (145,992), `assets/shareQr-BXYgausd.js`
+    (21,968), `assets/three-DN8glM5f.js` (704,111); the live `index.html`
+    asks for nothing the build does not have.
 - **Round 99, the L's labels, built and shipped after Leo's look at the
   local preview** (Leo, round 99: "第 99 轮预览看过了，可以提交"). The plan, `docs/plans/round-99-plan.md`, Leo's answers to its
   section 3 and the sentences he reviewed, `docs/plans/round-99-sentences.md`;

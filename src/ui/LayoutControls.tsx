@@ -4,7 +4,7 @@ import { paramLimitsFor } from "../data/layoutTemplate";
 import { showsControl, type LayoutControl } from "./shapeControls";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
-import { useActivePackage, useSelectedAppliance, useSelection } from "../store/useSelection";
+import { selectionOf, useActivePackage, useSelectedAppliance } from "../store/useSelection";
 import { billLabelKey } from "../data/machineLabel";
 import { hoodMount } from "../data/hoodMount";
 import { comboHandleAt, comboSillFor } from "../data/columnModel";
@@ -59,9 +59,19 @@ function WallMinimum({ params, leg }: { params: LayoutParams; leg: "left" | "bac
   // round it without changing a setting, and the bill is that model's (round
   // 99a — a 30" range in A's 36" opening still showed "36" RO36" here). In
   // the page's idle time, not the frame the room changed in (`useIdleValue`).
+  //
+  // The words are worked out with the figures, from the machines standing at
+  // that moment. Looked up at render, they were the new package's for a frame
+  // or two while the figures were still the room before's: D's oven tower
+  // named under A, which has none, threw, and the page went blank — 24 of the
+  // 40 package switches with this tab open (found in round 100; live since
+  // round 99).
   const layoutVersion = useAppStore((s) => s.layoutVersion);
-  const requirement = useIdleValue(() => wallRequirement(params, leg), [params, leg, layoutVersion]);
-  const selection = useSelection();
+  const requirement = useIdleValue(() => {
+    const bill = wallRequirement(params, leg);
+    const selection = selectionOf(useAppStore.getState().selection);
+    return { ...bill, words: bill.items.map((item) => billLabelKey(item, selection)) };
+  }, [params, leg, layoutVersion]);
 
   return (
     <>
@@ -69,7 +79,7 @@ function WallMinimum({ params, leg }: { params: LayoutParams; leg: "left" | "bac
         {t("panel.room.minimum", { value: requirement.minimumIn })}
       </span>{" "}
       {requirement.items.map((item, index) => (
-        <span key={`${billLabelKey(item, selection)}-${index}`} title={t(billLabelKey(item, selection))}>
+        <span key={`${requirement.words[index]}-${index}`} title={t(requirement.words[index])}>
           {index > 0 && " + "}
           <span className="tabular-nums">{item.widthIn}&quot;</span>{" "}
           <span className="opacity-65">{item.code ?? item.rule?.toUpperCase()}</span>
