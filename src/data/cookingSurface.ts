@@ -1,7 +1,7 @@
 import appliancesFile from "../../data/appliances.json";
 import type { Appliance, Package } from "../types";
 import type { RunSegment } from "./roomShell";
-import { PACKAGE_SHAPE, shapeOfPackage } from "./packages";
+import { PACKAGE_SHAPE, shapeOfChoice, shapeOfPackage } from "./packages";
 import type { LayoutShape } from "./layoutShape";
 
 /**
@@ -125,7 +125,7 @@ export function openingAlong(segment: Pick<RunSegment, "from" | "to" | "modules"
 let CHOSEN: { packageId: string; shape: LayoutShape; appliance: Kind } | null = null;
 
 export function recordRangeModel(packageId: string, appliance: Kind | undefined, shape: LayoutShape = PACKAGE_SHAPE) {
-  CHOSEN = appliance ? { packageId, shape, appliance } : null;
+  CHOSEN = appliance ? { packageId, shape: shapeOfChoice(packageId, shape), appliance } : null;
 }
 
 /**

@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { PARAM_LIMITS, feasibleRange, wallRequirement, type LayoutParams } from "../data/room";
 import { LAYOUT_SHAPES } from "../data/layoutShape";
 import { paramLimitsFor } from "../data/layoutTemplate";
@@ -12,6 +11,7 @@ import { comboHandleAt, comboSillFor } from "../data/columnModel";
 import { atCoffeeManualHeight, snapCoffeeSill, underCoffee } from "../data/layoutTemplate";
 import { formatDimension } from "../data/dimensions";
 import { RefusalNote } from "./RefusalNote";
+import { useIdleValue } from "./useIdleValue";
 import { PanelSection, Segmented, Slider, Toggle } from "./primitives";
 
 /**
@@ -55,7 +55,12 @@ function Choice<T extends string>({
  */
 function WallMinimum({ params, leg }: { params: LayoutParams; leg: "left" | "back" }) {
   const t = useT();
-  const requirement = useMemo(() => wallRequirement(params, leg), [params, leg]);
+  // Worked out again whenever the room is: a model swapped rebuilds the room
+  // round it without changing a setting, and the bill is that model's (round
+  // 99a — a 30" range in A's 36" opening still showed "36" RO36" here). In
+  // the page's idle time, not the frame the room changed in (`useIdleValue`).
+  const layoutVersion = useAppStore((s) => s.layoutVersion);
+  const requirement = useIdleValue(() => wallRequirement(params, leg), [params, leg, layoutVersion]);
   const selection = useSelection();
 
   return (
@@ -128,13 +133,16 @@ export function LayoutControls() {
   const on = (control: LayoutControl) => showsControl(params.shape, control);
   const limits = paramLimitsFor(params.shape);
 
-  // Probing the generator, so the greyed band and the room can never disagree.
-  const feasible = useMemo(
+  // Probing the generator, so the greyed band and the room can never disagree:
+  // again whenever the room is rebuilt, a model swapped included, in the
+  // page's idle time (round 99a, `useIdleValue`).
+  const layoutVersion = useAppStore((s) => s.layoutVersion);
+  const feasible = useIdleValue(
     () => ({
       backWallIn: feasibleRange(params, "backWallIn"),
       leftWallIn: feasibleRange(params, "leftWallIn"),
     }),
-    [params],
+    [params, layoutVersion],
   );
 
   /** The two legs of the L, which is the choice both the sink and the tower have. */

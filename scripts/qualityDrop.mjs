@@ -20,6 +20,13 @@
  * busy machine, so a drop now and then is the guard working, and what this
  * reports is whether one build drops more often than another. It found, in
  * round 98b, 1 in 10 on each of `c94a898` and 98b-1.
+ *
+ * Two options (round 99a, Leo: the shop uses a 1440 desktop with the Layout
+ * tab open): VIEW=desktop opens a 1440 x 900 page and uses the mouse where a
+ * phone uses a finger, and TAB=layout opens the Layout tab before 中 and B, so
+ * what that tab works out at a package switch is in the frames counted.
+ *
+ *   VIEW=desktop TAB=layout node scripts/qualityDrop.mjs <old url> <new url>
  */
 import { chromium } from "playwright";
 
@@ -30,11 +37,18 @@ if (bases.length === 0 || bases.length > 2) {
 }
 const runs = Number(process.env.RUNS ?? 10);
 const PHONE = { viewport: { width: 360, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 1 };
+const DESKTOP = { viewport: { width: 1440, height: 900 } };
+const desktop = process.env.VIEW === "desktop";
+const layoutTab = process.env.TAB === "layout";
+if (layoutTab && !desktop) {
+  console.error("TAB=layout opens the desktop's Layout tab: use it with VIEW=desktop");
+  process.exit(2);
+}
 
 const browser = await chromium.launch({ args: ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist"] });
 
 async function once(base) {
-  const context = await browser.newContext(PHONE);
+  const context = await browser.newContext(desktop ? DESKTOP : PHONE);
   const page = await context.newPage();
   await page.addInitScript(() => {
     // The renderer three.js announces to its devtools, to read the scene.
@@ -68,11 +82,17 @@ async function once(base) {
   await page.goto(`${base}${sep}quality=high`, { waitUntil: "networkidle", timeout: 90000 });
   await page.waitForSelector("canvas", { timeout: 60000 });
   await page.waitForTimeout(2500);
-  // By touch, as a phone is used (D17).
-  const tap = async (name) => {
-    const box = await page.getByRole("button", { name, exact: true }).filter({ visible: true }).first().boundingBox();
-    await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
+  // By touch, as a phone is used, and by the mouse on a desktop (D17).
+  const press = async (role, name) => {
+    const box = await page.getByRole(role, { name, exact: true }).filter({ visible: true }).first().boundingBox();
+    if (desktop) await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+    else await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
   };
+  const tap = (name) => press("button", name);
+  if (layoutTab) {
+    await press("tab", "Layout");
+    await page.waitForTimeout(1500);
+  }
   await tap("中");
   await page.waitForTimeout(800);
   const before = await page.evaluate(() => window.__fps.length);

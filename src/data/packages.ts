@@ -135,6 +135,22 @@ export const packageAsWritten = (entry: Package): Package => BASES.get(entry) ??
 
 /** The shape a package was made in: the L for a package as written. */
 export const shapeOfPackage = (entry: Package): LayoutShape => SHAPE_OF.get(entry) ?? "L";
+
+/**
+ * The shape a model chosen in a package's room is kept under: the shape of the
+ * package that room is built from (round 99a). D and E write a one-wall
+ * package of their own, so a choice made on their one wall is that one's, and
+ * their L's stays the L's (round 98b-2). A, B and C do not: their one wall is
+ * built from the L's package, its openings the L's, so a choice made there is
+ * the L's choice. Kept as the page's shape instead, it was looked for under
+ * "L" and never found, and A's, B's and C's one wall was built round their own
+ * range, hood and refrigerator whatever was chosen — a 30" range left standing
+ * in a 36" opening with no filler either side (Leo, round 99a).
+ */
+export const shapeOfChoice = (packageId: string, shape: LayoutShape): LayoutShape => {
+  const entry = PACKAGE_BY_ID[packageId];
+  return entry ? shapeOfPackage(packageInShape(entry, shape)) : shape;
+};
 const SHAPE_OF = new WeakMap<Package, LayoutShape>();
 
 // Every package in every shape it writes, made once at load: a slot named

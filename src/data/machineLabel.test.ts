@@ -7,6 +7,14 @@ import type { LayoutShape } from "./layoutShape";
 import { BUILDABLE_PACKAGES, PACKAGE, PACKAGE_BY_ID, packageInShape } from "./packages";
 import { REQUESTED_PARAMS } from "./room";
 import { resetRoom } from "./testRoom";
+import * as testRoom from "./testRoom";
+import * as packages from "./packages";
+import * as layoutState from "./layoutState";
+import * as roomState from "./room";
+import * as candidates from "./candidates";
+import * as catalogue from "./catalogue";
+import * as layoutTemplate from "./layoutTemplate";
+import { lRooms, oneWallRooms } from "./roomSets";
 import { checklistFor } from "./useChecklist";
 import { modelFieldsOf, noticeItemKey } from "../store/shareLink";
 import en from "../i18n/en.json";
@@ -227,15 +235,30 @@ describe("a wall's bill names what stands on it (round 99)", () => {
     expect({ checked, wrong: [...wrong] }).toEqual({ checked: 271, wrong: [] });
   });
 
-  it("has every word it uses in both languages", () => {
+  it("has every word on every bill in both languages, in all 1,045 L rooms and 91 one-wall rooms", () => {
+    // Round 99a (Leo: "改成跑在 L 型 1,045 个房间和一字型 91 个房间的底稿上"): the rooms
+    // the two dumps build, `roomSets.ts`, not one short one-wall room — on
+    // which the board between the microwave drawer and the wine cooler never
+    // stood, and so never showed it had no words.
+    const modules = { packages, layoutState, room: roomState, candidates, catalogue, testRoom, layoutTemplate };
     const missing = new Set<string>();
-    for (const { item, shaped } of bills()) {
-      const key = billLabelKey(item, defaults(shaped));
-      for (const [lang, words] of [["en", en], ["zh", zh]] as const) {
-        if (!(key in words)) missing.add(`${lang} ${key}`);
+    const counted = { built: 0, refused: 0 };
+    for (const set of [lRooms(modules), oneWallRooms(modules)]) {
+      for (const c of set) {
+        const result = c.build() as { ok: boolean; reasons?: unknown };
+        const items = result.ok
+          ? (["back", "left"] as const).flatMap((leg) => roomState.wallRequirement(roomState.LAYOUT_PARAMS, leg, c.pkg).items)
+          : (Array.isArray(result.reasons) ? result.reasons : []).flatMap((reason: { occupancy?: unknown[] }) => reason.occupancy ?? []);
+        counted[result.ok ? "built" : "refused"]++;
+        for (const item of items) {
+          const key = billLabelKey(item as Parameters<typeof billLabelKey>[0], c.selection());
+          for (const [lang, words] of [["en", en], ["zh", zh]] as const) {
+            if (!(key in words)) missing.add(`${lang} ${key}`);
+          }
+        }
       }
     }
-    expect([...missing]).toEqual([]);
+    expect({ counted, missing: [...missing] }).toEqual({ counted: { built: 606, refused: 530 }, missing: [] });
   });
 });
 

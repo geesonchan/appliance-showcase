@@ -463,6 +463,7 @@
   "requirement.coffeeOverWine": "beverage tower",
   "requirement.coffeeOverCabinet": "bottom cabinet",
   "requirement.endPanel": "filler",
+  "requirement.spare-divider-1": "divider",
   "suggestion.coffeeLeg": "Put the coffee cabinet on the {leg} leg.",
   "panel.layout.coffee": "Coffee cabinet",
   "panel.layout.coffeeSill": "Coffee machine height",

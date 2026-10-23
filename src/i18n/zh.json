@@ -464,6 +464,7 @@
   "requirement.coffeeOverWine": "饮品柜",
   "requirement.coffeeOverCabinet": "普通下柜",
   "requirement.endPanel": "侧板",
+  "requirement.spare-divider-1": "隔板",
   "suggestion.coffeeLeg": "把咖啡机柜放到{leg}段。",
   "panel.layout.coffee": "咖啡机柜",
   "panel.layout.coffeeSill": "咖啡机离地",

@@ -7949,6 +7949,26 @@ Registered, not scheduled. None of these is a round of its own.
   10 on a 360 phone in Chinese tapping B, on `c94a898` and on 98b-1 alike
   (`scripts/qualityDrop.mjs`; the round-98b entry under the layout shape
   switch above has the figures).
+  - **Leo's answers on round 100's plan** (`docs/plans/round-100-plan.md`;
+    round 99a): option A — the two seconds after a rebuild are not judged,
+    N = 2. What counts as a rebuild: everything that rebuilds the room
+    (`layoutVersion`) and everything that makes the scene heavier without it —
+    a model or blower swapped, the render mode, day or night, a finish that
+    changes a texture — and folding a side rail, which resizes the canvas;
+    not the camera's moves, and not the toggles, language, tabs and messages
+    that redraw nothing. Also in round 100, measured only: fifty model swaps
+    in a row, `renderer.info.memory`'s geometries and textures after each, to
+    see whether they keep climbing; a leak found is a round of its own.
+    Round 100 comes after 99a.
+  - **For round 100, from round 99a** (Leo: "登记给第 100 轮"): the Layout tab's
+    wall figures and greyed band are now worked out in the page's idle time
+    after a rebuild (`useIdleValue`, round 99a), not in the frame of the
+    switch — but still in one piece, a long task of its own: per rebuild
+    4–40 ms median, package D up to about 95 ms, E on one wall up to about
+    230 ms (measured in Node, round 99a). It lands, most likely, in the
+    second or two after the switch, so the 2-second grace has to cover it,
+    and round 100's proof includes the path with the Layout tab open on E's
+    one wall.
 - **Which model each opening keeps between one wall and the L.** *(Leo, round
   98b: for 98b-2, with tests; not in 98b-1.)* His rule: where the two shapes'
   openings differ — refrigerator, freezer, wine, oven, cooking surface, hood —
@@ -8032,8 +8052,163 @@ Registered, not scheduled. None of these is a round of its own.
   next round that changes the interface's words proposes new names, and Leo
   decides. *(Seen in round 98: `bottom.quote`, 「生成配置单」, is in both
   language files and read by no component.)*
-- **Round 99, the L's labels, built — waiting for Leo's look at the local
-  preview.** The plan, `docs/plans/round-99-plan.md`, Leo's answers to its
+- **The stone at a run's open end runs through the 3" end panel — the L and
+  one wall alike.** *(Leo, round 99a: registered as a fault of both shapes,
+  waiting for his answer from site; not in 99a.)* Seen by Leo on A's one wall,
+  its right-hand end: the stone carries past the last 3" panel and shows a
+  thin edge in front of it, and the panel, floor to top, looks as if the
+  stone passes through it. The open end is `terminal(id, "open")`
+  (`layoutTemplate.ts`): a 9" cabinet and a 3" panel (`PNL3`, drawn 96" tall,
+  `cabinets.ts`); the stone runs to the run's end (`counter.ts`, `runEnd`),
+  so over the panel's 3" too, and its 1" overhang stands past the panel's
+  face. Measured (round 99a): A's L with the refrigerator on the back leg —
+  the left run's end panel at 69"–72", the stone to 72"; A on one wall — the
+  panel at 115-7/8"–118-7/8", the stone to 118-7/8".
+- **Round 99a, one wall and a machine chosen narrower than its opening —
+  built, waiting for Leo's look at the local preview.** The plan,
+  `docs/plans/round-99a-plan.md`. Leo, from the live site: A on one wall with
+  its 36" range swapped for a 30" one left the range standing in the 36"
+  opening with the wall showing beside it, and the bill under the back wall
+  still "36" RO36"; round 84's rule (his words: "30" 宽炉头两边的填充应该是顺滑的
+  橱柜和 countertop 的无缝填充才对", every package) holds on one wall too, and
+  his answer from site that day — a 3" filler each side — is that rule, not
+  a new one.
+  - **Why**: one wall builds its range with the L's own function, fillers and
+    all; it was the choice that never reached it. `recordRangeModel`,
+    `recordHoodModel` and `recordFridgeModel` kept a choice under the page's
+    shape, "one wall", and `rangeModelFor` and its two twins looked for it
+    under the shape of the package object the room is built from — for A, B
+    and C, which write no one-wall package of their own, the L's. Never found,
+    the room was built round the package's own range, hood and refrigerator:
+    37 of the 70 models those three slots can hold on one wall, all in A, B
+    and C (round 83's base under a rangetop, 84's fillers, 87's housing, 89's
+    surround, 97's microwave in the hood's place). D and E were right.
+  - **The fix**: one function, `shapeOfChoice` (packages.ts), the shape of the
+    package the room is built from, which the three record functions keep a
+    choice under (Leo, round 99a: "一个函数，三处调用"). A's, B's and C's
+    one-wall choices are then their L's — their openings are the same in both
+    shapes, round 98b-2's rule — and D's and E's stay apart.
+  - **A second cause behind "墙长下面仍写 36" RO36"**, found shooting the page:
+    the figures under the wall sliders, and the slider's greyed band, were
+    worked out once per room setting (`LayoutControls.tsx`, `useMemo` on the
+    layout's settings). A model swapped rebuilds the room without changing a
+    setting, so in either shape they stayed the old model's until a setting
+    moved. Now worked out again on every rebuild (`layoutVersion`) — and,
+    since that is 4–40 ms more per rebuild (package D up to about 95, E on
+    one wall up to about 230, measured in Node), in the page's idle time, not
+    the frame of the switch (`useIdleValue`, `src/ui/useIdleValue.ts`; after
+    the next frame where a browser has no idle callback, as Safari has not)
+    (Leo, round 99a: "把灰色区和墙长数字的重算挪到画面空闲时再做…数字最终仍要和房间一致").
+    The Layout tab's controls are mounted only while that tab shows
+    (`RightPanel.tsx`), on a phone's sheet too, so with another tab open none
+    of this runs.
+  - **The band while it is still the room's before** (Leo: "如果用户马上拖墙长
+    滑杆…会不会拖到房间排不下的长度？"): for a frame or two after a package or
+    shape switch — at most the idle callback's 1 s — the greyed band is the
+    room's before the switch, and the slider snaps only to the band it shows:
+    after A → B it lets the slider down to A's 147" where B needs 187" (A L →
+    one wall: 141" where it needs 177"). No range, hood or refrigerator swap
+    raises a wall's shortest length, so after a swap the band can only be too
+    strict. A length the room cannot take is refused by the room, not the
+    band: a wall slider's length is built or refused on its own terms (round
+    34), refused the room standing stays and the reasons with the wall's
+    figures are said under the slider. `src/store/staleBand.test.ts`: A → B,
+    then 150" asked for — refused (`refusal.wallShort`, the wall's figures),
+    the room not rebuilt and unchanged, the slider at 150". Shown able to catch
+    the fault: with the wall slider let grow the room instead, it goes red.
+  - **What the Layout tab costs with it open** (Leo, round 99a; a 1440
+    desktop, the tab open, each action checked to have taken, old and new
+    alternated, ten runs each; the main thread's long tasks in the 3 s after
+    the click, total ms median / max, and the longest gap between two frames):
+    | | round 99 (`index-dK3_a1oe.js`) | before the idle change (`index-BPrL0DXi.js`) | round 99a (`index-Bh3Snm2C.js`) |
+    |---|---|---|---|
+    | tap B | 167 / 395; frame 150 / 217 | 131 / 279; frame 100 / 233 | — |
+    | tap B, again (the final's run) | 113 / 165; frame 83 / 117 | — | 53 / 182; frame 67 / 183 |
+    | swap A's range | 119 / 266; frame 117 / 200 | 63 / 264; frame 100 / 200 | — |
+    | swap A's range, again | 54 / 58; frame 67 / 100 | — | 55 / 84; frame 83 / 133 |
+    `scripts/qualityDrop.mjs` on that path (`VIEW=desktop TAB=layout`, options
+    added in round 99a), twenty runs each alternated: round 99 6 drops, before
+    the idle change 5; again, round 99 4, round 99a 2.
+    `tests/rangeSwapBill.test.ts` swaps A's range for PRG304WH by mouse, in
+    the L and on one wall, and reads the back wall's figures: red before
+    ("36" RO36 (range)" in both), "36" BF3 + RO30 + BF3 (range)" after.
+  - **Every word on every bill, in every room both dumps build** (Leo, round
+    99a): `machineLabel.test.ts` now reads the bills of round 98a's 1,045 L
+    rooms and the 91 one-wall rooms (606 built, 530 refused, their lists of
+    what is on the wall), from one list, `src/data/roomSets.ts`, which the two
+    dumps read too — `scripts/lDump.ts`, moved from the rounds' scratch
+    folders, and `scripts/oneWallDump.ts`, each reproducing round 99a's
+    earlier dumps byte for byte. Red before the board's name came: one key in
+    both languages, `requirement.spare-divider-1`. Leo's name for it, locked:
+    「隔板」 / "divider".
+  - **Tests**: `src/data/oneWallSwaps.test.ts` — every range, hood and
+    refrigerator each package's one wall can hold is the one its room is built
+    round (70; red before on 37, all A's, B's and C's), A's 30" range closed
+    in on one wall as in the L, and D's one-wall refrigerator still its own;
+    `tests/rangeSwapBill.test.ts` (above); `tests/lightStrips.test.ts` (the
+    light strips, Open items).
+  - **Seen while shooting it, for Leo**: on A's one wall the 3/4" board
+    between the microwave drawer and the wine cooler hovers as the key
+    itself, `requirement.spare-divider-1` — no words in either language,
+    wherever the two stand side by side on one wall (62 times in round 99a's
+    one-wall dump; none of the L's 1,045 rooms has it).
+    Round 99's "every word on a bill in both languages" test did not reach it:
+    its one-wall rooms were too short for the two to stand on the wall. Named
+    by Leo (below): 「隔板」 / "divider".
+  - **Leo's site practice, on one wall** (round 99a): where C's built-in
+    refrigerator stands, the 1/2" scribe board is on the wall's side; where
+    A's counter-depth T36FT820NS stands, the 3-1/2" filler is on the wall's
+    side and the 2-1/2" panel toward the counter — the L's pieces turned the
+    way one wall runs.
+  - **Looked at, not changed**: the stone at a run's open end through the 3"
+    end panel — the L's open end does the same, so not 99a's; its own entry
+    below ("The stone at a run's open end").
+  - **One wall's own baseline**: `scripts/oneWallDump.ts` writes every one-wall
+    room the template builds, as geometry and words — each package as it
+    opens, with the housing's other shape, a longer wall and the slider's top,
+    and every model each slot can hold one at a time: 91 rooms. Run on the
+    commit before a round and on the round, it proves one wall unchanged the
+    way round 98a's dump proves the L (Leo, round 99a: "以后每轮都用它证明一字型没变").
+    Round 99a against round 99 (`5afb98b`): 62 rooms byte for byte the same,
+    29 different, each one of the plan's list — A's four ranges, seven hoods
+    and T36FT820NS; B's four ranges and seven hoods; C's four refrigerators
+    and two hoods.
+  - **The L unchanged**: every L room, 1,045, byte for byte as round 99,
+    words and all. Pixels, D17's third way: round 99's code built here
+    (`index-dK3_a1oe.js`) and this round's (`index-BPrL0DXi.js`), round 98a's
+    45 states each shot twice, alternated, and each as the 3D canvas alone:
+    the canvas the same in all 45, the screen in 44, one pixel in `link-B`
+    (where the old build's own two runs differ by 117). E's two fly-ins
+    differed in the first shooting with each build's runs alike; shot again,
+    old and new alternated twice, all five of E's desktop states are the same
+    (one pixel in one), the new build's own runs then the ones apart — a run's
+    state, as D's were in 98b-1 and in this round's first build. The unit
+    suite 2,975 of 2,975; the whole suite 3,194 of 3,194.
+    **On the round's final build** (`index-Bh3Snm2C.js`, after the idle
+    change, the divider's name and the words test; Leo: "在最终这一版上重跑"):
+    every L room, 1,045, byte for byte as round 99 (`scripts/lDump.ts` on both
+    trees); one wall, 62 of 91 the same as round 99 and the same 29 changed,
+    all 91 byte for byte as this round's dump before the idle change
+    (`scripts/oneWallDump.ts`); round 98a's 45 states, each build shot twice
+    alternated, the same in all 45, canvas and screen, not a pixel apart.
+    The whole suite on it 3,197 of 3,197 (134 files, 3,920 s). The run before
+    that one timed out one browser test, `sliderWarning.test.ts`, at its
+    150 s in an 85-minute run (the suite takes 70–78 minutes, its files one
+    at a time); alone it passed in 12.7 s, and the suite run again whole
+    passed.
+  - **`scripts/qualityDrop.mjs`, alternated**: ten runs each, old 2 drops,
+    new 8; twenty more each, old 5, new 7 — 7 against 15 in 30, on a machine
+    dropping far more often than in round 99 (0 in 10 each), dips to 20–40 fps
+    in both builds at random seconds, three to five after the tap as often as
+    in the first two. The path it measures (a 360 phone, 中, then B, the Look
+    tab) runs none of this round's changed code but `shapeOfChoice` at the
+    switch; the Layout tab's controls are not mounted there. Measured the
+    work instead (round 98b's method), ten runs each alternated, the main
+    thread's long tasks in the six seconds after the tap: old median 187 ms
+    (longest single 227), new 159 (longest 259) — no more work in the new
+    build. The drops are the guard round 100 is for.
+- **Round 99, the L's labels, built and shipped after Leo's look at the
+  local preview** (Leo, round 99: "第 99 轮预览看过了，可以提交"). The plan, `docs/plans/round-99-plan.md`, Leo's answers to its
   section 3 and the sentences he reviewed, `docs/plans/round-99-sentences.md`;
   the rule and every name in D10 ("A machine is called what it is").
   - **Found while reading, beyond the four Leo listed**: three bill words with
@@ -8069,6 +8244,190 @@ Registered, not scheduled. None of these is a round of its own.
     1,003. `scripts/qualityDrop.mjs`, ten runs each alternated: 0 drops on
     either. The unit suite 2,972 of 2,972; the whole suite 3,188 of 3,188.
     Every state, what changed in it and where: `docs/plans/round-99-pixels.md`.
+  - **Live, checked file by file**: commit `5afb98b`, the Pages run
+    39737825401 a success, both its jobs — build (07:06:47 UTC, 2026-10-22)
+    and deploy (07:07:03) — each a success. Built at `5afb98b` with
+    `VITE_GOATCOUNTER=https://geesonchan.goatcounter.com/count`, every file
+    fetched from the live site and compared byte for byte, all six
+    identical: `index.html` (901 bytes), `assets/index-BRlVBGbY.js`
+    (680,190), `assets/index-DMNQdOmy.css` (23,812),
+    `assets/react-i_nGBwMY.js` (145,992), `assets/shareQr-BXYgausd.js`
+    (21,968), `assets/three-DN8glM5f.js` (704,111); the live `index.html`
+    asks for nothing the build does not have.
+- **The two vertical strips beside A's refrigerator.** *(Leo, round 99:
+  registered, not in round 99, no code changed; what it looks like installed
+  on site he will say.)* Seen on A's 36" built-in T36BT120NS, clearest with
+  the refrigerator on the left leg: a strip about 2" wide each side of the
+  doors, a shade darker than the doors, the two alike, facing the way the
+  doors face. Read in the code and measured in the running page (round 99,
+  `5afb98b`):
+  1. **They are the enclosure's two finished side panels, not the
+     refrigerator.** A's refrigerator segment is `T4296`, 42": a 3" panel,
+     the 36" machine, a 3" panel (`openingIn`, `layoutTemplate.ts`; the
+     panels split off as surround boxes 24" deep, floor to 96" and the stack
+     to 108", `face: "strip"`, `cabinets.ts`). Each is drawn as a 3/4" board
+     face in the run's cabinet paint (`CabinetLayer.tsx` `Strip` →
+     `BoardFace.tsx`), RAL 5015 by default. Width 3" (`PANEL_IN`,
+     `roomShell.ts`): **no document gives it** — it is in the first scene
+     commit, `ae79efe`, and D11 rule 11 says "a finished panel each side"
+     without a width. Between the doors' edge and the panels: 0" (the machine
+     is 36" in a 36" opening, no filler drawn). The doors themselves are
+     stainless — the catalogue has T36BT120NS as `finish: ["stainless"]`,
+     not panel-ready (`ApplianceModel.tsx`, `materials.ts`: #B9BDBA,
+     metalness 0.9) — so what sits beside them is cabinet paint next to steel
+     that takes its colour from what it reflects. Measured: the strips are
+     the same value as the cabinet fronts on runs facing the same way
+     (64,142,194 against 59,140,193 in the default blue). Whether Leo's
+     refrigerator takes door panels, as he calls it, is his to say; the data
+     says stainless.
+  2. **The same elsewhere**: A with the refrigerator on the back leg, against
+     a wall, and on one wall: the same 3" + 36" + 3", the same paint. C with
+     T36BT120NS swapped in: the same, against a wall with a 1/2" scribe board
+     too. B (T36BT120NS in a bank with the wine column): one side only — the
+     column kit's 5/8" side is not drawn in the finished room, the doors
+     widen over it, and a 3" panel (3-1/2" filler against a wall) on the
+     other. C's own T36FT820NS: 3" panels with 3/16" open each side, the
+     machine 5-3/8" proud of them.
+  3. **What the documents say** — the installation manual, downloaded at
+     Leo's request (round 99: "去下载 T36BT120NS 的安装说明"), is
+     `docs/reference/t36bt120ns-install.pdf`, Thermador 8001272633 rev. E
+     (`docs/reference/README.md` has it page by page):
+     - **What shows at each side once installed — page 40**: the cabinetry
+       round the opening, past a gap of **1/8" (3 mm)** between the doors
+       and the opening's edge on the left, the right and the top; at least
+       1/8" between the two doors and between doors and drawers. Page 21:
+       the furniture return flush for at least 4" each side (frameless, or
+       framed with a filler). The manual draws no panel of any width beside
+       the doors; the furniture is whatever stands there.
+     - **Where the front sits — page 34**: a cutout 24" deep leaves the front
+       standing proud of the cabinets by "X" (no figure given); one 25" deep
+       or more leaves it flush, 0. With page 19's 24-3/4" overall depth, a
+       24" cutout puts the doors about 3/4" in front of the cutout's face —
+       an inference from the two figures, not a figure on a page. Either way
+       the doors are never behind the cabinets' face.
+     - Page 20: 1/8"–3/8" from the case to each side wall of the cutout,
+       inside the opening. The code draws 0" at the front and 1/8" between
+       the doors.
+     - Whether the doors are stainless or take custom panels: **文件没写**
+       (the manual covers "T36BT…").
+  - **To improve, registered (Leo, round 99), not started**:
+    - **The stainless reflects the cabinets too strongly**: next to blue
+      cabinets the steel doors read as blue door panels.
+    - **The door fronts sit 1" behind the panel faces** (11-3/4" against
+      12-3/4" from the run's centre line, only the handles reaching past
+      them), where the sheet says the door panels "protrude slightly for a
+      proud install" and the manual, page 34, has the front proud (24"
+      cutout) or flush (25" and deeper), never behind; and the manual's
+      1/8" gap each side and on top (page 40) is drawn as 0.
+    - **The 3" side panel has no source** — waiting for Leo's answer from
+      site: whether the T36BT120NS sold is the stainless-door model or one
+      that takes door panels, and how wide such a side panel usually is.
+- **A chimney hood narrower than its opening: the 3" of wall each side,
+  looked at again.** *(Leo, round 99a: registered, not in 99a, no code
+  changed; his site practice to come; nothing is chosen here — 「不要选，等我答」.)*
+  Round 87 settled it from his site practice then: the gap each side of a
+  chimney hood is left open ("A chimney hood narrower than its opening leaves
+  the gap open", D16, amended in round 87). Leo wants to look at it again
+  (「一字型换 30" 炉灶一体机加 30" 烟囱式油烟机（HMCB30WS）时，油烟机两边各空 3"，看得到墙…L 型也一样」).
+  1. **Every room where it shows** — built and measured (round 99a, on the
+     99a working tree; the banks' edges either side of the cooking surface,
+     against the hood's width). It is the hood alone: **HMCB30WS, 29-15/16",
+     in a 36" opening, 3-1/32" open each side**, from the canopy up to the
+     ceiling (no bank, no bridge, no strip — `hoodSideFillers` returns none).
+     The range does not change it: each of the five ranges these openings
+     take keeps a 36" segment (a 30" one as `BF3 + RO30 + BF3`, MFGS4030RS as
+     `BF3-1/16 + RO29-7/8 + BF3-1/16`), so the banks stop at the same 36".
+     - **The L — 15 rooms, 3 packages**: A, B and D, each with HMCB30WS and
+       any of PRG366WH, PCG366W, PRG304WH, HIS8055U, MFGS4030RS (A's own range
+       is PRG366WH, B's and D's PCG366W).
+     - **One wall — 16 rooms, 4 packages**: A, B and D the same five each, and
+       E with HMCB30WS over its own 36" cooktop base (`B36`; E has no range
+       slot).
+     - **Not affected**: HMCB36WS (35-15/16") in any 36" opening, and C's own
+       HMCB30WS in C's 30" opening — 1/32" each side, under `SCRIBE_IN`, in
+       both shapes; E's L has an island hood, no chimney offered.
+     - On the page the room changes with the hood swap: A's, B's and D's own
+       hoods are not chimneys, so it shows only once HMCB30WS is chosen on the
+       card; E on one wall has HMCB36WS of its own.
+  2. **The two ways, and what each would change.**
+     - **Round 87's small blocks, "两边挂 3" 小块"** (tried on this machine in
+       round 87, then removed): two strips 3" wide, the canopy's own
+       8-9/16" tall — from its underside (66-1/2" in A, B and D) to its top,
+       about 75-1/16" — 12" deep in the plane of the wall cabinets, back on
+       the wall. Bare wall above them to the ceiling and below them to the
+       54" line. They are part of the hood's drawing, not cabinetry: not in
+       the template, the bill or the dumps.
+       Code: `hoodSideFillers` in `src/data/hood.ts` (the chimney's early
+       `return null` at line 452 taken out; the height is already the
+       canopy's, `hoodTopFt − underside`); `ApplianceModel.tsx:254` draws
+       whatever it returns, unchanged; `hoodSideFillers.test.ts` turned round
+       (it holds "no strip beside a chimney" since round 87). Nothing else
+       moves; only the pixels of the 31 rooms.
+     - **Fillers beside the wall cabinets, "吊柜两边 3" 填充板从吊柜底到顶"**: the
+       3-1/32" either side taken into the wall cabinets' band, from the 54"
+       line up to the 96" line, 12" deep, flush with the banks' fronts. Under
+       the rules as they stand, a box that stops at 96" takes its 12" stack
+       (D19, `stackOn`, `cabinets.ts:562`; narrower than 9" it is a board
+       carried on up, `PNL…X12`) and the crown runs along the top of the
+       bank, so it would read as one board from 54" to the crown at 108",
+       the banks ending at the hood's own edges. The wall between the two
+       boards stays open: 54" to the canopy (66-1/2"), and either side of
+       the 13-3/16" duct cover from the canopy's top to the ceiling. Whether
+       「到顶」 means 96" or the 108" the stacks reach is Leo's to say.
+       Code, if it is built as cabinetry (in the bill, with the stack and the
+       crown):
+       - `src/data/layoutTemplate.ts`: `hoodSpan` (~2507) takes the opening
+         from the package's hood slot (`spec["slot-hood"].widthIn`, 36"),
+         not the chosen hood; the boards go in either by narrowing the cut
+         to the chimney's width and ending the bank each side with a filler —
+         the way `scribeIn` already ends a bank with 3" of finished panel
+         beside a window casing (D11 rule 13, ~2440) — or by a bank at the
+         hood holding the two fillers with the opening between them.
+         `banksOn` (~2539), `banksBetween` and `wallCuts` (~2680), and the
+         window fitting that reads the same cuts.
+       - `src/data/layoutState.ts:61`: a hood swap regenerates the room only
+         when the hood hangs differently (`hoodMount`); HMCB30WS ↔ HMCB36WS
+         are both chimneys, so a change of width would have to regenerate
+         it too (one more path for round 100's rebuild list).
+       - `cabinets.ts`: nothing new expected — a filler in a bank is already
+         drawn as a strip (`upperBoxes`), the stack and the crown follow.
+       - The wall's bill (`wallRequirement`) would list the two fillers; the
+         words test (`machineLabel.test.ts`) checks they have a word. The
+         wall's length does not move — 3 + 30 + 3 is the 36" it was — which
+         the dumps would prove: in the L dump only `A/B/D swap
+         slot-hood=HMCB30WS` change (3 of 1,045), on one wall A, B, D and E
+         with HMCB30WS (4 of 91); everything else byte-identical.
+       - Tests: `hoodSwap.test.ts` (A's HMCB30WS "nothing over it", the list
+         of what stands round every hood, written by hand) gains the boards;
+         `hoodSideFillers.test.ts` stays as it is; a new test over the 31
+         rooms.
+       A cheaper way to the same picture, drawing only: `hoodSideFillers`
+       returning the two boards 54"–96" (or to 108") for a chimney, drawn by
+       `ApplianceModel` — not in the bill, no stack, no crown, the dumps
+       unchanged; the code round 87's blocks would change, only taller.
+     - **The difference, in short**: round 87's blocks are the canopy's
+       height, hang with the hood and leave bare wall above and below; the
+       fillers are the wall cabinets' height, finish the banks at the hood
+       and, built as cabinetry, are ordered on the bill with a board over
+       each to the crown.
+- **Seen while listing what rebuilds the scene, for round 100** *(round 99;
+  read in the code, not seen running; not in round 100)*:
+  - ~~The under-cabinet light strips stay where they were after an L ↔
+    one-wall switch~~ — **not so, tested in round 99a** (Leo: "放进 99a 一起查").
+    `Lights` reads `RUN_BY_ID` at render and sits outside the room's key, but
+    `Scene` renders again on every rebuild and `Lights` with it: at night,
+    switching to one wall leaves one strip lit and back in the L two, where
+    they were (`tests/lightStrips.test.ts`, real mouse). The test was shown
+    able to catch the fault: with the strips frozen on purpose it went red,
+    two lit on one wall. The registration was read off the code without
+    running it.
+  - *(Leo, round 99a: registered, not in round 100.)* Tapping the package, layout choice or hood already chosen rebuilds the
+    whole room again (`setPackageId`, `setLayout` and `selectAppliance` bump
+    `layoutVersion` on an unchanged value; `setRenderMode` and
+    `setLayoutShape` return early).
+  - A vented cabinet's box geometry is made again on every model swap and the
+    old one not disposed (`CabinetLayer.tsx`, `useBoxGeometry` over
+    `standOffFromWall`'s new sizes).
 - **Not yet done after round 98b-2, as one group; the order is Leo's to
   set.** *(Leo, round 98b-2: "把还没做的列成一组，顺序我再定".)* **His order
   (round 98b-2)**: round 99 the L's labels, words only; round 100 the quality

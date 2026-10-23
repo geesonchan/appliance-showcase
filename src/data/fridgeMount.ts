@@ -1,6 +1,6 @@
 import appliancesFile from "../../data/appliances.json";
 import type { Appliance, Package, PackageSlot, SlotId } from "../types";
-import { PACKAGE_SHAPE, shapeOfPackage, slotsOf } from "./packages";
+import { PACKAGE_SHAPE, shapeOfChoice, shapeOfPackage, slotsOf } from "./packages";
 import type { LayoutShape } from "./layoutShape";
 
 /**
@@ -62,7 +62,7 @@ export function fridgeOpeningHeightIn(fridge: Pick<Appliance, "cutoutHeightIn" |
 let CHOSEN: { packageId: string; shape: LayoutShape; appliance: Appliance } | null = null;
 
 export function recordFridgeModel(appliance: Appliance | undefined, packageId: string, shape: LayoutShape = PACKAGE_SHAPE) {
-  CHOSEN = appliance ? { packageId, shape, appliance } : null;
+  CHOSEN = appliance ? { packageId, shape: shapeOfChoice(packageId, shape), appliance } : null;
 }
 
 /**
