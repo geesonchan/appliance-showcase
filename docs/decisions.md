@@ -5901,7 +5901,8 @@ throw still in; the throw was then taken out. That catch is now in the code.
 Registered, not scheduled. None of these is a round of its own.
 
 - **A package tapped with the Layout tab open blanked the page — live since
-  round 99; round 99b, built, waiting for Leo's look at the local preview.**
+  round 99; round 99b, built and shipped after Leo's look at the local preview**
+  (Leo, round 99b: "99b 预览看过了（index-CGAN8VC9.js），可以提交").
   *(Found the night of 2026-10-23 while measuring round 100; Leo, round 99b:
   "先做 99b（白屏修法），单独上线…从 102f05e 开始，只放 … patch 的内容，不带第
   100 轮".)* With the Layout tab open, tapping D then A in the L, or A then D on
@@ -5949,6 +5950,16 @@ Registered, not scheduled. None of these is a round of its own.
     tier or the camera, both builds alike. The suite 3,203 of 3,203 (4,401 s);
     the unit suite 2,978 of 2,978. Main chunk
     `index-CGAN8VC9.js` (a plain build).
+  - **Live, checked file by file**: commit `b3964f3`, the Pages run
+    40035493215 a success, both its jobs — build (22:44:06 to 22:44:53 UTC,
+    2026-10-23) and deploy (22:44:57 to 22:45:05) — each a success. Built at
+    `b3964f3` with `VITE_GOATCOUNTER=https://geesonchan.goatcounter.com/count`,
+    every file fetched from the live site and compared byte for byte, all six
+    identical: `index.html` (901 bytes), `assets/index-B0OlHE_q.js`
+    (680,949), `assets/index-DMNQdOmy.css` (23,812),
+    `assets/react-i_nGBwMY.js` (145,992), `assets/shareQr-BXYgausd.js`
+    (21,968), `assets/three-DN8glM5f.js` (704,111); the live `index.html`
+    asks for nothing the build does not have.
   - **Still open, registered for after round 100 (Leo, round 99b)**: round
     99c — a machine with no name found falls back to a general name instead
     of throwing, and the right panel and the 3D scene each fenced off so a
@@ -8027,6 +8038,163 @@ Registered, not scheduled. None of these is a round of its own.
     second or two after the switch, so the 2-second grace has to cover it,
     and round 100's proof includes the path with the Layout tab open on E's
     one wall.
+  - **Round 100, built, waiting for Leo's look at the local preview** (the
+    night of 2026-10-23, Leo: "照第 100 轮方案开始…做完起本地预览等我确认"; not
+    committed). Option A as he answered it, nothing else in the guard changed
+    — 55 fps, two seconds, never back up, the first second and a hidden tab
+    not judged.
+    - **The code**: `src/three/qualityRule.ts` — the rule as functions:
+      `judgeSecond` (a second that began before the end of the grace is not
+      judged and the count starts again), `createJudge` (one per page;
+      `changed()` sets the grace, `GRACE_MS` = 2000), `sceneKey` (what
+      counts: `layoutVersion`, the selection, the blower, the render mode,
+      day or night, the finishes as far as they change a texture — the doors'
+      and the accent run's paint or oak, the countertop, the floor and a tile
+      floor's size — and the two side rails) and `watchScene`.
+      `QualityGuard.tsx` counts the frames as before and asks it.
+    - **Tests red on the old rule first**: `src/three/qualityRule.test.ts`,
+      the old rule taken out unchanged into the same functions, then the
+      grace added. On the old rule 4 of 7 red, each for the reason: the two
+      seconds after a rebuild judged (`[false, true, true]` for `[false,
+      false, false]`), a room still slow after them dropped a second early,
+      a slow second before a rebuild counted with one after it, and none of
+      the 21 actions on Leo's list restarting anything. Green on the old rule,
+      as they should be: two slow seconds with nothing changed drop the room,
+      a hidden tab's seconds are not counted, and the camera, the toggles,
+      the language, the tabs, the messages, a door repainted paint to paint,
+      the walls and a tile size kept for an oak floor restart nothing.
+    - **The L and one wall unchanged**: `scripts/lDump.ts` 1,045 of 1,045 and
+      `scripts/oneWallDump.ts` 91 of 91 byte for byte as `102f05e`.
+    - **Pixels**, round 99's 45 states, `102f05e` with the Layout tab fix
+      against round 100 with it (so only the guard differs), each shot twice,
+      alternated, once at `?quality=high` and once at `?quality=low`: the 3D
+      canvas the same in all 45 at both tiers. On screen at the high tier 41
+      the same; `link-A` and `link-E` 1 pixel, inside what each build's own
+      two runs differ by; `desk-A-materials` (3,405) and `link-B` (2,126)
+      the pins' labels a fraction of a pixel apart, text and box the same —
+      shot three more times each, the label lands in either place in either
+      build. At the low tier 42 the same and three states 1 pixel, the same
+      pixel (144, 225), which comes and goes in either build's own runs (three
+      more each); one new run of `desk-D-fly-dishwasher` caught the camera
+      in flight, its other run the same as the old.
+    - **`scripts/qualityDrop.mjs` with the page's CPU slowed four times**
+      (`THROTTLE=4`, where this machine draws at 58–60 at rest), twenty runs
+      each, alternated; drops after the first tap, old against new:
+
+      | path | old | new |
+      |---|---|---|
+      | desktop 1440, 中 then B | 20 | 0 (1 more dropped at 中, before B) |
+      | desktop, Layout tab, one wall, then E | 1 (12 more before E) | 0 |
+      | desktop, B, C, D, E three seconds apart | 19 | 14 |
+      | desktop, Layout tab, one wall and back | 11 | 0 |
+      | desktop, White model, Install, Materials | 17 | 8 |
+      | phone 360, 中 then B | 7 | 0 |
+
+      Every new build's drop comes after the grace: E's room and the Install
+      mode at this throttle stay under 55 for second after second (E mostly in
+      the 40s for the six seconds counted) — a room too slow to draw, which is what
+      the guard is for. Read off the page's own count of each second, the new
+      rule says which runs drop in 117 of 119 (the page's seconds and the
+      guard's are not the same seconds). Where the room is too slow at rest
+      — desktop at 12 times, phone at 16 — both builds drop in 5 of 5, before
+      any tap. At 6 and 8 times this machine still drew 55–60 most seconds,
+      so those runs prove nothing either way (both logs kept).
+    - **The suite**, round 100 with the Layout tab fix: 3,206 of 3,206 (4,454 s);
+      the unit suite 2,978 + 7, 2,985 of 2,985. The local preview at 4173,
+      main chunk `index-DD5u2-1N.js` (a plain build; with the Layout tab open, D
+      then A by the mouse in it keeps the page, no error in the console).
+    - **Fifty model swaps** (measured only): the geometries climb, not round
+      100's — the entry "A vented cabinet's box geometry" below.
+    - **Found while measuring**: the Layout tab blanking the page — the
+      first Open item.
+    - **The second build, after round 99b shipped** (Leo:
+      "加'换语言、打开标签页也算重建'…再加一个只给测试用的开关：拍像素证明时锁住画质"), on `b3964f3`:
+      - **The language and a tab opened count too.** `sceneKey` reads `lang`,
+        `rightTab` and `mobilePanel` (on a phone a tab opens in the Configure
+        sheet, so the sheet opened or closed counts — Claude's reading of "打开
+        标签页", for Leo to say if the phone's sheet should not). Moved in
+        `qualityRule.test.ts` from the quiet list to the restarting one: red
+        on the first build for exactly those five (the language, a tab, the
+        sheet opened on a tab, on the list, closed), green after.
+      - **`?qualityLock=1`** (`QUALITY_LOCKED`, `useAppStore.ts`): a page
+        opened with it keeps the tier it opened at; the guard counts and never
+        drops it. On no control and in no share link; without it the page is
+        as it was. `tests/qualityLock.test.ts`, the CPU slowed sixteen times:
+        a locked page stays at 512-pixel textures (red before the lock, 256),
+        and one opened without it still drops (green on both). The pixel
+        scripts moved into the repository — `scripts/pixelShots.mjs`,
+        `scripts/pixelCompare.mjs`, `scripts/pixelLinks.json` — and open
+        every page locked (`LOCK=0` for a build without it).
+      - **Pixels, locked**: round 99's 45 states at the high tier, `b3964f3`
+        with the same lock and nothing else (`index-CGje4Okn.js`) against the
+        second build (`index-Dwpm8asX.js`), each shot twice, alternated. Each
+        build against itself: the 3D canvas the same in all 45 states, in
+        both — round 99b's run, unlocked, had 22 states differing from their
+        own build's other run, the canvas among them. On screen 7 states
+        differ from their own build's other run by 1 to 225 pixels, the pins'
+        labels a fraction of a pixel apart and the one pixel seen before. Old
+        against new: the canvas the same in all 45; on screen 44 the same and
+        `link-E-noisland` 1 pixel, inside the 225 the new build's own runs
+        differ by there.
+      - **`scripts/qualityDrop.mjs` again, CPU four times slowed**, twenty runs
+        each, alternated; drops after the first tap (and before it):
+
+        | path | old | new |
+        |---|---|---|
+        | desktop, 中 then B | 12 (2) | 4 (1) |
+        | desktop, Layout tab, one wall, then E | 4 (15) | 3 (4) |
+        | desktop, B, C, D, E | 16 (1) | 4 (2) |
+        | desktop, Layout tab, one wall and back | 9 (8) | 7 (1) |
+        | desktop, White model, Install, Materials | 15 (2) | 8 (4) |
+        | phone 360, 中 then B | 9 (0) | 3 (2) |
+
+        The machine was not as it was the night before: at rest the page sat
+        at 45–55 in many seconds where it had held 58–60, and the old build
+        dropped less on 中 then B (12 against 20). Read off the page's own
+        count of each second, the new rule says which runs drop in 100 of 106
+        — the new build's drops are two slow seconds after the grace, not the
+        switch. Desktop at 12 times and phone at 16: both builds 5 of 5.
+      - **The six runs the page's own seconds did not predict** (Leo: "逐条说是
+        什么情况：测量时间对不齐，还是守卫的实现和规则不一致"). Checked against the
+        guard's own seconds: a build of the second build, not kept, with the
+        guard writing down every second it counted (when it began, its frames,
+        whether it dropped) and every change it saw, and the taps' moments
+        taken by the script; the rule replayed on that log, second by second.
+        84 runs — the six paths ten times each at three times slowed, and B,
+        the modes and the packages eight times each at four — 1,083 of the
+        guard's seconds, 7 drops: the guard's decision and the rule's agree on
+        every second, every tap registered as a change at the tap, and the
+        page's tier at the end agrees with the guard's log in every run. So the
+        six are the measurement:
+        - 中 then B, run 17, dropped where the page's seconds ran 48 59 47 59
+          45 59: the page's seconds and the guard's begin at different moments
+          (the guard's from the scene's first frame, the page's from its first
+          script), so a guard second straddling 59 and 45 and the next
+          straddling 45 and 59 can both be under 55.
+        - Layout tab, one wall, E, run 1, kept where the page's seconds after
+          the grace ran 52 50 49: the drop would come at the end of the
+          guard's fifth or sixth second after the tap, and the check reads the
+          textures at six seconds — the guard's drops in the check came 4.4 to
+          5.6 seconds after the tap, so a sixth-second one is after the read.
+        - Layout tab, one wall, E, run 18, dropped with no two slow seconds
+          after the tap: the slow seconds came just before it (48 57 41 in the
+          page's count, the one-wall switch's grace over) — two guard seconds
+          each holding part of a slow one — the drop came at about the tap, and
+          the read just before the tap still found the old 512-pixel textures:
+          counted as after the tap.
+        - One wall and back, run 7, kept where the page's 50 and 54 came three
+          and four seconds after the first tap: the second of them is where
+          the next tap fell, which starts the two seconds again before the
+          guard's second slow second ends; the page's count splits the
+          seconds at the tap only roughly.
+        - One wall and back, run 10, dropped where the page's seconds after the
+          second tap ran 60 55 46 56: as run 17, two guard seconds each
+          holding part of the 46.
+        - The modes, run 2, kept where the page's last two seconds were 50 47:
+          as run 1, a drop at the end of the sixth second, after the read.
+      - **The suite** 3,212 of 3,212 (3,994 s); the unit suite 2,985 of 2,985.
+        The local preview at 4173, main chunk `index-Dwpm8asX.js` (a plain
+        build).
 - **Which model each opening keeps between one wall and the L.** *(Leo, round
   98b: for 98b-2, with tests; not in 98b-1.)* His rule: where the two shapes'
   openings differ — refrigerator, freezer, wine, oven, cooking surface, hood —
@@ -8500,6 +8668,21 @@ Registered, not scheduled. None of these is a round of its own.
   - A vented cabinet's box geometry is made again on every model swap and the
     old one not disposed (`CabinetLayer.tsx`, `useBoxGeometry` over
     `standOffFromWall`'s new sizes).
+    **Measured in round 100** (Leo: fifty swaps in a row, measured only; a
+    leak found is a round of its own; `scripts/swapMemory.mjs`): a 1440
+    desktop in A's L, by the mouse, the range, the hood and the dishwasher
+    in turn, fifty swaps all taken. `renderer.info.memory`'s geometries
+    climb with every swap and never come down — 238 with the page open, 600
+    after 10, 934 after 20, 1,307 after 30, 1,651 after 40, 2,019 after 50;
+    a range or hood swap adds about 50 to 60, a dishwasher swap about 10.
+    Textures stay at 9 to 10. The JavaScript heap goes up and down with
+    collection, 27 to 72 MB, with no trend over the fifty. The same on the
+    build of `102f05e`, to the geometry at every step: not round 100's.
+    Larger than the vented cabinet alone — a range or hood swap rebuilds
+    the room, so most of the room's geometry is likely kept each time; not
+    looked into (measured only). The refrigerator's pin in A's L did not
+    open its card from the script (12 of 12 tries) and was left out of the
+    fifty; not looked into either.
 - **Not yet done after round 98b-2, as one group; the order is Leo's to
   set.** *(Leo, round 98b-2: "把还没做的列成一组，顺序我再定".)* **His order
   (round 98b-2)**: round 99 the L's labels, words only; round 100 the quality

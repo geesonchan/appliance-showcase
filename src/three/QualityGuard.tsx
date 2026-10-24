@@ -1,11 +1,8 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { useAppStore } from "../store/useAppStore";
+import { QUALITY_LOCKED, useAppStore } from "../store/useAppStore";
+import { createJudge, watchScene } from "./qualityRule";
 import { disposeTextures } from "./textures";
-
-/** Below this, for this long, the room is not worth the pixels it costs. */
-const FLOOR_FPS = 55;
-const PATIENCE_MS = 2000;
 
 /**
  * Watches the frame rate and gives up quality before the user gives up.
@@ -17,6 +14,8 @@ const PATIENCE_MS = 2000;
  *
  * The first second is ignored: shaders are still compiling then, and a scene
  * that stutters while it warms up is not a scene that is too heavy to draw.
+ * So are the two seconds after the scene is rebuilt or made heavier (round
+ * 100, Leo): the rule, and what counts, are `qualityRule.ts`.
  */
 export function QualityGuard() {
   const gl = useThree((s) => s.gl);
@@ -26,8 +25,10 @@ export function QualityGuard() {
 
   const frames = useRef(0);
   const since = useRef(0);
-  const slowFor = useRef(0);
   const settled = useRef(false);
+  const judge = useRef(createJudge(() => performance.now()));
+
+  useEffect(() => watchScene(useAppStore, judge.current.changed), []);
 
   useFrame((_, delta) => {
     frames.current += 1;
@@ -35,6 +36,7 @@ export function QualityGuard() {
     if (since.current < 1) return;
 
     const fps = Math.round(frames.current / since.current);
+    const startedAt = performance.now() - since.current * 1000;
     frames.current = 0;
     since.current = 0;
     reportFps(fps);
@@ -44,16 +46,10 @@ export function QualityGuard() {
       settled.current = true;
       return;
     }
-    if (quality === "low") return;
-    // A hidden tab is throttled to about 1Hz. Judging a room on that would
-    // downgrade every scene anybody ever left in a background tab.
-    if (document.visibilityState !== "visible") {
-      slowFor.current = 0;
-      return;
-    }
-
-    slowFor.current = fps < FLOOR_FPS ? slowFor.current + 1000 : 0;
-    if (slowFor.current < PATIENCE_MS) return;
+    // Already low, or held where it is for a pixel proof (`QUALITY_LOCKED`).
+    if (quality === "low" || QUALITY_LOCKED) return;
+    const visible = document.visibilityState === "visible";
+    if (!judge.current.second({ fps, startedAt, visible })) return;
 
     // Half-size maps and fewer pixels to fill: the two things that actually
     // cost, on the phones that cannot hold sixty.

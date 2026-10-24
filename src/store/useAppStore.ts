@@ -352,6 +352,16 @@ function initialQuality(): Quality {
   return window.matchMedia("(max-width: 767px)").matches ? "low" : "high";
 }
 
+/**
+ * A page opened with `?qualityLock=1` keeps the tier it opened at: the guard
+ * counts the frames and never drops it. Round 100, Leo — for the pixel proofs
+ * only, which shoot every state twice and found 22 of 45 differing from their
+ * own build's other run, most likely a drop mid-shot. On no control and in no
+ * share link; a page opened without it is as it was.
+ */
+export const QUALITY_LOCKED =
+  typeof window !== "undefined" && new URLSearchParams(window.location.search).get("qualityLock") === "1";
+
 // The cabinet over a canopy stands on the chosen hood's own top (round 78), so
 // the data layer is told which hood the page opens with before anything draws.
 setHoodModel(APPLIANCE_BY_ID[migrateSelection(DEFAULT_PACKAGE)["slot-hood"]]);

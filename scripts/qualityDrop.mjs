@@ -27,6 +27,25 @@
  * what that tab works out at a package switch is in the frames counted.
  *
  *   VIEW=desktop TAB=layout node scripts/qualityDrop.mjs <old url> <new url>
+ *
+ * Two more (round 100, Leo's proof of the guard's two seconds after a rebuild):
+ *
+ * - THROTTLE=<n> slows the page's CPU n times over (Chrome's
+ *   `Emulation.setCPUThrottlingRate`), from the moment the scene is on screen,
+ *   so a machine that draws at sixty here can stand in for one that sits near
+ *   55. Whether the page had already dropped before the first tap is reported
+ *   on its own ("before"): that is the room being too heavy at rest, not a
+ *   switch misjudged.
+ * - ROUTE= what is tapped — not PATH, which is the shell's (desktop names;
+ *   only `b` taps 中 first):
+ *   `b` (the default) 中 then B; `packages` B, C, D, E three seconds apart;
+ *   `shape` the Layout tab, one wall, back to the L four seconds later;
+ *   `modes` White model, Install, Materials three seconds apart; `e-onewall`
+ *   the Layout tab, one wall, then E — the Layout tab's figures for E's one
+ *   wall are the longest task it works out (round 99a). Every path ends in the
+ *   Materials mode, where the textures it reads are on screen.
+ *
+ *   THROTTLE=4 ROUTE=e-onewall VIEW=desktop node scripts/qualityDrop.mjs <old url> <new url>
  */
 import { chromium } from "playwright";
 
@@ -40,12 +59,36 @@ const PHONE = { viewport: { width: 360, height: 844 }, hasTouch: true, isMobile:
 const DESKTOP = { viewport: { width: 1440, height: 900 } };
 const desktop = process.env.VIEW === "desktop";
 const layoutTab = process.env.TAB === "layout";
+const throttle = Number(process.env.THROTTLE ?? 1);
+const path = process.env.ROUTE ?? "b";
+const PATHS = ["b", "packages", "shape", "modes", "e-onewall"];
+if (!PATHS.includes(path)) {
+  console.error(`ROUTE is one of ${PATHS.join(", ")}`);
+  process.exit(2);
+}
 if (layoutTab && !desktop) {
   console.error("TAB=layout opens the desktop's Layout tab: use it with VIEW=desktop");
   process.exit(2);
 }
+if (path !== "b" && !desktop) {
+  console.error(`ROUTE=${path} uses the desktop's controls: use it with VIEW=desktop`);
+  process.exit(2);
+}
 
 const browser = await chromium.launch({ args: ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist"] });
+
+/** The widest texture on screen: 512 at the high tier, 256 at the low. */
+const widestMap = (page) =>
+  page.evaluate(() => {
+    let widest = 0;
+    window.__view?.scene.traverse((object) => {
+      const material = object.material;
+      for (const each of Array.isArray(material) ? material : material ? [material] : []) {
+        widest = Math.max(widest, each.map?.image?.width ?? 0);
+      }
+    });
+    return widest;
+  });
 
 async function once(base) {
   const context = await browser.newContext(desktop ? DESKTOP : PHONE);
@@ -81,6 +124,11 @@ async function once(base) {
   const sep = base.includes("?") ? "&" : "?";
   await page.goto(`${base}${sep}quality=high`, { waitUntil: "networkidle", timeout: 90000 });
   await page.waitForSelector("canvas", { timeout: 60000 });
+  if (throttle > 1) {
+    const cdp = await context.newCDPSession(page);
+    await cdp.send("Emulation.setCPUThrottlingRate", { rate: throttle });
+  }
+  const atRest = await page.evaluate(() => window.__fps.length);
   await page.waitForTimeout(2500);
   // By touch, as a phone is used, and by the mouse on a desktop (D17).
   const press = async (role, name) => {
@@ -89,44 +137,65 @@ async function once(base) {
     else await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
   };
   const tap = (name) => press("button", name);
-  if (layoutTab) {
+  if (layoutTab || path === "shape" || path === "e-onewall") {
     await press("tab", "Layout");
     await page.waitForTimeout(1500);
   }
-  await tap("中");
-  await page.waitForTimeout(800);
+  if (path === "b") {
+    await tap("中");
+    await page.waitForTimeout(800);
+  }
+  if (path === "e-onewall") {
+    await tap("Single-wall kitchen");
+    await page.waitForTimeout(4000);
+  }
+  const lowBefore = (await widestMap(page)) < 512;
   const before = await page.evaluate(() => window.__fps.length);
-  await tap("B");
-  await page.waitForTimeout(6000);
-  const result = await page.evaluate((from) => {
-    let widest = 0;
-    window.__view?.scene.traverse((object) => {
-      const material = object.material;
-      for (const each of Array.isArray(material) ? material : material ? [material] : []) {
-        widest = Math.max(widest, each.map?.image?.width ?? 0);
-      }
-    });
-    return { low: widest < 512, fps: window.__fps.slice(from) };
-  }, before);
+  const marks = [];
+  const mark = async () => marks.push((await page.evaluate(() => window.__fps.length)) - before);
+  const steps = {
+    b: [["B", 6000]],
+    packages: [["B", 3000], ["C", 3000], ["D", 3000], ["E", 6000]],
+    shape: [["Single-wall kitchen", 4000], ["L-shaped kitchen", 6000]],
+    modes: [["White model", 3000], ["Install", 3000], ["Materials", 6000]],
+    "e-onewall": [["E", 6000]],
+  }[path];
+  for (const [name, wait] of steps) {
+    await mark();
+    await tap(name);
+    await page.waitForTimeout(wait);
+  }
+  const low = (await widestMap(page)) < 512;
+  const { fps, rest } = await page.evaluate(
+    ([from, restFrom]) => ({ fps: window.__fps.slice(from), rest: window.__fps.slice(restFrom, from) }),
+    [before, atRest],
+  );
   const bundle = await page.evaluate(() => document.querySelector('script[src*="assets/index-"]')?.getAttribute("src"));
   await context.close();
-  return { ...result, bundle };
+  return { low, lowBefore, fps, rest, marks, bundle };
 }
 
-const rows = bases.map(() => ({ drops: 0, lines: [], bundle: "" }));
+const rows = bases.map(() => ({ drops: 0, before: 0, lines: [], bundle: "" }));
 for (let n = 0; n < runs; n += 1) {
   // Alternate which goes first, so neither always has the warmer machine.
   const order = n % 2 === 0 ? bases.map((_, i) => i) : bases.map((_, i) => i).reverse();
   for (const i of order) {
     const r = await once(bases[i]);
     rows[i].bundle = r.bundle;
-    rows[i].drops += r.low ? 1 : 0;
-    rows[i].lines.push(`${r.low ? "LOW " : "high"} fps after B: ${r.fps.join(" ")}`);
+    rows[i].before += r.lowBefore ? 1 : 0;
+    rows[i].drops += r.low && !r.lowBefore ? 1 : 0;
+    // A tap's second is marked with a bar before it.
+    const seconds = r.fps.map((fps, at) => (r.marks.includes(at) ? `| ${fps}` : `${fps}`)).join(" ");
+    const state = r.lowBefore ? "BEFORE" : r.low ? "LOW   " : "high  ";
+    rows[i].lines.push(`${state} at rest: ${r.rest.join(" ")}  after: ${seconds}`);
   }
 }
 await browser.close();
 
+console.log(`path ${path}, ${desktop ? "desktop 1440" : "phone 360"}${layoutTab ? ", Layout tab" : ""}, CPU throttle ${throttle}x`);
 for (const [i, row] of rows.entries()) {
-  console.log(`\n${bases[i]} (${row.bundle}): dropped to low in ${row.drops} of ${runs}`);
+  console.log(
+    `\n${bases[i]} (${row.bundle}): dropped to low after the first tap in ${row.drops} of ${runs}; already low before it in ${row.before}`,
+  );
   for (const line of row.lines) console.log(`  ${line}`);
 }
