@@ -2,10 +2,12 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { EVENTS, countUrl, filteredOut, shouldCount } from "./analytics";
+import { PARTS } from "./ui/fault";
 
 /**
  * The visit counter: on the live site only, nothing of the address's query,
- * four events in their one place each. D24, round 96, Leo; the
+ * each event in its one place — four since round 96, and a part that failed
+ * since round 99c. D24, round 96, Leo; the
  * gates as geesonchan/game-of-life tests its own (its tests/cases.js, "访问统计").
  * tests/analytics.test.ts drives the built page.
  */
@@ -78,8 +80,9 @@ describe("what a request carries", () => {
   });
 });
 
-describe("the four events", () => {
-  const names = [EVENTS.openLink("D"), EVENTS.share, EVENTS.qrBox, EVENTS.quote];
+describe("the events", () => {
+  // Round 99c: a part fenced off when it failed, one name a part (src/ui/fault.ts).
+  const names = [EVENTS.openLink("D"), EVENTS.share, EVENTS.qrBox, EVENTS.quote, ...PARTS.map((part) => EVENTS.partFailed(part))];
 
   it("are named under this site's prefix, apart from game-of-life's, and never start with /", () => {
     expect(names.filter((name) => !name.startsWith("appliance-showcase/") || name.startsWith("/"))).toEqual([]);
@@ -100,6 +103,7 @@ describe("the four events", () => {
     );
     expect(calls.sort()).toEqual([
       "src/store/openLink.ts EVENTS.openLink",
+      "src/ui/PartFence.tsx EVENTS.partFailed",
       "src/ui/TopBar.tsx EVENTS.qrBox",
       "src/ui/TopBar.tsx EVENTS.quote",
       "src/ui/TopBar.tsx EVENTS.share",

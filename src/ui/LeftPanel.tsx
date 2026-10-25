@@ -1,4 +1,5 @@
 import { SCHEME, SCHEME_FALLBACKS, SLOT_ORDER } from "../data/catalogue";
+import { FaultProbe } from "./fault";
 import { usePackageSummary } from "../data/packageSummary";
 import { listWidth } from "../data/fit";
 import { formatDimension } from "../data/dimensions";
@@ -38,6 +39,7 @@ export function LeftPanel() {
 
   return (
     <div data-panel="list" className="flex h-full flex-col overflow-y-auto overflow-x-hidden">
+      <FaultProbe part="left-panel" />
       <div className="px-5 pb-6 pt-6">
         <p className="tracking-label text-[10px] text-ink-muted">{t("hero.eyebrow")}</p>
         <h1 className="mt-2 font-display text-[30px] leading-[1.15] text-ink">

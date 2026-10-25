@@ -16,6 +16,7 @@ import { RailToggle } from "./ui/RailToggle";
 import { TopBar } from "./ui/TopBar";
 import { useT } from "./i18n/useT";
 import { useAppStore } from "./store/useAppStore";
+import { PartFence } from "./ui/PartFence";
 
 /** The appliance list's width when open. Fixed, so a long model name truncates. */
 const LIST_RAIL_PX = 260;
@@ -34,6 +35,10 @@ export default function App() {
   const rightOpen = useAppStore((s) => s.rightOpen);
   const toggleLeft = useAppStore((s) => s.toggleLeft);
   const toggleRight = useAppStore((s) => s.toggleRight);
+  // The quote page's fence tries it again once it is closed, and its Close is
+  // the fence's own when the page has failed (round 99c).
+  const quoteOpen = useAppStore((s) => s.quoteOpen);
+  const setQuoteOpen = useAppStore((s) => s.setQuoteOpen);
   /**
    * The parts of the interface that are drawings of the room rather than
    * controls over it. Rebuilding the layout replaces the module values they
@@ -61,7 +66,9 @@ export default function App() {
           {leftOpen ? (
             <>
               <div className="min-h-0 flex-1">
-                <LeftPanel key={layoutVersion} />
+                <PartFence part="left-panel" className="h-full">
+                  <LeftPanel key={layoutVersion} />
+                </PartFence>
               </div>
               <RailToggle
                 side="left"
@@ -84,7 +91,9 @@ export default function App() {
             canvas it is already showing, and opening a rail pushes the page
             wider instead of narrowing the scene. */}
         <main className="relative min-h-0 min-w-0">
-          <Scene />
+          <PartFence part="scene" className="absolute inset-0">
+            <Scene />
+          </PartFence>
           {/* The vignette, as an overlay rather than a shader pass. A post
               stack would cost the MSAA the scene is antialiased with, for a
               darkening the browser composites for free. */}
@@ -112,7 +121,9 @@ export default function App() {
           {rightOpen ? (
             <>
               <div className="min-h-0 flex-1">
-                <RightPanel />
+                <PartFence part="right-panel" className="h-full">
+                  <RightPanel />
+                </PartFence>
               </div>
               <RailToggle
                 side="right"
@@ -133,7 +144,14 @@ export default function App() {
       </div>
 
       <HelpDialog />
-      <QuotePage />
+      <PartFence
+        part="quote"
+        also={String(quoteOpen)}
+        className="fixed inset-0 z-50 bg-bg"
+        onClose={() => setQuoteOpen(false)}
+      >
+        <QuotePage />
+      </PartFence>
       <SpecCard key={layoutVersion} />
     </div>
   );

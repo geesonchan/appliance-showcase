@@ -28,8 +28,11 @@ export function OccupancyList({ items }: { items: RequirementItem[] }) {
     <ul className="mt-1.5 flex flex-wrap gap-x-1.5 gap-y-1">
       {items.map((item, index) => (
         <li
-          key={`${billLabelKey(item, selection)}-${index}`}
-          title={`${t(billLabelKey(item, selection))} · ${item.code ?? t(`rule.${item.rule}`)}`}
+          key={`${billLabelKey(item, selection) ?? item.code}-${index}`}
+          title={[billLabelKey(item, selection), item.code ?? t(`rule.${item.rule}`)]
+            .map((part, at) => (at === 0 ? (part ? t(part) : null) : part))
+            .filter(Boolean)
+            .join(" · ")}
           className="rounded-sm border border-[#E5C6C2] px-1 py-px text-[10px] leading-tight text-[#8A2018]"
         >
           <span className="tabular-nums font-medium">{item.widthIn}&quot;</span>{" "}

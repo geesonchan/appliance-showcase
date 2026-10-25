@@ -12,7 +12,7 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **round 99b** (`docs/decisions.md` is the record of
+Covers the repository up to **round 99c** (`docs/decisions.md` is the record of
 rounds; `git log` is the record of commits). It replaces the v1–v9 briefs that
 were pasted into chat.
 
@@ -58,9 +58,9 @@ every figure of it, is `data/packages.json`; D16 and D20 say how a package is
 put together and why E was built the way it was. **Do not copy those numbers
 anywhere**: the file is the one source, and the tests read it.
 
-### Where it stands (round 99b)
+### Where it stands (round 99c)
 
-- **All five packages are live, as an L and on one wall.** Rounds 73–79, 81–90, 92, 92a, 92b, 92c, 93, 94, 95, 91, 96, 97, 98a, 98b-1, 98b-2, 99, 99a and 99b each shipped
+- **All five packages are live, as an L and on one wall.** Rounds 73–79, 81–90, 92, 92a, 92b, 92c, 93, 94, 95, 91, 96, 97, 98a, 98b-1, 98b-2, 99, 99a, 99b, 100 and 99c each shipped
   (round 80 built nothing; 91 was built after 95, below), and each was checked against the live page's asset hashes
   after its workflow finished.
 - **The live site counts visits, anonymously** (D24): page views and four events
@@ -138,32 +138,39 @@ anywhere**: the file is the one source, and the tests read it.
   Round 99b: with the Layout tab open, a package tapped no longer blanks
   the page — the bill's words are worked out with its figures (**done**, round
   99b, after Leo's look at the local preview; Open items, the first).
+  Round 100: the quality guard does not judge the two seconds after the
+  scene is rebuilt or made heavier (**done**, round 100, after Leo's look at
+  the local preview; Open items, "The quality guard misjudges the seconds
+  after a package switch"). Round 99c, after 100: a part that fails is
+  fenced off with Leo's message and Retry, a machine with no name found is
+  called by its position's, and a share link cut short keeps the page
+  (**done**, round 99c, after Leo's look at the local preview; Open items).
 
-### Next, in Leo's order (after round 98b-2)
+### Next, in Leo's order (2026-10-24, after round 99c)
 
-Named here only; each is an entry in the Open items of `docs/decisions.md`,
-"Not yet done after round 98b-2", which says where its figures are:
+Named here only; each has its entry in `docs/decisions.md`, which says where
+its figures are. **Every round a plan first, shown to Leo, built only once he
+confirms it** (Leo, 2026-10-24).
 
-1. ~~Round 99, the L's labels~~ — **done**, round 99. Round 99a, one wall
-   and a machine chosen narrower than its opening, came in between —
-   **done**, round 99a. Round 99b, the Layout tab blanking the page on a
-   package switch, came in before round 100 — **done**, round 99b.
-2. **Round 100, the quality guard** — Leo's answers to its plan
-   (`docs/plans/round-100-plan.md`): option A, the two seconds after a
-   rebuild not judged; what counts as a rebuild, and the proofs, in the
-   Open items entry "The quality guard misjudges the seconds after a
-   package switch".
-3. **Registered for after round 100 (Leo, round 99b), plans first, no
-   code**: round 99c — a machine with no name found falls back to a general
-   name, and the right panel and the 3D scene each fenced off
-   (`docs/plans/round-99c-plan.md`); and the geometries that climb with
-   every model swap (`docs/plans/geometry-leak-plan.md`). Their order
-   against round 101 is Leo's to set.
-4. **Round 101, the L's D, two changes to its geometry in one round**: the
-   coffee machine's door 11/16" short of its distance to the cabinets across
-   the corner, and the 5/8" between the 9-series columns (waiting for Leo's
-   site practice).
-5. **Then a galley, then a U.**
+1. **Round 99d** — an error in a frame reaches the scene's fence; a link
+   notice of more than three missing settings shown as one sentence with
+   Details (`docs/plans/round-99d-plan.md`).
+2. **The geometries that climb with every model swap**
+   (`docs/plans/geometry-leak-plan.md`; 甲, freed by hand, Leo 2026-10-24).
+3. **The chimney hood's fillers** — in the wall cabinets' plane, on no list
+   (D16, amended 2026-10-24; `docs/plans/chimney-fillers-plan.md`, confirmed).
+4. **The refrigerator's front** — a built-in against the cabinets beside it,
+   3-1/2" at a wall, 3/4" at an open end (D11 rule 11, amended 2026-10-24); A's
+   42" segment becomes about 36" (`docs/plans/fridge-front-plan.md`; Leo
+   answered its eleven questions, it waits on his look).
+5. **Stainless or panel-ready** — the same built-in column or refrigerator
+   offered in either (`docs/plans/panel-ready-plan.md`, a draft with his
+   questions).
+6. **Round 101** — the L's D: the coffee machine's door, the 5/8" between the
+   columns (`docs/plans/round-101-plan.md`).
+7. **The open end's stone** (`docs/plans/overnight-2026-10-23-open-end.md`).
+8. **Then a galley** (`docs/plans/overnight-2026-10-23-galley.md`), **then a U**
+   (`docs/plans/overnight-2026-10-24-u-shape.md`).
 
 ---
 
@@ -215,6 +222,9 @@ Named here only; each is an entry in the Open items of `docs/decisions.md`,
 | `scripts/pixelShots.mjs`, `scripts/pixelCompare.mjs`, `scripts/pixelLinks.json` | The pixel proof (D17): 45 states shot whole and as the canvas alone, old build and new twice each, alternated, then compared state by state, each build also against itself. Shot at `?qualityLock=1` so the guard drops no page mid-shot (round 100; moved here from the rounds' scratch folders). |
 | `tests/qualityLock.test.ts` | `?qualityLock=1` holds a page at its tier however slow it is; without it the guard still drops (round 100, for the pixel proofs only). |
 | `scripts/swapMemory.mjs` | The renderer's geometries and textures, and the heap, after each of fifty model swaps in a row (round 100, measured only). |
+| `src/ui/PartFence.tsx`, `src/ui/fault.ts`, `tests/partFence.test.ts` | Five parts fenced off — the right panel, the 3D scene, the left panel, the quote page, the link's notice: a part that fails shows Leo's sentence and Retry, a package switch retries it, the visit counter records which part. `?fault=<part>` makes one fail, for the tests only (round 99c). |
+| `src/data/nameFallback.test.ts` | A machine with no name found is called by its position's own name; `NAME_FALLBACKS` lists each fallback, which the words test asks to be empty (round 99c). |
+| `tests/shareLinkCut.test.ts` | Every field of a share link left out in turn, at `v=1` and `v=2`: the page stands and the notice names what is missing (round 99c). |
 | `tests/layoutTabSwitch.test.ts` | With the Layout tab open, every package tapped after every other keeps the page, in both shapes, on a 1440 desktop, a 768 tablet and a 390 phone (round 99b). |
 | `src/data/roomSets.ts`, `scripts/lDump.ts`, `scripts/oneWallDump.ts` | The rooms every proof builds, listed once: the L's 1,045 (round 98a) and one wall's 91 (round 99a). The two dumps write them out as geometry and words, one a line — run each on the commit before a round (`ROOT=<tree>`) and on the round, and compare; `machineLabel.test.ts` reads every word on their bills (round 99a). |
 | `src/ui/useIdleValue.ts`, `src/store/staleBand.test.ts` | The Layout tab's wall figures and greyed band worked out in the page's idle time after a rebuild; a wall length asked for while the band is still the room's before is refused by the room (round 99a). |

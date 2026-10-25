@@ -2,7 +2,7 @@ import type { Appliance, SlotId } from "../types";
 import { APPLIANCE_BY_ID } from "./catalogue";
 import type { RequirementItem } from "./layoutTemplate";
 import { PACKAGE } from "./packages";
-import { SLOT_BY_ID } from "./slots";
+import { SLOT_BY_ID, SLOT_RECORDS } from "./slots";
 
 /**
  * What a machine is called, wherever the page names it.
@@ -33,8 +33,21 @@ export type MachineKind =
   | "doubleOven"
   | "singleOven";
 
-/** What a machine is, by its category and how it installs. */
-export function kindOf(appliance: Appliance): MachineKind {
+/**
+ * Every name the page could not find and fell back for (round 99c, Leo:
+ * "查不到名字：用那个位置自己的名字"). Since round 99 a name not found threw, and
+ * in round 99b one throw emptied the page; now the page goes on, and this list
+ * is how the words test still says no name was missing.
+ */
+export const NAME_FALLBACKS: string[] = [];
+
+function fellBack(what: string) {
+  if (!NAME_FALLBACKS.includes(what)) console.error(`machineLabel: ${what}`);
+  NAME_FALLBACKS.push(what);
+}
+
+/** What a machine is, by its category and how it installs; null for a kind with no name. */
+export function kindOf(appliance: Appliance): MachineKind | null {
   const has = (type: string) => (appliance.installType as readonly string[]).includes(type);
   switch (appliance.category) {
     case "wall-oven":
@@ -56,7 +69,7 @@ export function kindOf(appliance: Appliance): MachineKind {
     case "hood":
       return appliance.category;
     default:
-      throw new Error(`machineLabel: no name for a ${appliance.category} (${appliance.model})`);
+      return null;
   }
 }
 
@@ -97,6 +110,10 @@ export function slotLabelKey(slotId: SlotId, appliance?: Appliance): string {
   const own = SLOT_BY_ID[slotId].labelKey;
   if (!appliance) return own;
   const kind = kindOf(appliance);
+  if (!kind) {
+    fellBack(`no name for a ${appliance.category} (${appliance.model}) in ${slotId}`);
+    return own;
+  }
   return OWN_NAME[own] === kind ? own : LABEL[kind];
 }
 
@@ -125,11 +142,22 @@ const BILL: Partial<Record<MachineKind, string>> = {
  * cabinet by what is under the machine — it names; a machine on the wall is
  * named by the machine chosen, the package's own where none is.
  */
-export function billLabelKey(item: RequirementItem, selection: Partial<Record<SlotId, Appliance>>): string {
+export function billLabelKey(item: RequirementItem, selection: Partial<Record<SlotId, Appliance>>): string | null {
   if (item.labelKey) return item.labelKey;
-  if (!item.slot) throw new Error("machineLabel: a bill item with neither a word nor a slot");
+  // No position to be named by (Leo, round 99c: 甲): the bill shows its width
+  // and code alone.
+  if (!item.slot) {
+    fellBack(`a bill item with neither a word nor a slot (${item.code ?? item.rule ?? item.widthIn})`);
+    return null;
+  }
   const appliance = selection[item.slot] ?? APPLIANCE_BY_ID[PACKAGE.defaultSelection[item.slot] ?? ""];
-  const word = appliance ? BILL[kindOf(appliance)] : undefined;
-  if (!word) throw new Error(`machineLabel: no bill word for ${item.slot} with ${appliance?.model ?? "nothing"} in it`);
+  const kind = appliance ? kindOf(appliance) : null;
+  const word = kind ? BILL[kind] : undefined;
+  if (!word) {
+    fellBack(`no bill word for ${item.slot} with ${appliance?.model ?? "nothing"} in it`);
+    // From the records, not the room: a position this room does not have is
+    // still named (A has no oven; D's bill named under A asked for one).
+    return SLOT_RECORDS.find((record) => record.id === item.slot)!.labelKey;
+  }
   return word;
 }

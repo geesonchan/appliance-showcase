@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { FaultProbe } from "./fault";
 import { formatInches, requiredOpening } from "../data/fit";
 import { formatUSD } from "../data/money";
 import { formatPrice } from "../data/packageSummary";
@@ -84,7 +85,8 @@ export function QuotePage() {
     encodeURIComponent(summary);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-bg">
+    <div data-quote-page className="fixed inset-0 z-50 flex flex-col bg-bg">
+      <FaultProbe part="quote" />
       <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-line bg-surface px-4 md:px-6">
         <div className="min-w-0">
           <h1 className="truncate font-display text-[18px] leading-none text-accent">

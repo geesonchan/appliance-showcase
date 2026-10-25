@@ -1,6 +1,9 @@
 import { afterAll, describe, expect, it } from "vitest";
 import { APPLIANCE_BY_ID, offeredFor, suitsPackageSlot } from "./catalogue";
-import { billLabelKey, slotLabelKey } from "./machineLabel";
+import { NAME_FALLBACKS, billLabelKey as billLabelKeyOrNone, slotLabelKey } from "./machineLabel";
+
+/** A bill word, or a marker no word could match: a name not found shows here as a wrong word. */
+const billLabelKey = (...args: Parameters<typeof billLabelKeyOrNone>) => billLabelKeyOrNone(...args) ?? "(no word)";
 import { setActivePackage, setLayoutParamsGrowing } from "./layoutState";
 import { DEFAULT_PARAMS, oneWallWantedIn, wallRequirement, type LayoutParams } from "./layoutTemplate";
 import type { LayoutShape } from "./layoutShape";
@@ -258,7 +261,12 @@ describe("a wall's bill names what stands on it (round 99)", () => {
         }
       }
     }
-    expect({ counted, missing: [...missing] }).toEqual({ counted: { built: 606, refused: 530 }, missing: [] });
+    // Since round 99c a name not found falls back rather than throwing; none may have.
+    expect({ counted, missing: [...missing], fellBack: NAME_FALLBACKS }).toEqual({
+      counted: { built: 606, refused: 530 },
+      missing: [],
+      fellBack: [],
+    });
   });
 });
 

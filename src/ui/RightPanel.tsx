@@ -1,4 +1,5 @@
 import { SCHEME } from "../data/catalogue";
+import { FaultProbe } from "./fault";
 import { useActivePackage } from "../store/useSelection";
 import { usePackageSummary } from "../data/packageSummary";
 import { useT } from "../i18n/useT";
@@ -112,6 +113,7 @@ export function RightPanel({ tabs = true }: { tabs?: boolean }) {
       data-right-panel={rightTab}
       className="flex h-full min-w-0 flex-col overflow-y-auto overflow-x-hidden"
     >
+      <FaultProbe part="right-panel" />
       {tabs && <TabBar />}
 
       {rightTab === "look" && (

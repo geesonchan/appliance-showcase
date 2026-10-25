@@ -22,13 +22,18 @@
  * never counted.
  */
 
-/** The four things counted beside a page view, under this site's own prefix (D24). */
+/** The things counted beside a page view, under this site's own prefix (D24). */
 export const EVENTS = {
   /** A page opened from a share link GoatCounter can read, with its package's letter. */
   openLink: (packageCode: string) => `appliance-showcase/open-link-${packageCode}`,
   share: "appliance-showcase/share",
   qrBox: "appliance-showcase/qr-box",
   quote: "appliance-showcase/quote",
+  /**
+   * A part of the page that failed and was fenced off, once a page: which
+   * part, and nothing else about it (round 99c, Leo).
+   */
+  partFailed: (part: string) => `appliance-showcase/part-failed-${part}`,
 } as const;
 
 /**
@@ -191,7 +196,7 @@ export function setupAnalytics() {
   }
 }
 
-/** Count one of the four events (D24). Nothing at all where the page does not count. */
+/** Count one of the events (D24). Nothing at all where the page does not count. */
 export function countEvent(name: string) {
   send({ p: name, e: true });
 }

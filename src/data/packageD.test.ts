@@ -116,7 +116,7 @@ describe("package D · the column group", () => {
     expect(short, JSON.stringify(result.reasons)).toBeTruthy();
     const order = short.occupancy!
       .map((item) => billLabelKey(item, {}))
-      .filter((key) => ["requirement.freezer", "requirement.fridgeColumn", "requirement.wineColumn"].includes(key));
+      .filter((key) => ["requirement.freezer", "requirement.fridgeColumn", "requirement.wineColumn"].includes(key ?? ""));
     // Columns each, by their own words since round 99.
     expect(order).toEqual(["requirement.freezer", "requirement.fridgeColumn", "requirement.wineColumn"]);
   });

@@ -106,6 +106,8 @@
   "mobile.appliances": "家电",
   "mobile.config": "配置",
   "mobile.close": "关闭",
+  "part.failed": "这一块暂时显示不了，请点\"重试\"或换个套餐。",
+  "part.retry": "重试",
   "mobile.resize": "调整面板高度",
   "debug.fps": "帧率",
   "debug.modeSwitch": "模式切换",

@@ -103,6 +103,8 @@
   "mobile.appliances": "Appliances",
   "mobile.config": "Configure",
   "mobile.close": "Close",
+  "part.failed": "This part couldn't be shown. Tap Retry or pick another package.",
+  "part.retry": "Retry",
   "mobile.resize": "Resize panel",
   "debug.fps": "FPS",
   "debug.modeSwitch": "mode switch",

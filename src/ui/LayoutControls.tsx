@@ -79,7 +79,11 @@ function WallMinimum({ params, leg }: { params: LayoutParams; leg: "left" | "bac
         {t("panel.room.minimum", { value: requirement.minimumIn })}
       </span>{" "}
       {requirement.items.map((item, index) => (
-        <span key={`${requirement.words[index]}-${index}`} title={t(requirement.words[index])}>
+        // A word not found leaves the width and code alone (round 99c, Leo: 甲).
+        <span
+          key={`${requirement.words[index] ?? item.code}-${index}`}
+          title={requirement.words[index] ? t(requirement.words[index]!) : (item.code ?? "")}
+        >
           {index > 0 && " + "}
           <span className="tabular-nums">{item.widthIn}&quot;</span>{" "}
           <span className="opacity-65">{item.code ?? item.rule?.toUpperCase()}</span>

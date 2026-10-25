@@ -1,4 +1,5 @@
 import { Suspense, useEffect } from "react";
+import { FaultProbe } from "../ui/fault";
 import * as THREE from "three";
 import { Canvas, useThree } from "@react-three/fiber";
 import { useAppStore } from "../store/useAppStore";
@@ -99,6 +100,7 @@ export function Scene() {
         <StaticShadowMap />
         <ShaderWarmup />
         <QualityGuard />
+        <FaultProbe part="scene" />
         <Environment />
         <Lights />
         {/* Everything made out of the layout hangs off one key. Changing a

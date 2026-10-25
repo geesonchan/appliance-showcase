@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { PartFence } from "./PartFence";
+import { FaultProbe } from "./fault";
 import { sayWith } from "../i18n";
 import { useT } from "../i18n/useT";
 import { LINK_FIELDS, noticeItemKey, type Say } from "../store/shareLink";
@@ -172,7 +174,19 @@ export function Toast() {
   // A value named `...Key` is a message key of its own: the wall, the reason.
   const say = (key: string, vars?: Record<string, string | number>) => sayWith(t, key, vars);
 
-  if (toast.notice) return <ShareNotice notice={toast.notice} say={say} onClose={dismissToast} />;
+  // Fenced on its own (round 99c, Leo): a cut-short link's notice once emptied
+  // the page; a notice that fails now says so where it stands.
+  if (toast.notice) {
+    return (
+      <PartFence
+        part="link-notice"
+        also={String(toast.id)}
+        className="pointer-events-auto absolute bottom-28 left-1/2 z-20 -translate-x-1/2 rounded-2xl border border-line bg-surface"
+      >
+        <ShareNotice notice={toast.notice} say={say} onClose={dismissToast} />
+      </PartFence>
+    );
+  }
   const message = toast.lines
     ? toast.lines.map((line) => say(line.key, line.vars)).join(" ")
     : say(toast.key, toast.vars);
@@ -231,8 +245,15 @@ function ShareNotice({
             const field = LINK_FIELDS.find((candidate) => candidate.name === line.field)!;
             return say(`share.notice.${line.kind}`, {
               item: say(noticeItemKey(line.field, line.to)),
+              // A setting the link could not use, or left out, has no value of
+              // its own to name, and its sentence names none (round 99c: a
+              // cut-short link threw here and emptied the page).
               from:
-                line.kind === "catalogue" ? (line.from ?? "") : field.show(line.from, say),
+                line.kind === "catalogue"
+                  ? (line.from ?? "")
+                  : line.kind === "fit" && line.from !== undefined
+                    ? field.show(line.from, say)
+                    : "",
               to: field.show(line.to, say),
             });
           }),
@@ -247,6 +268,7 @@ function ShareNotice({
       ].join(" ")}
     >
       <div className="min-w-0 space-y-1">
+        <FaultProbe part="link-notice" />
         {lines.map((line, index) => (
           <p key={index} data-share-notice-line={index}>
             {line}

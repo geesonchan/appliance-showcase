@@ -745,6 +745,16 @@
       "text": "divider",
       "approval": "written",
       "reviewed": "Leo's own wording (round 99a: the 3/4\" board between the microwave drawer and the wine cooler on one wall)"
+    },
+    "part.failed": {
+      "text": "This part couldn't be shown. Tap Retry or pick another package.",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99c: the message a fenced part shows when it fails)"
+    },
+    "part.retry": {
+      "text": "Retry",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99c: the button in a failed part's message)"
     }
   },
   "zh": {
@@ -1497,6 +1507,16 @@
       "text": "隔板",
       "approval": "written",
       "reviewed": "Leo's own wording (round 99a: the 3/4\" board between the microwave drawer and the wine cooler on one wall)"
+    },
+    "part.failed": {
+      "text": "这一块暂时显示不了，请点\"重试\"或换个套餐。",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99c: the message a fenced part shows when it fails)"
+    },
+    "part.retry": {
+      "text": "重试",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99c: the button in a failed part's message)"
     }
   }
 }

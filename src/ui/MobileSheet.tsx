@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { PartFence } from "./PartFence";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
 import { LeftPanel } from "./LeftPanel";
@@ -161,7 +162,15 @@ export function MobileSheet() {
           </div>
 
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain border-t border-line">
-            {panel === "list" ? <LeftPanel /> : <RightPanel tabs={false} />}
+            {panel === "list" ? (
+              <PartFence part="left-panel">
+                <LeftPanel />
+              </PartFence>
+            ) : (
+              <PartFence part="right-panel">
+                <RightPanel tabs={false} />
+              </PartFence>
+            )}
           </div>
         </div>
       )}

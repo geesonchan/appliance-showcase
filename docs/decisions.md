@@ -1451,6 +1451,21 @@ the room: it is the reason three and a half inches of that wall have no cabinet
 on them, and a reader who cannot see it is looking at a gap somebody forgot to
 fill.
 
+**Amended 2026-10-24, Leo, his site practice — not yet built (its round is
+"the refrigerator's front", after the chimney hood's fillers).** A built-in
+refrigerator stands directly against the sides of the cabinets beside it, with
+no 3" panel ("嵌入式冰箱两侧直接贴旁边柜子的侧面，不加 3" 侧板"); where it ends a
+run, the wall side takes a 3-1/2" filler, so the door on that side opens to
+ninety degrees — the filler this rule already gives a freestanding machine
+against a return wall, kept at 3-1/2" as the code and round 89 have it ("冰箱靠
+墙那一侧的填充板保持 3-1/2"…不改成 3"", his first word of 3" withdrawn) — and
+the open end a 3/4" side panel; between the doors and what is beside them,
+1/8" (the manual, page 40; Leo: "门边留 1/8"" — his site practice, confirmed:
+"冰箱门边 1/8" 我已经确认过，是现场做法"). The opening is usually made 25" deep or more, the door
+fronts flush with the cabinet fronts. T36BT120NS is the stainless-door model,
+as the catalogue has it. The Open item "The two vertical strips beside A's
+refrigerator" has the rest.
+
 **Amended 2026-09-13 (round 32), Leo: a group of columns meets the wall as one
 unit.** Package D's refrigerator is the middle column of three, and the return
 wall was placed beside the refrigerator's own opening — between two columns. The
@@ -2633,6 +2648,22 @@ and the liner hung on its own between the wall cabinets, with no housing.
   them). No strip is drawn beside a chimney hood (`hoodSideFillers`); the Open
   item that waited for his practice is closed. `hoodSideFillers.test.ts` holds
   it, red on round 87's first build.
+- **Amended 2026-10-24, Leo, his site practice — overturning the line above;
+  not yet built.** A chimney hood narrower than its opening is closed in each
+  side by a filler in the wall cabinets' plane ("推翻第 87 轮'两边敞着'"):
+  - the width of the difference — HMCB30WS in a 36" opening, 3-1/32" each
+    side;
+  - in the wall cabinets' doors' face and colour, as round 84's seamless
+    filling has it;
+  - from the wall cabinets' 54" bottom, with the cabinets beside it, up to
+    108", the crown over it — drawn in 3D as cabinetry, its board over 96" and
+    the crown, but **on no list**: not the quote, not a wall's bill;
+  - every chimney hood narrower than its opening the same, not only HMCB30WS.
+  Its round comes after the geometries' (his order, Open items); the plan,
+  `docs/plans/chimney-fillers-plan.md`, is to be brought to these answers and
+  shown to him first.
+  **The plan confirmed** (Leo, 2026-10-24); its round comes after the
+  geometries'.
 - Tests: `hoodSwap.test.ts` (unit) — red on round 86's code for A's liner
   (a bridge over it), B's under-cabinet swap (its 42" housing kept), A's
   chimney swap (a bridge over it), C's under-cabinet swap (nothing over it, at
@@ -5900,6 +5931,118 @@ throw still in; the throw was then taken out. That catch is now in the code.
 
 Registered, not scheduled. None of these is a round of its own.
 
+- **Round 99d, registered after 99c, a plan first** (Leo, 2026-10-24; before
+  the geometries' round). Two things:
+  1. **An error in a frame** (`useFrame`) reaches the scene's fence: the
+     message and Retry, not an empty canvas that has stopped. Tested as round
+     99c's fences are, through `?fault=`, red first.
+  2. **A long link notice**: up to three missing settings listed line by line
+     as now; more than three, one sentence and a Details button that opens the
+     list. His words: 「这个链接不完整，缺了 N 项，已按默认显示。」 / "This link is
+     incomplete: N settings were missing and are shown with defaults." The
+     63 cut-short link cases stay green, and a test that more than three show
+     only the sentence and that opening it lists them all. Seen in round 99c's
+     preview: `?v=2&pkg=A` listed some thirty lines over the whole scene.
+  The plan: `docs/plans/round-99d-plan.md`.
+- **Round 99c, a part that fails is fenced off, and a share link cut short
+  keeps the page — built and shipped after Leo's look at the local preview**
+  (Leo: "99c 预览看过了（index-C6lEvBrp.js），可以提交"). The
+  plan, `docs/plans/round-99c-plan.md` (final; Leo's answers to it in the
+  round-99b item below, and his two layers for the cut-short link in the item
+  after this one).
+  - **Names**: a machine with no name found is called by its position's own
+    name, and a bill item with neither a position nor a word shows its width
+    and code alone (`machineLabel.ts`: `kindOf` gives null for a kind it
+    does not know, `billLabelKey` a string or null; a position the room does
+    not have is named from the slot records). Every fallback is written to
+    `NAME_FALLBACKS` and the console; the words test over the L's 1,045 rooms
+    and one wall's 91 now also asks that list to be empty.
+  - **Five fences** (`src/ui/PartFence.tsx`; the plan called it
+    `PartBoundary.tsx`): the right panel (`App.tsx`, and the phone's sheet in
+    `MobileSheet.tsx`), the 3D scene (round `<Scene />`; fiber hands a
+    failure inside the canvas out of it), the left panel (both places), the
+    quote page (with its own Close) and the link's notice (`SceneControls.tsx`).
+    A part that fails shows Leo's sentence and Retry; a package switch retries
+    it, as do the quote page closing and a new notice. A fence retries only on
+    a change after the failure — the first build retried on opening the quote
+    page itself, the change that made it fail, and hid the message.
+  - **The visit counter**: `appliance-showcase/part-failed-<part>` —
+    `right-panel`, `scene`, `left-panel`, `quote`, `link-notice` — once a
+    page each, which part only (D24's fifth event).
+  - **The cut-short link**, layer one: the notice's line about a setting a
+    link left out names no value from the link, which there is none of and its
+    sentence does not use (`ShareNotice`); the setting takes its default, as
+    before. Layer two: the notice's fence.
+  - **The test switch**: `?fault=<part>` (`src/ui/fault.ts`, read once as the
+    page opens, as `?qualityLock=1`): that part throws while it draws until a
+    retry; on no control and in no link.
+  - **Tests red first**: `src/data/nameFallback.test.ts` — red on the old
+    code, each for the reason (three throws: no word for slot-oven, no name
+    for a toaster, a bill item with neither); `tests/shareLinkCut.test.ts` —
+    every field of A's link left out in turn at `v=2` and `v=1`, 63 cases,
+    red on `f7a56ea` in 14: the seven finishes at both versions, the page
+    emptied; `tests/partFence.test.ts` — five parts failing on a 1440 desktop
+    by the mouse and a 390 phone by a finger, 14 cases: with the switch in and
+    no fences all 14 red, the page empty (no Retry, no package buttons, no
+    Configure to press); `src/analytics.test.ts` — the events and where each
+    is counted. All green after, with 99b's `layoutTabSwitch.test.ts`.
+  - **An error in a frame** (`useFrame`; Leo: "这一轮试一次，看会不会白屏"),
+    tried once on a build not kept: it does **not** empty the page — the
+    panels, the top bar and the package buttons go on working — but the 3D
+    picture stops being drawn (the renderer's count stopped at 34; the canvas
+    shows nothing) and the error comes again every frame (485 in about eight
+    seconds); no fence catches it, so no message shows. Registered below for
+    Leo to say whether it is a round of its own.
+  - **Proofs**: `scripts/lDump.ts` 1,045 of 1,045 and `scripts/oneWallDump.ts`
+    91 of 91 byte for byte as `f7a56ea`. Pixels locked
+    (`scripts/pixelShots.mjs`), round 99's 45 states at the high tier,
+    `f7a56ea` against round 99c, each shot twice, alternated: the 3D canvas
+    the same in all 45 old against new, and each build's own two runs the same
+    in all 45. On screen 15 states differ from their own build's other run by
+    1 to 4,096 pixels — the pins' labels a fraction of a pixel apart, and the
+    one pixel; old against new, `link-A` by 2,553 and two states by 1 pixel —
+    `link-A` shot three more times each, and both builds land either way (the
+    old build's extra runs 2,553, 1 and 2,553 from its first). The suite 3,296
+    of 3,296 (4,432 s), after a first run spoiled while the machine slept (two
+    tests timed at over two hours each; that run was stopped, and started
+    again with the machine held awake); the unit suite 2,992 of 2,992. The
+    local preview at 4173, main chunk `index-C6lEvBrp.js` (a plain build).
+- **A share link cut short blanks the page — on the live site.** *(Found the
+  night of 2026-10-24 while writing the refrigerator's plan; registered, not
+  changed — Leo that night: plans and investigation only, no code.)* A link
+  with its version and package and not the rest — `?v=1&pkg=A`,
+  `?v=2&pkg=A`, `?v=1&pkg=C`, `?v=2&pkg=B&shape=one-wall` — throws
+  `Cannot read properties of undefined (reading 'toLowerCase')` and React takes
+  the page down: no canvas, no controls. A whole link opens as it should, and
+  so do `?pkg=D` and `?v=1` alone. Seen on the counter build of `f7a56ea`,
+  byte for byte the live one, and on a build of `5afb98b` (round 99); not
+  tried on older builds. A link a chat app cuts short, or one typed by hand,
+  is the way a customer meets it.
+  - **Where**, from the development server's stack: the notice that says what
+    a link left out (`SceneControls.tsx`, `field.show(line.to, say)` at
+    about line 236) names the door colour it kept, through the paint field's
+    `show` (`shareLink.ts`, about line 78), `nameOfPaint`
+    (`finishes.ts:99`) and `ralForHex` (`ral.ts:82`), which reads
+    `.toLowerCase()` of a value that is not there. `nameOfPaint` came in with
+    the share link, round 94 (`0af93a0`). Not traced further.
+  - Round 99c's fences would keep it to one part only if the notice sits
+    inside one of the four; it is in `SceneControls.tsx`, which is in none of
+    them (the scene's fence is round `<Scene />`). For Leo to say whether it
+    is fixed in round 99c, before it, or after.
+- **An error thrown in a frame stops the 3D picture, with no message.** *(Found
+  in round 99c's trial. Leo, after 99c: round 99d, before the geometries — it
+  is to reach the scene's fence and show the message and Retry, not stop on
+  an empty canvas; tested with a `?fault=` switch, red first.)* A component's
+  `useFrame` that throws: the page goes on, the scene stops drawing and
+  shows nothing, and the error repeats every frame; the scene's fence does not
+  see it, since it is not thrown while drawing. Round 99c's entry above has
+  the figures.
+  - **Leo (2026-10-24): fixed in round 99c, two layers.** A field a link leaves
+    out takes its default and the notice says so, as it does today, with no
+    error — the `ralForHex` path and the `nameIn` one alike; and the notice
+    (in `SceneControls.tsx`) is fenced off on its own. The test takes each
+    field out of a link in turn, at `v=1` and `v=2`: the page stands every
+    time and the notice names what is missing. Red first on `f7a56ea`.
 - **A package tapped with the Layout tab open blanked the page — live since
   round 99; round 99b, built and shipped after Leo's look at the local preview**
   (Leo, round 99b: "99b 预览看过了（index-CGAN8VC9.js），可以提交").
@@ -5969,6 +6112,30 @@ Registered, not scheduled. None of these is a round of its own.
     `102f05e` to the geometry (measured for round 100, which records it) —
     found out first, which boxes and why, and the ways to fix it listed, not
     changed.
+  - **Leo's answers on round 99c's plan** (2026-10-24,
+    `docs/plans/round-99c-plan.md`):
+    - A machine with no name found is called by its slot's own name (the
+      plan's 甲).
+    - Four parts fenced off: the right panel, the 3D scene, the left panel,
+      and the quote page.
+    - The message, in his words: 「这一块暂时显示不了，请点"重试"或换个套餐。」 /
+      "This part couldn't be shown. Tap Retry or pick another package." With a
+      Retry button; a package switch retries by itself.
+    - The visit counter records one event when a part fails — which part,
+      nothing else (an addition to D24's events).
+    - The test makes a part fail through a switch only the tests use, the
+      same kind as `?qualityLock=1`.
+  - **Leo's answers to the final plan's four questions** (2026-10-24):
+    - The event names as the plan's section 5 —
+      `appliance-showcase/part-failed-right-panel`, `-scene`, `-left-panel`,
+      `-quote` — and one more for the link's notice; each part counted once
+      a page.
+    - A bill item with neither a slot nor a word shows its width and code
+      only (甲).
+    - The quote page, when it fails, has a Close button too (`quote.close`).
+    - An error thrown in a frame (`useFrame`): tried once in this round, the
+      finding written down; if it blanks the page, a round of its own.
+    - The plan is confirmed; built now, after round 100 shipped.
 - **Found in round 97, not changed — each seen in a probe or in the code, not
   yet on the page.** *(Round 97; for Leo to order.)*
   - **A blower drawn in a hood that has its own.** The install view draws a
@@ -8038,9 +8205,10 @@ Registered, not scheduled. None of these is a round of its own.
     second or two after the switch, so the 2-second grace has to cover it,
     and round 100's proof includes the path with the Layout tab open on E's
     one wall.
-  - **Round 100, built, waiting for Leo's look at the local preview** (the
-    night of 2026-10-23, Leo: "照第 100 轮方案开始…做完起本地预览等我确认"; not
-    committed). Option A as he answered it, nothing else in the guard changed
+  - **Round 100, built and shipped after Leo's look at the local preview**
+    (Leo: "第 100 轮预览看过了（index-Dwpm8asX.js）。手机抽屉打开、关上算重建，认可"; the
+    night of 2026-10-23, Leo: "照第 100 轮方案开始…做完起本地预览等我确认").
+    Option A as he answered it, nothing else in the guard changed
     — 55 fps, two seconds, never back up, the first second and a hidden tab
     not judged.
     - **The code**: `src/three/qualityRule.ts` — the rule as functions:
@@ -8192,6 +8360,17 @@ Registered, not scheduled. None of these is a round of its own.
           holding part of the 46.
         - The modes, run 2, kept where the page's last two seconds were 50 47:
           as run 1, a drop at the end of the sixth second, after the read.
+      - **Live, checked file by file**: commit `f7a56ea`, the Pages run
+        40076438493 a success, both its jobs — build (08:01:56 to 08:02:49
+        UTC, 2026-10-24) and deploy (08:02:53 to 08:03:21) — each a success.
+        Built at `f7a56ea` with
+        `VITE_GOATCOUNTER=https://geesonchan.goatcounter.com/count`, every
+        file fetched from the live site and compared byte for byte, all six
+        identical: `index.html` (901 bytes), `assets/index-CZ0ad3au.js`
+        (681,875), `assets/index-DMNQdOmy.css` (23,812),
+        `assets/react-i_nGBwMY.js` (145,992), `assets/shareQr-BXYgausd.js`
+        (21,968), `assets/three-DN8glM5f.js` (704,111); the live
+        `index.html` asks for nothing the build does not have.
       - **The suite** 3,212 of 3,212 (3,994 s); the unit suite 2,985 of 2,985.
         The local preview at 4173, main chunk `index-Dwpm8asX.js` (a plain
         build).
@@ -8270,6 +8449,14 @@ Registered, not scheduled. None of these is a round of its own.
   default for a blank Color cell (docs/data-sheet-spec.md, `finish`). Such a
   column takes a custom door panel or a panel bought for it, so stainless says
   more than anybody has decided.
+  **To be settled by a round of its own** (Leo, 2026-10-24): the same built-in
+  column or refrigerator offered in stainless or panel-ready (its doors in the
+  cabinets' colour) — the factory's default is panel-ready; T18IF905SP-SS is
+  the stainless one, T18IF905SP panel-ready, the same size. The plan,
+  `docs/plans/panel-ready-plan.md`, a draft with his questions: how the
+  catalogue records it (imported from his sheet, where a blank colour now
+  becomes stainless), where it is chosen and how panel-ready doors are drawn,
+  how the quote shows the model and price. After the refrigerator's front.
 - **One Chinese word for two things on screen: 清单.** *(Leo, round 98:
   registered, not changed this round.)* On the Chinese page the top bar's
   Quote button (`topbar.quote`) and the right panel's List tab
@@ -8551,8 +8738,9 @@ Registered, not scheduled. None of these is a round of its own.
      - Whether the doors are stainless or take custom panels: **文件没写**
        (the manual covers "T36BT…").
   - **To improve, registered (Leo, round 99), not started**:
-    - **The stainless reflects the cabinets too strongly**: next to blue
-      cabinets the steel doors read as blue door panels.
+    - ~~**The stainless reflects the cabinets too strongly**: next to blue
+      cabinets the steel doors read as blue door panels.~~ **Not changed**
+      (Leo, 2026-10-24: "不锈钢反光不改：换成可装门板的版本后没问题了").
     - **The door fronts sit 1" behind the panel faces** (11-3/4" against
       12-3/4" from the run's centre line, only the handles reaching past
       them), where the sheet says the door panels "protrude slightly for a
@@ -8562,9 +8750,55 @@ Registered, not scheduled. None of these is a round of its own.
     - **The 3" side panel has no source** — waiting for Leo's answer from
       site: whether the T36BT120NS sold is the stainless-door model or one
       that takes door panels, and how wide such a side panel usually is.
+  - **Leo's answers (2026-10-24), his site practice** — written into D11
+    rule 11 as an amendment, not yet built:
+    - T36BT120NS is the stainless-door model; the catalogue is right.
+    - A built-in refrigerator stands directly against the sides of the
+      cabinets beside it: no 3" side panel.
+    - The opening is usually 25" deep or more, the door fronts flush with the
+      cabinet fronts.
+    - Between the doors and what is beside them, 1/8" as the manual has it
+      (page 40) — his site practice, confirmed ("我已经确认过，是现场做法").
+    - At the end of a run: the wall side a 3-1/2" filler, as the code and
+      round 89 have it, so that door opens to ninety degrees; the open end a
+      3/4" side panel. (His first word that day was a 3" filler at the wall;
+      he withdrew it: "上一条里"3" 宽"作废".)
+    - **Its round** (his order below): a plan first. It changes the length
+      of A's L — the 42" segment becomes about 36" — so the plan lists every
+      room that changes and each wall's minimum before and after, and takes
+      in the two registered above: the stainless reflecting the cabinets too
+      strongly, and the door fronts set back behind the panels.
+    - **Leo's answers to the plan's eleven questions** (2026-10-24,
+      `docs/plans/fridge-front-plan.md` section 6; his site practice, not
+      yet built — the round waits for him):
+      1. "Past the refrigerator: cabinets" (`fridgeEndAbuts`) is the open end:
+         a 3/4" side panel.
+      2. The side toward the counter: a full-height cabinet side wall, 4"
+         wide on the front, from the floor to the wall cabinets' top (to 108"
+         where there is a stack), answering the manual's 4" return (page
+         21). The answer says this is a reading of Leo's words "安排 4" 柜体侧壁";
+         the preview shoots this spot on its own for him to confirm.
+      3. The 2-1/4" filler beside the refrigerator in A's default L: accepted.
+      4. C with a built-in swapped in: 甲 — the segment stays, the difference
+         made up by a panel.
+      5. A with the freestanding T36FT820NS swapped in: 甲 — the segment grows
+         with the swap; where the wall is too short, it grows as D18 has it,
+         and says so.
+      6. B's bank is not touched this round: round 101.
+      7. The 1/8" is drawn as a dark gap; none on top (customers often set the
+         refrigerator and freezer columns in one continuous tall cabinet).
+      8. Flush door fronts this round for the built-in refrigerators only;
+         the columns wait for round 101, once their manuals are read.
+      9. Both words stay: 「比开口深 1"，围合柜需加深」 (`rule.deeperThanOpening`)
+         and 「冰箱柜体」 (`requirement.fridge`).
+      10. The stainless's reflection is not changed (above); out of the plan.
+      11. The side panel and the filler as deep as the opening (25") and as
+          tall as the tall cabinets beside them (96", 108" with a stack).
 - **A chimney hood narrower than its opening: the 3" of wall each side,
   looked at again.** *(Leo, round 99a: registered, not in 99a, no code
   changed; his site practice to come; nothing is chosen here — 「不要选，等我答」.)*
+  **Answered 2026-10-24** (Leo, his site practice: fillers in the wall
+  cabinets' plane, on no list — D16, the amendment after round 87's line).
   Round 87 settled it from his site practice then: the gap each side of a
   chimney hood is left open ("A chimney hood narrower than its opening leaves
   the gap open", D16, amended in round 87). Leo wants to look at it again
@@ -8683,6 +8917,18 @@ Registered, not scheduled. None of these is a round of its own.
     looked into (measured only). The refrigerator's pin in A's L did not
     open its card from the script (12 of 12 tries) and was left out of the
     fifty; not looked into either.
+    **Leo's answers** (2026-10-24, `docs/plans/geometry-leak-plan.md`): his
+    leaning is 乙 — the 3D library's own way of declaring a geometry, so it is
+    freed when its part is taken down; the plan says first how much that
+    changes, and falls back to 甲 (freeing each one by hand), with the reason,
+    if it is too much. All of it: the cabinets, the services, the walls, the
+    stone and the machines' outlines. The test: change away from a room and
+    back to the same room, and the geometries come back to the same number,
+    not one more. After round 99c.
+    **Decided** (Leo, 2026-10-24, on the final plan): 甲 everywhere — each
+    geometry freed by hand. The copied textures are registered on their own,
+    not in this round. The test also at a 768 tablet and a 390 phone. After
+    round 99c; the plan confirmed.
 - **Not yet done after round 98b-2, as one group; the order is Leo's to
   set.** *(Leo, round 98b-2: "把还没做的列成一组，顺序我再定".)* **His order
   (round 98b-2)**: round 99 the L's labels, words only; round 100 the quality
@@ -8701,6 +8947,17 @@ Registered, not scheduled. None of these is a round of its own.
     and "The columns side by side, from their own documents".
   - 「走廊式、U 型」 — "A layout shape switch" and round 98 in the registered
     rounds below.
+  **His order after round 100** (2026-10-24, replacing the one above): round
+  99c, the parts fenced off; then the geometries that climb with every swap;
+  then the chimney hood's fillers; then the refrigerator's front (D11 rule
+  11's amendment); then round 101; then the open end's stone; then the galley;
+  then the U. **Every round a plan first, shown to him, and built only once he
+  confirms it** ("每一轮都先写计划给我看，确认后再动手").
+  **Amended the same day**: the panel-ready round goes in after the
+  refrigerator's front — round 99c, the geometries, the chimney hood's
+  fillers, the refrigerator's front, stainless or panel-ready, round 101, the
+  open end, the galley, the U. The refrigerator's front waits on his look at
+  its plan with his eleven answers in it.
 - **Registered rounds after 78, in Leo's order.** *(Leo, rounds 78-79; not
   started. Round 79 put the interface round first and moved the rest back.)*
   0. **An interface round, plan first, with phone and desktop sketches.**
