@@ -9,6 +9,7 @@ import { useAppStore } from "../store/useAppStore";
 import { useRoughInFocus } from "../store/useRoughInFocus";
 import { useSelection } from "../store/useSelection";
 import { UNCONFIRMED, UNREVIEWED, UTILITY_COLORS } from "./materials";
+import { useDisposable } from "./useDisposable";
 
 /** Which of the four service colours a connection reads as. */
 const COLOUR: Record<string, string> = {
@@ -161,20 +162,25 @@ function Fitting({
     line.raycast = () => null;
     return line;
   }, [x, y, z, resolved.host, tier, colour]);
+  // Made here, line and material, so freed here (the geometries' round).
+  useDisposable(lead);
 
   // Anything short of confirmed is an outline round a faint box, dashed where it
   // has been reviewed and thin where it has not.
+  // By its three sizes, not the array they come in, which is new each time.
+  const [sizeX, sizeY, sizeZ] = resolved.size;
   const outline = useMemo(() => {
     if (tier === "confirmed") return null;
     const edges = new THREE.LineSegments(
-      new THREE.EdgesGeometry(new THREE.BoxGeometry(...resolved.size)),
+      new THREE.EdgesGeometry(new THREE.BoxGeometry(sizeX, sizeY, sizeZ)),
       lineMaterial(tier, colour, { dashSize: ft(0.5), gapSize: ft(0.35) }),
     );
     edges.position.set(x, y, z);
     edges.computeLineDistances();
     edges.raycast = () => null;
     return edges;
-  }, [tier, colour, x, y, z, resolved.size]);
+  }, [tier, colour, x, y, z, sizeX, sizeY, sizeZ]);
+  useDisposable(outline);
 
   return (
     <group
@@ -240,15 +246,17 @@ function HighLoop({
   colour: string;
   tier: LineTier;
 }) {
+  // By its three figures, not the array they come in (the geometries' round).
+  const [atX, atY, atZ] = at;
   const curve = useMemo(() => {
-    const [x, y, z] = at;
+    const [x, y, z] = [atX, atY, atZ];
     return new THREE.CatmullRomCurve3([
       new THREE.Vector3(x, y, z),
       new THREE.Vector3(x + ft(3), apex, z + ft(1)),
       new THREE.Vector3(x + ft(6), apex, z + ft(2)),
       new THREE.Vector3(x + ft(8), Math.max(y, ROOM.toeKick), z + ft(3)),
     ]);
-  }, [at, apex]);
+  }, [atX, atY, atZ, apex]);
 
   const line = useMemo(() => {
     if (tier === "confirmed") return null;
@@ -260,11 +268,13 @@ function HighLoop({
     drawn.raycast = () => null;
     return drawn;
   }, [tier, curve, colour]);
+  useDisposable(line);
 
   const tube = useMemo(
     () => (tier === "confirmed" ? new THREE.TubeGeometry(curve, 20, ft(0.8), 6, false) : null),
     [tier, curve],
   );
+  useDisposable(tube);
 
   if (line) return <primitive object={line} />;
   return (

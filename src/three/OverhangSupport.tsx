@@ -4,6 +4,7 @@ import { overhangSupportZone } from "../data/overhang";
 import { ISLAND, ft } from "../data/room";
 import { useAppStore } from "../store/useAppStore";
 import { UNCONFIRMED } from "./materials";
+import { useDisposable } from "./useDisposable";
 
 /**
  * Where the seating overhang has to be carried. Round 68, D20.
@@ -37,6 +38,8 @@ export function OverhangSupport() {
     drawn.raycast = () => null;
     return drawn;
   }, [zone]);
+  // Made here, line and material, so freed here (the geometries' round).
+  useDisposable(line);
 
   if (!line) return null;
   return <primitive object={line} visible={renderMode === "install"} />;

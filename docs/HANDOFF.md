@@ -12,7 +12,7 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **round 99d** (`docs/decisions.md` is the record of
+Covers the repository up to **the geometries' round**, after round 99d (`docs/decisions.md` is the record of
 rounds; `git log` is the record of commits). It replaces the v1–v9 briefs that
 were pasted into chat.
 
@@ -147,7 +147,9 @@ anywhere**: the file is the one source, and the tests read it.
   (**done**, round 99c, after Leo's look at the local preview; Open items).
   Round 99d: an error in a frame reaches the scene's fence, the pins going
   with the scene, and a long link notice folds into one sentence with Details
-  (**done**, round 99d, after Leo's second look; Open items).
+  (**done**, round 99d, after Leo's second look; Open items). The geometries
+  that climbed with every model swap freed by hand, 甲 (**done**, the
+  geometries' round, after Leo's look at the local preview; Open items).
 
 ### Next, in Leo's order (2026-10-24, after round 99d)
 
@@ -156,7 +158,8 @@ its figures are. **Every round a plan first, shown to Leo, built only once he
 confirms it** (Leo, 2026-10-24).
 
 1. **The geometries that climb with every model swap**
-   (`docs/plans/geometry-leak-plan.md`; 甲, freed by hand, Leo 2026-10-24).
+   (`docs/plans/geometry-leak-plan.md`; 甲, freed by hand, Leo 2026-10-24;
+   **done**, the geometries' round; Open items).
 2. **The chimney hood's fillers** — in the wall cabinets' plane, on no list
    (D16, amended 2026-10-24; `docs/plans/chimney-fillers-plan.md`, confirmed).
 3. **The refrigerator's front** — a built-in against the cabinets beside it,
@@ -224,6 +227,7 @@ confirms it** (Leo, 2026-10-24).
 | `scripts/swapMemory.mjs` | The renderer's geometries and textures, and the heap, after each of fifty model swaps in a row (round 100, measured only). |
 | `src/ui/PartFence.tsx`, `src/ui/fault.ts`, `tests/partFence.test.ts` | Five parts fenced off — the right panel, the 3D scene, the left panel, the quote page, the link's notice: a part that fails shows Leo's sentence and Retry, a package switch retries it, the visit counter records which part. `?fault=<part>` makes one fail, for the tests only (round 99c). |
 | `src/three/useSceneFrame.ts`, `src/three/sceneFrame.test.ts` | Every frame's work in the 3D scene goes through one hook, which hands an error thrown in a frame to the scene's fence (`FrameFailureRelay`); no other file takes `useFrame` from fiber (round 99d). |
+| `src/three/useDisposable.ts`, `tests/geometryReturn.test.ts` | A geometry a component makes in code and hands the scene (`<mesh geometry={made}>`, `<primitive>`) is freed when it is replaced or taken down — fiber frees only what is declared in JSX; sixteen places use it. A machine or package changed away and back brings the renderer's geometries back to the same number, on a 1440 desktop, a 768 tablet and a 390 phone, read at the default view (the geometries' round). |
 | `tests/shareNotice.test.ts` | A link notice of more than three lines is one sentence with Details and Hide details; three or fewer listed (round 99d). |
 | `src/data/nameFallback.test.ts` | A machine with no name found is called by its position's own name; `NAME_FALLBACKS` lists each fallback, which the words test asks to be empty (round 99c). |
 | `tests/shareLinkCut.test.ts` | Every field of a share link left out in turn, at `v=1` and `v=2`: the page stands and the notice names what is missing (round 99c). |

@@ -3,6 +3,7 @@ import { barStools } from "../data/barStools";
 import { ISLAND } from "../data/room";
 import { useAppStore } from "../store/useAppStore";
 import { buildBarStools, paintBarStools } from "./barStoolMesh";
+import { useDisposable } from "./useDisposable";
 
 /**
  * Bar stools at the island's seating overhang, where it has one. Round 77.
@@ -16,6 +17,9 @@ export function BarStools() {
   const renderMode = useAppStore((s) => s.renderMode);
   const showCabinets = useAppStore((s) => s.showCabinets);
   const group = useMemo(() => buildBarStools(barStools(ISLAND)), []);
+  // Built here, every stool's geometries and materials, so freed here with the
+  // room (the geometries' round).
+  useDisposable(group);
   // Painted during render, so the first frame is already in the right colours.
   paintBarStools(group, renderMode);
   return <primitive object={group} visible={showCabinets && renderMode !== "install"} />;

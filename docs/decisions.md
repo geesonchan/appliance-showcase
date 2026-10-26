@@ -6041,6 +6041,17 @@ Registered, not scheduled. None of these is a round of its own.
       3,317 of 3,317 (4,911 s, the machine held awake); the unit suite 3,002 of
       3,002. The local preview at 4173, main chunk `index-Cj2PIf3r.js` (a
       plain build).
+    - **Live, checked file by file**: commit `c35e3b3`, the Pages run
+      40288955103 a success, both its jobs — build (07:57:05 to 07:58:07
+      UTC, 2026-10-26) and deploy (07:58:12 to 07:58:22) — each a success.
+      Built at `c35e3b3` with
+      `VITE_GOATCOUNTER=https://geesonchan.goatcounter.com/count`, every file
+      fetched from the live site and compared byte for byte, all six
+      identical: `index.html` (901 bytes), `assets/index-DilmS3GV.js`
+      (687,326), `assets/index-BXokVwDN.css` (23,928),
+      `assets/react-i_nGBwMY.js` (145,992), `assets/shareQr-BXYgausd.js`
+      (21,968), `assets/three-DN8glM5f.js` (704,111); the live `index.html`
+      asks for nothing the build does not have.
 - **Round 99c, a part that fails is fenced off, and a share link cut short
   keeps the page — built and shipped after Leo's look at the local preview**
   (Leo: "99c 预览看过了（index-C6lEvBrp.js），可以提交"). The
@@ -9036,6 +9047,83 @@ Registered, not scheduled. None of these is a round of its own.
     geometry freed by hand. The copied textures are registered on their own,
     not in this round. The test also at a 768 tablet and a 390 phone. After
     round 99c; the plan confirmed.
+    **Built, and shipped after Leo's look at the local preview** (Leo:
+    "内存这一轮预览看过了（index-w-vQUFfq.js），可以提交").
+    - **What**: `src/three/useDisposable.ts` frees what a component made for
+      itself when it is replaced or taken down — a geometry, or every geometry
+      and material under a three object. Sixteen calls: in `CabinetLayer.tsx`
+      the box geometry (`useBoxGeometry`, now made again only when one of
+      its three sizes changes, not when a new array of the same three
+      arrives), the install wireframe's edges and the counter stone; the back
+      and left walls (`KitchenShell.tsx`); a machine's selection outline and
+      a hood's canopy (`ApplianceModel.tsx`; the canopy's after the insert's
+      early return, as its memo is — Open items); the hood cabinet's cove;
+      the rough-in's lead, outline, and a high loop's line and tube
+      (`RoughInLayer.tsx`; the outline and the loop made again on their
+      numbers, not on a new array); a dashed ring and a ceiling stub
+      (`UtilityLayer.tsx`); the overhang support's line; the bar stools.
+    - **The test**, `tests/geometryReturn.test.ts`, ten cases: on a 1440
+      desktop by the mouse the hood, the range and the dishwasher swapped and
+      back, package B to A and back, the hood in the install view, one wall's
+      E to A and back; on a 768 tablet and a 390 phone by a finger the hood,
+      and B to A and back. The renderer's geometries once three readings half
+      a second apart agree, before and after: the same number, the swaps
+      taken, no page error. **Read at the default view, with the same history**
+      — found while building it: three counts a geometry once it has been
+      drawn, so a room rebuilt while the camera is flown in to a machine
+      counts only what is in view (239 on opening, 227 after the hood swapped
+      and back with its card open, 239 again on Reset view); and a machine's
+      selection outline counts from its first drawing (238 with the hood never
+      chosen, 239 once it has been). So each reading follows Reset view, and
+      the machine is chosen once before the first. **Red on `c35e3b3`**, all
+      ten: the hood 239 to 352 (on all three screens), the range 239 to 355,
+      the dishwasher 239 to 241, the install view 284 to 540, B to A and back
+      333 to 461 (all three), one wall 324 to 432. Green after, all ten.
+    - **Proofs**: `scripts/lDump.ts` 1,045 of 1,045 and
+      `scripts/oneWallDump.ts` 91 of 91 byte for byte as `c35e3b3`. Pixels
+      locked, round 99's 45 states at the high tier and at the low, `c35e3b3`
+      against this round, each shot twice, alternated: the 3D canvas the same
+      in all 45 at both tiers, old against new and each build against itself.
+      On screen, old against new, one pixel in three states at each tier
+      (`desk-D-materials`, `link-A-noisland`, `link-E-noisland` high;
+      `link-C-noisland`, `link-D`, `link-E` low) — the same pixel in all
+      six, at (144, 225), one shade apart (236,234,227 or 237,235,228), and it
+      changes the same way between a build's own two runs (`link-B-noisland`
+      in both builds, `link-C` in the new). Elsewhere a build's own two runs
+      differ on screen only, the canvas the same: high, `link-A` (2,552 old,
+      2,553 new), `link-B` (2,127, 2,126), `link-D` 4,612, `link-E` 3,673
+      and `link-E-noisland` 3,676 in the old, `link-A-noisland` 1,599 in the
+      new; low, `desk-A-materials` 3,405 in both, `link-A-noisland` 1,598
+      in the new, `phone360-zh-A` 2,499 in the old. Fifty swaps
+      (`scripts/swapMemory.mjs`, the range, hood, dishwasher and
+      refrigerator in turn; the refrigerator's card did not open, 12 of 12,
+      as in round 100): `c35e3b3` 238 with the page open, 529 after 10, 770
+      after 20, 1,058 after 30, 1,307 after 40, 1,594 after 50; this round
+      238, then between 217 and 241 throughout, 224 after 50. Textures 9 to
+      10 in both. The main chunk's three imports one name more (`Object3D`,
+      for `useDisposable`'s check), so the three chunk's name changes with
+      its export list, its code the same. The suite 3,327 of 3,327 (4,497 s,
+      the machine held awake); the unit suite 3,002 of 3,002.
+- **The copied textures** *(Leo, 2026-10-24: registered on their own, not
+  in the geometries' round; `docs/plans/geometry-leak-plan.md`.)*
+  `Surface.tsx:60` and `CabinetLayer.tsx:40` clone a texture each time a
+  surface or a counter slab is made, and nothing disposes the clone. Not in
+  the renderer's count of geometries, and its count of textures stays at 9 to
+  10 (round 100's fifty swaps): a clone shares its source with the original,
+  and three uploads a source once. Disposing the clones would change when that
+  shared upload is let go, and could bring back the re-upload `Surface.tsx`'s
+  comment avoids (its lines 55 to 59). Read off the code, not run:
+  `disposeTextures` (`textures.ts:565`), when the page drops to the low
+  tier, disposes only the originals; the clones still hold the shared source,
+  so the high tier's 512-pixel textures may stay on the graphics card.
+- **A hood's geometry is made after an early return** (found while planning
+  the geometries' round; read off the code, not run). In `ApplianceModel.tsx`
+  the hood's `useMemo` for its canopy stands after the insert's `return`
+  (`kind === "insert"`), a hook called only on some renders; the geometries'
+  round put the canopy's `useDisposable` beside it, after the same return.
+  Nothing goes wrong today: a hood changing kind rebuilds the room and makes
+  this component again. If a hood swap ever stops rebuilding the room, a
+  change from an insert to another kind would throw.
 - **Not yet done after round 98b-2, as one group; the order is Leo's to
   set.** *(Leo, round 98b-2: "把还没做的列成一组，顺序我再定".)* **His order
   (round 98b-2)**: round 99 the L's labels, words only; round 100 the quality

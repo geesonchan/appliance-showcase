@@ -4,6 +4,7 @@ import { useAppStore } from "../store/useAppStore";
 import { finish, floorColor, wallColor, type FinishToken } from "./materials";
 import { Surface } from "./Surface";
 import { WindowLayer, wallWithWindows } from "./WindowLayer";
+import { useDisposable } from "./useDisposable";
 
 /** Floor and the two walls the L-shaped run sits against. */
 /**
@@ -72,6 +73,9 @@ export function KitchenShell() {
       ),
     [layoutVersion],
   );
+  // Made here, so freed here when the room is (the geometries' round).
+  useDisposable(backWall);
+  useDisposable(leftWall);
 
   const floorSize: [number, number] = [
     ROOM.halfX * 2 + WALL_GAP * 2,

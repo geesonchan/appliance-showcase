@@ -10,6 +10,7 @@ import { ft } from "../data/slots";
 import type { CabinetBox } from "../data/cabinets";
 import type { SurfaceProps } from "./materials";
 import { Surface } from "./Surface";
+import { useDisposable } from "./useDisposable";
 
 /**
  * The housing round an insert liner, in the door finish.
@@ -38,6 +39,8 @@ export function HoodCabinet({
   const style = box.module?.housing ?? "box";
   const parts = useMemo(() => hoodCabinetParts({ w, h, d }, style), [w, h, d, style]);
   const cove = useMemo(() => (parts.cove.h > 0 ? shell(parts.cove.rings) : null), [parts]);
+  // Made here, so freed here (the geometries' round).
+  useDisposable(cove);
 
   const moulding = ft(HOOD_CABINET.mouldingIn);
   const proud = ft(HOOD_CABINET.mouldingProudIn);

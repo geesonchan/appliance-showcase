@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useDisposable } from "./useDisposable";
 import * as THREE from "three";
 import type { ThreeEvent } from "@react-three/fiber";
 import { applianceBox, doorOverhang, flushOffset, isRangetop } from "../data/applianceBox";
@@ -104,6 +105,9 @@ export function ApplianceModel({ slot, appliance }: ApplianceModelProps) {
     () => new THREE.EdgesGeometry(new THREE.BoxGeometry(box.w, box.h, box.d)),
     [box.w, box.h, box.d],
   );
+  // Made here, so freed here (the geometries' round). The box it is taken
+  // from is never drawn and goes with it.
+  useDisposable(outline);
 
   const handleClick = (event: ThreeEvent<MouseEvent>) => {
     event.stopPropagation();
@@ -1757,6 +1761,10 @@ function Hood({
         : wedgeGeometry(w, h, d, topDepthIn, frontLipIn ?? undefined),
     [chimneyed, w, h, d, topDepthIn, frontLipIn],
   );
+  // Freed with the canopy (the geometries' round). After the insert's early
+  // return, as the memo is: a hood never changes kind without the room, and
+  // so this component, being made again.
+  useDisposable(canopy);
 
   if (kind === "insert") {
     // Buried in custom joinery: only the opening it needs is worth drawing.

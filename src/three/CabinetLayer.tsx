@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useDisposable } from "./useDisposable";
 import * as THREE from "three";
 import {
   CABINETS,
@@ -47,8 +48,16 @@ const GHOST_OPACITY = 0.06;
 /** Wireframe opacity on a phone, where the lines otherwise crowd each other. */
 const MOBILE_WIRE_OPACITY = 0.25;
 
+/**
+ * A box's geometry, made again only when its three sizes change — not when a
+ * new array of the same three arrives, as a vented cabinet's did on every swap
+ * — and freed when it is replaced or taken down (the geometries' round).
+ */
 function useBoxGeometry(size: [number, number, number]) {
-  return useMemo(() => new THREE.BoxGeometry(size[0], size[1], size[2]), [size]);
+  const [w, h, d] = size;
+  const geometry = useMemo(() => new THREE.BoxGeometry(w, h, d), [w, h, d]);
+  useDisposable(geometry);
+  return geometry;
 }
 
 /**
@@ -370,6 +379,7 @@ function CabinetWireframe({ box, faint }: { box: CabinetBox; faint: boolean }) {
   const renderMode = useAppStore((s) => s.renderMode);
   const geometry = useBoxGeometry(box.size);
   const edges = useMemo(() => new THREE.EdgesGeometry(geometry), [geometry]);
+  useDisposable(edges);
 
   return (
     <lineSegments
@@ -438,6 +448,7 @@ function CounterSlab() {
     extruded.translate(0, band[1], 0);
     return extruded;
   }, [range, cooktop]);
+  useDisposable(geometry);
 
   const token = useAppStore((s) => s.finishes.counter);
   const props = finish(renderMode, token);

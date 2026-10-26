@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useDisposable } from "./useDisposable";
 import * as THREE from "three";
 import { CABINET_STANDARDS, ROOM, SLOTS, ft } from "../data/slots";
 import { FIXTURES } from "../data/fixtures";
@@ -106,6 +107,8 @@ function DashedRing({ name, centre, radius }: { name: string; centre: [number, n
     drawn.userData = { tier: "unconfirmed" };
     return drawn;
   }, [name, x, y, z, radius]);
+  // Made here, line and material, so freed here (the geometries' round).
+  useDisposable(ring);
   return <primitive object={ring} />;
 }
 
@@ -181,6 +184,7 @@ function CeilingStub({ from, to }: { from: [number, number, number]; to: [number
     drawn.userData = { tier: "unconfirmed" };
     return drawn;
   }, [x, y0, z, y1]);
+  useDisposable(line);
   return <primitive object={line} />;
 }
 
