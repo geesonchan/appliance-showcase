@@ -1,5 +1,6 @@
 import { Suspense, useEffect } from "react";
-import { FaultProbe } from "../ui/fault";
+import { FaultProbe, failingInFrame } from "../ui/fault";
+import { FrameFailureRelay, useSceneFrame } from "./useSceneFrame";
 import * as THREE from "three";
 import { Canvas, useThree } from "@react-three/fiber";
 import { useAppStore } from "../store/useAppStore";
@@ -67,6 +68,14 @@ function RoomShadowRefresh() {
  * toggles only change materials and `visible` flags, so nothing is rebuilt on
  * a mode switch.
  */
+/** A frame that throws, for the tests only: `?fault=scene-frame` (round 99d). */
+function FrameFaultProbe() {
+  useSceneFrame(() => {
+    if (failingInFrame()) throw new Error("?fault=scene-frame: a frame failing on purpose");
+  });
+  return null;
+}
+
 export function Scene() {
   const selectSlot = useAppStore((s) => s.selectSlot);
   const lighting = useAppStore((s) => s.lighting);
@@ -101,6 +110,9 @@ export function Scene() {
         <ShaderWarmup />
         <QualityGuard />
         <FaultProbe part="scene" />
+        {/* A frame's failure, thrown again while drawing, for the scene's fence (round 99d). */}
+        <FrameFailureRelay />
+        <FrameFaultProbe />
         <Environment />
         <Lights />
         {/* Everything made out of the layout hangs off one key. Changing a

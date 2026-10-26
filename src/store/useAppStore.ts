@@ -62,12 +62,13 @@ export interface ToastMessage {
 
 /**
  * One thing a share link had that the page does not show as it was: a model
- * not in the catalogue, a model or blower that does not go in its place, or a
- * setting it could not use. `field` is the link field's name (shareLink.ts);
+ * not in the catalogue, a model or blower that does not go in its place, a
+ * setting it could not use, or — since round 99d — a setting it does not have
+ * at all. `field` is the link field's name (shareLink.ts);
  * `from` is what the link had, `to` what is shown, each in that field's terms.
  */
 export interface NoticeLine {
-  kind: "catalogue" | "fit" | "setting";
+  kind: "catalogue" | "fit" | "setting" | "missing";
   field: string;
   from?: string;
   to: unknown;

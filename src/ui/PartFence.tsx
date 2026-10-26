@@ -1,4 +1,4 @@
-import { Component, Fragment, type ReactNode } from "react";
+import { Component, Fragment, useSyncExternalStore, type ReactNode } from "react";
 import { EVENTS, countEvent } from "../analytics";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
@@ -20,6 +20,31 @@ import { clearFault, type Part } from "./fault";
  */
 
 const counted = new Set<Part>();
+
+/**
+ * Which parts stand failed now, for what belongs with them: the scene's pins
+ * and dimensions are drawn over the canvas, outside its fence, and stayed
+ * floating over the empty place and across the message until round 99d (Leo).
+ */
+const failedNow = new Set<Part>();
+const watchers = new Set<() => void>();
+function markFailed(part: Part, failed: boolean) {
+  if (failed === failedNow.has(part)) return;
+  if (failed) failedNow.add(part);
+  else failedNow.delete(part);
+  for (const watch of watchers) watch();
+}
+const watch = (onChange: () => void) => {
+  watchers.add(onChange);
+  return () => {
+    watchers.delete(onChange);
+  };
+};
+
+/** Whether a part stands failed, its message showing. */
+export function usePartFailed(part: Part): boolean {
+  return useSyncExternalStore(watch, () => failedNow.has(part));
+}
 
 interface FenceProps {
   part: Part;
@@ -46,6 +71,7 @@ class Fence extends Component<FenceProps, { failed: boolean; attempt: number }> 
   }
 
   componentDidCatch(error: unknown) {
+    markFailed(this.props.part, true);
     // For whoever opens the console; the page itself says only Leo's sentence.
     console.error(`part failed: ${this.props.part}`, error);
     if (!counted.has(this.props.part)) {
@@ -60,6 +86,7 @@ class Fence extends Component<FenceProps, { failed: boolean; attempt: number }> 
 
   retry = () => {
     this.failedOn = null;
+    markFailed(this.props.part, false);
     clearFault(this.props.part);
     this.setState((s) => ({ failed: false, attempt: s.attempt + 1 }));
   };

@@ -1,6 +1,7 @@
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useThree } from "@react-three/fiber";
+import { useSceneFrame } from "./useSceneFrame";
 import { labelledBoxes } from "../data/cabinets";
 import { DEBUG } from "../debug";
 import { moduleLabels } from "./moduleLabelRegistry";
@@ -32,7 +33,7 @@ export function ModuleLabelProjector() {
 
   const projected = useMemo(() => new THREE.Vector3(), []);
 
-  useFrame(() => {
+  useSceneFrame(() => {
     if (!DEBUG || anchors.length === 0) return;
     frame.current += 1;
     if (frame.current % 3 !== 0) return;

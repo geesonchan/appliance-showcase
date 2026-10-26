@@ -288,6 +288,17 @@ describe("an older link, checked by what the page already asks", () => {
     expect(notice()).toEqual([{ kind: "setting", field: "wall", to: "warm-grey" }] satisfies NoticeLine[]);
   });
 
+  // Round 99d (Leo): a setting the link does not have at all is said apart from
+  // one it has and cannot use — "链接里没有这一项，此处显示 X。" / "Not in the
+  // link; showing X." The two, side by side, in one link.
+  it("says a setting the link left out is not in it, apart from one it cannot use", () => {
+    openSharedLink(linkWith({ wall: null, counter: "granite" }));
+    expect(notice()).toEqual([
+      { kind: "setting", field: "counter", to: "quartz-white" },
+      { kind: "missing", field: "wall", to: "warm-grey" },
+    ] satisfies NoticeLine[]);
+  });
+
   it("grows a wall the link's layout needs, and says what is shown (D18)", () => {
     // A lazy susan at A's 144" left wall asks more wall than that.
     freshPage();
@@ -315,8 +326,11 @@ describe("an older link, checked by what the page already asks", () => {
 
 describe("the notice's words (D10, reviewed.json)", () => {
   const keys = Object.keys(en).filter((key) => key.startsWith("share.notice."));
-  it("has its five lines in both languages", () => {
-    expect({ en: keys.length, zh: keys.filter((key) => key in zh).length }).toEqual({ en: 5, zh: 5 });
+  // Five lines since round 94; four more in round 99d (Leo): the sentence a
+  // long notice is folded into, its Details and Hide details, and a setting
+  // the link does not have.
+  it("has its nine lines in both languages", () => {
+    expect({ en: keys.length, zh: keys.filter((key) => key in zh).length }).toEqual({ en: 9, zh: 9 });
   });
 
   it("never says what was changed: no 改到, 移到, 更新为 or their English", () => {

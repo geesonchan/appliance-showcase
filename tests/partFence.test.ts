@@ -23,7 +23,7 @@ const MESSAGE = (en as Record<string, string>)["part.failed"];
 /** A's own link with the language left out, so that the notice shows. */
 const CUT_LINK = "?v=2&pkg=A";
 
-const EXPECTED_TESTS = 14;
+const EXPECTED_TESTS = 19;
 let testsRun = 0;
 const filtered = process.argv.some((arg) => arg === "-t" || arg.startsWith("--testNamePattern"));
 beforeEach(() => {
@@ -181,4 +181,106 @@ describe("a part that fails is fenced off, and comes back (round 99c)", () => {
       errors: [],
     });
   });
+});
+
+/**
+ * Round 99d, Leo: "3D 画面每一帧里（useFrame）的报错：要触发 3D 画面那道隔离，
+ * 显示出错提示和"重试"，不能停在空画面上". Round 99c's trial of it: the page
+ * went on, but the picture stopped on an empty canvas, the error thrown again
+ * every frame, and no fence saw it. `?fault=scene-frame` throws in a frame
+ * until a retry. After Retry the picture is drawn again, and goes on being
+ * drawn: the renderer's count climbs.
+ */
+describe("an error in a frame reaches the 3D scene's fence (round 99d)", () => {
+  for (const device of ["desktop", "phone"] as const) {
+    it(`on a ${device}: the scene shows the message and Retry, and Retry draws it again`, async () => {
+      const context = await browser.newContext(DEVICES[device]);
+      const page = await context.newPage();
+      await page.addInitScript(() => {
+        const counting = window as unknown as { __renders: number; __THREE_DEVTOOLS__: EventTarget };
+        counting.__renders = 0;
+        const hook = new EventTarget();
+        counting.__THREE_DEVTOOLS__ = hook;
+        hook.addEventListener("observe", (event) => {
+          const r = (event as CustomEvent).detail;
+          if (!r?.isWebGLRenderer || !r.render) return;
+          const own = r.render.bind(r);
+          r.render = (scene: unknown, camera: unknown) => {
+            counting.__renders += 1;
+            own(scene, camera);
+          };
+        });
+      });
+      await page.goto(`${PREVIEW_URL}?quality=low&fault=scene-frame`, { waitUntil: "networkidle", timeout: 90_000 });
+      await page.waitForTimeout(2500);
+      const during = await state(page);
+      const buttons = await page.getByRole("button", { name: "B", exact: true }).filter({ visible: true }).count();
+      await press(page, device, "button", "Retry");
+      const renders = () => page.evaluate(() => (window as unknown as { __renders: number }).__renders);
+      const first = await renders();
+      await page.waitForTimeout(1500);
+      const later = await renders();
+      const after = await state(page);
+      await context.close();
+      expect({
+        during: shows(during, "scene"),
+        rest: buttons > 0,
+        after: { failed: after.failed, canvas: after.canvas, drawing: later > first },
+      }).toEqual({
+        during: { failed: ["scene"], message: true, part: "scene" },
+        rest: true,
+        after: { failed: [], canvas: 1, drawing: true },
+      });
+    });
+  }
+});
+
+/**
+ * Round 99d, after Leo's look at the preview: with the 3D scene failed, its
+ * pins and their leader lines still floated over the empty place, "02 Range"
+ * across the message. While the scene's fence shows its message the pins and
+ * the dimensions are hidden with it, and come back when the scene does.
+ */
+describe("the scene's pins go with the scene (round 99d)", () => {
+  for (const [device, fault] of [
+    ["desktop", "scene"],
+    ["desktop", "scene-frame"],
+    ["phone", "scene"],
+  ] as const) {
+    it(`on a ${device}, ?fault=${fault}: no pin while the message shows, nothing over it; the pins back after Retry`, async () => {
+      const context = await browser.newContext(DEVICES[device]);
+      const page = await context.newPage();
+      await page.goto(`${PREVIEW_URL}?quality=low&fault=${fault}`, { waitUntil: "networkidle", timeout: 90_000 });
+      await page.waitForTimeout(2500);
+      const look = () =>
+        page.evaluate(() => {
+          const shown = (el: Element) => {
+            const r = (el as HTMLElement).getBoundingClientRect();
+            const style = getComputedStyle(el);
+            return r.width > 0 && r.height > 0 && style.visibility !== "hidden" && Number(style.opacity) > 0;
+          };
+          const pins = [...document.querySelectorAll("[data-pin-label], [data-pin-dot]")].filter(shown).length;
+          const message = document.querySelector("[data-part-failed] p");
+          let covered = false;
+          if (message) {
+            const r = message.getBoundingClientRect();
+            for (const [fx, fy] of [[0.25, 0.5], [0.5, 0.5], [0.75, 0.5]]) {
+              const hit = document.elementFromPoint(r.left + r.width * fx, r.top + r.height * fy);
+              if (!hit || !hit.closest("[data-part-failed]")) covered = true;
+            }
+          }
+          return { pins, message: !!message, covered };
+        });
+      const during = await look();
+      await press(page, device, "button", "Retry");
+      await page.waitForTimeout(1000);
+      const after = await look();
+      await context.close();
+      expect({ during, afterPins: after.pins > 0, afterMessage: after.message }).toEqual({
+        during: { pins: 0, message: true, covered: false },
+        afterPins: true,
+        afterMessage: false,
+      });
+    });
+  }
 });

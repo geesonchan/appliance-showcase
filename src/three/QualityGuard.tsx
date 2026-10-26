@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useThree } from "@react-three/fiber";
+import { useSceneFrame } from "./useSceneFrame";
 import { QUALITY_LOCKED, useAppStore } from "../store/useAppStore";
 import { createJudge, watchScene } from "./qualityRule";
 import { disposeTextures } from "./textures";
@@ -30,7 +31,7 @@ export function QualityGuard() {
 
   useEffect(() => watchScene(useAppStore, judge.current.changed), []);
 
-  useFrame((_, delta) => {
+  useSceneFrame((_, delta) => {
     frames.current += 1;
     since.current += delta;
     if (since.current < 1) return;

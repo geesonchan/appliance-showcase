@@ -16,7 +16,7 @@ import { RailToggle } from "./ui/RailToggle";
 import { TopBar } from "./ui/TopBar";
 import { useT } from "./i18n/useT";
 import { useAppStore } from "./store/useAppStore";
-import { PartFence } from "./ui/PartFence";
+import { PartFence, usePartFailed } from "./ui/PartFence";
 
 /** The appliance list's width when open. Fixed, so a long model name truncates. */
 const LIST_RAIL_PX = 260;
@@ -38,6 +38,9 @@ export default function App() {
   // The quote page's fence tries it again once it is closed, and its Close is
   // the fence's own when the page has failed (round 99c).
   const quoteOpen = useAppStore((s) => s.quoteOpen);
+  // The pins and dimensions go with the scene when its fence shows its message
+  // (round 99d): drawn over the canvas, they floated over the empty place.
+  const sceneFailed = usePartFailed("scene");
   const setQuoteOpen = useAppStore((s) => s.setQuoteOpen);
   /**
    * The parts of the interface that are drawings of the room rather than
@@ -105,10 +108,10 @@ export default function App() {
                 "radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 62%, rgba(24,26,22,0.10) 100%)",
             }}
           />
-          <PinOverlay key={`pins-${layoutVersion}`} />
-          <DimensionOverlay key={`dims-${layoutVersion}`} />
+          {!sceneFailed && <PinOverlay key={`pins-${layoutVersion}`} />}
+          {!sceneFailed && <DimensionOverlay key={`dims-${layoutVersion}`} />}
           <LayoutIssues />
-          <ModuleLabels key={`modules-${layoutVersion}`} />
+          {!sceneFailed && <ModuleLabels key={`modules-${layoutVersion}`} />}
           <ModeSwitch />
           <ModelCard />
           <BottomBar />

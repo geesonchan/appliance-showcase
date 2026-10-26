@@ -755,6 +755,26 @@
       "text": "Retry",
       "approval": "written",
       "reviewed": "Leo's own wording (round 99c: the button in a failed part's message)"
+    },
+    "share.notice.incomplete": {
+      "text": "{count} settings in this link couldn't be shown as they were and are shown with defaults.",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99d: a link notice of more than three lines, as one sentence; N is every line)"
+    },
+    "share.notice.details": {
+      "text": "Details",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99d: the button that opens a long link notice's lines)"
+    },
+    "share.notice.hideDetails": {
+      "text": "Hide details",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99d: the same button once the lines are open)"
+    },
+    "share.notice.missing": {
+      "text": "{item}: Not in the link; showing {to}.",
+      "approval": "written",
+      "reviewed": "Leo's own wording after the item's name, as every notice line begins (round 99d: a setting the link does not have at all)"
     }
   },
   "zh": {
@@ -1517,6 +1537,26 @@
       "text": "重试",
       "approval": "written",
       "reviewed": "Leo's own wording (round 99c: the button in a failed part's message)"
+    },
+    "share.notice.incomplete": {
+      "text": "这个链接有 {count} 项无法照原样显示，已按默认显示。",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99d: a link notice of more than three lines, as one sentence; N is every line)"
+    },
+    "share.notice.details": {
+      "text": "详情",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99d: the button that opens a long link notice's lines)"
+    },
+    "share.notice.hideDetails": {
+      "text": "收起",
+      "approval": "written",
+      "reviewed": "Leo's own wording (round 99d: the same button once the lines are open)"
+    },
+    "share.notice.missing": {
+      "text": "{item}：链接里没有这一项，此处显示 {to}。",
+      "approval": "written",
+      "reviewed": "Leo's own wording after the item's name, as every notice line begins (round 99d: a setting the link does not have at all)"
     }
   }
 }

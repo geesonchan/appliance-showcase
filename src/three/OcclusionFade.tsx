@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useThree } from "@react-three/fiber";
+import { useSceneFrame } from "./useSceneFrame";
 import { SLOT_BY_ID, ft } from "../data/slots";
 import { toLocal } from "../data/frame";
 import type { Appliance, Slot, SlotId } from "../types";
@@ -250,7 +251,7 @@ export function OcclusionFade() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSlot]);
 
-  useFrame(() => {
+  useSceneFrame(() => {
     frame.current += 1;
     const first = firstPass.current;
     if (!first && frame.current % CADENCE !== 0) return;

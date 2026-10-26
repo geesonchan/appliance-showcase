@@ -43,6 +43,13 @@ import { useAppStore, type NoticeLine } from "./useAppStore";
  * as every page does; nothing here moves it (D1, D23). And there is nothing to
  * undo: no room stood in this tab before it, so no line offers Undo.
  */
+/**
+ * A setting the link does not have at all, or one it has and the page cannot
+ * use — said apart since round 99d (Leo: "链接里根本没给的项，改说「链接里没有这一项，
+ * 此处显示 X。」"). A value the room would not take, though read, is the second.
+ */
+const kindFor = (read: { state: string }): "missing" | "setting" => (read.state === "missing" ? "missing" : "setting");
+
 export function openSharedLink(search: string): void {
   const query = new URLSearchParams(search);
   const link = readLink(query);
@@ -59,7 +66,7 @@ export function openSharedLink(search: string): void {
   // The language first, so everything after it is said in it.
   const lang = readField(LANG_FIELD, query);
   if (lang.state === "ok") store.getState().setLang(lang.value);
-  else lines.push({ kind: "setting", field: LANG_FIELD.name, to: store.getState().lang });
+  else lines.push({ kind: kindFor(lang), field: LANG_FIELD.name, to: store.getState().lang });
 
   // The package, as its button switches it.
   store.getState().setPackageId(link.packageId);
@@ -110,7 +117,7 @@ export function openSharedLink(search: string): void {
   for (const { field, read } of reads) {
     const shown = field.get(built);
     if (read.state !== "ok" || field.write(shown) !== field.write(read.value)) {
-      lines.push({ kind: "setting", field: field.name, to: shown });
+      lines.push({ kind: kindFor(read), field: field.name, to: shown });
     }
   }
 
@@ -121,7 +128,7 @@ export function openSharedLink(search: string): void {
     const read = readField(field, query);
     const shown = () => store.getState().selection[field.slotId];
     if (read.state !== "ok") {
-      lines.push({ kind: "setting", field: field.name, to: shown() });
+      lines.push({ kind: kindFor(read), field: field.name, to: shown() });
       continue;
     }
     const appliance = applianceByModel(read.value);
@@ -145,7 +152,7 @@ export function openSharedLink(search: string): void {
   const blower = readField(BLOWER_FIELD, query);
   const kept = store.getState().blowerId ?? "none";
   if (blower.state !== "ok") {
-    lines.push({ kind: "setting", field: BLOWER_FIELD.name, to: kept });
+    lines.push({ kind: kindFor(blower), field: BLOWER_FIELD.name, to: kept });
   } else if (blower.value.toLowerCase() === "none") {
     store.getState().selectBlower(null);
   } else {
@@ -166,7 +173,7 @@ export function openSharedLink(search: string): void {
   for (const field of FINISH_FIELDS) {
     const read = readField(field, query);
     if (read.state === "ok") store.getState().setFinish(field.put(read.value));
-    else lines.push({ kind: "setting", field: field.name, to: field.get(store.getState().finishes) });
+    else lines.push({ kind: kindFor(read), field: field.name, to: field.get(store.getState().finishes) });
   }
 
   // Nothing selected, and no message about a room growing: the package switch

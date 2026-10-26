@@ -1,6 +1,7 @@
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useThree } from "@react-three/fiber";
+import { useSceneFrame } from "./useSceneFrame";
 import { dimensionsFor } from "../data/dimensions";
 import { useAppStore } from "../store/useAppStore";
 import { useSelection } from "../store/useSelection";
@@ -55,7 +56,7 @@ export function DimensionProjector() {
   );
   const frame = useRef(0);
 
-  useFrame(() => {
+  useSceneFrame(() => {
     if (dimensions.length === 0) {
       if (dimensionRects.length > 0) dimensionRects.length = 0;
       return;

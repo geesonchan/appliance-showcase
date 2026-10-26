@@ -5944,6 +5944,103 @@ Registered, not scheduled. None of these is a round of its own.
      only the sentence and that opening it lists them all. Seen in round 99c's
      preview: `?v=2&pkg=A` listed some thirty lines over the whole scene.
   The plan: `docs/plans/round-99d-plan.md`.
+  - **Leo's answers to the plan's three questions** (2026-10-25): "Details" /
+    「详情」 opens, "Hide details" / 「收起」 closes, the two in turn, and Close
+    stays; N counts every line of the notice — a setting left out, a model not
+    in the catalogue, one that does not fit, a setting that cannot be used —
+    and so does "more than three"; the sentence as he rewrote it:
+    「这个链接有 N 项无法照原样显示，已按默认显示。」 / "N settings in this link
+    couldn't be shown as they were and are shown with defaults." All locked in
+    `reviewed.json`.
+  - **Built, and shipped after Leo's second look at the local preview** (Leo:
+    "99d 再看过了（index-Cj2PIf3r.js），可以提交").
+    - **A frame's error**: every frame's work goes through
+      `src/three/useSceneFrame.ts` — the six `useFrame`s in `CameraRig`,
+      `DimensionProjector`, `ModuleLabelProjector`, `OcclusionFade`,
+      `PinProjector` and `QualityGuard` — which catches what a frame throws
+      and hands it to `FrameFailureRelay` in the canvas; the relay throws it
+      again while the scene draws, fiber's own boundary takes it out of the
+      canvas, and round 99c's scene fence shows the message and Retry. The
+      canvas is taken down with it, so the error no longer repeats every
+      frame. `?fault=scene-frame` makes a frame throw, for the tests only.
+    - **The long notice**: more than three lines are the one sentence and
+      Details (`ShareNotice` in `SceneControls.tsx`).
+    - **Tests red first**: `src/three/sceneFrame.test.ts` (no file but
+      `useSceneFrame.ts` takes `useFrame` from fiber) — red on `cb4222c`,
+      the six files listed; `tests/partFence.test.ts`, two cases more (a
+      frame failing on a 1440 desktop by the mouse and a 390 phone by a
+      finger: the message and Retry, then the picture drawn again and still
+      drawing, the renderer's count climbing) — red with the switch in and
+      the wrapper only passing calls through, no Retry to press; green after,
+      with the other 14; `tests/shareNotice.test.ts` — a link cut to its
+      version and package (one sentence counting every line, Details opening
+      them all, Hide details closing them, Close throughout), three lines
+      (listed as before, no Details), four (one sentence): on `cb4222c` the
+      first and the third red, the second green; all green after. The 63
+      cut-short link cases stay green.
+    - **Proofs**: `scripts/lDump.ts` 1,045 of 1,045 and
+      `scripts/oneWallDump.ts` 91 of 91 byte for byte as `cb4222c`. Pixels
+      locked, round 99's 45 states at the high tier, `cb4222c` against round
+      99d, each shot twice, alternated: the 3D canvas the same in all 45 old
+      against new, and each build's own two runs the same on the canvas in all
+      but `desk-B-install` (the old build's two 688 pixels apart). **One state
+      changed, as the round means it to, which the plan
+      had said none would**: `link-E-noisland`, round 97's link for E with the
+      island taken out, opens with a notice of twelve lines, listed whole in
+      `cb4222c` and now the one sentence (这个链接有 12 项无法照原样显示…) — the box
+      smaller, so the scene behind it shows more (84,442 pixels, 15 text
+      changes). Otherwise, on screen, `link-C` 2,552 and `link-C-noisland`
+      1,598 old against new, each shot three more times: both builds land
+      either way (`link-C`'s old runs 2,552 three times; `link-C-noisland`'s
+      new runs 0, 1, 1); and `link-D`, `desk-D-materials` 1 pixel. The suite's
+      first run 3,307 of 3,308: the one failure `shareLink.test.ts` counting
+      the notice's words at five, now eight — the test brought to eight with
+      the reason, and the suite run again, 3,308 of 3,308 (4,320 s); the unit
+      suite 2,999 of 2,999. The local preview at 4173, main chunk
+      `index-pIA1-dUc.js` (a plain build).
+  - **After Leo's look at the preview** (`index-pIA1-dUc.js`; his words: "99d 先
+    不提交，预览里看到三处"), three things, each tested red on that build first:
+    1. **The opened notice**: 31 lines in a box taller than the screen took
+       Hide details and Close off it. Opened, the box is at most six tenths
+       of the screen's height, its lines scroll on their own, and the two
+       buttons stand at its top. `tests/shareNotice.test.ts`, three cases
+       more — a 1440 desktop by the mouse, a 768 tablet and a 390 phone by a
+       finger, `?v=2&pkg=A` opened: Hide details and Close on the screen and
+       pressable (the press at each one's middle reaches it), the box within
+       six tenths, Hide details closing it — all three red on
+       `index-pIA1-dUc.js`, green after.
+    2. **The scene's pins**: with a frame failing, the pins and their leader
+       lines floated over the empty place, "02 Range" across the message.
+       While the scene's fence shows its message the pins, the dimensions and
+       the module labels are not drawn (`usePartFailed` in `PartFence.tsx`,
+       read in `App.tsx`), and come back with the scene.
+       `tests/partFence.test.ts`, three cases more: `?fault=scene` on a
+       desktop and a phone, `?fault=scene-frame` on a desktop — no pin while
+       the message shows, nothing over the message (a press at three points
+       on it reaches it), the pins back after Retry. Red on
+       `index-pIA1-dUc.js` for the frame; the two `?fault=scene` cases were
+       already green there — failing before its first frame, the scene never
+       placed its pins, which stay unseen until it does (opacity 0) — and stay
+       green.
+    3. **A setting the link does not have at all** is said apart: 「{item}：链接里
+       没有这一项，此处显示 {to}。」 / "{item}: Not in the link; showing {to}." —
+       Leo's words after the item's name, as every line of the notice begins;
+       locked in `reviewed.json`. One the link has and the page cannot use
+       is said as before. A new kind of line, `missing` (`openLink.ts`);
+       `shareLink.test.ts` a case more (a link without its walls' paint and
+       with a granite counter: one line of each kind) — red on that build — and
+       its count of the notice's words nine; the opened notice's line for the
+       walls in `shareNotice.test.ts`.
+    - **Proofs**: the locked pixel set again, `cb4222c` against this build,
+      each shot twice, alternated: the 3D canvas the same in all 45, old
+      against new and each build against itself; on screen old against new
+      only `link-E-noisland` (its notice, as above, 84,442 pixels) and
+      `desk-E-materials` by one pixel; 10 states differ from their own
+      build's other run, the pins' labels and the one pixel. The fence,
+      notice, cut-short link and Layout tab switch tests 94 of 94; the suite
+      3,317 of 3,317 (4,911 s, the machine held awake); the unit suite 3,002 of
+      3,002. The local preview at 4173, main chunk `index-Cj2PIf3r.js` (a
+      plain build).
 - **Round 99c, a part that fails is fenced off, and a share link cut short
   keeps the page — built and shipped after Leo's look at the local preview**
   (Leo: "99c 预览看过了（index-C6lEvBrp.js），可以提交"). The
@@ -6007,6 +6104,16 @@ Registered, not scheduled. None of these is a round of its own.
     tests timed at over two hours each; that run was stopped, and started
     again with the machine held awake); the unit suite 2,992 of 2,992. The
     local preview at 4173, main chunk `index-C6lEvBrp.js` (a plain build).
+  - **Live, checked file by file**: commit `cb4222c`, the Pages run
+    40167767579 a success, both its jobs — build (06:03:53 to 06:04:39 UTC,
+    2026-10-25) and deploy (06:04:43 to 06:05:09) — each a success. Built at
+    `cb4222c` with `VITE_GOATCOUNTER=https://geesonchan.goatcounter.com/count`,
+    every file fetched from the live site and compared byte for byte, all six
+    identical: `index.html` (901 bytes), `assets/index-HhDp0rqY.js`
+    (685,298), `assets/index-BLJ96RGS.css` (23,869 — the fences' styles),
+    `assets/react-i_nGBwMY.js` (145,992), `assets/shareQr-BXYgausd.js`
+    (21,968), `assets/three-DN8glM5f.js` (704,111); the live `index.html`
+    asks for nothing the build does not have.
 - **A share link cut short blanks the page — on the live site.** *(Found the
   night of 2026-10-24 while writing the refrigerator's plan; registered, not
   changed — Leo that night: plans and investigation only, no code.)* A link

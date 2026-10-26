@@ -225,7 +225,14 @@ export function Toast() {
  * under "Everything is as in the link, except:"; or one line saying the link
  * could not be read. Each line names what the link had and what is shown, and
  * never what was changed (D10). It stays until closed, and has no Undo.
+ *
+ * More than three lines are one sentence, with Details to open them and Hide
+ * details to close them again; every line counts, whatever it says (round
+ * 99d, Leo — a link cut to its version and package listed some thirty lines
+ * over the whole scene).
  */
+const NOTICE_LINES_SHOWN = 3;
+
 function ShareNotice({
   notice,
   say,
@@ -236,7 +243,9 @@ function ShareNotice({
   onClose: () => void;
 }) {
   const t = useT();
-  const lines =
+  const [open, setOpen] = useState(false);
+  const long = notice !== "unreadable" && notice.length > NOTICE_LINES_SHOWN;
+  const listed =
     notice === "unreadable"
       ? [say("share.notice.unreadable")]
       : [
@@ -258,23 +267,20 @@ function ShareNotice({
             });
           }),
         ];
-  return (
-    <div
-      role="status"
-      data-share-notice={notice === "unreadable" ? "unreadable" : notice.length}
-      className={[
-        "pointer-events-auto absolute bottom-28 left-1/2 z-20 flex w-max max-w-[min(92vw,560px)] -translate-x-1/2 items-start gap-3",
-        "rounded-2xl border border-line bg-ink px-4 py-2.5 text-[11px] leading-snug text-[#F7F5EF]",
-      ].join(" ")}
-    >
-      <div className="min-w-0 space-y-1">
-        <FaultProbe part="link-notice" />
-        {lines.map((line, index) => (
-          <p key={index} data-share-notice-line={index}>
-            {line}
-          </p>
-        ))}
-      </div>
+  const lines =
+    long && !open ? [say("share.notice.incomplete", { count: (notice as NoticeLine[]).length })] : listed;
+  const buttons = (
+    <>
+      {long && (
+        <button
+          type="button"
+          data-share-notice-toggle={open ? "open" : "shut"}
+          onClick={() => setOpen((now) => !now)}
+          className="shrink-0 rounded-full border border-[#F7F5EF]/40 px-2.5 py-0.5 text-[11px] text-[#F7F5EF] transition-colors hover:bg-[#F7F5EF]/10"
+        >
+          {t(open ? "share.notice.hideDetails" : "share.notice.details")}
+        </button>
+      )}
       <button
         type="button"
         data-share-notice-close
@@ -284,6 +290,44 @@ function ShareNotice({
       >
         ×
       </button>
+    </>
+  );
+  const content = (
+    <>
+      <FaultProbe part="link-notice" />
+      {lines.map((line, index) => (
+        <p key={index} data-share-notice-line={index}>
+          {line}
+        </p>
+      ))}
+    </>
+  );
+  return (
+    <div
+      role="status"
+      data-share-notice={notice === "unreadable" ? "unreadable" : notice.length}
+      className={[
+        "pointer-events-auto absolute bottom-28 left-1/2 z-20 flex w-max max-w-[min(92vw,560px)] -translate-x-1/2 gap-3",
+        // Opened, at most six tenths of the screen, the buttons at its top and
+        // the lines scrolling under them (round 99d, Leo: 31 lines went past
+        // the top of the screen and took Hide details and Close with them).
+        open ? "max-h-[60vh] flex-col" : "items-start",
+        "rounded-2xl border border-line bg-ink px-4 py-2.5 text-[11px] leading-snug text-[#F7F5EF]",
+      ].join(" ")}
+    >
+      {open ? (
+        <>
+          <div className="flex shrink-0 items-center justify-end gap-2">{buttons}</div>
+          <div data-share-notice-lines className="min-h-0 space-y-1 overflow-y-auto overscroll-contain pr-1">
+            {content}
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="min-w-0 space-y-1">{content}</div>
+          {buttons}
+        </>
+      )}
     </div>
   );
 }

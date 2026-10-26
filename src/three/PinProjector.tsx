@@ -1,6 +1,7 @@
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useThree } from "@react-three/fiber";
+import { useSceneFrame } from "./useSceneFrame";
 import { SLOT_ORDER } from "../data/catalogue";
 import { DEBUG } from "../debug";
 import { SLOT_BY_ID } from "../data/slots";
@@ -116,7 +117,7 @@ export function PinProjector() {
   const overlay = useMemo<KeepOut[]>(() => [], []);
   const gl = useThree((s) => s.gl);
 
-  useFrame(() => {
+  useSceneFrame(() => {
     frame.current += 1;
     const testOcclusion = frame.current % 4 === 0;
     // Label sizes only change on selection, language or breakpoint, and reading

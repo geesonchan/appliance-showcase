@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useThree } from "@react-three/fiber";
+import { useSceneFrame } from "./useSceneFrame";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { ROOM, SLOT_BY_ID, ft } from "../data/slots";
 import { outward } from "../data/frame";
@@ -248,7 +249,7 @@ export function CameraRig() {
     };
   }, [sheetOpen]);
 
-  useFrame(() => {
+  useSceneFrame(() => {
     const controls = controlsRef.current;
     if (!controls) return;
     const active = tween.current;

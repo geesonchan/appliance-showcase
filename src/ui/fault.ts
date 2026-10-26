@@ -28,6 +28,13 @@ export function FaultProbe({ part }: { part: Part }): null {
   return null;
 }
 
+/**
+ * Whether a frame of the 3D scene is to throw: `?fault=scene-frame` (round
+ * 99d), until the scene's fence is retried. A failure in a frame, not while
+ * drawing, is the one round 99c's fences could not see.
+ */
+export const failingInFrame = () => FAULT === "scene-frame" && !cleared.has("scene");
+
 /** A retry clears the fault asked for, so the part comes back. */
 export function clearFault(part: Part) {
   cleared.add(part);
