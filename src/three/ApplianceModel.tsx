@@ -1694,6 +1694,34 @@ function Hood({
     ["under-cabinet", "wall-mount", "chimney", "island", "insert"].includes(type),
   );
 
+  // A chimney hood draws in on all three open sides, to the section of the flue
+  // it feeds. An under-cabinet hood has no flue of its own and keeps the wedge
+  // it always had — the cabinet above it is where the duct goes. An insert
+  // liner has no canopy at all.
+  const chimneyed = kind === "wall-mount" || kind === "chimney";
+  // Made before the insert's return, so the hooks are the same on every
+  // render whatever the hood (the chimney fillers' round): until then they
+  // stood after it, and a hood changing kind without the room being made
+  // again would have thrown. `hoodHooks.test.ts`.
+  const canopy = useMemo(
+    () =>
+      kind === "insert"
+        ? null
+        : chimneyed
+          ? canopyGeometry(
+              w,
+              h,
+              d,
+              cover!.widthIn,
+              topDepthIn,
+              frontLipIn ?? HOOD_PROFILE.frontLipIn,
+            )
+          : wedgeGeometry(w, h, d, topDepthIn, frontLipIn ?? undefined),
+    [kind, chimneyed, w, h, d, topDepthIn, frontLipIn],
+  );
+  // Freed with the canopy (the geometries' round).
+  useDisposable(canopy);
+
   /**
    * An insert liner: a stainless tray of filters, lights and a control strip
    * that goes up inside a housing somebody else builds.
@@ -1743,43 +1771,10 @@ function Hood({
     );
   }
 
-  // A chimney hood draws in on all three open sides, to the section of the flue
-  // it feeds. An under-cabinet hood has no flue of its own and keeps the wedge
-  // it always had — the cabinet above it is where the duct goes.
-  const chimneyed = kind === "wall-mount" || kind === "chimney";
-  const canopy = useMemo(
-    () =>
-      chimneyed
-        ? canopyGeometry(
-            w,
-            h,
-            d,
-            cover!.widthIn,
-            topDepthIn,
-            frontLipIn ?? HOOD_PROFILE.frontLipIn,
-          )
-        : wedgeGeometry(w, h, d, topDepthIn, frontLipIn ?? undefined),
-    [chimneyed, w, h, d, topDepthIn, frontLipIn],
-  );
-  // Freed with the canopy (the geometries' round). After the insert's early
-  // return, as the memo is: a hood never changes kind without the room, and
-  // so this component, being made again.
-  useDisposable(canopy);
-
-  if (kind === "insert") {
-    // Buried in custom joinery: only the opening it needs is worth drawing.
-    return (
-      <mesh position={[0, h / 2, 0]}>
-        <boxGeometry args={[w * 0.92, h * 0.9, d * 0.9]} />
-        <Mat s={glass} />
-      </mesh>
-    );
-  }
-
   const outlet = CABINET_STANDARDS.hood.outlet;
   const body_ = (
     <>
-      <mesh geometry={canopy} castShadow>
+      <mesh geometry={canopy ?? undefined} castShadow>
         <Mat s={body} />
       </mesh>
       {/* The intake: baffle filters set into the underside.

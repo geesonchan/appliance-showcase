@@ -15,7 +15,15 @@ import {
 import type { FixtureId, Package, PackageSlot, SlotId } from "../types";
 import { PACKAGE, packageInShape, slotsOf } from "./packages";
 import { dropsIntoCounter, rangeFillerIn, rangeModelFor } from "./cookingSurface";
-import { aboveCookingSurfaceIn, hoodMountFor, hungUnderACabinet, leftOutByHood, type HoodMount } from "./hoodMount";
+import {
+  aboveCookingSurfaceIn,
+  chimneyFillerIn,
+  hoodMountFor,
+  hoodWidthFor,
+  hungUnderACabinet,
+  leftOutByHood,
+  type HoodMount,
+} from "./hoodMount";
 import { slotsAsBuilt } from "./fridgeMount";
 import { ovenTowerOf } from "./ovenTower";
 import { alongOf, extentsOnAxis, faceRotation, onAxis, rotationOf, sizeOnAxis } from "./frame";
@@ -2543,6 +2551,8 @@ function banksOn(
   housingStyle: HousingStyle,
   windows: ResolvedWindow[],
   mount: HoodMount | null,
+  /** The chosen hood's width, for the fillers beside a chimney hood narrower than its opening. */
+  hoodWidthIn: number | null,
 ): UpperBank[] {
   const stop = bankStop(segments);
   const openings = cutsFor(windows, runId === "back" ? "back" : "left").filter(
@@ -2596,6 +2606,11 @@ function banksOn(
     bank: hoodBank,
     housed,
     bridged,
+    // A chimney hood narrower than its opening: the bank either side carries
+    // a filler on into the opening, to the hood's side (Leo, 2026-10-24,
+    // overturning round 87's open gap). The cut stays the opening's, so
+    // nothing along the wall moves — a window is fitted to the same cuts.
+    fillerIn: chimneyFillerIn((hood[1] - hood[0]) * 12, mount, hoodWidthIn),
   });
 }
 
@@ -2696,7 +2711,7 @@ function banksBetween(
   stop: number,
   corner: (typeof CORNERS)[keyof typeof CORNERS] | null,
   unsorted: Cut[],
-  housing: { bank: UpperBank; housed: boolean; bridged: boolean } | null,
+  housing: { bank: UpperBank; housed: boolean; bridged: boolean; fillerIn: number } | null,
 ): UpperBank[] {
   const cuts = unsorted
     .filter((cut) => cut.to > start && cut.from < stop)
@@ -2728,6 +2743,23 @@ function banksBetween(
     start: before?.kind === "window" ? WINDOW.revealIn : 0,
     end: after?.kind === "window" ? WINDOW.revealIn : 0,
   });
+  /**
+   * A bank against a chimney hood narrower than its opening reaches into the
+   * opening by the filler (`chimneyFillerIn`), which is what meets the hood.
+   * Added to the bank as it was made, so its own boxes are cut and stand
+   * exactly as before. Nothing for every other hood.
+   */
+  const fillerIn = housing?.fillerIn ?? 0;
+  const reaching = (bank: UpperBank, before: Cut | undefined, after: Cut | undefined): UpperBank => {
+    if (fillerIn <= 0) return bank;
+    const filler = () => M(`BF${round8(fillerIn)}`, "filler", fillerIn);
+    return {
+      ...bank,
+      from: before?.hood ? bank.from - ft(fillerIn) : bank.from,
+      to: after?.hood ? bank.to + ft(fillerIn) : bank.to,
+      modules: [...(before?.hood ? [filler()] : []), ...bank.modules, ...(after?.hood ? [filler()] : [])],
+    };
+  };
   /**
    * Where this bank's own remainder goes.
    *
@@ -2761,13 +2793,17 @@ function banksBetween(
       } else {
         const scribe = against(cuts[i - 1], cut);
         banks.push(
-          bankFor(
-            `upper-${runId}-${i}`,
-            cursor,
-            cut.from,
-            i === 0 ? corner : null,
-            remainderAt(cuts[i - 1], cut, i === 0),
-            scribe,
+          reaching(
+            bankFor(
+              `upper-${runId}-${i}`,
+              cursor,
+              cut.from,
+              i === 0 ? corner : null,
+              remainderAt(cuts[i - 1], cut, i === 0),
+              scribe,
+            ),
+            cuts[i - 1],
+            cut,
           ),
         );
       }
@@ -2781,13 +2817,17 @@ function banksBetween(
     } else {
       const last = cuts[cuts.length - 1];
       banks.push(
-        bankFor(
-          `upper-${runId}-end`,
-          cursor,
-          stop,
-          null,
-          remainderAt(last, undefined, false),
-          against(last, undefined),
+        reaching(
+          bankFor(
+            `upper-${runId}-end`,
+            cursor,
+            stop,
+            null,
+            remainderAt(last, undefined, false),
+            against(last, undefined),
+          ),
+          last,
+          undefined,
         ),
       );
     }
@@ -3060,6 +3100,9 @@ export function generateLayout(
   const spec = slotsAsBuilt(pkg);
   // How the hood chosen in this package hangs, which decides what is over it (round 87).
   const mount = spec["slot-hood"] ? hoodMountFor(pkg) : null;
+  // And how wide it is: a chimney hood narrower than its opening has a filler
+  // each side in the wall cabinets (Leo, 2026-10-24).
+  const hoodWidthIn = spec["slot-hood"] ? hoodWidthFor(pkg) : null;
   const omitted = omittedSlots(params, pkg);
   const plan = planLegs(params, pkg, omitted);
 
@@ -3170,6 +3213,7 @@ export function generateLayout(
       spec,
       housingStyle: params.housingStyle,
       mount,
+      hoodWidthIn,
     });
     if (!fitted) {
       unfitted.push({
@@ -3267,6 +3311,7 @@ export function generateLayout(
       params.housingStyle,
       windows,
       mount,
+      hoodWidthIn,
     ),
   }));
 
@@ -3369,6 +3414,7 @@ function fitWindow(
     spec: Record<SlotId, PackageSlot>;
     housingStyle: HousingStyle;
     mount: HoodMount | null;
+    hoodWidthIn: number | null;
   },
 ): ResolvedWindow | null {
   const centre = (span: readonly [number, number]) => (span[0] + span[1]) / 2;
@@ -3437,6 +3483,7 @@ function evenBeside(
     spec: Record<SlotId, PackageSlot>;
     housingStyle: HousingStyle;
     mount: HoodMount | null;
+    hoodWidthIn: number | null;
   },
 ): boolean {
   const banks = banksOn(
@@ -3448,6 +3495,7 @@ function evenBeside(
     leg.housingStyle,
     [window],
     leg.mount,
+    leg.hoodWidthIn,
   );
   // A bank beside a window has to be a bank: a stretch of nothing but fillers
   // is the board-on-its-own problem again, and the window should move rather

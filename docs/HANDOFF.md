@@ -12,7 +12,7 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **the geometries' round**, after round 99d (`docs/decisions.md` is the record of
+Covers the repository up to **the chimney fillers' round**, after the geometries' (`docs/decisions.md` is the record of
 rounds; `git log` is the record of commits). It replaces the v1–v9 briefs that
 were pasted into chat.
 
@@ -149,7 +149,11 @@ anywhere**: the file is the one source, and the tests read it.
   with the scene, and a long link notice folds into one sentence with Details
   (**done**, round 99d, after Leo's second look; Open items). The geometries
   that climbed with every model swap freed by hand, 甲 (**done**, the
-  geometries' round, after Leo's look at the local preview; Open items).
+  geometries' round, after Leo's look at the local preview; Open items). A
+  chimney hood narrower than its opening closed in each side by a filler in
+  the wall cabinets, on no list, and the hood's canopy made before the
+  insert's return (**done**, the chimney fillers' round, after Leo's look at
+  the local preview; D16).
 
 ### Next, in Leo's order (2026-10-24, after round 99d)
 
@@ -161,7 +165,11 @@ confirms it** (Leo, 2026-10-24).
    (`docs/plans/geometry-leak-plan.md`; 甲, freed by hand, Leo 2026-10-24;
    **done**, the geometries' round; Open items).
 2. **The chimney hood's fillers** — in the wall cabinets' plane, on no list
-   (D16, amended 2026-10-24; `docs/plans/chimney-fillers-plan.md`, confirmed).
+   (D16, amended 2026-10-24; `docs/plans/chimney-fillers-plan.md`, confirmed;
+   **done**, the chimney fillers' round, after Leo's look at the local
+   preview, D16; with it the
+   hood's canopy made before the insert's return, and the refrigerator in
+   `swapMemory.mjs`'s fifty — Open items).
 3. **The refrigerator's front** — a built-in against the cabinets beside it,
    3-1/2" at a wall, 3/4" at an open end (D11 rule 11, amended 2026-10-24); A's
    42" segment becomes about 36" (`docs/plans/fridge-front-plan.md`; Leo
@@ -228,6 +236,7 @@ confirms it** (Leo, 2026-10-24).
 | `src/ui/PartFence.tsx`, `src/ui/fault.ts`, `tests/partFence.test.ts` | Five parts fenced off — the right panel, the 3D scene, the left panel, the quote page, the link's notice: a part that fails shows Leo's sentence and Retry, a package switch retries it, the visit counter records which part. `?fault=<part>` makes one fail, for the tests only (round 99c). |
 | `src/three/useSceneFrame.ts`, `src/three/sceneFrame.test.ts` | Every frame's work in the 3D scene goes through one hook, which hands an error thrown in a frame to the scene's fence (`FrameFailureRelay`); no other file takes `useFrame` from fiber (round 99d). |
 | `src/three/useDisposable.ts`, `tests/geometryReturn.test.ts` | A geometry a component makes in code and hands the scene (`<mesh geometry={made}>`, `<primitive>`) is freed when it is replaced or taken down — fiber frees only what is declared in JSX; sixteen places use it. A machine or package changed away and back brings the renderer's geometries back to the same number, on a 1440 desktop, a 768 tablet and a 390 phone, read at the default view (the geometries' round). |
+| `src/data/chimneyFillers.test.ts`, `src/three/hoodHooks.test.ts`, `tests/hoodKinds.test.ts` | A chimney hood narrower than its opening has a filler each side in the wall cabinets, 54" to 108" under the crown, on no list, in the 31 rooms where one is and in none of the others, and comes and goes with the hood (D16, amended 2026-10-24). The hood's hooks all before its first `return`, read off the source; a hood swapped between an insert and every other kind, by mouse and by finger, with no error (the chimney fillers' round). |
 | `tests/shareNotice.test.ts` | A link notice of more than three lines is one sentence with Details and Hide details; three or fewer listed (round 99d). |
 | `src/data/nameFallback.test.ts` | A machine with no name found is called by its position's own name; `NAME_FALLBACKS` lists each fallback, which the words test asks to be empty (round 99c). |
 | `tests/shareLinkCut.test.ts` | Every field of a share link left out in turn, at `v=1` and `v=2`: the page stands and the notice names what is missing (round 99c). |

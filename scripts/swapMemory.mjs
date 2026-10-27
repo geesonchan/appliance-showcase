@@ -9,7 +9,8 @@
  *   npm run build && npm run preview -- --port 4173     (in another terminal)
  *   node scripts/swapMemory.mjs http://localhost:4173/
  *
- * A 1440 desktop in package A's L, by the mouse: the pin of an opening, then
+ * A 1440 desktop in package A's L, by the mouse: Reset view if a card is
+ * open, the pin of an opening, then
  * a model on its card that fits and is not the one standing, round the
  * openings in turn (SLOTS), SWAPS times (50 by default), a second and a half
  * after each before reading.
@@ -57,6 +58,15 @@ const read = () =>
 const rows = [{ n: 0, swap: "(page open)", ...(await read()) }];
 for (let n = 1; n <= swaps; n += 1) {
   const slot = slots[(n - 1) % slots.length];
+  // Each pin pressed from the default view. With a card open the camera is
+  // flown in to that machine, and another's pin can be off the screen: the
+  // refrigerator's, from the dishwasher's card, at (-214, -109) — the press
+  // hit nothing, so round 100's fifty left it out (the geometries' round;
+  // Leo opened it by hand from the default view).
+  if ((await page.locator("[data-model-card]").count()) > 0) {
+    await click(page.getByRole("button", { name: "Reset view", exact: true }).first());
+    await page.waitForTimeout(800);
+  }
   await click(page.locator(`[data-pin-label="${slot}"]`).first());
   await page.waitForTimeout(600);
   // The card names the opening it is for: a pin that did not open its own card is said, not swapped.

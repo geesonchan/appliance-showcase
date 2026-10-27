@@ -45,7 +45,9 @@ import type { Appliance } from "../types";
  * it — a bridge cabinet, a housing, or nothing under a chimney — is the
  * layout's, and so are where the canopy hangs and the duct's route, so then
  * the room is generated again where it stands, as a range of another kind
- * regenerates it (round 83). The opening keeps the slot's width, so nothing
+ * regenerates it (round 83). Or when a chimney hood of another width goes in:
+ * the wall cabinets either side carry a filler as wide as the gap to it (Leo,
+ * 2026-10-24; `chimneyFillerIn`). The opening keeps the slot's width, so nothing
  * moves along the wall and no wall grows. Refused, the previous hood is put
  * back and the reasons come out; no room in any package refuses it
  * (`hoodSwap.test.ts`).
@@ -58,7 +60,11 @@ export function setHoodModel(
   recordHoodModel(appliance, packageId);
   if (packageId !== PACKAGE.id) return { ok: true, reasons: [], rebuilt: false };
   const after = hoodModelFor(PACKAGE);
-  const same = !!before && !!after && hoodMount(before) === hoodMount(after);
+  // And a chimney hood of another width: the fillers beside it in the wall
+  // cabinets are as wide as the gap (Leo, 2026-10-24) — HMCB30WS for HMCB36WS
+  // hangs the same way, and has to bring them or take them away.
+  const builtRound = (hood: Appliance) => `${hoodMount(hood)} ${hoodMount(hood) === "chimney" ? hood.widthIn : ""}`;
+  const same = !!before && !!after && builtRound(before) === builtRound(after);
   if (same || !after) {
     rebuildCabinets();
     return { ok: true, reasons: [], rebuilt: false };

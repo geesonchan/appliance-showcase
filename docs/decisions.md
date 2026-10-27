@@ -2664,6 +2664,93 @@ and the liner hung on its own between the wall cabinets, with no housing.
   shown to him first.
   **The plan confirmed** (Leo, 2026-10-24); its round comes after the
   geometries'.
+  **Built, and shipped after Leo's look at the local preview and the
+  before-and-after shots** (Leo, 2026-10-26: "烟囱式填充板预览和对比图看过了
+  （index-B8xxFYDl.js），可以提交"; the round begun on his
+  "然后开始烟囱式填充板那一轮，计划已确认"; with it two of his: the hood's
+  canopy made before the insert's return, and the refrigerator in the fifty
+  swaps).
+  - **What**: `chimneyFillerIn` (`hoodMount.ts`) — a chimney hood narrower
+    than its opening by more than `SCRIBE_IN` (1/2") each side gets a filler
+    each side as wide as the difference; nothing for any other hood. The cut
+    for the hood is the opening's, as before, so nothing along the wall
+    moves: `banksBetween` (`layoutTemplate.ts`) makes each bank against the
+    hood as it was and then reaches it into the opening by the filler
+    (`reaching`), a `BF` module at the hood's end. The rest follows the
+    rules as they stand: `upperBoxes` draws a filler as a strip in the
+    doors' plane and finish, `stackOn` puts its board over it from 96" to
+    108", `crownRuns` carries the crown over it. On no list: the quote is
+    the machines alone, and a wall's bill (`wallRequirement`) is the same
+    for HMCB30WS and HMCB36WS in all 31 rooms. `setHoodModel`
+    (`layoutState.ts`) makes the room again when a chimney hood changes
+    width, not only when a hood hangs differently.
+  - **The 31 rooms** are the plan's: A, B and D in the L and on one wall, each
+    with HMCB30WS over any of PRG366WH, PCG366W, PRG304WH, HIS8055U and
+    MFGS4030RS, and E on one wall over its own cooktop base — 3-1/32" each
+    side, 54" to 96" in the doors' face, its board to 108", the crown over
+    it. The other 37 chimney rooms (HMCB36WS anywhere, C's HMCB30WS in its 30"
+    opening) have none.
+  - **Tests, red first**: `src/data/chimneyFillers.test.ts`, four cases — the
+    31 rooms (red on `c89fd26`: no filler either side), the 37 without (green
+    on both), A's L HMCB30WS → HMCB36WS → HMCB30WS, the room made again each
+    time and the fillers coming and going (red), and the wall's bill unchanged
+    (green on both). `hoodSwap.test.ts`'s table of what stands round every
+    hood gains A's, B's and D's fillers, and its rebuild case a chimney of
+    another width (2 red on `c89fd26`). Green after, all.
+  - **The canopy before the insert's return** (Open items): `Hood`'s
+    `chimneyed`, its canopy memo and `useDisposable` moved above
+    `if (kind === "insert")`, the canopy memo giving nothing for an insert;
+    the second, unreachable insert branch taken out. So a hood changing kind
+    in place no longer depends on the room being made again.
+    `src/three/hoodHooks.test.ts` reads `Hood`'s source: every hook before
+    its first `return` — red on `c89fd26` (`useMemo(`, `useDisposable(`),
+    green after. `tests/hoodKinds.test.ts`, by the mouse on a 1440 desktop and
+    by a finger on a 390 phone in A's L: VCIN36GWS and HMCB30WS, PH36HWS,
+    JVM3160RFSS and HMCB36WS in turn, back to AK7136BS-BF, each taken, no
+    part fenced off, no page error. **Green on `c89fd26` too, and it cannot be
+    red there**: every hood chosen makes the whole room again
+    (`layoutVersion`, `Scene.tsx`), so `Hood` never changes kind in place; the
+    source check is the test that goes red.
+  - **The refrigerator's pin in the fifty swaps** (Open items, round 100):
+    the script's fault, as Leo found by hand. With another machine's card
+    open the camera has flown in to that machine, and A's refrigerator pin
+    stands off the screen (-214, -109 from the dishwasher's card) — the click
+    landed on nothing. `swapMemory.mjs` now presses Reset view before each
+    pin when a card is open; the refrigerator is taken, 12 of 12.
+  - **Proofs**: the dumps against `c89fd26` — `scripts/lDump.ts` 1,042 of
+    1,045 byte for byte, the three that differ A's, B's and D's
+    `swap slot-hood=HMCB30WS`; `scripts/oneWallDump.ts` 87 of 91, the four A's,
+    B's, D's and E's the same swap — as the plan said. In each, matched box
+    by box with the ids set aside: two `BF3` fillers 3.03125" wide, 54" to
+    96" as strips, their two boards 96" to 108", the two banks 3-1/32" longer
+    and their crowns with them; every other box the same, its id renumbered
+    after the new one. One more in B's L: the 18" wall cabinet after the hood
+    (`W1842`) and its board moved 2.2 x 10^-16 ft, a float's last digit.
+    Pixels locked, round 99's 45 states at the high tier and at the low,
+    `c89fd26` against this round, each shot twice, alternated: the 3D canvas
+    the same in all 45 at both tiers, old against new and each build against
+    itself (none of the 45 chooses HMCB30WS). On screen, old against new,
+    one pixel — (144, 225), as before — in `desk-D-materials` and
+    `link-E-noisland` high, `desk-D-materials`, `desk-E-materials` and
+    `link-E-noisland` low. A build's own two runs differ on screen only:
+    high, the new build's five `desk-D` states 1,508 to 1,896 pixels each
+    and `link-D-noisland` 166, scattered over the panels' text (65, 22 to
+    1,399, 865); low, the new build's `link-C-noisland` 1,598 and `link-D`
+    4,612; elsewhere one pixel.     Fifty swaps (`scripts/swapMemory.mjs`, the range, hood, dishwasher and
+    refrigerator in turn, the refrigerator taken 12 of 12 in every run),
+    twice on each build: `c89fd26` 238 with the page open, then 190 to 244,
+    224 after 50 (and 189 to 244, 224, the second time); this round 238, 197
+    to 244, 232 after 50 (198 to 244, 232) — the last swap is to HMCB30WS,
+    where this round draws two fillers and their boards: eight more. No climb
+    in either. Textures 9 to 10 in the first run of this round, 14 to 15 in
+    the other three (the old build's second run 14 with the page open):
+    from run to run, not from the build — the same build gave both. Not
+    looked into; the copied textures' Open item says where the low tier
+    may leave textures behind.
+    The suite 3,334 of 3,334 (5,260 s, the machine held awake); the unit suite
+    3,007 of 3,007.
+  - **The local preview**: `index-B8xxFYDl.js` (688,143 bytes); the three
+    chunk, `three-C6wp6xxT.js`, and the other chunks keep `c89fd26`'s names.
 - Tests: `hoodSwap.test.ts` (unit) — red on round 86's code for A's liner
   (a bridge over it), B's under-cabinet swap (its 42" housing kept), A's
   chimney swap (a bridge over it), C's under-cabinet swap (nothing over it, at
@@ -9002,6 +9089,8 @@ Registered, not scheduled. None of these is a round of its own.
        fillers are the wall cabinets' height, finish the banks at the hood
        and, built as cabinetry, are ordered on the bill with a board over
        each to the crown.
+  **Built** in the chimney fillers' round, as cabinetry on no list (D16,
+  amended 2026-10-24); shipped after Leo's look at the local preview.
 - **Seen while listing what rebuilds the scene, for round 100** *(round 99;
   read in the code, not seen running; not in round 100)*:
   - ~~The under-cabinet light strips stay where they were after an L ↔
@@ -9034,7 +9123,11 @@ Registered, not scheduled. None of these is a round of its own.
     the room, so most of the room's geometry is likely kept each time; not
     looked into (measured only). The refrigerator's pin in A's L did not
     open its card from the script (12 of 12 tries) and was left out of the
-    fifty; not looked into either.
+    fifty; not looked into either. **Found in the chimney fillers' round**
+    (Leo opened the card by hand, so the script was at fault): with
+    another machine's card open the camera has flown in to it and the
+    refrigerator's pin stands off the screen; the script presses Reset view
+    first now, and the refrigerator is in the fifty (D16).
     **Leo's answers** (2026-10-24, `docs/plans/geometry-leak-plan.md`): his
     leaning is 乙 — the 3D library's own way of declaring a geometry, so it is
     freed when its part is taken down; the plan says first how much that
@@ -9104,6 +9197,17 @@ Registered, not scheduled. None of these is a round of its own.
       for `useDisposable`'s check), so the three chunk's name changes with
       its export list, its code the same. The suite 3,327 of 3,327 (4,497 s,
       the machine held awake); the unit suite 3,002 of 3,002.
+    - **Live, checked file by file**: commit `c89fd26`, the Pages run
+      40400987064 a success, both its jobs — build (21:02:53 to 21:03:44
+      UTC, 2026-10-26) and deploy (21:03:49 to 21:04:01) — each a success.
+      Built at `c89fd26` with
+      `VITE_GOATCOUNTER=https://geesonchan.goatcounter.com/count`, every file
+      fetched from the live site and compared byte for byte, all six
+      identical: `index.html` (901 bytes), `assets/index-DxKyIJZU.js`
+      (687,732), `assets/index-BXokVwDN.css` (23,928),
+      `assets/react-i_nGBwMY.js` (145,992), `assets/shareQr-BXYgausd.js`
+      (21,968), `assets/three-C6wp6xxT.js` (704,119); the live `index.html`
+      asks for nothing the build does not have.
 - **The copied textures** *(Leo, 2026-10-24: registered on their own, not
   in the geometries' round; `docs/plans/geometry-leak-plan.md`.)*
   `Surface.tsx:60` and `CabinetLayer.tsx:40` clone a texture each time a
@@ -9116,6 +9220,14 @@ Registered, not scheduled. None of these is a round of its own.
   `disposeTextures` (`textures.ts:565`), when the page drops to the low
   tier, disposes only the originals; the clones still hold the shared source,
   so the high tier's 512-pixel textures may stay on the graphics card.
+  - **The count of textures jumps between 9 to 10 and 14 to 15 from run to
+    run** *(Leo, 2026-10-26: recorded here, to be looked into with this
+    item.)* In the chimney fillers' round's fifty swaps, twice on each build
+    (D16): 9 to 10 in this round's first run, 14 to 15 in the other three —
+    the old build's second run 14 already with the page open, so the same
+    build gave both. Round 100's and the geometries' round's runs read 9 to
+    10. Not looked into; whether it is the low tier leaving the high tier's
+    textures behind, as above, is not known.
 - **A hood's geometry is made after an early return** (found while planning
   the geometries' round; read off the code, not run). In `ApplianceModel.tsx`
   the hood's `useMemo` for its canopy stands after the insert's `return`
@@ -9124,6 +9236,19 @@ Registered, not scheduled. None of these is a round of its own.
   Nothing goes wrong today: a hood changing kind rebuilds the room and makes
   this component again. If a hood swap ever stops rebuilding the room, a
   change from an insert to another kind would throw.
+  **Fixed in the chimney fillers' round** (Leo: "一起修掉"; D16): the hooks
+  stand before the insert's return; `src/three/hoodHooks.test.ts` red before,
+  green after; `tests/hoodKinds.test.ts` green on both, as it must be while
+  every hood swap makes the room again.
+- **A filler's board is coded by its width rounded to a sixteenth, and the
+  two beside a chimney hood come out different** (found in the chimney
+  fillers' round; not changed). `stackOn` (`cabinets.ts:569`) names a board
+  narrower than 9" `PNL{width}X12`, its width rounded to the nearest
+  sixteenth from feet. HMCB30WS's filler is 3.03125", half a sixteenth
+  over 3": on one side the float lands at 48.5 sixteenths and rounds up,
+  on the other just under and rounds down, so the two boards are
+  `PNL3.0625X12` and `PNL3X12`. Both are drawn 3.03125" wide; the code
+  shows only under `?debug=1`, and the boards are on no list.
 - **Not yet done after round 98b-2, as one group; the order is Leo's to
   set.** *(Leo, round 98b-2: "把还没做的列成一组，顺序我再定".)* **His order
   (round 98b-2)**: round 99 the L's labels, words only; round 100 the quality

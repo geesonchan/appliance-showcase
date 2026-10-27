@@ -2,6 +2,7 @@ import appliancesFile from "../../data/appliances.json";
 import type { Appliance, Package, SlotId } from "../types";
 import { PACKAGE_SHAPE, shapeOfChoice, shapeOfPackage } from "./packages";
 import type { LayoutShape } from "./layoutShape";
+import { SCRIBE_IN } from "./cookingSurface";
 
 /**
  * How a hood hangs, and so what stands over it. Round 87, Leo.
@@ -154,4 +155,30 @@ export function leftOutByHood(pkg: Package): readonly SlotId[] {
 export function hoodMountFor(pkg: Package): HoodMount | null {
   const hood = hoodModelFor(pkg);
   return hood ? hoodMount(hood) : null;
+}
+
+/** How wide a package's own hood, or the one chosen in it, is; null where it has no hood or says no width. */
+export function hoodWidthFor(pkg: Package): number | null {
+  return hoodModelFor(pkg)?.widthIn ?? null;
+}
+
+/**
+ * The filler each side of a chimney hood narrower than its opening, in
+ * inches; 0 where there is none.
+ *
+ * Leo, 2026-10-24 (D16, amended), his site practice, overturning round 87's
+ * open gap: the wall cabinets either side carry a filler to the hood's side —
+ * as wide as the gap, flush with their doors and in their finish, from their
+ * 54" to 108" with them, the crown over it. On no list: it is drawn as
+ * cabinetry only. For any chimney hood narrower than its opening, not one
+ * model; HMCB30WS in a 36" opening is 3-1/32" each side. Half an inch or less
+ * is a scribe, not a board (`SCRIBE_IN`, as a range's fillers read it).
+ *
+ * The wall cabinets ask it (`banksOn`); a swap to a chimney hood of another
+ * width builds the room again, so they ask it anew (`setHoodModel`).
+ */
+export function chimneyFillerIn(openingIn: number, mount: HoodMount | null, hoodWidthIn: number | null): number {
+  if (mount !== "chimney" || hoodWidthIn === null) return 0;
+  const each = (openingIn - hoodWidthIn) / 2;
+  return each > SCRIBE_IN ? each : 0;
 }

@@ -2,8 +2,9 @@ import { afterAll, describe, expect, it } from "vitest";
 import { candidatesFor } from "./candidates";
 import { APPLIANCES, APPLIANCE_BY_ID } from "./catalogue";
 import { hoodMount } from "./hoodMount";
+import { hoodSpan } from "./layoutTemplate";
 import { setActivePackage, setHoodModel } from "./layoutState";
-import { BUILDABLE_PACKAGES, PACKAGE_BY_ID } from "./packages";
+import { BUILDABLE_PACKAGES, PACKAGE, PACKAGE_BY_ID, slotsOf } from "./packages";
 import { RUNS } from "./room";
 import { SLOT_BY_ID } from "./slots";
 import { resetRoom } from "./testRoom";
@@ -36,6 +37,28 @@ function over(): string {
   return "nothing";
 }
 
+/**
+ * The wall cabinets' fillers standing in the hood's opening: one each side of
+ * a chimney hood narrower than it (Leo, 2026-10-24, D16 amended).
+ */
+function fillersIn(): string {
+  for (const run of RUNS) {
+    const span = hoodSpan(run.segments, slotsOf(PACKAGE));
+    if (!span) continue;
+    const widths: number[] = [];
+    for (const bank of run.uppers) {
+      let at = bank.from;
+      for (const module of bank.modules) {
+        const from = at;
+        at += module.widthIn / 12;
+        if (module.kind === "filler" && from >= span[0] - 1e-9 && at <= span[1] + 1e-9) widths.push(module.widthIn);
+      }
+    }
+    return widths.length > 0 ? `, fillers ${widths.join(" and ")}` : "";
+  }
+  return "";
+}
+
 const inches = (ft: number) => Math.round(ft * 12 * 1000) / 1000;
 
 /** The hood in the room after picking it: what is over it, where it hangs, where its duct goes. */
@@ -49,6 +72,7 @@ function swapTo(code: string, hoodId: string) {
   return {
     ok: result?.ok !== false,
     over: over(),
+    fillers: fillersIn(),
     hangsAtIn: inches(slot.position[1]),
     route: slot.utilities.duct?.route ?? null,
   };
@@ -65,7 +89,7 @@ describe("what is over a hood follows the hood chosen (round 87)", () => {
       const fitting = candidatesFor("slot-hood", entry).filter(({ fit }) => fit.fits);
       for (const { appliance } of fitting) {
         const r = swapTo(entry.code, appliance.id);
-        seen[`${entry.code} ${short(appliance.id)}`] = `${r.ok ? "" : "REFUSED "}${r.over} at ${r.hangsAtIn} ${r.route}`;
+        seen[`${entry.code} ${short(appliance.id)}`] = `${r.ok ? "" : "REFUSED "}${r.over}${r.fillers} at ${r.hangsAtIn} ${r.route}`;
       }
     }
     expect(seen).toEqual({
@@ -76,7 +100,9 @@ describe("what is over a hood follows the hood chosen (round 87)", () => {
       "A vcin36gws": "housing 36 at 66.75 up-through-cabinet",
       "A hmwb361ws": "bridge 36 at 66.75 up-through-cabinet",
       "A ph36hws": "bridge 36 at 66.75 up-through-cabinet",
-      "A hmcb30ws": "nothing at 66.75 through-ceiling",
+      // And a filler each side of it in the wall cabinets, 3-1/32" (Leo,
+      // 2026-10-24: round 87 left the gap open).
+      "A hmcb30ws": "nothing, fillers 3.03125 and 3.03125 at 66.75 through-ceiling",
       // Round 90: the 36" chimney hood, from its own sheet — as its 30" does,
       // nothing over it and its duct through the ceiling; its cover reaches
       // 42" too, so it hangs where the 30" does in every opening.
@@ -93,7 +119,7 @@ describe("what is over a hood follows the hood chosen (round 87)", () => {
       "B vcin36gws": "housing 36 at 66.438 up-through-cabinet",
       "B hmwb361ws": "bridge 36 at 66.438 up-through-cabinet",
       "B ph36hws": "bridge 36 at 66.438 up-through-cabinet",
-      "B hmcb30ws": "nothing at 66.5 through-ceiling",
+      "B hmcb30ws": "nothing, fillers 3.03125 and 3.03125 at 66.5 through-ceiling",
       "B hmcb36ws": "nothing at 66.5 through-ceiling",
       "B jvm3160rfss": "bridge 36 at 60.438 up-through-cabinet",
       // C: a 36" range; its own chimney hood hangs at 66-1/2" as before, an
@@ -106,7 +132,7 @@ describe("what is over a hood follows the hood chosen (round 87)", () => {
       "D vcin36gws": "housing 36 at 66.438 up-through-cabinet",
       "D hmwb361ws": "bridge 36 at 66.438 up-through-cabinet",
       "D ph36hws": "bridge 36 at 66.438 up-through-cabinet",
-      "D hmcb30ws": "nothing at 66.5 through-ceiling",
+      "D hmcb30ws": "nothing, fillers 3.03125 and 3.03125 at 66.5 through-ceiling",
       "D hmcb36ws": "nothing at 66.5 through-ceiling",
       "D jvm3160rfss": "bridge 36 at 60.438 up-through-cabinet",
       // E: hung from the ceiling over the island at 72" (D20).
@@ -132,12 +158,15 @@ describe("what is over a hood follows the hood chosen (round 87)", () => {
     expect({ over: r.over, hangsAtIn: r.hangsAtIn }).toEqual({ over: "bridge 30", hangsAtIn: 66 });
   });
 
-  it("builds the room again only when the hood hangs differently", () => {
+  it("builds the room again only when the hood hangs differently, or is a chimney hood of another width", () => {
     resetRoom();
     setActivePackage("package-a");
     const sameKind = setHoodModel(APPLIANCE_BY_ID["zephyr-ak7300as"]).rebuilt;
     const otherKind = setHoodModel(APPLIANCE_BY_ID["thermador-vcin36gws"]).rebuilt;
-    expect({ sameKind, otherKind }).toEqual({ sameKind: false, otherKind: true });
+    setHoodModel(APPLIANCE_BY_ID["thermador-hmcb30ws"]);
+    // Its fillers come and go with the width (Leo, 2026-10-24).
+    const chimneyWidth = setHoodModel(APPLIANCE_BY_ID["thermador-hmcb36ws"]).rebuilt;
+    expect({ sameKind, otherKind, chimneyWidth }).toEqual({ sameKind: false, otherKind: true, chimneyWidth: true });
   });
 
   it("builds each package's own room round its own hood after a swap in another package", () => {

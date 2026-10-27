@@ -432,7 +432,8 @@ export function hoodTopFt(
  * In the slot's own frame, feet: `x` is each strip's centre either side of the
  * middle, `y` and `z` its centre up from the hood's underside and out from the
  * run's centre line. Null for a hood over an island, for an insert liner in its
- * housing, for a chimney hood (round 87, Leo: the gap is left open), and
+ * housing, for a chimney hood (its gap is the wall cabinets' filler, not
+ * the hood's: `chimneyFillerIn`, Leo 2026-10-24), and
  * wherever the gap each side is half an inch or less (`SCRIBE_IN`).
  */
 export function hoodSideFillers(
@@ -445,10 +446,12 @@ export function hoodSideFillers(
   // fill. Round 79, Leo — until then two blocks showed under B's and D's
   // housings, the base-cabinet fillers poking through.
   if (hoodMount(appliance) === "insert") return null;
-  // A chimney hood narrower than its opening leaves the gap each side open:
-  // nothing over it for a strip to run up to, and Leo's site practice is to
-  // board nothing there (round 87). Until then two blocks of its canopy's
-  // height hung either side of it, with bare wall above.
+  // A chimney hood narrower than its opening has nothing over it for a strip
+  // to run up to. Round 87 left the gap each side open; Leo, 2026-10-24, his
+  // site practice: the wall cabinets either side carry a filler to the hood,
+  // 54" to 108" with them — cabinetry, ordered by the run (`chimneyFillerIn`,
+  // hoodMount.ts), not a strip of the hood's. Until round 87 two blocks of its
+  // canopy's height hung either side of it, with bare wall above.
   if (hoodMount(appliance) === "chimney") return null;
   const modelIn = appliance.widthIn ?? appliance.cutoutWidthIn ?? slot.cutout.w;
   const eachSideIn = (slot.cutout.w - modelIn) / 2;
