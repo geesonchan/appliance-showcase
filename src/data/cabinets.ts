@@ -728,6 +728,17 @@ function endOnTheFloor(segment: RunSegment): number {
   if (segment.kind === "tall" && tall?.kind === "tall" && !towerOnKick(tall)) {
     return tall.insetIn === undefined ? PANEL : ft(tall.insetIn);
   }
+  // A built-in refrigerator that ends the run on its own end board — the
+  // 3/4" panel against cabinetry or the 3-1/2" filler against a wall (the
+  // fridge-front round): the board goes to the floor beside the machine, as
+  // the enclosure's did, and the kick stops at its inside face.
+  const machine = segment.modules.findIndex((module) => module.kind === "tall");
+  if (segment.kind === "tall" && machine >= 0 && !towerOnKick(segment.modules[machine])) {
+    const after = segment.modules.slice(machine + 1);
+    if (after.length > 0 && after.every((module) => module.kind === "panel" || module.kind === "filler")) {
+      return after.reduce((sum, module) => sum + ft(module.widthIn), 0);
+    }
+  }
   // A run of base cabinets that ends on its finished end panel.
   let floor = 0;
   for (const module of [...segment.modules].reverse()) {

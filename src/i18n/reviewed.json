@@ -496,6 +496,11 @@
       "approval": "written",
       "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
     },
+    "toast.modelGrew": {
+      "text": "The new model needs more room: {wall} is now {toIn}.",
+      "approval": "written",
+      "reviewed": "Leo's own wording (2026-10-27, the fridge-front plan's answers, 6): {wall} is toast.wall.*, {toIn} is inchesSpoken, which carries the ″"
+    },
     "toast.undo.package": {
       "text": "Back to {package}",
       "approval": "written",
@@ -1277,6 +1282,11 @@
       "text": "一字型厨房需要更长的墙，已把后墙加到 {backIn}″。",
       "approval": "written",
       "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
+    },
+    "toast.modelGrew": {
+      "text": "换了型号，{wall}不够长，已加长到 {toIn}。",
+      "approval": "written",
+      "reviewed": "Leo's own wording (2026-10-27, the fridge-front plan's answers, 6): {wall} is toast.wall.*, {toIn} is inchesSpoken, which carries the ″"
     },
     "toast.undo.package": {
       "text": "退回 {package}",

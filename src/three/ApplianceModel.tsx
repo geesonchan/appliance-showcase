@@ -26,7 +26,7 @@ import {
   hoodTopDepthIn,
   islandHoodParts,
 } from "../data/hood";
-import { fridgeParts, fridgeSeams, fridgeStance } from "../data/fridgeModel";
+import { builtInFront, flushDoorOffset, fridgeParts, fridgeSeams, fridgeStance } from "../data/fridgeModel";
 import { COOKTOP_BODY } from "../data/cooktop";
 import {
   FREESTANDING_PROPORTIONS,
@@ -99,7 +99,13 @@ export function ApplianceModel({ slot, appliance }: ApplianceModelProps) {
   // tower's doors, the trim lapping its cutout, rather than back in the hole.
   // Round 36; the figures are in `ovenTrim.ts`.
   const install = standardInstall(def, appliance);
-  const dz = install ? ft(install.faceIn) - box.d / 2 : flushOffset(def, box.d, box.rearSpacerIn);
+  // A built-in refrigerator standing on its own has its door face on the
+  // cabinet doors' (Leo, 2026-10-27, 2; `flushDoorOffset`).
+  const dz = install
+    ? ft(install.faceIn) - box.d / 2
+    : builtInFront(def, appliance)
+      ? flushDoorOffset(appliance, box.d)
+      : flushOffset(def, box.d, box.rearSpacerIn);
 
   const outline = useMemo(
     () => new THREE.EdgesGeometry(new THREE.BoxGeometry(box.w, box.h, box.d)),
@@ -697,6 +703,13 @@ function Fridge({
   body: SurfaceProps;
   trim: SurfaceProps;
 }) {
+  // A built-in standing on its own has doors narrower than its opening, from
+  // its manual: 35-3/4" in a 36" opening, an eighth each side (Leo,
+  // 2026-10-27, 7). Every other machine's fronts are its full width.
+  const front = builtInFront(SLOT_BY_ID[slotId], appliance);
+  const frontW = front ? Math.min(w, ft(front.doorWidthIn)) : w;
+  const revealW = (w - frontW) / 2;
+
   // The doors, and how far they reach past the case. A built-in beside a
   // column is joined to it by a 5/8" kit, and its door closes over that kit —
   // so the panel on that side is wider than the machine by what it covers. A
@@ -704,10 +717,10 @@ function Fridge({
   const panels = useMemo(
     () =>
       trimKitsBeside(slotId).reduce(
-        (fronts, kit) => reachOverTheKit(fronts, w, doorOverhang(SLOT_BY_ID[slotId], w, kit)),
-        fridgeParts(appliance, { w, h }, columnHinge(slotId)),
+        (fronts, kit) => reachOverTheKit(fronts, frontW, doorOverhang(SLOT_BY_ID[slotId], frontW, kit)),
+        fridgeParts(appliance, { w: frontW, h }, columnHinge(slotId)),
       ),
-    [slotId, appliance, w, h],
+    [slotId, appliance, frontW, h],
   );
 
   // Where the fronts stand relative to the carcass — which is the difference
@@ -814,6 +827,25 @@ function Fridge({
         <boxGeometry args={[w, h, carcassD]} />
         <Mat s={body} size={[w, h]} />
       </mesh>
+
+      {/* The eighth each side of a built-in's doors (Leo, 2026-10-24, 7):
+          a dark line from the floor to the top of the doors, set back from
+          their face, down to the case. Not across the top. */}
+      {revealW > 0 &&
+        [-1, 1].map((side) => {
+          const faceZ = doorZ + doorThickness / 2 - ft(0.125);
+          const backZ = carcassZ + carcassD / 2;
+          return (
+            <mesh
+              key={side}
+              name={`fridge-reveal-${side < 0 ? "left" : "right"}`}
+              position={[(side * (w - revealW)) / 2, h / 2, (faceZ + backZ) / 2]}
+            >
+              <boxGeometry args={[revealW, h, faceZ - backZ]} />
+              <Mat s={slot} />
+            </mesh>
+          );
+        })}
 
       {panels.map((panel) => (
         <group key={panel.id} name={`fridge-panel-${panel.id}`}>

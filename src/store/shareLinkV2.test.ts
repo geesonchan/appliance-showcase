@@ -45,12 +45,26 @@ function roomAsRound97Held() {
 
 const LINKS = Object.entries(ROUND_97.links);
 
+/**
+ * Package A's and C's, which open a different room since the fridge-front
+ * round, because Leo changed the room (2026-10-24 and 2026-10-27): a built-in
+ * refrigerator — T36IT100NP in A's link, T36BT120NS in C's — stands between a
+ * 3/4" side panel and, at the return wall both links have, 3-1/2" of filler,
+ * where it stood in a 42" enclosure. The walls and the island are as round 97
+ * opened them; the runs and the cabinet boxes are the new ones, and in A the
+ * machine's place. Hashed as `roomAsRound97Held` hashes, on this round's code.
+ */
+const CHANGED_BY_FRIDGE_FRONT: Record<string, string> = {
+  A: "1f2fb7277ae30ca4cee5f573f07baf3a8b9f2a4633e932b3904590a70fe45122",
+  C: "c68cb482941445da8e0c5222f12ed8c280ada84d4181da44d072d36f9fe96708",
+};
+
 describe("the five links round 97 wrote, one per package", () => {
   it("is five, one per package that builds", () => {
     expect(LINKS.map(([code]) => code)).toEqual(PACKAGES.filter((entry) => entry.available).map((entry) => entry.code));
   });
 
-  describe.each(LINKS)("package %s", (_code, fixture) => {
+  describe.each(LINKS)("package %s", (code, fixture) => {
     it("opens as an L", () => {
       freshPage();
       openSharedLink(fixture.link);
@@ -66,7 +80,7 @@ describe("the five links round 97 wrote, one per package", () => {
     it("opens the room round 97 opened, every run, opening and cabinet box", () => {
       freshPage();
       openSharedLink(fixture.link);
-      expect(roomAsRound97Held()).toBe(fixture.room);
+      expect(roomAsRound97Held()).toBe(CHANGED_BY_FRIDGE_FRONT[code] ?? fixture.room);
     });
   });
 });

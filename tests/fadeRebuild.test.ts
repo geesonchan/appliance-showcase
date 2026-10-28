@@ -258,7 +258,12 @@ async function steady(s: Session) {
  * the way the path needs it, and then the camera turned by hand until cabinets
  * stand on the sight line and fade.
  */
-async function fadedWithHood(s: Session, panel: "list" | "config" | "card", slot = "slot-hood") {
+async function fadedWithHood(
+  s: Session,
+  panel: "list" | "config" | "card",
+  slot = "slot-hood",
+  enough: (ids: string[]) => boolean = (ids) => ids.length > 0,
+) {
   await press(s, s.page.locator(`[data-pin-label="${slot}"]`).first());
   await s.page.waitForTimeout(2500);
   if (panel === "card") {
@@ -272,7 +277,7 @@ async function fadedWithHood(s: Session, panel: "list" | "config" | "card", slot
   const canvas = (await s.page.locator("canvas").boundingBox())!;
   const x0 = canvas.x + canvas.width / 2;
   const y0 = canvas.y + canvas.height * (s.phone ? 0.25 : 0.5);
-  for (let i = 0; i < 14 && (await faded(s)).length === 0; i += 1) {
+  for (let i = 0; i < 14 && !enough(await faded(s)); i += 1) {
     await drag(s, x0, y0, s.phone ? 40 : 90);
     await s.page.waitForTimeout(500);
   }
@@ -451,7 +456,11 @@ async function swapToInsert(s: Session) {
  * generated again where it stands. Its own rebuild path, so its own case.
  */
 async function swapFridge(s: Session) {
-  await fadedWithHood(s, "card", "slot-fridge");
+  // Turned until a cabinet fades, not only a filler: since the fridge-front
+  // round (Leo, 2026-10-27) the first thing a phone turn fades here can be
+  // A's BF1.5 beside the side panel, which the counter-depth model's
+  // segment replaces, leaving the rebuilt room nothing faded to check.
+  await fadedWithHood(s, "card", "slot-fridge", (ids) => ids.some((id) => !/-(BF|PNL)[\d.]+(X[\d.]+)?-\d+(-stack)?$/.test(id)));
   const chip = s.page.locator('[data-model-card] [data-candidate="thermador-t36ft820ns"]').first();
   return () => press(s, chip);
 }

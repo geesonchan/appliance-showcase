@@ -95,7 +95,10 @@ describe("which boards go to the floor, as each package opens", () => {
   // (`-panel-a`, `-panel-b`; ovenTower.ts), where B and D had one board outside
   // it toward the range and E one each side; they stand on the kick with it.
   const BOARDS: Record<string, Record<string, number>> = {
-    "package-a": { "left-fridge-panel-a": 0, "left-fridge-panel-b": 0 },
+    // A's refrigerator's own boards since the fridge-front round (Leo,
+    // 2026-10-27, 1): its 3/4" side panel and 3/4" end panel, where its
+    // enclosure had a 3" panel each side. Both to the floor, as those were.
+    "package-a": { "left-fridge-PNL0.75-0": 0, "left-fridge-PNL0.75-2": 0 },
     "package-b": {
       "left-left-end-panel-PNL3-0": 0,
       "back-microwave-panel-a": 4,
@@ -165,14 +168,23 @@ describe("where the kick starts and stops", () => {
     expect(end - kicksOn(left)[kicksOn(left).length - 1][1]).toBe(3);
   });
 
-  it("stops at the inside face of a refrigerator enclosure's board that ends the run", () => {
-    // Package A's left run ends on its refrigerator's enclosure, a 3" board to
-    // the floor each side. Run to the end, the kick's end face lay in that
-    // board's outer face and the two flickered (round 92b's pixel diff).
-    build("package-a", {});
-    const left = RUNS.find((run) => run.id === "left")!;
-    const end = inch(left.segments[left.segments.length - 1].to);
-    expect(end - kicksOn(left)[kicksOn(left).length - 1][1]).toBe(3);
+  it("stops at the inside face of a refrigerator's end board that ends the run", () => {
+    // Package A's left run ends on its refrigerator's end board, which goes to
+    // the floor. Run to the end, the kick's end face lay in that board's outer
+    // face and the two flickered (round 92b's pixel diff). Since the
+    // fridge-front round (Leo, 2026-10-27, 1) the board is 3/4" against
+    // cabinetry and 3-1/2" of filler against a wall, where it was the
+    // enclosure's 3".
+    const short = (fridgeEndAbuts: "cabinet" | "wall") => {
+      // Not an arrangement `build` takes: the end is the room's, not the run's.
+      resetRoom();
+      setActivePackage("package-a");
+      setLayoutParamsGrowing({ ...REQUESTED_PARAMS, fridgeEndAbuts });
+      const left = RUNS.find((run) => run.id === "left")!;
+      const end = inch(left.segments[left.segments.length - 1].to);
+      return end - kicksOn(left)[kicksOn(left).length - 1][1];
+    };
+    expect({ cabinet: short("cabinet"), wall: short("wall") }).toEqual({ cabinet: 0.75, wall: 3.5 });
   });
 
   it("sets the island's kick in 3\" on all four sides, the seating side too", () => {

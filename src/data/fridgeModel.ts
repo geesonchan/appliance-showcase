@@ -1,6 +1,7 @@
 import { CABINET_STANDARDS, ROOM, ft } from "./roomShell";
 import { WINE_COLUMN } from "./columnModel";
-import type { Appliance } from "../types";
+import { CABINET_DOOR_IN } from "./ovenTrim";
+import type { Appliance, Slot } from "../types";
 
 /** True for a full-height column rather than a refrigerator with drawers. */
 const standsAsColumn = (appliance: Appliance) => appliance.installType.includes("column");
@@ -184,6 +185,46 @@ export function fridgeStance(appliance: Appliance, d: number) {
     handleZ: d / 2 - handleR,
     proudIn: P.proudIn,
   };
+}
+
+/**
+ * The doors of a built-in that stands on its own, where its manual gives
+ * them. The fridge-front round (Leo, 2026-10-27, 7): the doors are drawn at
+ * their own width, centred in the 36" opening, so the eighth each side the
+ * manual leaves shows as a dark line; nothing at the top. Both manuals give
+ * a 35-1/4" case and 35-3/4" doors.
+ */
+export const BUILT_IN_FRONTS: Record<string, { doorWidthIn: number; source: string }> = {
+  T36BT120NS: { doorWidthIn: 35.75, source: "docs/reference/t36bt120ns-install.pdf, p. 19" },
+  T36IT100NP: { doorWidthIn: 35.75, source: "docs/reference/t36it100np-install.pdf, p. 21" },
+};
+
+/**
+ * The front a built-in refrigerator is drawn with, or null to draw it as it
+ * always was. Only a refrigerator standing on its own between its side panel
+ * and its end — A's, or a built-in chosen in C's segment: B's stands in its
+ * bank and is left for round 101 (Leo, 2026-10-24, 6), and so are the columns
+ * (8), which no entry names.
+ */
+export function builtInFront(
+  slot: Pick<Slot, "id" | "cabinetConfig" | "inColumnBank">,
+  appliance: Pick<Appliance, "model">,
+): { doorWidthIn: number; source: string } | null {
+  if (slot.id !== "slot-fridge" || slot.cabinetConfig.type !== "enclosure" || slot.inColumnBank) return null;
+  return BUILT_IN_FRONTS[appliance.model] ?? null;
+}
+
+/**
+ * How far forward of its slot such a refrigerator stands, in feet: its door
+ * face in the plane of the cabinet doors and the boards beside it, 3/4" in
+ * front of the 24" carcass line, and its handles in front of that (Leo,
+ * 2026-10-27, 2). The machine's own figures are left as they are — the
+ * envelope with its handle in it, the carcass set back inside — and the
+ * whole of it moves out until the doors meet that plane.
+ */
+export function flushDoorOffset(appliance: Appliance, d: number): number {
+  const stance = fridgeStance(appliance, d);
+  return ROOM.counterDepth / 2 + ft(CABINET_DOOR_IN) - (stance.doorZ + stance.doorThickness / 2);
 }
 
 /**

@@ -45,6 +45,21 @@ const LINKS = Object.entries(ROUND_98B1.links);
  */
 const CHANGED_BY_98B2 = "E one-wall";
 
+/**
+ * Package A's two, which open a different room since the fridge-front round,
+ * because Leo changed the room (2026-10-24 and 2026-10-27): A's refrigerator
+ * stands between a 3/4" side panel and its end, where it stood in a 42"
+ * enclosure. The walls, the island and the models are as the links say —
+ * 168" x 144", and 237-3/4" on one wall, opened as it is with nothing left
+ * out (Leo, 2026-10-27, 5) — and the runs, the machines' places and the
+ * cabinet boxes are the new ones. The rooms this code opens them to, hashed
+ * as `held` hashes them on this round's code.
+ */
+const CHANGED_BY_FRIDGE_FRONT: Record<string, string> = {
+  "A L": "49e226c13c4d42a2a459aab5551f255441944afdefac21b4796bc15784ae0018",
+  "A one-wall": "d932800111d21b82e0dd46cb18b7ab18ad74134ff8c82d91d371c456339c06cc",
+};
+
 describe("the ten v=2 links round 98b-1 wrote", () => {
   it("is ten: five packages, in the L and on one wall", () => {
     expect(LINKS.length).toBe(10);
@@ -54,7 +69,8 @@ describe("the ten v=2 links round 98b-1 wrote", () => {
     it("opens the room 98b-1 opened, every run, machine, cabinet box and model — but E on one wall", () => {
       freshPage();
       openSharedLink(fixture.link);
-      expect(held() === fixture.room).toBe(_name !== CHANGED_BY_98B2);
+      if (_name in CHANGED_BY_FRIDGE_FRONT) expect(held()).toBe(CHANGED_BY_FRIDGE_FRONT[_name]);
+      else expect(held() === fixture.room).toBe(_name !== CHANGED_BY_98B2);
     });
 
     it("says nothing on opening", () => {

@@ -504,7 +504,11 @@ export const useAppStore = create<AppState>((set, get) => ({
     if (slot === "slot-fridge") {
       // A built-in stands in an enclosure and a counter-depth machine among
       // rule 11's parts, each to its own height (round 89): changing one for
-      // the other generates the room again where it stands.
+      // the other generates the room again where it stands. One that needs
+      // more wall gets it, and says so in Leo's words with an Undo (the
+      // fridge-front round; Leo, 2026-10-24, 5, and 2026-10-27, 6).
+      const before = snapshot(get());
+      const built = get().layoutIssues.length === 0;
       const result = setFridgeModel(APPLIANCE_BY_ID[applianceId], get().packageId);
       if (!result.ok) {
         set({ layoutIssues: result.reasons });
@@ -512,7 +516,24 @@ export const useAppStore = create<AppState>((set, get) => ({
       }
       set((s) => ({
         selection: { ...s.selection, [slot]: applianceId },
+        layoutParams: result.params,
         layoutVersion: result.rebuilt ? s.layoutVersion + 1 : s.layoutVersion,
+        toast:
+          result.grown.length > 0
+            ? {
+                id: ++toastId,
+                key: "toast.modelGrew",
+                lines: result.grown.map((growth) => ({
+                  key: "toast.modelGrew",
+                  vars: {
+                    wallKey: growth.key === "backWallIn" ? "toast.wall.back" : "toast.wall.left",
+                    toIn: inchesSpoken(growth.toIn),
+                  },
+                })),
+                undo: built ? before : undefined,
+                undoLabel: { key: "toast.undo.layout" },
+              }
+            : s.toast,
       }));
       return;
     }

@@ -277,6 +277,7 @@
   "rule.rangetopCornerSupports": "2\" x 4\" corner supports in the cabinet under the rangetop, under the corners of its cutout, to carry it (142 lb).",
   "toast.roomGrew": "{package} needs a bigger kitchen: the back wall is now {backIn}″ and the left wall {leftIn}″.",
   "toast.shapeGrew": "A single-wall kitchen needs a longer wall: the back wall is now {backIn}″.",
+  "toast.modelGrew": "The new model needs more room: {wall} is now {toIn}.",
   "toast.wallGrew": "{wall} lengthened from {fromIn} to {toIn} to fit {reason}.",
   "toast.wall.back": "Back wall",
   "toast.wall.left": "Left wall",

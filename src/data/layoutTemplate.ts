@@ -621,13 +621,31 @@ export const openingIn = (slot: PackageSlot) =>
 export const insetOf = (slot: PackageSlot) => (slot.enclosure ? PANEL : 0);
 
 /**
- * The run's segment for a package's own refrigerator, in inches: its
- * enclosure, or D11 rule 11's panel, opening and panel or 3-1/2" against a
- * return wall. A refrigerator chosen on the model card is built into this same
- * segment (round 89), so a swap moves nothing along the run.
+ * What stands at a built-in refrigerator's end: a 3/4" panel against
+ * cabinetry, 3-1/2" of filler against a return wall so its door opens (D11
+ * rule 11). Leo, 2026-10-27.
+ */
+const builtInEndIn = (params: Pick<LayoutParams, "fridgeEndAbuts">) =>
+  params.fridgeEndAbuts === "wall" ? LAYOUT_LIMITS.fridge.fromWallIn : LAYOUT_LIMITS.fridge.sidePanelIn;
+
+/** A built-in refrigerator's own segment: its side panel, the machine and its end. */
+const builtInSegmentIn = (widthIn: number, params: Pick<LayoutParams, "fridgeEndAbuts">) =>
+  LAYOUT_LIMITS.fridge.sidePanelIn + widthIn + builtInEndIn(params);
+
+/**
+ * The run's segment for a package's own refrigerator, in inches: a built-in's
+ * side panel, machine and end, or D11 rule 11's panel, opening and panel or
+ * 3-1/2" against a return wall.
+ *
+ * The fridge-front round (Leo, 2026-10-24 and 2026-10-27): a built-in stands
+ * straight against the cabinetry, a plain 3/4" panel on the counter's side and
+ * at its end a 3/4" panel or the 3-1/2" filler, where it stood in a 42"
+ * enclosure with a 3" panel each side that nothing gave the figure for. A
+ * refrigerator chosen on the model card is built into this segment where it
+ * fits (round 89), and grows it where it does not (Leo, 2026-10-24, 5).
  */
 export function fridgeSegmentIn(slot: PackageSlot, params: Pick<LayoutParams, "fridgeEndAbuts">): number {
-  if (slot.enclosure) return openingIn(slot);
+  if (slot.enclosure) return builtInSegmentIn(slot.widthIn, params);
   const outerIn = params.fridgeEndAbuts === "wall" ? LAYOUT_LIMITS.fridge.fromWallIn : PANEL_IN;
   return PANEL_IN + slot.widthIn + outerIn;
 }
@@ -1769,32 +1787,43 @@ function planLegs(
    *
    * Round 89, Leo: which of the two is the chosen model's (`fridgeMount`), so
    * `spec` is the slot as that model is built in (`slotsAsBuilt`). The segment
-   * is the one the package builds for its own refrigerator, so a swap moves
-   * nothing along the run and grows no wall (as round 84 keeps a range's
-   * opening): a counter-depth machine in a built-in's 42" with a return wall
-   * past it keeps its 3-1/2" and takes the half inch off the panel on the
-   * corner side; a built-in in a counter-depth machine's segment with a
-   * return wall past it leaves a half-inch scribe at the wall, and no more
-   * room for its doors than its own enclosure gives (Leo).
+   * is the one the package builds for its own refrigerator where the chosen
+   * one fits in it (as round 84 keeps a range's opening): a built-in in a
+   * counter-depth machine's segment stands at its end as A's does, and what
+   * the segment has over that goes in a board outside its side panel, on the
+   * counter's side (Leo, 2026-10-24, 4). Where it does not fit — rule 11's
+   * 3" + 36" + 3" or 3-1/2" in a built-in's shorter segment — the segment
+   * grows to it, and the run moves along, or the wall grows, for it (Leo,
+   * 2026-10-24, 5).
+   *
+   * A built-in has no 3" panels of its own (`insetIn` 0): its side panel and
+   * its end are boards of the run, flush with the cabinet doors, the full
+   * height (Leo, 2026-10-24, 11, and 2026-10-27, 1 and 2).
    */
   const fridge = spec["slot-fridge"];
   const segmentIn = fridgeSegmentIn(slotsOf(pkg)["slot-fridge"], params);
   const single = fridge.enclosure
     ? (() => {
-        const widthIn = openingIn(fridge);
-        const scribeIn = segmentIn - widthIn;
-        if (scribeIn < -1e-6) throw new Error(`a built-in refrigerator needs ${widthIn}" in a ${segmentIn}" segment`);
-        const tower = M(`T${widthIn}96`, "tall", widthIn, { heightIn: 96, slot: "slot-fridge" });
+        const sideIn = LAYOUT_LIMITS.fridge.sidePanelIn;
+        const endIn = builtInEndIn(params);
+        const ownIn = builtInSegmentIn(fridge.widthIn, params);
+        const widthIn = Math.max(segmentIn, ownIn);
+        const restIn = widthIn - ownIn;
+        const tower = M(`T${fridge.widthIn}96`, "tall", fridge.widthIn, { heightIn: 96, slot: "slot-fridge", insetIn: 0 });
         return {
           kind: "fixed" as const,
           id: "fridge",
-          widthIn: segmentIn,
+          widthIn,
           segmentKind: (fridge.tallUnit ? "tall" : "appliance") as RunSegment["kind"],
           slot: "slot-fridge" as SlotId,
-          modules:
-            scribeIn > 1e-6
-              ? [tower, M(`PNL${round8(scribeIn)}`, "panel", scribeIn, { slot: "slot-fridge" })]
-              : [tower],
+          modules: [
+            ...(restIn > 1e-6 ? [M(`PNL${round8(restIn)}`, "panel", restIn, { slot: "slot-fridge" })] : []),
+            M(`PNL${sideIn}`, "panel", sideIn, { slot: "slot-fridge" }),
+            tower,
+            params.fridgeEndAbuts === "wall"
+              ? M(`BF${round8(endIn)}`, "filler", endIn, { slot: "slot-fridge" })
+              : M(`PNL${endIn}`, "panel", endIn, { slot: "slot-fridge" }),
+          ],
         };
       })()
     : (() => {
@@ -1805,12 +1834,12 @@ function planLegs(
         // the same gap twice and asking the wall for it.
         const openIn = fridge.widthIn;
         const outerIn = params.fridgeEndAbuts === "wall" ? rule.fromWallIn : PANEL_IN;
-        const innerIn = segmentIn - openIn - outerIn;
-        if (innerIn < -1e-6) throw new Error(`a freestanding refrigerator needs ${openIn + outerIn}" in a ${segmentIn}" segment`);
+        const widthIn = Math.max(segmentIn, PANEL_IN + openIn + outerIn);
+        const innerIn = widthIn - openIn - outerIn;
         return {
           kind: "fixed" as const,
           id: "fridge",
-          widthIn: segmentIn,
+          widthIn,
           segmentKind: (fridge.tallUnit ? "tall" : "appliance") as RunSegment["kind"],
           slot: "slot-fridge" as SlotId,
           modules: [
@@ -2360,6 +2389,26 @@ export function omittedForWall(asked: LayoutParams, written: Package = PACKAGE):
   const key = leg === "back" ? ("backWallIn" as const) : ("leftWallIn" as const);
   const fits = params[key] >= requirementFor(params, leg, pkg, byHood).minimumIn;
   return fits ? [] : spare;
+}
+
+/**
+ * The wall at which the room leaves nothing out for want of it (D18): the leg
+ * the spare two stand on, at its own minimum with them on it — the figure
+ * `omittedForWall` holds the wall to. A refrigerator chosen on the card that
+ * would leave them out grows the wall to this instead (Leo, 2026-10-27, the
+ * fridge-front plan's question 6/1).
+ */
+export function wallKeepingSpares(
+  asked: LayoutParams,
+  written: Package = PACKAGE,
+): { key: "backWallIn" | "leftWallIn"; minimumIn: number } {
+  const pkg = packageInShape(written, asked.shape);
+  const params = asBuilt(asked, pkg);
+  const leg = params.fridgeEnd === "left" ? ("left" as const) : ("back" as const);
+  return {
+    key: leg === "back" ? "backWallIn" : "leftWallIn",
+    minimumIn: requirementFor(params, leg, pkg, leftOutByHood(pkg)).minimumIn,
+  };
 }
 
 /**
@@ -3619,7 +3668,9 @@ function windowRefusals(
  * The refrigerator opening, for the scene that draws the enclosure.
  *
  * Inside the panels where there are panels; the whole segment where there are
- * none, because then the opening and the appliance are the same thing.
+ * none, because then the opening and the appliance are the same thing. A
+ * built-in standing on its own has its boards beside it in the segment, and
+ * its opening is its own module's (the fridge-front round).
  */
 export function fridgeOpeningOf(
   layout: GeneratedLayout,
@@ -3628,7 +3679,13 @@ export function fridgeOpeningOf(
   const inset = insetOf(slotsAsBuilt(pkg)["slot-fridge"]);
   for (const run of layout.runs) {
     const tower = run.segments.find((s) => s.slot === "slot-fridge");
-    if (tower) return [tower.from + inset, tower.to - inset] as const;
+    if (!tower) continue;
+    const own = tower.modules.findIndex((module) => module.kind === "tall" && module.insetIn === 0);
+    if (inset > 0 && own >= 0 && tower.modules.length > 1) {
+      const from = tower.from + tower.modules.slice(0, own).reduce((sum, module) => sum + ft(module.widthIn), 0);
+      return [from, from + ft(tower.modules[own].widthIn)] as const;
+    }
+    return [tower.from + inset, tower.to - inset] as const;
   }
   return [0, 0] as const;
 }

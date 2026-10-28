@@ -33,7 +33,10 @@ describe("changing a parameter changes the whole room", () => {
   it("re-cuts the carcass around the appliances that moved", () => {
     setLayoutParams({ ...DEFAULT_PARAMS, fridgeEnd: "back", sinkLeg: "left" });
 
-    const tower = module("T4296")!;
+    // The refrigerator's own box since the fridge-front round (Leo,
+    // 2026-10-27, 1): its 36" between a 3/4" side panel and its end, where
+    // it was a 42" enclosure.
+    const tower = module("T3696")!;
     expect(tower).toBeDefined();
     // A box on the back run is centred on the back run's line.
     expect(tower.position[2]).toBeCloseTo(RUN_BY_ID.back.centre, 6);

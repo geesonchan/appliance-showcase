@@ -1466,6 +1466,25 @@ fronts flush with the cabinet fronts. T36BT120NS is the stainless-door model,
 as the catalogue has it. The Open item "The two vertical strips beside A's
 refrigerator" has the rest.
 
+**Amended 2026-10-27, Leo, answering the plan
+(`docs/plans/fridge-front-plan.md`, second final version) — built in the
+fridge-front round.** On the counter's side, a plain 3/4" full-height side
+panel (乙), which is the manual's "at least 4" flat going in" (T36BT120NS
+p. 21, T36IT100NP p. 23); no 4"-wide side wall on the front. At the end, a
+3/4" panel against cabinetry and the 3-1/2" filler against a return wall. A
+built-in's segment is therefore 37-1/2" or 40-1/4", where it was 42". The
+panels and the filler are flush with the cabinet doors, and so is the
+refrigerator's door face, 24-3/4" off the wall, its handles in front of it.
+Its doors are drawn 35-3/4" (T36BT120NS p. 19, T36IT100NP p. 21), centred in
+the 36" opening, so the eighth each side shows as a dark line; none on top.
+Built for the two built-ins standing on their own (A's, and one chosen in
+C's segment); B's bank and the columns wait for round 101. A refrigerator
+chosen on the card that needs a longer segment gets it, the wall growing
+where it must — on one wall too, rather than leaving out the microwave
+drawer and the wine cooler — with Leo's words: 「换了型号，{wall}不够长，已加长到
+X″。」 / "The new model needs more room: {wall} is now X″." The Open item
+has the answers in full.
+
 **Amended 2026-09-13 (round 32), Leo: a group of columns meets the wall as one
 unit.** Package D's refrigerator is the middle column of three, and the return
 wall was placed beside the refrigerator's own opening — between two columns. The
@@ -2751,6 +2770,16 @@ and the liner hung on its own between the wall cabinets, with no housing.
     3,007 of 3,007.
   - **The local preview**: `index-B8xxFYDl.js` (688,143 bytes); the three
     chunk, `three-C6wp6xxT.js`, and the other chunks keep `c89fd26`'s names.
+  - **Live, checked file by file**: commit `7c043c1`, the Pages run
+    40449254407 a success, both its jobs — build (04:21:13 to 04:22:20 UTC,
+    2026-10-27) and deploy (04:22:25 to 04:22:36) — each a success. Built at
+    `7c043c1` with `VITE_GOATCOUNTER=https://geesonchan.goatcounter.com/count`,
+    every file fetched from the live site and compared byte for byte, all six
+    identical: `index.html` (901 bytes), `assets/index-CqD9QQeF.js`
+    (688,247), `assets/index-BXokVwDN.css` (23,928),
+    `assets/react-i_nGBwMY.js` (145,992), `assets/shareQr-BXYgausd.js`
+    (21,968), `assets/three-C6wp6xxT.js` (704,119); the live `index.html`
+    asks for nothing the build does not have.
 - Tests: `hoodSwap.test.ts` (unit) — red on round 86's code for A's liner
   (a bridge over it), B's under-cabinet swap (its 42" housing kept), A's
   chimney swap (a bridge over it), C's under-cabinet swap (nothing over it, at
@@ -8999,6 +9028,100 @@ Registered, not scheduled. None of these is a round of its own.
       10. The stainless's reflection is not changed (above); out of the plan.
       11. The side panel and the filler as deep as the opening (25") and as
           tall as the tall cabinets beside them (96", 108" with a stack).
+    - **Leo's answers to the plan's next seven questions** (2026-10-27,
+      verbatim in `docs/plans/fridge-front-plan.md` section 0.2):
+      1. The 4": 乙 — a plain 3/4" full-height side panel on the counter's
+         side, which meets the manual's "at least 4" flat" (p. 21); no 4"
+         wide side wall on the front. (Replaces answer 2 above.)
+      2. Depth: the panels' and the filler's faces flush with the cabinet
+         doors, not proud; the refrigerator's door face in the same plane.
+         (Replaces the depth in answer 11 above.)
+      3. The filler beside A's refrigerator in its default L: accepted if it
+         is 3" or less — it is 1-1/2" (`BF1.5`), and the first `B30` became a
+         `B33`.
+      4. C on one wall with a built-in: it fits — the segment stays, a board
+         makes up the rest, nothing left out.
+      5. A's old one-wall link (237-3/4"): it fits — opened as it is, nothing
+         left out (A's own one wall is 236" now).
+      6. The words when a model swap grows a wall — 「换了型号，{墙}不够长，已加长到
+         X″。」 and "The new model needs more room: {wall} is now X″." — locked
+         in `reviewed.json` as `toast.modelGrew`.
+      7. The 1/8": the doors drawn 35-3/4", an eighth each side; both
+         T36BT120NS and T36IT100NP, T36IT100NP's installation instructions
+         having been found (`docs/reference/t36it100np-install.pdf`).
+    - **And the plan's two last questions** (2026-10-27):
+      1. A on one wall swapping to T36FT820NS, which needs 238-1/4": 甲 —
+         the wall grows, with the words above and an Undo, rather than the
+         microwave drawer and the wine cooler being left out. Built for both
+         shapes: a swap that would leave out what was standing grows the
+         wall instead (`setFridgeModel`, `wallKeepingSpares`).
+      2. T36IT100NP's cutout depth: 乙 — not changed this round; the Open
+         item below.
+    - **Built in the fridge-front round** (D11 rule 11's amendment of
+      2026-10-27; `fridgeFront.test.ts`, `fridgeModelGrew.test.ts`,
+      `tests/fridgeFront.test.ts`).
+    - **An old test's standard changed, and why** *(Leo, 2026-10-27:
+      "写进 decisions.md，注明是改了旧测试的标准和原因")*.
+      `tests/fadeRebuild.test.ts`, "changing the refrigerator to a
+      counter-depth one": its setup turned the camera until anything faded;
+      it now turns it until a cabinet fades — a box that is not a filler or
+      a panel (`BF`, `PNL`). The assertions are as they were: in the room
+      made again after the swap, no box that ends faded is drawn solid in any
+      render, with at least one room and one box checked.
+      - **Why**: this round puts A's `BF1.5` beside the side panel. On a
+        phone the turn met its two strips first, at the ninth drag, and
+        stopped there; the swap to T36FT820NS makes the segment again without
+        them, so the rebuilt room had nothing faded, and the test on the
+        phone and on the phone slowed four times ended red with
+        `roomsChecked` and `boxesChecked` false — nothing found wrong,
+        nothing checked.
+      - **The same thing checked**: turned until a cabinet fades, it stops at
+        the tenth drag, where `7c043c1` stopped. Faded before the swap: the
+        base cabinet `B30` and the wall cabinet `W1242` (and the two
+        fillers); after it, `B30` and `W1242` — on `7c043c1` the same two,
+        before and after. So it is the same view and the same question: what
+        stands between the camera and the refrigerator fades, and is not
+        drawn solid when the room is made again.
+      - **On `7c043c1`**: the old rule and the changed one stop at the same
+        drag with the same boxes, and the changed test file run there passes
+        24 of 24 (`index-DETn_8De.js`; the swap on a phone 1 room, 2 boxes
+        checked); on this round 24 of 24 as well.
+    - **Looked at and confirmed** *(Leo, 2026-10-28: "冰箱正面预览和近景看过了
+      （index-KLY8an-X.js），可以提交")*. The full suite, browser tests and
+      all, 3,357 of 3,357 in 149 files (5,029 s, the machine held awake); the
+      unit suite 3,026 of 3,026. The first full run had four reds: two in
+      `tests/fridgeFront.test.ts`, whose board filter took the filler beyond
+      the side panel as well (it now takes the strip nearest the doors each
+      side), and the two above in `fadeRebuild`. A rerun of the two files
+      had one red, install mode turning the island on a phone, every figure
+      right and its only error `net::ERR_NETWORK_CHANGED` (round 86's rule:
+      reported, not counted green); the full run after it was green.
+- **T36IT100NP's cutout depth: the catalogue says 24", its documents 25".**
+  *(Leo, 2026-10-27: 乙, not changed this round; he corrects it in the sheet
+  and the next import brings it in.)* `data/appliances.json` has
+  T36IT100NP's `cutoutDepthIn` at 24. It comes from the sheet — 2026 AA
+  Inventory Manager, tab `showcase_specs`, the row whose Model is
+  `T36IT100NP`, column `cutoutDepthIn` (`showcase_export` only looks it up
+  there; `PUBLISHED_SPECS` in `scripts/normalise.ts` has no cutout for this
+  model, so the sheet's figure is the one used). It should be **25**:
+  - its specification sheet (the catalogue's own `sourceUrl`, 25549011),
+    page 2: "Required Cutout Size (HxWxD) (Inches) 84" x 36" x 25"", and
+    page 3: fully flush "when installed in a 25" (635mm) deep cabinets with a
+    typical panel thickness of 3/4"";
+  - its installation instructions (`docs/reference/t36it100np-install.pdf`,
+    8001272631 rev. D), pages 22 and 23: the cutout at least 25" deep.
+  When it comes in, a room with T36IT100NP gets the line 「比开口深 1"，围合柜需加深」
+  as T36BT120NS's has (`rule.deeperThanOpening`, against a 24" cabinet);
+  the door face does not move — it is set to the cabinet doors' plane, not
+  read off this figure.
+  **Corrected in the sheet** *(Leo, 2026-10-28: "showcase_specs 里 T36IT100NP
+  的 cutoutDepthIn 改成了 25，并导出了 CSV"; "这一轮不要导入")*. His export is
+  `C:\Users\leoch\Downloads\showcase_export.csv`, modified 2026-10-28
+  00:07:57 (Pacific), 7,430 bytes, 37 rows under its header, the only
+  `showcase_export` file there; T36IT100NP's row has `cutoutDepthIn` 25. Not
+  imported: it comes in with the column-stainless / panel-ready round, the
+  catalogue compared field by field before and after, and every change
+  other than this one listed for him to confirm.
 - **A chimney hood narrower than its opening: the 3" of wall each side,
   looked at again.** *(Leo, round 99a: registered, not in 99a, no code
   changed; his site practice to come; nothing is chosen here — 「不要选，等我答」.)*

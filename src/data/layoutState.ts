@@ -6,11 +6,12 @@ import {
   oneWallWantedIn,
   openingIn,
   paramLimitsFor,
+  wallKeepingSpares,
   type LayoutParams,
   type Refusal,
 } from "./layoutTemplate";
 import { PACKAGE, PACKAGE_BY_ID, PACKAGE_SHAPE, setPackage, slotsOf } from "./packages";
-import { LAYOUT, REQUESTED_PARAMS, applyLayout } from "./room";
+import { LAYOUT, OMITTED_FOR_WALL, REQUESTED_PARAMS, applyLayout } from "./room";
 import { rebuildSlots } from "./slots";
 import { hoodModelFor, hoodMount, recordHoodModel } from "./hoodMount";
 import { dropsIntoCounter, rangeFillerIn, rangeModelFor, recordRangeModel } from "./cookingSurface";
@@ -129,29 +130,60 @@ export function setRangeModel(
  * counter-depth machine among D11 rule 11's parts, and the cabinet over either
  * stands on the machine's own height (`fridgeMount`, `fridgeOpeningHeightIn`).
  * So when either answer changes the room is generated again where it stands,
- * as a range of another kind regenerates it (round 83); the segment is the
- * package's own, so nothing moves along the run and no wall grows. A
- * refrigerator built in the same way and to the same height — A's built-in
- * for the column — changes nothing round it. Refused, the previous choice is
- * put back and the reasons come out; no room in any package refuses it
- * (`fridgeSwap.test.ts`).
+ * as a range of another kind regenerates it (round 83). A refrigerator built
+ * in the same way and to the same height — A's built-in for the column —
+ * changes nothing round it.
+ *
+ * The fridge-front round (Leo, 2026-10-24, 5): a machine that needs a longer
+ * segment than the package's gets it, and where the wall is then short it
+ * grows, as D18 grows it for any other change, and what grew comes back for
+ * the interface to say and offer to undo. On one wall, or on an L's leg
+ * without an island, a short wall does not refuse but leaves out the spare
+ * two; a swap that would leave out what was standing grows the wall to keep
+ * them instead (Leo, 2026-10-27, the plan's question 6/1). Refused all the
+ * same, the previous choice is put back and the reasons come out.
  */
 export function setFridgeModel(
   appliance: Appliance | undefined,
   packageId: string = PACKAGE.id,
-): { ok: boolean; reasons: Refusal[]; rebuilt: boolean } {
+): { ok: boolean; reasons: Refusal[]; rebuilt: boolean; params: LayoutParams; grown: WallGrowth[] } {
+  const asked = REQUESTED_PARAMS;
+  const kept = { ok: true, reasons: [] as Refusal[], rebuilt: false, params: asked, grown: [] as WallGrowth[] };
   const before = fridgeModelFor(PACKAGE);
   recordFridgeModel(appliance, packageId);
-  if (packageId !== PACKAGE.id) return { ok: true, reasons: [], rebuilt: false };
+  if (packageId !== PACKAGE.id) return kept;
   const after = fridgeModelFor(PACKAGE);
   const built = (fridge: Appliance | undefined) =>
     fridge ? `${fridgeMount(fridge)} ${fridgeOpeningHeightIn(fridge)}` : "";
-  if (built(before) === built(after)) return { ok: true, reasons: [], rebuilt: false };
-  const result = setLayoutParams(REQUESTED_PARAMS);
+  if (built(before) === built(after)) return kept;
+  const standing = OMITTED_FOR_WALL;
+  const result = setLayoutParamsGrowing(asked);
   if (!result.ok) {
     recordFridgeModel(before, packageId);
-    setLayoutParams(REQUESTED_PARAMS);
-    return { ...result, rebuilt: false };
+    setLayoutParams(asked);
+    return { ...result, rebuilt: false, params: asked, grown: [] };
+  }
+  const leftOut = () => OMITTED_FOR_WALL.some((slotId) => !standing.includes(slotId));
+  if (leftOut()) {
+    const { key, minimumIn } = wallKeepingSpares(result.params);
+    const max = paramLimitsFor(asked.shape)[key].max;
+    // The leg at its minimum with the spare two on it; a window that will
+    // not sit evenly there is cured an eighth at a time, as D18 cures it.
+    for (let eighths = 0; eighths <= 16; eighths += 1) {
+      const wallIn = Math.max(minimumIn, result.params[key]) + eighths / 8;
+      if (wallIn > max) break;
+      const params = { ...result.params, [key]: wallIn };
+      if (setLayoutParams(params).ok && !leftOut()) {
+        const grown = WALL_KEYS.filter((wall) => params[wall] !== asked[wall]).map((wall) => ({
+          key: wall,
+          fromIn: asked[wall],
+          toIn: params[wall],
+        }));
+        return { ok: true, reasons: [], rebuilt: true, params, grown };
+      }
+    }
+    // More wall than the slider has: left out, as a short wall leaves them.
+    setLayoutParams(result.params);
   }
   return { ...result, rebuilt: true };
 }

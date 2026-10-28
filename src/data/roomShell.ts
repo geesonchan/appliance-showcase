@@ -218,6 +218,13 @@ export const LAYOUT_LIMITS = {
     sideGapIn: 0.125,
     /** Between the machine and a return wall, so the door opens 90 degrees. */
     fromWallIn: 3.5,
+    /**
+     * The board either side of a built-in where it meets cabinetry: a plain
+     * 3/4" panel the full height, flush with the cabinet doors. On the
+     * counter's side it is the flat side going in, at least 4" deep, that the
+     * manuals ask for (T36BT120NS p. 21, T36IT100NP p. 23). Leo, 2026-10-27.
+     */
+    sidePanelIn: 0.75,
     /** A return this deep or more is a wall to a door, not a reveal. */
     wallReturnIn: 30,
     /** The optional stop that holds the door at ninety degrees. */

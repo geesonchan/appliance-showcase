@@ -306,7 +306,12 @@ describe("D13 · base cabinets", () => {
         // finishing a run against a wall, so a door has somewhere to swing, is
         // three inches on purpose.
         if (segment.modules.every((module) => module.kind === "filler")) continue;
-        const w = widthIn(segment);
+        // And a filler beside a cabinet is not the cabinet: the 1-1/2" left
+        // beside A's second B30 when its refrigerator's segment came down to
+        // 37-1/2" (the fridge-front round; Leo, 2026-10-27, 3). The cabinet
+        // is what has to be on the grid.
+        const fillerIn = segment.modules.filter((module) => module.kind === "filler").reduce((sum, module) => sum + module.widthIn, 0);
+        const w = widthIn(segment) - fillerIn;
         expect(w, segment.id).toBeGreaterThanOrEqual(min);
         expect(w, segment.id).toBeLessThanOrEqual(max);
         expect(w % step, segment.id).toBeCloseTo(0, 6);
@@ -357,7 +362,10 @@ describe("D13 · wall cabinets", () => {
 describe("D13 · tall cabinets and the L", () => {
   it("runs the tower to a standard height at base depth", () => {
     expect(CABINET_STANDARDS.tall.heightsIn).toContain(inches(ROOM.tallTop));
-    const panel = CABINETS.find((b) => b.id === "left-fridge-panel-a")!;
+    // The refrigerator's side panel on the counter's side since the
+    // fridge-front round (Leo, 2026-10-27, 1): a plain 3/4" board, where it
+    // was the enclosure's 3" panel.
+    const panel = CABINETS.find((b) => b.id === "left-fridge-PNL0.75-0")!;
     expect(inches(panel.size[1])).toBeCloseTo(inches(ROOM.tallTop), 6);
     expect(inches(panel.size[0])).toBeCloseTo(CABINET_STANDARDS.tall.depthIn, 6);
   });
@@ -461,8 +469,10 @@ describe("the run as Leo specified it", () => {
   it("sizes each opening to what goes in it", () => {
     for (const occupant of occupants()) {
       if (occupant.kind === "tall") {
-        // A tower is the opening plus a finished panel each side.
-        expect(occupant.widthIn).toBe(SLOT_BY_ID["slot-fridge"].cutout.w + 6);
+        // A built-in is its opening, its 3/4" side panel and, against the
+        // cabinetry past it, a 3/4" end panel (the fridge-front round; Leo,
+        // 2026-10-27, 1). It was the opening and a 3" panel each side.
+        expect(occupant.widthIn).toBe(SLOT_BY_ID["slot-fridge"].cutout.w + 2 * LAYOUT_LIMITS.fridge.sidePanelIn);
       } else if (occupant.segment === "back-range") {
         expect(occupant.widthIn).toBe(SLOT_BY_ID["slot-range"].cutout.w);
       } else if (occupant.segment === "back-dishwasher") {
@@ -617,7 +627,9 @@ describe("D11 rule 2 · the corner is continuous", () => {
       const last = run.segments[run.segments.length - 1].to;
       const intoCorner = run.segments[0].kind === "corner" ? 0 : 15;
       expect(inches(first - extents[0][0]), `${run.id} toe kick reaches into the corner`).toBeCloseTo(intoCorner, 6);
-      const short = run.id === "left" ? 3 : 0;
+      // A's refrigerator ends the left run on its 3/4" end panel since the
+      // fridge-front round (Leo, 2026-10-27, 1), where it was a 3" board.
+      const short = run.id === "left" ? 0.75 : 0;
       expect(inches(last - extents[extents.length - 1][1]), `${run.id} toe kick short of the end`).toBeCloseTo(short, 6);
       const range = run.segments.find((s) => s.slot === "slot-range");
       if (range) {

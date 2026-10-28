@@ -171,9 +171,17 @@ confirms it** (Leo, 2026-10-24).
    hood's canopy made before the insert's return, and the refrigerator in
    `swapMemory.mjs`'s fifty — Open items).
 3. **The refrigerator's front** — a built-in against the cabinets beside it,
-   3-1/2" at a wall, 3/4" at an open end (D11 rule 11, amended 2026-10-24); A's
-   42" segment becomes about 36" (`docs/plans/fridge-front-plan.md`; Leo
-   answered its eleven questions, it waits on his look).
+   3-1/2" at a wall, 3/4" at an open end, a plain 3/4" side panel toward the
+   counter, faces flush with the cabinet doors, 35-3/4" doors with 1/8" each
+   side on T36BT120NS and T36IT100NP (D11 rule 11, amended 2026-10-24; his
+   answers of 2026-10-27); A's 42" segment becomes 37-1/2" at an open end and
+   40-1/4" at a wall; a model swap that needs more wall grows it, on one wall
+   too, with his words (`docs/plans/fridge-front-plan.md`, second final
+   version, confirmed 2026-10-27 with both its last questions answered;
+   built, looked at and confirmed by him 2026-10-28, committed).
+   T36IT100NP's cutout depth: 24" in the catalogue, 25" in its documents; he
+   corrected the sheet 2026-10-28 and exported `showcase_export.csv`, to be
+   imported with item 4, not before (decisions.md Open items).
 4. **Stainless or panel-ready** — the same built-in column or refrigerator
    offered in either (`docs/plans/panel-ready-plan.md`, a draft with his
    questions).
@@ -207,6 +215,7 @@ confirms it** (Leo, 2026-10-24).
 | `tests/sideStrips.test.ts` | The strips a machine draws beside itself are faced in the doors' plane, take shadows, and have nothing of the machine in them (D13 and D11 rule 12, round 85). |
 | `tests/modelCardSide.test.ts` | On a desktop the model card at the left of the scene, as tall as what it holds, gone while the list rail is open, clear of the machine (D12, round 88). |
 | `src/data/fridgeSwap.test.ts`, `tests/fridgeSurround.test.ts` | What stands round a refrigerator follows the model chosen; a counter-depth one is refused in a bank of columns (D16, round 89). |
+| `src/data/fridgeFront.test.ts`, `src/store/fridgeModelGrew.test.ts`, `tests/fridgeFront.test.ts` | A built-in between its 3/4" side panel and its end, 35-3/4" doors with an eighth each side, flush with the cabinet doors; a model swap that needs more wall grows it and says so (D11 rule 11, the fridge-front round). |
 | `tests/previewServer.test.ts` | The browser suite's preview server leaves its port free when stopped (round 89). |
 | `src/data/hmcb36ws.test.ts`, `tests/chimney36.test.ts` | The 36" chimney hood HMCB36WS in A's, B's and D's openings, and a chimney hood's cover its own model's (D16, round 90). |
 | `src/data/ral.test.ts`, `tests/ralColours.test.ts` | Every RAL Classic code with its source and date, the special finishes, and what the RAL input says under it (D15, round 92). |

@@ -28,6 +28,12 @@ import type { Appliance, Package } from "../types";
  * swap keeps the package's segment — against a return wall a counter-depth
  * machine keeps its 3-1/2" and the half inch comes out of the segment; a
  * built-in gets no more room for its doors than its own enclosure.
+ *
+ * The fridge-front round (Leo, 2026-10-24 and 2026-10-27) changed the second
+ * rule: a built-in stands between a 3/4" side panel and its end, and a
+ * counter-depth machine swapped into the shorter segment gets what rule 11
+ * asks, the run moving along for it and the wall growing where it must
+ * (`fridgeFront.test.ts`).
  */
 afterAll(() => resetRoom());
 
@@ -85,7 +91,7 @@ function swapTo(code: string, fridgeId: string, params: Partial<LayoutParams> = 
 }
 
 const row = (r: ReturnType<typeof swapTo>) =>
-  `${r.ok ? "" : "REFUSED "}${r.parts} (${r.segmentIn}) over from ${r.overFromIn}${r.overItsOpening ? "" : " OFF ITS OPENING"}${r.nothingElseMoved && r.wallsKept ? "" : " MOVED"}`;
+  `${r.ok ? "" : "REFUSED "}${r.parts} (${r.segmentIn}) over from ${r.overFromIn}${r.overItsOpening ? "" : " OFF ITS OPENING"}${r.nothingElseMoved ? "" : " MOVED"}${r.wallsKept ? "" : " WALL GREW"}`;
 
 describe("what stands round a refrigerator follows the model chosen (round 89)", () => {
   it("is an enclosure or rule 11's parts, built to the machine's height, for every refrigerator every opening takes", () => {
@@ -104,27 +110,34 @@ describe("what stands round a refrigerator follows the model chosen (round 89)",
     // of the opening is the opening's, not the model's. Five rows, nothing
     // else changed.
     expect(seen).toEqual({
-      // A's 42" enclosure: a built-in or a column stands in it, its bridge
-      // from the head of the 84" opening; the counter-depth machine gets rule
-      // 11's 3" panels and the cabinet an inch above its 72".
-      "A t36bt120ns": "T4296 (42) over from 84",
-      "A t36it100np": "T4296 (42) over from 84",
-      "A t30ir905sp": "T4296 (42) over from 84",
-      "A t24ir905sp": "T4296 (42) over from 84",
-      "A t36ft820ns": "PNL3 RO36 PNL3 (42) over from 73",
+      // A's segment since the fridge-front round (Leo, 2026-10-27, 1): a
+      // plain 3/4" side panel on the counter's side, the machine's own 36",
+      // and a 3/4" panel against the cabinetry past it — 37-1/2", where it was
+      // a 42" enclosure with 3" panels. A built-in or a column stands in it,
+      // its bridge from the head of the 84" opening. The counter-depth machine
+      // still gets rule 11's 3" panels and the cabinet an inch above its 72":
+      // its segment is the longer of A's and what rule 11 asks (Leo,
+      // 2026-10-24, 5), so the run along it moves and the wall here does not.
+      "A t36bt120ns": "PNL0.75 T3696 PNL0.75 (37.5) over from 84",
+      "A t36it100np": "PNL0.75 T3696 PNL0.75 (37.5) over from 84",
+      "A t30ir905sp": "PNL0.75 T3696 PNL0.75 (37.5) over from 84",
+      "A t24ir905sp": "PNL0.75 T3696 PNL0.75 (37.5) over from 84",
+      "A t36ft820ns": "PNL3 RO36 PNL3 (42) over from 73 MOVED",
       // B's refrigerator stands in a bank with its wine column: built-ins and
       // the column only; the counter-depth machine is refused (Leo).
       "B t36bt120ns": "T3696 (36) over from 84",
       "B t36it100np": "T3696 (36) over from 84",
       "B t30ir905sp": "T3696 (36) over from 84",
       "B t24ir905sp": "T3696 (36) over from 84",
-      // C's own 42" of rule 11; a built-in or a column gets an enclosure in
-      // it, its bridge from 84" — Leo's case.
+      // C's own 42" of rule 11; a built-in or a column stands in it as in A,
+      // its bridge from 84" — Leo's case — and the 4-1/2" C's segment has
+      // over A's goes in a board outside the side panel, on the counter's
+      // side (Leo, 2026-10-24, 4, and 2026-10-27, 4).
       "C t36ft820ns": "PNL3 RO36 PNL3 (42) over from 73",
-      "C t36bt120ns": "T4296 (42) over from 84",
-      "C t36it100np": "T4296 (42) over from 84",
-      "C t30ir905sp": "T4296 (42) over from 84",
-      "C t24ir905sp": "T4296 (42) over from 84",
+      "C t36bt120ns": "PNL4.5 PNL0.75 T3696 PNL0.75 (42) over from 84",
+      "C t36it100np": "PNL4.5 PNL0.75 T3696 PNL0.75 (42) over from 84",
+      "C t30ir905sp": "PNL4.5 PNL0.75 T3696 PNL0.75 (42) over from 84",
+      "C t24ir905sp": "PNL4.5 PNL0.75 T3696 PNL0.75 (42) over from 84",
       // D's and E's 30" column in their banks: the columns alone fit.
       "D t30ir905sp": "T3096 (30) over from 84",
       "D t24ir905sp": "T3096 (30) over from 84",
@@ -135,7 +148,9 @@ describe("what stands round a refrigerator follows the model chosen (round 89)",
 
   it("builds package C's own refrigerator opening into an enclosure for the built-in T36BT120NS, Leo's case", () => {
     const r = swapTo("C", "thermador-t36bt120ns");
-    expect({ parts: r.parts, overFromIn: r.overFromIn }).toEqual({ parts: "T4296", overFromIn: 84 });
+    // Since the fridge-front round: C's 42", a 3/4" side panel each side of
+    // the machine and the rest outside the counter's one (Leo, 2026-10-24, 4).
+    expect({ parts: r.parts, overFromIn: r.overFromIn }).toEqual({ parts: "PNL4.5 PNL0.75 T3696 PNL0.75", overFromIn: 84 });
   });
 
   it("gives the counter-depth T36FT820NS rule 11's parts in package A, and a cabinet an inch over its own top", () => {
@@ -143,20 +158,27 @@ describe("what stands round a refrigerator follows the model chosen (round 89)",
     expect({ parts: r.parts, overFromIn: r.overFromIn }).toEqual({ parts: "PNL3 RO36 PNL3", overFromIn: 73 });
   });
 
-  it("keeps the 3-1/2 inches against a return wall in A's segment, the half inch out of the panel on the corner side", () => {
+  it("gives the counter-depth machine against a return wall in A rule 11's whole 3 + 36 + 3-1/2 inches, the run moving along for it", () => {
+    // Until the fridge-front round the swap kept A's 42" and took the half
+    // inch off the corner side's panel. Leo, 2026-10-24, 5: the segment grows
+    // to what rule 11 asks; here the room has the wall, so only the run moves.
     const r = swapTo("A", "thermador-t36ft820ns", { fridgeEndAbuts: "wall" });
-    expect({ parts: r.parts, segmentIn: r.segmentIn, overItsOpening: r.overItsOpening, moved: !r.nothingElseMoved || !r.wallsKept }).toEqual({
-      parts: "PNL2.5 RO36 BF3.5",
-      segmentIn: 42,
+    expect({ parts: r.parts, segmentIn: r.segmentIn, overItsOpening: r.overItsOpening, moved: !r.nothingElseMoved, wallsKept: r.wallsKept }).toEqual({
+      parts: "PNL3 RO36 BF3.5",
+      segmentIn: 42.5,
       overItsOpening: true,
-      moved: false,
+      moved: true,
+      wallsKept: true,
     });
   });
 
-  it("gives a built-in in C's segment against a return wall no more room for its doors than its enclosure: a half-inch scribe", () => {
+  it("gives a built-in in C's segment against a return wall its side panel and 3-1/2 inches, and the rest in a board on the counter's side", () => {
+    // Until the fridge-front round: a 42" enclosure and a half-inch scribe at
+    // the wall. Now the wall end is A's against a wall, 3-1/2" of filler, and
+    // C's segment keeps its 42-1/2" (Leo, 2026-10-24, 4, and 2026-10-27, 4).
     const r = swapTo("C", "thermador-t36bt120ns", { fridgeEndAbuts: "wall" });
     expect({ parts: r.parts, segmentIn: r.segmentIn, overItsOpening: r.overItsOpening, moved: !r.nothingElseMoved || !r.wallsKept }).toEqual({
-      parts: "T4296 PNL0.5",
+      parts: "PNL2.25 PNL0.75 T3696 BF3.5",
       segmentIn: 42.5,
       overItsOpening: true,
       moved: false,

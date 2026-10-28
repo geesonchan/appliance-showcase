@@ -103,7 +103,10 @@ describe.each(["package-a", "package-c"])("the pair on a run, %s", (id) => {
     const leg = params.fridgeEnd === "left" ? "left" : "back";
     const requirement = wallRequirement(params, leg, PACKAGE_BY_ID[id]);
     // 159" before this round: corner 42 + landing 12 + 24 + 24 + landing 15 + tall 42.
-    expect(requirement.minimumIn).toBeCloseTo(159.75, 9);
+    // 159-3/4" with the board in both, until the fridge-front round took
+    // A's refrigerator segment from 42" to 37-1/2" (Leo, 2026-10-27, 1); C's
+    // own counter-depth machine keeps rule 11's 42".
+    expect(requirement.minimumIn).toBeCloseTo(id === "package-a" ? 155.25 : 159.75, 9);
   });
 });
 

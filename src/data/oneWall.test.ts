@@ -58,7 +58,10 @@ const standing = () =>
 describe("each package on one wall (round 98b)", () => {
   it("is built at the wall it asks for there, to the eighth", () => {
     const walls = Object.fromEntries(CODES.map((code) => [code, oneWall(code).ok ? LAYOUT_PARAMS.backWallIn : null]));
-    expect(walls).toEqual({ A: 237.75, B: 244.125, C: 232.25, D: 249.25, E: 273.625 });
+    // A's refrigerator segment is 1-3/4" shorter at the wall since the
+    // fridge-front round (40-1/4" where it was 42"; Leo, 2026-10-27, 1), and
+    // its wall with it: 237-3/4" until then.
+    expect(walls).toEqual({ A: 236, B: 244.125, C: 232.25, D: 249.25, E: 273.625 });
   });
 
   it("tops the one-wall slider at the next 6-inch step over the longest of them, which is package E's", () => {
@@ -109,12 +112,12 @@ describe("each package on one wall (round 98b)", () => {
         return [code, `${LAYOUT_PARAMS.fridgeEndAbuts} ${RUNS[0].segments[0].modules[0].code}`];
       }),
     );
-    // A's built-in stands in its own 42" enclosure against the wall (D11 rule
-    // 11 asks a door clearance of a freestanding machine and a bank); B's, C's
-    // and D's take the 3-1/2"; E's run starts with the 3" any run takes at a
+    // A's built-in takes the 3-1/2" at the wall too since the fridge-front
+    // round (Leo, 2026-10-24 and 2026-10-27), where it stood in its own 42"
+    // enclosure; B's, C's and D's take the 3-1/2"; E's run starts with the 3" any run takes at a
     // wall (D13), before the base its coffee tower stands clear of the wall by,
     // and its refrigeration stands beside a cabinet.
-    expect(ends).toEqual({ A: "wall T4296", B: "wall BF3.5", C: "wall BF3.5", D: "wall BF3.5", E: "cabinet BF3" });
+    expect(ends).toEqual({ A: "wall BF3.5", B: "wall BF3.5", C: "wall BF3.5", D: "wall BF3.5", E: "cabinet BF3" });
   });
 
   it("has no island, whatever the room it came from had", () => {

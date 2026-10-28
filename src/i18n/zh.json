@@ -278,6 +278,7 @@
   "rule.rangetopCornerSupports": "柜内在炉灶头开孔的角部下方加 2\" × 4\" 木方支撑，承托炉灶头的重量（142 磅）。",
   "toast.roomGrew": "{package}需要更大的厨房，已把后墙加到 {backIn}″、左墙加到 {leftIn}″。",
   "toast.shapeGrew": "一字型厨房需要更长的墙，已把后墙加到 {backIn}″。",
+  "toast.modelGrew": "换了型号，{wall}不够长，已加长到 {toIn}。",
   "toast.wallGrew": "{wall}已从 {fromIn} 加长到 {toIn}，以容纳{reason}。",
   "toast.wall.back": "后墙",
   "toast.wall.left": "左墙",

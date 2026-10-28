@@ -61,7 +61,11 @@ describe("the generator produces layouts that can be built", () => {
   it("gives every cabinet a trade code", () => {
     for (const run of built().runs) {
       for (const module of run.segments.flatMap((s) => s.modules)) {
-        expect(module.code, JSON.stringify(module)).toMatch(/^[A-Z]{1,4}\d{0,4}$/);
+        // A board's code carries its width, with its fraction where it is not
+        // whole: BF1.5 beside A's B30 and its PNL0.75 side panels since the
+        // fridge-front round (Leo, 2026-10-27, 1 and 3). Rooms other than this
+        // one have had BF3.5 and PNL0.75 since rule 11 and the oven tower.
+        expect(module.code, JSON.stringify(module)).toMatch(/^[A-Z]{1,4}\d{0,4}(\.\d{1,4})?$/);
       }
     }
   });
