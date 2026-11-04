@@ -9020,7 +9020,22 @@ Registered, not scheduled. None of these is a round of its own.
     main chunk, so the two strings change its name; with them set aside the
     two chunks are the same byte for byte, and the CSS, `react`, `three`
     and `shareQr` files are the same files. Leo's rule for a different name
-    is to stop: nothing committed or pushed; his answer waits.
+    is to stop: nothing committed or pushed. *(Leo, 2026-11-04: 甲 —
+    「接受 index-BkfMepA-.js，差别只在 _meta 的两项，已证明」.)*
+  - **Shipped**: commit `a46d2a9`, catalogue and code together, pushed
+    2026-11-04.
+    - **Live, checked file by file**: the Pages run 41898691582 a success,
+      both its jobs — build (19:37:17 to 19:38:34 UTC, 2026-11-04) and
+      deploy (19:38:39 to 19:38:50) — each a success. Built at `a46d2a9`
+      with `VITE_GOATCOUNTER=https://geesonchan.goatcounter.com/count`
+      (the main chunk then `index-Die1L31x.js`: the counter's address and the
+      commit in the footer, where `index-BkfMepA-.js` had neither), every
+      file fetched from the live site and compared byte for byte, all six
+      identical: `index.html` (901 bytes), `assets/index-Die1L31x.js`
+      (699,320), `assets/index-ByYGZbZC.css` (23,985),
+      `assets/react-i_nGBwMY.js` (145,992), `assets/shareQr-BXYgausd.js`
+      (21,968), `assets/three-C6wp6xxT.js` (704,119); the live `index.html`
+      asks for nothing the build does not have.
 - **One Chinese word for two things on screen: 清单.** *(Leo, round 98:
   registered, not changed this round.)* On the Chinese page the top bar's
   Quote button (`topbar.quote`) and the right panel's List tab
@@ -9742,6 +9757,76 @@ Registered, not scheduled. None of these is a round of its own.
   fillers, the refrigerator's front, stainless or panel-ready, round 101, the
   open end, the galley, the U. The refrigerator's front waits on his look at
   its plan with his eleven answers in it.
+  **Amended 2026-11-04** (Leo, after the columns' two rows shipped): a small
+  round before round 101, the quality lock's test (「问题在测试，"慢"只持续头两
+  秒」): only the test changes, not the guard — a switch for tests only, the
+  way `?qualityLock=1` and the fault switch are made, on no control, that
+  slows every frame for as long as the page is open, so the room stays under
+  55 for second after second; then the test run at least 50 times, dropping
+  every time, and the locked page shown not to drop under the same switch;
+  and the reason it failed now and then written beside it (the 10-29 entry
+  above). Plan first, `docs/plans/quality-lock-test-plan.md`. Then round 101,
+  which waits on his answers.
+  **Answered 2026-11-04** (Leo, the plan's three questions, each as
+  proposed): 乙, the switch in the test only — `requestAnimationFrame`
+  wrapped in the page's init script, the page's code not touched; 30 ms a
+  frame; read every 250 ms for at most 15 s. Fifty runs, dropping every
+  time, the locked page 512 every time. No geometry or pixels, the page
+  unchanged; instead the main chunk shown byte for byte `a46d2a9`'s but for
+  the commit. The full suite, the lid open and on the charger. Results
+  good: commit, push and the live check without waiting for his look.
+  Round 101 waits for his answers to its questions.
+  **Built 2026-11-04** (the quality lock's test round; only
+  `tests/qualityLock.test.ts` changed): the CPU no longer slowed; every
+  `requestAnimationFrame` callback held 30 ms in the page's init script;
+  the textures read every 250 ms for at most 15 s — the unlocked page must
+  reach 256, the locked one must read 512 every time and draw under 55
+  every second it is read; on a failure the readings, the frames each
+  second and the page's visibility are printed. The test's header says why
+  it used to fail.
+  - **Fifty runs**, each the round-100 test (a copy, then removed) and the
+    new one in one `vitest run`: the new one dropped in 50 of 50 (3.8 to
+    7.4 s for the whole test, page load with it; 4.5 on average) and stayed
+    at 512 locked in 50 of 50; the old one failed to drop in 3 of 50 (runs
+    19, 35 and 41, 512 where 256 was asked), its locked test passing 50.
+  - **The page unchanged**: built here (the tree at `a46d2a9` with the new
+    test) and from `a46d2a9` itself in a worktree, all six files the same
+    byte for byte, `index-CKKeZgaI.js` (699,216) among them — the commit in
+    the footer the same `a46d2a9`, so the chunk's name the same.
+    `index-CKKeZgaI.js` and the live `index-Die1L31x.js` differ only by the
+    counter's address, which the live build has.
+  - **Unit** 118 files, 3,060 tests, green. **Full suite** (`npm test`,
+    build `index-CKKeZgaI.js`, the computer awake throughout, 5,357 s): 152
+    files, 3,395 tests, all green.
+- **The import's `_meta` is in the main chunk.** *(Leo, 2026-11-04: 「登记一
+  条待办，不急…列出把它移出主文件的改法和代价，不要选」.)* The six modules
+  that read the catalogue (`catalogue.ts`, `cookingSurface.ts`,
+  `fridgeMount.ts`, `hoodMount.ts`, `ovenTower.ts`, `roughIn.ts`) import
+  `data/appliances.json` whole, so its `_meta` — the file the import read
+  and the day — is compiled in, and the same rows imported on another day
+  give the main chunk another name (2026-11-04: `index-BkfMepA-.js` for the
+  rows previewed as `index-CqEasMzR.js`). The ways out, none chosen:
+  1. **Import only the rows** (`import { appliances } from …`, a JSON
+     file's named import; that this build then leaves `_meta` out is not
+     yet shown, and would be, by building it). Cost: the six imports change; `catalogue.ts` checks the whole file
+     against `appliancesFileSchema` at load, so it checks the rows alone
+     and `_meta` is checked only by the import and the tests; one default
+     import anywhere brings it back, so a test reads the built chunk for
+     `generatedBy`.
+  2. **`_meta` in a file of its own** (`data/appliances.meta.json`, read by
+     no module). Cost: the import writes two files; the schema, the
+     import's tests and `docs/data-sheet-spec.md` change; a catalogue's
+     where-from is no longer in the catalogue.
+  3. **The import writes no day and no path** (`_meta` the provenance text
+     only; when and from what read from `git log` and the commit message).
+     Cost: the file no longer says when it was made; a run from another
+     path or on another day leaves no trace in it.
+  4. **Leave it**, and compare the chunks with `_meta` set aside, as on
+     2026-11-04. Cost: every import that changes no row still changes the
+     name Leo looked at, and each needs that proof before it ships.
+  **Chosen 2026-11-04** (Leo): 3 — the import writes no day and no path;
+  where each import came from and when goes on being written here, as
+  every import's entry already is. Done with the next import, not before.
 - **Registered rounds after 78, in Leo's order.** *(Leo, rounds 78-79; not
   started. Round 79 put the interface round first and moved the rest back.)*
   0. **An interface round, plan first, with phone and desktop sketches.**

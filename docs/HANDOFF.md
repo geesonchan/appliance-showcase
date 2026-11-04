@@ -12,7 +12,7 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **the chimney fillers' round**, after the geometries' (`docs/decisions.md` is the record of
+Covers the repository up to **the quality lock's test round** (2026-11-04), after the columns' two rows round (live at `a46d2a9`) (`docs/decisions.md` is the record of
 rounds; `git log` is the record of commits). It replaces the v1–v9 briefs that
 were pasted into chat.
 
@@ -153,9 +153,17 @@ anywhere**: the file is the one source, and the tests read it.
   chimney hood narrower than its opening closed in each side by a filler in
   the wall cabinets, on no list, and the hood's canopy made before the
   insert's return (**done**, the chimney fillers' round, after Leo's look at
-  the local preview; D16).
+  the local preview; D16). A built-in refrigerator between its 3/4" side
+  panel and its end, its doors flush with the cabinet doors (**done**, the
+  fridge-front round, live at `ba94ef5`; D11 rule 11). Each built-in column
+  two rows in Leo's sheet — its own number panel-ready, its number with -SS
+  stainless — a pair as T36BT120NS and T36IT100NP are, with the switch on
+  the model card; packages open on the -SS rows; links before `v=3` open a
+  column's bare number as its -SS row (**done**, the columns' two rows
+  round, imported from his export of 2026-11-04, live at `a46d2a9`; Open
+  items, "Answered 2026-11-02" and "Built, 2026-11-02").
 
-### Next, in Leo's order (2026-10-24, after round 99d)
+### Next, in Leo's order (2026-10-24, after round 99d; amended 2026-11-04)
 
 Named here only; each has its entry in `docs/decisions.md`, which says where
 its figures are. **Every round a plan first, shown to Leo, built only once he
@@ -178,15 +186,23 @@ confirms it** (Leo, 2026-10-24).
    40-1/4" at a wall; a model swap that needs more wall grows it, on one wall
    too, with his words (`docs/plans/fridge-front-plan.md`, second final
    version, confirmed 2026-10-27 with both its last questions answered;
-   built, looked at and confirmed by him 2026-10-28, committed).
-   T36IT100NP's cutout depth: 24" in the catalogue, 25" in its documents; he
-   corrected the sheet 2026-10-28 and exported `showcase_export.csv`, to be
-   imported with item 4, not before (decisions.md Open items).
-4. **Stainless or panel-ready** — the same built-in column or refrigerator
-   offered in either (`docs/plans/panel-ready-plan.md`, a draft with his
-   questions).
+   built, looked at and confirmed by him 2026-10-28; **done**, live at
+   `ba94ef5`). T36IT100NP's cutout depth 25", from its documents, came in
+   with item 4's import.
+4. **Stainless or panel-ready** — each built-in column two rows, the
+   refrigerator pair as it was (`docs/plans/panel-ready-plan.md`, 第五版;
+   Leo's 2026-11-02 rule; **done**, the columns' two rows round, live at
+   `a46d2a9`).
+4a. **The quality lock's test** — a small round before 101 (Leo,
+   2026-11-04): only `tests/qualityLock.test.ts` changes, every frame held
+   30 ms by a `requestAnimationFrame` wrapped in the test (乙); 50 runs,
+   dropping every time, the locked page at 512 every time
+   (`docs/plans/quality-lock-test-plan.md`; **done**, the quality lock's
+   test round; decisions.md, Open items, "Amended 2026-11-04" and "Built
+   2026-11-04").
 5. **Round 101** — the L's D: the coffee machine's door, the 5/8" between the
-   columns (`docs/plans/round-101-plan.md`).
+   columns (`docs/plans/round-101-plan.md`). Not started: it waits on Leo's
+   answers to its questions.
 6. **The open end's stone** (`docs/plans/overnight-2026-10-23-open-end.md`).
 7. **Then a galley** (`docs/plans/overnight-2026-10-23-galley.md`), **then a U**
    (`docs/plans/overnight-2026-10-24-u-shape.md`).
@@ -240,7 +256,8 @@ confirms it** (Leo, 2026-10-24).
 | `src/data/oneWallSwaps.test.ts`, `tests/rangeSwapBill.test.ts`, `tests/lightStrips.test.ts` | One wall builds its room round the range, hood and refrigerator chosen (`shapeOfChoice`, packages.ts); a range swapped shows on the wall's bill at once, in either shape; the under-cabinet strips follow the runs (round 99a). |
 | `src/three/qualityRule.ts`, `src/three/qualityRule.test.ts` | When the quality guard drops a page to the low tier: two seconds under 55 fps, not counting the two seconds after the scene is rebuilt or made heavier — the room, a model or blower, the render mode, day or night, a finish that changes a texture, a side rail folded, the language, a tab opened (`sceneKey`; round 100, Leo). `QualityGuard.tsx` counts the frames and asks it. |
 | `scripts/pixelShots.mjs`, `scripts/pixelCompare.mjs`, `scripts/pixelLinks.json` | The pixel proof (D17): 45 states shot whole and as the canvas alone, old build and new twice each, alternated, then compared state by state, each build also against itself. Shot at `?qualityLock=1` so the guard drops no page mid-shot (round 100; moved here from the rounds' scratch folders). |
-| `tests/qualityLock.test.ts` | `?qualityLock=1` holds a page at its tier however slow it is; without it the guard still drops (round 100, for the pixel proofs only). |
+| `tests/qualityLock.test.ts` | `?qualityLock=1` holds a page at its tier however slow it is; without it the guard still drops (round 100, for the pixel proofs only). Asked on a page every frame of which the test holds 30 ms; the CPU slowed sixteen times, as it was, failed about one run in fourteen, the room slow only in its first seconds (the quality lock's test round, 2026-11-04; item 4a above). |
+| `scripts/finishImport.test.ts`, `src/store/panelReady.test.ts`, `tests/panelReady.test.ts` | webColor SS or Panel Ready and nothing else; a column's -SS row its pair's in every cell but Model, webColor, msrpUSD and pairModel, or the import stops; the two rows' rough-in, packages, links of every version, list lines and quote; the card's switch by mouse and by finger (the columns' two rows round). |
 | `scripts/swapMemory.mjs` | The renderer's geometries and textures, and the heap, after each of fifty model swaps in a row (round 100, measured only). |
 | `src/ui/PartFence.tsx`, `src/ui/fault.ts`, `tests/partFence.test.ts` | Five parts fenced off — the right panel, the 3D scene, the left panel, the quote page, the link's notice: a part that fails shows Leo's sentence and Retry, a package switch retries it, the visit counter records which part. `?fault=<part>` makes one fail, for the tests only (round 99c). |
 | `src/three/useSceneFrame.ts`, `src/three/sceneFrame.test.ts` | Every frame's work in the 3D scene goes through one hook, which hands an error thrown in a frame to the scene's fence (`FrameFailureRelay`); no other file takes `useFrame` from fiber (round 99d). |
@@ -250,7 +267,7 @@ confirms it** (Leo, 2026-10-24).
 | `src/data/nameFallback.test.ts` | A machine with no name found is called by its position's own name; `NAME_FALLBACKS` lists each fallback, which the words test asks to be empty (round 99c). |
 | `tests/shareLinkCut.test.ts` | Every field of a share link left out in turn, at `v=1` and `v=2`: the page stands and the notice names what is missing (round 99c). |
 | `tests/layoutTabSwitch.test.ts` | With the Layout tab open, every package tapped after every other keeps the page, in both shapes, on a 1440 desktop, a 768 tablet and a 390 phone (round 99b). |
-| `src/data/roomSets.ts`, `scripts/lDump.ts`, `scripts/oneWallDump.ts` | The rooms every proof builds, listed once: the L's 1,045 (round 98a) and one wall's 91 (round 99a). The two dumps write them out as geometry and words, one a line — run each on the commit before a round (`ROOT=<tree>`) and on the round, and compare; `machineLabel.test.ts` reads every word on their bills (round 99a). |
+| `src/data/roomSets.ts`, `scripts/lDump.ts`, `scripts/oneWallDump.ts` | The rooms every proof builds, listed once: the L's 1,045 (round 98a) and one wall's 91 (round 99a), 1,063 and 106 since the columns' two rows round (each column's own number a swap of its own). The two dumps write them out as geometry and words, one a line — run each on the commit before a round (`ROOT=<tree>`) and on the round, and compare; `machineLabel.test.ts` reads every word on their bills (round 99a). |
 | `src/ui/useIdleValue.ts`, `src/store/staleBand.test.ts` | The Layout tab's wall figures and greyed band worked out in the page's idle time after a rebuild; a wall length asked for while the band is still the room's before is refused by the room (round 99a). |
 | `src/data/machineLabel.ts`, `src/data/machineLabel.test.ts` | What a machine is called: `slotLabelKey` for every pin, card, list, quote line and share notice, `billLabelKey` for a wall's bill; every model each slot can hold named by what it is (D10, round 99). |
 | `src/ui/shapeControls.ts`, `src/ui/shapeControls.test.ts` | Which Layout tab controls one wall shows, held to the settings one wall decides itself (round 98b-2). |
