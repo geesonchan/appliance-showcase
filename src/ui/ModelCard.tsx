@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useIsMobile } from "../hooks/useIsMobile";
 import { candidatesFor, type Candidate } from "../data/candidates";
-import { SLOT_ORDER } from "../data/catalogue";
+import { SLOT_ORDER, looksOf } from "../data/catalogue";
 import { useChecklist } from "../data/useChecklist";
 import { formatDimension } from "../data/dimensions";
 import { listWidth } from "../data/fit";
@@ -9,7 +9,7 @@ import { SLOT_BY_ID, isOmitted } from "../data/slots";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
 import { useActivePackage, useSelection, useSlotLabel } from "../store/useSelection";
-import type { SlotId } from "../types";
+import type { Appliance, SlotId } from "../types";
 import { ModelLine } from "./ModelLine";
 import { useRefusalText } from "./RefusalNote";
 import { FitNotes } from "./SwapPanel";
@@ -177,6 +177,7 @@ export function ModelCard() {
               {formatDimension(listWidth(current, slot).modelIn)}
             </span>
           </div>
+          <LookSwitch slotId={selectedSlot} current={current} />
           <button
             type="button"
             data-card-specs
@@ -251,6 +252,7 @@ export function ModelCard() {
               {formatDimension(listWidth(current, slot).modelIn)}
             </span>
           </div>
+          <LookSwitch slotId={selectedSlot} current={current} />
         </div>
         <div className="flex shrink-0 items-center gap-3">
           <button
@@ -307,6 +309,41 @@ export function ModelCard() {
           {refusedOpen && <ul className="mt-2 flex gap-2 overflow-x-auto pb-1">{refused.map(chip)}</ul>}
         </>
       )}
+    </div>
+  );
+}
+
+/**
+ * Stainless or panel-ready, for a machine offered both ways (Leo,
+ * 2026-10-28): under the machine on screen, on a desktop and a phone alike.
+ * The switch takes the other row of its pair, each its own model at its own
+ * price — T36BT120NS and T36IT100NP (2026-10-29, 2), a column and its -SS
+ * row (2026-11-02).
+ */
+function LookSwitch({ slotId, current }: { slotId: SlotId; current: Appliance }) {
+  const t = useT();
+  const selectAppliance = useAppStore((s) => s.selectAppliance);
+  const looks = looksOf(current);
+  if (!looks) return null;
+  const shown = current.finish[0] === "panel-ready" ? "panelReady" : "stainless";
+  const option = (look: "stainless" | "panelReady") => (
+    <button
+      type="button"
+      data-look={look}
+      aria-pressed={shown === look}
+      onClick={() => shown !== look && selectAppliance(slotId, looks[look])}
+      className={[
+        "whitespace-nowrap rounded-full px-2.5 py-0.5 transition-colors",
+        shown === look ? "bg-accent text-[#F7F5EF]" : "text-ink-muted hover:text-ink",
+      ].join(" ")}
+    >
+      {t(`card.look.${look}`)}
+    </button>
+  );
+  return (
+    <div data-card-look className="mt-1.5 inline-flex rounded-full border border-line p-0.5 text-[11px]">
+      {option("stainless")}
+      {option("panelReady")}
     </div>
   );
 }

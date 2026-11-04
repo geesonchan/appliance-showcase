@@ -107,15 +107,19 @@ const specified = (s: Session) =>
 // round 46; Leo accepted it in round 98b): under A's island countertop and
 // E's coffee machine it is an 84" column refused by 50", as the two columns
 // beside it are — a third row in each list, and a third reason in Chinese.
-// The same as `openingAbove.test.ts`, in the browser.
+// The same as `openingAbove.test.ts`, in the browser. Since 2026-11-02 each
+// column is two rows (Leo), its -SS row refused beside its own number.
 describe("a machine that cannot go into an opening (round 86)", () => {
   it("lists package A's three wine columns as too tall under the island's top, on a desktop", async () => {
     const s = await open(false);
     await selectOnCard(s, "A", "slot-wine");
     expect({ rows: await cardRows(s), errors: s.errors }).toEqual({
       rows: [
+        "thermador-t18iw100sp-ss:false 50\" too tall — the countertop is above this opening",
         "thermador-t18iw100sp:false 50\" too tall — the countertop is above this opening",
+        "thermador-t18iw905sp-ss:false 50\" too tall — the countertop is above this opening",
         "thermador-t18iw905sp:false 50\" too tall — the countertop is above this opening",
+        "thermador-t24iw905sp-ss:false 50\" too tall — the countertop is above this opening",
         "thermador-t24iw905sp:false 50\" too tall — the countertop is above this opening",
         "zephyr-prw24c01cg:true",
       ],
@@ -146,8 +150,11 @@ describe("a machine that cannot go into an opening (round 86)", () => {
     const s = await open(true);
     await selectOnCard(s, "A", "slot-wine");
     expect(await cardRows(s)).toEqual([
+      "thermador-t18iw100sp-ss:false 50\" too tall — the countertop is above this opening",
       "thermador-t18iw100sp:false 50\" too tall — the countertop is above this opening",
+      "thermador-t18iw905sp-ss:false 50\" too tall — the countertop is above this opening",
       "thermador-t18iw905sp:false 50\" too tall — the countertop is above this opening",
+      "thermador-t24iw905sp-ss:false 50\" too tall — the countertop is above this opening",
       "thermador-t24iw905sp:false 50\" too tall — the countertop is above this opening",
       "zephyr-prw24c01cg:true",
     ]);
@@ -158,8 +165,11 @@ describe("a machine that cannot go into an opening (round 86)", () => {
     const s = await open(false);
     await selectOnCard(s, "E", "slot-wine-2");
     expect(await cardRows(s)).toEqual([
+      "thermador-t18iw100sp-ss:false 50\" too tall — the coffee machine is above this opening",
       "thermador-t18iw100sp:false 50\" too tall — the coffee machine is above this opening",
+      "thermador-t18iw905sp-ss:false 50\" too tall — the coffee machine is above this opening",
       "thermador-t18iw905sp:false 50\" too tall — the coffee machine is above this opening",
+      "thermador-t24iw905sp-ss:false 50\" too tall — the coffee machine is above this opening",
       "thermador-t24iw905sp:false 50\" too tall — the coffee machine is above this opening",
       "zephyr-prw24c01cg:true",
     ]);
@@ -187,7 +197,8 @@ describe("a machine that cannot go into an opening (round 86)", () => {
     const reasons = await s.page.$$eval("[data-model-card] [data-refused]", (els) =>
       els.map((el) => (el as HTMLElement).innerText.trim()),
     );
-    expect(reasons).toEqual(["高出 50\"，开口上方是台面", "高出 50\"，开口上方是台面", "高出 50\"，开口上方是台面"]);
+    // Six since 2026-11-02: each column and its -SS row (Leo).
+    expect(reasons).toEqual(Array(6).fill("高出 50\"，开口上方是台面"));
     await s.page.context().close();
   });
 });

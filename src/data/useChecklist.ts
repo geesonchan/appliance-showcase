@@ -67,7 +67,7 @@ export function checklistFor(
       // The island's cooktop: the cooking surface where a package has no range.
       selection["slot-cooktop"],
     );
-    const findings = [
+    let findings = [
       ...SLOT_ORDER.flatMap((slotId) =>
         evaluateSlot(SLOT_BY_ID[slotId], selection[slotId], context),
       ),
@@ -109,6 +109,14 @@ export function checklistFor(
       // site, package D). The line saying it was left out stays.
       (finding) => !OMITTED_SLOTS.includes(finding.slot) || finding.ruleId === "no-island-omitted",
     );
+    // A slot's door panels are said once, in the cabinet maker's line (Leo,
+    // 2026-10-29, 5): where it is, the older panel-ready line is not.
+    const panelsSaid = new Set(
+      findings.filter((finding) => finding.ruleId.startsWith("panels-by-cabinet-maker:")).map((finding) => finding.slot),
+    );
+    findings = findings.filter(
+      (finding) => finding.ruleId !== "panel-ready-cabinetry" || !panelsSaid.has(finding.slot),
+    );
     return {
       findings,
       blockers: findings.filter((f) => f.severity === "blocker").length,
@@ -132,6 +140,7 @@ function installParts(selection: Record<SlotId, Appliance>, counter: CounterFini
     ...chimneyExtension(selection),
     ...columnKit(),
     ...columnDoorPanel(selection),
+    ...panelsByCabinetMaker(selection),
     ...ovenDoorSwing(selection),
     ...microwaveReach(selection),
     ...towerLanding(),
@@ -617,6 +626,34 @@ function columnDoorPanel(selection: Record<SlotId, Appliance>): Finding[] {
       },
     },
   ];
+}
+
+/**
+ * A built-in column or refrigerator, or a dishwasher, chosen panel-ready
+ * wears doors the cabinet maker makes, which this quote does not include —
+ * in Leo's words (2026-10-28, 6), one line for each. The dishwasher is his
+ * answer of 2026-10-29 (4): a panel-ready one in a package, Bosch's SHV for
+ * one, says it too, and a stainless one does not.
+ */
+function panelsByCabinetMaker(selection: Record<SlotId, Appliance>): Finding[] {
+  return SLOT_ORDER.flatMap((slotId) => {
+    const appliance = selection[slotId];
+    if (!appliance || !appliance.finish.includes("panel-ready")) return [];
+    const takesPanels =
+      isColumn(appliance) ||
+      (appliance.category === "refrigerator" && appliance.installType.includes("built-in")) ||
+      appliance.category === "dishwasher";
+    if (!takesPanels) return [];
+    return [
+      {
+        ruleId: `panels-by-cabinet-maker:${slotId}`,
+        severity: "info" as const,
+        messageKey: "rule.panelsByCabinetMaker",
+        slot: slotId,
+        params: {},
+      },
+    ];
+  });
 }
 
 /**

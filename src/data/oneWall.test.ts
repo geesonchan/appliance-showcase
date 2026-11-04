@@ -165,9 +165,10 @@ describe("package D on one wall (Leo, round 98b, 1)", () => {
     expect(
       Object.fromEntries(slots.map((id) => [id, `${PACKAGE.slots.find((s) => s.slotId === id)!.widthIn} ${PACKAGE.defaultSelection[id]}`])),
     ).toEqual({
-      "slot-freezer": "18 thermador-t18if900sp",
-      "slot-fridge": "24 thermador-t24ir905sp",
-      "slot-wine": "18 thermador-t18iw905sp",
+      // Each column's -SS row, stainless as every package opens (Leo, 2026-11-02).
+      "slot-freezer": "18 thermador-t18if900sp-ss",
+      "slot-fridge": "24 thermador-t24ir905sp-ss",
+      "slot-wine": "18 thermador-t18iw905sp-ss",
       "slot-oven": "30 thermador-mem301ws",
     });
   });

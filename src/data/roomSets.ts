@@ -65,7 +65,11 @@ function lArrangements(): Record<string, unknown>[] {
   return out;
 }
 
-/** The L's rooms: 1,045 as round 99a builds them (515 built, 530 refused). */
+/**
+ * The L's rooms: 1,045 as round 99a builds them (515 built, 530 refused);
+ * 1,063 since each built-in column became two rows (Leo, 2026-11-02), its own
+ * number a swap of its own where its -SS row is in the package (533 built).
+ */
 export function lRooms(m: RoomModules): RoomCase[] {
   const cases: RoomCase[] = [];
   for (const pkg of m.packages.PACKAGES.filter((p: any) => p.available)) {
@@ -124,10 +128,10 @@ function standOneWall(m: RoomModules, pkg: any, patch: Record<string, unknown> =
 }
 
 /**
- * One wall's rooms, 91: each package as it opens there, with the housing's
- * other shape, a wall a step or so longer than it needs where the slider
- * reaches that far, and the slider's top; and every model each slot can hold,
- * one at a time.
+ * One wall's rooms, 91 (106 since 2026-11-02, as the L's): each package as
+ * it opens there, with the housing's other shape, a wall a step or so longer
+ * than it needs where the slider reaches that far, and the slider's top; and
+ * every model each slot can hold, one at a time.
  */
 export function oneWallRooms(m: RoomModules): RoomCase[] {
   const cases: RoomCase[] = [];

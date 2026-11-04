@@ -33,6 +33,47 @@ export const APPLIANCE_BY_ID: Record<string, Appliance> = Object.fromEntries(
 );
 
 /**
+ * Two rows that are one machine two ways, each naming the other in the
+ * sheet's `pairModel`: T36BT120NS stainless and T36IT100NP panel-ready (Leo,
+ * 2026-10-29, 2), and each built-in column, its own number panel-ready and
+ * the number with -SS stainless (2026-11-02). By either one's id, the two
+ * looks; each is its own model at its own price, so nothing about either is
+ * rewritten. The import has checked that the pair holds.
+ */
+const PAIRS: Map<string, { stainless: string; panelReady: string }> = (() => {
+  const pairs = new Map<string, { stainless: string; panelReady: string }>();
+  for (const row of APPLIANCES) {
+    const other = APPLIANCES.find(
+      (candidate) => row.pairModel !== null && candidate.model === row.pairModel && candidate.pairModel === row.model,
+    );
+    const steel = other && [row, other].find((a) => a.finish[0] === "stainless");
+    const panel = other && [row, other].find((a) => a.finish[0] === "panel-ready");
+    if (steel && panel) pairs.set(row.id, { stainless: steel.id, panelReady: panel.id });
+  }
+  return pairs;
+})();
+
+/**
+ * The two looks the model card offers for this machine, as a selection holds
+ * them — one of a pair — or null for a machine offered one way.
+ */
+export function looksOf(appliance: Appliance): { stainless: string; panelReady: string } | null {
+  return PAIRS.get(appliance.id) ?? null;
+}
+
+/**
+ * A column's -SS row, for its own number: the stainless one of a pair whose
+ * model is the other's with -SS (Leo, 2026-11-02). Before `v=3` a link wrote
+ * a column's stainless look as its bare number, so this is what that number
+ * meant. Undefined for anything else, the refrigerator pair included.
+ */
+export function stainlessRowOf(appliance: Appliance): Appliance | undefined {
+  const looks = looksOf(appliance);
+  const steel = looks && looks.panelReady === appliance.id ? APPLIANCE_BY_ID[looks.stainless] : undefined;
+  return steel && steel.model.toUpperCase() === `${appliance.model}-SS`.toUpperCase() ? steel : undefined;
+}
+
+/**
  * Every candidate for a slot, cheapest first.
  *
  * By what the slot accepts rather than by where the import filed the model.

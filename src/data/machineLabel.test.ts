@@ -145,7 +145,9 @@ describe("a machine is called what it is, wherever it is named (round 99)", () =
         }
       }
     }
-    expect({ checked, wrong }).toEqual({ checked: 107, wrong: [] });
+    // 107 until 2026-11-02, when each built-in column became two rows (Leo):
+    // its -SS row and its own number are each a model the slot holds.
+    expect({ checked, wrong }).toEqual({ checked: 128, wrong: [] });
   });
 
   it("names the same machine in a share link's notice as on the page", () => {
@@ -164,7 +166,9 @@ describe("a machine is called what it is, wherever it is named (round 99)", () =
         }
       }
     }
-    expect({ checked, wrong }).toEqual({ checked: 107, wrong: [] });
+    // 107 until 2026-11-02, when each built-in column became two rows (Leo):
+    // its -SS row and its own number are each a model the slot holds.
+    expect({ checked, wrong }).toEqual({ checked: 128, wrong: [] });
   });
 });
 
@@ -218,7 +222,8 @@ describe("a wall's bill names what stands on it (round 99)", () => {
         if (BILL_SAYS[key] !== is) wrong.push(`${where} ${item.code} ${appliance.model}: ${key}, which says ${BILL_SAYS[key] ?? "nothing known"}, for ${is}`);
       }
     }
-    expect({ checked, wrong: [...new Set(wrong)] }).toEqual({ checked: 678, wrong: [] });
+    // 678 until each built-in column became two rows (Leo, 2026-11-02).
+    expect({ checked, wrong: [...new Set(wrong)] }).toEqual({ checked: 879, wrong: [] });
   });
 
   it("calls a filler a filler and a panel a panel", () => {
@@ -238,7 +243,7 @@ describe("a wall's bill names what stands on it (round 99)", () => {
     expect({ checked, wrong: [...wrong] }).toEqual({ checked: 271, wrong: [] });
   });
 
-  it("has every word on every bill in both languages, in all 1,045 L rooms and 91 one-wall rooms", () => {
+  it("has every word on every bill in both languages, in all 1,063 L rooms and 106 one-wall rooms", () => {
     // Round 99a (Leo: "改成跑在 L 型 1,045 个房间和一字型 91 个房间的底稿上"): the rooms
     // the two dumps build, `roomSets.ts`, not one short one-wall room — on
     // which the board between the microwave drawer and the wine cooler never
@@ -262,8 +267,11 @@ describe("a wall's bill names what stands on it (round 99)", () => {
       }
     }
     // Since round 99c a name not found falls back rather than throwing; none may have.
+    // 1,045 and 91 rooms (606 built) until 2026-11-02: each column's own
+    // number, panel-ready, is a swap of its own since (Leo), 18 in the L and
+    // 15 on one wall.
     expect({ counted, missing: [...missing], fellBack: NAME_FALLBACKS }).toEqual({
-      counted: { built: 606, refused: 530 },
+      counted: { built: 639, refused: 530 },
       missing: [],
       fellBack: [],
     });

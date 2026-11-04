@@ -102,10 +102,12 @@ const fields = () => {
 };
 
 describe("a link written now", () => {
-  it("says it is version 2 and carries the shape", () => {
+  // Version 3 since the panel-ready round (Leo, 2026-10-28): a link written
+  // now says 3, and still carries the shape version 2 began carrying.
+  it("says it is version 3 and carries the shape", () => {
     freshPage();
     const query = new URLSearchParams(writeLink(kitchenNow()));
-    expect({ v: query.get("v"), shape: query.get("shape") }).toEqual({ v: "2", shape: "L" });
+    expect({ v: query.get("v"), shape: query.get("shape") }).toEqual({ v: "3", shape: "L" });
   });
 
   it("is read as a link", () => {
@@ -125,7 +127,8 @@ describe("a link written now", () => {
 
   it("still cannot read a version it does not know", () => {
     freshPage();
-    openSharedLink("?v=3&pkg=D&shape=L");
+    // 4: the first version no page writes yet (3 since the panel-ready round).
+    openSharedLink("?v=4&pkg=D&shape=L");
     expect({ notice: store().toast?.notice, pkg: store().packageId }).toEqual({ notice: "unreadable", pkg: DEFAULT_PACKAGE.id });
   });
 });

@@ -17,6 +17,7 @@ export function appliance(overrides: Partial<Appliance> & { id: string }): Appli
     model: overrides.id.toUpperCase(),
     series: null,
     msrpUSD: 1000,
+    pairModel: null,
     sourceUrl: "https://example.com/",
     verifiedAt: null,
     installType: ["slide-in"],

@@ -780,6 +780,21 @@
       "text": "{item}: Not in the link; showing {to}.",
       "approval": "written",
       "reviewed": "Leo's own wording after the item's name, as every notice line begins (round 99d: a setting the link does not have at all)"
+    },
+    "rule.panelsByCabinetMaker": {
+      "text": "Door panels are made by your cabinet maker to match the cabinet doors and are not included in this quote.",
+      "approval": "written",
+      "reviewed": "Leo's own wording, 2026-10-28 (decisions.md, How a flush column's finish is recorded, answer 6: \"写进文字并锁进 reviewed.json\")"
+    },
+    "card.look.stainless": {
+      "text": "Stainless",
+      "approval": "written",
+      "reviewed": "Leo's own wording, 2026-10-29 (decisions.md, How a flush column's finish is recorded, his answer 5 of that day: 开关写「不锈钢 / 可装门板」/ \"Stainless / Panel-ready\")"
+    },
+    "card.look.panelReady": {
+      "text": "Panel-ready",
+      "approval": "written",
+      "reviewed": "Leo's own wording, 2026-10-29 (decisions.md, How a flush column's finish is recorded, his answer 5 of that day: 开关写「不锈钢 / 可装门板」/ \"Stainless / Panel-ready\")"
     }
   },
   "zh": {
@@ -1567,6 +1582,21 @@
       "text": "{item}：链接里没有这一项，此处显示 {to}。",
       "approval": "written",
       "reviewed": "Leo's own wording after the item's name, as every notice line begins (round 99d: a setting the link does not have at all)"
+    },
+    "rule.panelsByCabinetMaker": {
+      "text": "门板由柜子厂按柜门做，不含在本报价内。",
+      "approval": "written",
+      "reviewed": "Leo's own wording, 2026-10-28 (decisions.md, How a flush column's finish is recorded, answer 6: \"写进文字并锁进 reviewed.json\")"
+    },
+    "card.look.stainless": {
+      "text": "不锈钢",
+      "approval": "written",
+      "reviewed": "Leo's own wording, 2026-10-29 (decisions.md, How a flush column's finish is recorded, his answer 5 of that day: 开关写「不锈钢 / 可装门板」/ \"Stainless / Panel-ready\")"
+    },
+    "card.look.panelReady": {
+      "text": "可装门板",
+      "approval": "written",
+      "reviewed": "Leo's own wording, 2026-10-29 (decisions.md, How a flush column's finish is recorded, his answer 5 of that day: 开关写「不锈钢 / 可装门板」/ \"Stainless / Panel-ready\")"
     }
   }
 }

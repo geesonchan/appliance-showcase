@@ -33,6 +33,7 @@ import {
   toInstallType,
   toWidthIn,
   categoryOf,
+  readWebColor,
 } from "./normalise.ts";
 
 export interface ConversionSummary {
@@ -54,6 +55,21 @@ export interface ConversionSummary {
    * scale a line per row buries the summary it belongs to.
    */
   warnings: Record<string, string[]>;
+  /**
+   * Built-in columns and built-in refrigerators whose Color came in blank.
+   * Theirs must be filled — stainless or panel-ready is a fact about the
+   * model, not a default (Leo, 2026-10-28, 4) — so the run stops on them.
+   */
+  blankFinishModels: string[];
+  /** `webColor` cells with a word the import does not know, as `Brand MODEL: "cell"`; the run stops on them. */
+  unreadWebColors: string[];
+  /**
+   * Pairs that do not hold (Leo, 2026-10-29, 2): each of a pair names the
+   * other in `pairModel`, and one is stainless and one panel-ready, the same
+   * kind of machine. One line a pair, and for a column's -SS row one line a
+   * cell that is not its pair's (2026-11-02); the run stops on them.
+   */
+  pairProblems: string[];
 }
 
 /** Minimal RFC 4180 reader: Sheets quotes any cell containing a comma. */
@@ -142,6 +158,9 @@ export function convert(
     blankTypeModels: [],
     noWidthModels: [],
     warnings: {},
+    blankFinishModels: [],
+    unreadWebColors: [],
+    pairProblems: [],
   };
   const warn = (reason: string, id: string) => {
     (summary.warnings[reason] ??= []).push(id);
@@ -152,6 +171,14 @@ export function convert(
 
   const skip = (reason: string) => {
     summary.skipped[reason] = (summary.skipped[reason] ?? 0) + 1;
+  };
+
+  // A column's -SS row is its pair made stainless, one machine (Leo,
+  // 2026-11-02): it is read by its pair's drawing.
+  const drawnAs = (row: RawRow) => {
+    const model = (row.Model ?? "").trim();
+    const pair = (row.pairModel ?? "").trim();
+    return pair !== "" && model.toUpperCase() === `${pair}-SS`.toUpperCase() ? pair : model;
   };
 
   rows.forEach((raw, index) => {
@@ -181,7 +208,7 @@ export function convert(
     // How it installs, before which slot takes it: an over-the-range microwave
     // is the hood's (`categoryOf`, round 97).
     const installType =
-      toPublished((row.Model ?? "").trim()).installType ??
+      toPublished(drawnAs(row)).installType ??
       toInstallType(row.Feature ?? "", type, row.Width ?? "", row.Depth ?? "");
     const category = categoryOf(classified.category, installType);
 
@@ -195,7 +222,7 @@ export function convert(
     // shop records what it sells — a "30-inch range" — and the drawing records
     // what it measures, 29-7/8". Both are true and only one of them fits a
     // cabinet, so where they disagree the drawing wins. See PUBLISHED_SPECS.
-    const widthIn = toPublished((row.Model ?? "").trim()).widthIn ?? toWidthIn(row.Width ?? "");
+    const widthIn = toPublished(drawnAs(row)).widthIn ?? toWidthIn(row.Width ?? "");
     // A blower is an accessory bolted to a hood, not something that goes in an
     // opening, so it has no width in the sheet and does not need one. Every
     // other category is checked against a cutout, so a missing width means the
@@ -213,10 +240,15 @@ export function convert(
     const brand = toBrand(row.Brand ?? "");
     const model = (row.Model ?? "").trim();
     const id = toId(brand, model);
-    const published = toPublished(model);
+    const published = toPublished(drawnAs(row));
 
     const voltage = voltageOf(row.voltage);
     const cfm = numberOrNull(row.cfm);
+    // The web's own finish where showcase_specs gives one; Stock current's
+    // Color is not touched for the web (Leo, 2026-10-29, 1).
+    const webColor = (row.webColor ?? "").trim();
+    const webFinish = webColor === "" ? null : readWebColor(webColor);
+    if (webColor !== "" && webFinish === null) summary.unreadWebColors.push(`${brand} ${model}: "${webColor}"`);
 
     appliances.push({
       id,
@@ -226,6 +258,7 @@ export function convert(
       model,
       series: null,
       msrpUSD: priceOrNull(row.msrpUSD),
+      pairModel: textOrNull(row.pairModel),
       // The drawing's own page where one has been read, then the sheet's
       // column. And a row the drawing overrode is unverified until somebody
       // checks it against that drawing: re-typing a figure is not checking it.
@@ -261,7 +294,7 @@ export function convert(
       cutoutWidthIn: published.cutoutWidthIn ?? numberOrNull(row.cutoutWidthIn),
       cutoutHeightIn: published.cutoutHeightIn ?? numberOrNull(row.cutoutHeightIn),
       cutoutDepthIn: published.cutoutDepthIn ?? numberOrNull(row.cutoutDepthIn),
-      finish: toFinish(row.Color ?? "", row.Feature ?? ""),
+      finish: webFinish ?? toFinish(row.Color ?? "", row.Feature ?? ""),
       leadTimeWeeks: numberOrNull(row.leadTimeWeeks),
       highlights: { en: toHighlights(row.Feature ?? ""), zh: [] },
       imageUrl: null,
@@ -277,6 +310,13 @@ export function convert(
       },
     });
 
+    // A built-in column or refrigerator has no default finish (Leo,
+    // 2026-10-28, 4): a blank Color is listed, and the run stops on it.
+    const builtIn = installType.includes("column") || (category === "refrigerator" && installType.includes("built-in"));
+    if (builtIn && webColor === "" && (row.Color ?? "").trim() === "" && !/panel[- ]ready/i.test(row.Feature ?? "")) {
+      summary.blankFinishModels.push(`${brand} ${model}`);
+    }
+
     if (textOrNull(row.sourceUrl) === null) warn("no sourceUrl", id);
     if (priceOrNull(row.msrpUSD) === null) warn("no msrpUSD", id);
     if (numberOrNull(row.cutoutWidthIn) === null) warn("no cutoutWidthIn", id);
@@ -291,7 +331,56 @@ export function convert(
     throw error;
   }
 
+  summary.pairProblems = pairProblems(appliances, rows);
   return { appliances, summary };
+}
+
+/**
+ * Each `pairModel` checked against the row it names (Leo, 2026-10-29, 2):
+ * that row is in the export, names this one back, and the two are the same
+ * kind of machine, one stainless and one panel-ready. A line for each pair
+ * that does not hold, said once.
+ *
+ * And a column's -SS row is its pair, the same machine (2026-11-02): every
+ * cell but these is its pair's, a line for each that is not. T36BT120NS and
+ * T36IT100NP are two factory models, so theirs may differ.
+ */
+const OWN_CELLS = new Set(["Model", "webColor", "msrpUSD", "pairModel"]);
+
+function pairProblems(appliances: Appliance[], rows: Record<string, string>[]): string[] {
+  const said = new Set<string>();
+  const problems: string[] = [];
+  const finishOf = (a: Appliance) => a.finish.join(" / ");
+  for (const row of appliances) {
+    if (row.pairModel === null) continue;
+    const key = [row.model, row.pairModel].sort().join("|");
+    if (said.has(key)) continue;
+    said.add(key);
+    const name = `${row.brand} ${row.model}`;
+    const other = appliances.find((candidate) => candidate.model === row.pairModel);
+    if (!other) {
+      problems.push(`${name}: pairModel ${row.pairModel} is not in the export`);
+    } else if (other.pairModel !== row.model) {
+      problems.push(`${name}: pairModel ${other.model}, whose own pairModel is ${other.pairModel ?? "blank"}`);
+    } else {
+      const steel = [row, other].find((a) => a.finish.length === 1 && a.finish[0] === "stainless");
+      const panel = [row, other].find((a) => a.finish.length === 1 && a.finish[0] === "panel-ready");
+      if (!steel || !panel || other.category !== row.category) {
+        problems.push(
+          `${name} and ${other.model}: a pair is one stainless and one panel-ready ${row.category}; ` +
+            `they are ${finishOf(row)} ${row.category} and ${finishOf(other)} ${other.category}`,
+        );
+      } else if (steel.model.toUpperCase() === `${panel.model}-SS`.toUpperCase()) {
+        const cellsOf = (model: string) => rows.find((raw) => (raw.Model ?? "").trim() === model)!;
+        const [mine, theirs] = [cellsOf(steel.model), cellsOf(panel.model)];
+        for (const cell of Object.keys(mine)) {
+          if (OWN_CELLS.has(cell) || (mine[cell] ?? "").trim() === (theirs[cell] ?? "").trim()) continue;
+          problems.push(`${steel.brand} ${steel.model}: ${cell} "${mine[cell]}", ${panel.model}'s "${theirs[cell] ?? ""}"`);
+        }
+      }
+    }
+  }
+  return problems;
 }
 
 const totalSkipped = (summary: ConversionSummary) =>
@@ -513,6 +602,38 @@ export function runImport(
   } catch (error) {
     io.log(formatSummary(result.summary, verbose));
     io.error(`\n${(error as Error).message}\nnothing written\n`);
+    return 1;
+  }
+
+  // A built-in column's or refrigerator's Color is never guessed (Leo,
+  // 2026-10-28, 4).
+  if (result.summary.blankFinishModels.length > 0) {
+    io.log(formatSummary(result.summary, verbose));
+    const listed = result.summary.blankFinishModels.map((name) => `  ${name}`).join("\n");
+    io.error(
+      "\nColor is blank for these built-in columns and refrigerators; fill webColor in showcase_specs " +
+        `(SS or Panel Ready):\n${listed}\nnothing written\n`,
+    );
+    return 1;
+  }
+
+  // webColor is filled to be read; a word it does not know is not guessed.
+  if (result.summary.unreadWebColors.length > 0) {
+    io.log(formatSummary(result.summary, verbose));
+    const listed = result.summary.unreadWebColors.map((line) => `  ${line}`).join("\n");
+    io.error(`\nwebColor is SS or Panel Ready and nothing else (Leo, 2026-11-02); these are not:\n${listed}\nnothing written\n`);
+    return 1;
+  }
+
+  // Each of a pair names the other, one stainless and one panel-ready (Leo,
+  // 2026-10-29, 2), and a column's -SS row has its pair's cells (2026-11-02).
+  if (result.summary.pairProblems.length > 0) {
+    io.log(formatSummary(result.summary, verbose));
+    const listed = result.summary.pairProblems.map((line) => `  ${line}`).join("\n");
+    io.error(
+      "\npairModel does not hold for these pairs (an -SS row's cells but Model, webColor, msrpUSD " +
+        `and pairModel are its pair's):\n${listed}\nnothing written\n`,
+    );
     return 1;
   }
 

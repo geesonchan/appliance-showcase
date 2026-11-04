@@ -1,7 +1,7 @@
 {
   "_meta": {
     "generatedBy": "scripts/csv-to-json.ts from ../showcase_export.csv",
-    "updatedAt": "2026-10-20",
+    "updatedAt": "2026-11-04",
     "provenance": "Derived from the showcase_export tab of the 2026 AA Inventory Manager. Brand, Model, Appliance Type, Feature, Width, Depth, Height and Color come from Stock current; everything else is hand entered. Normalisation lives in scripts/normalise.ts, not in the sheet. verifiedAt is null until a row has been checked against its sourceUrl."
   },
   "appliances": [
@@ -13,6 +13,7 @@
       "model": "HIS8055U",
       "series": null,
       "msrpUSD": 5399,
+      "pairModel": null,
       "sourceUrl": "https://media3.bsh-group.com/Documents/19837387_HIS8055U%20Spec%20Sheet.pdf",
       "verifiedAt": "2026-09-08",
       "installType": [
@@ -63,6 +64,7 @@
       "model": "SHV78CM3N",
       "series": null,
       "msrpUSD": 1549,
+      "pairModel": null,
       "sourceUrl": "https://media3.bsh-group.com/Documents/20595216_SHV78CM3N%20Spec%20Sheet.pdf",
       "verifiedAt": "2026-09-05",
       "installType": [
@@ -113,6 +115,7 @@
       "model": "SHX78CM5N",
       "series": null,
       "msrpUSD": 1549,
+      "pairModel": null,
       "sourceUrl": "https://media3.bsh-group.com/Documents/20595224_SHX78CM5N%20Spec%20Sheet.pdf",
       "verifiedAt": "2026-09-08",
       "installType": [
@@ -165,6 +168,7 @@
       "model": "JVM3160RFSS",
       "series": null,
       "msrpUSD": 249,
+      "pairModel": null,
       "sourceUrl": "https://www.geappliances.com/appliance/GE-1-6-Cu-Ft-Over-the-Range-Microwave-Oven-JVM3160RFSS",
       "verifiedAt": "2026-10-18",
       "installType": [
@@ -215,6 +219,7 @@
       "model": "MFGS4030RS",
       "series": null,
       "msrpUSD": 799,
+      "pairModel": null,
       "sourceUrl": "https://www.maytag.com/kitchen/ranges/gas/p.30-inch-wide-gas-range-with-steam-clean-5.0-cu.-ft.mfgs4030rs.html",
       "verifiedAt": "2026-09-07",
       "installType": [
@@ -265,6 +270,7 @@
       "model": "CIT367YG",
       "series": null,
       "msrpUSD": 4999,
+      "pairModel": null,
       "sourceUrl": "https://media3.bsh-group.com/Documents/19810965_CIT367YG-36-INCH-LIBERTY-INDUCTION-COOKTOP-Specifications.pdf",
       "verifiedAt": "2026-09-12",
       "installType": [
@@ -315,6 +321,7 @@
       "model": "HMCB30WS",
       "series": null,
       "msrpUSD": 2749,
+      "pairModel": null,
       "sourceUrl": "https://media3.bsh-group.com/Documents/specsheet/en-US/HMCB30WS.pdf",
       "verifiedAt": "2026-09-08",
       "installType": [
@@ -366,6 +373,7 @@
       "model": "HMCB36WS",
       "series": null,
       "msrpUSD": 2999,
+      "pairModel": null,
       "sourceUrl": "https://media3.bsh-group.com/Documents/specsheet/en-US/HMCB36WS.pdf",
       "verifiedAt": "2026-10-10",
       "installType": [
@@ -417,6 +425,7 @@
       "model": "HMIB42WS",
       "series": null,
       "msrpUSD": 3849,
+      "pairModel": null,
       "sourceUrl": "https://media3.bsh-group.com/Documents/specsheet/en-US/HMIB42WS.pdf",
       "verifiedAt": "2026-09-12",
       "installType": [
@@ -467,6 +476,7 @@
       "model": "HMWB361WS",
       "series": null,
       "msrpUSD": 2449,
+      "pairModel": null,
       "sourceUrl": "https://media3.bsh-group.com/Documents/MCDOC02731222_HMWB361WS-36-INCH-LOW-PROFILE-WALL-HOOD-WITH-BLOWER-Specifications.pdf",
       "verifiedAt": "2026-09-08",
       "installType": [
@@ -517,6 +527,7 @@
       "model": "MD24BS",
       "series": null,
       "msrpUSD": 2449,
+      "pairModel": null,
       "sourceUrl": "https://media3.bsh-group.com/Documents/25077284_MD24BS-24-INCH-BUILT-IN-MICROWAVE-DRAWER-Specifications.pdf",
       "verifiedAt": "2026-09-05",
       "installType": [
@@ -567,6 +578,7 @@
       "model": "ME301YP",
       "series": null,
       "msrpUSD": 3099,
+      "pairModel": null,
       "sourceUrl": "https://media3.bsh-group.com/Documents/16072803_ME301YP-30-INCH-SINGLE-BUILT-IN-OVEN-Specifications.pdf",
       "verifiedAt": "2026-09-08",
       "installType": [
@@ -617,6 +629,7 @@
       "model": "MEM301WS",
       "series": null,
       "msrpUSD": 6899,
+      "pairModel": null,
       "sourceUrl": "https://media3.bsh-group.com/Documents/MCDOC02802506_MEM301WS-30-INCH-DOUBLE-COMBINATION-BUILT-IN-OVEN-WITH-MICROWAVE-Specifications.pdf",
       "verifiedAt": "2026-09-08",
       "installType": [
@@ -667,6 +680,7 @@
       "model": "PCG366W",
       "series": null,
       "msrpUSD": 4999,
+      "pairModel": null,
       "sourceUrl": "https://media3.bsh-group.com/Documents/MCDOC02690628_PCG366W-36-INCH-GAS-RANGETOP-Specifications.pdf",
       "verifiedAt": "2026-09-08",
       "installType": [
@@ -717,6 +731,7 @@
       "model": "PH36HWS",
       "series": null,
       "msrpUSD": 2649,
+      "pairModel": null,
       "sourceUrl": "https://media3.bsh-group.com/Documents/MCDOC02811680_PH36HWS-24-INCH-DEPTH-WALL-HOOD-36-INCH-WIDTH-Specifications.pdf",
       "verifiedAt": "2026-09-05",
       "installType": [
@@ -774,6 +789,7 @@
       "model": "PO302W",
       "series": null,
       "msrpUSD": 8949,
+      "pairModel": null,
       "sourceUrl": "https://media3.bsh-group.com/Documents/MCDOC02802515_PO302W-30-INCH-DOUBLE-BUILT-IN-OVEN-Specifications.pdf",
       "verifiedAt": "2026-09-08",
       "installType": [
@@ -824,6 +840,7 @@
       "model": "PODS302B",
       "series": null,
       "msrpUSD": 10949,
+      "pairModel": null,
       "sourceUrl": "https://media3.bsh-group.com/Documents/22895094_PODS302B-30-INCH-DOUBLE-COMBINATION-BUILT-IN-OVEN-WITH-STEAM-CONVECTION-OVEN-Specifications.pdf",
       "verifiedAt": "2026-09-12",
       "installType": [
@@ -878,6 +895,7 @@
       "model": "PRG304WH",
       "series": null,
       "msrpUSD": 5799,
+      "pairModel": null,
       "sourceUrl": "https://media3.bsh-group.com/Documents/MCDOC02915548_PRG304WH-30-INCH-GAS-PRO-HARMONY-RANGE-Specifications.pdf",
       "verifiedAt": "2026-09-05",
       "installType": [
@@ -928,6 +946,7 @@
       "model": "PRG366WH",
       "series": null,
       "msrpUSD": 7749,
+      "pairModel": null,
       "sourceUrl": "https://media3.bsh-group.com/Documents/MCDOC02915552_PRG366WH-36-INCH-GAS-PRO-HARMONY-RANGE-Specifications.pdf",
       "verifiedAt": "2026-09-05",
       "installType": [
@@ -978,6 +997,7 @@
       "model": "T18IF900SP",
       "series": null,
       "msrpUSD": 7599,
+      "pairModel": "T18IF900SP-SS",
       "sourceUrl": "https://media3.bsh-group.com/Documents/17016674_16588583_T18IF905SP-18-INCH-FLUSH-FREEZER-COLUMN-WITH-INTERNAL-ICE-MAKER-Spec2.pdf",
       "verifiedAt": "2026-09-12",
       "installType": [
@@ -1004,7 +1024,7 @@
       "cutoutHeightIn": 84,
       "cutoutDepthIn": 25,
       "finish": [
-        "stainless"
+        "panel-ready"
       ],
       "leadTimeWeeks": null,
       "highlights": {
@@ -1028,6 +1048,7 @@
       "model": "T18IW905SP",
       "series": null,
       "msrpUSD": 7099,
+      "pairModel": "T18IW905SP-SS",
       "sourceUrl": "https://media3.bsh-group.com/Documents/16173464_T18IW905SP-18-INCH-FLUSH-CUSTOM-WINE-PRESERVATION-COLUMN-Specifications.pdf",
       "verifiedAt": "2026-10-20",
       "installType": [
@@ -1054,7 +1075,7 @@
       "cutoutHeightIn": 84,
       "cutoutDepthIn": 25,
       "finish": [
-        "stainless"
+        "panel-ready"
       ],
       "leadTimeWeeks": null,
       "highlights": {
@@ -1078,6 +1099,7 @@
       "model": "T24IF905SP",
       "series": null,
       "msrpUSD": 8099,
+      "pairModel": "T24IF905SP-SS",
       "sourceUrl": "https://media3.bsh-group.com/Documents/16173437_T24IF905SP-24-INCH-FLUSH-FREEZER-COLUMN-WITH-INTERNAL-ICE-MAKER-Specifications.pdf",
       "verifiedAt": "2026-09-12",
       "installType": [
@@ -1104,7 +1126,7 @@
       "cutoutHeightIn": 84,
       "cutoutDepthIn": 25,
       "finish": [
-        "stainless"
+        "panel-ready"
       ],
       "leadTimeWeeks": null,
       "highlights": {
@@ -1128,6 +1150,7 @@
       "model": "T24IR905SP",
       "series": null,
       "msrpUSD": 8099,
+      "pairModel": "T24IR905SP-SS",
       "sourceUrl": "https://media3.bsh-group.com/Documents/16173445_T24IR905SP-24-INCH-FLUSH-CUSTOM-FRESH-FOOD-COLUMN-Specifications.pdf",
       "verifiedAt": "2026-10-20",
       "installType": [
@@ -1154,7 +1177,7 @@
       "cutoutHeightIn": 84,
       "cutoutDepthIn": 25,
       "finish": [
-        "stainless"
+        "panel-ready"
       ],
       "leadTimeWeeks": null,
       "highlights": {
@@ -1178,6 +1201,7 @@
       "model": "T24IW905SP",
       "series": null,
       "msrpUSD": 7599,
+      "pairModel": "T24IW905SP-SS",
       "sourceUrl": "https://media3.bsh-group.com/Documents/16173463_T24IW905SP-24-INCH-FLUSH-CUSTOM-WINE-PRESERVATION-COLUMN-Specifications.pdf",
       "verifiedAt": "2026-09-12",
       "installType": [
@@ -1204,7 +1228,7 @@
       "cutoutHeightIn": 84,
       "cutoutDepthIn": 25,
       "finish": [
-        "stainless"
+        "panel-ready"
       ],
       "leadTimeWeeks": null,
       "highlights": {
@@ -1228,6 +1252,7 @@
       "model": "T30IR905SP",
       "series": null,
       "msrpUSD": 8599,
+      "pairModel": "T30IR905SP-SS",
       "sourceUrl": "https://media3.bsh-group.com/Documents/16173446_T30IR905SP-30-INCH-FLUSH-CUSTOM-FRESH-FOOD-COLUMN-Specifications.pdf",
       "verifiedAt": "2026-09-12",
       "installType": [
@@ -1254,7 +1279,7 @@
       "cutoutHeightIn": 84,
       "cutoutDepthIn": 25,
       "finish": [
-        "stainless"
+        "panel-ready"
       ],
       "leadTimeWeeks": null,
       "highlights": {
@@ -1278,6 +1303,7 @@
       "model": "T36BT120NS",
       "series": null,
       "msrpUSD": 13199,
+      "pairModel": "T36IT100NP",
       "sourceUrl": "https://media3.bsh-group.com/Documents/25548995_T36BT120NS-36-INCH-PRE-ASSEMBLED-FRENCH-DOOR_REFRIGERATOR-2_DRAWER-PROFESSIONAL_HANDLES-Specifications.pdf",
       "verifiedAt": "2026-09-05",
       "installType": [
@@ -1333,6 +1359,7 @@
       "model": "T36FT820NS",
       "series": null,
       "msrpUSD": 5299,
+      "pairModel": null,
       "sourceUrl": "https://media3.bsh-group.com/Documents/16934582_T36FT820NS-36-INCH-STAINLESS-STEEL-FREESTANDING-FRENCH-DOOR-BOTTOM-FREEZER-PROFESSIONAL-HANDLES.pdf",
       "verifiedAt": "2026-09-08",
       "installType": [
@@ -1385,6 +1412,7 @@
       "model": "T36IT100NP",
       "series": null,
       "msrpUSD": 11599,
+      "pairModel": "T36BT120NS",
       "sourceUrl": "https://media3.bsh-group.com/Documents/25549011_T36IT100NP-36-INCH-BUILT-IN-FRENCH-DOOR_REFRIGERATOR-2-DRAWER-PANEL-READY-Specifications.pdf",
       "verifiedAt": "2026-09-08",
       "installType": [
@@ -1414,7 +1442,7 @@
       },
       "cutoutWidthIn": 36,
       "cutoutHeightIn": 84,
-      "cutoutDepthIn": 24,
+      "cutoutDepthIn": 25,
       "finish": [
         "panel-ready"
       ],
@@ -1442,6 +1470,7 @@
       "model": "TCM24PS",
       "series": null,
       "msrpUSD": 4729,
+      "pairModel": null,
       "sourceUrl": "https://media3.bsh-group.com/Documents/28311963_TCM24PS-24-INCH-BUILT-IN-COFFEE-MACHINE-PLUMBED-Specifications.pdf",
       "verifiedAt": "2026-09-12",
       "installType": [
@@ -1495,6 +1524,7 @@
       "model": "VCIN36GWS",
       "series": null,
       "msrpUSD": 2299,
+      "pairModel": null,
       "sourceUrl": "https://media3.bsh-group.com/Documents/MCDOC02811699_VCIN36GWS-36-INCH-CUSTOM-INSERT-Specifications.pdf",
       "verifiedAt": "2026-09-05",
       "installType": [
@@ -1548,6 +1578,7 @@
       "model": "VTI2FZ",
       "series": null,
       "msrpUSD": 1049,
+      "pairModel": null,
       "sourceUrl": "https://media3.bsh-group.com/Documents/26300662_Thermador_Ventilation_Blowers-Specifications.pdf",
       "verifiedAt": "2026-09-08",
       "installType": [
@@ -1600,6 +1631,7 @@
       "model": "VTN2FZ",
       "series": null,
       "msrpUSD": 1049,
+      "pairModel": null,
       "sourceUrl": "https://media3.bsh-group.com/Documents/26300662_Thermador_Ventilation_Blowers-Specifications.pdf",
       "verifiedAt": "2026-09-08",
       "installType": [
@@ -1652,6 +1684,7 @@
       "model": "VTR2FZ",
       "series": null,
       "msrpUSD": 1049,
+      "pairModel": null,
       "sourceUrl": "https://media3.bsh-group.com/Documents/26300662_Thermador_Ventilation_Blowers-Specifications.pdf",
       "verifiedAt": "2026-09-08",
       "installType": [
@@ -1704,6 +1737,7 @@
       "model": "AK7136BS-BF",
       "series": null,
       "msrpUSD": 799,
+      "pairModel": null,
       "sourceUrl": "https://docs.zephyronline.com/docs/specs/gustb_spec.pdf",
       "verifiedAt": "2026-09-28",
       "installType": [
@@ -1754,6 +1788,7 @@
       "model": "AK7300AS",
       "series": null,
       "msrpUSD": 1699,
+      "pairModel": null,
       "sourceUrl": "https://docs.zephyronline.com/docs/specs/tidal1a_spec.pdf",
       "verifiedAt": "2026-09-25",
       "installType": [
@@ -1804,6 +1839,7 @@
       "model": "PRW24C01CG",
       "series": null,
       "msrpUSD": 1799,
+      "pairModel": null,
       "sourceUrl": "https://docs.zephyronline.com/docs/specs/Presrv_PRW24C01CG_spec.pdf",
       "verifiedAt": "2026-09-05",
       "installType": [
@@ -1855,6 +1891,7 @@
       "model": "T18IW100SP",
       "series": null,
       "msrpUSD": 7799,
+      "pairModel": "T18IW100SP-SS",
       "sourceUrl": "https://media3.bsh-group.com/Documents/28068604_T18IW100SP-18-INCH-BUILT-IN-WINE-PRESERVATION-COLUMN-WITH-PRESENTER-Specifications.pdf",
       "verifiedAt": "2026-09-28",
       "installType": [
@@ -1879,6 +1916,364 @@
       "doorConfig": null,
       "doorSplit": null,
       "cutoutWidthIn": 18,
+      "cutoutHeightIn": 84,
+      "cutoutDepthIn": 25,
+      "finish": [
+        "panel-ready"
+      ],
+      "leadTimeWeeks": null,
+      "highlights": {
+        "en": [],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
+        "gasBTU": null,
+        "water": false,
+        "cfm": null
+      }
+    },
+    {
+      "id": "thermador-t18iw100sp-ss",
+      "slot": "slot-wine",
+      "category": "wine",
+      "brand": "Thermador",
+      "model": "T18IW100SP-SS",
+      "series": null,
+      "msrpUSD": 7799,
+      "pairModel": "T18IW100SP",
+      "sourceUrl": "https://media3.bsh-group.com/Documents/28068604_T18IW100SP-18-INCH-BUILT-IN-WINE-PRESERVATION-COLUMN-WITH-PRESENTER-Specifications.pdf",
+      "verifiedAt": "2026-09-28",
+      "installType": [
+        "column",
+        "built-in"
+      ],
+      "fuel": null,
+      "blower": null,
+      "compatibleBlowers": [],
+      "topDepthIn": null,
+      "frontLipIn": null,
+      "rearVent": null,
+      "widthIn": 17.75,
+      "heightIn": 83.875,
+      "depthIn": 24,
+      "burners": null,
+      "cooktopIn": null,
+      "backguardIn": null,
+      "depthWithDoorsIn": null,
+      "depthWithHandleIn": null,
+      "rearSpacerIn": null,
+      "doorConfig": null,
+      "doorSplit": null,
+      "cutoutWidthIn": 18,
+      "cutoutHeightIn": 84,
+      "cutoutDepthIn": 25,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": null,
+      "highlights": {
+        "en": [],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
+        "gasBTU": null,
+        "water": false,
+        "cfm": null
+      }
+    },
+    {
+      "id": "thermador-t24if905sp-ss",
+      "slot": "slot-freezer",
+      "category": "freezer",
+      "brand": "Thermador",
+      "model": "T24IF905SP-SS",
+      "series": null,
+      "msrpUSD": 8099,
+      "pairModel": "T24IF905SP",
+      "sourceUrl": "https://media3.bsh-group.com/Documents/16173437_T24IF905SP-24-INCH-FLUSH-FREEZER-COLUMN-WITH-INTERNAL-ICE-MAKER-Specifications.pdf",
+      "verifiedAt": "2026-09-12",
+      "installType": [
+        "column"
+      ],
+      "fuel": null,
+      "blower": null,
+      "compatibleBlowers": [],
+      "topDepthIn": null,
+      "frontLipIn": null,
+      "rearVent": null,
+      "widthIn": 24,
+      "heightIn": null,
+      "depthIn": null,
+      "burners": null,
+      "cooktopIn": null,
+      "backguardIn": null,
+      "depthWithDoorsIn": null,
+      "depthWithHandleIn": null,
+      "rearSpacerIn": null,
+      "doorConfig": null,
+      "doorSplit": null,
+      "cutoutWidthIn": 24,
+      "cutoutHeightIn": 84,
+      "cutoutDepthIn": 25,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": null,
+      "highlights": {
+        "en": [],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
+        "gasBTU": null,
+        "water": false,
+        "cfm": null
+      }
+    },
+    {
+      "id": "thermador-t30ir905sp-ss",
+      "slot": "slot-fridge",
+      "category": "refrigerator",
+      "brand": "Thermador",
+      "model": "T30IR905SP-SS",
+      "series": null,
+      "msrpUSD": 8599,
+      "pairModel": "T30IR905SP",
+      "sourceUrl": "https://media3.bsh-group.com/Documents/16173446_T30IR905SP-30-INCH-FLUSH-CUSTOM-FRESH-FOOD-COLUMN-Specifications.pdf",
+      "verifiedAt": "2026-09-12",
+      "installType": [
+        "column"
+      ],
+      "fuel": null,
+      "blower": null,
+      "compatibleBlowers": [],
+      "topDepthIn": null,
+      "frontLipIn": null,
+      "rearVent": null,
+      "widthIn": 30,
+      "heightIn": null,
+      "depthIn": null,
+      "burners": null,
+      "cooktopIn": null,
+      "backguardIn": null,
+      "depthWithDoorsIn": null,
+      "depthWithHandleIn": null,
+      "rearSpacerIn": null,
+      "doorConfig": null,
+      "doorSplit": null,
+      "cutoutWidthIn": 30,
+      "cutoutHeightIn": 84,
+      "cutoutDepthIn": 25,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": null,
+      "highlights": {
+        "en": [],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
+        "gasBTU": null,
+        "water": false,
+        "cfm": null
+      }
+    },
+    {
+      "id": "thermador-t18if900sp-ss",
+      "slot": "slot-freezer",
+      "category": "freezer",
+      "brand": "Thermador",
+      "model": "T18IF900SP-SS",
+      "series": null,
+      "msrpUSD": 7599,
+      "pairModel": "T18IF900SP",
+      "sourceUrl": "https://media3.bsh-group.com/Documents/17016674_16588583_T18IF905SP-18-INCH-FLUSH-FREEZER-COLUMN-WITH-INTERNAL-ICE-MAKER-Spec2.pdf",
+      "verifiedAt": "2026-09-12",
+      "installType": [
+        "column"
+      ],
+      "fuel": null,
+      "blower": null,
+      "compatibleBlowers": [],
+      "topDepthIn": null,
+      "frontLipIn": null,
+      "rearVent": null,
+      "widthIn": 18,
+      "heightIn": null,
+      "depthIn": null,
+      "burners": null,
+      "cooktopIn": null,
+      "backguardIn": null,
+      "depthWithDoorsIn": null,
+      "depthWithHandleIn": null,
+      "rearSpacerIn": null,
+      "doorConfig": null,
+      "doorSplit": null,
+      "cutoutWidthIn": 18,
+      "cutoutHeightIn": 84,
+      "cutoutDepthIn": 25,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": null,
+      "highlights": {
+        "en": [],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
+        "gasBTU": null,
+        "water": false,
+        "cfm": null
+      }
+    },
+    {
+      "id": "thermador-t24iw905sp-ss",
+      "slot": "slot-wine",
+      "category": "wine",
+      "brand": "Thermador",
+      "model": "T24IW905SP-SS",
+      "series": null,
+      "msrpUSD": 7599,
+      "pairModel": "T24IW905SP",
+      "sourceUrl": "https://media3.bsh-group.com/Documents/16173463_T24IW905SP-24-INCH-FLUSH-CUSTOM-WINE-PRESERVATION-COLUMN-Specifications.pdf",
+      "verifiedAt": "2026-09-12",
+      "installType": [
+        "column"
+      ],
+      "fuel": null,
+      "blower": null,
+      "compatibleBlowers": [],
+      "topDepthIn": null,
+      "frontLipIn": null,
+      "rearVent": null,
+      "widthIn": 24,
+      "heightIn": null,
+      "depthIn": null,
+      "burners": null,
+      "cooktopIn": null,
+      "backguardIn": null,
+      "depthWithDoorsIn": null,
+      "depthWithHandleIn": null,
+      "rearSpacerIn": null,
+      "doorConfig": null,
+      "doorSplit": null,
+      "cutoutWidthIn": 24,
+      "cutoutHeightIn": 84,
+      "cutoutDepthIn": 25,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": null,
+      "highlights": {
+        "en": [],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
+        "gasBTU": null,
+        "water": false,
+        "cfm": null
+      }
+    },
+    {
+      "id": "thermador-t18iw905sp-ss",
+      "slot": "slot-wine",
+      "category": "wine",
+      "brand": "Thermador",
+      "model": "T18IW905SP-SS",
+      "series": null,
+      "msrpUSD": 7099,
+      "pairModel": "T18IW905SP",
+      "sourceUrl": "https://media3.bsh-group.com/Documents/16173464_T18IW905SP-18-INCH-FLUSH-CUSTOM-WINE-PRESERVATION-COLUMN-Specifications.pdf",
+      "verifiedAt": "2026-10-20",
+      "installType": [
+        "column"
+      ],
+      "fuel": null,
+      "blower": null,
+      "compatibleBlowers": [],
+      "topDepthIn": null,
+      "frontLipIn": null,
+      "rearVent": null,
+      "widthIn": 18,
+      "heightIn": null,
+      "depthIn": null,
+      "burners": null,
+      "cooktopIn": null,
+      "backguardIn": null,
+      "depthWithDoorsIn": null,
+      "depthWithHandleIn": null,
+      "rearSpacerIn": null,
+      "doorConfig": null,
+      "doorSplit": null,
+      "cutoutWidthIn": 18,
+      "cutoutHeightIn": 84,
+      "cutoutDepthIn": 25,
+      "finish": [
+        "stainless"
+      ],
+      "leadTimeWeeks": null,
+      "highlights": {
+        "en": [],
+        "zh": []
+      },
+      "imageUrl": null,
+      "requires": {
+        "voltage": 120,
+        "amps": 15,
+        "gasBTU": null,
+        "water": false,
+        "cfm": null
+      }
+    },
+    {
+      "id": "thermador-t24ir905sp-ss",
+      "slot": "slot-fridge",
+      "category": "refrigerator",
+      "brand": "Thermador",
+      "model": "T24IR905SP-SS",
+      "series": null,
+      "msrpUSD": 8099,
+      "pairModel": "T24IR905SP",
+      "sourceUrl": "https://media3.bsh-group.com/Documents/16173445_T24IR905SP-24-INCH-FLUSH-CUSTOM-FRESH-FOOD-COLUMN-Specifications.pdf",
+      "verifiedAt": "2026-10-20",
+      "installType": [
+        "column"
+      ],
+      "fuel": null,
+      "blower": null,
+      "compatibleBlowers": [],
+      "topDepthIn": null,
+      "frontLipIn": null,
+      "rearVent": null,
+      "widthIn": 24,
+      "heightIn": null,
+      "depthIn": null,
+      "burners": null,
+      "cooktopIn": null,
+      "backguardIn": null,
+      "depthWithDoorsIn": null,
+      "depthWithHandleIn": null,
+      "rearSpacerIn": null,
+      "doorConfig": null,
+      "doorSplit": null,
+      "cutoutWidthIn": 24,
       "cutoutHeightIn": 84,
       "cutoutDepthIn": 25,
       "finish": [

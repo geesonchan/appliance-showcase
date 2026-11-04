@@ -102,6 +102,14 @@ describe("what stands round a refrigerator follows the model chosen (round 89)",
       const fitting = candidatesFor("slot-fridge", entry).filter(({ fit }) => fit.fits);
       for (const { appliance } of fitting) seen[`${entry.code} ${short(appliance.id)}`] = row(swapTo(entry.code, appliance.id));
     }
+    // A column's -SS row is its pair made stainless, one machine (Leo,
+    // 2026-11-02): offered wherever its pair is, it stands as its pair does.
+    const stainless = Object.keys(seen).filter((key) => key.endsWith("-ss"));
+    expect({ stainless: stainless.length, unlike: stainless.filter((key) => seen[key] !== seen[key.slice(0, -3)]) }).toEqual({
+      stainless: 10,
+      unlike: [],
+    });
+    for (const key of stainless) delete seen[key];
     // Round 98b: the 24" column T24IR905SP joined the catalogue (the third
     // import of round 98) and is offered in every opening it is narrow enough
     // for, as any model is (D20, round 46 — Leo accepted it in round 98b): in

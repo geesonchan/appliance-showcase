@@ -93,7 +93,8 @@ describe.each(PACKAGES.map((pkg) => pkg.id))("%s", (id) => {
     for (const slot of slots) {
       const model = PACKAGE_BY_ID[id].defaultSelection[slot];
       const name = model ? model.split("-").slice(1).join("-").toUpperCase() : "(none)";
-      const range = ALLOWED[name];
+      // A column's -SS row is its pair made stainless, one machine (Leo, 2026-11-02).
+      const range = ALLOWED[name] ?? ALLOWED[name.replace(/-SS$/, "")];
       const sillIn = SLOT_BY_ID[slot].position[1] * 12;
       const key = `${id} ${slot} ${name}`;
       if (!range) {

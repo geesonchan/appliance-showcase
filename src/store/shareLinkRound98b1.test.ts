@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { APPLIANCE_BY_ID } from "../data/catalogue";
+import { APPLIANCE_BY_ID, stainlessRowOf } from "../data/catalogue";
 import { CABINETS } from "../data/cabinets";
 import { recordHoodModel } from "../data/hoodMount";
 import { DEFAULT_PACKAGE } from "../data/packages";
@@ -27,10 +27,30 @@ function freshPage() {
   useAppStore.setState(OPENED, true);
 }
 
+/**
+ * The selection as 98b-1 named it. A built-in column is two rows since
+ * 2026-11-02 (Leo): its -SS row is what its own number was then, the
+ * stainless one, and so is named by that number; its own number, panel-ready
+ * now, by a name 98b-1 never held, so a link that opened one would not hash
+ * as 98b-1's room.
+ */
+const asThen = (selection: Record<string, string>) =>
+  Object.fromEntries(
+    Object.entries(selection).map(([slot, id]) => {
+      const row = APPLIANCE_BY_ID[id];
+      const own = row && APPLIANCE_BY_ID[id.replace(/-ss$/, "")];
+      if (own && own !== row && stainlessRowOf(own) === row) return [slot, own.id];
+      if (row && stainlessRowOf(row)) return [slot, `${id} panel-ready`];
+      return [slot, id];
+    }),
+  );
+
 /** The room as the fixture hashed it. */
 const held = () =>
   createHash("sha256")
-    .update(JSON.stringify({ params: LAYOUT_PARAMS, runs: RUNS, slots: SLOT_PLACEMENT, island: ISLAND, cabinets: CABINETS, selection: store().selection }))
+    .update(
+      JSON.stringify({ params: LAYOUT_PARAMS, runs: RUNS, slots: SLOT_PLACEMENT, island: ISLAND, cabinets: CABINETS, selection: asThen(store().selection) }),
+    )
     .digest("hex");
 
 const LINKS = Object.entries(ROUND_98B1.links);

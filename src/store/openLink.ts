@@ -10,6 +10,7 @@ import {
   LANG_FIELD,
   LAYOUT_FIELDS,
   applianceByModel,
+  applianceInLink,
   modelFieldsOf,
   readField,
   readLink,
@@ -131,7 +132,7 @@ export function openSharedLink(search: string): void {
       lines.push({ kind: kindFor(read), field: field.name, to: shown() });
       continue;
     }
-    const appliance = applianceByModel(read.value);
+    const appliance = applianceInLink(read.value, version);
     if (!appliance) {
       lines.push({ kind: "catalogue", field: field.name, from: read.value, to: shown() });
       continue;

@@ -85,8 +85,23 @@ export const tierOf = (resolved: ResolvedPoint): LineTier =>
 export const roughInCalloutKey = (point: RoughInPoint) =>
   `roughIn.callout.${point.provenance ?? "unreviewed"}`;
 
+/**
+ * A column's -SS row is its pair made stainless, one machine (Leo,
+ * 2026-11-02): its points are its pair's, read off that model's drawing. By
+ * the -SS row's id, the pair's.
+ */
+const MADE_FROM: Map<string, string> = (() => {
+  const rows = (appliancesFile as { appliances: { id: string; model: string; pairModel?: string | null }[] }).appliances;
+  const made = new Map<string, string>();
+  for (const row of rows) {
+    const pair = row.pairModel ? rows.find((other) => other.model === row.pairModel) : undefined;
+    if (pair && row.model.toUpperCase() === `${pair.model}-SS`.toUpperCase()) made.set(row.id, pair.id);
+  }
+  return made;
+})();
+
 export const roughInFor = (appliance: Appliance | undefined) =>
-  appliance ? (ROUGH_IN[appliance.id] ?? null) : null;
+  appliance ? (ROUGH_IN[appliance.id] ?? ROUGH_IN[MADE_FROM.get(appliance.id) ?? ""] ?? null) : null;
 
 /** True when nobody has read this model's drawing yet. */
 export const hasGenericRoughIn = (appliance: Appliance | undefined) =>

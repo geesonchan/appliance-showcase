@@ -177,15 +177,17 @@ const strips = (s: Session, slot: string) =>
   }, slot);
 
 describe("the strips a machine draws beside itself", () => {
+  // The columns' -SS rows, stainless as the room has always drawn them here
+  // (Leo, 2026-11-02: each built-in column is two rows).
   const cases: [string, string, string, string, boolean][] = [
     ["a 30-inch hood in package A's 36-inch slot", "A", "slot-hood", "zephyr-ak7300as", false],
     ["a 30-inch hood in package A's 36-inch slot", "A", "slot-hood", "zephyr-ak7300as", true],
     ["a 30-inch hood in package B's 42-inch housing slot", "B", "slot-hood", "zephyr-ak7300as", false],
-    ["a 30-inch column in package A's 36-inch refrigerator opening", "A", "slot-fridge", "thermador-t30ir905sp", false],
-    ["a 30-inch column in package A's 36-inch refrigerator opening", "A", "slot-fridge", "thermador-t30ir905sp", true],
-    ["an 18-inch freezer column in package D's 24-inch opening", "D", "slot-freezer", "thermador-t18if900sp", false],
-    ["an 18-inch wine column in package D's 24-inch opening", "D", "slot-wine", "thermador-t18iw100sp", false],
-    ["a 30-inch column in package B's 36-inch refrigerator opening, beside its wine column", "B", "slot-fridge", "thermador-t30ir905sp", false],
+    ["a 30-inch column in package A's 36-inch refrigerator opening", "A", "slot-fridge", "thermador-t30ir905sp-ss", false],
+    ["a 30-inch column in package A's 36-inch refrigerator opening", "A", "slot-fridge", "thermador-t30ir905sp-ss", true],
+    ["an 18-inch freezer column in package D's 24-inch opening", "D", "slot-freezer", "thermador-t18if900sp-ss", false],
+    ["an 18-inch wine column in package D's 24-inch opening", "D", "slot-wine", "thermador-t18iw100sp-ss", false],
+    ["a 30-inch column in package B's 36-inch refrigerator opening, beside its wine column", "B", "slot-fridge", "thermador-t30ir905sp-ss", false],
   ];
   for (const [what, pkg, slot, model, phone] of cases) {
     it(`face ${what} in the doors' plane and take shadows, ${phone ? "on a phone with touch" : "on a desktop with the mouse"}`, async () => {

@@ -172,7 +172,7 @@
         "slot-hood": "thermador-vcin36gws",
         "slot-dishwasher": "bosch-shx78cm5n",
         "slot-microwave": "thermador-mem301ws",
-        "slot-wine": "thermador-t18iw100sp"
+        "slot-wine": "thermador-t18iw100sp-ss"
       },
       "defaultBlower": "thermador-vtn2fz",
       "defaultLayout": {
@@ -387,9 +387,9 @@
         }
       ],
       "defaultSelection": {
-        "slot-freezer": "thermador-t24if905sp",
-        "slot-fridge": "thermador-t30ir905sp",
-        "slot-wine": "thermador-t24iw905sp",
+        "slot-freezer": "thermador-t24if905sp-ss",
+        "slot-fridge": "thermador-t30ir905sp-ss",
+        "slot-wine": "thermador-t24iw905sp-ss",
         "slot-range": "thermador-pcg366w",
         "slot-hood": "thermador-vcin36gws",
         "slot-oven": "thermador-pods302b",
@@ -446,9 +446,9 @@
             }
           ],
           "defaultSelection": {
-            "slot-freezer": "thermador-t18if900sp",
-            "slot-fridge": "thermador-t24ir905sp",
-            "slot-wine": "thermador-t18iw905sp",
+            "slot-freezer": "thermador-t18if900sp-ss",
+            "slot-fridge": "thermador-t24ir905sp-ss",
+            "slot-wine": "thermador-t18iw905sp-ss",
             "slot-oven": "thermador-mem301ws"
           }
         }
@@ -576,8 +576,8 @@
         }
       ],
       "defaultSelection": {
-        "slot-freezer": "thermador-t18if900sp",
-        "slot-fridge": "thermador-t30ir905sp",
+        "slot-freezer": "thermador-t18if900sp-ss",
+        "slot-fridge": "thermador-t30ir905sp-ss",
         "slot-microwave": "thermador-mem301ws",
         "slot-coffee": "thermador-tcm24ps",
         "slot-wine-2": "zephyr-prw24c01cg",

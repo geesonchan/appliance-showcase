@@ -1,7 +1,7 @@
-import { APPLIANCES, APPLIANCE_BY_ID } from "../data/catalogue";
+import { APPLIANCES, APPLIANCE_BY_ID, stainlessRowOf } from "../data/catalogue";
 import type { LayoutParams } from "../data/layoutTemplate";
 import { LAYOUT_FIELDS, type AnyValue, type Field } from "../data/layoutFields";
-import { LINK_VERSION, LINK_VERSIONS } from "../data/linkVersion";
+import { LINK_VERSION, LINK_VERSIONS, PANEL_READY_SINCE } from "../data/linkVersion";
 import { slotLabelKey } from "../data/machineLabel";
 import { PACKAGES, PACKAGE_BY_ID, packageInShape } from "../data/packages";
 import type { LayoutShape } from "../data/layoutShape";
@@ -142,6 +142,18 @@ export const FINISH_FIELDS: FinishField<AnyValue>[] = [
 /** A machine by its model number, which no two in the catalogue share. */
 const BY_MODEL = new Map(APPLIANCES.map((appliance) => [appliance.model.toUpperCase(), appliance]));
 export const applianceByModel = (raw: string): Appliance | undefined => BY_MODEL.get(raw.toUpperCase());
+
+/**
+ * A model as a link of this version names it. From `v=3` every number is its
+ * own row: a column's -SS row stainless, its bare number panel-ready (Leo,
+ * 2026-11-02). Before that a column's bare number was its stainless one, and
+ * is read so, as its -SS row. The refrigerator pair is each its own number in
+ * every version.
+ */
+export function applianceInLink(raw: string, version: number): Appliance | undefined {
+  const row = BY_MODEL.get(raw.toUpperCase());
+  return (row && version < PANEL_READY_SINCE ? stainlessRowOf(row) : undefined) ?? row;
+}
 
 /** A machine as a customer reads it: brand and model. */
 export const sayAppliance = (appliance: Appliance) => `${appliance.brand} ${appliance.model}`;

@@ -115,26 +115,38 @@ describe("a machine taller than an opening with something above it (round 86)", 
       // openings (A's, B's, C's and D's slot-wine, E's slot-wine-2). Three of
       // the ten are an 84" column under a counter or a coffee machine, refused
       // by 50" as the T18IW100SP and T24IW905SP beside them are.
-      offered: 146,
+      // 2026-11-02: 175 — each built-in column is two rows, its own number
+      // and its -SS row (Leo), the -SS row offered wherever its pair is, 29
+      // more; and refused where its pair is, by as much: nine lines more.
+      offered: 175,
       refused: [
         "A slot-microwave mem301ws +14.5 countertop",
         "A slot-microwave po302w +16 countertop",
         "A slot-microwave pods302b +13.375 countertop",
         "A slot-wine t18iw100sp +50 countertop",
+        "A slot-wine t18iw100sp-ss +50 countertop",
         "A slot-wine t18iw905sp +50 countertop",
+        "A slot-wine t18iw905sp-ss +50 countertop",
         "A slot-wine t24iw905sp +50 countertop",
+        "A slot-wine t24iw905sp-ss +50 countertop",
         "C slot-microwave mem301ws +14.5 countertop",
         "C slot-microwave po302w +16 countertop",
         "C slot-microwave pods302b +13.375 countertop",
         "C slot-wine t18iw100sp +50 countertop",
+        "C slot-wine t18iw100sp-ss +50 countertop",
         "C slot-wine t18iw905sp +50 countertop",
+        "C slot-wine t18iw905sp-ss +50 countertop",
         "C slot-wine t24iw905sp +50 countertop",
+        "C slot-wine t24iw905sp-ss +50 countertop",
         "D slot-microwave mem301ws +14.5 countertop",
         "D slot-microwave po302w +16 countertop",
         "D slot-microwave pods302b +13.375 countertop",
         "E slot-wine-2 t18iw100sp +50 coffee",
+        "E slot-wine-2 t18iw100sp-ss +50 coffee",
         "E slot-wine-2 t18iw905sp +50 coffee",
+        "E slot-wine-2 t18iw905sp-ss +50 coffee",
         "E slot-wine-2 t24iw905sp +50 coffee",
+        "E slot-wine-2 t24iw905sp-ss +50 coffee",
       ],
     });
   });
@@ -257,12 +269,14 @@ describe("every other model (round 86)", () => {
         // 123 since round 98b: the two columns of round 98's third import,
         // offered on width (D20, round 46) — T24IR905SP in the five
         // refrigerator openings, T18IW905SP in B's and D's wine columns; its
-        // other three openings refuse it as too tall, above.
+        // other three openings refuse it as too tall, above. 143 since
+        // 2026-11-02: each column's -SS row (Leo), compared wherever its pair
+        // is, 20 more.
         if (fit.tooTallIn !== null || fit.notForTallUnit || fit.notInColumnBank) continue;
         compared += 1;
         if (fit.fits !== fit.widthOverIn <= 1e-6) changed.push(`${code} ${slotId} ${short(model.id)}`);
       }
     });
-    expect({ compared, changed }).toEqual({ compared: 123, changed: [] });
+    expect({ compared, changed }).toEqual({ compared: 143, changed: [] });
   });
 });

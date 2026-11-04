@@ -71,7 +71,9 @@ describe("one wall builds its room round the range, hood and refrigerator chosen
         }
       }
     }
-    expect({ checked, wrong }).toEqual({ checked: 70, wrong: [] });
+    // 70, and since 2026-11-02 the -SS rows of the two refrigerator columns
+    // (Leo): 9 more, offered wherever their pairs are.
+    expect({ checked, wrong }).toEqual({ checked: 79, wrong: [] });
   });
 
   it("closes A's 30-inch range in with a filler each side, as the L does", () => {
@@ -96,6 +98,6 @@ describe("one wall builds its room round the range, hood and refrigerator chosen
     theL(d);
     const lFridge = fridgeModelFor(PACKAGE)?.model;
     oneWall(d);
-    expect({ lFridge, oneWallFridge: fridgeModelFor(PACKAGE)?.model }).toEqual({ lFridge: "T30IR905SP", oneWallFridge: "T24IR905SP" });
+    expect({ lFridge, oneWallFridge: fridgeModelFor(PACKAGE)?.model }).toEqual({ lFridge: "T30IR905SP-SS", oneWallFridge: "T24IR905SP-SS" });
   });
 });

@@ -70,9 +70,10 @@ describe("switching the shape (round 98b)", () => {
     store().setLayoutShape("one-wall");
     const { selection } = store();
     expect([selection["slot-freezer"], selection["slot-fridge"], selection["slot-wine"], selection["slot-oven"]]).toEqual([
-      "thermador-t18if900sp",
-      "thermador-t24ir905sp",
-      "thermador-t18iw905sp",
+      // Each column's -SS row, stainless as every package opens (Leo, 2026-11-02).
+      "thermador-t18if900sp-ss",
+      "thermador-t24ir905sp-ss",
+      "thermador-t18iw905sp-ss",
       "thermador-mem301ws",
     ]);
   });
@@ -126,15 +127,15 @@ describe("which model each opening keeps between the shapes (round 98b-2)", () =
     // the L, where it was chosen.
     freshPage();
     store().setPackageId("package-d");
-    store().selectAppliance("slot-wine", "thermador-t18iw100sp");
+    store().selectAppliance("slot-wine", "thermador-t18iw100sp-ss");
     const inTheL = store().selection["slot-wine"];
     store().setLayoutShape("one-wall");
     const onOneWall = store().selection["slot-wine"];
     store().setLayoutShape("L");
     expect({ inTheL, onOneWall, back: store().selection["slot-wine"] }).toEqual({
-      inTheL: "thermador-t18iw100sp",
-      onOneWall: "thermador-t18iw905sp",
-      back: "thermador-t18iw100sp",
+      inTheL: "thermador-t18iw100sp-ss",
+      onOneWall: "thermador-t18iw905sp-ss",
+      back: "thermador-t18iw100sp-ss",
     });
   });
 

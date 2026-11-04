@@ -103,6 +103,13 @@ export const applianceSchema = z.object({
    * the UI says "price on request" rather than inventing a number.
    */
   msrpUSD: z.number().int().positive().nullable(),
+  /**
+   * The other model of a pair that is one machine two ways, the sheet's
+   * `pairModel` (Leo, 2026-10-29, 2): T36BT120NS, stainless, and T36IT100NP,
+   * panel-ready, name each other, and so does each built-in column and its
+   * -SS row (2026-11-02). Every one is a row at its own price.
+   */
+  pairModel: z.string().nullable().default(null),
   /** Where the model and its list price can be checked, when there is a page. */
   sourceUrl: z.url().nullable(),
   /**

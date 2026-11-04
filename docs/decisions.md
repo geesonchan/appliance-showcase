@@ -8691,6 +8691,336 @@ Registered, not scheduled. None of these is a round of its own.
   catalogue records it (imported from his sheet, where a blank colour now
   becomes stainless), where it is chosen and how panel-ready doors are drawn,
   how the quote shows the model and price. After the refrigerator's front.
+  **Answered 2026-10-28** (Leo, the plan's section 8, his site practice; "写进
+  decisions.md"):
+  1. Price: "不用太严谨，后续报价会调整". The stainless price column left blank
+     means the same price.
+  2. Two cases, kept apart:
+     - Built-in columns (refrigerator, freezer and wine columns) leave the
+       factory panel-ready only. A customer who wants them stainless buys
+       stainless door panels and handles for them (the 18" wine column:
+       TFL18IW105 and a handle). On screen "原型号 = 可装门板", "原型号 + -SS
+       = 不锈钢外观"; the -SS is how the page writes it, not a factory model.
+     - The 36" built-in refrigerator: two real models, T36BT120NS stainless
+       from the factory and T36IT100NP panel-ready, counted as one
+       refrigerator's two versions. The plan proposes the least-effort way to
+       pair the two rows, for him to confirm.
+  3. The quote: the stainless version's model with -SS (the refrigerator:
+     T36BT120NS itself).
+  4. The sheet: 丙 — one row a model, Color `SS / Panel Ready`, one column
+     added for the stainless price (blank = the same price). A built-in
+     column's or refrigerator's Color must be filled: blank stops the import
+     and is listed for him, no longer made stainless. He fills the rows the
+     plan lists and exports again.
+  5. Every package opens stainless; the live site's picture does not change.
+  6. The list's line when panel-ready: 「门板由柜子厂按柜门做，不含在本报价内。」 /
+     "Door panels are made by your cabinet maker to match the cabinet doors
+     and are not included in this quote.", in the text and locked in
+     `reviewed.json`.
+  7. The columns' door faces flush: left for round 101; this round changes
+     the colour only.
+  The plan is revised to these, for his confirmation before any code; its
+  proof says the default rooms do not change by a pixel and only a room with
+  panel-ready chosen does.
+  **Built, the panel-ready round** *(Leo, 2026-10-28 night: "这次是我同意跳过
+  '先看计划'，只限这一轮"; built to the local preview, not committed; what his
+  answers did not cover stays in `docs/plans/panel-ready-plan.md` section 8,
+  not built)*:
+  - The import: `ssMsrpUSD` → `stainlessMsrpUSD`, blank the same price; a
+    built-in column's or built-in refrigerator's blank Color stops the run,
+    lists the models and writes nothing. His export of 2026-10-28 run through
+    it stops on seven: T18IF900SP, T18IW905SP, T24IF905SP, T24IR905SP,
+    T24IW905SP, T30IR905SP, T36BT120NS.
+  - The page: a row offered both ways is its stainless look under its own id
+    (every package opens on it), written `MODEL-SS`, and its panel-ready look
+    held as `id#panel-ready`, written `MODEL` — the id unchanged, so its
+    rough-in points and every list stay its own. A two-way switch on the model
+    card under the machine (desktop and phone); the doors' colour changes, not
+    their size or place (answer 7). The quote, the list rail, the cards and
+    the share link write the model so. Links are `v=3`; a `v=1`/`v=2` link's
+    bare number opens the stainless look, with nothing said. The list's line
+    in his words for a column or built-in refrigerator chosen panel-ready,
+    locked in `reviewed.json`; not for A's panel-ready dishwasher (section 8,
+    question 3).
+  - **The catalogue the tests and the preview run on is a test one**: his
+    export of 2026-10-28 with only the cells the plan lists filled (the seven
+    columns `SS / Panel Ready`, T36BT120NS `SS`) and an empty `ssMsrpUSD`,
+    through the same importer (`_meta.generatedBy` says
+    `test-filled-showcase_export.csv`). Against `ba94ef5`'s catalogue: the
+    seven columns' finish, T36IT100NP's `cutoutDepthIn` 24 → 25, and
+    `stainlessMsrpUSD: null` on every row; nothing else. His real import
+    replaces it.
+  - **Old tests whose standard changed, and why**:
+    - `src/data/catalogue.test.ts`, "uses unique appliance ids": it compared
+      `APPLIANCE_BY_ID`'s keys with the rows; that map now also holds each
+      two-way row's panel-ready look, so it asks the rows' own ids, and that
+      every entry in the map is a row's.
+    - `src/store/shareLinkV2.test.ts`: a link written now says `v=3`, not 2;
+      "a version it does not know" is now `v=4`.
+    - `src/store/shareLink.test.ts`, the wine column refused in A's island
+      opening: its link names `T24IW905SP-SS`, the stainless look it meant,
+      because a bare `T24IW905SP` in a `v=3` link is the panel-ready one. The
+      expected lines are unchanged.
+    - `tests/shareLink.test.ts` and `tests/shareQr.test.ts`: the copied link
+      starts `?v=3&`, not `?v=2&`. Found by the full run (2 red of 3,377, the
+      link's version their only difference); the two files then ran green.
+  - **T36IT100NP's 25" changes nothing in its rooms**: the dumps show it.
+    `deeper-than-opening` measures `depthWithDoorsIn ?? depthIn ??
+    cutoutDepthIn`, and T36IT100NP has `depthIn` 24, so its cutout is never
+    read; the Open item's "a room with T36IT100NP gets the line" was wrong.
+  - **The catalogue cannot go out ahead of this code.** Seen by mistake the
+    same night: a build of `ba94ef5` that took this round's catalogue drew
+    every column offered both ways in the cabinets' colour, in B's, D's and
+    E's default rooms, because `isPanelReady` asks `finish.includes`. Only
+    this round's catalogue splits the row into two looks. His real import
+    and this code land in one commit.
+  - **Red first**: on `ba94ef5` with its own catalogue, 14 of the 16 new
+    unit tests fail. The 2 that pass test what this round leaves as it was:
+    a blank Color stays stainless off a built-in, and a filled sheet writes.
+    The 18" panel test first passed there too, because an unknown
+    `#panel-ready` key leaves the slot empty, which also drops the line. It
+    now also asks that the panel-ready T18IW905SP is what the slot holds.
+    The 2 browser tests fail on the old build, which has no switch.
+  - **Pixels**: the 45 states at both tiers, `qualityLock=1`, two shoots a
+    side, against `ba94ef5` built with its own catalogue
+    (`index-D07XGgZz.js`). The canvas is identical in every state. Off the
+    canvas, only the refrigerator's fly-to card differs: A, B and C list the
+    two column candidates as `…-SS`. D and E write their column
+    T30IR905SP-SS and add the switch, which moves the card's rest down. One
+    pixel at (144, 225) in D's and E's materials state also changes between
+    two shoots of the same build.
+  **Answered 2026-10-29** (Leo, having read the night's report,
+  `docs/plans/overnight-2026-10-28.md`; the plan's section 8):
+  1. Color: Stock current is not touched. A column of its own in
+     `showcase_specs`, for the web only. CC names it and gives each cell's
+     value; he fills them and exports again.
+  2. T36BT120NS and T36IT100NP are paired in `showcase_specs` too: each row
+     names the other. CC names the column.
+  3. The default columns are written -SS, as built.
+  5. The switch reads 「不锈钢 / 可装门板」 / "Stainless / Panel-ready"; the quote
+     gets no separate panel line; and a slot's door panels are said once, in
+     「门板由柜子厂按柜门做…」, not twice.
+  4. The cabinet maker's line covers dishwashers too: a panel-ready dishwasher
+     in a package (Bosch's fully integrated SHV, for one) says it; a stainless
+     one does not.
+  9. T18IW100SP at 17.75" is right; the source is its spec sheet in
+     `docs/reference` (`t18iw100sp-spec.pdf`, already `PUBLISHED_SPECS`'s), so
+     B's 18" panel line not appearing is right.
+  Before the commit: proof that the `v=3` links leave old ones as they were,
+  why `v=3`, and the full suite run again. Then his export: a dry run first
+  (only the cells he changed may change; anything else stops and is listed),
+  then the dumps and the locked pixels again, the local preview, his look,
+  and the catalogue and this code in one commit. Questions 6–8 he answers
+  later.
+  **Built, 2026-10-29** (local preview, not committed):
+  - **Two columns in `showcase_specs`**, each an `XLOOKUP` into
+    `showcase_export` on Model like the others, read by name:
+    - `webColor`, the web's own finish. Filled, it is the finish and Color and
+      Feature are not read; blank, Color is read as before. Its words are
+      Color's — `SS`, `Panel Ready`, `White`, `Black`, joined by `/` — and a
+      word it does not know stops the import, listed with its value: the
+      column is filled to be read, so nothing in it is guessed stainless. A
+      built-in column's or refrigerator's blank Color stops the run only when
+      `webColor` is blank too.
+    - `pairModel`, the other model of a pair. Each must name the other, both
+      in the export, one stainless and one panel-ready, the same category;
+      anything else stops the import, one line a pair. The page takes the pair
+      as one machine's two looks: the same switch on the card, the selection
+      holding the other model's own id, each written and priced as itself
+      (T36BT120NS 13,199, T36IT100NP 11,599), no -SS.
+  - **A link's bare number** means a row's panel-ready look only for a row
+    offered both ways (`bothWaysLooksOf`); the two of a pair are each their
+    own number in every version. Lopsided test: a `v=1`, `v=2` and `v=3` link
+    naming either refrigerator opens that one. It went red when the link was
+    made to read the switch's `looksOf` instead.
+  - **The cabinet maker's line** for a panel-ready dishwasher too; and where it
+    is on a slot, `panel-ready-cabinetry` (「预留门板机型装在按饰面侧预留的槽位
+    中」) is dropped from that slot. In the catalogue that rule fires only on the
+    wine opening, so D's column chosen panel-ready had both; now one.
+  - The switch's words, locked in `reviewed.json` in both languages.
+  - **Why `v=3`.** Leo's answer 2 makes the bare number the panel-ready look
+    (原型号 = 可装门板) and -SS the stainless one, in everything the page
+    writes, the link included. Every `v=1`/`v=2` link was written when a
+    column's bare number was the stainless one. Read by the new rule they
+    would open B's, D's and E's columns in the cabinets' colour. The version
+    says which rule wrote the link: from `v=3` the bare number is panel-ready;
+    before it, stainless, opened with nothing said (D23).
+  - **Old links, against `ba94ef5`**: round 97's five `v=1` links and round
+    98b-1's ten `v=2` links (`shareLink.round97.json`,
+    `shareLink.round98b1.json`), each opened on a fresh page of `ba94ef5`'s
+    code and catalogue and of this round's. All 15 have the same fingerprint
+    (`shareLinkRound98b1.test.ts`'s hash: layout, runs, machines' places,
+    island, cabinet boxes, selection), the same selection, and no notice on
+    either. The lists differ only by the cabinet maker's line, added where
+    his answers put it: the panel-ready dishwasher (SHV78CM3N) in seven, and
+    T36IT100NP in round 97's A and B. A link written back now says
+    `T18IW100SP-SS` where `ba94ef5` wrote `T18IW100SP`.
+  - **The dumps, against `ba94ef5`**: every room's geometry is unchanged. The
+    lists change by the cabinet maker's line in L 191 of 1,045 and one wall 38
+    of 91. That is every room built with SHV78CM3N in it (A's and E's
+    defaults, and a swap to it in B, C and D), and the swaps to T36IT100NP.
+    A room A or E opens with its dishwasher swapped to the stainless
+    SHX78CM5N is unchanged; the rooms a package cannot build at that size are
+    unchanged too. So **the default list changes in A and E**, by that one
+    line. The canvas does not depend on it.
+  - **The test catalogue, again**: his 2026-10-28 export with three columns
+    added (`ssMsrpUSD` empty; `webColor` on the seven columns `SS / Panel
+    Ready` and T36BT120NS `SS`; `pairModel` on the two refrigerators). Color
+    is untouched, through the same importer. Against `ba94ef5`'s: the seven
+    columns' finish, T36IT100NP's `cutoutDepthIn` 24 → 25, the two
+    `pairModel`s, and `stainlessMsrpUSD` / `pairModel` null on every other
+    row.
+  - **Red first**: the 6 new import tests fail on the night's code. The pair
+    test that stops was tightened to ask for `pairModel` in the message,
+    because the blank Color stopped it first. The page's 4 fail too (pair,
+    dishwasher, one line, switch words), and its 2 new browser tests (A's
+    refrigerator, mouse and finger) cannot find a switch without the pair.
+  - **Full suite** (`npm test`, the computer kept awake, build
+    `index-BuDqK4LQ.js`, 85 minutes): 152 files, 3,393 tests, 3,392 passed
+    and 1 failed: `tests/qualityLock.test.ts`, "leaves the guard dropping a
+    page opened without it", the widest texture 512 where 256 is asked, the
+    guard not having dropped the slowed page within its eight seconds. Run
+    alone on the same build three times right after, both of the file's tests
+    pass each time. Nothing this round changes the guard, the tiers or the
+    renderer. Why the guard did not drop that one page in the full run is
+    not known; the test leans on the machine's timing (a page slowed sixteen
+    times for eight seconds), and it is not marked or changed.
+    *(Found 2026-11-04, Leo asking for the page's `document.visibilityState`
+    then.)* That page's state was not recorded and cannot be read now. What
+    the machine was doing is: the run went 00:34–01:59, and Windows entered
+    Modern Standby on idle timeout at 00:37:26 and left it at 02:39 (System
+    log, Kernel-Power 506 / 566), so the test ran with the screen off. The
+    10-28 and 11-03 runs, which passed it, were awake nearly throughout. But
+    the screen being off is not needed for it to fail. The same test, run 55
+    times in a row by a probe on this build with the machine awake
+    (`visProbe3.mjs` in that day's scratch folder), sampling
+    `visibilityState` every 250 ms: "visible" in every sample of every run,
+    no `visibilitychange`, and 4 of 55 ended at 512 — the 10-29 failure. The
+    frames each second from the slowing's start show why: in the two
+    failures logged with counts the room, slowed sixteen times, was under 55
+    for only its first two seconds (19 and 47; 10 and 34) and back at 58–60
+    from the third, slowed still; in the runs that passed it stayed under 55
+    longer, or long enough. The guard drops only after two whole
+    seconds of its own under 55 (`PATIENCE_MS`), after its first second and
+    any rebuild's two (`GRACE_MS`), and its seconds are not lined up with the
+    slowing; when the slow stretch falls across them it never sees two in a
+    row. So the test leans on the page's first seconds after load being slow,
+    not on the room being slow, and it fails about one time in fourteen here
+    whatever the page's visibility. Not changed; how to make it ask a room
+    that stays slow is Leo's to answer.
+  **Answered 2026-11-02** (Leo, replacing 2026-10-29's one row written
+  `SS / Panel Ready`; asked to be assessed first, and then 甲, 乙 and 丙 as
+  proposed):
+  - Each built-in column is two rows in `showcase_specs`: its own number,
+    `webColor` `Panel Ready`, and the number with -SS (T18IF900SP-SS),
+    `webColor` `SS`, each naming the other in `pairModel`, as T36BT120NS and
+    T36IT100NP do. The switch goes between the two rows by `pairModel` only;
+    nothing adds -SS. T18IW100SP gets T18IW100SP-SS as well, which reads its
+    pair's rough-in points and its spec sheet's correction. Every package
+    opens on the -SS row.
+  - `webColor` is `SS` or `Panel Ready`, nothing else. T36IT100NP's is filled
+    `Panel Ready`.
+  - The -SS row's figures come from its pair by `XLOOKUP`, and the import
+    checks it: every cell but Model, webColor, price and pairModel is its
+    pair's, or the import stops and lists each one. 甲: only for a pair whose
+    one model is the other's with -SS; T36BT120NS and T36IT100NP are two
+    factory models and keep the check they had. The two prices may differ or
+    be the same; he fills today's.
+  - 乙: the swap list names both rows, no new rule; he will look at it in the
+    preview.
+  - 丙: an old link's room fingerprint cannot be byte for byte `ba94ef5`'s,
+    because the selection is in it and the -SS row is another id
+    (`thermador-t18if900sp-ss`). So the proof is in two halves: the room's
+    shape (layout, runs, machines' places, island, cabinet boxes) byte for
+    byte; and the machines the same once a column's -SS row is named by the
+    number that was its stainless one then; no notice; the list only the
+    known line more; the link written back as now.
+  **Built, 2026-11-02** (not committed; the 2026-10-29 code this replaces
+  was never committed either):
+  - **Import**: `readWebColor` reads `SS` and `Panel Ready` and nothing else.
+    `pairProblems` adds, for an -SS pair, a line for each cell of the -SS row
+    that is not its pair's (`OWN_CELLS`: Model, webColor, msrpUSD,
+    pairModel), as `Thermador T18IW100SP-SS: cutoutDepthIn "24",
+    T18IW100SP's "25"`. An -SS row is read by its pair's drawing
+    (`drawnAs`). `ssMsrpUSD` and `stainlessMsrpUSD` are gone.
+  - **Catalogue**: 2026-10-29's one row with two looks is gone — the
+    `#panel-ready` key, the -SS the page wrote, the stainless price
+    (`BOTH_WAYS`, `modelLabel`, `selectionKeyOf`). Every row is as the sheet
+    has it; `looksOf` is the pairs. `stainlessRowOf` gives a column's -SS
+    row for its own number, and nothing for the refrigerator pair. The
+    model line, the swap list, the spec card, the quote and the link are
+    `ba94ef5`'s code again; the card's switch stays.
+  - **Links** stay `v=3`, for the same reason: a column's bare number is
+    its panel-ready row now and was its stainless one in `v=1` and `v=2`.
+    Read before `v=3`, a column's bare number opens its -SS row; from `v=3`
+    each number is its own row; the refrigerator pair is itself in every
+    version. A link is written as 2026-10-29's code wrote it.
+  - **Rough-in**: an -SS row takes its pair's points (`MADE_FROM`,
+    `roughIn.ts`). **Packages**: the nine column ids are their -SS rows'.
+  - **Room sets**: each column's own number, panel-ready, is a swap of its
+    own wherever its -SS row stands, so the L's rooms are 1,063 (533 built,
+    530 refused) and one wall's 106, where they were 1,045 and 91.
+  - **Test catalogue** (not his): his 2026-11-02 export with the cells that
+    stop it set as agreed — T36BT120NS `SS` / `T36IT100NP`, T36IT100NP
+    `Panel Ready` / `T36BT120NS`, and T18IW100SP's and its -SS row's cutout
+    the sheet's 18" x 84" x 25" again. Against `ba94ef5`'s: the seven
+    columns' finish panel-ready, nine `pairModel`s, T36IT100NP's
+    `cutoutDepthIn` 24 → 25, and the seven -SS rows, each its pair's but for
+    id, model, finish and pairModel.
+  - **His export, checked 2026-11-03** (`showcase_export.csv`, 11/2 23:35,
+    44 rows; nothing imported): against the 10-28 export, the seven columns'
+    webColor and pairModel and the seven -SS rows are as asked, every -SS
+    row's other cells its pair's, no `#N/A` or error in any cell. Three things
+    are not as asked, and the import waits for him: T36BT120NS's `webColor`
+    and `pairModel` are blank (the import stops on its blank Color); so are
+    T36IT100NP's (no pair, no switch); and T18IW100SP's cutout changed,
+    18 / 84 / 25 → 17.75 / 83-7/8 / 24, and its -SS row's with it — the
+    machine's own size from its spec sheet, where the cutout was the
+    sheet's. *(Leo, 2026-11-03: 「改回 18/84/25」 — both rows' cutout stays
+    the sheet's 18" x 84" x 25", as the test catalogue has it; he corrects
+    the sheet and exports again.)*
+  - **Dumps** against `ba94ef5`, the columns named as 丙 names them: the L's
+    1,045 all found, 854 the same; one wall's 91 all found, 53 the same; every
+    other one differs by 2026-10-29's line 「门板由柜子厂按柜门做…」 and nothing
+    else — the same counts as on 2026-10-29. The 18 and 15 rooms more, each
+    against its -SS twin: the same geometry; the list gains the cabinet
+    maker's line and, for the 18" wine columns, loses the stainless-panel
+    line.
+  - **The 15 old links** on `ba94ef5` and on this code: all 15 the same room
+    shape byte for byte and the same fingerprint with the columns named as
+    丙 names them, no notice on either, the link written back the same as
+    2026-10-29's code wrote it; the list only 「门板由柜子厂按柜门做…」 more,
+    in the seven with a panel-ready dishwasher and the two with T36IT100NP.
+    `shareLinkRound98b1.test.ts` hashes the selection so (`asThen`), a
+    column's own number by a name 98b-1 never held, so a link opening a
+    panel-ready column would not pass.
+  - **Red first**: the 11 import tests and 17 page tests, on the 2026-10-29
+    code: 15 fail. Then 118 files, 3,060 unit tests, green; the four browser
+    files the rows touch (`panelReady`, `sideStrips`, `tooTall`,
+    `shareLink`), green.
+  - **Pixels**, locked quality, high and low, `ba94ef5` (`index-D07XGgZz.js`)
+    against this code on the test catalogue (`index-CqEasMzR.js`), each shot
+    twice, 45 states each: the canvas 0 pixels in all 90. Off the canvas, the
+    five packages' refrigerator cards: the look switch where the refrigerator
+    has a pair (A, B, D, E; C's stands free), and the list of models 2 more (T24IR905SP-SS,
+    T30IR905SP-SS, both rows shown as 乙 has it), the cards below moved down
+    by them. Three more states (A on the phone at 360 in Chinese, C's and E's
+    links) differ by 1 to 3,672 pixels inside the pins' frosted labels, the
+    same text in the same place; each build's own two runs differ there by up
+    to 4,613 (D's link, `ba94ef5` against itself).
+  - **Full suite**, 2026-11-03, on the test catalogue (`index-CqEasMzR.js`):
+    152 files, 3,395 tests, all green, 5,337 s. Two runs before it were
+    cut short by the computer sleeping and are not counted.
+  - **His export of 2026-11-04** (`showcase_export.csv`, 11:06:11, 9,319
+    bytes, 44 rows; Leo looked at the preview, `index-CqEasMzR.js`, and
+    kept 乙). Dry run: the 44 rows byte for byte the test catalogue's; only
+    `_meta` differs, its `generatedBy` (the file's path) and `updatedAt`
+    (the day). Imported (`npm run import:csv -- ../showcase_export.csv`) and
+    built: `index-BkfMepA-.js`, not `index-CqEasMzR.js`. `_meta` is in the
+    main chunk, so the two strings change its name; with them set aside the
+    two chunks are the same byte for byte, and the CSS, `react`, `three`
+    and `shareQr` files are the same files. Leo's rule for a different name
+    is to stop: nothing committed or pushed; his answer waits.
 - **One Chinese word for two things on screen: 清单.** *(Leo, round 98:
   registered, not changed this round.)* On the Chinese page the top bar's
   Quote button (`topbar.quote`) and the right panel's List tab
@@ -9096,6 +9426,17 @@ Registered, not scheduled. None of these is a round of its own.
       had one red, install mode turning the island on a phone, every figure
       right and its only error `net::ERR_NETWORK_CHANGED` (round 86's rule:
       reported, not counted green); the full run after it was green.
+    - **Live, checked file by file**: commit `ba94ef5`, the Pages run
+      40648970914 a success, both its jobs — build (07:16:11 to 07:17:17 UTC,
+      2026-10-28) and deploy (07:17:22 to 07:17:50) — each a success. Built
+      at `ba94ef5` with
+      `VITE_GOATCOUNTER=https://geesonchan.goatcounter.com/count`, every file
+      fetched from the live site and compared byte for byte, all six
+      identical: `index.html` (901 bytes), `assets/index-DTGb9PW7.js`
+      (690,648), `assets/index-BXokVwDN.css` (23,928),
+      `assets/react-i_nGBwMY.js` (145,992), `assets/shareQr-BXYgausd.js`
+      (21,968), `assets/three-C6wp6xxT.js` (704,119); the live `index.html`
+      asks for nothing the build does not have.
 - **T36IT100NP's cutout depth: the catalogue says 24", its documents 25".**
   *(Leo, 2026-10-27: 乙, not changed this round; he corrects it in the sheet
   and the next import brings it in.)* `data/appliances.json` has

@@ -34,6 +34,13 @@ export interface RawRow {
   /** Optional: the flat top of a wedge canopy, where the duct comes off. */
   topDepthIn: string;
   msrpUSD: string;
+  /**
+   * The web's own finish, filled in showcase_specs: where it has a value, it
+   * is the finish and Color is not read (Leo, 2026-10-29, 1).
+   */
+  webColor: string;
+  /** The other model of a pair that is one machine two ways (Leo, 2026-10-29, 2). */
+  pairModel: string;
   leadTimeWeeks: string;
   sourceUrl: string;
   verifiedAt: string;
@@ -370,6 +377,18 @@ export function toFinish(color: string, feature: string): Finish[] {
 
   // Every row needs at least one finish to render; stainless is the shop default.
   return found.length > 0 ? found : ["stainless"];
+}
+
+/**
+ * A `webColor` cell, the web's own finish (Leo, 2026-10-29, 1): `SS` or
+ * `Panel Ready`, and nothing else (2026-11-02) — a row offered both ways is
+ * two rows of the sheet. Null for anything else, which stops the import: this
+ * column is filled to be read, so a word it cannot read is not made stainless.
+ */
+export function readWebColor(cell: string): Finish[] | null {
+  if (/^ss$/i.test(cell)) return ["stainless"];
+  if (/^panel[- ]ready$/i.test(cell)) return ["panel-ready"];
+  return null;
 }
 
 /** Feature words that are captured elsewhere and should not become highlights. */
