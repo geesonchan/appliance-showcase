@@ -32,8 +32,14 @@ const PACKAGES = ["package-a", "package-b", "package-c", "package-d", "package-e
  * (both towers stand on one leg, round 55) onto the leg with the column bank,
  * and that asks 176-1/8"; the wall grows, with its toast and its Undo, rather
  * than every E room opening eight inches deeper for one rare switch.
+ *
+ * Round 101, Leo (2026-11-04, A-2, and his answer 2 to the plan): D's coffee
+ * cabinet moved to the back leg stands a whole 15" cabinet after the corner so
+ * its door clears the cabinets across it (A-1), and that asks 226-1/2" of the
+ * back wall D opens at 224-1/4"; it grows, with its toast and its Undo, and
+ * D's own walls stay as they are.
  */
-const GROWS_FROM_OWN_ROOM: Record<string, string[]> = { "package-e": ["coffeeLeg"] };
+const GROWS_FROM_OWN_ROOM: Record<string, string[]> = { "package-d": ["coffeeLeg"], "package-e": ["coffeeLeg"] };
 
 /**
  * Switches a package refuses whatever the walls, with the one reason it gives.

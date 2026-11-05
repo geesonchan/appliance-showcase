@@ -8009,6 +8009,11 @@ Registered, not scheduled. None of these is a round of its own.
       wine column, not said either way. **The app's 5/8" `COLUMN_SPACER`
       named COMBIKIT10 (D11 rule 12, round 30) has no 900/905 document behind
       it** — for 98b, Leo's.
+      **Answered 2026-11-04** (Leo, A-3 to A-6 and A-16, A-17): case
+      against case, nothing between; a group's opening the sum of its
+      columns'; every group the app draws, B's among them; no HEATRKIT20; the
+      list 「按说明书连接」, no part number. The entry "Answered 2026-11-04:
+      round 101 and the open end" under "Not yet done after round 98b-2".
     - **The doors line up, by each sheet's page 3**: T18IF900SP, T24IR905SP and
       T18IW905SP each a 79-7/8" door 4" off the floor, the wine column's
       window 10-1/8" from top and bottom and 3-3/4" from each side — exactly
@@ -8676,6 +8681,10 @@ Registered, not scheduled. None of these is a round of its own.
   corner (either corner cabinet); E with the coffee cabinet on the left leg and
   the refrigerator on the back leg, from that run's open end, where nothing
   stands. Whether cabinets across a corner count as the drawing's wall: 文件没写.
+  **Answered 2026-11-04** (Leo, A-1 and A-2): 乙, a whole B15 after the
+  corner, the door 16-1/16" from the cabinets across it; D only, the wall
+  lengthened by D18 where it is too short. The entry "Answered 2026-11-04:
+  round 101 and the open end" under "Not yet done after round 98b-2".
 - **How a flush column's finish is recorded.** *(Leo, round 98: registered,
   not changed; how they are to be recorded is his to decide.)* The six flush
   columns in the catalogue — T18IF900SP, T24IF905SP, T24IR905SP, T30IR905SP,
@@ -9056,6 +9065,12 @@ Registered, not scheduled. None of these is a round of its own.
   face. Measured (round 99a): A's L with the refrigerator on the back leg —
   the left run's end panel at 69"–72", the stone to 72"; A on one wall — the
   panel at 115-7/8"–118-7/8", the stone to 118-7/8".
+  **Answered 2026-11-04** (Leo, A-9 to A-15; a round of its own after round
+  101, its plan written once 101 is live): the base end panel 3/4" (BEP) to
+  under the countertop, the stone 1" past it, a 3/4" wall end panel (WEP)
+  on the wall cabinets' end, faces flush, no waterfall. The entry "Answered
+  2026-11-04: round 101 and the open end" under "Not yet done after round
+  98b-2".
 - **Round 99a, one wall and a machine chosen narrower than its opening —
   built and shipped after Leo's look at the local preview** (Leo, round
   99a: "第 99a 轮预览看过了（index-Bh3Snm2C.js），可以提交"). The plan,
@@ -9798,6 +9813,271 @@ Registered, not scheduled. None of these is a round of its own.
   - **Unit** 118 files, 3,060 tests, green. **Full suite** (`npm test`,
     build `index-CKKeZgaI.js`, the computer awake throughout, 5,357 s): 152
     files, 3,395 tests, all green.
+  - **Shipped**: commit `7d0b6f2`, pushed 2026-11-04.
+    - **Live, checked file by file**: the Pages run 41926795050 a success,
+      both its jobs — build (22:36:51 to 22:38:01 UTC, 2026-11-04) and
+      deploy (22:38:06 to 22:38:17) — each a success. Built at `7d0b6f2`
+      with `VITE_GOATCOUNTER=https://geesonchan.goatcounter.com/count`,
+      every file fetched from the live site and compared byte for byte, all
+      six identical: `index.html` (901 bytes), `assets/index-Cm7SWO1V.js`
+      (699,320), `assets/index-ByYGZbZC.css` (23,985),
+      `assets/react-i_nGBwMY.js` (145,992), `assets/shareQr-BXYgausd.js`
+      (21,968), `assets/three-C6wp6xxT.js` (704,119); the live `index.html`
+      asks for nothing the build does not have.
+    - **Against `a46d2a9`**: `a46d2a9` built with the counter in a worktree
+      gives `index-Die1L31x.js`, the chunk live before; it and
+      `index-Cm7SWO1V.js` differ in 7 bytes, the commit in the footer, and
+      are the same with `a46d2a9` read as `7d0b6f2`; the CSS, `react`,
+      `three` and `shareQr` files the same; `index.html` differs only by the
+      main chunk's name.
+  **Answered 2026-11-04: round 101 and the open end** (Leo, his site
+  practice, 「写进 decisions.md（现场做法）」; his numbering, A-1 to A-17). Round
+  101 first; the open end a round of its own after it.
+  - **Round 101**, the L's D:
+    - **A-1, the coffee machine's door** (D, the coffee cabinet on the back
+      leg, the refrigerator on the left leg): 乙 — after the corner a 15"
+      cabinet whole, B15, and the door 16-1/16" from the cabinets across the
+      corner (「转角后用 15" 整柜（B15），门到对面柜子 16-1/16"」).
+    - **A-2**: D only; where the wall is too short, D18 as it stands — the
+      wall lengthened, a notice, undoable.
+    - **A-3, A-4, the columns side by side**: the cases stand against each
+      other, nothing between them (「箱体直接贴着，中间不放任何东西」); a group
+      of columns' opening is the sum of its columns' openings
+      (「开口总宽就是各根柱子开口宽度加起来」). Scope (c): every group of columns
+      the app draws, B's refrigerator and wine column among them. If the 100
+      series' (T18IW100SP) manual asks for a gap between them or COMBIKIT10,
+      its words and page listed for him, marked as waiting for his
+      confirmation, not decided by me.
+    - **A-5**: no partition between them, so no HEATRKIT20 on the list.
+    - **A-6**: the list says 「按说明书连接」, no part number.
+    - **A-7**: D's default walls unchanged; the same run's countertop takes
+      up the difference.
+    - **A-8**: two steps, the coffee machine's door first, the columns
+      second, each proved and each shown to him as a preview.
+    - **A-16**: B's refrigerator and wine column as the refrigerator's front
+      round (D11 rule 11's amendment): a 3/4" side panel on the countertop's
+      side, the door faces flush, 1/8" each side of a door.
+    - **A-17**: the columns' door faces flush with the cabinet doors; each
+      door 1/8" each side within its own opening, so two doors side by side
+      1/4" apart. Derived from his rules, not said by him in those words: a
+      shot of its own in the preview for him to confirm.
+    - **Order**: the quality lock's test round first (done, `7d0b6f2`); then
+      round 101, measured again on `a46d2a9` (the page's code `7d0b6f2`'s is
+      the same) and its plan made final for him — step one the coffee
+      machine's door, step two the columns — and built once he confirms it.
+  - **The open end** (after round 101, a round of its own; its plan written
+    after round 101 is live):
+    - **A-9**: a base run's open end, its side panel only to under the
+      countertop, no longer floor to top.
+    - **A-10**: the countertop stands 1" past the open end, as at the front.
+    - **A-11**: the wall cabinets' open end gets a 3/4" wall end panel (WEP)
+      on its outer side.
+    - **A-12**: the base run's end panel 3/4" (BEP), as at a refrigerator's
+      open end. Each of the 319 open ends 2-1/4" shorter, and the walls'
+      shortest lengths with them: the plan lists each, before and after.
+    - **A-13**: the panel's face flush with the doors; the countertop's front
+      corner at the end square, as now.
+    - **A-14**: no waterfall end this round; an option of its own later, if
+      wanted.
+    - **A-15**: the L's and one wall's open ends finished the same way, and
+      the galley's and the U's after them.
+  - **Round 101's plan made final** (2026-11-04, `docs/plans/round-101-plan.md`,
+    measured on `7d0b6f2`, whose page is `a46d2a9`'s): step one 24 D rooms,
+    the door 13-1/16" to 16-1/16"; step two every bank narrower, B 60-5/8" to
+    55-1/2", D 80-3/4" to 79-1/2", E 50-1/8" to 49-1/2". **His answers to its
+    section 3** (2026-11-04):
+    1. 甲: B opens at the wall it needs, so its back wall follows its bank,
+       196-1/2" (198" with a lazy susan); one wall, every package, opens at the
+       wall it needs as before.
+    2. D's coffee cabinet switched to the back leg grows the back wall to
+       226-1/2" from D's own room: on the list of switches allowed to grow
+       from a package's own room (`autoGrow.test.ts`, `GROWS_FROM_OWN_ROOM`),
+       beside E's, by A-2.
+    3. The list's line, in his words, written into the text and locked in
+       `reviewed.json`: 「柱子并排共 N 处，按说明书连接。」 / "N column joints side
+       by side: join them as the installation guide shows."
+    4. T18IW100SP's installation instructions downloaded — its file name, size
+       and the page it is linked from reported first, and checked to be the one
+       Thermador's own product page lists — into `docs/reference/`, with its
+       README entry; read for whether it beside T36BT120NS needs a gap, what
+       COMBIKIT10 is and where it goes, with pages.
+    5. Whether B's pair takes COMBIKIT10: once 4 is read and he has answered.
+       Step one (the coffee machine's door) goes ahead now, untouched by it;
+       step two (the columns) waits for his answer to 5. Step one: tests red
+       first, the dumps (only the 24 D rooms change), the locked pixels, the
+       full suite with the lid open, on the charger, kept awake; then a local
+       preview, its main chunk reported, nothing committed before his look.
+  - **Step one built** (round 101, the coffee machine's door; not committed):
+    - `layoutTemplate.ts`: `COFFEE_AFTER_CORNER = { cabinetIn: 15 }` beside
+      `COFFEE_AT_WALL`; the back leg's `coffee-landing` is at least 15" where
+      the coffee tower is the first tall unit after the corner (`inRun[0]`),
+      rule 1's 12" otherwise, so E is not touched.
+    - **Tests**: `src/data/coffeeCorner.test.ts` new — D in four rooms (each
+      corner, the tower on each side, the refrigerator's end against
+      cabinetry and a wall), the hinge side 16-1/16" and the first cabinet
+      B15; D's lazy susan with the tower right grown from 224-1/4" to 238-1/2";
+      E's combination oven still first after the corner, 18" of drawers before
+      it. On `7d0b6f2` the four D rooms red at 13-1/16" and B12 and the growth
+      red at 235-1/2"; E's green on both, as it must be. Expected values
+      changed, with the reason beside each: `packageD.test.ts` (the refused
+      204" wall's shortest, 223-1/2" to 226-1/2") and `autoGrow.test.ts` (D's
+      `coffeeLeg` beside E's in `GROWS_FROM_OWN_ROOM`, his answer 2). Unit 119
+      files, 3,066 tests, green.
+    - **The dumps** (`7d0b6f2` in a worktree against this tree): the L's 1,063
+      lines, 24 changed — every one D with the coffee cabinet on the back leg
+      and the refrigerator on the left, the hinge 13-1/16" to 16-1/16", B12 to
+      B15 — and 1,039 the same byte for byte; one wall's 106 the same byte for
+      byte. Blind corner, tower left (6): the wall stays 224-1/4" and the 3"
+      comes out of the counter between the oven tower and the rangetop, a B9 to
+      a 6" filler BF6; so the steam oven's power, in the base cabinet beside
+      the tower, moves from the B9 on its range side ("3" from the left side")
+      to the B12 on its corner side ("3" from the right side"), and the
+      checklist's line on that counter reads 6" where it read 9" (6 rooms'
+      `findings`). Blind, tower right (6): 224-1/4" to 226-1/2". Lazy susan
+      (12): 232-1/2" to 235-1/2" and 235-1/2" to 238-1/2". The 24 the same as
+      the plan's trial.
+    - **Pixels** (`?qualityLock=1`, high tier; `7d0b6f2`'s build
+      `index-BTUrSguX.js` and this tree's `index-B3c_DUsb.js`, each twice,
+      alternated): the 45 states' canvas the same in every one (0 pixels);
+      the whole screen the same but for link B and link C without the island,
+      2,126 and 1,598 pixels, all on the frosted label pills with no text
+      changed — the noise each build shows against itself elsewhere in the same
+      runs (link A 1,598 and 2,553, link D 4,611, phone 360 A 1,726). Twelve
+      states of D with the coffee cabinet on the back leg (blind tower left at
+      224-1/4", blind tower right at 226-1/2", lazy susan tower right at
+      238-1/2"; materials, white, install, flown to the coffee machine) change
+      on the back leg only, each build the same as itself on its canvas.
+    - **Machine slept** mid-run at 18:03 (the system log: "entering sleep",
+      reason "Application API", as on 2026-11-03 08:51), with the turn's
+      keep-awake held; the shots were shot again from the start at 19:12.
+    - **Full suite** (`npm test`, 19:57 to 21:22, awake throughout): 153
+      files, 3,401 tests, all green, 5,058 s.
+    - Previewed by Leo as `index-B3c_DUsb.js`. Not committed.
+  - **Step one corrected** (Leo, 2026-11-04, after that preview). He first
+    accepted the blind corner, tower left rooms as above (B9 to a 6" filler,
+    the counter 6", the steam oven's power moved to the B12 — "第 101 轮第一步
+    带出来、计划里漏写的"), then corrected it before anything was committed:
+    「保留 9" 柜 B9，不变成 6" 填充板（6" 太窄，实际生活上不实际）。差的 3" 照 D18
+    加长墙，提示、可撤销，和塔在灶右那几间一样。」 So nothing of that first
+    version ships.
+    - **Where it applies**: only the six rooms where step one had turned a
+      B9 into a 6" filler — D, the coffee tower first after a blind corner,
+      the oven tower on the corner's side of the range. The other 18 of the
+      24 (the lazy susan either way, the blind corner with the tower right)
+      already have a 6" filler there on the live site, at their shortest
+      walls, and step one leaves them so; whether that counter stops at 9"
+      everywhere is Leo's to decide from the survey below. A floor of 9" in
+      all 24 would not build the lazy susan with the tower right at all:
+      241-1/2" against the slider's 240".
+    - **D's own room is not among the six**: D opens with its coffee cabinet
+      on the left leg and its oven tower right of the range
+      (`packages.json`, `DEFAULT_PARAMS`), so A-7's "D's default walls
+      unchanged" stands; D's own room with the coffee cabinet switched to the
+      back leg is the blind corner, tower right, 224-1/4" to 226-1/2", as
+      before.
+    - **The code**: `tower-clearance` (`layoutTemplate.ts`, D11 rule 12) stops
+      at the narrowest cabinet, `CABINET_STANDARDS.widthIn.min` (9"), where
+      `coffeeFirstAfterCorner` holds, the corner is blind and the tower is
+      left; 6" everywhere else, as it was. `coffeeFirstAfterCorner` is the
+      test both changes now ask.
+    - **The six rooms now**: 224-1/4" to 226-1/2" (grown, with the toast and
+      its Undo, D18), B15 after the corner, B9 kept between the oven tower and
+      the rangetop; the 3/4" filler beside the B12 before the oven tower goes,
+      as the blind corner with the tower right loses its 3/4" by the DB18.
+      Their checklist is as on the live site — the steam oven's power in the
+      B9 "3" from the left side", the counter 9" — no finding changed in any
+      of the 24.
+    - **Test**: `coffeeCorner.test.ts` gains the blind corner, tower left, the
+      refrigerator's end at a wall and no island: B9 between, grown 224-1/4"
+      to 226-1/2", the hinge 16-1/16". On `7d0b6f2` red (13-1/16", nothing
+      grown); green here. Unit 119 files, 3,067 tests, green.
+    - **The dumps** (`7d0b6f2` against this tree): the L's 1,063 lines, 24
+      changed, every one D with the coffee cabinet on the back leg and the
+      refrigerator on the left; 1,039 the same byte for byte; one wall's 106
+      the same byte for byte. Against the first version, only the six rooms
+      differ.
+    - **Pixels** (`?qualityLock=1`, high tier; `7d0b6f2`'s `index-BTUrSguX.js`
+      and this tree's `index-A9yaYP9y.js`, each twice, alternated; the new
+      build's first run of the 45 shot again at 22:25 after its server reset
+      the connection on the first page): the 45 states' canvas the same in
+      every one; the whole screen the same but for one pixel in three (link
+      A without the island, link D, link D without the island), the pills'
+      noise. The twelve states of D with the coffee cabinet on the back leg
+      (the blind corner, tower left now at 226-1/2" in both builds) change on
+      the back leg only.
+    - **Full suite** (`npm test`, 22:34 to 23:59): 153 files, 3,402 tests,
+      3,401 green and one red — `tests/rangeSwap.test.ts`, package A's
+      rangetop on a desktop, the page's canvas not up in 60 s, before
+      anything was asked of it. The system log has the computer in Modern
+      Standby twice in the run (Kernel-Power 506 to 507: 22:37:10 to 23:08:34
+      and 23:12:04 to 23:46:25), the turn's keep-awake held, the lid open.
+      `tests/rangeSwap.test.ts` alone afterwards: 10 of 10 green. **Not
+      counted as a pass** (Leo, 2026-11-05: 「照实写进 decisions.md，不算作通过」):
+      this full suite failed one test, and the run alone does not make it
+      green.
+    - **Leo, 2026-11-05**: the corrected preview (`index-A9yaYP9y.js`) looked
+      at, 「可以提交」; step one committed, pushed and checked live with that
+      suite as it is. **Before the next commit, one full suite green from
+      end to end with no standby in it**; he is told before it starts, and
+      sets the screen's switching off and sleep to "never" first.
+  - **Looked at, not changed: where the counter beside the cooking surface
+    comes under 9"** (Leo, 2026-11-04: 「只查不改…列出规则出处、会出现的房间数、最窄
+    是多少。我看了再决定要不要把最低值统一成 9"」). Every room of the room sets
+    (this tree, step one corrected), as built and then its back wall walked
+    down 1" at a time to where it is refused; the stretch on each side of the
+    cooking surface read off the run.
+    - **The one rule that goes under 9"**: D11 rule 12, the counter between
+      an oven tower and the cooking surface (`tower-clearance`,
+      `layoutTemplate.ts`, the `cookingBlock`): built at 18"
+      (`LAYOUT_LIMITS.towerSpacer.wantIn`), it gives up 3" at a time to a
+      short wall and stops at 6" — "five inches of counter is a piece nobody
+      makes, since under the cabinet minimum it is a filler and a filler
+      stops at six" (its comment; PCG366W's 5" to a combustible surface,
+      `towerSpacer.counterIn`). So it is 18", 15", 12", 9" or **6" (a 6"
+      filler, BF6), the narrowest**; nothing in between.
+    - **Rooms**: the L, 33 rooms as the room sets build them (B 6, D 27: B's
+      lazy susan with the tower right and the refrigerator on the back leg;
+      D's coffee cabinet on the back leg in every corner and side but the six
+      above, and D's lazy susan with the tower right and the refrigerator on
+      the back leg), and 225 rooms that reach it at some shorter wall (B 122,
+      D 103; back walls from 183" up to 201-5/8" in B and 238-1/2" in D). One
+      wall, none as built, 69 at some shorter wall (B 27 at 233"–235", D 24 at
+      238"–240", E 18 at 262"–264"). A, C: never (no oven tower beside the
+      range).
+    - **The landings either side of a cooking surface without a tower**
+      (D11 rule 4, `rangeLandingIn` in `data/rules.json`: 12" on the corner's
+      side, 15" on the other) never go under them: 12" and 15" the narrowest
+      seen in the L, 12" and 18" on one wall. Not under 9" anywhere.
+    - **Not counted**: the 3" fillers inside a range opening wider than the
+      range (round 84; A, B, D, 3" and 3-1/16" each side) — strips in the
+      opening, not counter.
+    - **A floor of 9" for rule 12** would lengthen each of those rooms by 3"
+      where it has a 6" filler, and D's coffee cabinet on the back leg with a
+      lazy susan and the tower right would need 241-1/2", past the slider's
+      240", so it would be refused.
+    - **Chosen 2026-11-05** (Leo, 乙): every room the page builds itself —
+      opening a package, switching the layout, growing a wall — keeps at
+      least 9" there, and where the wall is too short it grows (D18); only a
+      wall dragged shorter by hand on the slider may bring it to 6", with a
+      note beside it, 「台面只剩 6"，实际不建议」 / "Only 6" of counter left here
+      — not practical." The L's back wall's top goes to 246" for the rooms
+      past 240". **Registered as a small round after round 101's step two**,
+      a plan first for him: the rooms that change, each wall before and
+      after, and whether any package's own room changes.
+  - **T18IW100SP's installation instructions, read** (Leo, item 4;
+    `docs/reference/t18iw100sp-install.pdf`, its README row): 64 pages, the
+    first 13 safety text in three languages, 14–61 drawings. **No page shows
+    the column beside another appliance, joined to one, or a gap to one, and
+    COMBIKIT10 is not named in it**; it installs one column in its own
+    cutout — the cutout 18" wide, at least 24" deep, 84" tall (p. 21), its
+    sides finished flush at least 4" deep (p. 23), the door panel 1/8" from
+    the cutout's edge each side and at the top (p. 53). So, his three
+    questions: beside T36BT120NS, a gap or not — **文件没写**; what COMBIKIT10
+    is — **文件没写** in it (the specification sheet, pp. 2 and 5, only names
+    it, "Combination Kit", required for side-by-side Txxxx1 columns and
+    built-in bottom-freezer refrigerators); where it goes — **文件没写**. The
+    product page lists two "Supplement" documents too (`9001846065_C.pdf`;
+    `8001302567_C.pdf`, 351,117 bytes), not downloaded: not asked for.
 - **The import's `_meta` is in the main chunk.** *(Leo, 2026-11-04: 「登记一
   条待办，不急…列出把它移出主文件的改法和代价，不要选」.)* The six modules
   that read the catalogue (`catalogue.ts`, `cookingSurface.ts`,

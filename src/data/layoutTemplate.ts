@@ -262,6 +262,30 @@ export function oneWallWantedIn(params: LayoutParams, pkg: Package = PACKAGE): n
  */
 export const COFFEE_AT_WALL = { doorToWallIn: 13.75, cabinetIn: 12 } as const;
 
+/**
+ * What stands between the corner and a coffee tower that is the first tall
+ * unit after it on the L's back leg: package D with its coffee cabinet on the
+ * back leg and its refrigerator on the left. The front of the left run's
+ * cabinets across the corner is in the door's swing and counts as the wall
+ * (Leo, round 98b). Rule 1's 12" left the hinge side 12 + 3/4 + 5/16 =
+ * 13-1/16" from it, short of TCM24PS's 13-3/4" (`COFFEE_AT_WALL`). Leo, round
+ * 101 (2026-11-04, A-1, 乙): a whole 15" cabinet, B15 — 15 + 3/4 + 5/16 =
+ * 16-1/16", as on E's one wall; D only (A-2), and where the wall is too short
+ * it grows (D18). `coffeeCorner.test.ts` measures it.
+ */
+export const COFFEE_AFTER_CORNER = { cabinetIn: 15 } as const;
+
+/**
+ * Whether the L's back leg starts, after the corner, with a coffee tower: the
+ * coffee cabinet on the back leg, the refrigerator on the left, and the
+ * coffee tower the first tall unit standing in the run (D; E's combination
+ * oven stands before its coffee tower). Round 101.
+ */
+function coffeeFirstAfterCorner(pkg: Package, params: LayoutParams): boolean {
+  const inRun = pkg.slots.filter((slot) => slot.tallUnit && slot.beside === "run");
+  return params.coffeeLeg === "back" && params.fridgeEnd !== "back" && inRun[0]?.category === "coffee";
+}
+
 /** Whether a cooktop stands on a run where a range would: on one wall, where there is no island (round 98b). */
 const cooktopOnARun = (params: Pick<LayoutParams, "shape">) => params.shape === "one-wall";
 
@@ -2044,7 +2068,23 @@ function planLegs(
     // minimum it is a filler and a filler stops at six — and it comes down
     // from eighteen three inches at a time, with the install list saying where
     // it landed.
-    const clearance = gap("tower-clearance", Math.max(counterIn, 6), "d11-12", {
+    //
+    // Round 101 (Leo, 2026-11-04, his correction to step one): D with its
+    // coffee tower first after a blind corner and its oven tower on the
+    // corner's side of the range had a 9" cabinet here at its own back wall,
+    // and step one's whole 15" cabinet after the corner took its 3" from this
+    // counter, B9 to a 6" filler — "6" 太窄，实际生活上不实际". There the
+    // counter stops at the narrowest cabinet, 9", and the wall grows for the
+    // rest (D18), as it does with the oven tower on the other side. Only
+    // there: where else this counter comes below 9" is for Leo to decide
+    // (decisions.md, round 101).
+    const keepsItsCabinet =
+      !oneWall &&
+      coffeeFirstAfterCorner(pkg, params) &&
+      params.cornerType === "blind" &&
+      params.towerSide === "left";
+    const leastIn = keepsItsCabinet ? CABINET_STANDARDS.widthIn.min : Math.max(counterIn, 6);
+    const clearance = gap("tower-clearance", leastIn, "d11-12", {
       shrink: "range-to-sink",
       // What it is built at, and what it stops at. Both are `wantIn`: the
       // stretch is served first up to it, and the round-robin that shares out
@@ -2158,8 +2198,16 @@ function planLegs(
   const coffeeHere = (leg: "left" | "back") => inRun.length > 0 && params.coffeeLeg === leg;
 
   if (coffeeHere("back") && params.fridgeEnd !== "back") {
+    // A coffee tower first after the corner keeps its door clear of the
+    // cabinets across it (round 101); E's combination oven stands first, and
+    // its landing is rule 1's.
     back.unshift(
-      gap("coffee-landing", LAYOUT_LIMITS.cornerLandingIn, "d11-1", { shrink: "corner-to-range" }),
+      gap(
+        "coffee-landing",
+        coffeeFirstAfterCorner(pkg, params) ? COFFEE_AFTER_CORNER.cabinetIn : LAYOUT_LIMITS.cornerLandingIn,
+        "d11-1",
+        { shrink: "corner-to-range" },
+      ),
       ...inRunGroup(),
     );
   }

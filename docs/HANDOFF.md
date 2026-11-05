@@ -163,7 +163,7 @@ anywhere**: the file is the one source, and the tests read it.
   round, imported from his export of 2026-11-04, live at `a46d2a9`; Open
   items, "Answered 2026-11-02" and "Built, 2026-11-02").
 
-### Next, in Leo's order (2026-10-24, after round 99d; amended 2026-11-04)
+### Next, in Leo's order (2026-10-24, after round 99d; amended 2026-11-05)
 
 Named here only; each has its entry in `docs/decisions.md`, which says where
 its figures are. **Every round a plan first, shown to Leo, built only once he
@@ -200,10 +200,22 @@ confirms it** (Leo, 2026-10-24).
    (`docs/plans/quality-lock-test-plan.md`; **done**, the quality lock's
    test round; decisions.md, Open items, "Amended 2026-11-04" and "Built
    2026-11-04").
-5. **Round 101** — the L's D: the coffee machine's door, the 5/8" between the
-   columns (`docs/plans/round-101-plan.md`). Not started: it waits on Leo's
-   answers to its questions.
-6. **The open end's stone** (`docs/plans/overnight-2026-10-23-open-end.md`).
+5. **Round 101** — the L's D: the coffee machine's door, then every group of
+   columns case against case (`docs/plans/round-101-plan.md`, final; Leo's
+   answers A-1 to A-17 and to its section 3 in decisions.md, "Answered
+   2026-11-04: round 101 and the open end"). **Step one, the coffee
+   machine's door, done** (B15 after the corner; the blind corner with the
+   tower left keeps its B9 and grows the wall; "Step one corrected").
+   Step two, the columns, waits on Leo's answer to his item 5 (whether B's
+   pair takes COMBIKIT10), after T18IW100SP's documents are read. **Before
+   the next commit: one full suite green end to end with no standby in it**,
+   Leo told before it starts.
+5a. **Rule 12's counter at least 9"** (Leo, 2026-11-05, 乙): a small round
+   after round 101's step two, a plan first (decisions.md, "Chosen
+   2026-11-05").
+6. **The open end** (A-9 to A-15 in decisions.md; its plan after round 101
+   is live; `docs/plans/overnight-2026-10-23-open-end.md` is the earlier
+   reading).
 7. **Then a galley** (`docs/plans/overnight-2026-10-23-galley.md`), **then a U**
    (`docs/plans/overnight-2026-10-24-u-shape.md`).
 

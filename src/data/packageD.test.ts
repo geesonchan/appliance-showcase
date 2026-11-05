@@ -696,7 +696,10 @@ describe("package D · the coffee cabinet", () => {
     // 223-1/2" since round 92c: the steam oven tower's sides are inside its 30"
     // (a standard install, ovenTower.ts), so the 3/4" board that stood outside
     // it toward the rangetop is off the bill. Until then 224-1/4", D's default.
-    expect(Number(short.vars.minimumIn)).toBe(223.5);
+    // 226-1/2" since round 101: a whole 15" cabinet after the corner instead of
+    // rule 1's 12", so the coffee machine's door clears the cabinets across it
+    // (Leo, 2026-11-04, A-1).
+    expect(Number(short.vars.minimumIn)).toBe(226.5);
     expect(Number(short.vars.minimumIn)).toBeGreaterThan(204);
     expect(Number(short.vars.minimumIn)).toBeLessThanOrEqual(PARAM_LIMITS.backWallIn.max);
     expect(short.occupancy!.map((item) => billLabelKey(item, {}))).toContain("requirement.coffee");
