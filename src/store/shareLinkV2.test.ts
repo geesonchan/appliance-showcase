@@ -59,6 +59,29 @@ const CHANGED_BY_FRIDGE_FRONT: Record<string, string> = {
   C: "c68cb482941445da8e0c5222f12ed8c280ada84d4181da44d072d36f9fe96708",
 };
 
+/**
+ * Package B's, D's and E's, which open a different room since round 101,
+ * because Leo changed the room (2026-11-04, A-3, A-4, A-16; item 5,
+ * 2026-11-05): the columns stand case against case, no 5/8" kit between two,
+ * and B's two boards are 3/4" where they were 3". The walls are the links'
+ * own, every one; the columns are narrower, and what they gave up is counter
+ * on the same leg, as the packer shares a leg's slack out:
+ * - B (211" x 151-1/8"): the bank 2-7/8" narrower (its inner board 3" to
+ *   3/4", the kit out; its outer end is the 3-1/2" filler at the wall, as
+ *   it was). The range's landing B15 to DB18, 15" to 18"; the corner's
+ *   landing B12 + BF2-7/8 to B12 + BF2-3/4.
+ * - D (233-5/8" x 185-7/8"): the bank 1-1/4" narrower (two kits out). The
+ *   refrigerator's landing DB21 + BF1-1/8 to DB21 + BF2-3/8.
+ * - E (189-3/8" x 175-1/8"): the bank 5/8" narrower (one kit out). The
+ *   corner's landing B27 + BF1-1/2 to B27 + BF2-1/8.
+ * Hashed as `roomAsRound97Held` hashes, on this round's code.
+ */
+const CHANGED_BY_ROUND_101: Record<string, string> = {
+  B: "af17326aec8f8427617f9181df764d0ea4838e7c2dfe76c1d4f7ea23fc09c3bf",
+  D: "c5ada61e21e1f35b93bab99e52231376e22aff90c30dbe65703602bd128776b6",
+  E: "bb595924b0ed498b0fe51829dd38245ae2b98c40216a2d55a5f41be5c3e9a5e1",
+};
+
 describe("the five links round 97 wrote, one per package", () => {
   it("is five, one per package that builds", () => {
     expect(LINKS.map(([code]) => code)).toEqual(PACKAGES.filter((entry) => entry.available).map((entry) => entry.code));
@@ -80,7 +103,7 @@ describe("the five links round 97 wrote, one per package", () => {
     it("opens the room round 97 opened, every run, opening and cabinet box", () => {
       freshPage();
       openSharedLink(fixture.link);
-      expect(roomAsRound97Held()).toBe(CHANGED_BY_FRIDGE_FRONT[code] ?? fixture.room);
+      expect(roomAsRound97Held()).toBe(CHANGED_BY_FRIDGE_FRONT[code] ?? CHANGED_BY_ROUND_101[code] ?? fixture.room);
     });
   });
 });

@@ -40,7 +40,9 @@ describe("package E, configured", () => {
     expect(SLOT_BY_ID["slot-freezer"].cutout.w).toBe(18);
   });
 
-  it("stands its two columns as one bank of 50-1/8 inches: board, 18, kit, 30, board", () => {
+  it("stands its two columns as one bank of 49-1/2 inches: board, 18, 30, board", () => {
+    // Case against case, nothing between them (round 101; Leo, 2026-11-04,
+    // A-3 and A-4): 50-1/8" until then, with a 5/8" kit between the two.
     const run = RUNS.find((r) => r.segments.some((s) => s.slot === "slot-fridge"))!;
     const at = (slot: string) => run.segments.findIndex((s) => s.slot === slot);
     const [first, last] = [Math.min(at("slot-freezer"), at("slot-fridge")), Math.max(at("slot-freezer"), at("slot-fridge"))];
@@ -51,7 +53,7 @@ describe("package E, configured", () => {
     let to = last;
     while (to < run.segments.length - 1 && run.segments[to + 1].kind === "tall") to += 1;
     const widthIn = run.segments.slice(from, to + 1).reduce((sum, s) => sum + (s.to - s.from) * 12, 0);
-    expect(Math.round(widthIn * 1000) / 1000).toBe(50.125);
+    expect(Math.round(widthIn * 1000) / 1000).toBe(49.5);
   });
 
   it("takes no separate blower: HMIB42WS carries its own", () => {

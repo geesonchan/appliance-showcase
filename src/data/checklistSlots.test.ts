@@ -70,12 +70,14 @@ describe.each(PACKAGES.map((pkg) => pkg.id))("%s reports only on its own machine
 });
 
 describe("a package whose columns are a freezer and a refrigerator", () => {
-  it("still lists the kit between them, under one of them", () => {
+  it("still lists joining them, under one of them", () => {
+    // The line that named the COMBIKIT between them until round 101 says,
+    // since then, that the two are joined as the guide shows (A-6).
     PACKAGE_BY_ID[E_ID] = packageE();
     const { findings } = findingsFor(E_ID);
-    const kit = findings.find((finding) => finding.ruleId === "column-kit");
-    expect(kit, "the COMBIKIT line is still reported").toBeTruthy();
-    expect(["slot-freezer", "slot-fridge"]).toContain(kit!.slot);
+    const joints = findings.find((finding) => finding.ruleId === "column-joints");
+    expect(joints, "the line for the columns side by side is reported").toBeTruthy();
+    expect(["slot-freezer", "slot-fridge"]).toContain(joints!.slot);
   });
 
   it("names nothing the room does not contain", () => {

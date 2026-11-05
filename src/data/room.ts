@@ -167,35 +167,6 @@ export function hingeAwayFrom(slotId: SlotId, neighbour: SlotId): -1 | 1 {
 }
 
 /**
- * The manufacturer's kit beside a machine, in the machine's own frame.
- *
- * Two refrigeration columns standing side by side are joined by one: 5/8" of
- * divider between their cases. What shows in the room is not that 5/8", it is
- * the eighth of an inch between their doors — the doors are wider than the
- * cases and close over the kit. So the machine has to know the kit is there
- * and which side it is on, or it draws its door to its own case and leaves the
- * kit showing between two steel fronts.
- *
- * Same frame as `hingeAwayFrom`: -1 is the appliance's own left, and a run
- * along z is drawn turned a quarter turn.
- */
-export function trimKitBeside(slotId: SlotId): { side: -1 | 1; widthIn: number } | null {
-  const run = RUNS.find((r) => r.segments.some((s) => s.slot === slotId));
-  const mine = run?.segments.find((s) => s.slot === slotId);
-  if (!run || !mine) return null;
-
-  const at = run.segments.indexOf(mine);
-  for (const step of [-1, 1] as const) {
-    const neighbour = run.segments[at + step];
-    const kit = neighbour?.modules.find((module) => module.kind === "spacer");
-    if (!kit) continue;
-    const side = (step > 0) === alongIsToTheRight(run.facing) ? 1 : -1;
-    return { side, widthIn: kit.widthIn };
-  }
-  return null;
-}
-
-/**
  * Whether a stretch of run carries a slot.
  *
  * Its own slot, or the one standing in the bottom of its tower: the dishwasher
@@ -212,27 +183,6 @@ export function segmentForSlot(slotId: SlotId): RunSegment | undefined {
     if (found) return found;
   }
   return undefined;
-}
-
-/**
- * Every kit beside a machine, in the machine's own frame.
- *
- * A column in the middle of a group has one each side, and its door closes over
- * both. `trimKitBeside` is the first of them, for the machines at the ends.
- */
-export function trimKitsBeside(slotId: SlotId): { side: -1 | 1; widthIn: number }[] {
-  const run = RUNS.find((r) => r.segments.some((s) => s.slot === slotId));
-  const mine = run?.segments.find((s) => s.slot === slotId);
-  if (!run || !mine) return [];
-  const at = run.segments.indexOf(mine);
-  const kits: { side: -1 | 1; widthIn: number }[] = [];
-  for (const step of [-1, 1] as const) {
-    const kit = run.segments[at + step]?.modules.find((module) => module.kind === "spacer");
-    if (!kit) continue;
-    const side = (step > 0) === alongIsToTheRight(run.facing) ? 1 : -1;
-    kits.push({ side, widthIn: kit.widthIn });
-  }
-  return kits;
 }
 
 /**

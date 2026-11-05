@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useDisposable } from "./useDisposable";
 import * as THREE from "three";
 import type { ThreeEvent } from "@react-three/fiber";
-import { applianceBox, doorOverhang, flushOffset, isRangetop } from "../data/applianceBox";
+import { applianceBox, flushOffset, isRangetop } from "../data/applianceBox";
 import { SCRIBE_IN } from "../data/cookingSurface";
 import { standardInstall, type StandardInstall } from "../data/ovenTrim";
 import {
@@ -13,6 +13,7 @@ import {
   isColumn,
   isDouble,
   wineColumnParts,
+  wineColumnStance,
 } from "../data/columnModel";
 import {
   HOOD_PROFILE,
@@ -26,7 +27,7 @@ import {
   hoodTopDepthIn,
   islandHoodParts,
 } from "../data/hood";
-import { builtInFront, flushDoorOffset, fridgeParts, fridgeSeams, fridgeStance } from "../data/fridgeModel";
+import { builtInFront, flushDoorOffset, fridgeParts, fridgeSeams, fridgeStance, frontWidth, wineFlushOffset } from "../data/fridgeModel";
 import { COOKTOP_BODY } from "../data/cooktop";
 import {
   FREESTANDING_PROPORTIONS,
@@ -37,7 +38,7 @@ import { Surface } from "./Surface";
 import { BoardFace, DOOR } from "./BoardFace";
 import { KICK_LIFT } from "../data/cabinets";
 import { CABINET_STANDARDS, ROOM, SLOT_BY_ID, ft } from "../data/slots";
-import { hingeAwayFrom, trimKitBeside, trimKitsBeside } from "../data/room";
+import { hingeAwayFrom } from "../data/room";
 import { runForSlot } from "../data/room";
 import { cabinetPaint, useAppStore } from "../store/useAppStore";
 import { useSelection } from "../store/useSelection";
@@ -100,12 +101,15 @@ export function ApplianceModel({ slot, appliance }: ApplianceModelProps) {
   // Round 36; the figures are in `ovenTrim.ts`.
   const install = standardInstall(def, appliance);
   // A built-in refrigerator standing on its own has its door face on the
-  // cabinet doors' (Leo, 2026-10-27, 2; `flushDoorOffset`).
+  // cabinet doors' (Leo, 2026-10-27, 2; `flushDoorOffset`), and so, since
+  // round 101, does each column in a group of columns (A-17).
   const dz = install
     ? ft(install.faceIn) - box.d / 2
     : builtInFront(def, appliance)
       ? flushDoorOffset(appliance, box.d)
-      : flushOffset(def, box.d, box.rearSpacerIn);
+      : def.inColumnBank && def.id === "slot-wine" && isColumn(appliance)
+        ? wineFlushOffset(box.d)
+        : flushOffset(def, box.d, box.rearSpacerIn);
 
   const outline = useMemo(
     () => new THREE.EdgesGeometry(new THREE.BoxGeometry(box.w, box.h, box.d)),
@@ -647,31 +651,6 @@ function OverRange({
  * gets a 36 x 84 x 25 machine.
  */
 /**
- * Widen the panels that meet a trim kit, so the doors close over it.
- *
- * Only the ones whose edge is the machine's edge on that side: a french door's
- * far leaf, the drawers under it and the grille below them all reach the kit;
- * its near leaf does not, and neither does anything on the other machine's
- * side. Everything else is left exactly as the drawing has it.
- */
-function reachOverTheKit(
-  panels: ReturnType<typeof fridgeParts>,
-  w: number,
-  over: { side: -1 | 1; overIn: number } | null,
-): ReturnType<typeof fridgeParts> {
-  if (!over || over.overIn <= 0) return panels;
-  const reach = ft(over.overIn);
-  const edge = (over.side * w) / 2;
-  return panels.map((panel) => {
-    const meets = Math.abs(panel.x + (over.side * panel.w) / 2 - edge) < 1e-6;
-    if (!meets) return panel;
-    // The handle stays where it is: it is fixed to the edge the door opens
-    // from, and that is the other one.
-    return { ...panel, w: panel.w + reach, x: panel.x + (over.side * reach) / 2 };
-  });
-}
-
-/**
  * Which side a column's single door is hinged on.
  *
  * Away from the machine beside it, so two doors open back to back: the freezer
@@ -705,21 +684,15 @@ function Fridge({
 }) {
   // A built-in standing on its own has doors narrower than its opening, from
   // its manual: 35-3/4" in a 36" opening, an eighth each side (Leo,
-  // 2026-10-27, 7). Every other machine's fronts are its full width.
-  const front = builtInFront(SLOT_BY_ID[slotId], appliance);
-  const frontW = front ? Math.min(w, ft(front.doorWidthIn)) : w;
+  // 2026-10-27, 7). So, since round 101, does each column in a group of
+  // columns: its opening less an eighth each side, the cases against each
+  // other with nothing between them (A-3, A-17). Every other machine's fronts
+  // are its full width. See `frontWidth`.
+  const frontW = frontWidth(SLOT_BY_ID[slotId], appliance, w);
   const revealW = (w - frontW) / 2;
 
-  // The doors, and how far they reach past the case. A built-in beside a
-  // column is joined to it by a 5/8" kit, and its door closes over that kit —
-  // so the panel on that side is wider than the machine by what it covers. A
-  // column in the middle of a group has a kit each side and covers both.
   const panels = useMemo(
-    () =>
-      trimKitsBeside(slotId).reduce(
-        (fronts, kit) => reachOverTheKit(fronts, frontW, doorOverhang(SLOT_BY_ID[slotId], frontW, kit)),
-        fridgeParts(appliance, { w: frontW, h }, columnHinge(slotId)),
-      ),
+    () => fridgeParts(appliance, { w: frontW, h }, columnHinge(slotId)),
     [slotId, appliance, frontW, h],
   );
 
@@ -1133,19 +1106,12 @@ function WineColumn({
   glass: SurfaceProps;
 }) {
   const hinge = hingeAwayFrom("slot-wine", "slot-fridge");
-  // The door reaches over the kit between this machine and the one beside it,
-  // so what shows between the two fronts is the reveal rather than the kit.
-  // The handle goes with it: it is on the edge the door opens from, which is
-  // the edge that moved.
-  const over = doorOverhang(SLOT_BY_ID["slot-wine"], w, trimKitBeside("slot-wine"));
-  const reach = over ? ft(over.overIn) : 0;
-  const shift = over ? (over.side * reach) / 2 : 0;
+  // The door is the drawing's, centred on the case: in a group of columns its
+  // opening less an eighth each side, 1/4" from the refrigerator's door beside
+  // it (round 101, A-17; the 5/8" kit it reached over is gone, A-3).
   const parts = useMemo(() => wineColumnParts({ w, h, d }, hinge), [w, h, d, hinge]);
-  /** The door as it is actually hung: the drawing's, plus what it covers. */
-  const doorW = parts.door.w + reach;
-  const cd = Math.max(d - parts.handle.proud, d * 0.5);
-  const cz = -(d - cd) / 2;
-  const face = cz + cd / 2;
+  const doorW = parts.door.w;
+  const { cd, cz, face } = wineColumnStance(d);
   // The dark inside a vent, which is a shade of the steel it is cut into
   // rather than a colour of its own — the same slot the refrigerator's grille
   // is drawn with. Hardware, so it is not counted as a finish somebody chose.
@@ -1170,7 +1136,7 @@ function WineColumn({
         if (part.kind === "grille") {
           return (
             <group key={part.band[0]} name="wine-grille">
-              <mesh position={[shift, middle, face + ft(0.4)]} castShadow>
+              <mesh position={[0, middle, face + ft(0.4)]} castShadow>
                 <boxGeometry args={[doorW, height, ft(0.75)]} />
                 <Mat s={body} size={[doorW, height]} />
               </mesh>
@@ -1180,7 +1146,7 @@ function WineColumn({
                   return (
                     <mesh
                       key={i}
-                      position={[shift, part.band[0] + step * (i + 1), face + ft(0.8)]}
+                      position={[0, part.band[0] + step * (i + 1), face + ft(0.8)]}
                     >
                       <boxGeometry args={[doorW * 0.9, part.vents!.heightFt, ft(0.05)]} />
                       <Mat s={slot} />
@@ -1192,20 +1158,20 @@ function WineColumn({
         }
 
         return part.kind === "panel" ? (
-          <mesh key={part.band[0]} position={[shift, middle, face + ft(0.4)]} castShadow>
+          <mesh key={part.band[0]} position={[0, middle, face + ft(0.4)]} castShadow>
             <boxGeometry args={[doorW, height, ft(0.75)]} />
             <Mat s={body} size={[doorW, height]} />
           </mesh>
         ) : (
           <group key={part.band[0]}>
-            <mesh position={[shift, middle, face + ft(0.3)]}>
+            <mesh position={[0, middle, face + ft(0.3)]}>
               <boxGeometry args={[parts.glass.w, height, ft(0.1)]} />
               <Mat s={glass} />
             </mesh>
             {[-1, 1].map((side) => (
               <mesh
                 key={side}
-                position={[shift + (side * (doorW - stile)) / 2, middle, face + ft(0.4)]}
+                position={[(side * (doorW - stile)) / 2, middle, face + ft(0.4)]}
                 castShadow
               >
                 <boxGeometry args={[stile, height, ft(0.75)]} />
@@ -1217,7 +1183,7 @@ function WineColumn({
       })}
       {/* The bottles, as shelves showing through the glass. */}
       {parts.shelves.map((y) => (
-        <mesh key={y} position={[shift, y, face - ft(1.5)]}>
+        <mesh key={y} position={[0, y, face - ft(1.5)]}>
           <boxGeometry args={[doorW - ft(4), ft(0.4), ft(0.1)]} />
           <Mat s={trim} />
         </mesh>
@@ -1225,7 +1191,7 @@ function WineColumn({
       {/* The handle, on the side away from the refrigerator. */}
       <mesh
         position={[
-          shift - hinge * (doorW / 2 - ft(1.6)),
+          -hinge * (doorW / 2 - ft(1.6)),
           parts.door.y + parts.door.h / 2,
           d / 2 - parts.handle.r,
         ]}

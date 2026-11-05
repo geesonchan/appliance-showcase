@@ -7412,6 +7412,18 @@ Registered, not scheduled. None of these is a round of its own.
       changed, which a live WebGL canvas does not repeat to the pixel on a busy
       machine. It now asserts what that meant — the refused chip is a disabled
       button, and the selection the room is drawn from is unchanged.
+  - *2026-11-05, registered as an investigation* (Leo: 「页面偶尔 60 秒都画不出来，
+    已经三次……先写计划给我看」; only looked into, nothing changed): the
+    full suite of 2026-11-04 (`rangeSwap.test.ts`, in Modern Standby), round
+    101 step one's pixel shots (the server reset the connection), step two's
+    (A's page, the canvas not up in 60 s, no standby or sleep in the system
+    log, nothing in the server's). Nothing is kept when it happens: the wait
+    for the canvas throws before the console, the failed requests or the
+    page's state are written anywhere. The plan, what to record at that
+    moment and a loop to provoke it, and whether the tests record it
+    themselves (甲 a shared `tests/pageWatch.ts` in every browser test and
+    the pixel shots, 乙 a probe script only, 丙 both), is
+    `docs/plans/blank-canvas-plan.md`, for Leo.
 - **A tap on the phone card's liner that rebuilt nothing, once.** *(Round 88,
   cause not found. Leo, round 89: a round of its own, round 93, after RAL —
   is it the test's timing of the tap, or a real tap that now and then does
@@ -9071,6 +9083,67 @@ Registered, not scheduled. None of these is a round of its own.
   on the wall cabinets' end, faces flush, no waterfall. The entry "Answered
   2026-11-04: round 101 and the open end" under "Not yet done after round
   98b-2".
+- **The stone beside an oven tower that ends an L's leg at a wall.**
+  *(Leo, 2026-11-05: registered, looked into, not changed; his site practice
+  to follow.)* Seen by Leo on the live site (`2bb727c`), D as it opens: on
+  the right of the steam oven tower, the last thing on the back leg, a band
+  of stone at counter height runs from the tower's side to the right-hand
+  wall, as if the counter went through the tower or a short piece of counter
+  lay between it and the wall. Looked into on `2bb727c` and on round 101's
+  step two (its dumps, `lDump.ts` and `oneWallDump.ts`, every room built):
+  1. **What it is.** D's back run ends `back-oven` (T3096, 79-1/8" to
+     109-1/8") and `back-back-end`, 3" (109-1/8" to 112-1/8"), the far end's
+     filler at a wall — `terminal(id, "wall")` (`layoutTemplate.ts`), D13's
+     `LAYOUT_POLICY.terminalIn.atWall`, a `BF3` in a segment of kind
+     `counter`. Being counter, three things are built in those 3": a base
+     filler, `back-back-end-BF3-0`, 4" to 34-1/2" (`cabinets.ts`); the stone
+     over it, 1-1/2" at 34-1/2" to 36" and 25" deep, so 1" proud of the
+     filler (`counter.ts`: a leg's stone runs to the run's end and is cut
+     only at `tall` segments, `cuts`); and, since round 92c, a panel from
+     36" to the tower's 96" and its 12" on top, `back-back-end-fill-0` and
+     `-stack` — `filledBesideTower` (`layoutTemplate.ts`) carries a strip
+     under 9" beside an oven tower, on the side away from the cooking
+     surface, up to the tower's top, but leaves it a counter segment. What
+     shows is the stone between the filler under it and the panel over it.
+  2. **Which rooms** (built rooms; the same on `2bb727c` and after step
+     two): the L only — B 24 (the 3" beside its combination oven tower, the
+     tower right of the range) and D 55 (beside its steam oven tower; D's
+     own room among them); A, C, E none. One wall: none — its far end is
+     open, after the dishwasher, and E's run starts at the wall with its 3"
+     filler beside counter. Every other end of a run: a refrigerator or a
+     group of columns ends it with tall boards and fillers, floor to top,
+     no stone (A 117, C 110 on the refrigerator; B 122, D 109, E 75 on a
+     bank); a wall end's 3" beside a dishwasher (A 69, B 24, C 62, D 24,
+     E 43) is ordinary counter; and at an open end the cabinet before the 3"
+     panel stands beside the coffee tower's end panel in D 24 (21" and 24")
+     and E 16 (9") — 9" or more, counter, with the open end's own fault
+     below.
+  3. **The same code as the open end's stone through its 3" panel?** Partly.
+     Both are `terminal()` building a run's end as `counter`, and
+     `counter.ts` laying stone over every counter segment to the run's end.
+     The open end is `terminal(id, "open")` and a `PNL3` (A-9 to A-15
+     decided: BEP 3/4" to under the top, the stone 1" past it); this is
+     `terminal(id, "wall")` beside a tower, and `filledBesideTower` drawing
+     a panel over a strip that is still counter. A round that rewrites
+     `terminal()` and the stone's end for the open end can take this in the
+     same files, once Leo's practice for it is known.
+  4. **Ways to change it, none chosen:**
+     - 甲: the 3" between a tower and the wall becomes a tall filler, floor
+       (or kick) to the tower's top, a `tall` segment — no base filler, no
+       stone; the stone ends at the tower's other side. The bill's `BF3`
+       stays, 96" tall; the 79 rooms change in the 3" only.
+     - 乙: keep it a counter segment but cut the stone where a strip is
+       filled to the top (`cuts` asks `filledBesideTower`), and carry the
+       panel down to the base filler's top, so the 1-1/2" gap closes. Two
+       pieces where 甲 has one.
+     - 丙: no filler at the wall when a tower ends the leg — the tower's own
+       3/4" side against the wall, the 3" given to the counter before it.
+       Whether an oven's door and handle clear a return wall with no filler
+       is the manuals' (MEM301WS, the steam oven), not read for it yet.
+     - 丁: never end a leg on an oven tower — a base cabinet of 9" or more
+       between the tower and the wall, as the open end has (D13), the wall
+       grown where it is short (D18). Changes the arrangement of the 79
+       rooms.
 - **Round 99a, one wall and a machine chosen narrower than its opening —
   built and shipped after Leo's look at the local preview** (Leo, round
   99a: "第 99a 轮预览看过了（index-Bh3Snm2C.js），可以提交"). The plan,
@@ -10020,6 +10093,21 @@ Registered, not scheduled. None of these is a round of its own.
       suite as it is. **Before the next commit, one full suite green from
       end to end with no standby in it**; he is told before it starts, and
       sets the screen's switching off and sleep to "never" first.
+    - **Shipped**: commit `2bb727c`, pushed 2026-11-05. Before it, the
+      workflow's own commands here: `npm ci` (once the preview server that
+      held `esbuild.exe` was stopped; the first try failed on it, EPERM),
+      `npm run test:unit` (119 files, 3,067 tests, green), `npm run build`
+      (`index-A9yaYP9y.js`).
+    - **Live, checked file by file**: the Pages run 41995858360 a success,
+      both its jobs — build (08:37:06 to 08:38:15 UTC, 2026-11-05) and
+      deploy (08:38:19 to 08:38:32) — each a success. Built at `2bb727c`
+      with `VITE_GOATCOUNTER=https://geesonchan.goatcounter.com/count`, every
+      file fetched from the live site and compared byte for byte, all six
+      identical: `index.html` (901 bytes), `assets/index-CjMMTntv.js`
+      (699,620), `assets/index-ByYGZbZC.css` (23,985),
+      `assets/react-i_nGBwMY.js` (145,992), `assets/shareQr-BXYgausd.js`
+      (21,968), `assets/three-C6wp6xxT.js` (704,119); the live `index.html`
+      asks for nothing the build does not have.
   - **Looked at, not changed: where the counter beside the cooking surface
     comes under 9"** (Leo, 2026-11-04: 「只查不改…列出规则出处、会出现的房间数、最窄
     是多少。我看了再决定要不要把最低值统一成 9"」). Every room of the room sets
@@ -10078,6 +10166,154 @@ Registered, not scheduled. None of these is a round of its own.
     built-in bottom-freezer refrigerators); where it goes — **文件没写**. The
     product page lists two "Supplement" documents too (`9001846065_C.pdf`;
     `8001302567_C.pdf`, 351,117 bytes), not downloaded: not asked for.
+    **Then downloaded** (Leo, 2026-11-05, item 2), into `docs/reference/` as
+    `t18iw100sp-warranty.pdf` (9001846065 rev. C, 11 pages, 640,645 bytes:
+    Thermador's Statement of Limited Product Warranty) and
+    `t18iw100sp-wifi-fcc.pdf` (8001302567 rev. C, 1 page, 351,117 bytes: the
+    built-in Wi-Fi module's FCC and Industry Canada statements), each in the
+    README. Neither says anything about standing it beside another
+    appliance, a gap, or COMBIKIT10 — searched and read through. So every
+    document Thermador's T18IW100SP page lists has now been read: COMBIKIT10
+    is named on the specification sheet alone (pp. 2 and 5), and what it is,
+    where it goes and whether a gap is left beside T36BT120NS — 文件没写. His
+    item 5 waits on him with that.
+    **Item 5 answered** (Leo, 2026-11-05): 「不用，照 A-3」 — B's pair,
+    T18IW100SP beside T36BT120NS, takes no COMBIKIT10: the cases stand
+    against each other with nothing between them (A-3), and the list names
+    no part (A-6), its line the one locked in answer 3. Every bank the same,
+    B's among them. Step two (the columns) goes ahead on that.
+  - **Step two built** (round 101, the columns; not committed, on `2bb727c`):
+    - **The bank** (`layoutTemplate.ts`, `bank()`): no `tall-spacer`
+      between two columns; `COLUMN_SPACER` and `takesSpacer` gone. Each
+      column's piece is its own opening; a board at each end, 3/4" — B's
+      too (`LAYOUT_LIMITS.fridge.sidePanelIn`, A-16), where they were 3";
+      at a return wall B's outer board gives way to the 3-1/2" filler, as
+      A's refrigerator's does. B 60-5/8" to 55-1/2" (58-1/4" at a wall), D
+      80-3/4" to 79-1/2" (83" at a wall; 65" on one wall), E 50-1/8" to
+      49-1/2".
+    - **The kit's other traces gone**: the `spacer` module kind
+      (`roomShell.ts`, `layoutRules.ts`), its install-view box and
+      `TRIM_KIT` (`cabinets.ts`), `trimKitBeside`/`trimKitsBeside`
+      (`room.ts`), `doorOverhang` (`applianceBox.ts`, and its test file),
+      the doors reaching over it (`ApplianceModel.tsx`, `reachOverTheKit`
+      and the wine column's reach).
+    - **The doors** (A-16, A-17): `builtInFront` gives a refrigerator or
+      freezer column in a bank its opening less 1/8" each side (B's
+      T36BT120NS its manual's 35-3/4"); `frontWidth` draws it so, except
+      where the case is narrower than its opening by more than a scribe
+      (strips beside it, round 85: the door stays on its case). The wine
+      column's door was already its opening less 1/4" (`wineColumnParts`).
+      Each column's door face on the cabinet doors' plane: the refrigerator
+      and freezer columns by `flushDoorOffset`, as A's refrigerator; the
+      wine column by `wineFlushOffset` (`wineColumnStance` in
+      `columnModel.ts`, read by the drawing and the offset alike).
+    - **The list** (A-6, answer 3): `columnJoints` counts the columns
+      standing case against case off the runs (B 1, D 2, E 1, A and C
+      none), `rule.columnJoints`: 「柱子并排共 {count} 处，按说明书连接。」 /
+      "{count} column joints side by side: join them as the installation
+      guide shows.", both locked in `reviewed.json` as his wording;
+      `rule.columnKit` and `requirement.tall-spacer-1/-2` gone.
+    - **The dumps' scripts** (`lDump.ts`, `oneWallDump.ts`): the field
+      `trimKit(s)`, read from functions this round removes, is replaced by
+      `front`, the doors `builtInFront` gives; old and new trees are dumped
+      by the new scripts.
+    - **Tests red first**: `src/data/columnBank.test.ts` (12) on `2bb727c`:
+      11 red — every bank with a 5/8" kit (B's L 60-5/8" with two 3"
+      boards), every column door null, the list's line `rule.columnKit`
+      with `COMBIKIT10` and 5/8"; A and C without a line green on both.
+      `tests/columnBank.test.ts` (4, in the browser, the mouse on a
+      desktop, a finger on a phone turning D to one wall) red at the doors
+      2.1 of the plan measured: B 36-1/4" and 18-1/8", gaps 1/8", 1/8", 0,
+      fronts 1" and 1-7/8" behind the cabinet doors; E gaps 0, 1/8", 0; D
+      in the L 1/8", 1/4", 1/8", 0. Green after: every door its opening
+      less 1/4", 1/8" from each board, 1/4" apart, every face 0 from the
+      boards and the cabinet doors.
+    - **Tests whose figures changed**, each with its reason written beside
+      it: `packageD.test.ts` (79-1/2" overall; doors 23-3/4", 29-3/4",
+      23-3/4"; the filler and the counter "between two columns" now put
+      there by the test, where it reused the kit's segment);
+      `packageLayouts.test.ts` (B's bank wine–refrigerator touching, 54" of
+      machine and two 3/4" boards, 55-1/2"; the doors 1/4" apart);
+      `packageE.test.ts` (49-1/2"); `checklistSlots.test.ts`
+      (`column-joints`); `fridgeFront.test.ts` (B's T36BT120NS 35-3/4", was
+      null — the 29th, not in the plan's 28); `oneWall.test.ts` (B 241-1/4",
+      D 248", E 273"; no `tall-spacer`); `oneWallSwitch.test.ts` (248",
+      「248″」); `autoGrow.test.ts` (D's return wall 177-1/2", D's columns on
+      the back 205-1/2", B from A's room 196-1/2"); `staleBand.test.ts`
+      (B's band 182"); `toeKick.test.ts` (B's boards `PNL0.75`).
+    - **Old share links**: every link opens at its own walls; A's and C's
+      as before; B's, D's and E's with the bank narrower and the
+      difference counter on the same leg — round 97's B: the range's
+      landing B15 to DB18 and the corner's B12 + BF2-7/8 to B12 + BF2-3/4;
+      D DB21 + BF1-1/8 to DB21 + BF2-3/8; E B27 + BF1-1/2 to B27 + BF2-1/8;
+      98b-1's B L B15 to DB18 + BF2-1/8, B one-wall B15 to B15 + BF2-7/8, D
+      L DB18 + BF1/2 to DB18 + BF1-3/4, D one-wall B15 to B15 + BF1-1/4, E L
+      B24 + BF7/8 to B24 + BF1-1/2, E one-wall B15 to B15 + BF5/8. Their
+      new hashes are `CHANGED_BY_ROUND_101` in `shareLinkV2.test.ts` and
+      `shareLinkRound98b1.test.ts`, with this list beside them.
+    - **Unit suite**: 3,079 of 3,079 (119 files: `doorOverhang.test.ts`
+      gone, `columnBank.test.ts` new; 12 tests new, 2 gone, 2 more locked
+      lines in `reviewed.test.ts`).
+    - **The dumps** (D17, old `2bb727c` and new, both by the new scripts):
+      A and C byte for byte the same (L 213 and 206 lines, one wall 22 and
+      15); changed B 122, D 127, E 75 in the L and B 27, D 24, E 18 on one
+      wall, as the plan's 2.3 counted; none flipped between built and
+      refused. B opens at the wall it needs (answer 1, 甲): 201-5/8" to
+      196-1/2" (198" in 12 of its lazy-susan rooms), one wall 244-1/8" to
+      241-1/4". D's own room 224-1/4" x 178-3/4" unchanged (A-7), its 102
+      other rooms at the same walls; the 7 it grew 1-1/4" shorter (232-1/4"
+      to 231"); the 18 refused 1-1/4" shorter in the minimum they name
+      (244-1/4" to 243"); one wall 249-1/4" to 248". E's own room 180" x
+      168" unchanged, the 16 it grew 5/8" shorter (174-5/8" to 174"), one
+      wall 273-5/8" to 273" (`ONE_WALL_MAX_IN` stays 276").
+    - **Pixels** (D17, `?qualityLock=1`; old `2bb727c` built as
+      `index-DNb9dYkn.js`, new `index-CD61qGG7.js`, no counter; each shot
+      twice, old1, new1, old2, new2, 10:52–11:36, then new1's 45 shot again
+      11:36–11:45: its first run stopped at its second page, package A
+      opening, the canvas not shown in 60 s, with no sleep or standby in
+      the system log and nothing in the server's): the 45 states and 18 of
+      this step's own (B, D, E in the three modes and flown to the
+      refrigerator; turned to one wall by the mouse, materials and
+      install). Old/old and new/new canvases 0 in all 63. A and C: every
+      canvas and every screen the same (0). B, D, E: changed in every
+      state that shows them, and only as the step changes them — D's and
+      E's bank and the counter beside it; B's whole room, its back wall
+      196-1/2" where it was 201-5/8" (answer 1, 甲). The words that changed
+      are the pins moved with the cabinets, the walls' figures and the
+      minimum's list under a wall slider on one wall (no `0.625`, no
+      `COMBIKIT10`, B's `PNL0.75` for `PNL3`); no other word on any screen.
+    - **A-17's own picture for him**: D as it opens, in Chinese by the
+      mouse, flown to its refrigerator by the list, the gaps measured off
+      the scene and written where they are — board, freezer, refrigerator,
+      wine column, board: 1/8", 1/4", 1/4", 1/8"; doors 23-3/4", 29-3/4",
+      23-3/4"; every face 0 from the cabinet doors and from both boards.
+    - **Local preview**: `index-CD61qGG7.js` (no counter), at
+      http://localhost:4183/ and :4173. The site still serves `2bb727c`.
+    - **Seen and confirmed** (Leo, 2026-11-05): the preview
+      `index-CD61qGG7.js`, and A-17's picture — 「门缝 1/8"、1/4"、1/4"、1/8"，
+      门面齐平，就是我要的」. And the English line said by number: one joint
+      "1 column joint side by side: join it as the installation guide
+      shows.", more "N column joints side by side: join them as the
+      installation guide shows."; the Chinese unchanged. Built as two keys,
+      `rule.columnJoints.one` (`{count} column joint … join it …`, so the
+      placeholders match the Chinese, `coverage.test.ts`) and
+      `rule.columnJoints.many`, the finding naming one by its count; all four
+      lines locked in `reviewed.json` as his wording. Red first in
+      `columnBank.test.ts` (B's and E's line said "1 column joints … join
+      them"), then green: B and E singular, D plural, in English and in
+      Chinese. Unit suite 3,082 of 3,082 (one test new, two more locked
+      lines).
+    - **Full suite, no standby** (Leo's rule since 2026-11-05; he set the
+      screen and sleep to "never"): before it, the power plan read on AC 5
+      minutes to the screen off and 5 hours to sleep, and the log had Modern
+      Standby at 12:05–12:07 — told to him, he changed both, read again as
+      never (screen, sleep, hibernate on AC: 0). `npm test` (build
+      `index-DoYVbRww.js`, no counter), 12:36:11 to 14:06:12, 5,400 s: **154
+      files, 3,421 of 3,421, exit code 0.** The system log, read at the start
+      and at the end: the last Kernel-Power event before it 507 at 12:07:07,
+      and none from then to 14:06:35 — no 506, 507, 42 or 107 in the run.
+      Its longest files `tests/smoke.test.ts` 1,080 s, `fadeRebuild` 721 s,
+      `modelCardSide` 445 s.
 - **The import's `_meta` is in the main chunk.** *(Leo, 2026-11-04: 「登记一
   条待办，不急…列出把它移出主文件的改法和代价，不要选」.)* The six modules
   that read the catalogue (`catalogue.ts`, `cookingSurface.ts`,

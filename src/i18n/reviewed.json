@@ -795,6 +795,16 @@
       "text": "Panel-ready",
       "approval": "written",
       "reviewed": "Leo's own wording, 2026-10-29 (decisions.md, How a flush column's finish is recorded, his answer 5 of that day: 开关写「不锈钢 / 可装门板」/ \"Stainless / Panel-ready\")"
+    },
+    "rule.columnJoints.one": {
+      "text": "{count} column joint side by side: join it as the installation guide shows.",
+      "approval": "written",
+      "reviewed": "Leo's own wording: the line 2026-11-04 (decisions.md, round 101's plan, his answer 3 to its section 3: 「柱子并排共 N 处，按说明书连接。」 / \"N column joints side by side: join them as the installation guide shows.\"; A-6, no part number), and its English said in the singular for one joint, 2026-11-05: \"1 column joint side by side: join it as the installation guide shows.\"; the Chinese unchanged"
+    },
+    "rule.columnJoints.many": {
+      "text": "{count} column joints side by side: join them as the installation guide shows.",
+      "approval": "written",
+      "reviewed": "Leo's own wording: the line 2026-11-04 (decisions.md, round 101's plan, his answer 3 to its section 3: 「柱子并排共 N 处，按说明书连接。」 / \"N column joints side by side: join them as the installation guide shows.\"; A-6, no part number), and its English said in the singular for one joint, 2026-11-05: \"1 column joint side by side: join it as the installation guide shows.\"; the Chinese unchanged"
     }
   },
   "zh": {
@@ -1597,6 +1607,16 @@
       "text": "可装门板",
       "approval": "written",
       "reviewed": "Leo's own wording, 2026-10-29 (decisions.md, How a flush column's finish is recorded, his answer 5 of that day: 开关写「不锈钢 / 可装门板」/ \"Stainless / Panel-ready\")"
+    },
+    "rule.columnJoints.one": {
+      "text": "柱子并排共 {count} 处，按说明书连接。",
+      "approval": "written",
+      "reviewed": "Leo's own wording: the line 2026-11-04 (decisions.md, round 101's plan, his answer 3 to its section 3: 「柱子并排共 N 处，按说明书连接。」 / \"N column joints side by side: join them as the installation guide shows.\"; A-6, no part number), and its English said in the singular for one joint, 2026-11-05: \"1 column joint side by side: join it as the installation guide shows.\"; the Chinese unchanged"
+    },
+    "rule.columnJoints.many": {
+      "text": "柱子并排共 {count} 处，按说明书连接。",
+      "approval": "written",
+      "reviewed": "Leo's own wording: the line 2026-11-04 (decisions.md, round 101's plan, his answer 3 to its section 3: 「柱子并排共 N 处，按说明书连接。」 / \"N column joints side by side: join them as the installation guide shows.\"; A-6, no part number), and its English said in the singular for one joint, 2026-11-05: \"1 column joint side by side: join it as the installation guide shows.\"; the Chinese unchanged"
     }
   }
 }

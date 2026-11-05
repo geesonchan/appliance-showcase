@@ -138,7 +138,7 @@ function installParts(selection: Record<SlotId, Appliance>, counter: CounterFini
     ...noIslandFallback(),
     ...fridgeDoorClearance(),
     ...chimneyExtension(selection),
-    ...columnKit(),
+    ...columnJoints(),
     ...columnDoorPanel(selection),
     ...panelsByCabinetMaker(selection),
     ...ovenDoorSwing(selection),
@@ -657,39 +657,36 @@ function panelsByCabinetMaker(selection: Record<SlotId, Appliance>): Finding[] {
 }
 
 /**
- * The kit that joins two refrigeration columns standing side by side.
+ * Columns standing side by side, and how many joints there are between them.
  *
- * Not a rule anybody can fail — the generator already left the 5/8" for it —
- * but a part somebody has to order, and one that is easy to miss because it is
- * five eighths of an inch wide and holds up two machines. The line names it
- * and says which two it is between.
+ * Round 101 (Leo, 2026-11-04, A-3 and A-6; item 5, 2026-11-05, 「不用，照
+ * A-3」): the cases stand against each other with nothing between them, and
+ * the list names no part and no width — the installation guide says how two
+ * are joined. Not a rule anybody can fail, but a step somebody on site has to
+ * do, once for each two columns that touch: B's refrigerator and wine column
+ * one, D's three two, E's two one. Counted off the runs as they are built, so
+ * it is what the room has. Filed under the first column of the first two, a
+ * machine that is in the room. One joint is said in the singular and more in
+ * the plural (Leo, 2026-11-05): `rule.columnJoints.one` and `.many`.
  */
-function columnKit(): Finding[] {
-  const segments = RUNS.flatMap((run) => run.segments);
-  const spacers = segments
-    .flatMap((segment) => segment.modules)
-    .filter((module) => module.kind === "spacer");
-  const spacer = spacers[0];
-  if (!spacer) return [];
-
-  // Filed under a column the kit is actually between, which is not always the
-  // wine column: package D's bank happens to end with one and this line named
-  // it outright, so package E — a freezer and a refrigerator, no wine — filed
-  // the line under a machine that was not in the room. Round 55.
-  const at = segments.findIndex((segment) => segment.modules.includes(spacer));
-  const joined =
-    [segments[at - 1], segments[at + 1], segments[at]].find(
-      (segment) => segment?.slot && SLOT_BY_ID[segment.slot],
-    ) ?? null;
-  if (!joined?.slot) return [];
-
+function columnJoints(): Finding[] {
+  const COLUMNS: SlotId[] = ["slot-freezer", "slot-fridge", "slot-wine"];
+  const isColumnPiece = (segment: (typeof RUNS)[number]["segments"][number] | undefined) =>
+    !!segment && segment.kind === "tall" && !!segment.slot && COLUMNS.includes(segment.slot) && !!SLOT_BY_ID[segment.slot];
+  const joints = RUNS.flatMap((run) =>
+    run.segments.flatMap((segment, index) => {
+      const next = run.segments[index + 1];
+      return isColumnPiece(segment) && isColumnPiece(next) && Math.abs(next!.from - segment.to) < 1e-9 ? [segment] : [];
+    }),
+  );
+  if (joints.length === 0) return [];
   return [
     {
-      ruleId: "column-kit",
+      ruleId: "column-joints",
       severity: "info",
-      messageKey: "rule.columnKit",
-      slot: joined.slot,
-      params: { model: spacer.code, gapIn: spacer.widthIn, count: spacers.length },
+      messageKey: joints.length === 1 ? "rule.columnJoints.one" : "rule.columnJoints.many",
+      slot: joints[0].slot!,
+      params: { count: joints.length },
     },
   ];
 }

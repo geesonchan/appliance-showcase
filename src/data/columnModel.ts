@@ -148,6 +148,21 @@ export interface WineColumnParts {
 }
 
 /**
+ * Where a wine column's case and door stand across its depth, in feet in its
+ * own box's frame (the front toward +z): the case set back by the handle's
+ * reach, and the door, a 3/4" panel, 0.4" off the case's face. The flush
+ * offset (`wineFlushOffset`, round 101, A-17) and the drawing read the same.
+ */
+export function wineColumnStance(d: number) {
+  const cd = Math.max(d - ft(WINE_COLUMN.handleProudIn), d * 0.5);
+  const cz = -(d - cd) / 2;
+  const face = cz + cd / 2;
+  const doorThickness = ft(0.75);
+  const doorZ = face + ft(0.4);
+  return { cd, cz, face, doorZ, doorThickness, doorFront: doorZ + doorThickness / 2 };
+}
+
+/**
  * A wine column's face, given the envelope it is drawn in.
  *
  * The hinge side is the caller's: in a bank it is the side away from the

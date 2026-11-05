@@ -278,13 +278,6 @@ export type ModuleKind =
    */
   | "panel"
   /**
-   * The manufacturer's kit between two refrigeration columns standing side by
-   * side: a 5/8" divider that carries the trim and keeps the two doors off
-   * each other. Ordered by part number rather than cut to a width, which is
-   * why it is not a panel — a 5/8" panel is not a part anybody stocks.
-   */
-  | "spacer"
-  /**
    * The housing built round an insert liner: a chimney breast in the door
    * finish, from where the liner hangs to the ceiling. Not a wall cabinet —
    * nothing is stored in it, and its shape is three sections rather than a box.

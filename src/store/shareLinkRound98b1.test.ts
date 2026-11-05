@@ -80,6 +80,39 @@ const CHANGED_BY_FRIDGE_FRONT: Record<string, string> = {
   "A one-wall": "d932800111d21b82e0dd46cb18b7ab18ad74134ff8c82d91d371c456339c06cc",
 };
 
+/**
+ * B's, D's and E's, but for E on one wall, which open a different room since
+ * round 101, because Leo changed the room (2026-11-04, A-3, A-4, A-16; item
+ * 5, 2026-11-05): the columns stand case against case, no 5/8" kit between
+ * two, and B's two boards are 3/4" where they were 3". The walls and the
+ * models are the links' own; the columns are narrower and what they gave up
+ * is the refrigerator's landing, or the corner's, on the same leg:
+ * - B L (201-5/8" x 144"): the bank 5-1/8" narrower (two boards 3" to 3/4",
+ *   the kit out). The refrigerator's landing B15 to DB18 + BF2-1/8, 15" to
+ *   20-1/8". (B opens at the wall it needs, 196-1/2" since this round; a link
+ *   opens at its own, Leo's answer 1.)
+ * - B one-wall (244-1/8"): the bank 2-7/8" narrower (its inner board, the
+ *   kit; at the wall its 3-1/2" filler, as it was). The landing B15 to B15 +
+ *   BF2-7/8.
+ * - D L (224-1/4" x 178-3/4", D's own room): 1-1/4" (two kits). The
+ *   landing DB18 + BF1/2 to DB18 + BF1-3/4, as the plan said (A-7).
+ * - D one-wall (249-1/4"): 1-1/4". The landing B15 to B15 + BF1-1/4.
+ * - E L (180" x 168", E's own room): 5/8" (one kit). The corner's landing B24
+ *   + BF7/8 to B24 + BF1-1/2.
+ * E on one wall is the room 98b-2 changed already (`CHANGED_BY_98B2`, below
+ * its hash is only said to differ); there its 5/8" goes to the refrigerator's
+ * landing, B15 to B15 + BF5/8, its coffee tower's 12" and the 6" beside its
+ * oven tower as they were (the last test here). Hashed as `held` hashes, on
+ * this round's code.
+ */
+const CHANGED_BY_ROUND_101: Record<string, string> = {
+  "B L": "18e3c5bfa337cbefd2a6fe4ac820cdd83cc1220e43248bc00f0c84e07c250901",
+  "B one-wall": "663d29e74adfb41b12cb117d8bc25809ad8479685018d203f33c999fbb035cee",
+  "D L": "4decddb5bb0d970015f6ef6d724755b07af026de0b3e4ccf1d5cbf4f9b1a2c94",
+  "D one-wall": "f70aa23e46fb0c1bedb2a1bd410aecc9ca40fc492581011db81ad9c1413b78ac",
+  "E L": "dd6870f58e495ecf8e0e3904a9fc971ae1c58635fa4a725740b668b945d76bdc",
+};
+
 describe("the ten v=2 links round 98b-1 wrote", () => {
   it("is ten: five packages, in the L and on one wall", () => {
     expect(LINKS.length).toBe(10);
@@ -90,6 +123,7 @@ describe("the ten v=2 links round 98b-1 wrote", () => {
       freshPage();
       openSharedLink(fixture.link);
       if (_name in CHANGED_BY_FRIDGE_FRONT) expect(held()).toBe(CHANGED_BY_FRIDGE_FRONT[_name]);
+      else if (_name in CHANGED_BY_ROUND_101) expect(held()).toBe(CHANGED_BY_ROUND_101[_name]);
       else expect(held() === fixture.room).toBe(_name !== CHANGED_BY_98B2);
     });
 

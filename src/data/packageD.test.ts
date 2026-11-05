@@ -1,9 +1,9 @@
 import { afterAll, describe, expect, it } from "vitest";
-import { applianceBox, doorOverhang } from "./applianceBox";
+import { applianceBox } from "./applianceBox";
 import { CABINETS } from "./cabinets";
 import { APPLIANCE_BY_ID } from "./catalogue";
 import { STEAM_OVEN, WINE_COLUMN, steamOvenSillIn, wineColumnParts } from "./columnModel";
-import { doorSplitOf, fridgeParts } from "./fridgeModel";
+import { doorSplitOf, fridgeParts, frontWidth } from "./fridgeModel";
 import { checkLayout } from "./layoutRules";
 import { billLabelKey } from "./machineLabel";
 import { setActivePackage, setLayoutParams } from "./layoutState";
@@ -20,7 +20,6 @@ import {
   RUNS,
   fridgeReturnWall,
   fridgeWallClearance,
-  trimKitsBeside,
   type CabinetRun,
   type RunSegment,
 } from "./room";
@@ -72,18 +71,6 @@ const widthIn = (segment: RunSegment) => inches(segment.to - segment.from);
 const rightward = (run: CabinetRun, segment: RunSegment) =>
   run.axis === "x" ? mid(segment) : -mid(segment);
 
-/** Whether a box stands over a stretch of its run, along the run. */
-const overlapsAlong = (
-  run: CabinetRun,
-  box: (typeof CABINETS)[number],
-  span: readonly [number, number],
-) => {
-  const along = run.axis === "x" ? 0 : 2;
-  const low = box.position[along] - box.size[along] / 2;
-  const high = box.position[along] + box.size[along] / 2;
-  return Math.min(high, span[1]) - Math.max(low, span[0]) > 1e-6;
-};
-
 describe("package D · the column group", () => {
   it("stands freezer, refrigerator, wine left to right as you face them, on either wall", () => {
     // The order along the run, from the corner outward, for each wall.
@@ -121,7 +108,7 @@ describe("package D · the column group", () => {
     expect(order).toEqual(["requirement.freezer", "requirement.fridgeColumn", "requirement.wineColumn"]);
   });
 
-  it("keeps them together with nothing but the kits between, 80-3/4 inches overall", () => {
+  it("keeps them together case against case, 79-1/2 inches overall", () => {
     activateD();
     const run = runOf("slot-fridge");
     const first = run.segments.findIndex(
@@ -130,13 +117,13 @@ describe("package D · the column group", () => {
     );
     const group = run.segments.slice(first);
 
-    // Board, column, kit, column, kit, column, board — in one tall unit.
+    // Board, column, column, column, board — in one tall unit, nothing between
+    // two columns (round 101; Leo, 2026-11-04, A-3; until then a 5/8" kit
+    // between each two, 80-3/4" overall).
     expect(group.map((segment) => segment.slot ?? segment.modules[0].kind)).toEqual([
       "panel",
       "slot-wine",
-      "spacer",
       "slot-fridge",
-      "spacer",
       "slot-freezer",
       "panel",
     ]);
@@ -144,11 +131,10 @@ describe("package D · the column group", () => {
     for (const board of [group[0], group[group.length - 1]]) {
       expect(widthIn(board), board.id).toBeCloseTo(0.75, 9);
     }
-    for (const kit of [group[2], group[4]]) {
-      expect(kit.modules[0].code).toBe("COMBIKIT10");
-      expect(widthIn(kit)).toBeCloseTo(0.625, 9);
-    }
-    expect(inches(group[group.length - 1].to - group[0].from)).toBeCloseTo(80.75, 9);
+    // Each case stands where the one before it stops.
+    for (let i = 1; i < group.length; i += 1) expect(group[i].from, group[i].id).toBeCloseTo(group[i - 1].to, 9);
+    // Its columns' openings added up, and a board at each end (A-4).
+    expect(inches(group[group.length - 1].to - group[0].from)).toBeCloseTo(0.75 + 24 + 30 + 24 + 0.75, 9);
 
     // Every cutout 84" high and 25" deep.
     for (const slotId of COLUMNS) {
@@ -158,62 +144,34 @@ describe("package D · the column group", () => {
     expect(checkLayout()).toEqual([]);
   });
 
-  it("hides both kits behind the doors, with an eighth of an inch between each pair of fronts", () => {
+  it("hangs each door an eighth inside its own opening, so each two doors are a quarter inch apart, with nothing between the cases", () => {
     activateD();
-    const run = runOf("slot-fridge");
-    const kits = CABINETS.filter((box) => box.module?.kind === "spacer");
-    expect(kits.length).toBe(2);
+    // Nothing between them to draw, in any render mode (A-3).
+    expect(CABINETS.filter((box) => (box.module?.kind as string | undefined) === "spacer")).toEqual([]);
 
-    for (const kit of kits) {
-      expect(kit.installOnly, `${kit.id} is drawn in the finished room`).toBe(true);
-      const span = [
-        kit.position[2] - kit.size[2] / 2,
-        kit.position[2] + kit.size[2] / 2,
-      ] as const;
-      // No joinery in the gap between two machines, whatever the render mode.
-      const standing = CABINETS.filter(
-        (box) =>
-          box !== kit &&
-          box.run === run.id &&
-          !box.installOnly &&
-          box.kind !== "toe" &&
-          box.kind !== "counter" &&
-          overlapsAlong(run, box, span),
-      );
-      expect(standing.map((box) => box.id), "cabinetry between the columns").toEqual([]);
-    }
-
-    // The middle column is joined on both sides and its door covers both kits.
-    expect(trimKitsBeside("slot-fridge").length).toBe(2);
-    expect(trimKitsBeside("slot-freezer").length).toBe(1);
-    expect(trimKitsBeside("slot-wine").length).toBe(1);
-
-    /** How far a machine's door reaches past its own opening toward a kit. */
-    const reach = (slotId: SlotId, side: -1 | 1) => {
+    /** A column's door, in inches: its width and how far in from each side of its own opening. */
+    const door = (slotId: SlotId) => {
       const slot = SLOT_BY_ID[slotId];
       const machine = applianceBox(slot, model(slotId));
-      const kit = trimKitsBeside(slotId).find((k) => k.side === side)!;
-      expect(kit, `${slotId} has no kit on side ${side}`).toBeTruthy();
-      return doorOverhang(slot, machine.w, kit)!.overIn - (slot.cutout.w - inches(machine.w)) / 2;
+      const widthIn =
+        slotId === "slot-wine"
+          ? inches(wineColumnParts({ w: machine.w, h: machine.h, d: machine.d }).door.w)
+          : inches(frontWidth(slot, model(slotId), machine.w));
+      return { widthIn, inEachSideIn: (slot.cutout.w - widthIn) / 2 };
     };
+    expect(Object.fromEntries(COLUMNS.map((slotId) => [slotId, door(slotId)]))).toEqual({
+      "slot-freezer": { widthIn: 23.75, inEachSideIn: 0.125 },
+      "slot-fridge": { widthIn: 29.75, inEachSideIn: 0.125 },
+      "slot-wine": { widthIn: 23.75, inEachSideIn: 0.125 },
+    });
     for (const [a, b] of [
       ["slot-wine", "slot-fridge"],
       ["slot-fridge", "slot-freezer"],
     ] as const) {
-      const kitIn = 0.625;
-      // The kit on the side facing the other machine, in the machine's own
-      // frame: further along a run on x is its right, and on z its left.
-      const sideOf = (slotId: SlotId, toward: SlotId) => {
-        const further = mid(segmentOf(toward)) > mid(segmentOf(slotId));
-        const side = further === (run.axis === "x") ? 1 : -1;
-        expect(trimKitsBeside(slotId).some((k) => k.side === side), `${slotId} → ${toward}`).toBe(
-          true,
-        );
-        return side;
-      };
-      const gap = kitIn - reach(a, sideOf(a, b)) - reach(b, sideOf(b, a));
-      expect(gap, `${a} / ${b}`).toBeLessThanOrEqual(0.125 + 1e-6);
-      expect(gap, `${a} / ${b}`).toBeGreaterThanOrEqual(0);
+      // The two openings touch, so the gap between the doors is what each
+      // leaves inside its own.
+      expect(segmentOf(b).from, `${a} / ${b}`).toBeCloseTo(segmentOf(a).to, 9);
+      expect(door(a).inEachSideIn + door(b).inEachSideIn, `${a} / ${b}`).toBeCloseTo(0.25, 9);
     }
   });
 
@@ -415,13 +373,19 @@ describe("package D · the column group against a return wall", () => {
     beside.position[along] = segmentOf("slot-fridge").to + wall.size[along] / 2;
     expect(wallProblems(run, span, beside)).not.toEqual([]);
 
-    // A filler where a kit between two columns belongs.
-    const kit = run.segments.find((s) => s.modules.some((m) => m.kind === "spacer"))!;
+    // A filler between two columns, where their cases stand against each
+    // other (round 101, A-3; until then where the kit between them was).
+    const fridge = segmentOf("slot-fridge");
+    const filler: RunSegment = {
+      id: `${run.id}-between`,
+      kind: "tall",
+      from: fridge.to,
+      to: fridge.to + 0.625 / 12,
+      modules: [{ code: "BF0.625", kind: "filler", widthIn: 0.625 }],
+    };
     const withFiller: CabinetRun = {
       ...run,
-      segments: run.segments.map((s) =>
-        s === kit ? { ...s, modules: s.modules.map((m) => ({ ...m, kind: "filler" as const })) } : s,
-      ),
+      segments: run.segments.flatMap((s) => (s === fridge ? [s, filler] : [s])),
     };
     expect(wallProblems(withFiller, span, wall)).not.toEqual([]);
     setLayoutParams(base);
@@ -523,9 +487,18 @@ describe("package D · rules 1 and 6 read the group, not the machine", () => {
     const runs = copy();
     const run = fridgeRunIn(runs);
     expect(codes(runs)).not.toContain("d11-1");
-    const kit = run.segments.find((segment) => segment.modules.some((m) => m.kind === "spacer"))!;
-    kit.kind = "counter";
-    kit.modules = [{ code: "B0.625", kind: "base", widthIn: 0.625 }];
+    // Counter between two of its columns, where their cases stand against
+    // each other (round 101, A-3; until then the kit between them, made
+    // counter).
+    const at = run.segments.findIndex((segment) => segment.slot === "slot-fridge");
+    const fridge = run.segments[at];
+    run.segments.splice(at + 1, 0, {
+      id: `${run.id}-between`,
+      kind: "counter",
+      from: fridge.to,
+      to: fridge.to + 0.625 / 12,
+      modules: [{ code: "B0.625", kind: "base", widthIn: 0.625 }],
+    });
     expect(codes(runs)).toContain("d11-1");
   });
 });

@@ -1,7 +1,7 @@
-import { LAYOUT_LIMITS, ROOM, ft } from "./room";
+import { ROOM, ft } from "./room";
 import { hoodBodyHeightFt } from "./hood";
 import type { Appliance, Slot } from "../types";
-import { SCRIBE_IN, dropsIntoCounter, rangeFillerIn } from "./cookingSurface";
+import { dropsIntoCounter, rangeFillerIn } from "./cookingSurface";
 
 /**
  * How big an appliance is, and where in its opening it sits.
@@ -132,35 +132,6 @@ export function applianceBox(slot: Slot, appliance: Appliance): ApplianceBox {
  * the cabinet face, so a shallower body moves toward the room. A hood is the
  * exception: it hangs off the wall behind it.
  */
-/**
- * How far a door reaches past its own case, toward the kit beside it.
- *
- * A column and the refrigerator next to it are joined by a 5/8" kit between
- * their cases, and their doors close over it: what is left between the two
- * fronts is the eighth of an inch the sheets call for, not the kit. Each door
- * therefore reaches to the middle of the kit less half that reveal — over its
- * own reveal in the opening as well, since the case is the narrower of the two.
- *
- * Null where there is no kit, which is every other machine in the room — and,
- * since round 85, where the gap between the case and its opening is past a
- * scribe: `Filler` builds a strip there, so the gap is the strip's and the door
- * stays on its case. An 18" column swapped into a 24" opening had its door
- * reach 3-1/4" over the strip on that side, and the strip's face, in the plane
- * of the doors since round 85, stood in front of the door's edge and its handle.
- */
-export function doorOverhang(
-  slot: Slot,
-  bodyW: number,
-  kit: { side: -1 | 1; widthIn: number } | null,
-): { side: -1 | 1; overIn: number } | null {
-  if (!kit) return null;
-  const revealIn = LAYOUT_LIMITS.fridge.sideGapIn;
-  const inTheOpening = (slot.cutout.w - bodyW * 12) / 2;
-  if (inTheOpening > SCRIBE_IN) return null;
-  const overIn = Math.max(0, inTheOpening + kit.widthIn / 2 - revealIn / 2);
-  return { side: kit.side, overIn };
-}
-
 export function flushOffset(slot: Slot, depth: number, rearSpacerIn = 0): number {
   // A hood hung over an island is centred on the cooking surface: there is no
   // cabinet face to line its own front up with. Round 52, D22 step 3 — the

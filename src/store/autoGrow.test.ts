@@ -217,14 +217,16 @@ describe("a switch that needs more wall", () => {
 
     store().setLayout({ fridgeEndAbuts: "wall" });
     expect(store().layoutIssues).toEqual([]);
-    expect(store().layoutParams.leftWallIn).toBe(178.75);
+    // 177-1/2" since round 101: D's columns case against case, 1-1/4"
+    // narrower without the two kits between them (A-3); 178-3/4" until then.
+    expect(store().layoutParams.leftWallIn).toBe(177.5);
     expect(store().toast?.lines).toEqual([
       {
         key: "toast.wallGrew",
         vars: {
           wallKey: "toast.wall.left",
           fromIn: "175¼″",
-          toIn: "178¾″",
+          toIn: "177½″",
           reasonKey: "toast.growReason.fridgeEndAbuts",
         },
       },
@@ -272,8 +274,9 @@ describe("a package's own room", () => {
     expect(store().layoutParams.sinkLeg).toBe("left");
     // 206-3/4" since round 92c: the steam oven tower's sides are inside its 30"
     // (ovenTower.ts), so its 3/4" board outside it is off the bill; 207-1/2"
-    // until then.
-    expect(store().layoutParams.backWallIn).toBe(206.75);
+    // until then. 205-1/2" since round 101, the columns 1-1/4" narrower case
+    // against case (A-3).
+    expect(store().layoutParams.backWallIn).toBe(205.5);
     // Round 60: the left wall stays at 178-3/4". Until then it grew an eighth,
     // to 178-7/8", and the toast said it was for the refrigerator. It was for
     // the window, which slid a quarter inch at a time and could not come out
@@ -345,7 +348,10 @@ describe("a package's own room", () => {
     // 201-5/8" (shown 201.6) since round 92c: B's oven tower carries its sides
     // inside its 30", and B's room as it opens is its minimum, so it is 3/4"
     // shorter than the 202-3/8" it was (Leo, round 92c: accepted; D18).
-    expect(store().toast?.vars).toMatchObject({ backIn: 201.6, leftIn: 144 });
+    // 196-1/2" since round 101: its refrigerator and wine column case against
+    // case and their boards 3/4", 5-1/8" narrower, and B opens at the wall it
+    // needs (Leo, 2026-11-04, answer 1, 甲).
+    expect(store().toast?.vars).toMatchObject({ backIn: 196.5, leftIn: 144 });
   });
 
   /**

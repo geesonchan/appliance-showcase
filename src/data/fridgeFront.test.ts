@@ -237,14 +237,15 @@ describe("a built-in's doors: 35-3/4\", an eighth each side, their face on the c
     return builtInFront?.(SLOT_BY_ID["slot-fridge"], APPLIANCE_BY_ID[fridge])?.doorWidthIn ?? null;
   };
 
-  it("narrows the doors of the two models whose manuals give 35-3/4\", and only where they stand on their own", () => {
+  it("narrows the doors of the two models whose manuals give 35-3/4\", on their own and, since round 101, in B's bank", () => {
     expect({
       "A T36BT120NS": front("A", T36BT),
       "A T36IT100NP": front("A", T36IT),
       "C T36BT120NS": front("C", T36BT),
       "C T36IT100NP": front("C", T36IT),
-      // B's refrigerator stands in its bank (Leo, 2026-10-24, 6), and the
-      // columns wait for round 101 (8): as they were.
+      // B's refrigerator stands in its bank (Leo, 2026-10-24, 6), left as it
+      // was until round 101 (null); since then its doors are its manual's too,
+      // its opening less an eighth each side (A-16, A-17).
       "B T36BT120NS": front("B", T36BT),
       "A T30IR905SP": front("A", "thermador-t30ir905sp"),
       "A T36FT820NS": front("A", T36FT),
@@ -253,7 +254,7 @@ describe("a built-in's doors: 35-3/4\", an eighth each side, their face on the c
       "A T36IT100NP": 35.75,
       "C T36BT120NS": 35.75,
       "C T36IT100NP": 35.75,
-      "B T36BT120NS": null,
+      "B T36BT120NS": 35.75,
       "A T30IR905SP": null,
       "A T36FT820NS": null,
     });

@@ -73,9 +73,6 @@ function isOrderable(module: CabinetModule): boolean {
       // one that fills a gap; a tall unit's own side is the board itself, and
       // a board is 3/4" thick.
       return module.widthIn >= 0.75;
-    case "spacer":
-      // A kit with a part number, so its width is the kit's and not a choice.
-      return module.widthIn > 0 && module.code.length > 0;
     case "opening":
     case "tall-open":
       // A rough opening is dimensioned to the appliance, not off a size list —

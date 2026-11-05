@@ -60,8 +60,11 @@ describe("each package on one wall (round 98b)", () => {
     const walls = Object.fromEntries(CODES.map((code) => [code, oneWall(code).ok ? LAYOUT_PARAMS.backWallIn : null]));
     // A's refrigerator segment is 1-3/4" shorter at the wall since the
     // fridge-front round (40-1/4" where it was 42"; Leo, 2026-10-27, 1), and
-    // its wall with it: 237-3/4" until then.
-    expect(walls).toEqual({ A: 236, B: 244.125, C: 232.25, D: 249.25, E: 273.625 });
+    // its wall with it: 237-3/4" until then. B, D and E each shorter by the
+    // kits their columns no longer have between them, and B by its boards,
+    // 3/4" where they were 3" (round 101; Leo, 2026-11-04, A-3, A-16): B
+    // 244-1/8", D 249-1/4", E 273-5/8" until then.
+    expect(walls).toEqual({ A: 236, B: 241.25, C: 232.25, D: 248, E: 273 });
   });
 
   it("tops the one-wall slider at the next 6-inch step over the longest of them, which is package E's", () => {
@@ -92,16 +95,18 @@ describe("each package on one wall (round 98b)", () => {
       // The refrigerator and its wine column at the wall; the oven tower on the
       // refrigerator's side of the rangetop, 18" of counter between (third
       // batch 2 and 4).
-      B: ["tall-outer", "slot-fridge", "tall-spacer", "slot-wine", "tall-inner", "fridge-landing", "slot-microwave", "tower-clearance", "slot-range", "range-landing", "fixture-sink", "slot-dishwasher", "back-end", "back-end-panel"],
+      // Case against case since round 101 (A-3): no `tall-spacer` between two
+      // columns, where B, D and E each had one.
+      B: ["tall-outer", "slot-fridge", "slot-wine", "tall-inner", "fridge-landing", "slot-microwave", "tower-clearance", "slot-range", "range-landing", "fixture-sink", "slot-dishwasher", "back-end", "back-end-panel"],
       C: ["slot-fridge", "fridge-landing", "slot-wine", "spare-divider", "slot-microwave", "range-landing-left", "slot-range", "range-landing-right", "fixture-sink", "slot-dishwasher", "back-end", "back-end-panel"],
       // Freezer, refrigerator, wine as you face them; no coffee cabinet and no
       // microwave drawer; the combination oven beside the rangetop (round 98b, 1).
-      D: ["tall-clearance", "tall-outer", "slot-freezer", "tall-spacer", "slot-fridge", "tall-spacer", "slot-wine", "tall-inner", "fridge-landing", "slot-oven", "tower-clearance", "slot-range", "range-landing", "fixture-sink", "slot-dishwasher", "back-end", "back-end-panel"],
+      D: ["tall-clearance", "tall-outer", "slot-freezer", "slot-fridge", "slot-wine", "tall-inner", "fridge-landing", "slot-oven", "tower-clearance", "slot-range", "range-landing", "fixture-sink", "slot-dishwasher", "back-end", "back-end-panel"],
       // Leo's E (round 98b): the coffee tower at the left wall — clear of it
       // by D13's 3" filler and a 12" base for its door, option 戊 (98b-2) —
       // then the freezer and the refrigerator, 15", the oven tower, 18", the
       // cooktop.
-      E: ["wall-end", "coffee-door", "coffee-panel-start", "slot-coffee", "coffee-panel-end", "tall-outer", "slot-freezer", "tall-spacer", "slot-fridge", "tall-inner", "fridge-landing", "slot-microwave", "tower-clearance", "slot-cooktop", "range-landing", "fixture-sink", "slot-dishwasher", "back-end", "back-end-panel"],
+      E: ["wall-end", "coffee-door", "coffee-panel-start", "slot-coffee", "coffee-panel-end", "tall-outer", "slot-freezer", "slot-fridge", "tall-inner", "fridge-landing", "slot-microwave", "tower-clearance", "slot-cooktop", "range-landing", "fixture-sink", "slot-dishwasher", "back-end", "back-end-panel"],
     });
   });
 
@@ -261,7 +266,9 @@ describe("D11 rule 1 and a coffee tower (round 98b-2, Leo)", () => {
   });
 
   it("still refuses the same refrigeration with counter between it and the coffee tower", () => {
-    expect(rule1(apart())).toEqual(["back-tall-outer", "back-freezer", "back-tall-spacer-1", "back-fridge", "back-tall-inner"]);
+    // The kit between the freezer and the refrigerator, `back-tall-spacer-1`,
+    // is gone from the list with the kit itself (round 101, A-3).
+    expect(rule1(apart())).toEqual(["back-tall-outer", "back-freezer", "back-fridge", "back-tall-inner"]);
   });
 });
 

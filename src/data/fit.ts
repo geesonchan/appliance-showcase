@@ -161,7 +161,7 @@ export const notForTallUnit = (appliance: Appliance, tallUnitFor: Category | nul
 /**
  * Whether a machine is a counter-depth refrigerator offered for an opening in
  * a bank of columns. Round 89, Leo: not allowed — a bank is built of columns
- * joined by their kits, and a freestanding machine's counter-deep panels and
+ * standing case against case (round 101, A-3), and a freestanding machine's counter-deep panels and
  * the cabinet on its own top have no place in it. The one judgement of it:
  * `fitCheck` for the list and the card, `suitsPackageSlot` for a switch, both
  * on the run's own answer to "is this a bank" (`inColumnBank`).

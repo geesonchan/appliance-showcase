@@ -20,6 +20,7 @@ const M = (p: string) => import(`${ROOT}/src/${p}`);
 
 const layoutState = await M("data/layoutState.ts");
 const room = await M("data/room.ts");
+const fridgeModel = await M("data/fridgeModel.ts");
 const packages = await M("data/packages.ts");
 const catalogue = await M("data/catalogue.ts");
 const slots = await M("data/slots.ts");
@@ -94,8 +95,9 @@ function snapshot(pkg: any, sel: Record<string, any>) {
       slot,
       flyIn: flyIn.flyInAzimuth(slot),
       route: serviceRoute.serviceRoute(slot, 0.25),
-      trimKits: room.trimKitsBeside(id),
-      trimKit: room.trimKitBeside(id),
+      // The doors it is drawn with: round 101 took the kit between two columns
+      // out, and `trimKitBeside` with it.
+      front: appliance ? fridgeModel.builtInFront(slot, appliance) : null,
       runFor: room.runForSlot(id),
       box: appliance ? safe(() => applianceBox.applianceBox(slot, appliance)) : null,
       hinge: present.map((other: string) => (other === id ? null : room.hingeAwayFrom(id, other))),

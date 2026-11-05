@@ -103,8 +103,10 @@ describe("which boards go to the floor, as each package opens", () => {
       "left-left-end-panel-PNL3-0": 0,
       "back-microwave-panel-a": 4,
       "back-microwave-panel-b": 4,
-      "back-tall-inner-PNL3-0": 0,
-      "back-tall-outer-PNL3-0": 0,
+      // Its columns' boards 3/4" since round 101, where they were 3" (Leo,
+      // 2026-11-04, A-16, as A's refrigerator's); to the floor, as those were.
+      "back-tall-inner-PNL0.75-0": 0,
+      "back-tall-outer-PNL0.75-0": 0,
     },
     "package-c": { "left-fridge-PNL3-0": 0, "left-fridge-PNL3-2": 0 },
     "package-d": {

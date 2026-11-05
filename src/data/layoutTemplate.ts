@@ -194,8 +194,10 @@ export const PARAM_LIMITS = {
  * batch 1-3; round 98b, 2): the one-wall slider's top is set by the package
  * that needs the longest wall, to the slider's next 6" step. That is package
  * E, laid out as Leo arranged it (round 98b), at the wall it is built at:
- * 273-5/8" since its coffee tower stands clear of the wall for its door
- * (`COFFEE_AT_WALL`, round 98b-2; 261-5/8" and 264" in 98b-1), so 276". `oneWall.test.ts` holds it to that figure, worked out
+ * 273" since its columns stand case against case (round 101; 273-5/8" with
+ * a kit between them, from round 98b-2, when its coffee tower first stood
+ * clear of the wall for its door, `COFFEE_AT_WALL`; 261-5/8" and 264" in
+ * 98b-1), so 276". `oneWall.test.ts` holds it to that figure, worked out
  * from the packages, so a package that grows moves the test and not this line
  * silently. It is longer than D13's 216" run because Leo has said so for one
  * wall; the L keeps its 240".
@@ -729,16 +731,6 @@ const ROLES = {
 const TALL_ORDER: readonly SlotId[] = ["slot-microwave", "slot-wine", "slot-fridge"];
 
 /**
- * What goes between two refrigeration columns standing side by side.
- *
- * Thermador's own kit rather than a piece of panel: two columns share a
- * 5/8" divider that carries the trim and keeps the doors from fouling each
- * other. Ovens and joinery do not take one — a tall oven cabinet already has
- * its own sides inside its 30".
- */
-const COLUMN_SPACER = { code: "COMBIKIT10", widthIn: 0.625 } as const;
-
-/**
  * What goes between two machines set into the same run: a board.
  *
  * D11 rule 15, round 53. Two rough openings side by side are two holes in a
@@ -755,11 +747,11 @@ const COLUMN_SPACER = { code: "COMBIKIT10", widthIn: 0.625 } as const;
  * either constant for the other's job would tie two decisions together that
  * Leo makes separately.
  *
- * ⚠️ And it is not `COLUMN_SPACER` either. That is Thermador's kit between two
- * refrigeration columns — a part number, hidden behind their doors, drawn only
- * in the install view. This is joinery, it is ordered as a `panel`, and since
- * round 50 a panel is drawn as a strip flush with the door faces: **a divider
- * in a run is meant to be seen.**
+ * It is not what stands between two columns in a group, either: nothing
+ * does. Their cases stand against each other (round 101; Leo, 2026-11-04,
+ * A-3). This is joinery between two holes in a base run, it is ordered as a
+ * `panel`, and since round 50 a panel is drawn as a strip flush with the door
+ * faces: **a divider in a run is meant to be seen.**
  */
 const RUN_DIVIDER = { widthIn: 0.75, heightIn: CABINET_STANDARDS.base.boxHeightIn } as const;
 
@@ -821,11 +813,6 @@ const COFFEE_CABINET_WORD = {
  */
 const isSpare = (slot: PackageSlot | undefined) => !!slot && !slot.tallUnit;
 
-/** Whether two adjacent tall slots are the pair that kit is for. */
-const REFRIGERATION = ["refrigerator", "freezer", "wine"];
-const takesSpacer = (a: PackageSlot | undefined, b: PackageSlot | undefined) =>
-  !!a && !!b && REFRIGERATION.includes(a.category) && REFRIGERATION.includes(b.category);
-
 /**
  * The columns at the end of a run, in the order they stand along it.
  *
@@ -849,8 +836,8 @@ export function columnsAlongRun(pkg: Package, leg: "left" | "back"): SlotId[] {
 
 /**
  * Whether a slot stands in a bank of columns: two or more tall units at the
- * end of a run, joined by their kits (B's refrigerator and wine column, D's
- * and E's banks). The run builds a bank on exactly this (`tallSlots`), and
+ * end of a run, case against case (B's refrigerator and wine column, D's
+ * and E's banks; round 101, A-3). The run builds a bank on exactly this (`tallSlots`), and
  * the fit check and a package switch ask it, so a counter-depth refrigerator
  * is refused in one (round 89, Leo) on the same answer the run is built on.
  */
@@ -1929,37 +1916,27 @@ function planLegs(
     );
   };
   const bank = (): Item[] => {
-    // A group of columns a package names in order is finished like the oven
-    // tower is: a 3/4" board at each end, floor to top, and nothing between
-    // the machines but their kits — 24 + 5/8 + 30 + 5/8 + 24 + two boards is
-    // package D's 80-3/4". A bank the template orders itself keeps the 3"
-    // panels it was built with.
-    const sideIn = pkg.columnOrder ? LAYOUT_LIMITS.towerSpacer.panelIn : PANEL_IN;
+    // A group of columns is its columns' openings added up and a 3/4" board
+    // at each end, floor to top: the cases stand against each other with
+    // nothing between them (round 101; Leo, 2026-11-04, A-3 and A-4; item 5,
+    // 2026-11-05, 「不用，照 A-3」 — no COMBIKIT10 for B's pair either). 24 + 30
+    // + 24 and two boards is package D's 79-1/2". A group a package names in
+    // order is finished like the oven tower; B's, which the template orders
+    // itself, as the refrigerator's front round finished A's refrigerator
+    // (A-16), its 3" panels gone.
+    const sideIn = pkg.columnOrder ? LAYOUT_LIMITS.towerSpacer.panelIn : LAYOUT_LIMITS.fridge.sidePanelIn;
     const wall = params.fridgeEndAbuts === "wall";
     const clearanceIn = LAYOUT_LIMITS.fridge.fromWallIn;
     // Against a return wall, a named group keeps its 3/4" board — it is one
     // tall unit, finished at both ends — and the door clearance is a filler
     // outside that board, between it and the wall. A bank the template orders
-    // itself has always given its 3" end panel up to the clearance, and still
-    // does. D11 rule 11, round 32.
+    // itself gives its end board up to the clearance, as A's refrigerator
+    // does (D11 rule 11, round 32; the refrigerator's front round).
     const outerIn = wall && !pkg.columnOrder ? clearanceIn : sideIn;
     const items: Item[] = [
       fixed("tall-inner", sideIn, "tall", M(`PNL${sideIn}`, "panel", sideIn)),
     ];
-    tallSlots.forEach((slotId, index) => {
-      const slot = spec[slotId];
-      if (takesSpacer(spec[tallSlots[index - 1]], slot)) {
-        items.push(
-          fixed(
-            `tall-spacer-${index}`,
-            COLUMN_SPACER.widthIn,
-            "tall",
-            M(COLUMN_SPACER.code, "spacer", COLUMN_SPACER.widthIn),
-          ),
-        );
-      }
-      items.push(column(slotId));
-    });
+    tallSlots.forEach((slotId) => items.push(column(slotId)));
     if (wall && !pkg.columnOrder) {
       // A filler against the wall, not the group's side panel (round 99, Leo:
       // "靠墙填充板"), as `tall-clearance` below and a run's end at a wall are.

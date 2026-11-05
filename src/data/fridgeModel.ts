@@ -1,5 +1,6 @@
-import { CABINET_STANDARDS, ROOM, ft } from "./roomShell";
-import { WINE_COLUMN } from "./columnModel";
+import { CABINET_STANDARDS, LAYOUT_LIMITS, ROOM, ft } from "./roomShell";
+import { WINE_COLUMN, wineColumnStance } from "./columnModel";
+import { SCRIBE_IN } from "./cookingSurface";
 import { CABINET_DOOR_IN } from "./ovenTrim";
 import type { Appliance, Slot } from "../types";
 
@@ -201,17 +202,55 @@ export const BUILT_IN_FRONTS: Record<string, { doorWidthIn: number; source: stri
 
 /**
  * The front a built-in refrigerator is drawn with, or null to draw it as it
- * always was. Only a refrigerator standing on its own between its side panel
- * and its end — A's, or a built-in chosen in C's segment: B's stands in its
- * bank and is left for round 101 (Leo, 2026-10-24, 6), and so are the columns
- * (8), which no entry names.
+ * always was.
+ *
+ * A refrigerator standing on its own between its side panel and its end —
+ * A's, or a built-in chosen in C's segment — from its manual
+ * (`BUILT_IN_FRONTS`). And, since round 101, a refrigerator or freezer column
+ * in a group of columns (Leo, 2026-11-04, A-16 and A-17): its door is its own
+ * opening less an eighth each side, so two doors side by side are a quarter
+ * apart — B's T36BT120NS 35-3/4", from its manual; D's and E's columns 17-3/4"
+ * in 18", 23-3/4" in 24" (as T18IW100SP's specification sheet gives them,
+ * p. 3) and 29-3/4" in 30", the same rule. The wine column's door is its own
+ * drawing's (`wineColumnParts`), which gives the same.
  */
 export function builtInFront(
-  slot: Pick<Slot, "id" | "cabinetConfig" | "inColumnBank">,
+  slot: Pick<Slot, "id" | "cabinetConfig" | "inColumnBank" | "cutout">,
   appliance: Pick<Appliance, "model">,
 ): { doorWidthIn: number; source: string } | null {
-  if (slot.id !== "slot-fridge" || slot.cabinetConfig.type !== "enclosure" || slot.inColumnBank) return null;
+  if (slot.inColumnBank && (slot.id === "slot-fridge" || slot.id === "slot-freezer")) {
+    return (
+      BUILT_IN_FRONTS[appliance.model] ?? {
+        doorWidthIn: slot.cutout.w - LAYOUT_LIMITS.fridge.sideGapIn * 2,
+        source: "its opening less an eighth each side (round 101, A-17)",
+      }
+    );
+  }
+  if (slot.id !== "slot-fridge" || slot.cabinetConfig.type !== "enclosure") return null;
   return BUILT_IN_FRONTS[appliance.model] ?? null;
+}
+
+/**
+ * How wide a refrigerator's fronts are drawn, in feet, for a machine whose
+ * body is `bodyW` wide.
+ *
+ * A built-in standing on its own: its manual's door, never wider than the
+ * machine. A column in a group: its door, which may be wider than its case
+ * (the case stands a little inside its opening). Except where the case is
+ * narrower than its opening by more than a scribe — an 18" column swapped into
+ * a 24" opening — where `Filler` builds a strip each side (round 85) and the
+ * door stays on its case, as it always has. Anything else: its full width.
+ */
+export function frontWidth(
+  slot: Pick<Slot, "id" | "cabinetConfig" | "inColumnBank" | "cutout">,
+  appliance: Pick<Appliance, "model">,
+  bodyW: number,
+): number {
+  const front = builtInFront(slot, appliance);
+  if (!front) return bodyW;
+  const door = ft(front.doorWidthIn);
+  if (!slot.inColumnBank) return Math.min(bodyW, door);
+  return (slot.cutout.w - bodyW * 12) / 2 > SCRIBE_IN ? bodyW : door;
 }
 
 /**
@@ -225,6 +264,15 @@ export function builtInFront(
 export function flushDoorOffset(appliance: Appliance, d: number): number {
   const stance = fridgeStance(appliance, d);
   return ROOM.counterDepth / 2 + ft(CABINET_DOOR_IN) - (stance.doorZ + stance.doorThickness / 2);
+}
+
+/**
+ * The same for a wine column standing in a group of columns (round 101; Leo,
+ * 2026-11-04, A-17): its door's face in the plane of the cabinet doors and of
+ * the refrigerator's beside it, where it stood 1-3/8" to 1-7/8" behind them.
+ */
+export function wineFlushOffset(d: number): number {
+  return ROOM.counterDepth / 2 + ft(CABINET_DOOR_IN) - wineColumnStance(d).doorFront;
 }
 
 /**

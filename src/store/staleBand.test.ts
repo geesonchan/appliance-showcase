@@ -10,7 +10,8 @@ import { useAppStore } from "./useAppStore";
  * The Layout tab works out a wall slider's greyed band in the page's idle
  * time (`useIdleValue`), so for a frame or two after a package switch the
  * band is still the room's before it: after A → B it lets the slider down to
- * A's 147" where B needs 187". The slider snaps only to the band it shows, so
+ * A's 147" where B needs 182" (187" until round 101 stood its columns case
+ * against case, 5-1/8" narrower). The slider snaps only to the band it shows, so
  * a length the room cannot take can be asked for. What stops it is the room,
  * not the band: a wall slider's length is built or refused on its own terms
  * (round 34) — refused, the room standing stays, and the reasons, with the
@@ -48,7 +49,7 @@ describe("a wall length asked for while the band still shows the room before (ro
       roomUnchanged: JSON.stringify(RUNS) === standing,
     }).toEqual({
       aMin: 147,
-      bMin: 187,
+      bMin: 182,
       sliderShows: 150,
       refused: "param.backWallIn",
       saysTheWall: true,

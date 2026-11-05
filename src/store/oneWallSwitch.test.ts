@@ -56,7 +56,9 @@ describe("switching the shape (round 98b)", () => {
     dWithChoices();
     const before = store().layoutParams.backWallIn;
     const result = store().setLayoutShape("one-wall");
-    expect({ ok: result.ok, grown: result.grown }).toEqual({ ok: true, grown: { fromIn: before, toIn: 249.25 } });
+    // 248" since round 101, D's columns case against case (A-3); 249-1/4"
+    // until then.
+    expect({ ok: result.ok, grown: result.grown }).toEqual({ ok: true, grown: { fromIn: before, toIn: 248 } });
   });
 
   it("carries a model the customer chose across where it still fits", () => {
@@ -235,7 +237,8 @@ describe("what the switch says, and what Undo puts back (round 98b-2)", () => {
     dWithChoices();
     store().setLayoutShape("one-wall");
     const toast = store().toast!;
-    expect(sayWith((key, vars) => translate("zh", key, vars), toast.key, toast.vars)).toBe("一字型厨房需要更长的墙，已把后墙加到 249.3″。");
+    // 248″ since round 101 (A-3), where it said 249.3″.
+    expect(sayWith((key, vars) => translate("zh", key, vars), toast.key, toast.vars)).toBe("一字型厨房需要更长的墙，已把后墙加到 248″。");
   });
 
   it("says D's and E's one-wall lines, and none for A, B and C", () => {

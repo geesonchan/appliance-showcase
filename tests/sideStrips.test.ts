@@ -19,7 +19,7 @@ import { PREVIEW_URL } from "./globalSetup";
  * frame: the front of the strips against the front of the cabinet faces just
  * outside them, at the strips' own height; and that no part of the machine
  * stands in a strip's stretch — a column's door used to reach over it toward
- * the kit beside it (`doorOverhang`). Real input — the mouse on a desktop, a
+ * the kit beside it (`doorOverhang`, until round 101 took the kit out). Real input — the mouse on a desktop, a
  * finger on a phone (D17).
  */
 
@@ -155,8 +155,9 @@ const strips = (s: Session, slot: string) =>
       );
     const outside = 0.5 / 12;
     // The frontmost of the two: in a column bank one side of an opening is the
-    // 5/8" COMBIKIT, which stands back behind the doors that close over it
-    // (D11, round 30), and the plane is the bank's end board's on the other.
+    // next column (its case against this one since round 101, A-3; the 5/8"
+    // COMBIKIT behind the doors until then), and the plane is the bank's end
+    // board's on the other.
     const cabinets = Math.max(faceAt(left - outside), faceAt(right + outside));
     // And nothing of the machine stands in a strip's stretch: a column's door
     // reached over the strip toward the kit beside it until round 85
