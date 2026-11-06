@@ -161,19 +161,21 @@ describe("the walls A asks for, with the shorter segment (plan section 3.3)", ()
     }).toEqual({ walls: "168 x 144", left: "BBC42 B33 B30 BF1.5 PNL0.75 T3696 PNL0.75" });
   });
 
-  it("builds A on one wall at 236\", and opens an old link's 237-3/4\" as it is, with nothing left out", () => {
+  it("builds A on one wall at 233-3/4\", and opens an old link's 237-3/4\" as it is, with nothing left out", () => {
     room("A", "one-wall");
     const own = { wallIn: LAYOUT_PARAMS.backWallIn, omitted: [...OMITTED_FOR_WALL] };
     room("A", "one-wall", { backWallIn: 237.75 });
     expect({ own, link: { wallIn: LAYOUT_PARAMS.backWallIn, omitted: [...OMITTED_FOR_WALL], segment: segment() } }).toEqual({
-      own: { wallIn: 236, omitted: [] },
+      // 233-3/4" since the end-of-run round (236" until then): the open end's panel 3/4" where it was 3" (Leo, 2026-11-04, A-12; his answer 2, 2026-11-05: each package opens one wall at the wall it needs).
+      own: { wallIn: 233.75, omitted: [] },
       link: { wallIn: 237.75, omitted: [], segment: "BF3.5 T3696 PNL0.75 (40.25)" },
     });
   });
 
   it("puts a built-in in C's one-wall room with nothing left out and the wall as it was", () => {
     room("C", "one-wall", {}, T36BT);
-    expect({ wallIn: LAYOUT_PARAMS.backWallIn, omitted: [...OMITTED_FOR_WALL] }).toEqual({ wallIn: 232.25, omitted: [] });
+    // 230" since the end-of-run round (232-1/4" until then): the open end's panel 3/4" where it was 3" (Leo, 2026-11-04, A-12; his answer 2, 2026-11-05: each package opens one wall at the wall it needs).
+    expect({ wallIn: LAYOUT_PARAMS.backWallIn, omitted: [...OMITTED_FOR_WALL] }).toEqual({ wallIn: 230, omitted: [] });
   });
 });
 
@@ -215,11 +217,13 @@ describe("a model that needs more room grows the wall, as D18 does (Leo, 2026-10
     });
   });
 
-  it("grows A's one wall to 238-1/4\" for T36FT820NS rather than leave the microwave drawer and the wine cooler out", () => {
+  it("grows A's one wall to 236\" for T36FT820NS rather than leave the microwave drawer and the wine cooler out", () => {
+    // From 233-3/4" to 236" since the end-of-run round (236" to 238-1/4"
+    // until then): the open end's panel 3/4" where it was 3" (Leo, 2026-11-04, A-12; his answer 2, 2026-11-05: each package opens one wall at the wall it needs).
     expect(swapped("A", "one-wall", {}, T36FT)).toEqual({
       ok: true,
-      grown: [{ key: "backWallIn", fromIn: 236, toIn: 238.25 }],
-      wallIn: 238.25,
+      grown: [{ key: "backWallIn", fromIn: 233.75, toIn: 236 }],
+      wallIn: 236,
       leftOut: [],
       segment: "BF3.5 RO36 PNL3 (42.5)",
     });

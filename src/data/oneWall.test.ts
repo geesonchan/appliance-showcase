@@ -64,7 +64,8 @@ describe("each package on one wall (round 98b)", () => {
     // kits their columns no longer have between them, and B by its boards,
     // 3/4" where they were 3" (round 101; Leo, 2026-11-04, A-3, A-16): B
     // 244-1/8", D 249-1/4", E 273-5/8" until then.
-    expect(walls).toEqual({ A: 236, B: 241.25, C: 232.25, D: 248, E: 273 });
+    // Each 2-1/4" shorter since the end-of-run round: the open end's panel 3/4" where it was 3" (Leo, 2026-11-04, A-12; his answer 2, 2026-11-05: each package opens one wall at the wall it needs).
+    expect(walls).toEqual({ A: 233.75, B: 239, C: 230, D: 245.75, E: 270.75 });
   });
 
   it("tops the one-wall slider at the next 6-inch step over the longest of them, which is package E's", () => {

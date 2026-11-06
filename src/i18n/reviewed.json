@@ -677,9 +677,14 @@
       "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
     },
     "requirement.endPanel": {
-      "text": "filler",
+      "text": "end panel",
       "approval": "written",
-      "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+      "reviewed": "Leo's own wording, 2026-11-05 (decisions.md, the end of a run, his answer 1 to its plan: the base run\u2019s open-end panel (BEP) \"end panel\" in English where it was \"Filler\", 「侧板」 in Chinese as before; docs/plans/end-strip-open-end-plan.md)"
+    },
+    "requirement.wallEndPanel": {
+      "text": "wall cabinet end panel",
+      "approval": "written",
+      "reviewed": "Leo's own wording, 2026-11-05 (decisions.md, the end of a run, his answer 1 to its plan: the wall cabinets\u2019 end panel (WEP), 「吊柜侧板」 / \"wall cabinet end panel\"; docs/plans/end-strip-open-end-plan.md)"
     },
     "requirement.coffee": {
       "text": "coffee and dishwasher cabinet",
@@ -1497,6 +1502,11 @@
       "text": "侧板",
       "approval": "written",
       "reviewed": "Leo's own wording (round 99, the L's labels: a machine named by its category and how it installs)"
+    },
+    "requirement.wallEndPanel": {
+      "text": "吊柜侧板",
+      "approval": "written",
+      "reviewed": "Leo's own wording, 2026-11-05 (decisions.md, the end of a run, his answer 1 to its plan: the wall cabinets\u2019 end panel (WEP), 「吊柜侧板」 / \"wall cabinet end panel\"; docs/plans/end-strip-open-end-plan.md)"
     },
     "requirement.coffee": {
       "text": "咖啡机+洗碗机柜",

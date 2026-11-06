@@ -100,7 +100,9 @@ describe("which boards go to the floor, as each package opens", () => {
     // enclosure had a 3" panel each side. Both to the floor, as those were.
     "package-a": { "left-fridge-PNL0.75-0": 0, "left-fridge-PNL0.75-2": 0 },
     "package-b": {
-      "left-left-end-panel-PNL3-0": 0,
+      // The open end's base end panel, BEP, 3/4" (A-12), to the floor as the
+      // 3" panel it replaced was.
+      "left-left-end-panel-BEP0.75-0": 0,
       "back-microwave-panel-a": 4,
       "back-microwave-panel-b": 4,
       // Its columns' boards 3/4" since round 101, where they were 3" (Leo,
@@ -116,6 +118,10 @@ describe("which boards go to the floor, as each package opens", () => {
       "left-tall-outer-PNL0.75-0": 0,
       "back-oven-panel-a": 4,
       "back-oven-panel-b": 4,
+      // The 3" between the oven tower and the wall, one filler floor to top
+      // since the end-of-run round (Leo, 2026-11-05, his site practice 甲):
+      // the run's end, so to the floor.
+      "back-back-end-BF3-0": 0,
     },
     "package-e": {
       "left-tall-inner-PNL0.75-0": 0,
@@ -163,11 +169,12 @@ describe("where the kick starts and stops", () => {
   });
 
   it("stops at the inside face of the end panel that goes to the floor", () => {
-    // Package B's left run ends on its 3" end panel.
+    // Package B's left run ends on its end panel: 3/4" since the end-of-run
+    // round (Leo, 2026-11-04, A-12), 3" until then.
     build("package-b", {});
     const left = RUNS.find((run) => run.id === "left")!;
     const end = inch(left.segments[left.segments.length - 1].to);
-    expect(end - kicksOn(left)[kicksOn(left).length - 1][1]).toBe(3);
+    expect(end - kicksOn(left)[kicksOn(left).length - 1][1]).toBe(0.75);
   });
 
   it("stops at the inside face of a refrigerator's end board that ends the run", () => {

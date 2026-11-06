@@ -205,13 +205,16 @@ describe("a refrigerator that needs more wall (Leo, 2026-10-24, 5; 2026-10-27, 6
   const toast = (s: Session) => s.page.locator('[data-toast="toast.modelGrew"]');
 
   it("grows A's one wall for T36FT820NS and says so in Chinese; the mouse on Undo takes it back", async () => {
-    const s = await open(false, "?v=2&pkg=A&lang=zh&shape=one-wall&back=236");
+    const s = await open(false, "?v=2&pkg=A&lang=zh&shape=one-wall&back=233.75");
     await pick(s, "thermador-t36ft820ns");
     const said = (await toast(s).locator("span").first().innerText()).trim();
     await press(s, toast(s).locator("[data-toast-undo]"));
     await s.page.waitForTimeout(2500);
     expect({ said, gone: await toast(s).count(), errors: s.errors }).toEqual({
-      said: "换了型号，后墙不够长，已加长到 238¼″。",
+      // 236″ since the end-of-run round (238¼″ until then): A's one wall
+      // 2-1/4" shorter, the open end's panel 3/4" (A-12), and the link the
+      // wall A opens at now.
+      said: "换了型号，后墙不够长，已加长到 236″。",
       gone: 0,
       errors: [],
     });
@@ -219,13 +222,13 @@ describe("a refrigerator that needs more wall (Leo, 2026-10-24, 5; 2026-10-27, 6
   });
 
   it("says it in English on a phone, and a finger on Undo takes it back", async () => {
-    const s = await open(true, "?v=2&pkg=A&lang=en&shape=one-wall&back=236");
+    const s = await open(true, "?v=2&pkg=A&lang=en&shape=one-wall&back=233.75");
     await pick(s, "thermador-t36ft820ns");
     const said = (await toast(s).locator("span").first().innerText()).trim();
     await press(s, toast(s).locator("[data-toast-undo]"));
     await s.page.waitForTimeout(2500);
     expect({ said, gone: await toast(s).count(), errors: s.errors }).toEqual({
-      said: "The new model needs more room: Back wall is now 238¼″.",
+      said: "The new model needs more room: Back wall is now 236″.",
       gone: 0,
       errors: [],
     });

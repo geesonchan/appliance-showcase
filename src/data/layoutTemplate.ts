@@ -762,6 +762,15 @@ const TALL_ORDER: readonly SlotId[] = ["slot-microwave", "slot-wine", "slot-frid
 const RUN_DIVIDER = { widthIn: 0.75, heightIn: CABINET_STANDARDS.base.boxHeightIn } as const;
 
 /**
+ * The finished panels at a run's open end (Leo, 2026-11-04, A-9 to A-13):
+ * the base run's, BEP, 3/4" from the floor to under the countertop; and the
+ * wall cabinets', WEP, 3/4" on their outer side, as high as they are. Their
+ * faces in the plane of the doors (they are drawn as strips).
+ */
+const END_PANEL = { widthIn: 0.75, heightIn: CABINET_STANDARDS.base.boxHeightIn } as const;
+const WALL_END_PANEL = { widthIn: 0.75 } as const;
+
+/**
  * How far off the floor a tall unit's opening starts.
  *
  * The package's own figure for anything that stands on the floor of its
@@ -1760,16 +1769,26 @@ function planLegs(
    *
    * The filler and the panel are fixed: they are the elements that must not
    * shrink, so they are not stretches that can be squeezed to zero.
+   *
+   * The open end's panel is a 3/4" base end panel, BEP, from the floor to
+   * under the countertop, the stone 1" past it (Leo, 2026-11-04, A-9, A-10,
+   * A-12, A-13; `counter.ts`); until then a 3" panel floor to 96", the stone
+   * and the wall cabinets running over it. The 3" against a wall beside a
+   * tall unit — an oven tower that ends the leg — is one filler floor to top,
+   * a tall segment, so no stone and nothing filled over it (Leo, 2026-11-05,
+   * his site practice 甲); beside anything else it is counter, as it was.
    */
-  const terminal = (id: string, at: "wall" | "open"): Item[] => {
+  const terminal = (id: string, at: "wall" | "open", before?: Item): Item[] => {
     if (at === "open") {
+      const { widthIn: panelIn, heightIn } = END_PANEL;
       return [
         gap(id, CABINET_STANDARDS.widthIn.min, "d13-terminal", { shrink: "landing" }),
-        fixed(`${id}-panel`, PANEL_IN, "counter", M(`PNL${PANEL_IN}`, "panel", PANEL_IN), {
+        fixed(`${id}-panel`, panelIn, "counter", M(`BEP${panelIn}`, "panel", panelIn, { heightIn }), {
           labelKey: "requirement.endPanel",
         }),
       ];
     }
+    const besideATallUnit = before?.kind === "fixed" && before.segmentKind === "tall";
     // The same filler one wall's run starts with: one thing, one word (Leo,
     // round 99: "同一个东西只用一个词"). It was "cabinet at the open end", the
     // open end's word, at the wall.
@@ -1779,7 +1798,7 @@ function planLegs(
         kind: "fixed",
         id,
         widthIn,
-        segmentKind: "counter",
+        segmentKind: besideATallUnit ? "tall" : "counter",
         modules: [M(`BF${widthIn}`, "filler", widthIn)],
         labelKey: "requirement.wall-end",
       },
@@ -2208,12 +2227,12 @@ function planLegs(
   if (params.fridgeEnd === "left") {
     if (coffeeHere("left")) left.push(...inRunGroup());
     left.push(...spare, gap("fridge-landing", LAYOUT_LIMITS.fridgeLandingIn, "d11-6"), ...tower);
-    back.push(...terminal("back-end", farEnd(shape, "back")));
+    back.push(...terminal("back-end", farEnd(shape, "back"), back[back.length - 1]));
   } else {
     if (coffeeHere("back")) back.push(...inRunGroup());
     back.push(...spare, gap("fridge-landing", LAYOUT_LIMITS.fridgeLandingIn, "d11-6"), ...tower);
     if (coffeeHere("left")) left.push(...inRunGroup());
-    left.push(...terminal("left-end", farEnd(shape, "left")));
+    left.push(...terminal("left-end", farEnd(shape, "left"), left[left.length - 1]));
   }
 
   return {
@@ -2574,12 +2593,14 @@ function bankFor(
    * inches on both sides of the opening — see D11 rule 13.
    */
   scribeIn: { start?: number; end?: number } = {},
+  /** The wall cabinets' end panel, WEP, at a run's open end: its width, or 0. */
+  endPanelIn = 0,
 ): UpperBank {
   // Not rounded: a bank over a leg carrying a half-inch clearance is half an
   // inch shorter than a whole number of inches, and rounding it up made the
   // cabinets longer than the wall they are on.
   const totalIn = (to - from) * 12;
-  const scribes = (scribeIn.start ?? 0) + (scribeIn.end ?? 0);
+  const scribes = (scribeIn.start ?? 0) + (scribeIn.end ?? 0) + endPanelIn;
   const rest = (corner ? totalIn - corner.upper.alongIn : totalIn) - scribes;
   const scribe = (widthIn: number) => M(`BF${round8(widthIn)}`, "filler", widthIn);
   return {
@@ -2599,6 +2620,7 @@ function bankFor(
         : []),
       ...(rest > 0 ? fillWidth(rest, wallModule, fillerAt) : []),
       ...(scribeIn.end ? [scribe(scribeIn.end)] : []),
+      ...(endPanelIn ? [M(`WEP${endPanelIn}`, "panel", endPanelIn, { labelKey: "requirement.wallEndPanel" })] : []),
     ],
   };
 }
@@ -2679,8 +2701,13 @@ function banksOn(
   mount: HoodMount | null,
   /** The chosen hood's width, for the fillers beside a chimney hood narrower than its opening. */
   hoodWidthIn: number | null,
+  /** Whether the run's far end is open: its wall cabinets end there on a WEP (A-11). */
+  endsOpen = false,
 ): UpperBank[] {
   const stop = bankStop(segments);
+  // The wall cabinets' end panel, where they reach the open end (A-11): the
+  // bank stops where the base run's end panel does, its outer 3/4" the WEP.
+  const endPanelIn = endsOpen && Math.abs(stop - segments[segments.length - 1].to) < 1e-9 ? WALL_END_PANEL.widthIn : 0;
   const openings = cutsFor(windows, runId === "back" ? "back" : "left").filter(
     (cut) => cut.to > start && cut.from < stop,
   );
@@ -2688,7 +2715,7 @@ function banksOn(
   // A leg with nothing cooking on it can still have a tower in the middle of
   // it — the coffee cabinet — and a wall cabinet is not hung across a 96" tower.
   if (!hood) {
-    return banksBetween(runId, start, stop, corner, [...wallCuts(segments, spec), ...openings], null);
+    return banksBetween(runId, start, stop, corner, [...wallCuts(segments, spec), ...openings], null, endPanelIn);
   }
 
   // The bank stops exactly at the hood's flank. A gap there is one you cannot
@@ -2737,7 +2764,7 @@ function banksOn(
     // overturning round 87's open gap). The cut stays the opening's, so
     // nothing along the wall moves — a window is fitted to the same cuts.
     fillerIn: chimneyFillerIn((hood[1] - hood[0]) * 12, mount, hoodWidthIn),
-  });
+  }, endPanelIn);
 }
 
 /**
@@ -2838,11 +2865,13 @@ function banksBetween(
   corner: (typeof CORNERS)[keyof typeof CORNERS] | null,
   unsorted: Cut[],
   housing: { bank: UpperBank; housed: boolean; bridged: boolean; fillerIn: number } | null,
+  /** The wall cabinets' end panel at the bank's far end, where the run ends open there: its width, or 0. */
+  endPanelIn = 0,
 ): UpperBank[] {
   const cuts = unsorted
     .filter((cut) => cut.to > start && cut.from < stop)
     .sort((a, b) => a.from - b.from);
-  if (cuts.length === 0) return [bankFor(`upper-${runId}`, start, stop, corner, "end")];
+  if (cuts.length === 0) return [bankFor(`upper-${runId}`, start, stop, corner, "end", {}, endPanelIn)];
 
   const banks: UpperBank[] = [];
   /**
@@ -2951,6 +2980,7 @@ function banksBetween(
             null,
             remainderAt(last, undefined, false),
             against(last, undefined),
+            endPanelIn,
           ),
           last,
           undefined,
@@ -3340,6 +3370,7 @@ export function generateLayout(
       housingStyle: params.housingStyle,
       mount,
       hoodWidthIn,
+      endsOpen: shape.runs.find((run) => run.id === wall)?.ends[1] === "open",
     });
     if (!fitted) {
       unfitted.push({
@@ -3438,6 +3469,7 @@ export function generateLayout(
       windows,
       mount,
       hoodWidthIn,
+      run.ends[1] === "open",
     ),
   }));
 
@@ -3541,6 +3573,7 @@ function fitWindow(
     housingStyle: HousingStyle;
     mount: HoodMount | null;
     hoodWidthIn: number | null;
+    endsOpen: boolean;
   },
 ): ResolvedWindow | null {
   const centre = (span: readonly [number, number]) => (span[0] + span[1]) / 2;
@@ -3610,6 +3643,7 @@ function evenBeside(
     housingStyle: HousingStyle;
     mount: HoodMount | null;
     hoodWidthIn: number | null;
+    endsOpen: boolean;
   },
 ): boolean {
   const banks = banksOn(
@@ -3622,6 +3656,7 @@ function evenBeside(
     [window],
     leg.mount,
     leg.hoodWidthIn,
+    leg.endsOpen,
   );
   // A bank beside a window has to be a bank: a stretch of nothing but fillers
   // is the board-on-its-own problem again, and the window should move rather

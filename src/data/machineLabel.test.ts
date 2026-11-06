@@ -235,7 +235,9 @@ describe("a wall's bill names what stands on it (round 99)", () => {
         checked++;
         if (!FILLER_WORDS.includes(key)) wrong.add(`${where.split(" {")[0]} ${item.code}: ${key}`);
       }
-      if (/^PNL[\d.]+$/.test(item.code ?? "")) {
+      // The open end's base end panel is BEP since the end-of-run round, a
+      // panel as the 3" PNL3 it replaced was.
+      if (/^(PNL|BEP)[\d.]+$/.test(item.code ?? "")) {
         checked++;
         if (!PANEL_WORDS.includes(key)) wrong.add(`${where.split(" {")[0]} ${item.code}: ${key}`);
       }

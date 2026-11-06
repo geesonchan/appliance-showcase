@@ -98,7 +98,7 @@ describe("rooms the page builds itself keep 9 inches beside the oven tower (乙)
     expect({ minimumIn: short?.vars.minimumIn, maximumIn: short?.vars.maximumIn }).toEqual({ minimumIn: 246, maximumIn: 240 });
   });
 
-  it("leaves every package's own room as it was, in the L and on one wall", () => {
+  it("leaves every package's own room as the 9-inch round found it, in the L and on one wall", () => {
     const own = ["package-a", "package-b", "package-c", "package-d", "package-e"].map((id) => {
       openPackage(id);
       const l = { ...walls(), beside: besideTheTower()?.widthIn ?? null };
@@ -106,15 +106,16 @@ describe("rooms the page builds itself keep 9 inches beside the oven tower (乙)
       const one = { back: store().layoutParams.backWallIn, beside: besideTheTower()?.widthIn ?? null };
       return [id, { l, one }];
     });
+    // One wall's walls 2-1/4" shorter since the end-of-run round: the open end's panel 3/4" where it was 3" (Leo, 2026-11-04, A-12; his answer 2, 2026-11-05: each package opens one wall at the wall it needs).
     expect(Object.fromEntries(own)).toEqual({
-      "package-a": { l: { back: 168, left: 144, beside: null }, one: { back: 236, beside: null } },
-      "package-b": { l: { back: 196.5, left: 144, beside: 18 }, one: { back: 241.25, beside: 18 } },
-      "package-c": { l: { back: 168, left: 144, beside: null }, one: { back: 232.25, beside: null } },
-      "package-d": { l: { back: 224.25, left: 178.75, beside: 18 }, one: { back: 248, beside: 18 } },
+      "package-a": { l: { back: 168, left: 144, beside: null }, one: { back: 233.75, beside: null } },
+      "package-b": { l: { back: 196.5, left: 144, beside: 18 }, one: { back: 239, beside: 18 } },
+      "package-c": { l: { back: 168, left: 144, beside: null }, one: { back: 230, beside: null } },
+      "package-d": { l: { back: 224.25, left: 178.75, beside: 18 }, one: { back: 245.75, beside: 18 } },
       // E's combination oven stands on its own in the L, not beside the
       // cooktop, so it has no rule-12 counter there (round 74); on one wall it
       // stands beside it.
-      "package-e": { l: { back: 180, left: 168, beside: null }, one: { back: 273, beside: 18 } },
+      "package-e": { l: { back: 180, left: 168, beside: null }, one: { back: 270.75, beside: 18 } },
     });
   });
 

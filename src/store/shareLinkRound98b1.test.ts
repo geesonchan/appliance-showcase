@@ -113,6 +113,32 @@ const CHANGED_BY_ROUND_101: Record<string, string> = {
   "E L": "dd6870f58e495ecf8e0e3904a9fc971ae1c58635fa4a725740b668b945d76bdc",
 };
 
+/**
+ * Six that open a different room again since the end-of-run round (Leo,
+ * 2026-11-04, A-9 to A-13, and 2026-11-05, his site practice 甲 for a tall
+ * unit at a wall). The walls and the models are the links' own:
+ * - the open end a 3/4" end panel, BEP, where it was a 3" panel, the 2-1/4"
+ *   counter on the same leg: A one-wall (237-3/4") the refrigerator's landing
+ *   B15 + BF1-3/4 to DB18 + BF1; B L (201-5/8" x 144") the corner's landing
+ *   B27 to B27 + BF2-1/4; B one-wall (244-1/8") B15 + BF2-7/8 to DB18 +
+ *   BF2-1/8; C one-wall (232-1/4") B15 to B15 + BF2-1/4; D one-wall
+ *   (249-1/4") B15 + BF1-1/4 to DB18 + BF1/2.
+ * - D L (224-1/4" x 178-3/4", D's own room): the 3" between its steam oven
+ *   tower and the back wall one filler floor to top, no stone and nothing
+ *   over it; nothing else.
+ * E on one wall changes too (its landing B15 + BF5/8 to B15 + BF2-7/8), and
+ * is already the room 98b-2 changed (`CHANGED_BY_98B2`). Hashed as `held`
+ * hashes, on this round's code; looked up before the earlier rounds' maps.
+ */
+const CHANGED_BY_END_ROUND: Record<string, string> = {
+  "A one-wall": "eb83f4a2cb31cb2feffa2b1ea1c67d6968c1c114d1a4dfe7b336af61752a75f1",
+  "B L": "876f0236fb520b4b85793626d475677d10fff485d69d8d6f57519f59ee1bb1ef",
+  "B one-wall": "b4ef360444a26d059cb707ddfa8e4de470d3017f59c9272077c9d0f5d518029a",
+  "C one-wall": "44ed912def19cd93f7bb9b6f757df45ff73cfc147ea09e0c0d8173b99d225a7d",
+  "D L": "508d8457d3b43153bf82bca1f0df6317f6024b1ac984e40ea98aa59a519b0a21",
+  "D one-wall": "a556c136e3410fc6e1fdd85531844fd55343bf6f7f2b6cdc59cba01be2b1e453",
+};
+
 describe("the ten v=2 links round 98b-1 wrote", () => {
   it("is ten: five packages, in the L and on one wall", () => {
     expect(LINKS.length).toBe(10);
@@ -122,7 +148,8 @@ describe("the ten v=2 links round 98b-1 wrote", () => {
     it("opens the room 98b-1 opened, every run, machine, cabinet box and model — but E on one wall", () => {
       freshPage();
       openSharedLink(fixture.link);
-      if (_name in CHANGED_BY_FRIDGE_FRONT) expect(held()).toBe(CHANGED_BY_FRIDGE_FRONT[_name]);
+      if (_name in CHANGED_BY_END_ROUND) expect(held()).toBe(CHANGED_BY_END_ROUND[_name]);
+      else if (_name in CHANGED_BY_FRIDGE_FRONT) expect(held()).toBe(CHANGED_BY_FRIDGE_FRONT[_name]);
       else if (_name in CHANGED_BY_ROUND_101) expect(held()).toBe(CHANGED_BY_ROUND_101[_name]);
       else expect(held() === fixture.room).toBe(_name !== CHANGED_BY_98B2);
     });

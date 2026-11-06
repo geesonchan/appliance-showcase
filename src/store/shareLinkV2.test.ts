@@ -82,6 +82,19 @@ const CHANGED_BY_ROUND_101: Record<string, string> = {
   E: "bb595924b0ed498b0fe51829dd38245ae2b98c40216a2d55a5f41be5c3e9a5e1",
 };
 
+/**
+ * Package B's, which opens a different room again since the end-of-run
+ * round, because Leo changed the open end (2026-11-04, A-9 to A-13): its
+ * left leg's open end is a 3/4" end panel, BEP, where it was a 3" panel. The
+ * walls, 211" x 151-1/8", are the link's; the 2-1/4" given up is counter on
+ * the same leg, as the packer shares it out: the corner's landing B33 +
+ * BF1-1/8 becomes DB18 + DB18 + BF3/8. Hashed as `roomAsRound97Held`
+ * hashes, on this round's code; looked up before the earlier rounds' maps.
+ */
+const CHANGED_BY_END_ROUND: Record<string, string> = {
+  B: "9007cddd2f6294ca2086858edf53c7238278bb78a24da4db1869c71db39735cf",
+};
+
 describe("the five links round 97 wrote, one per package", () => {
   it("is five, one per package that builds", () => {
     expect(LINKS.map(([code]) => code)).toEqual(PACKAGES.filter((entry) => entry.available).map((entry) => entry.code));
@@ -103,7 +116,7 @@ describe("the five links round 97 wrote, one per package", () => {
     it("opens the room round 97 opened, every run, opening and cabinet box", () => {
       freshPage();
       openSharedLink(fixture.link);
-      expect(roomAsRound97Held()).toBe(CHANGED_BY_FRIDGE_FRONT[code] ?? CHANGED_BY_ROUND_101[code] ?? fixture.room);
+      expect(roomAsRound97Held()).toBe(CHANGED_BY_END_ROUND[code] ?? CHANGED_BY_FRIDGE_FRONT[code] ?? CHANGED_BY_ROUND_101[code] ?? fixture.room);
     });
   });
 });

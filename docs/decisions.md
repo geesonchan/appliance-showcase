@@ -7470,6 +7470,63 @@ Registered, not scheduled. None of these is a round of its own.
     any of the 200. So: the local `vite preview` serving three cold
     browsers at once, and a page that waits on an outside font request; not
     the GPU. Nothing changed for it — Leo to read.
+  - *Met again, 2026-11-05/06, and recorded*: the end-of-run round's first
+    full suite went red twice the same way, `smoke.test.ts` and
+    `shareLink.test.ts` — the test server on 4174 resetting the main chunk's
+    first request, `#root` empty (the round's entry under "The stone beside
+    an oven tower…"). The run again was green.
+- **The page waits for Google Fonts before it draws.** *(Leo, 2026-11-05:
+  registered, looked into, not changed — customers in mainland China, where
+  Google's fonts are often blocked.)*
+  - **How it loads**: `index.html` asks for the stylesheet
+    `fonts.googleapis.com/css2?family=Cormorant+Garamond…&family=Inter…&display=swap`
+    with a plain `<link rel="stylesheet">` in the head, before the site's
+    own module script (`dist/index.html`). A stylesheet in the head holds
+    the first paint, and a script after it waits for it before it runs, so
+    nothing is drawn and the app does not start until that request is
+    answered or fails. `display=swap` only governs the font files that
+    stylesheet names, after it has come.
+  - **Measured on the live site** (`28b8b18`, a desktop, twice each, the
+    site as it is; only what the browser can reach changed): normally the
+    canvas 0.9–3.6 s, about 0.3–0.4 s after the stylesheet arrives. Google
+    refused at once (`ERR_CONNECTION_REFUSED`): the canvas at 0.45 s, the
+    system fonts. Google's addresses not answering (packets dropped): the
+    browser gives up on the connection after **21 s**
+    (`ERR_CONNECTION_TIMED_OUT`, 21.1 s both times) and the canvas comes at
+    21.4 s. The request held open without an answer: the canvas waits as
+    long as it is held — 120 s in the test, the browser did not give up
+    first. So how long a customer in China waits depends on how the block
+    behaves: none if refused, about 21 s if dropped, open-ended if held. In
+    the 200-opening probe one slow page drew the moment its font request
+    failed (50 s).
+  - **Ways to change it, none chosen:**
+    - 甲, **the fonts in the site's own files**: the two families' woff2
+      files (Latin, the weights used: 300–600) served from the site with
+      `@font-face` and `font-display: swap`; no request outside the site.
+      Both are SIL Open Font License, so they may be served. Cost: the
+      files (roughly 150–250 KB), downloaded once; the same glyphs, so
+      the pixels should not move (to prove by the locked shots); an
+      update of the fonts is ours to make.
+    - 乙, **Google's stylesheet not waited for**: loaded so it does not hold
+      the page (a preload that turns itself into a stylesheet on load, or
+      `media="print"` switched on load). The page draws at once in the
+      fallback fonts and swaps to Cormorant Garamond and Inter when they
+      come; where Google is blocked it stays in the fallback fonts. Cost:
+      the text changes face once on most first visits (the panels and pins
+      reflow by a little); in China the look is the fallback's; the shots
+      and tests must wait for the swap.
+    - 丙, **another host for the same fonts** (a mirror reachable in China).
+      Cost: a third party of another kind, its availability ours to watch;
+      still a request before the page draws unless with 乙.
+    - 丁, **no web fonts**: system font stacks (a serif for the titles, the
+      system sans for the rest). Cost: the look changes everywhere —
+      Cormorant Garamond's titles become Georgia or the system serif; the
+      pixel proof rebuilt.
+    - Any of them with a **time limit** of our own (the page drawn in the
+      fallback after, say, 2–3 s whatever the request is doing) — a form of
+      乙.
+  - **Not looked at**: whether `geesonchan.github.io` itself is reachable
+    from mainland China — the site, not the fonts.
 - **A tap on the phone card's liner that rebuilt nothing, once.** *(Round 88,
   cause not found. Leo, round 89: a round of its own, round 93, after RAL —
   is it the test's timing of the tap, or a real tap that now and then does
@@ -9210,6 +9267,111 @@ Registered, not scheduled. None of these is a round of its own.
      for it, 2-1/4" shorter; one wall's 106, every package's own one-wall
      room 2-1/4" shorter (A 233-3/4", B 239", C 230", D 245-3/4", E
      270-3/4"). Four questions for him.
+  7. **Answered 2026-11-05** (Leo), after the 9" round is live:
+     1. The wall cabinets' end panel (WEP): 「吊柜侧板」 / "wall cabinet end
+        panel". The base run's open-end panel (BEP) stays 「侧板」 in
+        Chinese, and in English is "end panel" where it was "Filler" — the
+        keys `left-end-panel` and `back-end-panel` with it. Written into the
+        text and locked in `reviewed.json`.
+     2. One wall: each package opens at the wall it needs, 2-1/4" shorter,
+        as B's choice was.
+     3. E's 16 rooms with their left wall 2-1/4" shorter: so.
+     4. The full-height filler beside a tall unit at a wall keeps its name,
+        「靠墙填充板」 / "filler against the wall".
+     And: the stone through the 3" beside B's and D's tall unit at a wall
+     is still on the live site — 甲 is this round's to fix; the preview
+     with close-ups of that side of B and D, before and after. Built red
+     first, proved by the plan's section 5 (the power plan read before the
+     full suite, and not across 18:00, when the computer may be put to
+     sleep by hand, or him told); a local preview, nothing committed before
+     his look.
+  8. **Built** (not committed, on `28b8b18`):
+     - `layoutTemplate.ts`, `terminal()`: at a wall, the 3" is a `tall`
+       segment where the piece before it is tall, `counter` otherwise; the
+       open end's panel `BEP0.75`, 3/4", drawn to 34-1/2" (`END_PANEL`,
+       `heightIn`), its word `requirement.endPanel` as before. The wall
+       cabinets: `banksOn` is told whether the run's far end is open, and
+       where the bank reaches it, the last bank ends on `WEP0.75`
+       (`bankFor`'s `endPanelIn`, the window fitting told the same);
+       `CabinetModule.labelKey` new, carried by the WEP alone —
+       `requirement.wallEndPanel`, which no list shows yet (the wall
+       cabinets are on none).
+     - `counter.ts`: at an open end the stone runs to 1" past the end
+       panel (`runEnd`); a refrigerator ending a run at an open end keeps
+       its stone stopping at its side, as before.
+     - Drawn by what was there: a tall filler at a run's end goes floor to
+       96" with its 12" stacked over it, a strip in the door colour; the
+       BEP a strip to the floor, as the 3" panel's foot was.
+     - Words: `requirement.endPanel` "end panel" (was "filler"), 「侧板」;
+       `requirement.wallEndPanel` "wall cabinet end panel", 「吊柜侧板」;
+       all four locked in `reviewed.json` as his wording.
+     - **Red first**: `src/data/endOfRun.test.ts` (7) on `28b8b18` all red
+       — B's and D's 3" a counter segment with a base filler (4"–34-1/2"),
+       the stone over it and a panel filled over it; A's and C's open end a
+       3" PNL3 floor to 96", the stone stopping at its face, the wall
+       cabinets ending on a W1242; one wall's walls as they were; the
+       English "filler". `tests/endOfRun.test.ts` (3: D by the mouse, B by a
+       finger, A's open end) on `28b8b18`'s build: the 3" a board from 4"
+       to 34-1/2" with the stone reaching the wall; no BEP at A's end. Green
+       after: one board floor to 108" in the doors' colour, the stone
+       stopping at the tower's inner side (33" short of the wall); the BEP
+       to 34-1/2", the stone 1" past it, a 3/4" WEP to 96" at the wall
+       cabinets' end.
+     - **Tests whose figures changed**, each with its reason beside it:
+       one wall's walls 2-1/4" shorter (`oneWall`, `oneWallSwitch`,
+       `rule12Floor`, `fridgeFront` — A 233-3/4", C 230", T36FT820NS
+       growing A to 236" — `fridgeModelGrew`); `toeKick` (B's BEP0.75 to
+       the floor, D's 3" filler to the floor, the kick stopping 3/4" in);
+       `machineLabel` (BEP counted as a panel); the old links whose rooms
+       changed, `CHANGED_BY_END_ROUND` with each one's change listed; and
+       `tests/fridgeFront.test.ts`'s link for A's one wall `back=233.75`,
+       the wall A opens at now, so T36FT820NS still grows it (to 236″).
+       Unit suite 3,124 of 3,124 (+7 new, +2 locked lines).
+     - **Dumps** (`28b8b18` against this): the L 749 of 1,063 lines the
+       same; changed only as the plan's section 3 counted — B 24 and D 55
+       rows with the 3" a tall filler and no wall changed (D's own room
+       among them), the open end's 235 rows with their walls as they were
+       but E's 16 left walls 2-1/4" shorter; one wall all 106 (every room
+       has its open end), each package's own wall 2-1/4" shorter. Nothing
+       else changed anywhere.
+     - **Pixels** (`?qualityLock=1`; `28b8b18` built as `index-BKrpmgHx.js`,
+       this as `index-CT8FdzVG.js`; old1, new1, old2, new2, 22:17–23:01, no
+       page blank): of the 45 states 29 the same; A's, C's and E's L every
+       one (link E without the island one pixel, noise); B's eleven (its own
+       room ends its left leg open) and D's seven (its own room is one of the
+       tall unit at a wall) changed, and only there. One more: in install
+       mode D's countertop outline is redrawn a pixel differently away from
+       the tower — the stone is one geometry, and lost its 3" piece; the
+       crops side by side show no difference. Ten of the round's own (D, and
+       B with its tower at the wall, flown to the tower in the three modes;
+       A's open left leg and C's one wall at 232-1/4", flown to the
+       dishwasher, materials and install) change as the change does, and
+       close crops of each at twice the pixels, before and after, for Leo;
+       each build's two runs the same.
+     - **Full suite, first run: not a pass.** Power plan never, never,
+       never at 23:03; `npm test` 23:04:05 to 00:12:35, 159 files: 157
+       green, 2 red, 3,440 passed, 1 failed, 29 skipped, exit code 1; no
+       power event in the system log from 23:00. Both red were a page that
+       did not draw, and the recorder kept both
+       (`test-results/blank-canvas/`): `tests/smoke.test.ts` in its
+       `beforeAll` at 23:06:59 (its 29 tests skipped), and
+       `tests/shareLink.test.ts`, "copied and opened in a fresh browser",
+       at 23:42:33. In each, the local preview server (`vite preview` on
+       4174) reset the first request for the main chunk
+       (`index-CT8FdzVG.js`, `net::ERR_CONNECTION_RESET`), so the module
+       never ran — `#root` empty, no page error — the third case the probe
+       met (decisions.md, the blank-canvas entry). Not this round's code.
+       Run again.
+     - **Full suite, run again: green with no standby.** `npm test` (build
+       `index-CT8FdzVG.js`), 00:13:40 to 01:31:07, 4,647 s: **159 files,
+       3,470 of 3,470, exit code 0** (+7 unit, +2 locked lines, +3
+       `tests/endOfRun.test.ts`). No power event in the system log from
+       23:00 to 01:31; the power plan still never, never, never; no
+       blank-canvas record written. Then CI's own commands: `npm ci` 0,
+       `npm run test:unit` 121 files 3,124 of 3,124, `npm run build`
+       `index-CT8FdzVG.js`.
+     - **Local preview**: `index-CT8FdzVG.js` (no counter) at
+       http://localhost:4173/. The site still serves `28b8b18`.
 - **Round 99a, one wall and a machine chosen narrower than its opening —
   built and shipped after Leo's look at the local preview** (Leo, round
   99a: "第 99a 轮预览看过了（index-Bh3Snm2C.js），可以提交"). The plan,
@@ -10328,6 +10490,15 @@ Registered, not scheduled. None of these is a round of its own.
       cabinet on its right) confirmed. The recorder stays out of
       `screenshots.mjs`, `qualityDrop.mjs`, `swapMemory.mjs` and
       `analytics.test.ts`'s opening of the live site, as proposed.
+    - **Shipped** as `28b8b18`, with the recorder, the probe, decisions.md,
+      HANDOFF and the two plans. Pages run 42169699403, **success**: build
+      05:39:26–05:40:31 UTC, deploy 05:40:35–05:41:03 UTC (2026-11-06).
+      Built on `28b8b18` with the counter's address and compared with the
+      live site file by file, **all six byte for byte the same**:
+      `index.html` 901; `assets/index-B4q7wxW8.js` 699,549;
+      `assets/index-ByYGZbZC.css` 23,985; `assets/react-i_nGBwMY.js`
+      145,992; `assets/shareQr-BXYgausd.js` 21,968;
+      `assets/three-C6wp6xxT.js` 704,119.
   - **T18IW100SP's installation instructions, read** (Leo, item 4;
     `docs/reference/t18iw100sp-install.pdf`, its README row): 64 pages, the
     first 13 safety text in three languages, 14–61 drawings. **No page shows

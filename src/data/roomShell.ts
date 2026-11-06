@@ -296,6 +296,12 @@ export interface CabinetModule {
   code: string;
   kind: ModuleKind;
   widthIn: number;
+  /**
+   * Its word, where a piece of the wall cabinets has one of its own: the wall
+   * cabinets' end panel at an open end, 「吊柜侧板」 (Leo, 2026-11-05). A base
+   * run's pieces take theirs from the bill's items.
+   */
+  labelKey?: string;
   /** Present where the height is part of the code — wall and tall boxes. */
   heightIn?: number;
   /**

@@ -60,7 +60,7 @@ describe("choosing a refrigerator that needs more wall", () => {
     });
   });
 
-  it("grows A's one wall to 238-1/4\", and Undo puts back 236\"", () => {
+  it("grows A's one wall to 236\", and Undo puts back 233-3/4\"", () => {
     freshPage();
     store().setPackageId("package-a");
     store().setLayoutShape("one-wall");
@@ -70,10 +70,12 @@ describe("choosing a refrigerator that needs more wall", () => {
     store().selectAppliance("slot-fridge", "thermador-t36ft820ns");
     const grown = { wallIn: store().layoutParams.backWallIn, key: store().toast?.key, zh: said("zh") };
     store().undo();
+    // 233-3/4" to 236" since the end-of-run round (236" to 238-1/4" until
+    // then): the open end's panel 3/4" where it was 3" (Leo, 2026-11-04, A-12; his answer 2, 2026-11-05: each package opens one wall at the wall it needs).
     expect({ before, grown, undone: store().layoutParams.backWallIn }).toEqual({
-      before: 236,
-      grown: { wallIn: 238.25, key: "toast.modelGrew", zh: ["换了型号，后墙不够长，已加长到 238¼″。"] },
-      undone: 236,
+      before: 233.75,
+      grown: { wallIn: 236, key: "toast.modelGrew", zh: ["换了型号，后墙不够长，已加长到 236″。"] },
+      undone: 233.75,
     });
   });
 

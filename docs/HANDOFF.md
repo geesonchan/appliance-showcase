@@ -211,22 +211,19 @@ confirms it** (Leo, 2026-10-24).
    and "Shipped", `408fe91`, after a full suite green with no standby in
    it). **Round 101 is live.** Every full suite from now: no standby in
    it, Leo told before it starts.
-5a. **Rule 12's counter at least 9"** (Leo, 2026-11-05, 乙; the plan
-   `docs/plans/rule12-9in-plan.md`, its four questions answered as
-   suggested): **built, not committed** — waiting for Leo's look at its local
-   preview (decisions.md, "Answered 2026-11-05" under "Chosen 2026-11-05").
-5b. **The page that now and then shows no canvas in 60 s** (Leo, 2026-11-05,
-   丙): the shared recorder `scripts/pageWatch.mjs` in every browser test and
-   the pixel shots, and `scripts/blankCanvasProbe.mjs` — built with the 9"
-   round, recording only; the probe's 200 openings and what they showed are
-   in decisions.md (Open items, "A browser test that times out…").
+5a. **Rule 12's counter at least 9"**: **done**, `28b8b18` (decisions.md,
+   "Chosen 2026-11-05" and its "Shipped").
+5b. **The page that now and then shows no canvas in 60 s**: the recorder
+   (`scripts/pageWatch.mjs`) and the probe, shipped with `28b8b18`; what the
+   probe and the full suites since found — the local preview server
+   resetting the main chunk's first request — in decisions.md (Open items,
+   "A browser test that times out…"). And the page waiting for Google
+   Fonts, looked into, ways listed, not chosen (Open items, "The page waits
+   for Google Fonts…").
 6. **The stone beside a tall unit at a wall, and the open end** — one round
-   (Leo, 2026-11-05): a tall unit at a run's end against a wall has 3" of
-   filler floor to top beside it, no stone, in the door colour (his site
-   practice, 甲; decisions.md, Open items, "The stone beside an oven tower…");
-   with A-9 to A-15 (decisions.md). After the 9" round; its plan,
-   `docs/plans/end-strip-open-end-plan.md`, waits for his four answers.
-   (`docs/plans/overnight-2026-10-23-open-end.md` is the earlier reading.)
+   (Leo, 2026-11-05; `docs/plans/end-strip-open-end-plan.md`, his four
+   answers in decisions.md): **built, not committed** — waiting for Leo's
+   look at its local preview, with close-ups of B's and D's wall side.
 7. **Then a galley** (`docs/plans/overnight-2026-10-23-galley.md`), **then a U**
    (`docs/plans/overnight-2026-10-24-u-shape.md`).
 

@@ -189,8 +189,20 @@ export function islandCooktopHole({ layout, slot, appliance }: IslandTop): Point
   return rect([alongAt - halfW, alongAt + halfW], [acrossAt - halfD, acrossAt + halfD], layout.axis);
 }
 
-/** Where a leg's counter stops: the end of the run. */
-const runEnd = (run: CabinetRun) => run.segments[run.segments.length - 1].to;
+/**
+ * Where a leg's counter stops: the end of the run — and at an open end, 1"
+ * past the base run's end panel, as the stone stands 1" past the doors at the
+ * front (Leo, 2026-11-04, A-10, A-13: the panel to under the top, the stone
+ * over it and past it, its corner square). Until then it stopped at the 3"
+ * panel's outer face.
+ */
+const runEnd = (run: CabinetRun) => {
+  const last = run.segments[run.segments.length - 1];
+  // The open end's own panel, not a refrigerator that ends the run there with
+  // its side panel inside its segment: the stone stops at a tall unit.
+  const open = run.ends?.[1] === "open" && /-end-panel$/.test(last.id);
+  return last.to + (open ? ROOM.counterOverhang : 0);
+};
 
 /** Same figure twice, to the tolerance a generated run is built to. */
 const near = (a: number, b: number) => Math.abs(a - b) < 1e-9;
