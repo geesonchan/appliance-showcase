@@ -12,9 +12,27 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **the quality lock's test round** (2026-11-04), after the columns' two rows round (live at `a46d2a9`) (`docs/decisions.md` is the record of
-rounds; `git log` is the record of commits). It replaces the v1–v9 briefs that
-were pasted into chat.
+Covers the repository up to **the end-of-run round** (2026-11-06), live at
+`05bb6e1`, and the handoff commit after it, which changes only `docs/`
+(`docs/decisions.md` is the record of rounds; `git log` is the record of
+commits). It replaces the v1–v9 briefs that were pasted into chat. Written at
+the end of a long session, for the next one, which has only the repository:
+**section 6 is how Leo works, and is not written anywhere else in one place.**
+
+### Live, 2026-11-06
+
+- **`05bb6e1`**, the end-of-run round, checked file by file after its Pages
+  run (42249758730, build and deploy each a success): six of six files the
+  same byte for byte as a build at `05bb6e1` with the counter's address; the
+  live main chunk **`assets/index-NNDgg3WU.js`** (700,237 bytes). Every
+  figure is in `docs/decisions.md`, the end-of-run round's "Shipped".
+- **Then the handoff commit** (this file and `docs/decisions.md` only). The
+  footer's commit is compiled into the main chunk, so its main chunk has
+  another name while every other file stays the same. Its own check was
+  reported to Leo in chat and could not be written into the commit it
+  checks: **the first thing the next session does is check it again** (step
+  2 below) and write the result into `docs/decisions.md` with its first
+  round.
 
 ---
 
@@ -26,9 +44,11 @@ were pasted into chat.
    number, the highest numbered rule in D11, and how many entries the Open
    items section has.
 2. **Check the tree and the site agree.** `git status`, `git log --oneline -5`,
-   and compare the live page's `assets/index-*.js` with a fresh local `npm run
-   build` (D17: a push is not a deploy, and the footer's commit is compiled
-   into that chunk).
+   then build at `HEAD`, the tree clean, with the counter's address —
+   `VITE_GOATCOUNTER=https://geesonchan.goatcounter.com/count npm run build`
+   — and compare every file the live site serves with `dist/`, byte for byte,
+   listing each file's name, size and whether it is the same (D17: a push is
+   not a deploy, and the footer's commit is compiled into the main chunk).
 3. **Run the tests before changing anything**, so a later red is yours:
    `npm run test:unit` (seconds) and `npm run build`. Write the output to a
    file and read vitest's own exit code from a file of its own — D17 spells out
@@ -58,7 +78,7 @@ every figure of it, is `data/packages.json`; D16 and D20 say how a package is
 put together and why E was built the way it was. **Do not copy those numbers
 anywhere**: the file is the one source, and the tests read it.
 
-### Where it stands (round 99d)
+### Where it stands (2026-11-06, after the end-of-run round)
 
 - **All five packages are live, as an L and on one wall.** Rounds 73–79, 81–90, 92, 92a, 92b, 92c, 93, 94, 95, 91, 96, 97, 98a, 98b-1, 98b-2, 99, 99a, 99b, 100, 99c and 99d each shipped
   (round 80 built nothing; 91 was built after 95, below), and each was checked against the live page's asset hashes
@@ -161,7 +181,17 @@ anywhere**: the file is the one source, and the tests read it.
   the model card; packages open on the -SS rows; links before `v=3` open a
   column's bare number as its -SS row (**done**, the columns' two rows
   round, imported from his export of 2026-11-04, live at `a46d2a9`; Open
-  items, "Answered 2026-11-02" and "Built, 2026-11-02").
+  items, "Answered 2026-11-02" and "Built, 2026-11-02"). The quality lock's
+  test, every frame held 30 ms by the test (**done**, `7d0b6f2`). Round 101,
+  the L's D: the coffee machine's door behind a whole 15" cabinet, then
+  every group of columns case against case (**done**, `2bb727c` and
+  `408fe91`). Rule 12's counter beside an oven tower at least 9", with the
+  page recorder and the probe (**done**, `28b8b18`). The end of a run: a
+  tall unit's 3" at a wall one filler floor to top with no stone, an open
+  end a 3/4" end panel under the stone, which stands 1" past it, the wall
+  cabinets ending on a 3/4" board (**done**, `05bb6e1`, live; Open items,
+  "The stone beside an oven tower that ends an L's leg at a wall", its
+  items 5 to 9).
 
 ### Next, in Leo's order (2026-10-24, after round 99d; amended 2026-11-05)
 
@@ -218,14 +248,79 @@ confirms it** (Leo, 2026-10-24).
    probe and the full suites since found — the local preview server
    resetting the main chunk's first request — in decisions.md (Open items,
    "A browser test that times out…"). And the page waiting for Google
-   Fonts, looked into, ways listed, not chosen (Open items, "The page waits
-   for Google Fonts…").
+   Fonts, looked into, ways listed (Open items, "The page waits for Google
+   Fonts…").
 6. **The stone beside a tall unit at a wall, and the open end** — one round
    (Leo, 2026-11-05; `docs/plans/end-strip-open-end-plan.md`, his four
-   answers in decisions.md): **built, not committed** — waiting for Leo's
-   look at its local preview, with close-ups of B's and D's wall side.
-7. **Then a galley** (`docs/plans/overnight-2026-10-23-galley.md`), **then a U**
-   (`docs/plans/overnight-2026-10-24-u-shape.md`).
+   answers in decisions.md): **done**, `05bb6e1`, live, after his look at
+   the local preview (2026-11-06).
+
+### What comes next, in Leo's order (2026-11-06)
+
+Each a plan first, shown to Leo, built only once he confirms it.
+
+1. **The fonts in the site's own files** — no request to Google, the system
+   fonts shown until the files come. **A plan first**, which states the
+   font files' sizes, whether the licence allows serving them, the first
+   frame's time in four network conditions, and a pixel comparison
+   (decisions.md, Open items, "The page waits for Google Fonts…",
+   "Registered 2026-11-06").
+2. **The test environment: the local server resetting the main chunk's
+   first request** (`ERR_CONNECTION_RESET`), which has made several full
+   suites run for nothing. The test environment only, never the page. **A
+   plan first**; five ways and their costs are listed (decisions.md, Open
+   items, "A browser test that times out…", "Registered 2026-11-06").
+3. **A galley** (Open items, "A layout shape switch";
+   `docs/plans/overnight-2026-10-23-galley.md`).
+4. **A U** (the same entry; `docs/plans/overnight-2026-10-24-u-shape.md`).
+
+### Registered, not in that order
+
+One line each; the entry named in `docs/decisions.md`, Open items, holds its
+figures, its sources and its latest status. Leo sets when any of them is
+done. Made from the entries' headlines and their last dated notes on
+2026-11-06; an entry not listed here is done, is a record of a past run, or
+is one of the four above — and where this list and decisions.md disagree,
+decisions.md is right.
+
+- The copied textures, and the high tier's textures left on the graphics card after a drop to low — "The copied textures" (and its 2026-10-28 note).
+- The full suite's 84–90 minutes, six ways to shorten it, none chosen — "The full suite takes 84–90 minutes".
+- The import's `_meta` to carry no day and no path, **with the next import** (chosen, 3) — "The import's `_meta` is in the main chunk".
+- A hood's own outlet first, then 79a (the cabinet over the hood opens) and 79b (the duct turning); the 30" option in A paused — "Registered rounds after 78".
+- A Run Composer — D14; the two run towers on separate legs — D22, round 55.
+- A flush install for an oven tower — "A flush install for an oven tower, as an option a package chooses".
+- A model of another install type, for four more kinds of slot — the entry of that name.
+- On a phone, the model card folding away once a model is chosen — the entry of that name.
+- The model card over the render-mode switch on a narrow desktop — "On a narrow desktop the model card lies over…".
+- A pin label under a full-height model card — the entry of that name.
+- Where a desktop becomes a phone, 768 CSS pixels — the entry of that name.
+- The camera staying where it was after a package switch — "After a package switch the camera stays where it was…".
+- One Chinese word for two things, 清单 — the entry of that name.
+- A dishwasher or a wine cooler under TCM24PS — "Is a dishwasher or a wine cooler under TCM24PS an approved combination?".
+- A shallower drawer where the gas is at the back of a drawer base, Leo's site practice to confirm — the entry of that name.
+- A hood at least as wide as the range under it, for the models — the entry of that name.
+- A hood over an island held exactly centred — the entry of that name.
+- A microwave drawer in a tall unit, once a manual allows it (MD24BS's alone) — the entry of that name.
+- Three "taller than the opening" notes that mislead — the entry of that name.
+- A 120V machine's generic power point at 42" — the entry of that name.
+- A freestanding refrigerator in A's slot, and rule 7's check names — "Is a freestanding refrigerator in package A's slot drawn right?".
+- Two install-view planes outside D21's three tiers — the entry of that name.
+- The panels a machine draws above or below itself, with no face — the entry of that name.
+- A filler's board coded by its width rounded to a sixteenth — the entry of that name.
+- A package whose own range is missing from the catalogue — the entry of that name.
+- HMCB36WS's chimney height that does not square — the entry of that name.
+- What waits on documents: Package C's four installation manuals, PRG366WH's manual — their entries, and section 8 below ("Things the repository does not have").
+- One axis written in: the one copy left — "One axis written in, found in round 49 and not fixed".
+- Found in round 97 and not changed (a blower drawn in a hood that has its own; the workflow's actions on Node 20, among others) — "Found in round 97, not changed…".
+- Day after a round trip through night — the entry of that name.
+- A room rebuild's faint wash over the picture — the entry of that name.
+- E's "07 Cooktop" label over a bar stool — the entry of that name.
+- The layout checker's messages built in English — the entry of that name.
+- The smoke suite's `-t` exemption, and the Chinese install lines that carry English — "The smoke suite's `-t` exemption does not take effect".
+- Runs stopped part way with exit code 4 — the entry of that name.
+- A fixed camera for screenshot diffs — the entry of that name.
+- How far a phone reads the share box's code, Leo's to measure in the shop — the entry of that name.
+- The scripts not wired to the page recorder (`screenshots.mjs`, `qualityDrop.mjs`, `swapMemory.mjs`, `analytics.test.ts`'s opening of the live site) stay unwired (Leo, 2026-11-05) — "A browser test that times out…", "Built 2026-11-05".
 
 ---
 
@@ -413,7 +508,139 @@ what to go and read.
 
 ---
 
-## 6. Open items
+## 6. Working with Leo (和 Leo 一起工作的做法)
+
+The rules this project's sessions have worked to, gathered in one place on
+2026-11-06 for a session that starts with nothing but the repository. Most
+were set by Leo after something went wrong; where a rule has its record in
+`docs/decisions.md` (mostly D17), that record is the text and this is the
+list.
+
+### The order of a round
+
+1. **A plan first**, written for Leo and shown to him. **Nothing is built
+   before he confirms it** (「每一轮都先写计划给我看，确认后再动手」). A plan says what
+   changes, which rooms, before and after, what stays as it is, and the
+   questions he has to answer.
+2. **He confirms**, often with answers; his answers go into
+   `docs/decisions.md` in his words, with the date.
+3. **Build it**: tests red first (below), then the code, then the proof.
+4. **A local preview**, and the report names its main chunk
+   (`assets/index-….js`). The preview server is `vite preview` on 4173; the
+   app stops it between turns, so before Leo looks it is started again and
+   the chunk it serves is checked to be the one reported.
+5. **Leo looks at the preview and says so** (his words are like
+   「…预览看过了（index-….js），可以提交」). **Without his look nothing is
+   committed.** Until then every report says the live site does not have it,
+   names the live commit and chunk, and labels every screenshot with its
+   build.
+6. **Commit and push.** Before the push, CI's own commands on the tree as
+   committed: `npm ci`, `npm run test:unit`, `npm run build`.
+7. **Report the deploy's two jobs**: `gh run watch` on the Pages run, then
+   each job's (build, deploy) conclusion and times, and the run's number.
+8. **Check the live site file by file.** After the commit (the commit is
+   compiled into the main chunk, so a build before it never matches), build
+   with the counter's address,
+   `VITE_GOATCOUNTER=https://geesonchan.goatcounter.com/count npm run build`,
+   the tree clean; fetch every file the live site serves; list each file's
+   name, its size, and whether it is the same byte for byte. Write it into
+   `docs/decisions.md` under the round, as "Shipped"; that change to the
+   docs is committed with the next round (or on its own when Leo asks).
+
+### Reports
+
+- **Leo reads Chinese** — the report in Chinese, plain words, easy to read
+  on a phone: short paragraphs and lists, no wide tables (a table of two or
+  three narrow columns is the most). Code names and file names stay as
+  they are.
+- **The results are in the report itself**: the numbers, the files, the
+  counts — never only "done", and **never only in the app's next-step box**,
+  which he has missed twice. The whole report as a message first, the box
+  after it.
+- **Before the report goes out**, every probe, aside and "note this" from
+  the round is in the report or in Open items (D17, round 73).
+- **A figure is quoted from the run that was checked**, and says which run.
+- **A flaky or red result is reported as it was**, with its record; it is
+  not a pass. Run again, and report both.
+- **What Leo sends from his shop is data, not code**: site practice, the
+  shop's own names for things, anything he is to choose — give the options
+  and a suggestion with its reason, and **do not choose for him**
+  (「不要选，等我答」).
+
+### Tests
+
+- **A new test is run red on the old code first**, and why it is red is
+  read and written down, before the code changes.
+- **An old test whose expected figure changes** says why, beside it, with
+  the round and Leo's answer it follows.
+- **An old test whose check changes** (what it measures, how it reads the
+  scene) is shown to check the same thing as before — on the old build and
+  the new — and the reason is written beside it.
+- Fixtures that are symmetric (square openings, nothing turned) pass broken
+  logic: pick lopsided cases.
+- A script `click()` in the page and a real mouse, finger or key can differ
+  here (D17): say which input a result came from, and check both before
+  saying what a customer sees.
+
+### The proof of a round that touches the room
+
+- **The dumps, line by line**: `scripts/lDump.ts` (the L, 1,063 rooms) and
+  `scripts/oneWallDump.ts` (one wall, 106), on the commit before the round
+  (`ROOT=<tree>`) and on the round; every changed line accounted for by the
+  plan, and nothing else changed.
+- **Pixels**: `scripts/pixelShots.mjs` and `scripts/pixelCompare.mjs`, 45
+  states, the quality locked (`?qualityLock=1`), the old build and the new
+  each shot twice, alternated (old, new, old, new), each build also against
+  itself. A difference in the room is never explained away; close-ups
+  before and after for Leo where it changes.
+- **The full suite** (`npm test`, about 77 minutes now):
+  - **Before it**, read the power plan: turning the screen off, sleep and
+    hibernate all "never" (`powercfg /query`).
+  - **Tell Leo before it starts**, and keep the session's turn open until it
+    ends.
+  - **Around 18:00 Leo may put the computer to sleep by hand**: do not start
+    a run that would cross it without telling him first.
+  - **The system log at the start and the end**: any sleep or standby in
+    the run (events 42, 506, 507, 107, 187) means it is **not a pass**,
+    however it ended. So does any red.
+  - Vitest's exit code is written to a file of its own (D17).
+- **A preview server that is stopped is checked to be gone**: its port free,
+  and no `node.exe` or `esbuild.exe` left from it — a leftover `esbuild.exe`
+  makes `npm ci` fail on the locked file. End them by hand before `npm ci`.
+- Windows: Python's `open()` writes CRLF here, and every text file is LF;
+  edit repository files with Node or the editor tools, and quote a diff's
+  size from `git -c core.autocrlf=false diff --stat`.
+
+### Imports from Leo's sheet
+
+- **A dry run first**, compared against the catalogue in the repository:
+  only the cells Leo changed may change. **If anything else changes, stop**
+  and list every one of them for him; write nothing.
+- **The catalogue and the code that reads it go in one commit** — a
+  catalogue without its code can draw the wrong thing (the panel-ready
+  round, `docs/plans/overnight-2026-10-28.md`).
+- The import's own rules are D4 and `docs/data-sheet-spec.md`; the next
+  import also stops writing a day and a path into `_meta` (Open items).
+
+### Nights, with nobody there
+
+- What was done goes into **`docs/plans/overnight-<date>.md`**, in Chinese,
+  with **a five-minute summary at the top**: what was done, the proof, what
+  he has to answer, in order of weight.
+- **Commit only what Leo has said, in so many words, may be committed**;
+  everything else stays in the working tree and the report says so, with the
+  live commit named.
+
+### When this file and the repository disagree
+
+A brief written in chat once said a decision was "written into D20" when the
+file said nothing of the kind. **Read the repository.** If something this
+file or a message says is decided is not in `docs/decisions.md`, write it in,
+with where it came from, and tell Leo it was missing.
+
+---
+
+## 7. Open items
 
 **In `docs/decisions.md`, at the end, under "Open items".** Read them there.
 They are not copied here on purpose: a second list would be wrong within a
@@ -421,7 +648,7 @@ round, and this file would then be the thing people believed.
 
 ---
 
-## 7. Things the repository does not have
+## 8. Things the repository does not have
 
 Each is recorded where it bites, so go to the section rather than trusting a
 list here:
@@ -459,7 +686,7 @@ figures in a point are the guide's and which are not.
 
 ---
 
-## 8. What is registered and not started
+## 9. What is registered and not started
 
 Three things, each with its source:
 - **A Run Composer** — registered in D14, before building it.
@@ -480,7 +707,7 @@ in `docs/decisions.md` was not planned (D17, round 77).
 
 ---
 
-## 9. Keeping this file honest
+## 10. Keeping this file honest
 
 - It is an index. If you find yourself copying a figure, a rule or an open item
   into it, stop: link the section instead.

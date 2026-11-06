@@ -7446,6 +7446,8 @@ Registered, not scheduled. None of these is a round of its own.
     (the old review shots, 70-odd openings of mixed forms, not run now),
     `qualityDrop.mjs` and `swapMemory.mjs` (measurements a listener could
     move), and `analytics.test.ts`'s one opening of the live site — for Leo.
+    **Leo, 2026-11-05**: they stay unwired. (Written here 2026-11-06, when
+    the handoff found his answer only in the chat.)
   - *The probe, run 2026-11-05* (`scripts/blankCanvasProbe.mjs`, 15:58–16:08,
     the 9" round's build `index-B3cAr4i2.js` on `vite preview`, no standby
     or sleep in the system log): 200 openings, **3 blank, all three in the
@@ -7475,7 +7477,47 @@ Registered, not scheduled. None of these is a round of its own.
     `shareLink.test.ts` — the test server on 4174 resetting the main chunk's
     first request, `#root` empty (the round's entry under "The stone beside
     an oven tower…"). The run again was green.
-- **The page waits for Google Fonts before it draws.** *(Leo, 2026-11-05:
+  - **Registered 2026-11-06** (Leo: 「本机预览服务器第一次送主文件时断开连接
+    （ERR_CONNECTION_RESET），已经让全套测试白跑好几次。只改测试环境不改网页，列几种做法和
+    代价」; registered only, nothing changed; after the fonts, **a plan
+    first**). The test environment only, never the page. What is known: the
+    browser suite's server is `vite preview` on 4174, started by
+    `tests/globalSetup.ts` with `stdio: "ignore"` — so whatever the server
+    said when it reset the connection was thrown away — and warmed by one
+    fetch of the page's files before any test; the resets came on the main
+    chunk's first request from a newly opened browser, and in the probe
+    only with three browsers opening at once. The cause is not known. The
+    ways, none chosen, each with its cost:
+    - 甲, **find the cause first**: the server's output written to a file
+      instead of thrown away, and the probe (`scripts/blankCanvasProbe.mjs`)
+      run against the test server as the suite starts it, until a reset is
+      caught with the server's side of it. Cost: small, a line in
+      `globalSetup.ts` and a probe run of about ten minutes; fixes nothing
+      by itself, and a reset may leave nothing in the server's output.
+    - 乙, **open the page again once, only for this**: in the shared
+      recorder (`scripts/pageWatch.mjs`), when the page's own main chunk
+      from `localhost` failed with `ERR_CONNECTION_RESET` and `#root` is
+      empty, open it once more, and write every such retry into the run's
+      output and `test-results/blank-canvas/`, counted at the end. Cost: a
+      real fault that looks the same would be passed once (narrowed by the
+      exact error and origin, and by the count, which a report quotes); the
+      rule "a red is a red" gets one written exception, Leo's to allow.
+    - 丙, **another server for the tests**: a small static server written
+      in the tests (Node's own `http`, no new dependency) or a package such
+      as `sirv`, in place of `vite preview`. Cost: the server must serve as
+      the preview does (the base path, the types, the fallback to
+      `index.html`); a server of our own to keep; the reset may be in the
+      browser or the system and not in Vite, so it may not help — 甲 first
+      would say.
+    - 丁, **no server in the browser's path**: the page's files answered
+      from disk by Playwright (`context.route`), the address the same.
+      Cost: the tests no longer exercise real HTTP (headers, caching,
+      compression); every test's context needs it, and the probe and the
+      pixel shots too, or they test another path than the suite; a mistake
+      in it is a test-only fault that looks like the page's.
+    - 戊, **leave it**: a red run of this kind recorded and run again, as
+      now. Cost: about 75–80 minutes each time it happens, which has been
+      several times. *(Leo, 2026-11-05:
   registered, looked into, not changed — customers in mainland China, where
   Google's fonts are often blocked.)*
   - **How it loads**: `index.html` asks for the stylesheet
@@ -7527,6 +7569,24 @@ Registered, not scheduled. None of these is a round of its own.
       乙.
   - **Not looked at**: whether `geesonchan.github.io` itself is reachable
     from mainland China — the site, not the fonts.
+  - **Registered 2026-11-06** (Leo: 「字体自带：字体文件放进网站自己的文件里、不再请求
+    Google，设成字体没到先用系统字显示」; registered only, nothing changed; after
+    the end-of-run round, **a plan first**): 甲 above with `font-display:
+    swap` — the two families' files served from the site, no request to
+    Google, the page drawn in the system fonts until the files come. The
+    plan is to state, each measured or read, not guessed:
+    1. **the font files' sizes**, each file and the total, for the weights
+       and the characters the page uses;
+    2. **whether the licence allows serving them from the site**, read from
+       the licence text that comes with the files (both are said above to
+       be SIL Open Font License; the plan quotes it);
+    3. **the first frame's time in four network conditions** — as measured
+       above, on the build before and the build after: normal, Google
+       refused, Google's addresses not answering, the request held open
+       (with the fonts our own, the last three should no longer touch the
+       page; the plan shows it);
+    4. **a pixel comparison**, the locked shots (`scripts/pixelShots.mjs`,
+       `?qualityLock=1`), old and new twice each, alternated.
 - **A tap on the phone card's liner that rebuilt nothing, once.** *(Round 88,
   cause not found. Leo, round 89: a round of its own, round 93, after RAL —
   is it the test's timing of the tap, or a real tap that now and then does
@@ -9372,6 +9432,28 @@ Registered, not scheduled. None of these is a round of its own.
        `index-CT8FdzVG.js`.
      - **Local preview**: `index-CT8FdzVG.js` (no counter) at
        http://localhost:4173/. The site still serves `28b8b18`.
+  9. **Shipped** after Leo's look at the local preview (2026-11-06: 「端头这一
+     轮预览看过了（index-CT8FdzVG.js），可以提交」). CI's own commands again
+     before the push, on the tree committed: `npm ci` 0, `npm run test:unit`
+     121 files 3,124 of 3,124, `npm run build` `index-CT8FdzVG.js`. Commit
+     `05bb6e1`, pushed 2026-11-06.
+     - **Live, checked file by file**: the Pages run 42249758730 a success,
+       both its jobs — build (16:09:50 to 16:10:44 UTC, 2026-11-06) and
+       deploy (16:10:48 to 16:13:21) — each a success. Built at `05bb6e1`
+       with the counter's address
+       (`VITE_GOATCOUNTER=https://geesonchan.goatcounter.com/count npm run
+       build`, the tree clean), every file against the live site's, byte
+       for byte:
+       - `index.html` 901, the same;
+       - `assets/index-NNDgg3WU.js` 700,237, the same (the commit in it
+         `05bb6e1`, the counter's address in it once);
+       - `assets/index-ByYGZbZC.css` 23,985, the same;
+       - `assets/react-i_nGBwMY.js` 145,992, the same;
+       - `assets/shareQr-BXYgausd.js` 21,968, the same;
+       - `assets/three-C6wp6xxT.js` 704,119, the same.
+       Six of six. The live main chunk is `index-NNDgg3WU.js`; the
+       `index-CT8FdzVG.js` Leo looked at is the same code built without the
+       counter's address.
 - **Round 99a, one wall and a machine chosen narrower than its opening —
   built and shipped after Leo's look at the local preview** (Leo, round
   99a: "第 99a 轮预览看过了（index-Bh3Snm2C.js），可以提交"). The plan,
@@ -10023,6 +10105,26 @@ Registered, not scheduled. None of these is a round of its own.
     build gave both. Round 100's and the geometries' round's runs read 9 to
     10. Not looked into; whether it is the low tier leaving the high tier's
     textures behind, as above, is not known.
+  - **Looked into the night of 2026-10-28** (only read and measured, on
+    `ba94ef5`; `docs/plans/overnight-2026-10-28.md`, section 2, where the
+    figures are; written here 2026-11-06, when the handoff found it only
+    in that report): after the drop to the low tier the five 512 textures
+    stay on the graphics card until the page is reloaded, held by the
+    clones (disposing them by hand brings the count back to 9); 9 to 10 is
+    a kind of texture used for the first time; 9–10 against 14–15 is
+    whether that run dropped to the low tier. Four ways, 甲 to 丁, none
+    chosen, are its section 2.7. Not answered (the report's question 7).
+- **The full suite takes 84–90 minutes** *(looked into the night of
+  2026-10-28, only read, no config changed; `docs/plans/overnight-2026-10-28.md`,
+  section 4, where the figures are; written here 2026-11-06, when the
+  handoff found it only in that report)*. 98.4% of the time is the browser
+  tests, one file after another; about 58–64% of that is fixed waits. Six
+  ways and what each could let pass that should be red are its section 4.2
+  — conditions for fixed waits; one page a file; two lanes on this
+  machine; shards on other machines; the GPU flags for `smoke.test.ts`,
+  which may be drawing in software (not yet measured); and two small ones.
+  None chosen; not answered (the report's question 8). The full suite has
+  since grown to 159 files, 4,647 s on 2026-11-06.
 - **A hood's geometry is made after an early return** (found while planning
   the geometries' round; read off the code, not run). In `ApplianceModel.tsx`
   the hood's `useMemo` for its canopy stands after the insert's `return`
