@@ -1175,5 +1175,47 @@
       "now": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
       "why": "Round 83, Leo: the supply for PCG366W's gas goes low on the back wall of the drawer base under the rangetop (his site practice), a box of its own (location cabinet-below). Until round 83 the point was in-cutout, the rangetop's own 8\" body, so it was drawn and worded at the counter; the machine's inlet, 11\" from the left and 2\" from the back on its underside (sheet p. 4), is recorded apart."
     }
+  },
+  "changedInThe9InchRound": {
+    "package-d | back/left/back/parallel | rough-in:slot-range:power:1": {
+      "was": "power — in the cabinet to the left, 6\" from the right side, at the bottom",
+      "now": "power — in the cabinet to the right, 6\" from the left side, at the bottom",
+      "why": "The 9\" round (Leo, 2026-11-05, 乙): D11 rule 12's counter between the oven tower and the rangetop is at least 9\" in a room the page builds itself, so in D with its coffee cabinet on the back leg the 6\" filler (BF6) there is a 9\" cabinet (B9) and the wall grew 3\". The rangetop's second outlet goes in the cabinet nearest it that can hold one, which is now that B9 on its right, where it was the cabinet on its left past a filler."
+    },
+    "package-d | back/left/back/parallel | rough-in:slot-oven:power:0": {
+      "was": "power — at the back of the drawer under the opening, at the top",
+      "now": "power — in the base cabinet beside the tower — open its door to see it, 3\" from the right side, at the top",
+      "why": "The 9\" round (Leo, 2026-11-05, 乙): the 6\" filler beside D's steam oven tower is a 9\" cabinet (B9), so its junction box goes in that cabinet, as it does wherever a cabinet stands beside the tower (roughInCabinet.test.ts), where with only a filler there it was in the drawer under the opening (PODS302B, p. 2). A wall a slider drags short still leaves the filler, and the drawer."
+    },
+    "package-d | back/left/back/perpendicular | rough-in:slot-range:power:1": {
+      "was": "power — in the cabinet to the left, 6\" from the right side, at the bottom",
+      "now": "power — in the cabinet to the right, 6\" from the left side, at the bottom",
+      "why": "The 9\" round (Leo, 2026-11-05, 乙): D11 rule 12's counter between the oven tower and the rangetop is at least 9\" in a room the page builds itself, so in D with its coffee cabinet on the back leg the 6\" filler (BF6) there is a 9\" cabinet (B9) and the wall grew 3\". The rangetop's second outlet goes in the cabinet nearest it that can hold one, which is now that B9 on its right, where it was the cabinet on its left past a filler."
+    },
+    "package-d | back/left/back/perpendicular | rough-in:slot-oven:power:0": {
+      "was": "power — at the back of the drawer under the opening, at the top",
+      "now": "power — in the base cabinet beside the tower — open its door to see it, 3\" from the right side, at the top",
+      "why": "The 9\" round (Leo, 2026-11-05, 乙): the 6\" filler beside D's steam oven tower is a 9\" cabinet (B9), so its junction box goes in that cabinet, as it does wherever a cabinet stands beside the tower (roughInCabinet.test.ts), where with only a filler there it was in the drawer under the opening (PODS302B, p. 2). A wall a slider drags short still leaves the filler, and the drawer."
+    },
+    "package-d | left/back/back/parallel | rough-in:slot-range:power:1": {
+      "was": "power — in the cabinet to the left, 6\" from the right side, at the bottom",
+      "now": "power — in the cabinet to the right, 6\" from the left side, at the bottom",
+      "why": "The 9\" round (Leo, 2026-11-05, 乙): D11 rule 12's counter between the oven tower and the rangetop is at least 9\" in a room the page builds itself, so in D with its coffee cabinet on the back leg the 6\" filler (BF6) there is a 9\" cabinet (B9) and the wall grew 3\". The rangetop's second outlet goes in the cabinet nearest it that can hold one, which is now that B9 on its right, where it was the cabinet on its left past a filler."
+    },
+    "package-d | left/back/back/parallel | rough-in:slot-oven:power:0": {
+      "was": "power — at the back of the drawer under the opening, at the top",
+      "now": "power — in the base cabinet beside the tower — open its door to see it, 3\" from the right side, at the top",
+      "why": "The 9\" round (Leo, 2026-11-05, 乙): the 6\" filler beside D's steam oven tower is a 9\" cabinet (B9), so its junction box goes in that cabinet, as it does wherever a cabinet stands beside the tower (roughInCabinet.test.ts), where with only a filler there it was in the drawer under the opening (PODS302B, p. 2). A wall a slider drags short still leaves the filler, and the drawer."
+    },
+    "package-d | left/back/back/perpendicular | rough-in:slot-range:power:1": {
+      "was": "power — in the cabinet to the left, 6\" from the right side, at the bottom",
+      "now": "power — in the cabinet to the right, 6\" from the left side, at the bottom",
+      "why": "The 9\" round (Leo, 2026-11-05, 乙): D11 rule 12's counter between the oven tower and the rangetop is at least 9\" in a room the page builds itself, so in D with its coffee cabinet on the back leg the 6\" filler (BF6) there is a 9\" cabinet (B9) and the wall grew 3\". The rangetop's second outlet goes in the cabinet nearest it that can hold one, which is now that B9 on its right, where it was the cabinet on its left past a filler."
+    },
+    "package-d | left/back/back/perpendicular | rough-in:slot-oven:power:0": {
+      "was": "power — at the back of the drawer under the opening, at the top",
+      "now": "power — in the base cabinet beside the tower — open its door to see it, 3\" from the right side, at the top",
+      "why": "The 9\" round (Leo, 2026-11-05, 乙): the 6\" filler beside D's steam oven tower is a 9\" cabinet (B9), so its junction box goes in that cabinet, as it does wherever a cabinet stands beside the tower (roughInCabinet.test.ts), where with only a filler there it was in the drawer under the opening (PODS302B, p. 2). A wall a slider drags short still leaves the filler, and the drawer."
+    }
   }
 }

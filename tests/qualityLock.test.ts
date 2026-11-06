@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { chromium, type Browser, type Page } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
+import { openWatched } from "../scripts/pageWatch.mjs";
 
 /**
  * Round 100, Leo: a switch for the pixel proofs only — a page opened with
@@ -86,8 +87,7 @@ async function slowPage(query: string): Promise<Page> {
       };
     });
   }, SLOW_MS);
-  await page.goto(`${PREVIEW_URL}${query}`, { waitUntil: "networkidle", timeout: 90_000 });
-  await page.waitForSelector("canvas", { timeout: 60_000 });
+  await openWatched(page, `${PREVIEW_URL}${query}`, { gotoTimeout: 90_000, canvasTimeout: 60_000, label: `qualityLock · ${expect.getState().currentTestName ?? ""}` });
   return page;
 }
 

@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { chromium, type Browser, type Locator, type Page } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
+import { openWatched } from "../scripts/pageWatch.mjs";
 
 /**
  * The model card at the left of the scene, on a desktop (round 88).
@@ -80,8 +81,7 @@ async function open(viewport = DESKTOP): Promise<Session> {
       };
     });
   });
-  await page.goto(PREVIEW_URL + "?quality=high", { waitUntil: "networkidle", timeout: 90_000 });
-  await page.waitForSelector("canvas", { timeout: 60_000 });
+  await openWatched(page, PREVIEW_URL + "?quality=high", { gotoTimeout: 90_000, canvasTimeout: 60_000, label: `modelCardSide · ${expect.getState().currentTestName ?? ""}` });
   await page.waitForTimeout(2000);
   return { page, errors };
 }

@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { chromium, type Browser, type BrowserContext, type Page } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
+import { canvasWatched, openWatched } from "../scripts/pageWatch.mjs";
 
 /**
  * The right panel in four tabs. Round 91, Leo (round 80's plan, section 2 and
@@ -35,8 +36,7 @@ afterAll(async () => {
 
 async function open(context?: BrowserContext): Promise<Page> {
   const page = await (context ?? (await browser.newContext({ viewport: DESKTOP }))).newPage();
-  await page.goto(`${PREVIEW_URL}?quality=high`, { waitUntil: "networkidle", timeout: 90_000 });
-  await page.waitForSelector("canvas", { timeout: 60_000 });
+  await openWatched(page, `${PREVIEW_URL}?quality=high`, { gotoTimeout: 90_000, canvasTimeout: 60_000, label: `rightTabs · ${expect.getState().currentTestName ?? ""}` });
   await page.waitForTimeout(1500);
   return page;
 }
@@ -145,7 +145,7 @@ describe("the right panel's tabs", () => {
     const page = await open(context);
     await click(page, '[data-right-tab="list"]');
     await page.reload({ waitUntil: "networkidle" });
-    await page.waitForSelector("canvas", { timeout: 60_000 });
+    await canvasWatched(page, { timeout: 60_000, label: `rightTabs · ${expect.getState().currentTestName ?? ""}` });
     const reloaded = await showing(page);
     await context.close();
     const fresh = await open();

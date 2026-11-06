@@ -206,22 +206,27 @@ confirms it** (Leo, 2026-10-24).
    2026-11-04: round 101 and the open end"). **Step one, the coffee
    machine's door, done** (B15 after the corner; the blind corner with the
    tower left keeps its B9 and grows the wall; "Step one corrected").
-   **Step two, the columns, built** (Leo's item 5, 2026-11-05: 「不用，照
-   A-3」 — no COMBIKIT10, B's pair either; decisions.md, "Step two built"),
-   **not committed**: waiting for Leo's look at its local preview. **Before
-   the next commit: one full suite green end to end with no standby in it**,
-   Leo told before it starts.
-5a. **Rule 12's counter at least 9"** (Leo, 2026-11-05, 乙): a small round
-   after round 101's step two, a plan first (decisions.md, "Chosen
-   2026-11-05").
-5b. **Two things looked into, not changed** (Leo, 2026-11-05): the stone
-   beside an oven tower that ends an L's leg at a wall (B 24, D 55 rooms;
-   decisions.md, Open items, its ways 甲 to 丁 — Leo's site practice to
-   follow); and the page that now and then shows no canvas in 60 s
-   (`docs/plans/blank-canvas-plan.md`, for Leo to choose 甲, 乙 or 丙).
-6. **The open end** (A-9 to A-15 in decisions.md; its plan after round 101
-   is live; `docs/plans/overnight-2026-10-23-open-end.md` is the earlier
-   reading).
+   **Step two, the columns, done** (Leo's item 5, 2026-11-05: 「不用，照
+   A-3」 — no COMBIKIT10, B's pair either; decisions.md, "Step two built"
+   and "Shipped", `408fe91`, after a full suite green with no standby in
+   it). **Round 101 is live.** Every full suite from now: no standby in
+   it, Leo told before it starts.
+5a. **Rule 12's counter at least 9"** (Leo, 2026-11-05, 乙; the plan
+   `docs/plans/rule12-9in-plan.md`, its four questions answered as
+   suggested): **built, not committed** — waiting for Leo's look at its local
+   preview (decisions.md, "Answered 2026-11-05" under "Chosen 2026-11-05").
+5b. **The page that now and then shows no canvas in 60 s** (Leo, 2026-11-05,
+   丙): the shared recorder `scripts/pageWatch.mjs` in every browser test and
+   the pixel shots, and `scripts/blankCanvasProbe.mjs` — built with the 9"
+   round, recording only; the probe's 200 openings and what they showed are
+   in decisions.md (Open items, "A browser test that times out…").
+6. **The stone beside a tall unit at a wall, and the open end** — one round
+   (Leo, 2026-11-05): a tall unit at a run's end against a wall has 3" of
+   filler floor to top beside it, no stone, in the door colour (his site
+   practice, 甲; decisions.md, Open items, "The stone beside an oven tower…");
+   with A-9 to A-15 (decisions.md). After the 9" round; its plan,
+   `docs/plans/end-strip-open-end-plan.md`, waits for his four answers.
+   (`docs/plans/overnight-2026-10-23-open-end.md` is the earlier reading.)
 7. **Then a galley** (`docs/plans/overnight-2026-10-23-galley.md`), **then a U**
    (`docs/plans/overnight-2026-10-24-u-shape.md`).
 

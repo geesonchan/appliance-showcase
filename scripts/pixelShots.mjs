@@ -18,6 +18,7 @@
  */
 import { mkdirSync, writeFileSync, readFileSync } from "node:fs";
 import { chromium } from "playwright";
+import { openWatched } from "./pageWatch.mjs";
 
 const [base, out] = process.argv.slice(2);
 const QUALITY = process.env.QUALITY ?? "high";
@@ -47,8 +48,7 @@ async function open(options, query = "") {
     });
   });
   const sep = query ? "&" : "?";
-  await page.goto(`${base}${query}${sep}quality=${QUALITY}${LOCK ? "&qualityLock=1" : ""}`, { waitUntil: "networkidle", timeout: 90000 });
-  await page.waitForSelector("canvas", { timeout: 60000 });
+  await openWatched(page, `${base}${query}${sep}quality=${QUALITY}${LOCK ? "&qualityLock=1" : ""}`, { gotoTimeout: 90000, canvasTimeout: 60000, label: "pixelShots" });
   await page.waitForTimeout(2500);
   return { context, page };
 }

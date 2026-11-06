@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { chromium, type Browser, type Page } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
+import { openWatched } from "../scripts/pageWatch.mjs";
 
 /**
  * The phone's sheet holds its five tabs on one line — Appliances, Look,
@@ -37,8 +38,7 @@ afterAll(async () => {
 async function openPhone(width: number, lang: "en" | "zh"): Promise<Page> {
   const context = await browser.newContext({ viewport: { width, height: 844 }, hasTouch: true, isMobile: true });
   const page = await context.newPage();
-  await page.goto(`${PREVIEW_URL}?quality=high`, { waitUntil: "networkidle", timeout: 90_000 });
-  await page.waitForSelector("canvas", { timeout: 60_000 });
+  await openWatched(page, `${PREVIEW_URL}?quality=high`, { gotoTimeout: 90_000, canvasTimeout: 60_000, label: `sheetTabs · ${expect.getState().currentTestName ?? ""}` });
   await page.waitForTimeout(800);
   if (lang === "zh") await tap(page, page.locator("header button", { hasText: "中" }));
   return page;

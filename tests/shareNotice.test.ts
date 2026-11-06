@@ -5,6 +5,7 @@ import { writeLink } from "../src/store/shareLink";
 import { kitchenNow } from "../src/store/openLink";
 import { resetRoom } from "../src/data/testRoom";
 import en from "../src/i18n/en.json";
+import { gotoWatched } from "../scripts/pageWatch.mjs";
 
 /**
  * Round 99d, Leo: a link notice of more than three lines is one sentence with
@@ -61,7 +62,7 @@ async function open(query: string) {
   const page = await context.newPage();
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
-  await page.goto(`${PREVIEW_URL}${query}&quality=low`, { waitUntil: "networkidle", timeout: 90_000 });
+  await gotoWatched(page, `${PREVIEW_URL}${query}&quality=low`, { timeout: 90_000, label: `shareNotice · ${expect.getState().currentTestName ?? ""}` });
   await page.waitForTimeout(2500);
   return { context, page, errors };
 }
@@ -153,7 +154,7 @@ describe("a long link notice, opened, keeps its buttons on the screen (round 99d
       const page = await context.newPage();
       const errors: string[] = [];
       page.on("pageerror", (error) => errors.push(error.message));
-      await page.goto(`${PREVIEW_URL}?v=2&pkg=A&quality=low`, { waitUntil: "networkidle", timeout: 90_000 });
+      await gotoWatched(page, `${PREVIEW_URL}?v=2&pkg=A&quality=low`, { timeout: 90_000, label: `shareNotice · ${expect.getState().currentTestName ?? ""}` });
       await page.waitForTimeout(2500);
       const tap = async (name: string) => {
         const box = await page.getByRole("button", { name, exact: true }).first().boundingBox();

@@ -308,6 +308,33 @@ const snapshot = (state: {
 });
 
 /**
+ * What a model that grew the wall says, with the room before it to undo to —
+ * the refrigerator's since the fridge-front round, and the range's and the
+ * hood's since the 9" round, where a rebuild on a slider's 6" wall grows it
+ * (Leo, 2026-11-05, question 1). Null where nothing grew.
+ */
+function modelGrewToast(
+  grown: { key: "backWallIn" | "leftWallIn"; toIn: number }[] | undefined,
+  before: RoomSnapshot,
+  built: boolean,
+): ToastMessage | null {
+  if (!grown || grown.length === 0) return null;
+  return {
+    id: ++toastId,
+    key: "toast.modelGrew",
+    lines: grown.map((growth) => ({
+      key: "toast.modelGrew",
+      vars: {
+        wallKey: growth.key === "backWallIn" ? "toast.wall.back" : "toast.wall.left",
+        toIn: inchesSpoken(growth.toIn),
+      },
+    })),
+    undo: built ? before : undefined,
+    undoLabel: { key: "toast.undo.layout" },
+  };
+}
+
+/**
  * The hood, the cooking surface and the refrigerator a room is built round,
  * recorded for a package in a shape before the room is generated (round 98b):
  * the run stands under what is chosen (rounds 83, 87, 89).
@@ -425,8 +452,10 @@ export const useAppStore = create<AppState>((set, get) => ({
     // not build is refused on its own terms. Anything else that needs more wall
     // than the room has gets it, and says so. Round 34.
     const setsAWall = "backWallIn" in patch || "leftWallIn" in patch;
+    // The slider's room may have D11 rule 12's counter at 6" (the 9" round,
+    // Leo, 2026-11-05, 乙); any other change builds it to 9", growing the wall.
     const result = setsAWall
-      ? { ...setLayoutParams(asked), params: asked, grown: [] }
+      ? { ...setLayoutParams(asked, { dragged: true }), params: asked, grown: [] }
       : setLayoutParamsGrowing(asked);
     set((s) => ({
       layoutParams: result.params,
@@ -490,6 +519,11 @@ export const useAppStore = create<AppState>((set, get) => ({
       // 83): changing one for the other changes what the run orders under it,
       // so the room is generated again where it stands. A range for a range
       // changes nothing in the run.
+      // Where the walls stand are short for it — a wall a slider dragged until
+      // rule 12's counter was 6" — the wall grows to 9" and says so, as the
+      // refrigerator's does (the 9" round, question 1).
+      const before = snapshot(get());
+      const built = get().layoutIssues.length === 0;
       const result = setRangeModel(APPLIANCE_BY_ID[applianceId], get().packageId);
       if (!result.ok) {
         set({ layoutIssues: result.reasons });
@@ -497,7 +531,9 @@ export const useAppStore = create<AppState>((set, get) => ({
       }
       set((s) => ({
         selection: { ...s.selection, [slot]: applianceId },
+        ...(result.params ? { layoutParams: result.params } : {}),
         layoutVersion: result.rebuilt ? s.layoutVersion + 1 : s.layoutVersion,
+        toast: modelGrewToast(result.grown, before, built) ?? s.toast,
       }));
       return;
     }
@@ -518,22 +554,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         selection: { ...s.selection, [slot]: applianceId },
         layoutParams: result.params,
         layoutVersion: result.rebuilt ? s.layoutVersion + 1 : s.layoutVersion,
-        toast:
-          result.grown.length > 0
-            ? {
-                id: ++toastId,
-                key: "toast.modelGrew",
-                lines: result.grown.map((growth) => ({
-                  key: "toast.modelGrew",
-                  vars: {
-                    wallKey: growth.key === "backWallIn" ? "toast.wall.back" : "toast.wall.left",
-                    toIn: inchesSpoken(growth.toIn),
-                  },
-                })),
-                undo: built ? before : undefined,
-                undoLabel: { key: "toast.undo.layout" },
-              }
-            : s.toast,
+        toast: modelGrewToast(result.grown, before, built) ?? s.toast,
       }));
       return;
     }
@@ -546,6 +567,8 @@ export const useAppStore = create<AppState>((set, get) => ({
     // insert in a housing, a chimney with nothing over it — has the room
     // generated again where it stands (round 87). The camera and every other
     // choice stay as they are.
+    const before = snapshot(get());
+    const built = get().layoutIssues.length === 0;
     const result = setHoodModel(APPLIANCE_BY_ID[applianceId], get().packageId);
     if (!result.ok) {
       set({ layoutIssues: result.reasons });
@@ -553,7 +576,9 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
     set((s) => ({
       selection: { ...s.selection, [slot]: applianceId },
+      ...(result.params ? { layoutParams: result.params } : {}),
       layoutVersion: s.layoutVersion + 1,
+      toast: modelGrewToast(result.grown, before, built) ?? s.toast,
     }));
   },
   selectBlower: (blowerId) => set({ blowerId }),
@@ -676,7 +701,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     // 模一样"), with the models above.
     if (shape === "L" && s.lRoom?.packageId === s.packageId) {
       const back = s.lRoom;
-      const result = setLayoutParams(back.layoutParams);
+      const result = setLayoutParams(back.layoutParams, { dragged: true });
       if (!result.ok) {
         recordModels(s.selection, s.packageId, was);
         set({ layoutIssues: result.reasons });
@@ -775,7 +800,8 @@ export const useAppStore = create<AppState>((set, get) => ({
     setHoodModel(APPLIANCE_BY_ID[back.selection["slot-hood"]]);
     recordRangeModel(back.packageId, APPLIANCE_BY_ID[back.selection["slot-range"]]);
     recordFridgeModel(APPLIANCE_BY_ID[back.selection["slot-fridge"]], back.packageId);
-    const result = setLayoutParams(back.layoutParams);
+    // The room as it was, a slider's 6" beside the tower included.
+    const result = setLayoutParams(back.layoutParams, { dragged: true });
     set((s) => ({
       packageId: back.packageId,
       selection: back.selection,

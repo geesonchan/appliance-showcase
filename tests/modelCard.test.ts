@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { chromium, type Browser, type Page } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
+import { openWatched } from "../scripts/pageWatch.mjs";
 
 /**
  * The model card (round 82): every selected machine's models, in the middle of
@@ -54,8 +55,7 @@ async function open(phone: boolean): Promise<Session> {
   page.on("console", (message) => {
     if (message.type() === "error") errors.push(message.text());
   });
-  await page.goto(PREVIEW_URL + "?quality=high", { waitUntil: "networkidle", timeout: 90_000 });
-  await page.waitForSelector("canvas", { timeout: 60_000 });
+  await openWatched(page, PREVIEW_URL + "?quality=high", { gotoTimeout: 90_000, canvasTimeout: 60_000, label: `modelCard · ${expect.getState().currentTestName ?? ""}` });
   await page.waitForTimeout(2000);
   return { page, phone, errors };
 }

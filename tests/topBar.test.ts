@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { chromium, type Browser, type Page } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
+import { openWatched } from "../scripts/pageWatch.mjs";
 
 /**
  * Round 94, Leo: the phone's top bar holds everything on it without one
@@ -47,8 +48,7 @@ async function openPhone(width: number, lang: "en" | "zh"): Promise<Page> {
     isMobile: true,
   });
   const page = await context.newPage();
-  await page.goto(`${PREVIEW_URL}?quality=high`, { waitUntil: "networkidle", timeout: 90_000 });
-  await page.waitForSelector("canvas", { timeout: 60_000 });
+  await openWatched(page, `${PREVIEW_URL}?quality=high`, { gotoTimeout: 90_000, canvasTimeout: 60_000, label: `topBar · ${expect.getState().currentTestName ?? ""}` });
   await page.waitForTimeout(800);
   if (lang === "zh") {
     const zh = page.locator("header button", { hasText: "中" }).first();
@@ -146,8 +146,7 @@ describe("the phone's top bar", () => {
   it("has a share button on a desktop", async () => {
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     const page = await context.newPage();
-    await page.goto(`${PREVIEW_URL}?quality=high`, { waitUntil: "networkidle", timeout: 90_000 });
-    await page.waitForSelector("canvas", { timeout: 60_000 });
+    await openWatched(page, `${PREVIEW_URL}?quality=high`, { gotoTimeout: 90_000, canvasTimeout: 60_000, label: `topBar · ${expect.getState().currentTestName ?? ""}` });
     const share = await page.locator("header [data-share]").count();
     await context.close();
     expect(share).toBe(1);

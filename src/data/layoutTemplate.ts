@@ -178,7 +178,13 @@ export const PARAM_LIMITS = {
   // own depth at the end of it, which is the longest wall the leg rule allows.
   // Round 35, Leo: a seventeen-to-twenty-foot wall is an ordinary kitchen, and
   // 204" had been set early without one in mind. See D13.
-  backWallIn: { min: 96, max: 240, step: 6 },
+  //
+  // The back wall's to 246" since the 9" round (Leo, 2026-11-05, 乙): D with
+  // its coffee cabinet on the back leg and a lazy susan needs 241-1/2" once
+  // D11 rule 12 keeps 9" beside its oven tower. D13 still stops a leg at
+  // 216", so a blind corner's back wall builds to 240" and a lazy susan's to
+  // 246" (`requirementFor`); the left wall stays at 240".
+  backWallIn: { min: 96, max: 246, step: 6 },
   leftWallIn: { min: 96, max: 240, step: 6 },
   islandLengthIn: { min: 48, max: 96, step: 6 },
   islandDepthIn: { min: 24, max: 42, step: 6 },
@@ -2060,7 +2066,15 @@ function planLegs(
       coffeeFirstAfterCorner(pkg, params) &&
       params.cornerType === "blind" &&
       params.towerSide === "left";
-    const leastIn = keepsItsCabinet ? CABINET_STANDARDS.widthIn.min : Math.max(counterIn, 6);
+    //
+    // The 9" round (Leo, 2026-11-05, 乙): everywhere else too, in a room the
+    // page builds itself, 9" — `towerSpacer.builtMinIn`, the narrowest
+    // cabinet — and the wall grows for the rest (D18). Only a wall slider
+    // dragged short builds it to 6" (`asDragged`, `draggedMinIn`), with the
+    // note under the slider; D's step-one rooms above keep their 9" even
+    // then, as they always have.
+    const floorIn = dragged ? LAYOUT_LIMITS.towerSpacer.draggedMinIn : LAYOUT_LIMITS.towerSpacer.builtMinIn;
+    const leastIn = keepsItsCabinet ? CABINET_STANDARDS.widthIn.min : Math.max(counterIn, floorIn);
     const clearance = gap("tower-clearance", leastIn, "d11-12", {
       shrink: "range-to-sink",
       // What it is built at, and what it stops at. Both are `wantIn`: the
@@ -2449,12 +2463,39 @@ export function omittedSlots(asked: LayoutParams, written: Package = PACKAGE): r
 }
 
 /**
+ * Whether the room being built is one a wall slider was dragged to.
+ *
+ * The 9" round (Leo, 2026-11-05, 乙): D11 rule 12's counter beside an oven
+ * tower is at least 9" in every room the page builds itself, and 6" only
+ * where a wall slider takes it there. The slider's own questions — the band it
+ * greys out (`feasibleRange`), the shortest wall printed under it
+ * (`wallRequirement`) — and building the room a slider asked for, a link
+ * names or Undo puts back are asked inside `asDragged`; everything else, and
+ * D18's growing, without. Not a layout parameter: it is how a room came to be
+ * asked for, not what the room is, so it is in no link and no dump, and a wall
+ * long enough for 9" builds the same room either way.
+ */
+let dragged = false;
+
+/** `build` with rule 12's counter allowed down to 6", as a wall slider allows it. */
+export function asDragged<T>(build: () => T): T {
+  const was = dragged;
+  dragged = true;
+  try {
+    return build();
+  } finally {
+    dragged = was;
+  }
+}
+
+/**
  * What has to go on a leg, and the shortest wall that holds it.
  *
  * The bill for the room as it will actually be built, which in a small
  * no-island room is a room without the spare two. Printing the fuller bill
  * under a slider that will happily go below it would be printing a figure the
- * interface itself does not believe.
+ * interface itself does not believe. A slider's figure, so the slider's floor
+ * for rule 12 (`asDragged`).
  */
 export function wallRequirement(
   asked: LayoutParams,
@@ -2463,7 +2504,7 @@ export function wallRequirement(
 ): WallRequirement {
   const pkg = packageInShape(written, asked.shape);
   const params = asBuilt(asked, pkg);
-  return requirementFor(params, leg, pkg, omittedSlots(params, pkg));
+  return asDragged(() => requirementFor(params, leg, pkg, omittedSlots(params, pkg)));
 }
 
 /**
@@ -2478,6 +2519,17 @@ export function feasibleRange(
   params: LayoutParams,
   key: "backWallIn" | "leftWallIn",
   pkg: Package = PACKAGE,
+): { minIn: number; maxIn: number } | null {
+  // The band a slider can be dragged through, so the slider's floor for rule
+  // 12 (`asDragged`; the 9" round): its greyed half is where even 6" will not
+  // go, as it always was.
+  return asDragged(() => feasibleRangeAt(params, key, pkg));
+}
+
+function feasibleRangeAt(
+  params: LayoutParams,
+  key: "backWallIn" | "leftWallIn",
+  pkg: Package,
 ): { minIn: number; maxIn: number } | null {
   const { min, max, step } = paramLimitsFor(params.shape)[key];
   let onStep: number | null = null;

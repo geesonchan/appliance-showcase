@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { chromium, type Browser, type Page } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
+import { openWatched } from "../scripts/pageWatch.mjs";
 
 /**
  * Round 92, Leo: every RAL Classic colour. A code round 33's forty-code table
@@ -48,8 +49,7 @@ async function open(lang: "EN" | "中" = "EN"): Promise<Session> {
   page.on("console", (message) => {
     if (message.type() === "error") errors.push(message.text());
   });
-  await page.goto(PREVIEW_URL + "?quality=high&debug=1", { waitUntil: "networkidle", timeout: 90_000 });
-  await page.waitForSelector("canvas", { timeout: 60_000 });
+  await openWatched(page, PREVIEW_URL + "?quality=high&debug=1", { gotoTimeout: 90_000, canvasTimeout: 60_000, label: `ralColours · ${expect.getState().currentTestName ?? ""}` });
   await page.waitForSelector(`[data-ral-input="cabinet"]`, { timeout: 30_000 });
   await page.waitForTimeout(1500);
   if (lang === "中") await mouse(page, page.getByRole("button", { name: "中", exact: true }).first());

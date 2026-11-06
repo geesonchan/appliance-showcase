@@ -275,8 +275,8 @@ describe("a package's own room", () => {
     // 206-3/4" since round 92c: the steam oven tower's sides are inside its 30"
     // (ovenTower.ts), so its 3/4" board outside it is off the bill; 207-1/2"
     // until then. 205-1/2" since round 101, the columns 1-1/4" narrower case
-    // against case (A-3).
-    expect(store().layoutParams.backWallIn).toBe(205.5);
+    // against case (A-3). 208-1/2" since the 9" round (Leo, 2026-11-05, 乙): D11 rule 12's counter beside the oven tower is at least 9" in a room the page builds itself, where it was 6".
+    expect(store().layoutParams.backWallIn).toBe(208.5);
     // Round 60: the left wall stays at 178-3/4". Until then it grew an eighth,
     // to 178-7/8", and the toast said it was for the refrigerator. It was for
     // the window, which slid a quarter inch at a time and could not come out

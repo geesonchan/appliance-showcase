@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { chromium, type Browser, type BrowserContext, type Page } from "playwright";
 import { build } from "vite";
+import { canvasWatched, gotoWatched } from "../scripts/pageWatch.mjs";
 
 /**
  * The visit counter: what the live site sends, and that nothing else changes.
@@ -116,12 +117,14 @@ async function open(
     });
   }
   if (init) await page.addInitScript(init);
-  await page.goto(`${origin}${query}`, { waitUntil: "networkidle", timeout: 90_000 });
+  await gotoWatched(page, `${origin}${query}`, { timeout: 90_000, label: `analytics · ${expect.getState().currentTestName ?? ""}` });
   // A page that never draws says why: the errors it threw (D17, the blocked
-  // case broken on purpose in round 96).
-  await page.waitForSelector("canvas", { timeout: 60_000 }).catch((error: Error) => {
-    const first = error.message.split(/\r?\n/)[0];
-    throw new Error(`the page never drew; it threw: ${JSON.stringify(errors)} (${first})`);
+  // case broken on purpose in round 96). And what the page was doing then,
+  // written by the shared watch (scripts/pageWatch.mjs; Leo, 2026-11-05).
+  await canvasWatched(page, { timeout: 60_000, label: `analytics · ${expect.getState().currentTestName ?? ""}` }).catch((error: Error) => {
+    const [first, ...rest] = error.message.split(/\r?\n/);
+    const record = rest.filter((line) => line.includes("blank-canvas")).join("\n");
+    throw new Error(`the page never drew; it threw: ${JSON.stringify(errors)} (${first})${record ? `\n${record}` : ""}`);
   });
   await page.waitForTimeout(1500);
   return { context, page, hits, errors, dialogs };

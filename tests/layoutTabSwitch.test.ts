@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { chromium, type Browser, type BrowserContextOptions, type Page } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
+import { openWatched } from "../scripts/pageWatch.mjs";
 
 /**
  * Round 99b. Found in round 100's measurements, on the build that was live
@@ -65,8 +66,7 @@ async function walk(device: Device, shape: "L" | "one-wall") {
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   // The low tier: what is asked here is the page's words, not its frame rate.
-  await page.goto(PREVIEW_URL + "?quality=low", { waitUntil: "networkidle", timeout: 90_000 });
-  await page.waitForSelector("canvas", { timeout: 60_000 });
+  await openWatched(page, PREVIEW_URL + "?quality=low", { gotoTimeout: 90_000, canvasTimeout: 60_000, label: `layoutTabSwitch · ${expect.getState().currentTestName ?? ""}` });
   await page.waitForTimeout(1500);
   const opened =
     device === "phone"

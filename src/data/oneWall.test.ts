@@ -273,7 +273,7 @@ describe("D11 rule 1 and a coffee tower (round 98b-2, Leo)", () => {
 });
 
 describe("the walls one wall takes", () => {
-  it("refuses a back wall over its own top, and the L keeps its 240", () => {
+  it("refuses a back wall over its own top, and the L over its 246", () => {
     resetRoom();
     const over = (shape: LayoutParams["shape"], backWallIn: number) => {
       const result = generateLayout({ ...DEFAULT_PARAMS, shape, backWallIn });
@@ -281,8 +281,10 @@ describe("the walls one wall takes", () => {
     };
     expect({
       oneWall: over("one-wall", ONE_WALL_MAX_IN + 6),
-      lAt246: over("L", 246),
-    }).toEqual({ oneWall: "refusal.outOfRange", lAt246: "refusal.outOfRange" });
+      // The L's back wall goes to 246" since the 9" round (Leo, 2026-11-05);
+      // 240" until then, and 246" was past it.
+      lAt252: over("L", 252),
+    }).toEqual({ oneWall: "refusal.outOfRange", lAt252: "refusal.outOfRange" });
   });
 
   it("builds a wall dragged short of the drawer and the wine cabinet without them, and says so (D18)", () => {

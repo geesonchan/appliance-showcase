@@ -7423,7 +7423,53 @@ Registered, not scheduled. None of these is a round of its own.
     moment and a loop to provoke it, and whether the tests record it
     themselves (甲 a shared `tests/pageWatch.ts` in every browser test and
     the pixel shots, 乙 a probe script only, 丙 both), is
-    `docs/plans/blank-canvas-plan.md`, for Leo.
+    `docs/plans/blank-canvas-plan.md`, for Leo. **Chosen 2026-11-05** (Leo:
+    「选丙，共用记录工具（接进全部浏览器测试和拍图脚本）和反复打开 200 次的脚本都做。只加记
+    录、不改网页，先写好给我看结果」): both — the shared recorder in every browser
+    test and the pixel shots, and the probe that opens the page 200 times;
+    recording only, the page itself unchanged; the results shown to him.
+  - *Built 2026-11-05* (not committed; with the 9" round):
+    `scripts/pageWatch.mjs` (and its types, `pageWatch.d.mts`) watches a
+    page from before it opens — console, page errors, failed requests and
+    4xx/5xx, a crash, each canvas context made or not, WebGL lost, restored
+    or never made, when the canvas is in the page and when it has a size,
+    the long tasks — and when opening it or waiting for its canvas fails,
+    writes that, the page's state (ready state, what `#root` holds, the
+    canvases, its text, every resource with its time), the GPU's status and
+    a screenshot to `test-results/blank-canvas/`, then fails as before. A
+    page that draws gets nothing written. Wired into all 34 browser test
+    files that open a page (`openWatched`, `gotoWatched`, `canvasWatched`;
+    `analytics.test.ts` keeps its own "the page never drew" line and adds
+    the record's) and `scripts/pixelShots.mjs`; `tests/pageWatch.test.ts`
+    (2) holds it: a page with no canvas is recorded and fails as it did,
+    the page that draws records nothing. Not wired: `scripts/screenshots.mjs`
+    (the old review shots, 70-odd openings of mixed forms, not run now),
+    `qualityDrop.mjs` and `swapMemory.mjs` (measurements a listener could
+    move), and `analytics.test.ts`'s one opening of the live site — for Leo.
+  - *The probe, run 2026-11-05* (`scripts/blankCanvasProbe.mjs`, 15:58–16:08,
+    the 9" round's build `index-B3cAr4i2.js` on `vite preview`, no standby
+    or sleep in the system log): 200 openings, **3 blank, all three in the
+    first rounds of three browsers launched at once**. Quiet (one browser, 80):
+    0 blank, opening 1.35 s median, canvas sized 0.34 s. Fresh (a new
+    browser each, 60): 0 blank, 2.7 s, 0.37 s. Loaded (three at once, 60):
+    3 blank and 6 more slow (20–50 s to the canvas), all in rounds 1–3;
+    rounds 4–20, 51 openings, 1.5 s like the rest. The three records:
+    - two **`page.goto` past 90 s**: the page's own files from the local
+      server took 70–90 s each (`index-B3cAr4i2.js`, `react`, `three`,
+      the CSS), and the Google Fonts stylesheet
+      (`fonts.googleapis.com/css2…`) failed with `ERR_CONNECTION_CLOSED`; in
+      one `#root` was still empty.
+    - one **canvas past 60 s**: the main chunk's first request reset by the
+      local server (`net::ERR_CONNECTION_RESET`); the module never ran,
+      `#root` empty, no page error, nothing on screen — what step one's
+      pixel run met ("the server reset the connection") and, by its look,
+      step two's "no canvas in 60 s".
+    In one of the slow ones that drew, the canvas came the moment the font
+    request failed (50 s); in another the font failed later (41 s) than the
+    canvas came (32 s), so the wait is not the font's alone. No WebGL context was lost or failed to be made in
+    any of the 200. So: the local `vite preview` serving three cold
+    browsers at once, and a page that waits on an outside font request; not
+    the GPU. Nothing changed for it — Leo to read.
 - **A tap on the phone card's liner that rebuilt nothing, once.** *(Round 88,
   cause not found. Leo, round 89: a round of its own, round 93, after RAL —
   is it the test's timing of the tap, or a real tap that now and then does
@@ -9144,6 +9190,26 @@ Registered, not scheduled. None of these is a round of its own.
        between the tower and the wall, as the open end has (D13), the wall
        grown where it is short (D18). Changes the arrangement of the 79
        rooms.
+  5. **His site practice, 2026-11-05: 甲** (「烤箱塔（以及其他高柜）站在一排尽头靠墙
+     时，和墙之间那 3" 做成从地到顶的整高填充板，不铺台面，颜色和门一样」): wherever a
+     tall unit — an oven tower or any other — stands at a run's end against
+     a wall, the 3" between it and the wall is one filler floor to top, no
+     stone, in the door colour. **A round of its own together with the open
+     end's stone through its 3" panel (A-9 to A-15)** — the same code —
+     after the 9" round, a plan first for him: the rooms that change (B 24,
+     D 55, D's own room among them), before and after, the walls expected
+     to stay as they are.
+  6. **Its plan, for him** (2026-11-05): `docs/plans/end-strip-open-end-plan.md`,
+     measured by a trial on the 9" round's code (the 3" a tall segment where
+     a tall unit stands before it; the open end's panel 3/4"), both dumps
+     line by line. The 3": B 24 and D 55 rows (D's own room, its 28 model
+     swaps, its sweep housing and the odd-walls case among them), every one
+     with the tower right of the range at the back wall's end, **no wall
+     changed**. The open end: the L's 235 (A 48, B 74, C 48, D 33, E 32)
+     with their walls as they are but E's 16 that had grown their left wall
+     for it, 2-1/4" shorter; one wall's 106, every package's own one-wall
+     room 2-1/4" shorter (A 233-3/4", B 239", C 230", D 245-3/4", E
+     270-3/4"). Four questions for him.
 - **Round 99a, one wall and a machine chosen narrower than its opening —
   built and shipped after Leo's look at the local preview** (Leo, round
   99a: "第 99a 轮预览看过了（index-Bh3Snm2C.js），可以提交"). The plan,
@@ -10152,6 +10218,116 @@ Registered, not scheduled. None of these is a round of its own.
       past 240". **Registered as a small round after round 101's step two**,
       a plan first for him: the rooms that change, each wall before and
       after, and whether any package's own room changes.
+      **Its plan, for him** (2026-11-05, after `408fe91` was live):
+      `docs/plans/rule12-9in-plan.md`, measured by a trial of the 9" floor
+      and the 246" top on `408fe91` in a scratch worktree, both dumps line
+      by line: every package's own room unchanged; the L's page-built rooms
+      B 30 and D 24 grown 1-1/2" to 3" (D's six to 241-1/2"), D's three
+      refused rooms built at 246", fifteen still refused 3" further off;
+      one wall and every model swap unchanged; four questions for him.
+      **Answered 2026-11-05** (Leo: 「计划第 4 节四个问题都照你的建议。开始动手」):
+      1. After a slider drag to 6", any other change is the page building
+         the room: the wall grows back to 9" and says so (D18).
+      2. A link from a 6" room opens as it was, 6" and the note (D23: a link
+         is the room on screen).
+      3. The note under the back wall's slider only, not on the list.
+      4. D's fifteen still refused stay refused, 3" further off.
+      Built red first and proved by the plan's section 5 (every package's
+      own room the same, both dumps, the locked pixels, the full suite with
+      the power plan read as "never" for screen, sleep and hibernate first);
+      a local preview, nothing committed before his look.
+    - **Built** (not committed, on `408fe91`):
+      - `roomShell.ts`: `towerSpacer.builtMinIn` 9, `draggedMinIn` 6.
+        `layoutTemplate.ts`: rule 12's counter stops at 9" unless the room is
+        built inside `asDragged`, where it stops at 6"; D's step-one rooms
+        (`keepsItsCabinet`) keep 9" either way, as before. `feasibleRange`
+        and `wallRequirement` — the slider's band and the minimum under it
+        — are asked inside `asDragged`, so both read as they did.
+        `PARAM_LIMITS.backWallIn.max` 246 (the left wall 240, one wall 276;
+        D13's 216" leg still stops a blind corner's back wall at 240").
+      - `layoutState.ts`: `setLayoutParams(params, { dragged })`; a hood or
+        a range that rebuilds the room where it stands grows the wall where
+        that is short (`rebuildWhereItStands`, D18), and says so with the
+        refrigerator's toast (`modelGrewToast` in the store). The store's
+        wall slider, Undo and the way back to the L build `dragged`; a link
+        opens `dragged` (`openLink.ts`); everything else builds to 9".
+      - `room.ts`: `narrowCounterLeg()`; `LayoutControls.tsx`: under the
+        slider of that leg's wall, `panel.room.narrowCounter` —
+        「台面只剩 6"，实际不建议」 / "Only 6" of counter left here — not
+        practical.", both locked in `reviewed.json` as his wording.
+    - **Red first**: `src/store/rule12Floor.test.ts` (11) on `408fe91`: 8
+      red — B's lazy susan at a wall stayed 196-1/2" with BF6, D's lazy
+      susan with its coffee cabinet on the back leg 238-1/2" with BF6, D's
+      lazy susan with both on the back leg refused (243" past 240"), the
+      blind corner refusal named 243", the back wall's top 240, no
+      `narrowCounterLeg`, and after the drag neither a switch nor a range
+      of the other kind grew the wall; 3 green on both, as they must be
+      (every package's own room, the slider still at 6" with its band 197"
+      and minimum 196-1/4", a link from the 6" room opening at 6").
+      `tests/rule12Note.test.ts` (2, the mouse in Chinese, a finger in
+      English) on `408fe91`'s build: red, the wall 198" throughout, no
+      note, no toast; green after: 199.25", dragged to 197" with the note,
+      the island turned back to 199.25" with the toast and no note.
+    - **Tests whose figures changed**, each with its reason beside it:
+      `coffeeCorner` (D 241-1/2"), `packageD` (the 204" refusal names
+      229-1/2"), `autoGrow` (D's columns on the back leg 208-1/2"),
+      `machineLabel` (642 built, 527 refused), `layoutCombinations` and
+      `oneWall` (past the top is 252" now); `packageLayouts` twice and
+      `shrink` build the slider's shortest wall as the slider does,
+      `dragged`; `roughInCabinet` (the junction box in the B9 beside D's
+      tower as the page builds it, and in the drawer where a slider leaves
+      the filler) and `roughInEnglish` — a layer of its own,
+      `changedInThe9InchRound`: in D with its coffee cabinet on the back leg
+      (sink back or left, four rooms) the oven's junction box "in the base
+      cabinet beside the tower — open its door to see it", where it was "at
+      the back of the drawer under the opening", and the rangetop's second
+      outlet "in the cabinet to the right", where it was "to the left". Unit
+      suite 3,115 of 3,115 (+11 new, +1 roughInCabinet, +2 locked lines,
+      and the sweeps over every wall and every room take in the 246" step
+      and the three rooms that build now: `counter` +16, `layoutShape` +3).
+    - **Dumps** (`408fe91` against this, both scripts): the L 991 of 1,063
+      lines byte for byte the same; B 30 and D 24 grown, D 3 built at 246",
+      D 15 refused 3" further off — the plan's table to the inch. One wall:
+      all 106 the same, the minimum under the slider included.
+    - **Pixels** (`?qualityLock=1`; `408fe91` built as `index-Ds_agWCA.js`,
+      this as `index-B3cAr4i2.js`; old1, new1, old2, new2, 16:12–16:55,
+      `pixelShots.mjs` now watched by `pageWatch`, no page blank): the 45 states' canvases all
+      the same, the screens the same but link D's one pixel (the pills'
+      noise, as in step one). Six of the round's own: B with a lazy susan at
+      a wall, materials, white, install, and D with a lazy susan and its
+      coffee cabinet on the back leg, change as the walls grow; B's back
+      wall dragged as short as it goes has the same canvas in both builds
+      (the same 6" room), and on screen only the note and the panel below
+      it moved down by its line.
+    - **Full suite, first run: not a pass.** Power plan read at 16:58 —
+      screen, sleep and hibernate on AC all "never" (0); the last
+      Kernel-Power event 507 at 12:07:07. `npm test` from 17:00: 62 files
+      green, none red, then the computer slept at 18:03:56 (event 42, "Sleep
+      Reason: Application API"; event 187 names the caller,
+      `winlogon.exe`, Windows' own Sleep — the Start menu's — with a
+      keyboard or mouse input the second before, event 566 `InputHid`), and
+      woke at 18:34:11; the run never finished. The same sleep, through
+      `winlogon.exe`, at about 18:00 on 10-29, 10-30, 11-02, 11-03 and
+      11-04, and at 08:01 and 08:51 on two mornings: Sleep chosen at the
+      computer, not a timeout, so the "never" settings do not stop it. No
+      scheduled task asks for it.
+    - **Full suite, run again: green with no standby.** `npm test` (build
+      `index-B3cAr4i2.js`), 19:48:04 to 21:05:39, 4,655 s: **157 files,
+      3,458 of 3,458, exit code 0** (154 and 3,421 before, + the 33 unit
+      tests above, `pageWatch` 2 and `rule12Note` 2). The system log from
+      18:35 to 21:06: no 42, 506, 507, 107 or 187; the power plan still
+      never, never, never. No blank-canvas record written in it. Then CI's
+      own commands: `npm ci` 0, `npm run test:unit` 120 files 3,115 of
+      3,115, `npm run build` `index-B3cAr4i2.js`.
+    - **Local preview**: `index-B3cAr4i2.js` (no counter) at
+      http://localhost:4173/. The site still serves `408fe91`.
+    - **Seen and confirmed** (Leo, 2026-11-05): the preview
+      `index-B3cAr4i2.js`, 「可以提交」; the two rough-in lines that changed in
+      D with its coffee cabinet on the back leg (the oven's junction box in
+      the cabinet beside the tower, the rangetop's second outlet in the
+      cabinet on its right) confirmed. The recorder stays out of
+      `screenshots.mjs`, `qualityDrop.mjs`, `swapMemory.mjs` and
+      `analytics.test.ts`'s opening of the live site, as proposed.
   - **T18IW100SP's installation instructions, read** (Leo, item 4;
     `docs/reference/t18iw100sp-install.pdf`, its README row): 64 pages, the
     first 13 safety text in three languages, 14–61 drawings. **No page shows
@@ -10314,6 +10490,22 @@ Registered, not scheduled. None of these is a round of its own.
       and none from then to 14:06:35 — no 506, 507, 42 or 107 in the run.
       Its longest files `tests/smoke.test.ts` 1,080 s, `fadeRebuild` 721 s,
       `modelCardSide` 445 s.
+    - **Shipped** as `408fe91` (Leo, 2026-11-05: 全绿就连同第二步、decisions.md、
+      HANDOFF、上一轮的 README 和两份 Supplement 一起提交、推送; the blank-canvas
+      plan went with them, decisions.md naming it). CI's own commands first:
+      `npm ci` failed once with EPERM on `esbuild.exe`, held by this
+      session's two `vite preview` servers (4182, 4183) still running after
+      their tasks were stopped — ended, then `npm ci` 0, `npm run test:unit`
+      119 files 3,082 of 3,082, `npm run build` (`index-DoYVbRww.js`). Pages
+      run 42118883895, **success**: build 22:08:29–22:09:45 UTC, deploy
+      22:09:50–22:10:00 UTC. Built on `408fe91` with the counter's address
+      (`VITE_GOATCOUNTER=https://geesonchan.goatcounter.com/count`) and
+      compared with the live site file by file, **all six byte for byte the
+      same**: `index.html` 901; `assets/index-BsGs7JSW.js` 698,440;
+      `assets/index-ByYGZbZC.css` 23,985; `assets/react-i_nGBwMY.js`
+      145,992; `assets/shareQr-BXYgausd.js` 21,968;
+      `assets/three-C6wp6xxT.js` 704,119. The live `index.html` names the
+      four it loads; `shareQr` is loaded on demand.
 - **The import's `_meta` is in the main chunk.** *(Leo, 2026-11-04: 「登记一
   条待办，不急…列出把它移出主文件的改法和代价，不要选」.)* The six modules
   that read the catalogue (`catalogue.ts`, `cookingSurface.ts`,

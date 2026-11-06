@@ -63,10 +63,12 @@ describe("a wall at its minimum still has everything on it", () => {
         const range = feasibleRange(base, key);
         expect(range, `${entry.id} ${key}`).toBeTruthy();
 
-        expect(setLayoutParams({ ...base, [key]: range!.maxIn }).ok).toBe(true);
+        // Both ends of the slider's band, rooms a slider makes: rule 12's
+        // counter may be 6" at the short end (the 9" round).
+        expect(setLayoutParams({ ...base, [key]: range!.maxIn }, { dragged: true }).ok).toBe(true);
         const atMax = elements(runId);
 
-        expect(setLayoutParams({ ...base, [key]: range!.minIn }).ok).toBe(true);
+        expect(setLayoutParams({ ...base, [key]: range!.minIn }, { dragged: true }).ok).toBe(true);
         const atMin = elements(runId);
 
         for (const element of atMax) {

@@ -41,6 +41,9 @@ const LAYERS: Changed[] = [
   // Round 83: PCG366W's gas supply moved into the drawer base under the
   // rangetop, low on its back wall (Leo's site practice).
   round69.changedInRound83 as Changed,
+  // The 9" round: D's 6" filler beside its oven tower a 9" cabinet, so its
+  // junction box and the rangetop's second outlet go in it.
+  round69.changedInThe9InchRound as Changed,
 ];
 const CHANGED: Changed = Object.assign({}, ...LAYERS);
 /**

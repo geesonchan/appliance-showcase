@@ -401,6 +401,7 @@
   "suggestion.lengthen": "Take {param} to {value}\".",
   "layout.applySuggestion": "Apply",
   "layout.seeConfig": "Open Configuration for the arithmetic.",
+  "panel.room.narrowCounter": "Only 6\" of counter left here — not practical.",
   "panel.room.minimum": "Minimum {value}\":",
   "refusal.wallLong": "A single run stops at {maximumIn}\", so {param} cannot be {wallIn}\" — that is {overIn}\" of wall with nowhere to put it.",
   "suggestion.shorten": "Take {param} to {value}\".",

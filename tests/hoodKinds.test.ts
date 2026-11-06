@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { chromium, type Browser, type BrowserContextOptions, type Page } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
+import { openWatched } from "../scripts/pageWatch.mjs";
 
 /**
  * The chimney fillers' round, Leo: "油烟机在嵌入式和别的种类之间来回换，不报错".
@@ -83,8 +84,7 @@ async function swapKinds(device: Device) {
   const page = await context.newPage();
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
-  await page.goto(`${PREVIEW_URL}?quality=low&qualityLock=1`, { waitUntil: "networkidle", timeout: 90_000 });
-  await page.waitForSelector("canvas", { timeout: 60_000 });
+  await openWatched(page, `${PREVIEW_URL}?quality=low&qualityLock=1`, { gotoTimeout: 90_000, canvasTimeout: 60_000, label: `hoodKinds · ${expect.getState().currentTestName ?? ""}` });
   await page.waitForTimeout(2000);
   const steps: string[] = [];
   for (const id of ORDER) {

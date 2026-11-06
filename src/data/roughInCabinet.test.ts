@@ -1,11 +1,11 @@
 import { afterAll, describe, expect, it } from "vitest";
 import { APPLIANCE_BY_ID } from "./catalogue";
-import { setActivePackage, setLayoutParamsGrowing } from "./layoutState";
-import type { LayoutParams } from "./layoutTemplate";
+import { setActivePackage, setLayoutParams, setLayoutParamsGrowing } from "./layoutState";
+import { feasibleRange, type LayoutParams } from "./layoutTemplate";
 import { PACKAGES, PACKAGE_BY_ID } from "./packages";
 import { CABINETS } from "./cabinets";
 import { axisIndex } from "./frame";
-import { ISLAND, REQUESTED_PARAMS, RUNS } from "./room";
+import { ISLAND, LAYOUT_PARAMS, REQUESTED_PARAMS, RUNS } from "./room";
 import { listRoughIn, type RoughInItem } from "./roughInList";
 import { resetRoom } from "./testRoom";
 import { translate } from "../i18n";
@@ -162,13 +162,36 @@ describe("package B's refrigerator, which has a cabinet on neither side", () => 
 });
 
 describe("package D's oven, with its coffee cabinet on the back leg", () => {
-  // Then the only thing beside the tower is a 6" filler. PODS302B's sheet, p. 2,
-  // allows the junction box beneath the unit; above is the gap the steam goes
-  // up (Leo).
+  // Then, on the back wall a slider is dragged to, the only thing beside the
+  // tower is a 6" filler. PODS302B's sheet, p. 2, allows the junction box
+  // beneath the unit; above is the gap the steam goes up (Leo). As the page
+  // builds it itself there is a 9" cabinet there since the 9" round (Leo,
+  // 2026-11-05, 乙), and the junction box goes in it.
   const backLeg: Arrangement = { sinkLeg: "back", fridgeEnd: "left", coffeeLeg: "back", islandOrientation: "parallel" };
+  /** The room, its back wall then dragged to the shortest the slider reaches. */
+  const dragged = () => {
+    if (!build("package-d", backLeg)) return false;
+    const shortest = feasibleRange(LAYOUT_PARAMS, "backWallIn")!.minIn;
+    return setLayoutParams({ ...LAYOUT_PARAMS, backWallIn: shortest }, { dragged: true }).ok;
+  };
+  const besideTheTower = () =>
+    RUNS.flatMap((run) => run.segments)
+      .filter((segment) => /tower-clearance/.test(segment.id))
+      .map((segment) => segment.modules.map((module) => module.code).join("+"));
 
-  it("puts the junction box in the drawer under the opening", () => {
+  it("puts the junction box in the cabinet beside the tower, as the page builds the room", () => {
     expect(build("package-d", backLeg)).toBe(true);
+    const oven = inANeighbour("package-d").find((i) => i.slotId === "slot-oven");
+    expect([besideTheTower(), oven?.resolved.noCabinet, oven && says(oven)]).toEqual([
+      ["B9"],
+      false,
+      "in the base cabinet beside the tower — open its door to see it",
+    ]);
+  });
+
+  it("puts the junction box in the drawer under the opening where a slider leaves a 6-inch filler", () => {
+    expect(dragged()).toBe(true);
+    expect(besideTheTower()).toEqual(["BF6"]);
     const oven = inANeighbour("package-d").find((i) => i.slotId === "slot-oven");
     expect([oven?.resolved.noCabinet, oven && says(oven)]).toEqual([
       true,
@@ -177,7 +200,7 @@ describe("package D's oven, with its coffee cabinet on the back leg", () => {
   });
 
   it("draws it inside that drawer", () => {
-    build("package-d", backLeg);
+    dragged();
     const oven = inANeighbour("package-d").find((i) => i.slotId === "slot-oven")!;
     const inside = [0, 1, 2].every(
       (axis) =>

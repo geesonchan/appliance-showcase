@@ -106,11 +106,13 @@ export function openSharedLink(search: string): void {
     if (read.state === "ok") asked = { ...asked, ...field.put(read.value) };
   }
   let built = asked;
-  if (!setLayoutParams(asked).ok) {
+  // A link is the room on screen (D23): one written where a wall slider left
+  // D11 rule 12's counter at 6" opens with it there (the 9" round, question 2).
+  if (!setLayoutParams(asked, { dragged: true }).ok) {
     const grown = setLayoutParamsGrowing(asked);
     if (grown.ok) built = grown.params;
     else {
-      setLayoutParams(standing);
+      setLayoutParams(standing, { dragged: true });
       built = standing;
     }
   }

@@ -167,6 +167,22 @@ export function hingeAwayFrom(slotId: SlotId, neighbour: SlotId): -1 | 1 {
 }
 
 /**
+ * The leg whose D11 rule 12 counter, between an oven tower and the cooking
+ * surface, is under 9" in the room standing, or null.
+ *
+ * The 9" round (Leo, 2026-11-05, 乙): a room the page builds itself has at
+ * least 9" there; only a wall slider dragged short leaves 6", and the slider of
+ * the wall it is on says so — 「台面只剩 6"，实际不建议」.
+ */
+export function narrowCounterLeg(): CabinetRun["id"] | null {
+  for (const run of RUNS) {
+    const counter = run.segments.find((segment) => /tower-clearance/.test(segment.id));
+    if (counter && (counter.to - counter.from) * 12 < LAYOUT_LIMITS.towerSpacer.builtMinIn - 1e-6) return run.id;
+  }
+  return null;
+}
+
+/**
  * Whether a stretch of run carries a slot.
  *
  * Its own slot, or the one standing in the bottom of its tower: the dishwasher

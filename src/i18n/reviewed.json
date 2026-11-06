@@ -805,6 +805,11 @@
       "text": "{count} column joints side by side: join them as the installation guide shows.",
       "approval": "written",
       "reviewed": "Leo's own wording: the line 2026-11-04 (decisions.md, round 101's plan, his answer 3 to its section 3: 「柱子并排共 N 处，按说明书连接。」 / \"N column joints side by side: join them as the installation guide shows.\"; A-6, no part number), and its English said in the singular for one joint, 2026-11-05: \"1 column joint side by side: join it as the installation guide shows.\"; the Chinese unchanged"
+    },
+    "panel.room.narrowCounter": {
+      "text": "Only 6\" of counter left here — not practical.",
+      "approval": "written",
+      "reviewed": "Leo's own wording, 2026-11-05 (decisions.md, \"Chosen 2026-11-05\", 乙: the note beside a wall slider dragged until D11 rule 12's counter is 6\": 「台面只剩 6\"，实际不建议」 / \"Only 6\" of counter left here — not practical.\"; under the back wall's slider only, the 9\" round's question 3)"
     }
   },
   "zh": {
@@ -1617,6 +1622,11 @@
       "text": "柱子并排共 {count} 处，按说明书连接。",
       "approval": "written",
       "reviewed": "Leo's own wording: the line 2026-11-04 (decisions.md, round 101's plan, his answer 3 to its section 3: 「柱子并排共 N 处，按说明书连接。」 / \"N column joints side by side: join them as the installation guide shows.\"; A-6, no part number), and its English said in the singular for one joint, 2026-11-05: \"1 column joint side by side: join it as the installation guide shows.\"; the Chinese unchanged"
+    },
+    "panel.room.narrowCounter": {
+      "text": "台面只剩 6\"，实际不建议",
+      "approval": "written",
+      "reviewed": "Leo's own wording, 2026-11-05 (decisions.md, \"Chosen 2026-11-05\", 乙: the note beside a wall slider dragged until D11 rule 12's counter is 6\": 「台面只剩 6\"，实际不建议」 / \"Only 6\" of counter left here — not practical.\"; under the back wall's slider only, the 9\" round's question 3)"
     }
   }
 }

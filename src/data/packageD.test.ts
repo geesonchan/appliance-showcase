@@ -671,8 +671,8 @@ describe("package D · the coffee cabinet", () => {
     // it toward the rangetop is off the bill. Until then 224-1/4", D's default.
     // 226-1/2" since round 101: a whole 15" cabinet after the corner instead of
     // rule 1's 12", so the coffee machine's door clears the cabinets across it
-    // (Leo, 2026-11-04, A-1).
-    expect(Number(short.vars.minimumIn)).toBe(226.5);
+    // (Leo, 2026-11-04, A-1). 229-1/2" since the 9" round (Leo, 2026-11-05, 乙): D11 rule 12's counter beside the oven tower is at least 9" in a room the page builds itself, where it was 6".
+    expect(Number(short.vars.minimumIn)).toBe(229.5);
     expect(Number(short.vars.minimumIn)).toBeGreaterThan(204);
     expect(Number(short.vars.minimumIn)).toBeLessThanOrEqual(PARAM_LIMITS.backWallIn.max);
     expect(short.occupancy!.map((item) => billLabelKey(item, {}))).toContain("requirement.coffee");

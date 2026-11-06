@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { chromium, type Browser, type Page } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
+import { openWatched } from "../scripts/pageWatch.mjs";
 
 /**
  * The 36" chimney hood HMCB36WS, picked on the model card in A's, B's and D's
@@ -59,8 +60,7 @@ async function open(phone: boolean): Promise<Session> {
       w.__scenes = [...(w.__scenes ?? []), detail];
     });
   });
-  await page.goto(PREVIEW_URL + "?quality=high", { waitUntil: "networkidle", timeout: 90_000 });
-  await page.waitForSelector("canvas", { timeout: 60_000 });
+  await openWatched(page, PREVIEW_URL + "?quality=high", { gotoTimeout: 90_000, canvasTimeout: 60_000, label: `chimney36 · ${expect.getState().currentTestName ?? ""}` });
   await page.waitForTimeout(2000);
   return { page, phone, errors };
 }

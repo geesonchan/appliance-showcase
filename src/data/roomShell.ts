@@ -167,11 +167,14 @@ export const LAYOUT_LIMITS = {
    * surface, and it is a clearance rather than a work surface. Eighteen is
    * what the stretch is built at — a landing wide enough to put a pan down on
    * and enough open counter that the tower does not crowd the cooking, which
-   * is why the wall's spare inches go here before anywhere else. Six is where
-   * it stops when the wall will not give it eighteen: five inches of counter
-   * is a piece nobody makes, and a filler stops at six.
+   * is why the wall's spare inches go here before anywhere else. Nine is
+   * where it stops in a room the page builds itself — opening a package,
+   * switching the layout, a model that rebuilds the room — the narrowest
+   * cabinet, and the wall grows for the rest (D18). Six only where a wall
+   * slider is dragged there: five inches of counter is a piece nobody makes,
+   * and a filler stops at six (Leo, 2026-11-05, 乙: 「台面只剩 6"，实际不建议」).
    */
-  towerSpacer: { counterIn: 5, wantIn: 18, panelIn: 0.75 },
+  towerSpacer: { counterIn: 5, wantIn: 18, panelIn: 0.75, builtMinIn: 9, draggedMinIn: 6 },
   /**
    * D11 rule 7: the aisle a working kitchen needs, for the island. Measured
    * counter edge to counter edge since round 39 (D20): each top laps 1" past

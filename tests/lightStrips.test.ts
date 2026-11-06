@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { chromium, type Browser, type Page } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
+import { openWatched } from "../scripts/pageWatch.mjs";
 
 /**
  * Round 99a (Leo: "一字型和 L 型互切后吊柜下的灯带位置不更新…因为是切形状带来的"):
@@ -48,8 +49,7 @@ async function open(): Promise<{ page: Page; errors: string[] }> {
       w.__scenes = [...(w.__scenes ?? []), detail];
     });
   });
-  await page.goto(PREVIEW_URL + "?quality=high", { waitUntil: "networkidle", timeout: 90_000 });
-  await page.waitForSelector("canvas", { timeout: 60_000 });
+  await openWatched(page, PREVIEW_URL + "?quality=high", { gotoTimeout: 90_000, canvasTimeout: 60_000, label: `lightStrips · ${expect.getState().currentTestName ?? ""}` });
   await page.waitForTimeout(2000);
   return { page, errors };
 }

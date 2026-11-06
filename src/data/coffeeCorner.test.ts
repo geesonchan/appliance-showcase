@@ -74,7 +74,9 @@ describe("the L's coffee machine after the corner (round 101, Leo A-1)", () => {
   it("grows D's back wall where it is too short, as the panel always has (D18, Leo A-2)", () => {
     const grown = coffeeOnTheBack("package-d", { cornerType: "lazy-susan", towerSide: "right", fridgeEndAbuts: "cabinet" });
     // From D's own 224-1/4" (packages.json), 235-1/2" before round 101.
-    expect(grown.grown).toEqual([{ key: "backWallIn", fromIn: 224.25, toIn: 238.5 }]);
+    // 241-1/2" since the 9" round (Leo, 2026-11-05, 乙): D11 rule 12's counter beside the oven tower is at least 9" in a room the page builds itself, where it was 6" at 238-1/2"; the L's back wall
+    // goes to 246" for it.
+    expect(grown.grown).toEqual([{ key: "backWallIn", fromIn: 224.25, toIn: 241.5 }]);
   });
 
   it("keeps the 9-inch cabinet between the oven tower and the rangetop with a blind corner and the tower left, and grows the wall for it", () => {

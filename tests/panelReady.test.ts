@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { chromium, type Browser, type Page } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
+import { openWatched } from "../scripts/pageWatch.mjs";
 
 /**
  * Stainless or panel-ready, chosen on the model card (Leo, 2026-10-28): D's
@@ -64,8 +65,7 @@ async function open(phone: boolean, pkg = "D"): Promise<Session> {
     });
   });
   // Package D, by the list's package switch's own link: as it opens.
-  await page.goto(`${PREVIEW_URL}?v=3&pkg=${pkg}&quality=high`, { waitUntil: "networkidle", timeout: 90_000 });
-  await page.waitForSelector("canvas", { timeout: 60_000 });
+  await openWatched(page, `${PREVIEW_URL}?v=3&pkg=${pkg}&quality=high`, { gotoTimeout: 90_000, canvasTimeout: 60_000, label: `panelReady · ${expect.getState().currentTestName ?? ""}` });
   await page.waitForTimeout(2500);
   // A link with only its package says what it filled in; that notice is not
   // this test's, and it stands over the card on a phone.

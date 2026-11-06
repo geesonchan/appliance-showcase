@@ -1,4 +1,4 @@
-import { PARAM_LIMITS, feasibleRange, wallRequirement, type LayoutParams } from "../data/room";
+import { PARAM_LIMITS, feasibleRange, narrowCounterLeg, wallRequirement, type LayoutParams } from "../data/room";
 import { LAYOUT_SHAPES } from "../data/layoutShape";
 import { paramLimitsFor } from "../data/layoutTemplate";
 import { showsControl, type LayoutControl } from "./shapeControls";
@@ -89,6 +89,14 @@ function WallMinimum({ params, leg }: { params: LayoutParams; leg: "left" | "bac
           <span className="opacity-65">{item.code ?? item.rule?.toUpperCase()}</span>
         </span>
       ))}
+      {/* A slider dragged until rule 12's counter beside the oven tower is 6"
+          says so under itself, in Leo's words (the 9" round, 乙). Read from
+          the room standing, so it goes when anything builds it to 9" again. */}
+      {narrowCounterLeg() === leg && (
+        <span data-narrow-counter className="mt-1 block font-medium text-ink">
+          {t("panel.room.narrowCounter")}
+        </span>
+      )}
     </>
   );
 }

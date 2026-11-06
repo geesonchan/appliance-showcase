@@ -270,8 +270,10 @@ describe("a wall's bill names what stands on it (round 99)", () => {
     // 1,045 and 91 rooms (606 built) until 2026-11-02: each column's own
     // number, panel-ready, is a swap of its own since (Leo), 18 in the L and
     // 15 on one wall.
+    // 642 and 527 since the 9" round: three of D's rooms the 240" wall
+    // refused build at 246".
     expect({ counted, missing: [...missing], fellBack: NAME_FALLBACKS }).toEqual({
-      counted: { built: 639, refused: 530 },
+      counted: { built: 642, refused: 527 },
       missing: [],
       fellBack: [],
     });

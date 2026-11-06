@@ -2,6 +2,7 @@ import { rebuildCabinets } from "./cabinets";
 import { rebuildFixtures } from "./fixtures";
 import {
   DEFAULT_PARAMS,
+  asDragged,
   generateLayout,
   oneWallWantedIn,
   openingIn,
@@ -56,7 +57,7 @@ import type { Appliance } from "../types";
 export function setHoodModel(
   appliance: Appliance | undefined,
   packageId: string = PACKAGE.id,
-): { ok: boolean; reasons: Refusal[]; rebuilt: boolean } {
+): { ok: boolean; reasons: Refusal[]; rebuilt: boolean; grown?: WallGrowth[]; params?: LayoutParams } {
   const before = hoodModelFor(PACKAGE);
   recordHoodModel(appliance, packageId);
   if (packageId !== PACKAGE.id) return { ok: true, reasons: [], rebuilt: false };
@@ -70,13 +71,34 @@ export function setHoodModel(
     rebuildCabinets();
     return { ok: true, reasons: [], rebuilt: false };
   }
-  const result = setLayoutParams(REQUESTED_PARAMS);
+  const asked = REQUESTED_PARAMS;
+  const result = rebuildWhereItStands(asked);
   if (!result.ok) {
     recordHoodModel(before, packageId);
-    setLayoutParams(REQUESTED_PARAMS);
+    asDragged(() => setLayoutParams(asked));
     return { ...result, rebuilt: false };
   }
   return { ...result, rebuilt: true };
+}
+
+/**
+ * The room generated again where it stands, for a model that changes what the
+ * run is built of (a hood that hangs another way, a range of another kind).
+ *
+ * At the walls it stands at, as round 83 built it. Where that is short — the
+ * one case being a wall a slider dragged until D11 rule 12's counter was 6" —
+ * the page is building the room, so it is built to 9" and the wall grows for
+ * it, and says so (D18; Leo, 2026-11-05, the 9" round's question 1).
+ */
+function rebuildWhereItStands(asked: LayoutParams): {
+  ok: boolean;
+  reasons: Refusal[];
+  params: LayoutParams;
+  grown: WallGrowth[];
+} {
+  const result = setLayoutParams(asked);
+  if (result.ok) return { ...result, params: asked, grown: [] };
+  return setLayoutParamsGrowing(asked);
 }
 
 /**
@@ -101,7 +123,7 @@ export function setHoodModel(
 export function setRangeModel(
   appliance: Appliance | undefined,
   packageId: string = PACKAGE.id,
-): { ok: boolean; reasons: Refusal[]; rebuilt: boolean } {
+): { ok: boolean; reasons: Refusal[]; rebuilt: boolean; grown?: WallGrowth[]; params?: LayoutParams } {
   const before = rangeModelFor(PACKAGE);
   recordRangeModel(packageId, appliance);
   if (packageId !== PACKAGE.id) return { ok: true, reasons: [], rebuilt: false };
@@ -114,10 +136,11 @@ export function setRangeModel(
     dropsIntoCounter(before) === dropsIntoCounter(after) &&
     gap(before) === gap(after);
   if (same) return { ok: true, reasons: [], rebuilt: false };
-  const result = setLayoutParams(REQUESTED_PARAMS);
+  const asked = REQUESTED_PARAMS;
+  const result = rebuildWhereItStands(asked);
   if (!result.ok) {
     recordRangeModel(packageId, before);
-    setLayoutParams(REQUESTED_PARAMS);
+    asDragged(() => setLayoutParams(asked));
     return { ...result, rebuilt: false };
   }
   return { ...result, rebuilt: true };
@@ -188,8 +211,16 @@ export function setFridgeModel(
   return { ...result, rebuilt: true };
 }
 
-export function setLayoutParams(params: LayoutParams): { ok: boolean; reasons: Refusal[] } {
-  const attempt = generateLayout(params);
+/**
+ * `how.dragged`: the room a wall slider asked for, a link names, or Undo puts
+ * back — D11 rule 12's counter may be 6" there (`asDragged`; the 9" round).
+ * Every other room is built to 9".
+ */
+export function setLayoutParams(
+  params: LayoutParams,
+  how: { dragged?: boolean } = {},
+): { ok: boolean; reasons: Refusal[] } {
+  const attempt = how.dragged ? asDragged(() => generateLayout(params)) : generateLayout(params);
 
   if (!attempt.ok) {
     applyLayout(LAYOUT, params, attempt.reasons);

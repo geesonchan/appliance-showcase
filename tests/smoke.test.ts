@@ -2,6 +2,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { chromium, type Browser, type Page } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
+import { openWatched } from "../scripts/pageWatch.mjs";
 
 const DESKTOP = { width: 1440, height: 900 };
 const MOBILE = { width: 390, height: 844 };
@@ -37,8 +38,7 @@ beforeAll(async () => {
   // a fact about the machine, not about the app.
   const context = await browser.newContext({ viewport: DESKTOP });
   const page = await context.newPage();
-  await page.goto(PREVIEW_URL, { waitUntil: "networkidle", timeout: 120_000 });
-  await page.waitForSelector("canvas", { timeout: 120_000 });
+  await openWatched(page, PREVIEW_URL, { gotoTimeout: 120_000, canvasTimeout: 120_000, label: `smoke · ${expect.getState().currentTestName ?? ""}` });
   await page.waitForTimeout(1500);
   await context.close();
 });
@@ -86,8 +86,7 @@ async function openPage(viewport: typeof DESKTOP, isMobile = false, query = "") 
   // scene is a megabyte and a half of JavaScript and a WebGL context, and on a
   // loaded machine "no network activity for half a second" takes longer than
   // that to arrive.
-  await page.goto(PREVIEW_URL + query, { waitUntil: "networkidle", timeout: 90_000 });
-  await page.waitForSelector("canvas", { timeout: 60_000 });
+  await openWatched(page, PREVIEW_URL + query, { gotoTimeout: 90_000, canvasTimeout: 60_000, label: `smoke · ${expect.getState().currentTestName ?? ""}` });
   await page.waitForTimeout(2200);
   return { page, errors };
 }

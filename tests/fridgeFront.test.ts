@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { chromium, type Browser, type Page } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
+import { openWatched } from "../scripts/pageWatch.mjs";
 
 /**
  * The refrigerator's front, in the room as it is drawn (the fridge-front
@@ -63,8 +64,7 @@ async function open(phone: boolean, query = ""): Promise<Session> {
     });
   });
   const url = PREVIEW_URL + (query ? `${query}&quality=high` : "?quality=high");
-  await page.goto(url, { waitUntil: "networkidle", timeout: 90_000 });
-  await page.waitForSelector("canvas", { timeout: 60_000 });
+  await openWatched(page, url, { gotoTimeout: 90_000, canvasTimeout: 60_000, label: `fridgeFront · ${expect.getState().currentTestName ?? ""}` });
   await page.waitForTimeout(2500);
   return { page, phone, errors };
 }

@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { chromium, type Browser, type Page } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
+import { openWatched } from "../scripts/pageWatch.mjs";
 
 /**
  * Round 92a, Leo: every package opens with its doors in RAL 5015, the first
@@ -39,8 +40,7 @@ async function open(query = ""): Promise<{ page: Page; errors: string[] }> {
   page.on("console", (message) => {
     if (message.type() === "error") errors.push(message.text());
   });
-  await page.goto(`${PREVIEW_URL}?quality=high&debug=1${query}`, { waitUntil: "networkidle", timeout: 90_000 });
-  await page.waitForSelector("canvas", { timeout: 60_000 });
+  await openWatched(page, `${PREVIEW_URL}?quality=high&debug=1${query}`, { gotoTimeout: 90_000, canvasTimeout: 60_000, label: `defaultDoors · ${expect.getState().currentTestName ?? ""}` });
   await page.waitForSelector(`[data-ral-input="cabinet"]`, { timeout: 30_000 });
   await page.waitForTimeout(1500);
   return { page, errors };

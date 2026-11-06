@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { chromium, type Browser, type BrowserContextOptions, type Page } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
+import { openWatched } from "../scripts/pageWatch.mjs";
 
 /**
  * The geometries that climbed with every model swap (round 100 measured 238
@@ -69,8 +70,7 @@ async function open(device: Device) {
       if (r?.isWebGLRenderer) (window as unknown as { __renderer: unknown }).__renderer = r;
     });
   });
-  await page.goto(`${PREVIEW_URL}?quality=high&qualityLock=1`, { waitUntil: "networkidle", timeout: 90_000 });
-  await page.waitForSelector("canvas", { timeout: 60_000 });
+  await openWatched(page, `${PREVIEW_URL}?quality=high&qualityLock=1`, { gotoTimeout: 90_000, canvasTimeout: 60_000, label: `geometryReturn · ${expect.getState().currentTestName ?? ""}` });
   await page.waitForTimeout(2500);
   return { context, page, errors };
 }

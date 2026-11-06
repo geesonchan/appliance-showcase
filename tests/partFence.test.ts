@@ -2,6 +2,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { chromium, type Browser, type BrowserContextOptions, type Page } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
 import en from "../src/i18n/en.json";
+import { gotoWatched } from "../scripts/pageWatch.mjs";
 
 /**
  * Round 99c, Leo: a part that fails shows its own message and the page goes
@@ -81,7 +82,7 @@ async function failing(device: Device, part: string) {
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   const base = part === "link-notice" ? `${PREVIEW_URL}${CUT_LINK}&` : `${PREVIEW_URL}?`;
-  await page.goto(`${base}quality=low&fault=${part}`, { waitUntil: "networkidle", timeout: 90_000 });
+  await gotoWatched(page, `${base}quality=low&fault=${part}`, { timeout: 90_000, label: `partFence · ${expect.getState().currentTestName ?? ""}` });
   await page.waitForTimeout(2000);
   if (part === "right-panel" && device === "phone") await press(page, device, "button", "Configure");
   if (part === "left-panel") await press(page, device, "button", "Appliances");
@@ -211,7 +212,7 @@ describe("an error in a frame reaches the 3D scene's fence (round 99d)", () => {
           };
         });
       });
-      await page.goto(`${PREVIEW_URL}?quality=low&fault=scene-frame`, { waitUntil: "networkidle", timeout: 90_000 });
+      await gotoWatched(page, `${PREVIEW_URL}?quality=low&fault=scene-frame`, { timeout: 90_000, label: `partFence · ${expect.getState().currentTestName ?? ""}` });
       await page.waitForTimeout(2500);
       const during = await state(page);
       const buttons = await page.getByRole("button", { name: "B", exact: true }).filter({ visible: true }).count();
@@ -250,7 +251,7 @@ describe("the scene's pins go with the scene (round 99d)", () => {
     it(`on a ${device}, ?fault=${fault}: no pin while the message shows, nothing over it; the pins back after Retry`, async () => {
       const context = await browser.newContext(DEVICES[device]);
       const page = await context.newPage();
-      await page.goto(`${PREVIEW_URL}?quality=low&fault=${fault}`, { waitUntil: "networkidle", timeout: 90_000 });
+      await gotoWatched(page, `${PREVIEW_URL}?quality=low&fault=${fault}`, { timeout: 90_000, label: `partFence · ${expect.getState().currentTestName ?? ""}` });
       await page.waitForTimeout(2500);
       const look = () =>
         page.evaluate(() => {

@@ -3,6 +3,7 @@ import { chromium, type Browser, type BrowserContext, type Page } from "playwrig
 import jsQR from "jsqr";
 import qrcode from "qrcode-generator";
 import { PREVIEW_URL } from "./globalSetup";
+import { openWatched } from "../scripts/pageWatch.mjs";
 
 /**
  * The share box on a desktop, with the link as a QR code. Round 95, Leo;
@@ -63,8 +64,7 @@ async function open(phone = false): Promise<Session> {
       Object.defineProperty(navigator, "share", { configurable: true, value: async () => {} });
     });
   }
-  await page.goto(PREVIEW_URL + "/?quality=high", { waitUntil: "networkidle", timeout: 90_000 });
-  await page.waitForSelector("canvas", { timeout: 60_000 });
+  await openWatched(page, PREVIEW_URL + "/?quality=high", { gotoTimeout: 90_000, canvasTimeout: 60_000, label: `shareQr · ${expect.getState().currentTestName ?? ""}` });
   await page.waitForTimeout(2000);
   return { context, page, scripts, errors };
 }

@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { chromium, type Browser, type Page } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
+import { openWatched } from "../scripts/pageWatch.mjs";
 
 /**
  * Round 99a, Leo, from the live site: A on one wall with its 36" range swapped
@@ -52,8 +53,7 @@ async function swapToThirty(shape: "L" | "one-wall") {
   const page = await context.newPage();
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
-  await page.goto(PREVIEW_URL + "?quality=high", { waitUntil: "networkidle", timeout: 90_000 });
-  await page.waitForSelector("canvas", { timeout: 60_000 });
+  await openWatched(page, PREVIEW_URL + "?quality=high", { gotoTimeout: 90_000, canvasTimeout: 60_000, label: `rangeSwapBill · ${expect.getState().currentTestName ?? ""}` });
   await page.waitForTimeout(2000);
   await press(page, page.getByRole("tab", { name: "Layout", exact: true }).first());
   if (shape === "one-wall") await press(page, page.getByRole("button", { name: "Single-wall kitchen", exact: true }).first());

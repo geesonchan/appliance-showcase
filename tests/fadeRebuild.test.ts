@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { chromium, type Browser, type CDPSession, type Page } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
+import { openWatched } from "../scripts/pageWatch.mjs";
 
 /**
  * Round 81: a room rebuilt while cabinets are faded draws none of them solid.
@@ -193,8 +194,7 @@ async function open(phone: boolean): Promise<Session> {
     if (message.type() === "error") errors.push(message.text());
   });
   await page.addInitScript(installHook);
-  await page.goto(PREVIEW_URL + "?debug=1&quality=high", { waitUntil: "networkidle", timeout: 90_000 });
-  await page.waitForSelector("canvas", { timeout: 60_000 });
+  await openWatched(page, PREVIEW_URL + "?debug=1&quality=high", { gotoTimeout: 90_000, canvasTimeout: 60_000, label: `fadeRebuild · ${expect.getState().currentTestName ?? ""}` });
   await page.waitForTimeout(2500);
   return { page, cdp: await context.newCDPSession(page), phone, errors };
 }

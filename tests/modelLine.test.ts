@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { chromium, type Browser, type Page } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
+import { openWatched } from "../scripts/pageWatch.mjs";
 
 /**
  * The model line's rule, held on what the browser actually laid out.
@@ -80,8 +81,7 @@ describe("the model line", () => {
   it("never cuts the model or the opening, and only ever the brand, in the appliance list", async () => {
     const context = await browser.newContext({ viewport: DESKTOP });
     const page = await context.newPage();
-    await page.goto(PREVIEW_URL + "?quality=high", { waitUntil: "networkidle", timeout: 90_000 });
-    await page.waitForSelector("canvas", { timeout: 60_000 });
+    await openWatched(page, PREVIEW_URL + "?quality=high", { gotoTimeout: 90_000, canvasTimeout: 60_000, label: `modelLine · ${expect.getState().currentTestName ?? ""}` });
     await page.waitForTimeout(2000);
     await click(page, "Appliances");
     await page.waitForTimeout(600);
@@ -133,8 +133,7 @@ describe("the model line", () => {
       it(`never cuts the model or the opening on the model card and in the alternatives, ${lang}, package ${pkg}`, async () => {
         const context = await browser.newContext({ viewport: DESKTOP });
         const page = await context.newPage();
-        await page.goto(PREVIEW_URL + "?quality=high", { waitUntil: "networkidle", timeout: 90_000 });
-        await page.waitForSelector("canvas", { timeout: 60_000 });
+        await openWatched(page, PREVIEW_URL + "?quality=high", { gotoTimeout: 90_000, canvasTimeout: 60_000, label: `modelLine · ${expect.getState().currentTestName ?? ""}` });
         await page.waitForTimeout(2000);
         await click(page, "Appliances");
         await page.waitForTimeout(600);

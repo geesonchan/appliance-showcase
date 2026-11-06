@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { chromium, type Browser, type BrowserContext, type Page } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
+import { openWatched } from "../scripts/pageWatch.mjs";
 
 /**
  * A link rebuilds the kitchen it was shared from. Round 94, Leo;
@@ -75,8 +76,7 @@ async function open(phone: boolean, query = "?quality=high&debug=1"): Promise<Se
       },
     });
   });
-  await page.goto(PREVIEW_URL + "/" + query, { waitUntil: "networkidle", timeout: 90_000 });
-  await page.waitForSelector("canvas", { timeout: 60_000 });
+  await openWatched(page, PREVIEW_URL + "/" + query, { gotoTimeout: 90_000, canvasTimeout: 60_000, label: `shareLink · ${expect.getState().currentTestName ?? ""}` });
   await page.waitForTimeout(2500);
   return { context, page, phone, errors };
 }

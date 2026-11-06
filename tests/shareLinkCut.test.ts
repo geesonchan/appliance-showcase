@@ -5,6 +5,7 @@ import { LINK_FIELDS, noticeItemKey, writeLink } from "../src/store/shareLink";
 import { kitchenNow } from "../src/store/openLink";
 import { resetRoom } from "../src/data/testRoom";
 import en from "../src/i18n/en.json";
+import { gotoWatched } from "../scripts/pageWatch.mjs";
 
 /**
  * Round 99c, Leo: a share link cut short — by a chat app, or typed in part —
@@ -70,7 +71,7 @@ async function open(query: string) {
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   // The low tier: the page's words are asked here, not its frame rate.
-  await page.goto(`${PREVIEW_URL}${query}&quality=low`, { waitUntil: "networkidle", timeout: 90_000 });
+  await gotoWatched(page, `${PREVIEW_URL}${query}&quality=low`, { timeout: 90_000, label: `shareLinkCut · ${expect.getState().currentTestName ?? ""}` });
   await page.waitForTimeout(2500);
   const canvases = await page.locator("canvas").count();
   const lines = await page.locator("[data-share-notice-line]").allInnerTexts();

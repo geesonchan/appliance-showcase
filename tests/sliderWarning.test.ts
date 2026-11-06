@@ -2,6 +2,7 @@ import { createServer } from "node:net";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { chromium, type Browser } from "playwright";
 import { startDev } from "./globalSetup";
+import { openWatched } from "../scripts/pageWatch.mjs";
 
 /**
  * The wall sliders raise no React style warning. Round 91; docs/decisions.md,
@@ -58,8 +59,7 @@ describe("the wall sliders", () => {
     page.on("console", (message) => {
       if (/conflicting property/.test(message.text())) warnings.push(message.text().replace(/\s+/g, " ").slice(0, 160));
     });
-    await page.goto(`http://localhost:${DEV_PORT}/?quality=low`, { waitUntil: "networkidle", timeout: 120_000 });
-    await page.waitForSelector("canvas", { timeout: 120_000 });
+    await openWatched(page, `http://localhost:${DEV_PORT}/?quality=low`, { gotoTimeout: 120_000, canvasTimeout: 120_000, label: `sliderWarning · ${expect.getState().currentTestName ?? ""}` });
     await page.waitForTimeout(2000);
     const click = async (locator: ReturnType<typeof page.locator>) => {
       await locator.scrollIntoViewIfNeeded();

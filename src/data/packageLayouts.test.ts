@@ -698,7 +698,9 @@ describe("a bank of tall units", () => {
       const at = { ...base, fridgeEnd, sinkLeg };
       const room = feasibleRange(at, key)!;
       expect(room, where).toBeTruthy();
-      expect(setLayoutParams({ ...at, [key]: room.minIn }).ok, where).toBe(true);
+      // The shortest wall the slider reaches is a slider's room: rule 12's
+      // counter may be 6" there (the 9" round), as the band was worked out.
+      expect(setLayoutParams({ ...at, [key]: room.minIn }, { dragged: true }).ok, where).toBe(true);
 
       const run = RUNS.find((r) => r.segments.some((s) => s.slot === "slot-fridge"))!;
       const wine = run.segments.find((s) => s.slot === "slot-wine")!;
@@ -742,7 +744,8 @@ describe("a bank of tall units", () => {
       const at = params({ towerSide });
       const room = feasibleRange(at, "backWallIn")!;
       expect(room, where).toBeTruthy();
-      expect(setLayoutParams({ ...at, backWallIn: room.minIn }).ok, where).toBe(true);
+      // The slider's shortest wall, a slider's room (the 9" round).
+      expect(setLayoutParams({ ...at, backWallIn: room.minIn }, { dragged: true }).ok, where).toBe(true);
       expect(checkLayout(), where).toEqual([]);
 
       const run = RUNS.find((r) => r.segments.some((s) => s.slot === "slot-range"))!;
