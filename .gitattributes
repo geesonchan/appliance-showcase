@@ -2,3 +2,5 @@
 # a Windows checkout had written CRLF into the round's files). Git decides
 # what is text; the PDFs and the images are left alone.
 * text=auto eol=lf
+# The fonts (2026-11-06) are binary, whatever git would guess.
+*.woff2 binary

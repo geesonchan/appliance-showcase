@@ -12,8 +12,8 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **the end-of-run round** (2026-11-06), live at
-`05bb6e1`, and the handoff commit after it, which changes only `docs/`
+Covers the repository up to **the end-of-run round** (2026-11-06), `05bb6e1`,
+and the handoff commit after it, `476591c`, live, which changes only `docs/`
 (`docs/decisions.md` is the record of rounds; `git log` is the record of
 commits). It replaces the v1–v9 briefs that were pasted into chat. Written at
 the end of a long session, for the next one, which has only the repository:
@@ -21,18 +21,17 @@ the end of a long session, for the next one, which has only the repository:
 
 ### Live, 2026-11-06
 
-- **`05bb6e1`**, the end-of-run round, checked file by file after its Pages
-  run (42249758730, build and deploy each a success): six of six files the
-  same byte for byte as a build at `05bb6e1` with the counter's address; the
-  live main chunk **`assets/index-NNDgg3WU.js`** (700,237 bytes). Every
-  figure is in `docs/decisions.md`, the end-of-run round's "Shipped".
-- **Then the handoff commit** (this file and `docs/decisions.md` only). The
-  footer's commit is compiled into the main chunk, so its main chunk has
-  another name while every other file stays the same. Its own check was
-  reported to Leo in chat and could not be written into the commit it
-  checks: **the first thing the next session does is check it again** (step
-  2 below) and write the result into `docs/decisions.md` with its first
-  round.
+- **`476591c`**, the handoff commit (this file and `docs/decisions.md`
+  only), checked file by file by the next session after its Pages run
+  (42251266466, build and deploy each a success): six of six files the same
+  byte for byte as a build at `476591c` with the counter's address; the live
+  main chunk **`assets/index-nX_Uw6QU.js`** (700,237 bytes). Every figure is
+  in `docs/decisions.md`, the end-of-run round's item 10.
+- Before it, **`05bb6e1`**, the end-of-run round (main chunk
+  `index-NNDgg3WU.js`, its "Shipped"). The footer's commit is compiled into
+  the main chunk, so a docs-only commit gives the main chunk another name
+  while every other file stays the same. **The next session checks the live
+  site again** (step 2 below) before anything else.
 
 ---
 
@@ -260,11 +259,12 @@ confirms it** (Leo, 2026-10-24).
 Each a plan first, shown to Leo, built only once he confirms it.
 
 1. **The fonts in the site's own files** — no request to Google, the system
-   fonts shown until the files come. **A plan first**, which states the
-   font files' sizes, whether the licence allows serving them, the first
-   frame's time in four network conditions, and a pixel comparison
-   (decisions.md, Open items, "The page waits for Google Fonts…",
-   "Registered 2026-11-06").
+   fonts shown until the files come. **Done**: the plan
+   (`docs/plans/fonts-plan.md`), confirmed by Leo with his five answers,
+   built, a full suite, committed in the commit after `476591c` (decisions.md,
+   Open items, "The page waits for Google Fonts…", "Confirmed" and "Built
+   2026-11-06"). Whether `geesonchan.github.io` opens in mainland China:
+   待 Leo 报 — he has it tried on a phone there.
 2. **The test environment: the local server resetting the main chunk's
    first request** (`ERR_CONNECTION_RESET`), which has made several full
    suites run for nothing. The test environment only, never the page. **A
@@ -284,7 +284,8 @@ is one of the four above — and where this list and decisions.md disagree,
 decisions.md is right.
 
 - The copied textures, and the high tier's textures left on the graphics card after a drop to low — "The copied textures" (and its 2026-10-28 note).
-- The full suite's 84–90 minutes, six ways to shorten it, none chosen — "The full suite takes 84–90 minutes".
+- A pin label drawn before its font comes stays soft after the swap — on a slow network the self-hosted build's labels are the old build's, pixel for pixel; Leo, 2026-11-06: not in the order yet — "A pin label drawn before its font comes stays blurred after the swap".
+- The full suite's 77 minutes (4,647 s, 2026-11-06), six ways to shorten it, none chosen — "The full suite takes about 77 minutes".
 - The import's `_meta` to carry no day and no path, **with the next import** (chosen, 3) — "The import's `_meta` is in the main chunk".
 - A hood's own outlet first, then 79a (the cabinet over the hood opens) and 79b (the duct turning); the 30" option in A paused — "Registered rounds after 78".
 - A Run Composer — D14; the two run towers on separate legs — D22, round 55.

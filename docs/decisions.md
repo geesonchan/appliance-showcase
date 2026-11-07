@@ -7477,6 +7477,18 @@ Registered, not scheduled. None of these is a round of its own.
     `shareLink.test.ts` — the test server on 4174 resetting the main chunk's
     first request, `#root` empty (the round's entry under "The stone beside
     an oven tower…"). The run again was green.
+  - *Met again, 2026-11-06, the fonts round's pixel shots, with one browser*:
+    `scripts/pixelShots.mjs` on the new build's `vite preview` (4192, the
+    fonts round's own server, not the suite's), its second run, the
+    sixteenth state after `desk-C-fly-dishwasher`: no canvas in 60 s. The
+    record `test-results/blank-canvas/2026-11-06T21-43-31-607Z-pixelShots-canvas.json`:
+    at 13:42:31 `http://localhost:4192/assets/index-BxCOFJFQ.js` failed
+    with `net::ERR_CONNECTION_RESET`, `readyState` complete, no canvas, no
+    WebGL context asked for, no page error, no long task. New against what
+    was known: **one browser, the shots one page after another**, not three
+    opening at once; and the server's output, written to a file this time
+    (`vite preview … > serve-new.log`), has its two start lines and nothing
+    else. That run was set aside as void and taken again from the start.
   - **Registered 2026-11-06** (Leo: 「本机预览服务器第一次送主文件时断开连接
     （ERR_CONNECTION_RESET），已经让全套测试白跑好几次。只改测试环境不改网页，列几种做法和
     代价」; registered only, nothing changed; after the fonts, **a plan
@@ -7517,9 +7529,14 @@ Registered, not scheduled. None of these is a round of its own.
       in it is a test-only fault that looks like the page's.
     - 戊, **leave it**: a red run of this kind recorded and run again, as
       now. Cost: about 75–80 minutes each time it happens, which has been
-      several times. *(Leo, 2026-11-05:
+      several times.
+- **The page waits for Google Fonts before it draws.** *(Leo, 2026-11-05:
   registered, looked into, not changed — customers in mainland China, where
-  Google's fonts are often blocked.)*
+  Google's fonts are often blocked.)* *(This headline was lost in the
+  handoff commit `476591c`, which wrote the entry above's "Registered
+  2026-11-06" over it and left this entry run into that one; put back
+  2026-11-06, Leo: 「恢复"The page waits for Google Fonts before it draws."那一条，
+  单独成条」.)*
   - **How it loads**: `index.html` asks for the stylesheet
     `fonts.googleapis.com/css2?family=Cormorant+Garamond…&family=Inter…&display=swap`
     with a plain `<link rel="stylesheet">` in the head, before the site's
@@ -7587,6 +7604,196 @@ Registered, not scheduled. None of these is a round of its own.
        page; the plan shows it);
     4. **a pixel comparison**, the locked shots (`scripts/pixelShots.mjs`,
        `?qualityLock=1`), old and new twice each, alternated.
+  - **Planned 2026-11-06** (only measured, on a prototype in a scratch copy
+    of `476591c`; nothing in the repository's code changed): the plan,
+    `docs/plans/fonts-plan.md`, for Leo, with the figures, the runs they
+    come from and five questions. Leo asked for two more things in it, the
+    Chinese page's fonts and whether `github.io` opens in mainland China
+    (「查不到就写"查不到"」). What it found, in a line each — the figures are
+    the plan's:
+    - The page downloads two of Google's twelve files (Inter and Cormorant
+      Garamond, latin; 85,896 bytes); Google held open at the HTTP level,
+      the old page drew nothing in 90 s, twice, and a connection accepted
+      with no TLS answer was given up at 30 s — the second kind of "held"
+      is new; the prototype drew at 0.14–0.17 s in every condition and asked
+      Google nothing.
+    - The locked shots: the canvas the same in all 45; on screen 13 states
+      differ, all in the pin labels' sharpness, and **zeroed** by giving the
+      old build Google's same files at once (12 at 0 pixels, one at 1): the
+      difference is when the font arrives, not the glyphs.
+    - Chinese characters never came from Google; the glyphs drawn in each
+      font are the same before and after.
+    - `geesonchan.github.io` in mainland China: not found — GreatFire has
+      no test of it (2026-11-06); other `github.io` hosts are mixed.
+  - **Confirmed 2026-11-06** (Leo: 「计划确认，按第 8 节做」), his answers to the
+    plan's five questions, in his words:
+    1. 「12 个字体文件全带。」
+    2. 「CSS 照搬 Google 的 48 段。」
+    3. 「这一轮不预加载。」
+    4. 「字体固定在 2026-11-06 这一版，我要求时才更新。」
+    5. 「不提交 GreatFire。大陆能不能打开，我自己找人用手机试，结果我来报」 —
+       whether `geesonchan.github.io` opens in mainland China: **待 Leo 报**.
+    And two additions: the plan's "改后会稳定在清楚的那一种" said only with its
+    condition (only measured here, the fonts in 0.2 s: the labels are
+    sharp when the font comes before them), and a proof more — the 13
+    states shot on the slow network (150 ms, 1.6 Mbps), the old build and
+    the new twice each, alternated, the result in the report's text. The
+    labels' blur itself registered below, not fixed this round.
+  - **Built 2026-11-06** (not committed, on `476591c`), as the plan's
+    section 8 has it:
+    1. **The change.** `index.html` without its three lines to Google (two
+       `preconnect`, the stylesheet); `src/fonts.css`, Google's stylesheet
+       of 2026-11-06, its 48 blocks as they came but for each `url()`, now
+       `./assets/fonts/<the same file name>`, under a head comment saying
+       where it came from (Inter v20, Cormorant Garamond v21, as Google
+       gives them to Chromium 153) and that it is kept at this version;
+       the twelve `.woff2` files in `src/assets/fonts/`, byte for byte the
+       ones Google served; `public/fonts/Inter-OFL.txt` and
+       `public/fonts/CormorantGaramond-OFL.txt`, `google/fonts`'
+       `ofl/inter/OFL.txt` and `ofl/cormorantgaramond/OFL.txt`; `main.tsx`
+       imports `./fonts.css` before `./index.css`; `font-display: swap` as
+       before, no preload. `.gitattributes` names `*.woff2` binary;
+       `tests/analytics.test.ts`'s own server knows `.woff2` and `.txt`.
+    2. **The build**: `index-BxCOFJFQ.js` (700,133 bytes; no counter
+       address), `index.html` 579, `index-C679l0R0.css` (37,753), the twelve fonts as
+       `dist/assets/<name>-<hash>.woff2`, the licences in `dist/fonts/`;
+       `react-i_nGBwMY.js`, `three-C6wp6xxT.js` and `shareQr-BXYgausd.js`
+       unchanged. **The same as the plan's prototype byte for byte**, every
+       file, the two licences added.
+    3. **Tests, red first.** `src/data/fonts.test.ts` (7: the address check
+       shown to find Google's own line first, then no outside address in
+       `index.html` or `src/fonts.css`, the 48 blocks all swapping, every
+       `url()` a file, the twelve files each used, both licences, the
+       import order): on `476591c` 6 red, the self-check green; with the
+       change 7 green. `tests/selfHostedFonts.test.ts` (2: Google's two
+       hosts held open at the HTTP level, the canvas within 10 s, no
+       request to Google, Inter and Cormorant from the site, then a mouse
+       click on a desktop and a finger's tap on a phone on 中, the page in
+       Chinese, still no request): on `476591c`'s build `index-bnVQuA-J.js`
+       both red, "the canvas within 10 s with Google held open (requests to
+       Google: 2)"; on the new build both green, with `analytics.test.ts`'s
+       12. Unit tests: 122 files, 3,131 of 3,131, exit 0 (121 and 3,124
+       before, + the 7).
+    4. **First frame**, `firstFrame.mjs` from the plan, each load a fresh
+       browser and an empty cache, 1440×900; the old build (`476591c`,
+       `index-bnVQuA-J.js`, on 4191) and the new (`index-BxCOFJFQ.js`, on
+       4192) alternated, old, new, old, new, 13:04:26 to 13:11:11. The canvas
+       (the fonts loaded), first run / second:
+       - normal: old 2.66 / 0.32 s (fonts 5.29 / 2.07 s, from Google); new
+         0.16 / 0.13 s (fonts 0.23 / 0.20 s). The old first run's 2.66 s is
+         Google slow at that moment — the plan's prototype runs had 0.33 /
+         0.28;
+       - Google refused: old 0.19 / 0.15 s, no web font; new 0.14 / 0.14 s
+         (0.22 / 0.20 s);
+       - Google not answering: old **21.13 / 21.35 s**
+         (`ERR_CONNECTION_TIMED_OUT`), no web font; new 0.14 / 0.13 s
+         (0.22 / 0.20 s);
+       - connection accepted, no TLS answer: old **30.11 / 30.12 s**
+         (`ERR_TIMED_OUT`); new 0.14 / 0.14 s (0.20 / 0.21 s);
+       - held at the HTTP level: old **not within 90 s**, twice; new 0.15 /
+         0.14 s (0.21 / 0.20 s);
+       - slow (150 ms, 1.6 Mbps): old 2.68 / 2.69 s (fonts 4.80 / 4.75 s);
+         new 2.68 / 2.68 s (fonts 4.78 / 4.71 s) — on the slow network
+         the fonts come about 2 s after the canvas in both.
+       The new build's font requests, every run of every condition: the
+       two `.woff2` from the site, none to Google.
+    5. **The rooms**: `scripts/lDump.ts` (1,063 lines) and
+       `scripts/oneWallDump.ts` (106) on the old tree and on the new, the
+       same line for line.
+    6. **The locked shots**, `scripts/pixelShots.mjs` (45 states,
+       `?qualityLock=1`, high), the same two servers, alternated: old
+       13:12–13:21, new 13:21–13:30, old 13:30–13:39, new 13:54–14:02. The
+       new build's second run first started at 13:39 and was set aside as
+       void at its sixteenth state, the main chunk's request reset by the
+       local server (recorded under "A browser test that times out
+       waiting for the page to draw", 2026-11-06); taken again from the start after the slow shots below,
+       so the last new run is not straight after the last old one. No 42,
+       506, 507, 107 or 187 in the system log from 12:55 to 14:05; on
+       mains, the power plan never, never, never. `scripts/pixelCompare.mjs`:
+       - **the canvas the same in all 45**, each build against itself 0;
+       - on screen **the plan's 13 differ, by the plan's counts**
+         (`desk-A-materials` 3,405, `link-A` 2,552, `link-A-noisland` 1,598,
+         `link-B` and `-noisland` 2,141, `link-C` 2,552, `link-C-noisland`
+         1,598, `link-D` 4,610, `link-D-noisland` 4,095, `link-E` 3,672,
+         `link-E-noisland` 3,675, `phone360-zh-A` 2,498, `phone390-A`
+         3,389), all in the pin labels, 0 text changes and 0 leaders moved;
+         and `desk-E-materials` by 1 pixel, the size of each build's
+         against itself (0 or 1 everywhere, but `phone360-zh-E`, where the
+         old build's two runs differ by 108 and old against new is 0). The
+         other 31 are 0.
+       - **Where `phone360-zh-E`'s 108 are** (Leo, 2026-11-06: 「只比对已拍的图，
+         不开浏览器」 — read from the PNG files alone, decoded with Node's
+         zlib, while the full suite ran): **the old build's first run is the
+         odd one**. Its shot (taken 13:21:21, the last of that run) against
+         the old build's second, and against each of the new build's two:
+         108 pixels each time, the same 108; the old second run and the new
+         two are the same to the pixel. The canvas shots of all four: 0. The
+         text boxes (`texts.json`): the same in both old runs. The largest
+         difference in any colour channel is **8 of 255**, in 17 small
+         clusters, every one inside a text's box:
+         - the package letters A, B, C, D in the top bar: 1 or 2 pixels
+           each, at the letter's edge (differences 2–8);
+         - eight pin labels, 01 冷冻柱, 02 冰箱, 03 组合烤箱, 04 咖啡机,
+           05 小酒柜, 06 洗碗机, 07 Drop in 炉灶片, 08 油烟机: 4–6 pixels at
+           the left edge of the number's first digit (differences up to 5),
+           and on 05 and 06 a few at the second digit;
+         - 07's label also its whole left and right border, two and three
+           columns, its 16 rows (differences 1–2).
+         So the edge pixels of text and of one label's frame, faint, in one
+         run; nothing moved or changed shape. Why that run drew them so is
+         not known. Close-ups (each cluster ×8, old first run / old second
+         / the differing pixels in red) in the round's scratch folder,
+         `proof/where/zhE-old1-old2-<n>.png`.
+    7. **The 13 on the slow network** (Leo, 2026-11-06: 「慢网（150 ms、
+       1.6 Mbps）下拍这 13 个状态，正式改前、改后各两次，交替拍」): the shots
+       with Chromium's own throttling on every page from before its first
+       request (latency 150 ms, down 1.6 Mbps, up 750 kbps, as
+       `firstFrame.mjs`'s slow; a copy of `pixelShots.mjs` with those lines
+       added, the repo's file untouched), `ONLY=` the 13; old 13:43–13:46,
+       new 13:46–13:48, old 13:48–13:51, new 13:51–13:53.
+       - **Old against new: 0 in all 13**, canvas and screen; each against
+         itself 0 or 1 but `link-A-noisland`'s old, 99.
+       - **Which they are**: the slow new against the normal network's old
+         shots, **0 in all 13**; against the normal network's new shots,
+         the same counts as old against new above (3,405 … 3,389). So on
+         the slow network the new build's labels are the old build's soft
+         ones, pixel for pixel: the font comes about 2 s after the canvas
+         (item 4), after the labels, and the labels stay as they were drawn
+         before it. Close-up, the Refrigerator label of `desk-A-materials`
+         ×7, normal old / normal new / slow new:
+         `docs/plans/fonts-slow-labels.png`.
+       - So the plan's "改后会稳定在清楚的那一种" holds only when the font
+         comes before the labels, as Leo said it should be written; the
+         labels' softness is the item below, not fixed this round.
+- **A pin label drawn before its font comes stays blurred after the swap.**
+  *(Leo, 2026-11-06: registered, not fixed — 「这一轮不修，等慢网结果出来我再定」.)*
+  What was seen, in the fonts plan's locked shots (`docs/plans/fonts-plan.md`
+  section 5): on `476591c`, 13 of the 45 states differ from the self-hosted
+  prototype on screen, `desk-A-materials`, ten `link-*`, `phone360-zh-A`
+  and `phone390-A`, 1,598 to 4,610 pixels each, all inside the pin labels:
+  the old build's label text is softer, the frames and leaders in the same
+  places (the compare script: 0 text changes, 0 leaders moved); close-up
+  `docs/plans/fonts-plan-labels.png`. The canvas is the same in all 45.
+  Evidence it is the font's arrival time, not the glyphs: the same old
+  build with Google's same files answered at once from local copies shot
+  the same as the prototype, 12 of the 13 at 0 pixels and one at 1; each
+  build against itself 0–1. In the old build Google's fonts came at about
+  2.1 s, the labels already up; in the prototype at about 0.2 s, before
+  them. **Not looked into**: why a label drawn in the fallback font is not
+  drawn sharp again once the font has swapped. What the labels have, read
+  only: `src/ui/PinOverlay.tsx` gives each label (and dot)
+  `willChange: "transform"` — its own compositing layer — and
+  `src/three/PinProjector.tsx` places it with `translate3d(x, y, 0)
+  translate(-50%, -50%)` on whole pixels, re-measuring each label's width
+  every eighth frame; `ModuleLabels.tsx` and `DimensionOverlay.tsx` have
+  the same `willChange`. Whether either has a part in it is not checked.
+  The slow-network shots of this round (fonts after the labels in both
+  builds) are the next evidence; Leo decides after them.
+  - *The slow-network shots, 2026-11-06* (the fonts round's item 7): on
+    150 ms and 1.6 Mbps the self-hosted build's labels are the old build's
+    soft ones pixel for pixel in all 13 states, and differ from its own
+    sharp ones on a normal network by the same counts — the font later than
+    the labels, the labels soft, in either build. For Leo to decide.
 - **A tap on the phone card's liner that rebuilt nothing, once.** *(Round 88,
   cause not found. Leo, round 89: a round of its own, round 93, after RAL —
   is it the test's timing of the tap, or a real tap that now and then does
@@ -8039,6 +8246,34 @@ Registered, not scheduled. None of these is a round of its own.
     browser was left. **When a run is stopped part way, its child processes
     are checked for and ended by hand, every port and every process, before
     the next run starts** (Leo, round 97).
+  - **2026-11-06, the fonts plan's pixel shots: exit code 4 again, and this
+    time the cause is in the system log.** Every background task of the
+    session ended at once with 4 — the shots (31 of the old build's 45
+    taken, the last at 09:08:46), both `vite preview` servers and a watch.
+    The log: 187 at 09:08:56, **42 (entering sleep) at 09:08:58**, 107 at
+    09:09:02; then 506 and 507 at 10:04:44, and a restart about 10:09 (109
+    at 10:09:07, the hypervisor starting at 10:09:28). The power plan on
+    mains was never, never, never, the machine on mains. Read as round
+    101's stop was read (Leo, 2026-11-06: 「42 号的 Sleep Reason、187 号的调用者、
+    前一秒有没有 566 号的输入事件。照原文写进」), the log's own words:
+    - event 42, 09:08:58.274: "The system is entering sleep. Sleep Reason:
+      Application API";
+    - event 187, 09:08:56.863: "User-mode process attempted to change the
+      system state by calling SetSuspendState or SetSystemPowerState APIs",
+      `ApiCallerName` `\Device\HarddiskVolume3\Windows\System32\winlogon.exe`,
+      `SystemAction` 3, `LightestSystemState` 2;
+    - event 566: **no input event.** The only 566 from 09:08:00 to 09:09:10
+      is at 09:08:56.864, a millisecond after the 187: "The system session
+      has transitioned from 371 to 372. Reason WinRT" (`Reason` 25,
+      `PowerStateAc` true). None between it and the 42. Round 101's, for
+      the same reading: 187 at 18:03:55.034 (`winlogon.exe`), 566 at
+      18:03:55.035 "Reason InputHid" (`Reason` 32), 42 at 18:03:56.381
+      "Application API".
+    - So the same caller as round 101, `winlogon.exe`, and where round 101's
+      566 said InputHid this one says WinRT.
+    After it the next message was Leo's 继续, as after the first two. The shots were set aside as void
+    and taken again from the start; nothing was left running on 4191 or
+    4192, and no Vite or esbuild process, after the servers were stopped.
 - **A layout shape switch: one wall, U-shaped, galley.** *(Leo, round 98:
   registered, from a colleague's feedback from use; round 98 is its plan, not
   started.)* Besides today's L, a kitchen on one wall, a U, and perhaps a
@@ -9454,6 +9689,24 @@ Registered, not scheduled. None of these is a round of its own.
        Six of six. The live main chunk is `index-NNDgg3WU.js`; the
        `index-CT8FdzVG.js` Leo looked at is the same code built without the
        counter's address.
+  10. **Then the handoff commit `476591c`** (only `docs/HANDOFF.md` and this
+      file), checked by the next session, 2026-11-06, as HANDOFF asked:
+      the Pages run 42251266466 a success, both its jobs — build (16:19:20
+      to 16:20:22 UTC) and deploy (16:20:26 to 16:24:38) — each a success.
+      Built at `476591c` with the counter's address, the tree clean, every
+      file fetched from the live site at 16:35 UTC and compared byte for
+      byte:
+      - `index.html` 901, the same;
+      - `assets/index-nX_Uw6QU.js` 700,237, the same (the commit in it
+        `476591c`);
+      - `assets/index-ByYGZbZC.css` 23,985, the same;
+      - `assets/react-i_nGBwMY.js` 145,992, the same;
+      - `assets/shareQr-BXYgausd.js` 21,968, the same;
+      - `assets/three-C6wp6xxT.js` 704,119, the same.
+      Six of six; the live main chunk is `index-nX_Uw6QU.js`, which differs
+      from `index-NNDgg3WU.js` only by the commit, as a docs-only commit
+      should. The same session: `npm run test:unit` 121 files, 3,124 of
+      3,124, exit code 0.
 - **Round 99a, one wall and a machine chosen narrower than its opening —
   built and shipped after Leo's look at the local preview** (Leo, round
   99a: "第 99a 轮预览看过了（index-Bh3Snm2C.js），可以提交"). The plan,
@@ -10114,10 +10367,16 @@ Registered, not scheduled. None of these is a round of its own.
     a kind of texture used for the first time; 9–10 against 14–15 is
     whether that run dropped to the low tier. Four ways, 甲 to 丁, none
     chosen, are its section 2.7. Not answered (the report's question 7).
-- **The full suite takes 84–90 minutes** *(looked into the night of
+- **The full suite takes about 77 minutes (4,647 s)** — measured by the
+  end-of-run round's second full suite, `npm test` on build
+  `index-CT8FdzVG.js`, 00:13:40 to 01:31:07 on 2026-11-06, 159 files,
+  3,470 of 3,470, no standby in it (that round's entry, item 8). *(Headline
+  brought to that run 2026-11-06, Leo: 「全套测试时长那条的标题改成现在的数（约 77 分钟，
+  4,647 秒），注明哪一次量的」; it read "84–90 minutes", the night of
+  2026-10-28's figure, below.)* *(Looked into the night of
   2026-10-28, only read, no config changed; `docs/plans/overnight-2026-10-28.md`,
   section 4, where the figures are; written here 2026-11-06, when the
-  handoff found it only in that report)*. 98.4% of the time is the browser
+  handoff found it only in that report.)* Then it took 84–90 minutes. 98.4% of the time is the browser
   tests, one file after another; about 58–64% of that is fixed waits. Six
   ways and what each could let pass that should be red are its section 4.2
   — conditions for fixed waits; one page a file; two lanes on this
@@ -10779,6 +11038,15 @@ Registered, not scheduled. None of these is a round of its own.
       145,992; `assets/shareQr-BXYgausd.js` 21,968;
       `assets/three-C6wp6xxT.js` 704,119. The live `index.html` names the
       four it loads; `shareQr` is loaded on demand.
+  **His order of 2026-11-06** (Leo, after the end-of-run round shipped,
+  confirmed the same day: 「顺序确认：字体自带 → 测试环境本机服务器断连 → 走廊式 → U
+  型。写进 decisions.md」): the fonts in the site's own files ("The page
+  waits for Google Fonts…"); then the test environment, the local server
+  resetting the main chunk's first request ("A browser test that times
+  out…", its "Registered 2026-11-06"); then the galley; then the U. Each a
+  plan first, shown to him, built only once he confirms it. *(Until this
+  was written, the whole order stood only in `docs/HANDOFF.md`; here only
+  its pieces were.)*
 - **The import's `_meta` is in the main chunk.** *(Leo, 2026-11-04: 「登记一
   条待办，不急…列出把它移出主文件的改法和代价，不要选」.)* The six modules
   that read the catalogue (`catalogue.ts`, `cookingSurface.ts`,

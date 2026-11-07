@@ -6,6 +6,10 @@ import { ISLAND, LAYOUT_PARAMS, RUNS, SLOT_PLACEMENT } from "./data/room";
 import { setupAnalytics } from "./analytics";
 import { DEBUG } from "./debug";
 import { kitchenNow, openSharedLink, shareUrl } from "./store/openLink";
+// The web fonts, the site's own, before the site's styles (the fonts round,
+// 2026-11-06): Google's stylesheet in index.html held the first frame back
+// for as long as Google took, and for good where Google is blocked.
+import "./fonts.css";
 import "./index.css";
 
 // The visit counter, on the live site only and before the link is read, so a
