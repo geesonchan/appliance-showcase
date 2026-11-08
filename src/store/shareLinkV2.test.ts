@@ -91,6 +91,15 @@ const CHANGED_BY_ROUND_101: Record<string, string> = {
  * BF1-1/8 becomes DB18 + DB18 + BF3/8. Hashed as `roomAsRound97Held`
  * hashes, on this round's code; looked up before the earlier rounds' maps.
  */
+const CHANGED_BY_INDUCTION: Record<string, string> = {
+  // Leo, 2026-11-07: the box under E's island cooktop is a swing-door base,
+  // `island-cooktop-drawers` to `island-cooktop-B36`, its top from 3-3/4" under
+  // the counter up to the stone. Those three figures are every difference
+  // between this room on the old code and the new. The other four links here
+  // do not change (their ranges stand on the floor).
+  E: "799cc6eece751f38586b134ef37b61fc08f3bd35072494fec8f3c03dd16cd240",
+};
+
 const CHANGED_BY_END_ROUND: Record<string, string> = {
   B: "9007cddd2f6294ca2086858edf53c7238278bb78a24da4db1869c71db39735cf",
 };
@@ -116,7 +125,7 @@ describe("the five links round 97 wrote, one per package", () => {
     it("opens the room round 97 opened, every run, opening and cabinet box", () => {
       freshPage();
       openSharedLink(fixture.link);
-      expect(roomAsRound97Held()).toBe(CHANGED_BY_END_ROUND[code] ?? CHANGED_BY_FRIDGE_FRONT[code] ?? CHANGED_BY_ROUND_101[code] ?? fixture.room);
+      expect(roomAsRound97Held()).toBe(CHANGED_BY_INDUCTION[code] ?? CHANGED_BY_END_ROUND[code] ?? CHANGED_BY_FRIDGE_FRONT[code] ?? CHANGED_BY_ROUND_101[code] ?? fixture.room);
     });
   });
 });

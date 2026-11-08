@@ -118,7 +118,8 @@ describe("a machine taller than an opening with something above it (round 86)", 
       // 2026-11-02: 175 — each built-in column is two rows, its own number
       // and its -SS row (Leo), the -SS row offered wherever its pair is, 29
       // more; and refused where its pair is, by as much: nine lines more.
-      offered: 175,
+      // 177 since 2026-11-08: CIT367YG in B's and D's range openings.
+      offered: 177,
       refused: [
         "A slot-microwave mem301ws +14.5 countertop",
         "A slot-microwave po302w +16 countertop",
@@ -271,12 +272,13 @@ describe("every other model (round 86)", () => {
         // refrigerator openings, T18IW905SP in B's and D's wine columns; its
         // other three openings refuse it as too tall, above. 143 since
         // 2026-11-02: each column's -SS row (Leo), compared wherever its pair
-        // is, 20 more.
+        // is, 20 more. 145 since 2026-11-08: CIT367YG in B's and D's range
+        // openings, fitting on its 34-3/4" cutout.
         if (fit.tooTallIn !== null || fit.notForTallUnit || fit.notInColumnBank) continue;
         compared += 1;
         if (fit.fits !== fit.widthOverIn <= 1e-6) changed.push(`${code} ${slotId} ${short(model.id)}`);
       }
     });
-    expect({ compared, changed }).toEqual({ compared: 143, changed: [] });
+    expect({ compared, changed }).toEqual({ compared: 145, changed: [] });
   });
 });

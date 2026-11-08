@@ -2451,16 +2451,28 @@ has to follow.
 - **Leo's rule, from site: "Rangetop 下面一定要有底柜."** A rangetop always has
   a base cabinet under it, in any package, whichever way the swap goes. The
   PCG366W sheet draws a base cabinet under it (`pcg366w-spec.pdf` pp. 3 and
-  5) and does not say what is in it; **a drawer base for the pans is Leo's site
-  practice.** The code had said "Thermador's own drawing shows a drawer
-  base", which overstated the drawing (corrected in round 83).
+  5) and does not say what is in it. The code had said "Thermador's own
+  drawing shows a drawer base", which overstated the drawing (corrected in
+  round 83).
+  *(Removed 2026-11-07, Leo: this bullet said "a drawer base for the pans is
+  Leo's site practice", and the run ordered `DB36` under a rangetop. Leo:
+  「凡是嵌进台面的灶，下面一律是平开门底柜（B36），不要抽屉…rangetop 也改成平开门，不再配
+  DB36 抽屉柜…第 83 轮"rangetop 配 DB36"那条删掉，decisions.md 里写明原因」. The
+  reason, in his words from the induction request: 「下面柜子不要抽屉，直接swing
+  door，以后维护方便」 — and one rule for every cooking surface set into the
+  stone, written in one place. "Rangetop 下面一定要有底柜" stands: the base
+  cabinet stays, a door in place of drawers. Built 2026-11-08 in the induction
+  round (`cabinetUnderCooking` in `cookingSurface.ts`;
+  `docs/plans/induction-plan.md`; "An induction cooktop in B and D" in Open
+  items), up to a local preview for him.)*
 - **A slide-in stands on the floor** (Leo, from site): the counter stops at its
   two sides, the machine stands between the cabinets, its top laps the stone
   each side, and nothing runs behind it. The counter had treated a slide-in as
   dropping in, a hole in a slab running over it.
 - **One answer, asked by all three** (D17's table): `dropsIntoCounter` in
   `src/data/cookingSurface.ts`, a rangetop or a cooktop. The run orders a
-  drawer base under the cooking surface or leaves an opening by it; the
+  base cabinet under the cooking surface (a drawer base until Leo's decision
+  of 2026-11-07, a swing-door `B36` since) or leaves an opening by it; the
   counter cuts a hole or stops at the machine's sides by it; the machine's
   placement reads it. Never the word "freestanding", which the importer gives
   to a row nothing else matched (D4) — PRG366WH and PRG304WH carry it that way.
@@ -4182,6 +4194,12 @@ written into geometry instead of read from `ROOM`.
     cooktop.ts). The band between the drawer top and the counter is drawn
     open: whether a cabinet has a rail across it is not in the guide. Its door
     is on the working face (`CabinetBox.front`).
+    *(Amended by Leo's decisions of 2026-11-07 and 2026-11-08, built
+    2026-11-08: a swing-door base, `island-cooktop-B36`, by the one rule every
+    cooking surface in the stone follows. It goes up to the stone, so the open
+    band is gone; the 13/16" stays. What the 3-3/4" guarded is held as
+    `COOKTOP_CABINET.clearBelowCounterIn`, 4-3/4": nothing inside the cabinet
+    within that of the counter, `underCooktopClear.test.ts`.)*
   - **The cooktop.** Glass 37" x 21-1/4", about 1/4" proud of the counter — an
     inference, the 4" body less the 3-3/4" cutout depth. Under the counter a
     chassis the size of the cutout, 2-3/4" deep, and the 1" conduit fitting
@@ -8245,6 +8263,24 @@ Registered, not scheduled. None of these is a round of its own.
         draws");
       - `sliderWarning.test.ts`, on Vite's development server, which 丁
         does not answer.
+    - **Live: `07cb903`** (Leo, after the local preview `index-D3IWZtrQ.js`:
+      「预览看过了，确认」). Before it: built at the code as it stood, with the
+      counter's address, twenty of twenty files the same as `d668c58` live;
+      with a made-up commit, eighteen the same, the main chunk six bytes
+      apart (the footer's commit) and `index.html` by the chunk's name. Then
+      `npm ci`, `npm run test:unit` (126 files, 3,168) and `npm run build`,
+      each exit 0; committed 20:20:14, pushed `d668c58..07cb903`. Pages run
+      42446402554: build a success (04:20:23–04:21:38 UTC), deploy a success
+      (04:21:42–04:21:50 UTC). Built at `07cb903` with the counter's
+      address: **twenty of twenty files the same byte for byte as the live
+      site**, the main chunk `assets/index-D3Pvf11e.js` (700,237 bytes),
+      seven bytes from `d668c58`'s (the footer's commit) and `index.html`
+      by the chunk's name. **And, as the wiring plan's section 4 asks, what
+      the live server says of each**: every file status 200; the twelve
+      fonts `font/woff2`, sent as they are; the four scripts
+      `application/javascript; charset=utf-8`, the CSS `text/css;
+      charset=utf-8`, the two licences `text/plain; charset=utf-8`,
+      `index.html` `text/html; charset=utf-8`, each sent gzip.
     - Afterwards (01:03:57): no node, esbuild, typeperf or test browser of
       ours, nothing listening on the tests' ports; no 42, 506, 507, 107 or
       187 from 23:26 on. Records: `<scratch>/n2/fresh600/` —
@@ -11945,12 +11981,104 @@ Registered, not scheduled. None of these is a round of its own.
     in the code, one door slab on screen) becomes a swing door too; and,
     for Leo to confirm, one line: **a rangetop keeps its `DB36` drawer
     base; the induction cooktop gets a swing-door base.**
+  - **The plan, written** (Leo, 2026-11-07: 「上线核对完，开始写电磁炉的计划，先给我看，
+    不动手」): `docs/plans/induction-plan.md` — the five things that change
+    together (the cabinet, the cutout, the place, the utilities, the name),
+    one judgement they all ask, the swap rebuilding when what stands under
+    the cooking surface changes (today PCG366W to CIT367YG would not rebuild:
+    both drop into the counter); seven questions only Leo can answer (section
+    6) and one line for him to confirm (section 7). Not started.
+  - **Leo's decisions, 2026-11-07** (「电磁灶计划看过了，做法同意。下面都是 Leo 定的
+    （2026-11-07），写进计划和 decisions.md，改好计划给我看一眼再动手」):
+    - **Every cooking surface set into the counter stands on a swing-door
+      base, `B36`, never drawers.** A rangetop too: no more `DB36` (the
+      first draft's section 7 is withdrawn); E's island cooktop cabinet
+      becomes a door base (the first draft's question 7); a slide-in or
+      freestanding range still stands in an opening. **The rule is written
+      once** and B, D, A (once changed to a rangetop), E's island and E's
+      one wall all ask it. Round 83's drawer-base line is removed (D16,
+      "Amended 2026-10-08 (round 83)", with the reason). Every old test that
+      held it and has to change is listed with its reason, and with whether
+      it still checks the same thing (the plan's section 5).
+    - **His answers to the first draft's questions 1–6**: (1) no false
+      drawer front over the door, one whole door, as E's one wall; (2)
+      CIT367YG only; (3) the hood stays VCIN36GWS, its width held to the
+      opening's by the existing rule (36" to 36"), as with PCG366W; (4) with
+      the induction cooktop the gas line is neither drawn nor written; (5)
+      the junction box is written 「灶下柜后壁，台面下约 12"」, as E is now
+      *(amended the next day, below: E's own words, 「开口后壁 · 距顶 12"」)*; (6)
+      the names from the round-99 table — CIT367YG 「Drop in 炉灶片」 /
+      "Cooktop", HIS8055U still 「炉头」 / "Range" — with both machines'
+      final words listed in the plan for the selection list, the quote sheet
+      and its summary, to judge at the preview whether they read apart.
+    - **What the plan must carry**: (1) the scope — B's and D's default
+      rangetop picture, A's once it is a rangetop, and E's island are
+      changes made on purpose, shot apart for him in the pixel proof; every
+      other state identical to the pixel; (2) the half-state still closed —
+      the cabinet is now the same under both, but the cutout, the machine's
+      place and the utilities (gas ↔ the 240 V junction box) are not, so a
+      swap still rebuilds them together, held by tests there, back, and
+      reopened from a share link; (3) "36" or less" measured by the
+      cabinet's opening (36"), not the machine's or the glass's width —
+      CIT367YG's glass and its catalogue width are 37" — with a test that
+      it is offered in B's and D's lists.
+    - **The second draft** (`docs/plans/induction-plan.md`, 2026-11-07)
+      carries all of it, and three things found while reading the code, for
+      Leo: a `DB36` is already drawn as one door slab, so B's, D's and A's
+      3D picture may not change at all (the rough-in line for the gas does);
+      a rangetop's control panel takes the top 7-5/8" of the cabinet's
+      front, so the door under it starts below the panel (for him to
+      confirm); and the junction box words he gave differ from what E shows
+      today (「开口后壁 · 距顶 12"」), so the plan uses his for B, D and E alike
+      unless he says otherwise. Not started.
+  - **Leo's decisions, 2026-11-08** (「电磁灶计划第二稿同意，补下面几处，然后今晚一路
+    做完，中间不用等我」; the plan's "第三稿补的"):
+    - **The old island test checks no less.** Its 3-3/4" to a drawer top
+      guarded the room under the cooktop's body (CIT367YG p. 9: at most
+      2-3/4" of body, a 1" fitting, 1" clear under that; E's site figure
+      4-3/4", D20). It becomes: **inside the cabinet under the cooking
+      surface, nothing — no shelf, no drawer, no other box — within 4-3/4"
+      below the counter.** The same check for B, D, A and E on one wall.
+    - **The junction box words are E's own**, 「开口后壁 · 距顶 12"」: B and D
+      copy them and E does not change. His 「灶下柜后壁，台面下约 12"」 of the day
+      before was meant to match E and did not.
+    - **The door**: under a rangetop, a pair of swing doors opening left
+      and right, starting at the bottom of the control panel (below the top
+      7-5/8" of the cabinet's front). Under the induction cooktop, also a
+      `B36`, also a pair. Written so wherever the quote sheet and the
+      rough-in list describe the cabinet.
+    - **The picture does not change**: the cabinet under it stays drawn as
+      one slab, no gap between the doors (Leo: 「可以」).
+  - **Found while building it (2026-11-08), not changed: E on one wall reads
+    its cooking surface as 4".** The install view's chain, `dimensionsFor`,
+    asks `cooktopHeight`, whose fallback is the machine's own height: for
+    CIT367YG on E's one wall "floor to cooktop" is 4" and "cooktop to canopy"
+    62-1/2", with "gas min 30, max 40" over an induction cooktop. It is so
+    on the live site. The island's branch has read the glass since round 69,
+    and B's and D's cooktop reads it since this round; E's one wall was left
+    so that every state not named stayed identical to the pixel. **The next
+    round (Leo, 2026-11-08)**: 「修 E 一字型尺寸线上的"4"」 — a plan first and
+    nothing built; the figures from E's own hood's document, HMCB36WS, with
+    pages, not copied from B's and D's "min 30, max 40"; in its pixel proof
+    those places on E's one wall are the intended changes and everything
+    else identical. After it, in his order, the galley.
+  - **Leo's look at the preview, 2026-11-08** (「预览看过了，确认」, the build
+    `index-C9kPU2y7.js`): committed. The line that describes the cabinet on
+    the quote sheet and the rough-in list, which was this session's own
+    addition since the two sheets had no place for it, **stays** (「配置单和
+    预留清单上新加的柜子说明那一行保留」).
   - **When its turn comes**: a plan first, with what only Leo can answer
     listed apart (Leo, 2026-11-07): a false drawer front above the swing
     door or not; which model; the hood; how the gas line is written once
     there is no gas machine; what the shop calls it; whether E follows to
     the same (E's island has "a drawer base" under its cooktop, drawn as a
     door; E's one wall has a door base).
+- **Should the model list show a cooktop's nominal size?** *(Leo, 2026-11-08:
+  「CIT367YG 在选择项里显示 37" 这一轮不改。另登记一条：选择项要不要显示名义尺寸（36"），
+  等我以后定」.)* The list's rows lead with each machine's own catalogue width,
+  so CIT367YG, offered for B's and D's 36" opening, reads `37"` (its glass); it
+  fits by its 34-3/4" cutout. Whether a row should read a nominal 36" instead
+  is for Leo, later; nothing is planned.
 - **The import's `_meta` is in the main chunk.** *(Leo, 2026-11-04: 「登记一
   条待办，不急…列出把它移出主文件的改法和代价，不要选」.)* The six modules
   that read the catalogue (`catalogue.ts`, `cookingSurface.ts`,

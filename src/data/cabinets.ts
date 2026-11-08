@@ -4,7 +4,7 @@ import { hoodTopFt } from "./hood";
 import { filledBesideTower, islandAcross, islandAlong, islandHasCooktop, islandPoint } from "./layoutTemplate";
 import { axisIndex, extentsOnAxis, onAxis, sizeOnAxis, stripFacing, type Facing } from "./frame";
 import { COOKTOP_CABINET } from "./cooktop";
-import { openingAlong, rangeModelFor, standsOnTheFloor } from "./cookingSurface";
+import { DROP_IN_COOKTOP, cabinetUnderCooking, openingAlong, rangeModelFor, standsOnTheFloor } from "./cookingSurface";
 import { PACKAGE, PACKAGE_SLOTS } from "./packages";
 import { SLOT_BY_ID } from "./slots";
 import { TOWER_VENT } from "./towerVent";
@@ -598,10 +598,10 @@ function runBoxes(run: CabinetRun): CabinetBox[] {
   // A range — freestanding or slide-in — stands on the floor between two runs
   // of boxes, and so does a freestanding refrigerator: a recessed board carried
   // on behind either is a board behind nothing. A rangetop does not: it drops
-  // into the stone over a drawer base, which stands on the kick like any base
+  // into the stone over a base cabinet, which stands on the kick like any base
   // cabinet, so the kick runs on under it. Which it is, is round 83's one
   // answer (`dropsIntoCounter`), asked of the range the room is built round —
-  // the question the run asked when it ordered that drawer base or left the
+  // the question the run asked when it ordered that cabinet or left the
   // opening. Round 92b, from Leo trying it on B and D: the kick broke at every
   // cooking opening, and under their rangetop a strip of floor showed.
   //
@@ -816,21 +816,23 @@ function islandBoxes(): Omit<CabinetBox, "run">[] {
   };
 
   /**
-   * Under a cooktop, a drawer base on the working side and a carcass behind it.
+   * Under a cooktop, a door base on the working side and a carcass behind it.
    *
-   * The drawer base stops short of the counter by the guide's 3-3/4" to the top
-   * of its drawer, and short of the carcass behind it by the 13/16" at its back,
-   * so both gaps are in the drawing as the guide states them (CIT367YG, page 7).
+   * What it is, is the one rule's (`cabinetUnderCooking`; Leo, 2026-11-07, a
+   * swing-door base, as under every cooking surface set into the stone). It
+   * goes up to the stone like any base, and stops short of the carcass behind
+   * it by the guide's 13/16" at its back (CIT367YG, page 7; the island's
+   * cabinet is the one that closes in, so that gap is the one that is drawn).
    * The top is cut for the cooktop in counter.ts, where every cutout is.
    */
   const cooktop = islandHasCooktop(ISLAND);
   const underCooktop = cooktop
     ? [
         box(
-          "island-cooktop-drawers",
+          `island-cooktop-${cabinetUnderCooking(Math.round(span(ISLAND.cooktop) * 12), DROP_IN_COOKTOP)!.code}`,
           ISLAND.cooktop,
           [ISLAND.working, ISLAND.working + ROOM.counterDepth - ft(COOKTOP_CABINET.rearGapIn)],
-          [KICK_LIFT, ROOM.counterHeight - ft(COOKTOP_CABINET.drawerTopBelowCounterIn)],
+          BASE_BOX,
           { outline: "island", slot: "slot-cooktop" },
         ),
         box(

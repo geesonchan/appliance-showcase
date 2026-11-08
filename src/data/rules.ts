@@ -291,7 +291,13 @@ export function packageContext(
   const cfm = effectiveCfm(hood, blower);
   const hoodIn = hoodWidthIn(hood);
   const cooking = range ?? cooktop;
-  const cookingIn = cooking ? (cooking.widthIn ?? cooking.cutoutWidthIn) : null;
+  // A cooktop in a range's opening is held to the opening (Leo, 2026-11-07:
+  // 36" to 36", as with the rangetop it replaced), not to its 37" of glass.
+  const cookingIn = cooking
+    ? cooking === range && cooking.category === "cooktop"
+      ? SLOT_BY_ID["slot-range"].cutout.w
+      : (cooking.widthIn ?? cooking.cutoutWidthIn)
+    : null;
   const widthText = (value: number | null) => (value === null ? null : formatDimension(value).replace(/"$/, ""));
   return {
     hoodNarrowerByIn: hoodIn === null || cookingIn === null ? null : cookingIn - hoodIn,
@@ -334,7 +340,14 @@ export function canopyClearance(range: Appliance | undefined): number | null {
   // The cooking surface, not the machine's top. A range with a backguard is
   // sold at 47-7/8" and cooks at 36": measuring to the top of it reported a
   // canopy eighteen inches over a cooktop that is thirty inches under it.
+  //
+  // A cooktop in a range's opening cooks on its glass, standing in the stone:
+  // its height figure is only its body.
+  const glassIn =
+    range.category === "cooktop" && range.heightIn !== null && range.cutoutHeightIn !== null
+      ? SLOT_BY_ID["slot-range"].cutout.h + range.heightIn - range.cutoutHeightIn
+      : null;
   const cooktopIn =
-    range.cooktopIn ?? range.heightIn ?? range.cutoutHeightIn ?? SLOT_BY_ID["slot-range"].cutout.h;
+    glassIn ?? range.cooktopIn ?? range.heightIn ?? range.cutoutHeightIn ?? SLOT_BY_ID["slot-range"].cutout.h;
   return Number((hood.position[1] * 12 - cooktopIn).toFixed(3));
 }

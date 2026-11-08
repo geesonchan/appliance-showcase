@@ -146,8 +146,9 @@ describe("a machine is called what it is, wherever it is named (round 99)", () =
       }
     }
     // 107 until 2026-11-02, when each built-in column became two rows (Leo):
-    // its -SS row and its own number are each a model the slot holds.
-    expect({ checked, wrong }).toEqual({ checked: 128, wrong: [] });
+    // its -SS row and its own number are each a model the slot holds. 128
+    // until 2026-11-08: CIT367YG in B's and D's range openings, L and one wall.
+    expect({ checked, wrong }).toEqual({ checked: 132, wrong: [] });
   });
 
   it("names the same machine in a share link's notice as on the page", () => {
@@ -167,8 +168,9 @@ describe("a machine is called what it is, wherever it is named (round 99)", () =
       }
     }
     // 107 until 2026-11-02, when each built-in column became two rows (Leo):
-    // its -SS row and its own number are each a model the slot holds.
-    expect({ checked, wrong }).toEqual({ checked: 128, wrong: [] });
+    // its -SS row and its own number are each a model the slot holds. 128
+    // until 2026-11-08: CIT367YG in B's and D's range openings, L and one wall.
+    expect({ checked, wrong }).toEqual({ checked: 132, wrong: [] });
   });
 });
 
@@ -222,8 +224,9 @@ describe("a wall's bill names what stands on it (round 99)", () => {
         if (BILL_SAYS[key] !== is) wrong.push(`${where} ${item.code} ${appliance.model}: ${key}, which says ${BILL_SAYS[key] ?? "nothing known"}, for ${is}`);
       }
     }
-    // 678 until each built-in column became two rows (Leo, 2026-11-02).
-    expect({ checked, wrong: [...new Set(wrong)] }).toEqual({ checked: 879, wrong: [] });
+    // 678 until each built-in column became two rows (Leo, 2026-11-02). 879
+    // until 2026-11-08: the rooms with CIT367YG in B's and D's range openings.
+    expect({ checked, wrong: [...new Set(wrong)] }).toEqual({ checked: 913, wrong: [] });
   });
 
   it("calls a filler a filler and a panel a panel", () => {
@@ -273,9 +276,10 @@ describe("a wall's bill names what stands on it (round 99)", () => {
     // number, panel-ready, is a swap of its own since (Leo), 18 in the L and
     // 15 on one wall.
     // 642 and 527 since the 9" round: three of D's rooms the 240" wall
-    // refused build at 246".
+    // refused build at 246". 646 since 2026-11-08: CIT367YG in B's and D's
+    // range openings, L and one wall, each room built.
     expect({ counted, missing: [...missing], fellBack: NAME_FALLBACKS }).toEqual({
-      counted: { built: 642, refused: 527 },
+      counted: { built: 646, refused: 527 },
       missing: [],
       fellBack: [],
     });

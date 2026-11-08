@@ -86,6 +86,8 @@ export function stainlessRowOf(appliance: Appliance): Appliance | undefined {
  * they are not candidates for the slot itself, so they are kept out here and
  * listed separately. See docs/decisions.md D6.
  */
+const cheapestFirst = (a: Appliance, b: Appliance) => (a.msrpUSD ?? Infinity) - (b.msrpUSD ?? Infinity);
+
 export const APPLIANCES_BY_SLOT: Record<SlotId, Appliance[]> = (() => {
   const grouped = {} as Record<SlotId, Appliance[]>;
   for (const record of SLOT_RECORDS) {
@@ -97,10 +99,24 @@ export const APPLIANCES_BY_SLOT: Record<SlotId, Appliance[]> = (() => {
   }
   // Cheapest first, with unpriced models last rather than treated as free.
   for (const list of Object.values(grouped)) {
-    list.sort((a, b) => (a.msrpUSD ?? Infinity) - (b.msrpUSD ?? Infinity));
+    list.sort(cheapestFirst);
   }
   return grouped;
 })();
+
+/**
+ * Whether a package's opening for a range also takes a cooktop: where it is
+ * built for a rangetop, so the run stands a cabinet in it and the stone is cut
+ * over it, B's and D's (Leo, 2026-11-07: "B，D套餐里面的rangetop选择项里面，增加一个
+ * induction cooktop的选项"). Not in the data's `compatibleCategories`, which is
+ * the opening's in every package, and which the importer files models by.
+ *
+ * "36 inches or less" is the cabinet's opening against the hole the machine
+ * needs (34-3/4" for CIT367YG), which `fitCheck` already measures; its glass
+ * and catalogue width, 37", lies on the stone either side.
+ */
+export const takesCooktop = (slot: Pick<PackageSlot, "slotId" | "installType">) =>
+  slot.slotId === "slot-range" && slot.installType === "rangetop";
 
 /** The blowers on offer, cheapest first. */
 export const BLOWERS: Appliance[] = APPLIANCES.filter(
@@ -154,8 +170,9 @@ export { SLOT_ORDER } from "./packages";
  * "can this model go here" (D17's table, first row) answer height alike.
  */
 export function suitsPackageSlot(appliance: Appliance, slot: PackageSlot, entry: Package): boolean {
-  if (appliance.category !== slot.category) return false;
-  if (!appliance.installType.includes(slot.installType)) return false;
+  const cooktopHere = appliance.category === "cooktop" && takesCooktop(slot);
+  if (!cooktopHere && appliance.category !== slot.category) return false;
+  if (!cooktopHere && !appliance.installType.includes(slot.installType)) return false;
   const width = appliance.cutoutWidthIn ?? appliance.widthIn;
   if (width !== null && width > slot.widthIn) return false;
   const record = SLOT_RECORDS.find((candidate) => candidate.id === slot.slotId);
@@ -177,8 +194,9 @@ export function suitsPackageSlot(appliance: Appliance, slot: PackageSlot, entry:
  * ceiling, and in packages B and D a customer could pick it. Round 45.
  */
 export function offeredFor(slotId: SlotId, packageSlot: PackageSlot | undefined): Appliance[] {
-  const all = APPLIANCES_BY_SLOT[slotId] ?? [];
-  if (!packageSlot) return all;
+  const own = APPLIANCES_BY_SLOT[slotId] ?? [];
+  if (!packageSlot) return own;
+  const all = takesCooktop(packageSlot) ? [...own, ...APPLIANCES_BY_SLOT["slot-cooktop"]].sort(cheapestFirst) : own;
   const hungOverIsland = packageSlot.installType === "island";
   return all.filter((appliance) => appliance.installType.includes("island") === hungOverIsland);
 }

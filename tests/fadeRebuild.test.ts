@@ -429,7 +429,7 @@ async function turnIsland(s: Session) {
 
 /**
  * Changing the range from the model card (round 83): A's pro range for the
- * PCG366W rangetop, which puts a drawer base under it, so the room is
+ * PCG366W rangetop, which puts a base cabinet under it, so the room is
  * generated again. Its own rebuild path, so its own case.
  */
 async function swapRange(s: Session) {

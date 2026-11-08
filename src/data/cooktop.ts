@@ -7,12 +7,15 @@
  */
 export const COOKTOP_CABINET = {
   /**
-   * The top of the drawer under it, below the counter's surface: at least
-   * 3-3/4" (95 mm). Page 7, stated. Page 8's diagram adds up to 4-3/4"; the
-   * stated figure is the one drawn, and the inch between them is a known
-   * ambiguity. On site Leo leaves 4-3/4" (site practice, not the guide).
+   * Nothing inside the cabinet under it within this far of the counter's
+   * surface: no shelf, no drawer, no other box. At most 2-3/4" of body, the 1"
+   * fitting under it and 1" clear under that (the guide's figure on page 9),
+   * and what Leo leaves on site (D20). Leo, 2026-11-08: it was 3-3/4" to the
+   * top of a drawer (page 7), which went with the drawer; this is what it
+   * guarded. Held by underCooktopClear.test.ts; nothing in the room is drawn
+   * from it.
    */
-  drawerTopBelowCounterIn: 3.75,
+  clearBelowCounterIn: 4.75,
   /** At the back of the cabinet, at least 13/16" (20 mm). Page 7, stated. */
   rearGapIn: 13 / 16,
 } as const;

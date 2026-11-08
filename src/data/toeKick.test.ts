@@ -288,7 +288,7 @@ function kickSpans(run: CabinetRun): [number, number][] {
 }
 
 describe("the kick at the cooking surface, every package and every range it offers", () => {
-  // Round 92b, from Leo trying it on B and D: the drawer base under their
+  // Round 92b, from Leo trying it on B and D: the base cabinet under their
   // rangetop stood on the kick, and the kick broke there, so a strip of floor
   // showed under it. Whether the kick runs on or breaks is round 83's one
   // answer, `dropsIntoCounter`: a rangetop drops into the stone over a drawer

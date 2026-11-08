@@ -36,7 +36,7 @@ export function pinAnchors(slotId: SlotId, appliance: Appliance | undefined): TH
   const h = box?.h ?? slot.cutout.h / 12;
   const d = box?.d ?? slot.cutout.d / 12;
   const y = (box?.y ?? 0) + h;
-  const dz = box ? flushOffset(slot, d) : 0;
+  const dz = box ? flushOffset(slot, d, 0, appliance) : 0;
 
   // Local space: +Z out of the appliance's face, +X across it. A hair proud of
   // the corner so the dot sits on the appliance rather than inside it.

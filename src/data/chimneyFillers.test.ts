@@ -168,19 +168,25 @@ const FILLER = {
   crown: true,
 };
 
-/** The 31 rooms (the plan's section 1): A, B and D with any of their five ranges, in the L and on one wall, and E's rangetop on one wall. */
+/**
+ * The 35 rooms (the plan's section 1): A, B and D with any of their five
+ * ranges, in the L and on one wall, and E's rangetop on one wall; and B's and
+ * D's with the induction cooktop, which they offer since 2026-11-08: a 30"
+ * chimney in a 36" opening is the same 3-1/32" each side over it.
+ */
 const RANGES = ["PRG366WH", "PCG366W", "PRG304WH", "HIS8055U", "MFGS4030RS"];
 const FILLED = [
   ...["A", "B", "D"].flatMap((code) =>
     ["L", "one-wall"].flatMap((shape) => RANGES.map((range) => `${code} ${shape} ${range} HMCB30WS`)),
   ),
+  ...["B", "D"].flatMap((code) => ["L", "one-wall"].map((shape) => `${code} ${shape} CIT367YG HMCB30WS`)),
   "E one-wall own rangetop HMCB30WS",
 ].sort();
 
 describe("a chimney hood narrower than its opening has a filler each side, in the wall cabinets (Leo, 2026-10-24)", () => {
   const rooms = chimneyRooms();
 
-  it("in the 31 rooms where one is: 3-1/32\" each side, 54\" to 108\", flush with the doors, under the crown", () => {
+  it("in the 35 rooms where one is: 3-1/32\" each side, 54\" to 108\", flush with the doors, under the crown", () => {
     const seen: Record<string, unknown> = {};
     for (const room of rooms.filter((candidate) => FILLED.includes(candidate.name))) {
       room.build();
@@ -200,7 +206,8 @@ describe("a chimney hood narrower than its opening has a filler each side, in th
       checked += 1;
       if (beside?.left || beside?.right) wrong.push(`${room.name}: ${JSON.stringify(beside)}`);
     }
-    expect({ checked, wrong }).toEqual({ checked: 37, wrong: [] });
+    // 37 until 2026-11-08; four more with the cooktop and HMCB36WS, a scribe.
+    expect({ checked, wrong }).toEqual({ checked: 41, wrong: [] });
   });
 
   it("comes and goes with the hood in the same room: HMCB30WS, HMCB36WS and back", () => {

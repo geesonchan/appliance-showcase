@@ -123,9 +123,12 @@ export function dimensionsFor(
   // sold at 47-7/8" and cooks at 36", and this line is the counter height.
   // A cooktop set into the island is its glass, measured off the floor: its
   // box stands where it is set, and its own height is only the body. D20.
+  // And one in a range's opening (B's and D's; Leo, 2026-11-07) is the same
+  // machine and the same glass; its line over it has no gas in it.
+  const cooktopInRangeOpening = cookingSlot === "slot-range" && rangeAppliance?.category === "cooktop";
   const cooktop = !rangeAppliance
     ? ft(range.cutout.h)
-    : onIsland
+    : onIsland || cooktopInRangeOpening
       ? (() => {
           const box = applianceBox(range, rangeAppliance);
           return range.position[1] + box.y + box.h;
@@ -171,7 +174,7 @@ export function dimensionsFor(
         : hoodAppliance && hoodMount(hoodAppliance) === "otr"
           ? { noteKey: "dimension.shopPractice", noteVars: {} }
           : {
-            noteKey: "dimension.clearanceRange",
+            noteKey: cooktopInRangeOpening ? "dimension.clearanceRangeCooktop" : "dimension.clearanceRange",
             noteVars: { min: hoodStd.aboveCooktopMinIn, max: hoodStd.aboveCooktopMaxIn },
           }),
       slots: ["slot-range", "slot-cooktop", "slot-hood"],

@@ -129,7 +129,24 @@ const CHANGED_BY_ROUND_101: Record<string, string> = {
  * E on one wall changes too (its landing B15 + BF5/8 to B15 + BF2-7/8), and
  * is already the room 98b-2 changed (`CHANGED_BY_98B2`). Hashed as `held`
  * hashes, on this round's code; looked up before the earlier rounds' maps.
+ *
+ * And `CHANGED_BY_INDUCTION`, just below, looked up first (Leo, 2026-11-07):
+ * every cooking surface in the stone on a swing-door base. Dumped on the old
+ * code and the new, the whole room, and these are every difference there is:
+ * B's and D's `DB36 drawer-base` under the rangetop is `B36 base` (the module's
+ * code and kind, and its box's id and module), L and one wall; E's L, the box
+ * under the island's cooktop `island-cooktop-drawers` to `island-cooktop-B36`,
+ * its top from 3-3/4" under the counter up to the stone. A, C and E on one wall
+ * do not change.
  */
+const CHANGED_BY_INDUCTION: Record<string, string> = {
+  "B L": "3266171b219f7b1baeb237a929bd7b99a19ba2fd8fe80207a0d472eb10c434fc",
+  "B one-wall": "7273bfc2a8672ebcb80a255058370463815ac448d77ed54897cfc5cc8a90aca8",
+  "D L": "00b9f989c716fd82fa3001904d28ef5573b57398ae4f436d4fbbc66820f44cfd",
+  "D one-wall": "a7b7ce9a4d73377199c4b33dd149b9aeb190f013fed92cbd6913b35caddf2b6c",
+  "E L": "afe86ded165777f6b524303d229d58a76cee75036983d6b3ee84024d2c5f542c",
+};
+
 const CHANGED_BY_END_ROUND: Record<string, string> = {
   "A one-wall": "eb83f4a2cb31cb2feffa2b1ea1c67d6968c1c114d1a4dfe7b336af61752a75f1",
   "B L": "876f0236fb520b4b85793626d475677d10fff485d69d8d6f57519f59ee1bb1ef",
@@ -148,7 +165,8 @@ describe("the ten v=2 links round 98b-1 wrote", () => {
     it("opens the room 98b-1 opened, every run, machine, cabinet box and model — but E on one wall", () => {
       freshPage();
       openSharedLink(fixture.link);
-      if (_name in CHANGED_BY_END_ROUND) expect(held()).toBe(CHANGED_BY_END_ROUND[_name]);
+      if (_name in CHANGED_BY_INDUCTION) expect(held()).toBe(CHANGED_BY_INDUCTION[_name]);
+      else if (_name in CHANGED_BY_END_ROUND) expect(held()).toBe(CHANGED_BY_END_ROUND[_name]);
       else if (_name in CHANGED_BY_FRIDGE_FRONT) expect(held()).toBe(CHANGED_BY_FRIDGE_FRONT[_name]);
       else if (_name in CHANGED_BY_ROUND_101) expect(held()).toBe(CHANGED_BY_ROUND_101[_name]);
       else expect(held() === fixture.room).toBe(_name !== CHANGED_BY_98B2);

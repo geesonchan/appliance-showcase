@@ -12,18 +12,18 @@ import { launchBrowser } from "./siteBrowser";
  * empty opening. His rule, from site: a rangetop always has a base cabinet
  * under it, in any package, whichever way the swap goes. And the other way
  * round, a range standing on the floor has nothing under it — package B with
- * its rangetop changed to a pro range drew the range inside B's drawer base.
+ * its rangetop changed to a pro range drew the range inside B's base cabinet.
  *
  * Read from the scene itself, through three.js's devtools hook: a cabinet box
- * in the range's own segment (`<run>-range-DB<width>`) is the drawer base the
- * run orders under a rangetop. Real input — the mouse on a desktop, a finger
+ * in the range's own segment (`<run>-range-B<width>`) is the swing-door base
+ * the run orders under a rangetop or a cooktop (`DB` until 2026-11-07, Leo). Real input — the mouse on a desktop, a finger
  * on a phone (D17).
  */
 
 const DESKTOP = { width: 1440, height: 900 };
 const PHONE = { width: 390, height: 844 };
 
-const EXPECTED_TESTS = 10;
+const EXPECTED_TESTS = 14;
 let testsRun = 0;
 const filtered = process.argv.some((arg) => arg === "-t" || arg.startsWith("--testNamePattern"));
 beforeEach(() => {
@@ -153,6 +153,15 @@ const fadedAtTheRange = (s: Session) =>
     return [...out].sort();
   });
 
+/** Which cooking machine the scene is drawing in the range's place. */
+const cookingMachine = (s: Session) =>
+  s.page.evaluate(() => {
+    type Node = { getObjectByName?: (n: string) => Node | undefined };
+    const scenes = (window as unknown as { __scenes?: Node[] }).__scenes ?? [];
+    const has = (name: string) => scenes.some((scene) => scene.getObjectByName?.(name));
+    return { cooktop: has("cooktop"), rangetop: has("rangetop") };
+  });
+
 /** Package, then the range picked by its label, then a model from the card. */
 async function swap(s: Session, pkg: string, ...models: string[]) {
   await press(s, s.page.getByRole("button", { name: pkg, exact: true }).filter({ visible: true }).first());
@@ -173,23 +182,23 @@ describe("what stands under the cooking surface follows the machine chosen", () 
   for (const phone of [false, true]) {
     const device = phone ? "on a phone with touch" : "on a desktop with the mouse";
 
-    it(`gives a rangetop chosen in package A a drawer base, ${device}`, async () => {
+    it(`gives a rangetop chosen in package A a door base, ${device}`, async () => {
       const s = await open(phone);
       const r = await swap(s, "A", "thermador-pcg366w");
       expect({ ...r, errors: s.errors }).toEqual({
         before: [],
-        after: ["back-range-DB36-0"],
+        after: ["back-range-B36-0"],
         named: "Thermador · PCG366W",
         errors: [],
       });
       await s.page.context().close();
     });
 
-    it(`takes the drawer base away when package B's rangetop becomes a range on the floor, ${device}`, async () => {
+    it(`takes the door base away when package B's rangetop becomes a range on the floor, ${device}`, async () => {
       const s = await open(phone);
       const r = await swap(s, "B", "thermador-prg366wh");
       expect({ ...r, errors: s.errors }).toEqual({
-        before: ["back-range-DB36-0"],
+        before: ["back-range-B36-0"],
         after: [],
         named: "Thermador · PRG366WH",
         errors: [],
@@ -210,7 +219,7 @@ describe("what stands under the cooking surface follows the machine chosen", () 
         fadedAtTheRange: await fadedAtTheRange(s),
         errors: s.errors,
       }).toEqual({
-        before: ["back-range-DB36-0"],
+        before: ["back-range-B36-0"],
         after: ["back-range-BF3.0625-0", "back-range-BF3.0625-2"],
         named: "Maytag · MFGS4030RS",
         drawnByTheMachine: 0,
@@ -238,6 +247,35 @@ describe("what stands under the cooking surface follows the machine chosen", () 
       });
       await s.page.context().close();
     });
+
+    // Leo, 2026-11-08: on B's and D's model card, the induction cooktop and
+    // back to the rangetop, once each, by mouse and by finger.
+    for (const pkg of ["B", "D"]) {
+      it(`takes package ${pkg} to the induction cooktop and back to its rangetop, ${device}`, async () => {
+        const s = await open(phone);
+        const there = await swap(s, pkg, "thermador-cit367yg");
+        const machineThere = await cookingMachine(s);
+        await press(s, s.page.locator('[data-model-card] [data-candidate="thermador-pcg366w"]').first());
+        await s.page.waitForTimeout(2500);
+        const backNamed = (await s.page.locator("[data-model-card] [data-model-line]").first().innerText()).replace(/\s+/g, " ");
+        expect({
+          there,
+          machineThere,
+          backUnder: await underTheRange(s),
+          backNamed,
+          machineBack: await cookingMachine(s),
+          errors: s.errors,
+        }).toEqual({
+          there: { before: ["back-range-B36-0"], after: ["back-range-B36-0"], named: "Thermador · CIT367YG" },
+          machineThere: { cooktop: true, rangetop: false },
+          backUnder: ["back-range-B36-0"],
+          backNamed: "Thermador · PCG366W",
+          machineBack: { cooktop: false, rangetop: true },
+          errors: [],
+        });
+        await s.page.context().close();
+      });
+    }
 
     it(`puts it back when A goes to a rangetop and back to its range, ${device}`, async () => {
       const s = await open(phone);

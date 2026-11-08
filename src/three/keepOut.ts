@@ -25,7 +25,7 @@ export function useApplianceCorners(selection: Record<SlotId, Appliance>) {
         // Nothing to keep a label off when the room was built without it.
         if (!appliance || isOmitted(slotId)) return [];
         const box = applianceBox(slot, appliance);
-        const dz = flushOffset(slot, box.d);
+        const dz = flushOffset(slot, box.d, 0, appliance);
         const points: THREE.Vector3[] = [];
         for (const sx of [-0.5, 0.5]) {
           for (const sy of [0, 1]) {

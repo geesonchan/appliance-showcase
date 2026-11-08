@@ -1632,7 +1632,7 @@ async function captureRound41(browser) {
  * microwave drawer taken off and CIT367YG put in the island instead. The island
  * laid along the back wall and turned across the room; for each, the cooktop as
  * the room opens on it, closer, and in the install view, where the stone is
- * ghosted and the chassis in its cutout and the gap over the drawer base show.
+ * ghosted and the chassis in its cutout and the base cabinet under it show.
  */
 async function captureRound49(browser) {
   const desktop = await browser.newContext({ viewport: DESKTOP, deviceScaleFactor: 2 });

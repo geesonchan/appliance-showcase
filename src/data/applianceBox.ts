@@ -113,7 +113,7 @@ export function applianceBox(slot: Slot, appliance: Appliance): ApplianceBox {
     rearSpacerIn: appliance.rearSpacerIn ?? 0,
     y: rangetop ? openingH - dropsIn(appliance) : fromTop && !hung ? spareH : 0,
     filler: {
-      // Nothing above or below a rangetop. What is under it is the drawer base
+      // Nothing above or below a rangetop. What is under it is the base cabinet
       // the run orders, and what is over it is the wall: from the cooking
       // surface up to the hood there is tile and nothing else, which is what
       // the clearance over a cooking surface *is*. A panel there was a cabinet
@@ -132,7 +132,13 @@ export function applianceBox(slot: Slot, appliance: Appliance): ApplianceBox {
  * the cabinet face, so a shallower body moves toward the room. A hood is the
  * exception: it hangs off the wall behind it.
  */
-export function flushOffset(slot: Slot, depth: number, rearSpacerIn = 0): number {
+export function flushOffset(
+  slot: Slot,
+  depth: number,
+  rearSpacerIn = 0,
+  /** The machine, where what it is decides: a cooktop in a range's opening. */
+  appliance?: Pick<Appliance, "category">,
+): number {
   // A hood hung over an island is centred on the cooking surface: there is no
   // cabinet face to line its own front up with. Round 52, D22 step 3 — the
   // formula below sets a canopy against a wall, and the prototype showed it
@@ -140,9 +146,10 @@ export function flushOffset(slot: Slot, depth: number, rearSpacerIn = 0): number
   if (slot.id === "slot-hood") {
     return slot.mount === "island" ? 0 : -(ROOM.counterDepth - depth) / 2;
   }
-  // A cooktop is centred on its drawer base, and so is the hole cut for it
-  // (`islandCooktopHole` in counter.ts). Round 49.
-  if (slot.id === "slot-cooktop") return 0;
+  // A cooktop is centred on the base under it, and so is the hole cut for it
+  // (`islandCooktopHole` in counter.ts). Round 49. In whichever opening it
+  // stands: B's and D's for a range too (Leo, 2026-11-07).
+  if (slot.id === "slot-cooktop" || appliance?.category === "cooktop") return 0;
   // A machine that carries its own spacers stands exactly that far off the
   // wall — which is the figure its published depth-to-wall is measured over.
   if (rearSpacerIn > 0) return (depth - ROOM.counterDepth) / 2 + ft(rearSpacerIn);

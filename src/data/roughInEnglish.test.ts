@@ -44,6 +44,9 @@ const LAYERS: Changed[] = [
   // The 9" round: D's 6" filler beside its oven tower a 9" cabinet, so its
   // junction box and the rangetop's second outlet go in it.
   round69.changedInThe9InchRound as Changed,
+  // Leo, 2026-11-07: a swing-door base under PCG366W, so its gas is on the
+  // back wall of that cabinet, not "at the back of the drawer".
+  round69.changedInTheInductionRound as Changed,
 ];
 const CHANGED: Changed = Object.assign({}, ...LAYERS);
 /**

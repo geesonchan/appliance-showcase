@@ -14,7 +14,7 @@ import {
 } from "./roomShell";
 import type { FixtureId, Package, PackageSlot, SlotId } from "../types";
 import { PACKAGE, packageInShape, slotsOf } from "./packages";
-import { dropsIntoCounter, rangeFillerIn, rangeModelFor } from "./cookingSurface";
+import { DROP_IN_COOKTOP, cabinetUnderCooking, rangeFillerIn, rangeModelFor } from "./cookingSurface";
 import {
   aboveCookingSurfaceIn,
   chimneyFillerIn,
@@ -402,7 +402,7 @@ export interface IslandLayout {
   microwave: readonly [number, number];
   wine: readonly [number, number];
   /**
-   * The cooktop's drawer base, measured along `axis`, on the working side.
+   * The cooktop's base cabinet, measured along `axis`, on the working side.
    * Empty (both ends the island's middle) in a package with no cooktop.
    */
   cooktop: readonly [number, number];
@@ -1702,9 +1702,9 @@ function planLegs(
    * (`rangeModelFor`). Leo's rule, from site: a rangetop always has a base
    * cabinet under it, in any package, whichever way the swap goes. The
    * PCG366W sheet draws a base cabinet under it (pcg366w-spec.pdf pp. 3 and 5)
-   * and does not say what is in it; a drawer base for the pans is Leo's site
-   * practice. (This comment used to say Thermador's drawing shows a drawer
-   * base. It shows a base cabinet.)
+   * and does not say what is in it. What it is, is `cabinetUnderCooking`'s to
+   * say (Leo, 2026-11-07: a swing-door base under every cooking surface set
+   * into the stone; a drawer base until then).
    */
   const cooking = (): Item => {
     // One wall's cooktop (round 98b), where a range would stand: Leo, round 98,
@@ -1713,11 +1713,12 @@ function planLegs(
     // stone the cooktop drops into.
     if (!spec["slot-range"]) {
       const widthIn = openingIn(spec["slot-cooktop"]);
+      const cabinet = cabinetUnderCooking(widthIn, DROP_IN_COOKTOP)!;
       return fixed(
         "cooktop",
         widthIn,
         "appliance",
-        M(`B${widthIn}`, "base", widthIn, { slot: "slot-cooktop" }),
+        M(cabinet.code, cabinet.kind, widthIn, { slot: "slot-cooktop" }),
         { slot: "slot-cooktop" },
       );
     }
@@ -1743,12 +1744,13 @@ function planLegs(
         slot: "slot-range",
       };
     }
-    if (!chosen || !dropsIntoCounter(chosen)) return opening("slot-range", "range");
+    const cabinet = cabinetUnderCooking(widthIn, chosen);
+    if (!cabinet) return opening("slot-range", "range");
     return fixed(
       "range",
       widthIn,
       "appliance",
-      M(`DB${widthIn}`, "drawer-base", widthIn, { slot: "slot-range" }),
+      M(cabinet.code, cabinet.kind, widthIn, { slot: "slot-range" }),
       { slot: "slot-range" },
     );
   };

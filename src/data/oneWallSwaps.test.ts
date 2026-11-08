@@ -72,8 +72,9 @@ describe("one wall builds its room round the range, hood and refrigerator chosen
       }
     }
     // 70, and since 2026-11-02 the -SS rows of the two refrigerator columns
-    // (Leo): 9 more, offered wherever their pairs are.
-    expect({ checked, wrong }).toEqual({ checked: 79, wrong: [] });
+    // (Leo): 9 more, offered wherever their pairs are. 81 since 2026-11-08:
+    // CIT367YG in B's and D's range openings.
+    expect({ checked, wrong }).toEqual({ checked: 81, wrong: [] });
   });
 
   it("closes A's 30-inch range in with a filler each side, as the L does", () => {

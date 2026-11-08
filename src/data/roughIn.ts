@@ -709,7 +709,7 @@ export function roughInWords(resolved: ResolvedPoint): RoughInWords {
       ? "behindMachine"
       : "drawerBelow"
     : point.location === "cabinet-below"
-      ? "drawerBelow"
+      ? "cabinetBelowBack"
     : point.location === "in-cutout"
       ? point.z === "rear"
         ? "rearOfOpening"

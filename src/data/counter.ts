@@ -3,7 +3,7 @@ import { bowlExtent, FIXTURE_BY_ID } from "./fixtures";
 import { ROOM, RUNS, ft, type CabinetRun } from "./room";
 import { islandAcross, islandAlong, type IslandLayout } from "./layoutTemplate";
 import { acrossOf, alongOf, sizeOnAxis } from "./frame";
-import type { Appliance } from "../types";
+import type { Appliance, SlotId } from "../types";
 
 /** A point on the floor plan, in world feet. */
 export type Point2 = readonly [number, number];
@@ -75,7 +75,12 @@ export function counterOutline(
 ): CounterOutline {
   const left = runs.find((run) => run.id === "left");
   const back = runs.find((run) => run.id === "back")!;
-  const holes = [...rangeHoles(runs, range), ...cooktopHoles(runs, cooktop), ...sinkHoles(runs)];
+  const holes = [
+    ...rangeHoles(runs, range),
+    ...cooktopHoles(runs, cooktop),
+    ...(range?.category === "cooktop" ? cooktopHoles(runs, range, "slot-range") : []),
+    ...sinkHoles(runs),
+  ];
   const islandPieces = island ? [islandTop(island)] : [];
   const band = [ROOM.counterHeight - ROOM.counterThickness, ROOM.counterHeight] as const;
 
@@ -177,7 +182,7 @@ function islandTop(top: IslandTop): CounterPiece {
  *
  * The machine's own published cutout — 34-3/4" x 19-7/8" for CIT367YG — its
  * width along the island and its depth across it, centred on the slot, which is
- * the middle of the drawer base under it. Where nothing is specified, the slot's
+ * the middle of the base cabinet under it. Where nothing is specified, the slot's
  * own opening.
  */
 export function islandCooktopHole({ layout, slot, appliance }: IslandTop): Point2[] {
@@ -266,6 +271,8 @@ function lShape(
  */
 function rangeHoles(runs: CabinetRun[], appliance?: Appliance): Point2[][] {
   if (standsOnTheFloor(appliance)) return [];
+  // A cooktop in a range's opening is cut as a cooktop is (`cooktopHoles`).
+  if (appliance?.category === "cooktop") return [];
 
   const holes: Point2[][] = [];
   for (const run of runs) {
@@ -294,13 +301,15 @@ function rangeHoles(runs: CabinetRun[], appliance?: Appliance): Point2[][] {
  * A cooktop standing on a run — one wall's (round 98b) — drops into the top as
  * it does in an island: the machine's own published cutout, centred on the
  * cabinet under it along the run and across it, as `islandCooktopHole` centres
- * it on the island's drawer base. The slot's own opening where nothing is
- * specified.
+ * it on the island's base. The slot's own opening where nothing is specified.
+ *
+ * And one chosen in a range's opening (B's and D's; Leo, 2026-11-07), where the
+ * caller has it as the range: the same hole, for the same machine.
  */
-function cooktopHoles(runs: CabinetRun[], appliance?: Appliance): Point2[][] {
+function cooktopHoles(runs: CabinetRun[], appliance?: Appliance, slotId: SlotId = "slot-cooktop"): Point2[][] {
   const holes: Point2[][] = [];
   for (const run of runs) {
-    const segment = run.segments.find((each) => each.slot === "slot-cooktop");
+    const segment = run.segments.find((each) => each.slot === slotId);
     if (!segment) continue;
     const centre = (segment.from + segment.to) / 2;
     const halfW = appliance?.cutoutWidthIn ? ft(appliance.cutoutWidthIn) / 2 : (segment.to - segment.from) / 2;

@@ -15,7 +15,7 @@ import { PACKAGE, PACKAGE_BY_ID, PACKAGE_SHAPE, setPackage, slotsOf } from "./pa
 import { LAYOUT, OMITTED_FOR_WALL, REQUESTED_PARAMS, applyLayout } from "./room";
 import { rebuildSlots } from "./slots";
 import { hoodModelFor, hoodMount, recordHoodModel } from "./hoodMount";
-import { dropsIntoCounter, rangeFillerIn, rangeModelFor, recordRangeModel } from "./cookingSurface";
+import { cookingSurfaceKind, rangeFillerIn, rangeModelFor, recordRangeModel } from "./cookingSurface";
 import { fridgeModelFor, fridgeMount, fridgeOpeningHeightIn, recordFridgeModel } from "./fridgeMount";
 import type { Appliance } from "../types";
 
@@ -117,6 +117,12 @@ function rebuildWhereItStands(asked: LayoutParams): {
  * that gap with a filler each side (`rangeFillerIn`). Round 83's condition
  * asked only about the kind, so that swap rebuilt nothing.
  *
+ * Leo, 2026-11-07: and when the kind of cooking surface changes, whether or
+ * not the cabinet under it does. A rangetop and the induction cooktop both
+ * stand on a `B36`, and their cutout, their place in the stone and their
+ * utilities are not the same (`cookingSurfaceKind`); asked only about the
+ * cabinet, that swap rebuilt nothing and left half of it standing.
+ *
  * Refused, it would put the previous choice back and say why. No room in any
  * package refuses it (`rangeJoinery.test.ts`).
  */
@@ -133,7 +139,7 @@ export function setRangeModel(
   const same =
     !!before &&
     !!after &&
-    dropsIntoCounter(before) === dropsIntoCounter(after) &&
+    cookingSurfaceKind(before) === cookingSurfaceKind(after) &&
     gap(before) === gap(after);
   if (same) return { ok: true, reasons: [], rebuilt: false };
   const asked = REQUESTED_PARAMS;

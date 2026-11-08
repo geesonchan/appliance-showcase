@@ -109,7 +109,7 @@ export function ApplianceModel({ slot, appliance }: ApplianceModelProps) {
       ? flushDoorOffset(appliance, box.d)
       : def.inColumnBank && def.id === "slot-wine" && isColumn(appliance)
         ? wineFlushOffset(box.d)
-        : flushOffset(def, box.d, box.rearSpacerIn);
+        : flushOffset(def, box.d, box.rearSpacerIn, appliance);
 
   const outline = useMemo(
     () => new THREE.EdgesGeometry(new THREE.BoxGeometry(box.w, box.h, box.d)),
@@ -1207,7 +1207,7 @@ function WineColumn({
  * A rangetop: a cooking surface in the stone, and its controls under it.
  *
  * There is no oven and no front — the front of this machine is the cabinet
- * below it, which is why the drawer base under a rangetop has a false top
+ * below it, which is why a drawer base under a rangetop had a false top
  * drawer. What shows above the counter is 7/16" of steel deck and the cast
  * iron on it; what shows below is the control panel, 7-5/8" deep down from the
  * counter and standing 1-1/2" proud of the cabinet face, with one knob per

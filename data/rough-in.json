@@ -310,7 +310,7 @@
           "yFrom": "top",
           "z": "rear",
           "size": [5, 5, 3],
-          "note": "240/208V, 50A, hard wired through the 39\" flexible conduit the cooktop comes with. The junction box hangs about 12\" below the cooktop and must be within 3 ft of its connection, reachable for service",
+          "note": "240/208V, 50A, hard wired through the 39\" flexible conduit the cooktop comes with. The junction box hangs about 12\" below the cooktop and must be within 3 ft of its connection, reachable for service. The cabinet needs 13/16\" at its back or an opening underneath for air (p. 7), the same in an island, and the heat shield the cooktop comes with (p. 8)",
           "provenance": "inferred",
           "basis": "The 12\" below the cooktop, the 39\" conduit, the 3 ft reach and the 50A breaker are the guide's (p. 8 and the figure on p. 9). Which part of the cabinet under the cooktop the box is fixed to is not on it: drawn against the back, across the middle."
         }

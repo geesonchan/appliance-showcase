@@ -1217,5 +1217,97 @@
       "now": "power — in the base cabinet beside the tower — open its door to see it, 3\" from the right side, at the top",
       "why": "The 9\" round (Leo, 2026-11-05, 乙): the 6\" filler beside D's steam oven tower is a 9\" cabinet (B9), so its junction box goes in that cabinet, as it does wherever a cabinet stands beside the tower (roughInCabinet.test.ts), where with only a filler there it was in the drawer under the opening (PODS302B, p. 2). A wall a slider drags short still leaves the filler, and the drawer."
     }
+  },
+  "changedInTheInductionRound": {
+    "package-b | as-it-opens | rough-in:slot-range:gas:0": {
+      "was": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "now": "gas — back wall of the cabinet under the cooktop, 11\" from the left side, 2\" up",
+      "why": "Leo, 2026-11-07: every cooking surface set into the counter stands on a swing-door base, a rangetop too, so PCG366W's supply is no longer in a drawer. Same place, same figures: the back wall of the cabinet under it, low."
+    },
+    "package-b | back/left/left/parallel | rough-in:slot-range:gas:0": {
+      "was": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "now": "gas — back wall of the cabinet under the cooktop, 11\" from the left side, 2\" up",
+      "why": "Leo, 2026-11-07: every cooking surface set into the counter stands on a swing-door base, a rangetop too, so PCG366W's supply is no longer in a drawer. Same place, same figures: the back wall of the cabinet under it, low."
+    },
+    "package-b | back/left/left/perpendicular | rough-in:slot-range:gas:0": {
+      "was": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "now": "gas — back wall of the cabinet under the cooktop, 11\" from the left side, 2\" up",
+      "why": "Leo, 2026-11-07: every cooking surface set into the counter stands on a swing-door base, a rangetop too, so PCG366W's supply is no longer in a drawer. Same place, same figures: the back wall of the cabinet under it, low."
+    },
+    "package-b | back/left/back/parallel | rough-in:slot-range:gas:0": {
+      "was": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "now": "gas — back wall of the cabinet under the cooktop, 11\" from the left side, 2\" up",
+      "why": "Leo, 2026-11-07: every cooking surface set into the counter stands on a swing-door base, a rangetop too, so PCG366W's supply is no longer in a drawer. Same place, same figures: the back wall of the cabinet under it, low."
+    },
+    "package-b | back/left/back/perpendicular | rough-in:slot-range:gas:0": {
+      "was": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "now": "gas — back wall of the cabinet under the cooktop, 11\" from the left side, 2\" up",
+      "why": "Leo, 2026-11-07: every cooking surface set into the counter stands on a swing-door base, a rangetop too, so PCG366W's supply is no longer in a drawer. Same place, same figures: the back wall of the cabinet under it, low."
+    },
+    "package-b | left/back/left/parallel | rough-in:slot-range:gas:0": {
+      "was": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "now": "gas — back wall of the cabinet under the cooktop, 11\" from the left side, 2\" up",
+      "why": "Leo, 2026-11-07: every cooking surface set into the counter stands on a swing-door base, a rangetop too, so PCG366W's supply is no longer in a drawer. Same place, same figures: the back wall of the cabinet under it, low."
+    },
+    "package-b | left/back/left/perpendicular | rough-in:slot-range:gas:0": {
+      "was": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "now": "gas — back wall of the cabinet under the cooktop, 11\" from the left side, 2\" up",
+      "why": "Leo, 2026-11-07: every cooking surface set into the counter stands on a swing-door base, a rangetop too, so PCG366W's supply is no longer in a drawer. Same place, same figures: the back wall of the cabinet under it, low."
+    },
+    "package-b | left/back/back/parallel | rough-in:slot-range:gas:0": {
+      "was": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "now": "gas — back wall of the cabinet under the cooktop, 11\" from the left side, 2\" up",
+      "why": "Leo, 2026-11-07: every cooking surface set into the counter stands on a swing-door base, a rangetop too, so PCG366W's supply is no longer in a drawer. Same place, same figures: the back wall of the cabinet under it, low."
+    },
+    "package-b | left/back/back/perpendicular | rough-in:slot-range:gas:0": {
+      "was": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "now": "gas — back wall of the cabinet under the cooktop, 11\" from the left side, 2\" up",
+      "why": "Leo, 2026-11-07: every cooking surface set into the counter stands on a swing-door base, a rangetop too, so PCG366W's supply is no longer in a drawer. Same place, same figures: the back wall of the cabinet under it, low."
+    },
+    "package-d | as-it-opens | rough-in:slot-range:gas:0": {
+      "was": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "now": "gas — back wall of the cabinet under the cooktop, 11\" from the left side, 2\" up",
+      "why": "Leo, 2026-11-07: every cooking surface set into the counter stands on a swing-door base, a rangetop too, so PCG366W's supply is no longer in a drawer. Same place, same figures: the back wall of the cabinet under it, low."
+    },
+    "package-d | back/left/left/parallel | rough-in:slot-range:gas:0": {
+      "was": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "now": "gas — back wall of the cabinet under the cooktop, 11\" from the left side, 2\" up",
+      "why": "Leo, 2026-11-07: every cooking surface set into the counter stands on a swing-door base, a rangetop too, so PCG366W's supply is no longer in a drawer. Same place, same figures: the back wall of the cabinet under it, low."
+    },
+    "package-d | back/left/left/perpendicular | rough-in:slot-range:gas:0": {
+      "was": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "now": "gas — back wall of the cabinet under the cooktop, 11\" from the left side, 2\" up",
+      "why": "Leo, 2026-11-07: every cooking surface set into the counter stands on a swing-door base, a rangetop too, so PCG366W's supply is no longer in a drawer. Same place, same figures: the back wall of the cabinet under it, low."
+    },
+    "package-d | back/left/back/parallel | rough-in:slot-range:gas:0": {
+      "was": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "now": "gas — back wall of the cabinet under the cooktop, 11\" from the left side, 2\" up",
+      "why": "Leo, 2026-11-07: every cooking surface set into the counter stands on a swing-door base, a rangetop too, so PCG366W's supply is no longer in a drawer. Same place, same figures: the back wall of the cabinet under it, low."
+    },
+    "package-d | back/left/back/perpendicular | rough-in:slot-range:gas:0": {
+      "was": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "now": "gas — back wall of the cabinet under the cooktop, 11\" from the left side, 2\" up",
+      "why": "Leo, 2026-11-07: every cooking surface set into the counter stands on a swing-door base, a rangetop too, so PCG366W's supply is no longer in a drawer. Same place, same figures: the back wall of the cabinet under it, low."
+    },
+    "package-d | left/back/left/parallel | rough-in:slot-range:gas:0": {
+      "was": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "now": "gas — back wall of the cabinet under the cooktop, 11\" from the left side, 2\" up",
+      "why": "Leo, 2026-11-07: every cooking surface set into the counter stands on a swing-door base, a rangetop too, so PCG366W's supply is no longer in a drawer. Same place, same figures: the back wall of the cabinet under it, low."
+    },
+    "package-d | left/back/left/perpendicular | rough-in:slot-range:gas:0": {
+      "was": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "now": "gas — back wall of the cabinet under the cooktop, 11\" from the left side, 2\" up",
+      "why": "Leo, 2026-11-07: every cooking surface set into the counter stands on a swing-door base, a rangetop too, so PCG366W's supply is no longer in a drawer. Same place, same figures: the back wall of the cabinet under it, low."
+    },
+    "package-d | left/back/back/parallel | rough-in:slot-range:gas:0": {
+      "was": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "now": "gas — back wall of the cabinet under the cooktop, 11\" from the left side, 2\" up",
+      "why": "Leo, 2026-11-07: every cooking surface set into the counter stands on a swing-door base, a rangetop too, so PCG366W's supply is no longer in a drawer. Same place, same figures: the back wall of the cabinet under it, low."
+    },
+    "package-d | left/back/back/perpendicular | rough-in:slot-range:gas:0": {
+      "was": "gas — at the back of the drawer under the opening, 11\" from the left side, 2\" up",
+      "now": "gas — back wall of the cabinet under the cooktop, 11\" from the left side, 2\" up",
+      "why": "Leo, 2026-11-07: every cooking surface set into the counter stands on a swing-door base, a rangetop too, so PCG366W's supply is no longer in a drawer. Same place, same figures: the back wall of the cabinet under it, low."
+    }
   }
 }

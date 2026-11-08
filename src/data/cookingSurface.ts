@@ -22,7 +22,9 @@ import type { LayoutShape } from "./layoutShape";
  * ask it without a load-time cycle.
  */
 
-type Kind = Pick<Appliance, "installType" | "category" | "widthIn" | "cutoutWidthIn">;
+/** What a machine has to say for how it goes in. */
+type MachineKind = Pick<Appliance, "installType" | "category">;
+type Kind = MachineKind & Pick<Appliance, "widthIn" | "cutoutWidthIn">;
 
 /**
  * Up to this much either side of a machine is a scribe, not a board: nothing
@@ -47,8 +49,44 @@ export const isRangetop = (appliance: Pick<Appliance, "installType">) =>
  * importer gives that word to a row nothing else matched (D4), and two of the
  * three pro ranges carry it that way.
  */
-export const dropsIntoCounter = (appliance: Kind) =>
+export const dropsIntoCounter = (appliance: MachineKind) =>
   isRangetop(appliance) || appliance.category === "cooktop";
+
+/**
+ * The three kinds of thing that cook, for what has to change together when
+ * one is changed for another (`setRangeModel`): where the machine sits, the
+ * hole in the stone and the utilities are each kind's own. Leo, 2026-11-07:
+ * PCG366W and CIT367YG both stand on a `B36`, so the cabinet no longer tells
+ * them apart and something else has to, or a swap leaves half a change.
+ */
+export type CookingSurfaceKind = "rangetop" | "cooktop" | "floor";
+export const cookingSurfaceKind = (appliance?: MachineKind): CookingSurfaceKind =>
+  !appliance || !dropsIntoCounter(appliance) ? "floor" : isRangetop(appliance) ? "rangetop" : "cooktop";
+
+/**
+ * What the run stands under a cooking surface, asked in one place: the run
+ * under a range (`cooking` in layoutTemplate.ts), E's cooktop on one wall (the
+ * same place), and E's island (cabinets.ts).
+ *
+ * Leo, 2026-11-07: every cooking surface set into the counter has a swing-door
+ * base cabinet under it, no drawers — 「下面柜子不要抽屉，直接swing door，以后维护方便」;
+ * a rangetop too (round 83's drawer base went, D16), one whole front with no
+ * false drawer above it. 2026-11-08: the front is a pair of doors, opening left
+ * and right, a rangetop's starting below its control panel; drawn as one slab
+ * as every cabinet is (「可以」).
+ *
+ * Nothing under a machine standing on the floor, or under no machine: the run
+ * leaves an opening.
+ */
+export function cabinetUnderCooking(
+  openingIn: number,
+  appliance: MachineKind | undefined,
+): { code: string; kind: "base" } | null {
+  return appliance && dropsIntoCounter(appliance) ? { code: `B${openingIn}`, kind: "base" } : null;
+}
+
+/** A cooktop as an opening specifies one, where no model is being asked about. */
+export const DROP_IN_COOKTOP: MachineKind = { category: "cooktop", installType: ["drop-in"] };
 
 /**
  * The same answer from the other side, for what stops at the machine: the
@@ -62,7 +100,7 @@ export const dropsIntoCounter = (appliance: Kind) =>
  * This was the counter's own wrapper until round 92b.
  *
  * Round 92b, from Leo trying it on B and D: the kick broke at every cooking
- * opening, and under a rangetop's drawer base, now standing on the kick, a
+ * opening, and under a rangetop's base cabinet, now standing on the kick, a
  * strip of floor showed. A rangetop's base cabinet stands on the kick like any
  * other, and the kick runs on under it.
  */

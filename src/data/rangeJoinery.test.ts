@@ -13,7 +13,8 @@ import type { Appliance } from "../types";
  * cooking surface, and it is the chosen machine's to say.
  *
  * Leo's rule, from site: a rangetop always has a base cabinet under it, in any
- * package, whichever way the swap goes; a range stands on the floor with
+ * package, whichever way the swap goes (a swing-door `B36` since his decision
+ * of 2026-11-07, every cooking surface set into the stone: D16); a range stands on the floor with
  * nothing under it; a slide-in stands on the floor too, and the stone stops at
  * its two sides with nothing behind it.
  *
@@ -49,7 +50,7 @@ function built(range: Appliance) {
   const { pieces } = counterOutline(RUNS, range);
   const slab = pieces.find((piece) => inside(centre, piece.outline as unknown as Point[]));
   return {
-    drawerBase: segment.modules.some((m) => m.kind === "drawer-base"),
+    doorBase: segment.modules.some((m) => m.kind === "base" && m.code === `B${segment.modules[0].widthIn}`),
     stone: !slab ? "cut" : slab.holes.some((hole) => inside(centre, hole as unknown as Point[])) ? "hole" : "solid",
   };
 }
@@ -76,8 +77,8 @@ describe("what stands under a cooking surface", () => {
           const result = setRangeModel(range, entry.id);
           swaps += 1;
           const want = dropsIntoCounter(range)
-            ? { drawerBase: true, stone: "hole" }
-            : { drawerBase: false, stone: "cut" };
+            ? { doorBase: true, stone: "hole" }
+            : { doorBase: false, stone: "cut" };
           const got = built(range);
           const wallsNow = `${REQUESTED_PARAMS.backWallIn}x${REQUESTED_PARAMS.leftWallIn}`;
           if (!result.ok || JSON.stringify(got) !== JSON.stringify(want) || wallsNow !== walls) {
@@ -90,7 +91,8 @@ describe("what stands under a cooking surface", () => {
     }
     // Four packages cook on a range (E cooks in its island). The 36" rangetop
     // fits A's, B's and D's 36" openings and not C's 30", so three swaps are
-    // to a rangetop.
-    expect({ enoughSwaps: swaps >= 30, rangetops, wrong }).toEqual({ enoughSwaps: true, rangetops: 3, wrong: [] });
+    // to a rangetop; and since 2026-11-08 B and D also offer the induction
+    // cooktop, which goes down through the stone the same way: two more.
+    expect({ enoughSwaps: swaps >= 30, rangetops, wrong }).toEqual({ enoughSwaps: true, rangetops: 5, wrong: [] });
   });
 });

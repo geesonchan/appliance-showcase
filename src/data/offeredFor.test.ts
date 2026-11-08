@@ -29,8 +29,11 @@ describe("what a slot offers", () => {
     for (const id of PACKAGES) {
       for (const [slotId, slot] of Object.entries(slotsOf(PACKAGE_BY_ID[id]))) {
         if (slotId === "slot-hood") continue;
+        // B's and D's range opening takes the induction cooktop too (Leo,
+        // 2026-11-07); nothing else a slot offers has changed.
+        const cooktop = slotId === "slot-range" && (id === "package-b" || id === "package-d") ? 1 : 0;
         expect(offeredFor(slotId as SlotId, slot).length, `${id} ${slotId}`).toBe(
-          (APPLIANCES_BY_SLOT[slotId as SlotId] ?? []).length,
+          (APPLIANCES_BY_SLOT[slotId as SlotId] ?? []).length + cooktop,
         );
       }
     }

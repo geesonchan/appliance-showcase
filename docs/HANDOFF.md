@@ -22,7 +22,15 @@ the end of a long session, for the next one, which has only the repository:
 
 ### Live, 2026-11-07
 
-- **`d668c58`**, the server-reset round's 甲 (the test environment and
+- **`07cb903`**, the server-reset round closed with 丁 (the test
+  environment and documents only, no page code), checked file by file after
+  its Pages run (42446402554, build and deploy each a success): twenty of
+  twenty files the same byte for byte as a build at `07cb903` with the
+  counter's address, each with its status, `content-type` and
+  `content-encoding` recorded; the live main chunk
+  **`assets/index-D3Pvf11e.js`** (decisions.md, "A browser test that times
+  out…", "Live: `07cb903`").
+- Before it, **`d668c58`**, the server-reset round's 甲 (the test environment and
   documents only, no page code), checked file by file after its Pages run
   (42430127134, build and deploy each a success): twenty of twenty files
   the same byte for byte as a build at `d668c58` with the counter's
@@ -314,12 +322,21 @@ each a plan first, shown to Leo, built only once he confirms it.
    committed with Leo's look at the preview (decisions.md, Open items, "A
    browser test that times out…", "丁's wiring, built" and "Closed").
 3. **An induction cooktop in B's and D's rangetop choice** — registered
-   2026-11-07, not started, no plan yet (Open items, "An induction cooktop
-   in B and D", which holds Leo's words, what is already decided and what
-   was found).
-4. **A galley** (Open items, "A layout shape switch";
+   2026-11-07; **the plan**, `docs/plans/induction-plan.md`, in its second
+   draft with Leo's decisions of 2026-11-07 and 2026-11-08 (every cooking
+   surface in the stone on a swing-door `B36`, a rangetop too; a pair of
+   doors, a rangetop's starting below its control panel; 4-3/4" clear under
+   the counter inside it); **done**, built 2026-11-08 and committed after
+   Leo's look at the local preview, `index-C9kPU2y7.js` (Open items, "An
+   induction cooktop in B and D"; the report,
+   `docs/plans/induction-report-2026-11-08.md`).
+4. **E on one wall: the dimension line's "4"** (Leo, 2026-11-08) — a plan first,
+   the figures from HMCB36WS's own document with pages, not B's and D's; its
+   pixel proof names those places as the changes (the same entry, "Found while
+   building it").
+5. **A galley** (Open items, "A layout shape switch";
    `docs/plans/overnight-2026-10-23-galley.md`).
-5. **A U** (the same entry; `docs/plans/overnight-2026-10-24-u-shape.md`).
+6. **A U** (the same entry; `docs/plans/overnight-2026-10-24-u-shape.md`).
 
 ### Registered, not in that order
 
@@ -751,9 +768,11 @@ Four things, each with its source:
   `docs/plans/round-98-layout-shape-plan.md`, reads where the code holds for
   them and where it does not.
 - **An induction cooktop in B's and D's rangetop choice** — registered
-  2026-11-07 from Leo's words, not started, no plan (Open items, "An
-  induction cooktop in B and D"); its place in Leo's order is written in
-  decisions.md only ("His order of 2026-11-06", "Amended 2026-11-07").
+  2026-11-07 from Leo's words, built 2026-11-08 and committed after his look
+  (Open items, "An induction cooktop in B and D"). What it left: E on one wall
+  reading its cooking surface as 4" (next in the order) and whether the model
+  list shows a nominal 36" for CIT367YG (Open items, "Should the model list
+  show a cooktop's nominal size?", for Leo later).
 
 And the rounds Leo has queued, with what he decided for each: the last entry of
 the Open items, "Registered rounds after 78".

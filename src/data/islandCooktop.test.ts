@@ -15,7 +15,8 @@ import { ISLAND, SLOT_BY_ID } from "./slots";
 import type { Appliance, Package, PackageSlot } from "../types";
 
 /**
- * slot-cooktop, round 49: CIT367YG in the island, over a drawer base.
+ * slot-cooktop, round 49: CIT367YG in the island, over a door base (a drawer
+ * base until Leo's decision of 2026-11-07).
  *
  * No package has a cooktop yet — E's own configuration is a later round — so
  * this builds package D with its island microwave drawer taken off and the
@@ -111,7 +112,7 @@ describe.each(["parallel", "perpendicular"] as const)("a cooktop in an island la
     const across = acrossOf(ISLAND);
     expect(inches(along[1] - along[0])).toBeCloseTo(72, 6);
     const at = onIsland(ISLAND, slot.position[0], slot.position[2]);
-    // The drawer base is 36"; what is left each side of it is the landing.
+    // The door base is 36"; what is left each side of it is the landing.
     expect(inches(at.along - along[0]) - 18).toBeCloseTo(18, 6);
     expect(inches(along[1] - at.along) - 18).toBeCloseTo(18, 6);
     // Centred on the 24" cabinet on the side facing the runs.
@@ -151,16 +152,19 @@ describe.each(["parallel", "perpendicular"] as const)("a cooktop in an island la
     expect(CABINETS.find((box) => box.id === "island-counter")).toBeUndefined();
   });
 
-  it("has a drawer base under it with its drawer top 3-3/4 below the counter and 13/16 clear at the back", () => {
+  it("has a swing-door base under it, up to the underside of the stone and 13/16 clear at the back", () => {
     build(orientation);
-    const drawers = CABINETS.find((box) => box.id === "island-cooktop-drawers")!;
+    const doorBase = CABINETS.find((box) => box.id === "island-cooktop-B36")!;
     const behind = CABINETS.find((box) => box.id === "island-behind-cooktop")!;
-    expect(drawers, "no drawer base under the cooktop").toBeDefined();
-    expect(behind, "nothing behind the drawer base").toBeDefined();
-    // Guide page 7: the top of the drawer at least 3-3/4" below the counter's
-    // 36" surface.
-    expect(inches(drawers.position[1] + drawers.size[1] / 2)).toBeCloseTo(36 - 3.75, 6);
-    const extent = (box: typeof drawers) => {
+    expect(doorBase, "no door base under the cooktop").toBeDefined();
+    expect(behind, "nothing behind the door base").toBeDefined();
+    // Leo, 2026-11-07: every cooking surface set into the stone stands on a
+    // swing-door base. So the box goes up to the underside of the 36" counter's
+    // 1-1/2" stone; the 3-3/4" this used to hold was to the top of a drawer.
+    // What it guarded, the room under the cooktop's body, is
+    // underCooktopClear.test.ts's 4-3/4" now (Leo, 2026-11-08).
+    expect(inches(doorBase.position[1] + doorBase.size[1] / 2)).toBeCloseTo(36 - 1.5, 6);
+    const extent = (box: typeof doorBase) => {
       const centre = onIsland(ISLAND, box.position[0], box.position[2]);
       const size = onIsland(ISLAND, box.size[0], box.size[2]);
       return {
@@ -168,12 +172,12 @@ describe.each(["parallel", "perpendicular"] as const)("a cooktop in an island la
         across: [centre.across - size.across / 2, centre.across + size.across / 2],
       };
     };
-    const d = extent(drawers);
+    const d = extent(doorBase);
     const b = extent(behind);
     const across = acrossOf(ISLAND);
     // Its front is the working face, and its door is drawn on that face.
     expect(d.across[0]).toBeCloseTo(Math.min(...across), 6);
-    expect(drawers.facing.sign).toBe(-1);
+    expect(doorBase.facing.sign).toBe(-1);
     // Guide page 7: 13/16" at the back of the cabinet.
     expect(inches(b.across[0] - d.across[1])).toBeCloseTo(13 / 16, 6);
     expect(inches(d.along[1] - d.along[0])).toBeCloseTo(36, 6);

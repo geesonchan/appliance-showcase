@@ -23,6 +23,8 @@ import type { LayoutShape } from "./layoutShape";
 import { formatDimension } from "./dimensions";
 import { OVEN_GRILLE, towerVents, ventsAtRear, type TowerVent } from "./towerVent";
 import { overhangSupportZone } from "./overhang";
+import { cabinetUnderCooking, isRangetop } from "./cookingSurface";
+import { RANGETOP_PROPORTIONS } from "./rangeModel";
 import type { Appliance, SlotId } from "../types";
 
 export interface Checklist {
@@ -146,6 +148,7 @@ function installParts(selection: Record<SlotId, Appliance>, counter: CounterFini
     ...towerLanding(),
     ...steamOven(selection),
     ...towerVent(selection),
+    ...cabinetUnderCookingLine(selection),
     ...coffeeCabinet(selection),
     ...overhangSupport(counter),
     ...islandHoodCoverKit(selection),
@@ -194,6 +197,33 @@ function islandHoodCoverKit(selection: Record<SlotId, Appliance>): Finding[] {
       params: { ceiling: formatDimension(ROOM.wallHeight * 12) },
     },
   ];
+}
+
+/**
+ * What stands under a cooking surface set into the stone, said once: on the
+ * install list and, being a finding of that machine's, under it on the quote.
+ *
+ * Leo, 2026-11-08: a pair of swing doors, opening left and right; under a
+ * rangetop starting below its control panel, the top 7-5/8" of the cabinet's
+ * front; 「配置单、预留清单上写柜子说明的地方照这个写」. Neither page had a line
+ * about the cabinet, so this is that line. The same rule the run orders by.
+ */
+function cabinetUnderCookingLine(selection: Record<SlotId, Appliance>): Finding[] {
+  return (["slot-range", "slot-cooktop"] as const).flatMap((slotId): Finding[] => {
+    const machine = selection[slotId];
+    if (!machine || OMITTED_SLOTS.includes(slotId)) return [];
+    const cabinet = cabinetUnderCooking(SLOT_BY_ID[slotId].cutout.w, machine);
+    if (!cabinet) return [];
+    return [
+      {
+        ruleId: "cabinet-under-cooking",
+        severity: "info",
+        messageKey: isRangetop(machine) ? "rule.cabinetUnderRangetop" : "rule.cabinetUnderCooktop",
+        slot: slotId,
+        params: { code: cabinet.code, panel: formatDimension(RANGETOP_PROPORTIONS.fasciaIn) },
+      },
+    ];
+  });
 }
 
 function overhangSupport(counter: CounterFinish): Finding[] {

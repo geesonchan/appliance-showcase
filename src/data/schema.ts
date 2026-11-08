@@ -61,7 +61,7 @@ export const slotIdSchema = z.enum([
   // or out of the room with it.
   "slot-wine-2",
   // Package E's cooking surface: an induction cooktop set into the island's
-  // counter on its working side, with a drawer base under it (D20).
+  // counter on its working side, with a swing-door base under it (D20).
   "slot-cooktop",
 ]);
 
@@ -716,7 +716,7 @@ export const roughInPointSchema = z.object({
     // the 2x4 cross framing its guide asks for. Round 72.
     "at-ceiling",
     // The cabinet under a machine that drops into the counter — a rangetop's
-    // drawer base — from the top of the toe kick to the machine's underside.
+    // base cabinet — from the top of the toe kick to the machine's underside.
     // Where its supply is roughed in, low on the cabinet's back wall (Leo,
     // round 83); `in-cutout` is the machine's own box, which for a rangetop is
     // its 8" body at the top of the opening. Round 83.
