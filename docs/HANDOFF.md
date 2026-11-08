@@ -12,8 +12,9 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **the end-of-run round** (2026-11-06), `05bb6e1`,
-and the handoff commit after it, `476591c`, live, which changes only `docs/`
+Covers the repository up to **the fonts round** (2026-11-06), `664b570`,
+live — after **the end-of-run round**, `05bb6e1`, and the handoff commit
+after it, `476591c`, which changed only `docs/`
 (`docs/decisions.md` is the record of rounds; `git log` is the record of
 commits). It replaces the v1–v9 briefs that were pasted into chat. Written at
 the end of a long session, for the next one, which has only the repository:
@@ -21,14 +22,17 @@ the end of a long session, for the next one, which has only the repository:
 
 ### Live, 2026-11-06
 
-- **`476591c`**, the handoff commit (this file and `docs/decisions.md`
-  only), checked file by file by the next session after its Pages run
-  (42251266466, build and deploy each a success): six of six files the same
-  byte for byte as a build at `476591c` with the counter's address; the live
-  main chunk **`assets/index-nX_Uw6QU.js`** (700,237 bytes). Every figure is
-  in `docs/decisions.md`, the end-of-run round's item 10.
-- Before it, **`05bb6e1`**, the end-of-run round (main chunk
-  `index-NNDgg3WU.js`, its "Shipped"). The footer's commit is compiled into
+- **`664b570`**, the fonts round (the fonts the site's own, no request to
+  Google), checked file by file after its Pages run (42317513405, build and
+  deploy each a success): twenty of twenty files the same byte for byte as
+  a build at `664b570` with the counter's address — `index.html`, the
+  main chunk, the CSS, `react`, `three`, `shareQr`, twelve fonts and two
+  licences; the live main chunk **`assets/index-Dz3iVQL4.js`** (700,237
+  bytes). Every figure is in `docs/decisions.md`, Open items, "The page
+  waits for Google Fonts…", items 10 and 11.
+- Before it, **`476591c`**, the handoff commit (main chunk
+  `index-nX_Uw6QU.js`, the end-of-run round's item 10), and **`05bb6e1`**,
+  the end-of-run round (`index-NNDgg3WU.js`, its "Shipped"). The footer's commit is compiled into
   the main chunk, so a docs-only commit gives the main chunk another name
   while every other file stays the same. **The next session checks the live
   site again** (step 2 below) before anything else.
@@ -261,15 +265,31 @@ Each a plan first, shown to Leo, built only once he confirms it.
 1. **The fonts in the site's own files** — no request to Google, the system
    fonts shown until the files come. **Done**: the plan
    (`docs/plans/fonts-plan.md`), confirmed by Leo with his five answers,
-   built, a full suite, committed in the commit after `476591c` (decisions.md,
+   built, a full suite, committed and live as `664b570` (decisions.md,
    Open items, "The page waits for Google Fonts…", "Confirmed" and "Built
    2026-11-06"). Whether `geesonchan.github.io` opens in mainland China:
    待 Leo 报 — he has it tried on a phone there.
 2. **The test environment: the local server resetting the main chunk's
    first request** (`ERR_CONNECTION_RESET`), which has made several full
-   suites run for nothing. The test environment only, never the page. **A
-   plan first**; five ways and their costs are listed (decisions.md, Open
-   items, "A browser test that times out…", "Registered 2026-11-06").
+   suites run for nothing. The test environment only, never the page. **The
+   plan**, `docs/plans/server-reset-plan.md`, confirmed by Leo: 甲 first.
+   甲's code is written and its unit tests green (not committed); the night
+   of 2026-11-06 ran the loop before (2,000 openings: 1 reset, 3 stalls,
+   1 blank, every one a browser's first opening) and the full suite (164
+   files, green); the next night group 甲 of the Norton experiment
+   (`docs/plans/norton-experiment-plan.md`; 600 fresh openings, 9 stalls,
+   every one near a whole multiple of 10 s). Group 乙 (2026-11-07 morning,
+   Norton's whole Smart Firewall off): 600, 3 stalls, the same kind —
+   between the plan's two answers. Leo: no 600 more ("not all of it is the
+   Smart Firewall feature", not "not Norton"); next, a warm-up for every
+   new browser (`docs/plans/warmup-plan.md`).
+   The warm-up group (600, the firewall on): every warm-up arrived, the
+   page still stalled 3 times — not enough; the waits are on later
+   connections, not a browser's first. Next: Leo's to say.
+   The item's order: the code →
+   the loop before → the results to Leo → the full suite → commit, push,
+   live check (decisions.md, Open items, "A browser test that times out…",
+   "Confirmed" and "Built 2026-11-06").
 3. **A galley** (Open items, "A layout shape switch";
    `docs/plans/overnight-2026-10-23-galley.md`).
 4. **A U** (the same entry; `docs/plans/overnight-2026-10-24-u-shape.md`).
@@ -285,7 +305,7 @@ decisions.md is right.
 
 - The copied textures, and the high tier's textures left on the graphics card after a drop to low — "The copied textures" (and its 2026-10-28 note).
 - A pin label drawn before its font comes stays soft after the swap — on a slow network the self-hosted build's labels are the old build's, pixel for pixel; Leo, 2026-11-06: not in the order yet — "A pin label drawn before its font comes stays blurred after the swap".
-- The full suite's 77 minutes (4,647 s, 2026-11-06), six ways to shorten it, none chosen — "The full suite takes about 77 minutes".
+- The full suite's time, and the 90 minutes a run is planned as, six ways to shorten it, none chosen — "The full suite takes 75 to 86 minutes".
 - The import's `_meta` to carry no day and no path, **with the next import** (chosen, 3) — "The import's `_meta` is in the main chunk".
 - A hood's own outlet first, then 79a (the cabinet over the hood opens) and 79b (the duct turning); the 30" option in A paused — "Registered rounds after 78".
 - A Run Composer — D14; the two run towers on separate legs — D22, round 55.
@@ -371,7 +391,9 @@ decisions.md is right.
 | `src/data/oneWall.test.ts`, `src/store/oneWallSwitch.test.ts` | One wall (round 98b): each package's run left to right, its wall, the rules, D's and E's one-wall packages; the shape switch putting the L back exactly, and a link to a one-wall kitchen; which model each opening keeps between the shapes, and every Undo button's words (round 98b-2). |
 | `src/data/oneWallSwaps.test.ts`, `tests/rangeSwapBill.test.ts`, `tests/lightStrips.test.ts` | One wall builds its room round the range, hood and refrigerator chosen (`shapeOfChoice`, packages.ts); a range swapped shows on the wall's bill at once, in either shape; the under-cabinet strips follow the runs (round 99a). |
 | `src/three/qualityRule.ts`, `src/three/qualityRule.test.ts` | When the quality guard drops a page to the low tier: two seconds under 55 fps, not counting the two seconds after the scene is rebuilt or made heavier — the room, a model or blower, the render mode, day or night, a finish that changes a texture, a side rail folded, the language, a tab opened (`sceneKey`; round 100, Leo). `QualityGuard.tsx` counts the frames and asks it. |
-| `scripts/pixelShots.mjs`, `scripts/pixelCompare.mjs`, `scripts/pixelLinks.json` | The pixel proof (D17): 45 states shot whole and as the canvas alone, old build and new twice each, alternated, then compared state by state, each build also against itself. Shot at `?qualityLock=1` so the guard drops no page mid-shot (round 100; moved here from the rounds' scratch folders). |
+| `scripts/pixelShots.mjs`, `scripts/pixelCompare.mjs`, `scripts/pixelLinks.json` | The pixel proof (D17): 45 states shot whole and as the canvas alone, old build and new twice each, alternated, then compared state by state, each build also against itself. Shot at `?qualityLock=1` so the guard drops no page mid-shot (round 100; moved here from the rounds' scratch folders). Given the build's folder, it serves it itself through `scripts/previewServer.mjs`, the server's record in `<out>/server.jsonl` (the server-reset round). |
+| `scripts/previewServer.mjs`, `scripts/previewServer.test.ts` | The test servers' launcher (the server-reset round, 甲; Leo, 2026-11-06): Vite's own `preview()` in a process of its own, recording every connection, request (status, bytes, ms, how it ended) and error, and its main thread's delay, to a file. `tests/globalSetup.ts` (into `test-results/preview-server/`) and `scripts/pixelShots.mjs` start their servers through it. |
+| `scripts/serverResetLoop.mjs`, `scripts/resetLoopStats.mjs`, `scripts/heartbeat.mjs` | The server-reset loop (`docs/plans/server-reset-plan.md`): the page opened COUNT times as the pixel shots open it, with the server's record, a heartbeat every 250 ms, typeperf's CPU and disk each second and Chromium's network log; resets, stalls past 5 s and blank pages counted, each own file's median and slowest 1%. Not run yet — Leo sets when. |
 | `tests/qualityLock.test.ts` | `?qualityLock=1` holds a page at its tier however slow it is; without it the guard still drops (round 100, for the pixel proofs only). Asked on a page every frame of which the test holds 30 ms; the CPU slowed sixteen times, as it was, failed about one run in fourteen, the room slow only in its first seconds (the quality lock's test round, 2026-11-04; item 4a above). |
 | `scripts/finishImport.test.ts`, `src/store/panelReady.test.ts`, `tests/panelReady.test.ts` | webColor SS or Panel Ready and nothing else; a column's -SS row its pair's in every cell but Model, webColor, msrpUSD and pairModel, or the import stops; the two rows' rough-in, packages, links of every version, list lines and quote; the card's switch by mouse and by finger (the columns' two rows round). |
 | `scripts/swapMemory.mjs` | The renderer's geometries and textures, and the heap, after each of fifty model swaps in a row (round 100, measured only). |
@@ -594,7 +616,9 @@ list.
   each shot twice, alternated (old, new, old, new), each build also against
   itself. A difference in the room is never explained away; close-ups
   before and after for Leo where it changes.
-- **The full suite** (`npm test`, about 77 minutes now):
+- **The full suite** (`npm test`; how long it takes, and the 90 minutes a
+  run is planned as, are in decisions.md, Open items, "The full suite
+  takes 75 to 86 minutes"):
   - **Before it**, read the power plan: turning the screen off, sleep and
     hibernate all "never" (`powercfg /query`).
   - **Tell Leo before it starts**, and keep the session's turn open until it

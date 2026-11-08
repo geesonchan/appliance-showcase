@@ -7489,6 +7489,14 @@ Registered, not scheduled. None of these is a round of its own.
     opening at once; and the server's output, written to a file this time
     (`vite preview … > serve-new.log`), has its two start lines and nothing
     else. That run was set aside as void and taken again from the start.
+    The same record's timings (read for the plan, 2026-11-06): the page
+    began opening at 13:42:01.965; `react`, the CSS and `three` came
+    whole, but took 10.1–10.2 s each (the probe's quiet median for a whole
+    opening: 1.35 s); the main chunk had 164,067 bytes on the wire (of
+    about 209 KB compressed) and nothing more until the reset at 29.1 s.
+    **A stall that ended in a reset**, not a reset at the start — the
+    probe's two `page.goto` past 90 s (own files 70–90 s each) look like
+    the same stall without the reset.
   - **Registered 2026-11-06** (Leo: 「本机预览服务器第一次送主文件时断开连接
     （ERR_CONNECTION_RESET），已经让全套测试白跑好几次。只改测试环境不改网页，列几种做法和
     代价」; registered only, nothing changed; after the fonts, **a plan
@@ -7530,6 +7538,555 @@ Registered, not scheduled. None of these is a round of its own.
     - 戊, **leave it**: a red run of this kind recorded and run again, as
       now. Cost: about 75–80 minutes each time it happens, which has been
       several times.
+  - **Planned 2026-11-06** (only read — records, the test set-up and
+    Vite 5.4.21's preview source; nothing changed, nothing run for it):
+    `docs/plans/server-reset-plan.md`, for Leo (「先写计划，不动手」). It counts
+    the openings behind every reset on record (pixel shots: about 594
+    openings, 2 resets; the probe: 200, 1 reset and 2 stalls past 90 s;
+    full suites since the recorder: 4 finished, 2 resets in one, openings
+    never counted), uses the one-browser reset of the fonts round, weighs
+    甲–戊 again, recommends 甲 first and then 丙 or 丁 by what it finds, and
+    sets the proof: 1,000 openings before and 1,000 after, resets and
+    stalls (an own file past 5 s) counted, then three full suites. Four
+    questions for Leo.
+  - **Confirmed 2026-11-06** (Leo: 「计划确认，做甲」), his answers in his words,
+    and the plan's section 7:
+    1. 「服务器不要搬进测试进程。写一个独立的启动脚本（比如 scripts/previewServer.mjs），里面
+       调用同样的 preview()，挂上请求、连接、出错和主线程卡顿的记录，仍然作为单独的进程启动，
+       输出写进文件。」 — because in the tests' process the server shares a main
+       thread with the tests, and a stall measured there may be the move's,
+       or the move may hide the stall; and the change would stay in every
+       full suite. 「globalSetup.ts 和拍照脚本都改用这个启动脚本。」
+    2. 「改前 1,000 次可以，不到 3 次就照计划加到 2,000 次。」
+    3. Fixed by the plan's section 4; and 「报告里写出每个本站文件的用时分布（一般
+       用多久、最慢 1% 用多久），改前改后都写，不只报次数。」
+    4. 「拍照的服务器也接上记录，用第 1 条那个启动脚本。」
+    And: 「循环期间用 Windows 的 typeperf 每秒记一次 CPU 和硬盘的忙闲，写进一个文件」;
+    the round's order 「写代码 → 跑改前循环 → 结果给我看 → 全套测试 → 提交、推送、上线
+    核对」, the full suite planned as 90 minutes; and for 2026-11-06 「今天先只把甲
+    的代码写好，测试先在旧代码上变红再写实现，单元测试跑过就停。循环和全套测试先不跑」.
+  - **Built 2026-11-06, the code only** (not committed; the loop and the full
+    suite not run, Leo to say when):
+    1. `scripts/previewServer.mjs` (and `previewServer.d.mts`): Vite's own
+       `preview()` in a process of its own, started by
+       `startPreviewServer({ port, outDir, log })`, which waits until it
+       listens. Its record, a JSON line each, written synchronously: start,
+       listening, stop; each connection opened (client port), closed (bytes
+       each way, its age) or in error (its code); each request with its
+       connection, the path as asked, status, bytes sent, ms and whether it
+       finished or its connection closed first; the main thread's delay each
+       second (median, 99th percentile, worst) and any stall past 200 ms.
+       Stdout and stderr to `<log>.out.txt`. It stops when asked, and also
+       when the process that started it goes away.
+    2. `tests/globalSetup.ts`: `startPreview(port, { outDir, logDir })`
+       starts the suite's server through it, its record in
+       `test-results/preview-server/<time>-<port>.jsonl`; the warm-up as
+       before. `startDev` unchanged.
+    3. `scripts/pixelShots.mjs` takes the build's folder, not an address,
+       and serves it itself through the launcher (PORT, 4177), its record in
+       `<out>/server.jsonl`; an address is refused with a sentence saying so.
+    4. `scripts/heartbeat.mjs`: one small request every 250 ms from a
+       process of its own, each written with its time, status and bytes or
+       its error; gives up on a beat at 10 s.
+    5. `scripts/serverResetLoop.mjs`: COUNT openings (1,000), a browser for
+       each 25 as a pixel run has, desktop and phone in turn, opened through
+       `pageWatch` at `?quality=high&qualityLock=1`, 2.5 s more, then every
+       own file's time from the page's timing; with the server's record, the
+       heartbeat, `typeperf` (CPU, disk time, disk idle, disk queue, each
+       second) and Chromium's network log per batch, kept only for a batch
+       with an event; `summary.json` with the counts, each own file's
+       median, slowest 1% and slowest, and the machine, heartbeat and server
+       around each event. `scripts/resetLoopStats.mjs` does its arithmetic.
+    6. **Tests, red first.** `scripts/resetLoopStats.test.ts` (8),
+       `scripts/previewServer.test.ts` (5), `scripts/heartbeat.test.ts` (3),
+       all in the unit suite (CI's), none needing a build. On the old code
+       all three files red — the scripts not there. Then, with the launcher
+       written and `globalSetup.ts` not yet changed, the one test of
+       `globalSetup` red for its own reason (it took no build or record
+       folder and wrote no record: `ENOENT` on the record folder); green
+       once changed. One of the launcher's own was red on the way: Vite's
+       middleware rewrites a request's path (a path with no file becomes
+       `/index.html`), so the path is now taken as asked. In the first full
+       unit run the heartbeat's process test was red once: the server had
+       counted a beat the stopped heartbeat had not written yet; it now
+       allows that one beat in flight. The two server files then green three
+       runs in a row.
+    7. **Unit suite**: `npm run test:unit` 125 files, **3,147 of 3,147, exit
+       0** (122 and 3,131 before, + 16). `npm run build` 0 (type-check
+       included), `index-DXl3ZdsD.js` (no counter; the page's code
+       unchanged, the name from the commit stamp). No node, esbuild or
+       typeperf process left afterwards, no port of the tests' listening.
+    8. **Not run yet**: the loop (in a browser, about 75–90 minutes), the
+       pixel shots through the launcher, and the browser suite with the new
+       `globalSetup` — the full suite, planned as 90 minutes.
+    9. **A trial of the loop, two openings** (Leo, 2026-11-06: 「现在试跑循环 2 次，
+       确认各个记录文件都写得出来」): `COUNT=2 node scripts/serverResetLoop.mjs
+       dist <scratch>/reset/trial`, 17:50:00 to 17:50:31, build
+       `index-DXl3ZdsD.js` at `664b570`, exit 0. Every file written:
+       `server.jsonl` 110 lines, `heartbeat.jsonl` 35, `typeperf.csv` 27
+       (a header and 26 seconds), `openings.jsonl` 2, `summary.json` 125,
+       `meta.json` 11, `server.out.txt` 1 ("ready http://localhost:4176"),
+       `netlog/batch-001.json` 1,944 (kept: its batch had an event).
+       Afterwards no node, esbuild, typeperf or test browser, nothing
+       listening on 4173–4177, 4196, 4197; no 42, 506, 507, 107 or 187 from
+       17:49. What the two openings showed:
+       - **The first opening stalled**, every own file 10.1–10.4 s in the
+         page's timing (the main chunk 10,106 ms, the CSS 10,055, `react`
+         10,083, `three` 10,415, both fonts 10.2–10.4 s); the second was
+         normal (68 ms the main chunk).
+       - **The server's side**: the main chunk's request took 10,075 ms there
+         (01:50:01.65 to 01:50:11.725 UTC), while its main thread's delay
+         each second stayed at 15–33 ms; the CSS and `react` left the server
+         in 4 and 7 ms, and reached the page about 10 s later. The second
+         font's request reached the server at 01:50:22.427, about 10 s after
+         the page asked for it. **Its main thread did stall, later**: 1,628
+         ms ending 01:50:14.522 and 3,985 ms ending 01:50:22.364.
+       - **The heartbeat stalled with it**: its beat at 01:50:01.909 took
+         9,796 ms and failed, `UND_ERR_SOCKET`; at 01:50:12.456, 9,899 ms,
+         the same; every other beat 8–306 ms. Neither failed beat appears as
+         a request in the server's record (both its connections read one
+         request each).
+       - **The machine was not busy**: CPU 0–18% each second, the disk idle
+         89–100%, its queue 0 throughout. typeperf has no line for
+         17:50:13 (12.483 to 14.549), the second the server's thread was
+         held 1.6 s.
+       - Read only, not concluded: from about 01:50:01.9 to 01:50:11.7 and
+         from about 01:50:12.4 to 01:50:22.4 (UTC), traffic on `localhost`
+         in both directions waited about 10 s, for the browser and for the
+         heartbeat, a process of its own, with the server's thread free and
+         the machine idle. The 10 s matches the fonts round's reset record
+         (`react`, the CSS, `three` 10.1–10.2 s each).
+       - **A fault of the loop's, found in the trial, not yet fixed** (Leo
+         said to stop after the trial): the page itself ("/") is timed with
+         its navigation entry's `duration`, which runs to the end of the
+         load event and so holds every file's wait; its own response is
+         `responseEnd`. The first opening's "/" reads 10,618 ms where the
+         server sent it in 4 ms. The other files' times are their own.
+  - **The night of 2026-11-06** (Leo, from home: 「今晚把下面的一次跑完，中间不用等我」,
+    steps 0 to 6; no commit, no push):
+    0. **Before** (20:02): `git status` as before the computer slept — the
+       same 4 changed and 9 new files, `664b570`; on mains, screen, sleep and
+       hibernate "never"; nothing on the tests' ports; one `node.exe` not
+       ours (PID 1776, Codex's `artifact-tool` host daemon, started 19:42:25),
+       left alone. **When the computer came on**: not a cold start — the
+       system log has it put to sleep at 17:57:07 (42 "Application API"; 187
+       `winlogon.exe`; 566 `Reason` 17) and back at 19:41:32
+       (Power-Troubleshooter: "The system has returned from a low power
+       state", sleep 01:57:06 UTC, wake 03:41:32 UTC, "Wake Source: Unknown";
+       Kernel-Boot 27 "The boot type was 0x1"). Step 3 began 23 minutes
+       after it, past Leo's ten.
+    1. **The page itself timed by `responseEnd`** (20:02–20:04): the loop's
+       timing moved unchanged into `resetLoopStats.mjs` as `ownTimes()`,
+       a test added on the trial's opening 1 — red on the old algorithm,
+       "expected … ms: 140 … received … ms: 10618"; then the page timed
+       `responseEnd − startTime`, files by their own `duration` as before.
+       `npm run test:unit` 125 files, **3,149 of 3,149**, exit 0.
+    2. **Read only, nothing changed** (20:04):
+       - *The heartbeat's two stalled beats and the server's connections.*
+         **No connection was opened for either.** The beats:
+         `{"t":"2026-11-07T01:50:01.909Z","ms":9796,"status":null,"bytes":null,"error":"fetch failed: UND_ERR_SOCKET"}`
+         and `{"t":"2026-11-07T01:50:12.456Z","ms":9899,…"error":"fetch failed: UND_ERR_SOCKET"}`.
+         The server's `conn` records: ids 1–6 at 01:50:01.624–.652, before
+         the first beat began; then none until id 7 at 01:50:11.938, after
+         it had failed (11.705); ids 7 and 8 at 11.938 and 12.042, before the
+         second; then none until ids 9 and 10 at 01:50:22.363–.364, after it
+         had failed (22.355). The connections open while each waited had
+         each read one request and no more — id 1 `"bytesRead":212`, id 3
+         `212` (closed by the server's idle timeout at 07.634 and 07.666),
+         ids 7 and 8 `212` each (closed 18.047, 18.081): the heartbeat's
+         earlier beats, 212 bytes a request. So each stalled beat's request
+         never reached the server, on a new connection or an old one.
+       - *Security software.* Windows Security Center lists two antivirus
+         products: **Norton 360** (`productState` 266240,
+         `C:\Program Files\Norton\Suite\wsc_proxy.exe`), also its one
+         firewall product, and Windows Defender (`productState` 393472).
+         Defender is not running: `AMRunningMode` "Not running",
+         `AntivirusEnabled` and `RealTimeProtectionEnabled` False,
+         services `WinDefend` and `WdNisSvc` stopped; `Get-MpPreference`
+         fails (`0x800106ba`); its **Network Protection** is
+         `EnableNetworkProtection` 0 in
+         `HKLM\SOFTWARE\Microsoft\Windows Defender\Windows Defender Exploit Guard\Network Protection`
+         (no policy key) — off. Installed: `Norton 360`
+         26.10.11201.2729, Gen Digital Inc.; no other antivirus, security or
+         VPN product among the installed programs. Norton's services running:
+         Norton Antivirus, **Norton Firewall Service**, Norton Tools,
+         **Norton VPN**, NortonWscReporter. The network adapters, hidden ones
+         included: Wi-Fi (Intel BE200, up), Bluetooth PAN, Windows' own WAN
+         Miniports, 6to4, Teredo, IP-HTTPS and the kernel debugger's — **no
+         VPN adapter**. The hosts file has three lines of Norton's
+         ("gen digital helper server"), none for `localhost`.
+       - *localhost.* The browser, the heartbeat and the server all use
+         `localhost` (`previewServer.mjs` gives `http://localhost:<port>`;
+         the loop hands that to the page and the heartbeat). On this
+         machine `localhost` resolves **`::1` first**, then `127.0.0.1`
+         (Node's `dns.lookup`, result order "verbatim": `::1` IPv6 first;
+         .NET and `Resolve-DnsName` the same; the prefix policy puts `::1/128`
+         at precedence 50). Vite's preview has no host set in
+         `vite.config.ts`, so it listens on "localhost": **`[::1]` only** —
+         `TCP [::1]:4177 [::]:0 LISTENING 38068` while step 3 ran, PID
+         38068 the server's own. Every connection in the trial's record was
+         `"family":"IPv6"`.
+    3. **One pixel run through the launcher** (20:04:45–20:13:12, exit 0):
+       `node scripts/pixelShots.mjs dist <scratch>/night/px`, build
+       `index-DXl3ZdsD.js`: **45 shots**, 25 page openings; the server's
+       record written, 971 lines — 100 connections, 165 requests (none past
+       32 ms, none ended by a closed connection), no connection error, 503
+       of the main thread's seconds, one stall of 282 ms at its start, and
+       its stop.
+    4. **The loop before, 2,000 openings** (Leo: 「照现在的设置跑，不换地址、不动杀毒软件
+       ——这一组就是"改前"。断连加卡住不到 3 次，照计划加到 2,000 次」), build
+       `index-DXl3ZdsD.js`, on mains, nothing else running of ours:
+       - **The first 1,000**, 20:13:35–21:11:00, exit 0: 0 resets, **1
+         stall**, 0 blank. One event, under three, so **1,000 more**, the
+         same way, in a folder of their own: 21:11:17–22:10:23, exit 0: **1
+         reset, 2 stalls, 1 blank** (one opening all three). Together:
+         **2,000 openings, 3 with an event — 1 reset, 3 stalls, 1 blank.**
+       - **Every event a browser's first opening**: #551 of the first
+         thousand (its 23rd browser), #1 and #526 of the second (its 1st and
+         22nd) — 3 of the 80 first openings; none in the other 1,920. The
+         trial's stalled opening was a first opening too; the fonts round's
+         reset was a pixel run's fourth.
+       - **How long, each a near multiple of 10 s**: #551 the four files
+         30.06–30.12 s and its two fonts 10.06 and 10.11 s after them; #1
+         three files 30.10–30.18 s and the CSS 20.06 s, the main chunk reset
+         (`net::ERR_CONNECTION_RESET` at 05:11:54.058 UTC, 36,774 of its
+         bytes come) and no canvas in 60 s
+         (`test-results/blank-canvas/2026-11-07T05-12-54-655Z-resetLoop-1-desktop-canvas.json`);
+         #526 four files 50.11–50.19 s. The heartbeat's failed beats:
+         9.76–9.93 s, or 19.77 and 19.87 s — 10 failures in the 2,000, each
+         `fetch failed: UND_ERR_SOCKET`, all in the three events.
+       - **Each own file over the 2,000** (median / slowest 1% / slowest,
+         ms): the page itself 9 / 18 / 327; the CSS 31 / 55 / 50,113;
+         `react` 38 / 59 / 50,117; the main chunk 44 / 65 / 50,120;
+         `three` 49 / 72 / 50,188; Inter latin 60 / 104 / 10,109 (1,999);
+         Cormorant latin 67 / 104 / 10,059 (999, desktops only).
+       - **Around each event** (UTC; the server's record, the heartbeat,
+         typeperf):
+         - *#551* (04:44:49.980): the browser's four connections accepted at
+           once; the main chunk took 20,007 ms on the server, **its main
+           thread held 14,136 ms**, ending 04:45:10.018; new connections
+           accepted only at 04:45:10.030, 20.054, 20.225, 30.249; the
+           heartbeat's beats from 04:44:50.152, 04:45:10.283 and 20.303
+           failed after 19,869, 9,767 and 9,933 ms. CPU 0–29% each second
+           while it waited (57% at 20:45:36, after it), the disk 90–100%
+           idle, its queue 0.
+         - *Second thousand, #1* (05:11:23.801, the server up since
+           05:11:23.550): the six connections accepted at once; the main
+           chunk **left the server in 20 ms** (05:11:23.973) — the page had
+           36,774 bytes of it when it was reset 30 s later; the CSS's request
+           reached the server at 05:11:34.020, `react`'s at 44.052,
+           `three`'s at 54.074, ten seconds apart; **the server's main thread
+           held 3,990 ms and 3,982 ms**, ending 05:11:43.968 and 54.007, just
+           before the second and third; new connections accepted at
+           05:11:43.994 and 54.039. Heartbeat: 05:11:24.196 failed after
+           19,774 ms, 05:11:44.221 after 9,795. CPU at most 55%, disk at
+           least 95% idle.
+         - *Second thousand, #526* (05:42:37.127): the page's own
+           connection accepted at 05:42:37.145, **its five others not until
+           05:42:47.198**, together; then the requests reached the server one
+           every ten seconds — the CSS 05:42:57.238, the main chunk
+           05:43:07.284, `react` 17.282, `three` 27.336 — each served in 2–21
+           ms; the heartbeat's new connections accepted at 05:42:57.222,
+           05:43:07.234, 17.253, 27.274, and five beats from 05:42:37.402
+           failed after 9,761–9,775 ms each. The server's main thread not
+           held (worst second 66.7 ms). CPU at most 47%, disk at least 89%
+           idle, queue at most 1.
+       - Read only, not concluded: in each event traffic on `localhost` —
+         new connections, requests, responses — was let through in steps
+         about ten seconds apart, to the browser and to the heartbeat alike,
+         with the machine idle; the server's own thread was held in two of
+         the three and free in the third.
+       - The records: `<scratch>/night/loop1000/` and `loop1000b/` —
+         `openings.jsonl` 1,000 lines each, `server.jsonl` 31,196 and
+         31,552, `heartbeat.jsonl` 13,265 and 13,499, `typeperf.csv` 3,384
+         and 3,481 (no gap past 1.6 s in either), `summary.json`, and the
+         network logs of the batches with an event (`batch-023`; `batch-001`,
+         `batch-022`); `combined2000.json` beside them.
+    5. **The full suite** (power plan read at 22:10:37, on mains, never,
+       never, never; nothing of ours running): `npm test` 22:10:47 to
+       23:26:21, build `index-DXl3ZdsD.js`, **164 files, 3,497 of 3,497,
+       exit 0**, vitest's "Duration 4524.67s" (161 and 3,479 before, + the
+       three new files' 18). The suite's server, started through the
+       launcher for the first time, wrote its record:
+       `test-results/preview-server/2026-11-07T06-10-56-342Z-4174.jsonl`,
+       10,384 lines — 2,359 requests (347 of them the page), median 4 ms,
+       slowest 1% 47 ms, slowest 116 ms; none past 5 s, none ended by a
+       closed connection, no connection error; its main thread held 250–416
+       ms 37 times, none longer. No blank-canvas record written in it.
+    6. **After** (23:26): no node, esbuild, typeperf or test browser of ours
+       (only Codex's daemon, PID 1776, as at the start); nothing listening on
+       4173–4177, 4191, 4192, 4196, 4197. **The system log from 19:41 to
+       23:26**: 506 and 507 at 19:41:32, the computer coming back before
+       step 0 (20:02); from 20:02 to 23:26 no 42, 506, 507, 107 or 187.
+       Nothing committed or pushed (Leo: 「跑完就停，不提交、不推送」). Every step
+       ended with exit 0; nothing failed and nothing was run again.
+  - **Where they happen** (Leo, 2026-11-07: 「出事绝大多数在新浏览器的第一次打开，例外是
+    字体那一轮那次（一组拍照里的第 4 次打开）」): the trial's stall and all three of
+    the 2,000-opening loop's were a new browser's first opening; the fonts
+    round's reset (2026-11-06 13:42:01–13:42:31) was the fourth opening of a
+    pixel run, its browser launched at about 13:39:34 and three pages
+    opened in it before.
+  - **New processes around the fonts round's one, read only** (2026-11-07,
+    Leo: 「再只读查那一次前后有没有新进程启动，查到什么写什么」), 13:41:30 to 13:43:00:
+    - **Process starts cannot be read here.** The Security log, where
+      Windows writes a process start (4688) when that auditing is on, needs
+      an administrator: "Attempted to perform an unauthorized operation";
+      `auditpol` would not run without one either. No other log on this
+      machine records process starts.
+    - Every one of the 138 enabled logs with records, read for those 90
+      seconds: **two records**, both about Windows' WMI network-adapter
+      provider. Microsoft-Windows-Diagnosis-PCW/Operational 16 at
+      13:41:35.411: "Counter 6 of instance ({3976adcc-…}, NetAdapterCim, 0)
+      could not be modified. Error: "The parameter is incorrect."";
+      Microsoft-Windows-WMI-Activity/Operational 5857 at 13:42:45.207:
+      "NetAdapterCim provider started with result code 0x0. HostProcess =
+      wmiprvse.exe; ProcessID = 22548" (that PID no longer running). The
+      provider starts this way many times a day — at 10:15, 10:16, 10:18,
+      10:30, 10:38, 10:58, 11:05, 11:18, 11:38, 11:58, 12:18, 12:27, 12:38,
+      12:58, 13:01 that day, mostly at :18, :38 and :58 — and this one
+      came 14 s after the reset, not before it.
+    - Nothing from the test browser: Chromium's own GPU, network and
+      renderer processes leave nothing in Windows' logs.
+    - The same 60-second read around the evening's four (trial 17:49:55,
+      #551 20:44:45, #1 21:11:18, #526 21:42:32) finds nothing in common:
+      at 17:49:58–17:50:34 three records of the installed Google Chrome
+      (`C:\Program Files\Google\Chrome\Application\chrome.exe`, not the
+      tests') in Security-Mitigations/KernelMode 10, a Diagnosis-DPS
+      record at 17:49:59 and the provider at 17:50:10; at 20:45:01 one
+      AppModel-Runtime record; at 21:11:37–43 four push-notification
+      pings; at 21:42:32–21:43:31 Windows Update and the Store finding no
+      updates, ClipSVC starting (21:42:34) and SYSTEM's WMI queries.
+  - **The proof before 甲 is committed** (Leo, 2026-11-07: 「在现在的代码上构建，除了主
+    文件以外，和 664b570 线上逐字节相同，主文件只差提交号。只证明，不提交」), 00:08–00:09, the
+    working tree as it stands (甲's scripts and tests, `globalSetup.ts`,
+    `pixelShots.mjs`, the docs; no page code changed):
+    - **A**, built with the counter's address, the stamp git's (`664b570`,
+      the tree not committed): **20 of 20 files the same byte for byte** as
+      the live site, the main chunk `index-Dz3iVQL4.js` (700,237) among
+      them, every live file fetched fresh (200 each).
+    - **B**, the same but the stamp a stand-in for a new commit
+      (`GITHUB_SHA=f00dcafe…`): the main chunk `index-flxdpnVd.js`, the
+      same size, 700,237, and **one range of bytes different**, 669,017 to
+      669,023: live `const Yg="664b570"`, B `const Yg="f00dcaf"`; the 18
+      other assets and licences the same byte for byte; `index.html` the
+      same but for the main chunk's name in it.
+    - So a commit of 甲 changes the live site by its commit's stamp only.
+      Not committed (Leo: 「预览明天等我看」).
+  - **A fault in my own checks, found 2026-11-07**: the browser Playwright
+    launches here is `chrome-headless-shell.exe`
+    (`ms-playwright\chromium_headless_shell-1243\chrome-headless-shell-win64`),
+    not `headless_shell.exe`, the name the leftover checks of 2026-11-05 to
+    11-06 asked for — so "no test browser left" in them was never looked
+    at. Asked by its real path at 00:10:17 on 2026-11-07 (after the sleep of
+    17:57 and everything since): none running. The checks now ask by path.
+  - **The Norton experiment** (Leo, 2026-11-07: 「Norton 小实验：先写计划，再做甲组
+    （这一组我现在就批了）」): the plan, `docs/plans/norton-experiment-plan.md` —
+    a new way of opening, a new browser for every opening and only that
+    page; group 甲 as things are, 600; group 乙, Norton's firewall letting
+    the test browser and node through (or the firewall off for the run),
+    600, with Leo at the computer; what counts as "Norton" and what not;
+    what follows either way.
+    - **The new way, tests red first** (00:10–00:12): `MODE=fresh` in
+      `scripts/serverResetLoop.mjs` — a browser launched (and timed) for
+      every opening; `batchSizes`, `tenSecondSteps`, `eventRate` in
+      `scripts/resetLoopStats.mjs`, each event's files and failed beats
+      given as multiples of 10 s. Three tests red on the old code ("… is not
+      a function"), green after; `npm run test:unit` 125 files, **3,152 of
+      3,152**, exit 0.
+    - **Group 甲, 600 fresh openings** (00:12:33–01:03:30, exit 0; power
+      plan never, never, never and on mains at 00:12:28; build
+      `index-DXl3ZdsD.js`, `localhost`, Norton as it is): **9 stalls, 0
+      resets, 0 blank — 9 of 600, 1.5%**, every opening a browser's first.
+      Each, local time, the files past 1 s and the heartbeat's failed beats:
+      - #35 00:15:18 desktop: both fonts 10,074 and 10,129 ms; one beat
+        10,015; the server's thread held 4,257 ms.
+      - #59 00:17:22 desktop: the four files 40,120–40,186 ms, both fonts
+        10,067 and 10,089; five beats 9,743–9,955.
+      - #269 00:34:58 desktop: both fonts 10,129 and 10,147; one beat 9,852.
+      - #273 00:35:26 desktop: both fonts 10,067 and 10,105; one beat 9,895.
+      - #301 00:37:50 desktop: both fonts 20,114 and 20,127; beats 9,957
+        and 9,763.
+      - #404 00:46:22 phone: the four files 20,049–20,104; one beat 19,795.
+      - #445 00:49:56 desktop: the page itself 10,046 (its response's end);
+        one beat 9,992.
+      - #454 00:50:49 phone: the four files 20,051–20,110; beats 9,975 and
+        9,777.
+      - #596 01:02:24 phone: the four files 40,126–40,186; beats 9,791,
+        10,022, 10,010, 10,041; the server's thread held 10,019 and 10,016
+        ms; and the only requests of the 600 the server saw end with their
+        connection closed first, three of the heartbeat's ("/", 0 bytes sent,
+        9,992, 9,994 and 4 ms, at 09:02:54.624, .626 and 09:03:04.673 UTC).
+        In #404 and #454 the main chunk took 10,023 and 10,013 ms on the
+        server.
+      **Every stalled file 46 to 186 ms past a whole multiple of 10 s** (10,
+      20 or 40 s); every failed beat within 260 ms of one; the server's
+      thread held in two of the nine. The heartbeat failed 18 times in all,
+      every one inside these nine. CPU at most 22–76% in each, the disk at
+      least 84% idle, its queue at most 4. The browser's launch: median 112
+      ms, slowest 394.
+    - **Each own file over the 600** (median / slowest 1% / slowest, ms):
+      the page itself 12 / 50 / 10,046; the CSS 32 / 59 / 40,126; `react` 41
+      / 77 / 40,151; the main chunk 46 / 79 / 40,156; `three` 54 / 97 /
+      40,186; Inter latin 63 / 241 / 20,127; Cormorant latin (desktops, 300)
+      65 / 10,067 / 20,114.
+    - **Against the plan's own bar**: section 6 asks group 甲 for at least
+      10 events before group 乙 can say anything, else both to 1,200. It has
+      9. Leo to say whether 乙 runs at 600 against these, or both at 1,200.
+    - **Leo's answer, 2026-11-07 morning: 9 is enough, no 1,200**
+      (written into the plan's section 6 as 补充一). The bar of 10 was there
+      so that the fresh way would draw out enough events that 乙 at 0 could
+      not be luck, were 乙 untouched by the change; and 甲's nine are the same
+      thing as the night of 11-06 (a browser's first opening, steps of 10 s,
+      the heartbeat held with it). The sum: were 乙 untouched, the chance of 0
+      in 600 is (1 − p)^600 — at 甲's own p = 9/600 = 1.5%, (0.985)^600 ≈
+      0.000115, about one in ten thousand; at a cautious floor p ≈ 0.7% (the
+      95% interval's lower end for 9 of 600, 0.688% exactly), (0.99312)^600
+      ≈ 1.6%. Both are under the 4% the reset plan already accepts
+      (`server-reset-plan.md` section 4: 1 in 300 unchanged, 0 in 1,000 is
+      (1 − 1/300)^1000 ≈ 3.5%, "about 4%").
+    - **Group 乙 by the plan's way two, not way one** (Leo, 2026-11-07
+      morning; the plan's 补充二): Leo turned the whole Smart Firewall off at
+      10:06 for 5 hours (「让Norton防火墙联系关闭5个小时」; Windows Security
+      Center has Norton 360's firewall at productState 262144, 0x040000,
+      off, stamped 10:06:01). So 0 in 乙
+      would show it is Norton's firewall, not that allowing the two programs
+      in Program Control is enough; that, if wanted, is a plan and a group of
+      its own. And on what follows (section 7): `127.0.0.1` and 丙 still go
+      through the machine's own network connection; only 丁 does not. The
+      fix gets its own plan when the time comes.
+    - **Group 乙, 600 fresh openings, the firewall off** (10:07:31–10:56:37,
+      exit 0; the same `dist/`, `index-DXl3ZdsD.js` built 00:09:52, the same
+      command, `localhost`, port 4176; power plan never, never, never and
+      on mains at 10:07:08). The firewall read only, before (10:07:25),
+      every 5 minutes during (ten reads, 10:07:31 to 10:55:00) and after
+      (10:56:47): every read "Norton 360, productState 262144, 0x040000",
+      off, stamped 10:06:01; the Norton Firewall Service itself Running
+      throughout. It never came back on, so no openings are counted apart.
+      **3 stalls, 0 resets, 0 blank — 3 of 600, 0.5%** (甲: 9, 1.5%), every
+      one a browser's first opening:
+      - #26 10:09:32 phone: Inter latin 10,069 ms; one beat 9,876; the
+        server's thread held 4,119 ms.
+      - #223 10:25:23 desktop: the four files 40,165–40,352, both fonts
+        10,078 and 10,121; five beats 9,816–10,091; the server's thread held
+        10,042 ms.
+      - #441 10:43:34 desktop: the four files 20,095–20,165; beats 9,850 and
+        9,758; the disk busy then (at least 6% idle, against 84% in 甲).
+      Every stalled file 69 to 352 ms past 10, 20 or 40 s; every failed
+      beat (8, all inside the three) within 250 ms of 10 s; CPU at most
+      25–37%. Launch median 109 ms, slowest 309. Each own file (median /
+      slowest 1% / slowest, ms): the page 13 / 37 / 72; the CSS 33 / 58 /
+      40,165; `react` 40 / 66 / 40,167; the main chunk 45 / 67 / 40,169;
+      `three` 54 / 75 / 40,352; Inter latin 61 / 175 / 10,121; Cormorant
+      latin (300) 63 / 185 / 10,078. Afterwards (10:56:47): no 42, 506,
+      507, 107, 187, 41 or 6008 from 10:00 on; no node, esbuild, typeperf or
+      test browser (asked by path); nothing on the tests' ports. Records:
+      `<scratch>/n3/` — `fresh600/` (`openings.jsonl` 600, `server.jsonl`
+      22,686, `heartbeat.jsonl` 11,029, `typeperf.csv` 2,896, three network
+      logs), `fw-before.txt`, `fw-during.txt`, `fw-after.txt`.
+    - **By section 6, between the two**: not "Norton" (not 0), not "not
+      Norton" (0.5% is under half of 甲's 1.5%). The plan says both groups
+      600 more and judge them together; that waits for Leo. Three against
+      nine is within luck: of the 12, were the two rates the same, 3 or
+      fewer falling in 乙 has a chance of 7.3%. What 乙 does show: with the
+      whole firewall off, the same thing still happens — a first opening,
+      steps of 10 s, the heartbeat held with it, the server's thread held
+      in two of three.
+    - **Leo, 2026-11-07 noon: no 600 more for either group** (the plan's
+      补充三). More openings could only say what share of it is the Smart
+      Firewall feature, which changes nothing about what is to be done; and
+      with the Smart Firewall off, Norton's firewall service and its
+      antivirus were still running — so what 乙 shows is "not all of it is
+      the Smart Firewall feature", not "not Norton". Next, a way around it:
+      every new browser warms up once first (`docs/plans/warmup-plan.md`).
+  - **The warm-up** (Leo, 2026-11-07 noon: 「先写计划，再做测量（这一步我现在
+    就批了，只改循环脚本，不提交）」): the plan, `docs/plans/warmup-plan.md` —
+    every launched browser first opens `/fonts/Inter-OFL.txt` in a context
+    of its own, up to 120 s, its time kept, then the page measured exactly
+    as in 甲 and 乙. It runs no page code and is no retry; the fonts round's
+    fourth-opening reset is a known gap it cannot reach; where it would go
+    if it works (the 38 test files' `chromium.launch`, `pixelShots.mjs`,
+    `blankCanvasProbe.mjs`; `globalSetup.ts` opens no browser, its `warm()`
+    is Node's fetch).
+    - **Tests red first** (11:04–11:05): `warmupTarget`, `warmupOf`,
+      `warmupStats` in `scripts/resetLoopStats.mjs`, three tests red on
+      the old code ("… is not a function"), green after; `WARMUP` in
+      `scripts/serverResetLoop.mjs` (the warm-up on the browser's first
+      row, `summary.warmups` and `warmupEvents`). `npm run test:unit` 125
+      files, **3,155 of 3,155**, exit 0. A trial of 4 (port 4178): 4
+      warm-ups arrived in 19–87 ms, 4 pages drew. A first trial stopped
+      before starting: Git Bash had turned `WARMUP=/fonts/…` into
+      `C:/Program Files/Git/fonts/…`, and the new check refused it; in
+      Git Bash it needs `MSYS2_ENV_CONV_EXCL=WARMUP`.
+    - **The warm-up group, 600** (13:52:58–14:42:43, exit 0; the same
+      `dist/` and command as 甲 and 乙 plus `WARMUP=/fonts/Inter-OFL.txt`;
+      power plan never, never, never and on mains at 13:52:56). The
+      firewall: Leo turned it back on at 13:49:59; read every 5 minutes
+      while waiting, 11:07:34 to 13:52:55, 34 reads, 33 "off" and then
+      "on" (productState 266240, 0x041000), and only then the run; ten
+      reads during and one after (14:42:54), every one "on" — nothing
+      counted apart. **The warm-ups: 600 of 600 arrived, 0 stalled**
+      (median 20 ms, slowest 1% 67, slowest 156). **The page measured: 3
+      stalls, 0 resets, 0 blank — 3 of 600, 0.5%**:
+      - #255 14:13:43 desktop: both fonts 10,073 and 10,103 ms; one beat
+        9,886; the server's thread held 4,136 ms.
+      - #518 14:35:12 phone: Inter latin 10,096; one beat 10,035.
+      - #571 14:39:37 desktop: the four files 30,073–30,150, both fonts
+        10,064 and 10,145; beats 19,803, 9,759, 9,952.
+      Every stalled file 64 to 150 ms past 10 or 30 s; the heartbeat failed
+      5 times, all inside the three; CPU at most 25–41%, the disk at least
+      84% idle. Launch median 106 ms, slowest 493. Each own file (median /
+      slowest 1% / slowest, ms): the page 11 / 15 / 26; the CSS 28 / 53 /
+      30,073; `react` 36 / 60 / 30,076; the main chunk 40 / 60 / 30,080;
+      `three` 47 / 70 / 30,150; Inter latin 66 / 163 / 10,145; Cormorant
+      latin (300) 69 / 171 / 10,073. Afterwards (14:42:54): no 42, 506,
+      507, 107, 187, 41 or 6008 from 13:50 on; no node, esbuild, typeperf
+      or test browser (by path); the tests' ports free. Records:
+      `<scratch>/n3/warm600/` (`openings.jsonl` 600, `server.jsonl`
+      24,744, `heartbeat.jsonl` 11,251, `typeperf.csv` 2,935, three
+      network logs), `fw-wait.txt`, `fw-during-warm.txt`,
+      `fw-after-warm.txt`.
+    - **By the plan's section 5: the warm-up is not enough** — the page
+      measured stalled 3 times, not 0. The server's record says why it
+      could not be: in all 15 events of the three groups, the page's own
+      request reached the server on time (but for 甲 #445, where the page
+      itself was the file held); what waited was later — a new connection
+      reaching the server about 10 s late, or a response on a connection
+      already open taking about 10 s to finish. The warm-up's own
+      connection was never held in 600. So the trouble is not a new
+      browser's first connection, and the warm-up is not wired anywhere.
+      And 乙's 3 against 甲's 9 now reads differently: the warm-up group,
+      the firewall on, also had 3; were the three groups' rates the same,
+      9 or more of the 15 falling in 甲 has a chance of about 3%. Next:
+      Leo's to say.
+  - **The commit of 甲, without another full suite** (Leo, 2026-11-07:
+    「预览看过了，确认」; and 「这次不跑全套测试是我定的，记录里照写理由：22:10 之后改过的、
+    在全套测试范围内的只有 resetLoopStats.mjs 和它的单元测试，单元测试已全过，全套测试的浏览器
+    部分不用它们」). Of the 20 files committed, 8 last changed before the full
+    suite of 2026-11-06 (begun 22:10:43, 164 files green); of the 12 changed
+    since, 9 are documents, `scripts/serverResetLoop.mjs` is imported by no
+    test, and `scripts/resetLoopStats.mjs` with `resetLoopStats.test.ts` are
+    in the full suite's range (`scripts/**/*.test.ts`) — arithmetic only, no
+    browser and no server, green in the unit tests. Before the commit
+    (16:29–16:30): `npm ci`, `npm run test:unit` (125 files, 3,159 — the
+    working tree, 丁 in it) and `npm run build`, each exit 0; and the staged
+    tree alone, exported to a folder of its own: its unit tests 124 files,
+    3,153 green, the one file failing `src/lineEndings.test.ts`, which asks
+    git (`git ls-files --eol`) and the folder is no repository — run in the
+    repository, where it reads the index, the commit's own content, 2 of 2;
+    its build exit 0.
+    - Afterwards (01:03:57): no node, esbuild, typeperf or test browser of
+      ours, nothing listening on the tests' ports; no 42, 506, 507, 107 or
+      187 from 23:26 on. Records: `<scratch>/n2/fresh600/` —
+      `openings.jsonl` 600, `server.jsonl` 22,865, `heartbeat.jsonl` 11,052,
+      `typeperf.csv` 3,006, `summary.json`, nine network logs (one per
+      event).
+  - **The galley's questions sorted** (Leo, 2026-11-07, documents only):
+    `docs/plans/galley-questions-sorted.md` — the 74 of
+    `overnight-2026-10-23-galley.md`, 68 once six pairs that ask the same
+    thing are merged: 10 answered by decisions already (each with where and
+    the words), 40 only Leo can answer from site (a line each, a leaning
+    where one follows from an answer he has given), 18 for me to settle
+    (each with what I would do).
 - **The page waits for Google Fonts before it draws.** *(Leo, 2026-11-05:
   registered, looked into, not changed — customers in mainland China, where
   Google's fonts are often blocked.)* *(This headline was lost in the
@@ -7765,6 +8322,48 @@ Registered, not scheduled. None of these is a round of its own.
        - So the plan's "改后会稳定在清楚的那一种" holds only when the font
          comes before the labels, as Leo said it should be written; the
          labels' softness is the item below, not fixed this round.
+    8. **Seen and confirmed** (Leo, 2026-11-06: 「预览看过了，确认。可以开跑全套
+       测试」) — the local preview `index-BxCOFJFQ.js` on 4173. On the slow
+       labels: 「慢网下的发虚不挡这一轮：改后和现在线上逐像素相同，没变差。那条待办
+       保持登记，先不排进顺序」.
+    9. **Full suite**: power plan read at 14:51:19, on mains, screen, sleep
+       and hibernate "never"; `npm test` 14:51:24 to 16:17:53, build
+       `index-BxCOFJFQ.js`, **161 files, 3,479 of 3,479, exit 0** (159 and
+       3,470 before, + `fonts.test.ts` 7 and `selfHostedFonts.test.ts` 2);
+       the system log from 14:51: no 42, 506, 507, 107 or 187; no
+       blank-canvas record written in it; afterwards no node, esbuild or
+       test browser left, 4173–4175 free. Then CI's own commands: `npm ci`
+       0, `npm run test:unit` 122 files 3,131 of 3,131, `npm run build`
+       `index-BxCOFJFQ.js`.
+    10. **Shipped**: commit `664b570`, code, the four handoff fixes, the
+        plan and its two close-ups together (Leo: 「四处文档修正、计划和特写图，跟这一轮
+        一起提交」), pushed 16:19:25. Pages run 42317513405: build 16:19:30
+        to 16:20:37, deploy 16:20:41 to 16:20:57, each a success.
+    11. **The live check** (Leo: 「一共 20 个，逐个逐字节对比」): a build at
+        `664b570` with the counter's address, made after the commit,
+        against the live site, file by file — **20 of 20 the same byte for
+        byte**: `index.html` 579; `assets/index-Dz3iVQL4.js` 700,237 (the
+        main chunk); `index-C679l0R0.css` 37,753; `react-i_nGBwMY.js`
+        145,992; `three-C6wp6xxT.js` 704,119; `shareQr-BXYgausd.js` 21,968;
+        the twelve fonts, Inter `…a0ZL7SUc-DqGufNeO` 18,748,
+        `…a1ZL7-Dx4kXJAl` 48,256 (latin), `…a1pL7SUc-CkhJZR-_` 18,996,
+        `…a25L7SUc-DO1Apj_S` 85,068, `…a2JL7SUc-BOeWTOD4` 25,960,
+        `…a2ZL7SUc-DlzME5K_` 11,232, `…a2pL7SUc-CBcvBZtf` 10,252, and
+        Cormorant `…Yp3tKgS4-ltf1AbuM` 33,736, `…YpHtKgS4-Bg62sWL9` 23,416,
+        `…YpntKgS4-CDLFB6hb` 11,220, `…YqXtK-CUoBjw-S` 37,640 (latin),
+        `…YrXtKgS4-BWCqVJN0` 21,168; `fonts/Inter-OFL.txt` 4,377 and
+        `fonts/CormorantGaramond-OFL.txt` 4,387. The first download of
+        `…a2pL7SUc-CBcvBZtf.woff2` failed on the way (curl's status 000,
+        nothing received); fetched again twice, 200 and the same bytes both
+        times. On the live site, in a browser with the counter blocked so the
+        look was not counted, a 1440 desktop and a 390 phone: **no request
+        to Google** (8 and 7 requests, every one to `geesonchan.github.io`
+        but the counter's, blocked); **the fonts from github.io**, the
+        desktop Inter latin and Cormorant latin, the phone Inter latin, from
+        `geesonchan.github.io/appliance-showcase/assets/`; **served as
+        `font/woff2`**, in the browser and to curl, all twelve; loaded,
+        Inter 400 and 500 and Cormorant Garamond 400 on the desktop. Written
+        here with the next round (Leo: 「照上次的做法跟下一轮一起写」).
 - **A pin label drawn before its font comes stays blurred after the swap.**
   *(Leo, 2026-11-06: registered, not fixed — 「这一轮不修，等慢网结果出来我再定」.)*
   What was seen, in the fonts plan's locked shots (`docs/plans/fonts-plan.md`
@@ -10367,10 +10966,27 @@ Registered, not scheduled. None of these is a round of its own.
     a kind of texture used for the first time; 9–10 against 14–15 is
     whether that run dropped to the low tier. Four ways, 甲 to 丁, none
     chosen, are its section 2.7. Not answered (the report's question 7).
-- **The full suite takes about 77 minutes (4,647 s)** — measured by the
-  end-of-run round's second full suite, `npm test` on build
-  `index-CT8FdzVG.js`, 00:13:40 to 01:31:07 on 2026-11-06, 159 files,
-  3,470 of 3,470, no standby in it (that round's entry, item 8). *(Headline
+- **The full suite takes 75 to 86 minutes; a run is planned as 90.**
+  *(Leo, 2026-11-06: 「两次都写……各注明是哪一次」，「以后排时间按 90 分钟算」; 2026-11-07: 「加上这次
+  的 75 分钟（4,525 秒），标题改成 75 到 86 分钟，仍按 90 分钟排」.)*
+  - **77 minutes (4,647 s)**: the end-of-run round's second full suite,
+    `npm test` on build `index-CT8FdzVG.js`, 00:13:40 to 01:31:07 on
+    2026-11-06, 159 files, 3,470 of 3,470, no standby in it (that round's
+    entry, item 8).
+  - **86 minutes (5,173 s)**: the fonts round's full suite, `npm test` on
+    build `index-BxCOFJFQ.js`, 14:51:24 to 16:17:53 on 2026-11-06, 161
+    files, 3,479 of 3,479, exit 0, no standby in it (vitest's own
+    "Duration 5172.84s"; the fonts entry, "Shipped").
+  - **75 minutes (4,525 s)**: the server-reset round's full suite, the
+    night of 2026-11-06, `npm test` on build `index-DXl3ZdsD.js`, 22:10:47
+    to 23:26:21, 164 files, 3,497 of 3,497, exit 0, no standby in it
+    (vitest's own "Duration 4524.67s"; "A browser test that times out…",
+    "The night of 2026-11-06", item 5) — the first with the suite's server
+    started through `scripts/previewServer.mjs`.
+  - **A run is planned as 90 minutes** from now on: it must end before
+    17:45 (Leo may put the computer to sleep about 18:00), so it starts by
+    16:15.
+  *(Headline
   brought to that run 2026-11-06, Leo: 「全套测试时长那条的标题改成现在的数（约 77 分钟，
   4,647 秒），注明哪一次量的」; it read "84–90 minutes", the night of
   2026-10-28's figure, below.)* *(Looked into the night of
@@ -10383,7 +10999,8 @@ Registered, not scheduled. None of these is a round of its own.
   machine; shards on other machines; the GPU flags for `smoke.test.ts`,
   which may be drawing in software (not yet measured); and two small ones.
   None chosen; not answered (the report's question 8). The full suite has
-  since grown to 159 files, 4,647 s on 2026-11-06.
+  since grown to 159 files, 4,647 s on 2026-11-06, and to 161, 5,173 s,
+  the same day, and to 164, 4,525 s, that night.
 - **A hood's geometry is made after an early return** (found while planning
   the geometries' round; read off the code, not run). In `ApplianceModel.tsx`
   the hood's `useMemo` for its canopy stands after the insert's `return`
