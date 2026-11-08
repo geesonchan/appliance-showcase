@@ -24,6 +24,9 @@
  *                                          compressed), ms from its start to its
  *                                          end, and how it ended — "finish", or
  *                                          "close" when the connection went first;
+ *                                          `realServer: true` when it carried the
+ *                                          header x-real-server: 1 (a test kept off
+ *                                          丁, docs/plans/route-wiring-plan.md);
  *   loop                                 — each second, the main thread's delay
  *                                          (median, 99th percentile, worst, ms);
  *   stall                                — the main thread held past 200 ms, and
@@ -104,6 +107,8 @@ async function serve({ port, outDir, log }) {
     const before = socket.bytesWritten;
     // As asked: Vite's middleware rewrites req.url (a path with no file becomes /index.html).
     const url = req.url;
+    // A test kept on the real server marks its requests (丁's wiring, docs/plans/route-wiring-plan.md, section 5).
+    const realServer = req.headers["x-real-server"] === "1";
     let written = false;
     const end = (how) => {
       if (written) return;
@@ -118,6 +123,7 @@ async function serve({ port, outDir, log }) {
         bytes: socket.bytesWritten - before,
         ms: Math.round(performance.now() - start),
         ended: how,
+        ...(realServer ? { realServer: true } : {}),
       });
     };
     res.on("finish", () => end("finish"));

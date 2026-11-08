@@ -1,7 +1,8 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { chromium, type Browser, type Page } from "playwright";
+import { type Browser, type Page } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
 import { openWatched } from "../scripts/pageWatch.mjs";
+import { launchBrowser } from "./siteBrowser";
 
 /**
  * Round 87, Leo, from package A: its hood changed on the model card to the
@@ -28,7 +29,7 @@ afterAll(() => {
 
 let browser: Browser;
 beforeAll(async () => {
-  browser = await chromium.launch({
+  browser = await launchBrowser({
     args: ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist"],
   });
 });

@@ -20,7 +20,16 @@
  * opens that file in a context of its own, waits up to 120 s for it, and
  * closes the context — the warm-up of docs/plans/warmup-plan.md; it runs no
  * page code and is no retry: the page measured is opened once, as before,
- * and the warm-up's own time is kept on the browser's first row, `warmup`).
+ * and the warm-up's own time is kept on the browser's first row, `warmup`),
+ * ROUTE (1: 丁, docs/plans/route-plan.md — every request of the site from the
+ * page measured is answered by Playwright from the build folder, through
+ * `context.route`, so the page and its files never go through a connection
+ * on this machine; the address stays the same; a path with no file is
+ * answered with the page, as vite preview does, and kept on the row as
+ * `routeMisses` (scripts/siteRoute.mjs); the server and the
+ * heartbeat run as before, the heartbeat as the control, and the summary
+ * says how many requests other than the heartbeat's reached the server —
+ * 0, or 丁 did not bypass it).
  *
  * Each opening: a new context in the batch's browser, a 1440 desktop and a
  * 390 phone in turn, the page at `?quality=high&qualityLock=1` opened through
@@ -57,12 +66,14 @@ import {
   distributions,
   eventRate,
   ownTimes,
+  pageRequestsAtServer,
   parseTypeperf,
   tenSecondSteps,
   warmupOf,
   warmupStats,
   warmupTarget,
 } from "./resetLoopStats.mjs";
+import { routeSite } from "./siteRoute.mjs";
 
 const [distArg, outArg] = process.argv.slice(2);
 if (!distArg || !outArg) throw new Error("node scripts/serverResetLoop.mjs <build folder> <out folder>");
@@ -76,6 +87,7 @@ const NETLOG = process.env.NETLOG !== "0";
 const WAIT_MS = Number(process.env.WAIT_MS ?? 2500);
 const WARMUP = process.env.WARMUP ?? "";
 const WARMUP_TIMEOUT_MS = 120_000;
+const ROUTE = process.env.ROUTE === "1";
 warmupTarget("http://localhost", WARMUP); // a WARMUP that is not a path of the site stops the run before anything starts
 const ARGS = ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist"];
 const DEVICES = {
@@ -97,6 +109,7 @@ const meta = {
   port: PORT,
   waitMs: WAIT_MS,
   warmup: WARMUP || null,
+  route: ROUTE,
   netlog: NETLOG,
   node: process.version,
   head: (() => {
@@ -126,6 +139,9 @@ const heartbeat = spawn(process.execPath, [HEARTBEAT, `${server.url}/`, join(out
 const url = `${server.url}/?quality=high&qualityLock=1`;
 const origin = new URL(server.url).origin;
 const warmupUrl = warmupTarget(origin, WARMUP);
+
+/** 丁: the build's files answered to the page by Playwright (scripts/siteRoute.mjs); a fallback or refusal kept on the row. */
+const routeTo = (context, misses) => routeSite(context, { origin, dir: dist, onMiss: (miss) => misses.push(miss.url) });
 
 /** The warm-up: the small file in a context of its own, up to 120 s, then the context closed. */
 const warmUp = async (browser) => {
@@ -179,6 +195,8 @@ for (let b = 0; b < sizes.length; b += 1) {
     n += 1;
     const device = n % 2 === 1 ? "desktop" : "phone";
     const context = await browser.newContext(DEVICES[device]);
+    const routeMisses = [];
+    if (ROUTE) await routeTo(context, routeMisses);
     const page = await context.newPage();
     const row = { n, batch: b + 1, firstInBrowser: i === 0, ...(i === 0 ? { launchMs } : {}), ...(i === 0 && warmup ? { warmup } : {}), device, at: new Date().toISOString(), origin };
     const started = Date.now();
@@ -195,6 +213,7 @@ for (let b = 0; b < sizes.length; b += 1) {
     row.openMs = Date.now() - started;
     row.resources = await ownTimesOf(page).catch(() => []);
     row.failedRequests = (watchOf(page)?.failedRequests ?? []).map((r) => ({ at: r.at, url: r.url, error: r.error }));
+    if (ROUTE) row.routeMisses = routeMisses;
     Object.assign(row, classify(row));
     appendFileSync(join(out, "openings.jsonl"), `${JSON.stringify(row)}\n`);
     if (row.reset || row.stall || row.blank) {
@@ -293,9 +312,12 @@ const summary = {
   events: eventDetail,
   warmups: warmupStats(rows),
   warmupEvents: warmupDetail,
+  routeMisses: rows.reduce((sum, r) => sum + (r.routeMisses?.length ?? 0), 0),
+  serverRequests: (({ heartbeat, other, otherUrls }) => ({ heartbeat, other, otherUrls: otherUrls.slice(0, 20) }))(pageRequestsAtServer(serverLog)),
 };
 writeFileSync(join(out, "summary.json"), JSON.stringify(summary, null, 2));
 console.log(`${summary.openings} openings (${MODE}): ${summary.resets} reset, ${summary.stalls} stalled past 5 s, ${summary.blank} blank; ${summary.rate.withAnEvent} with an event (${summary.rate.eventsOnFirst} on a browser's first opening)`);
+if (ROUTE) console.log(`丁: ${summary.routeMisses} requests not in the build; the server got ${summary.serverRequests.heartbeat} heartbeat requests and ${summary.serverRequests.other} others`);
 if (WARMUP) {
   const w = summary.warmups;
   console.log(`warm-ups (${WARMUP}): ${w.browsers} browsers, ${w.ok} arrived, ${w.failed} failed, ${w.stalls} stalled past 5 s; median ${w.median} ms, slowest 1% ${w.p99} ms, slowest ${w.max} ms`);

@@ -1,7 +1,8 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { chromium, type Browser, type Page } from "playwright";
+import { type Browser, type Page } from "playwright";
 import { openWatched } from "../scripts/pageWatch.mjs";
 import { PREVIEW_URL } from "./globalSetup";
+import { launchBrowser } from "./siteBrowser";
 
 /**
  * The end of a run, in the room as it is drawn (Leo, 2026-11-05: a tall unit
@@ -29,7 +30,7 @@ afterAll(() => {
 
 let browser: Browser;
 beforeAll(async () => {
-  browser = await chromium.launch({ args: ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist"] });
+  browser = await launchBrowser({ args: ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist"] });
 });
 afterAll(async () => {
   await browser?.close();

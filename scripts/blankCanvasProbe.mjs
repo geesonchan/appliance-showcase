@@ -16,9 +16,16 @@
  * failed requests and page errors. A page that does not draw leaves its
  * record in test-results/blank-canvas/ as in the tests. COUNTS=a,b,c changes
  * the three counts.
+ *
+ * The page is answered by 丁 (`scripts/siteRoute.mjs`; the wiring, Leo,
+ * 2026-11-07): the build's files from BUILD (`dist/` by default) on the
+ * address given, never through a connection on this machine; a path with no
+ * file is written to `<out.json>.route-misses.jsonl`. REAL_SERVER=1 opens the
+ * address on the real server as before, for finding a cause there.
  */
 import { writeFileSync } from "node:fs";
-import { chromium } from "playwright";
+import { fileURLToPath } from "node:url";
+import { launchSiteBrowser, missWriter } from "./siteRoute.mjs";
 import { openWatched, snapshot, watchOf } from "./pageWatch.mjs";
 
 const [base, out] = process.argv.slice(2);
@@ -30,6 +37,11 @@ const DEVICES = {
   phone: { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 },
 };
 const url = `${base}${base.includes("?") ? "&" : "?"}quality=high`;
+const SITE =
+  process.env.REAL_SERVER === "1"
+    ? null
+    : { origin: new URL(base).origin, dir: process.env.BUILD ?? fileURLToPath(new URL("../dist", import.meta.url)), onMiss: missWriter(`${out}.route-misses.jsonl`) };
+const launch = () => launchSiteBrowser({ args: ARGS }, SITE);
 
 /** One opening, in a browser already running. */
 async function openOnce(browser, condition, n, device) {
@@ -76,7 +88,7 @@ const deviceOf = (i) => (i % 2 === 0 ? "desktop" : "phone");
 
 // 甲: one browser, one page at a time.
 {
-  const browser = await chromium.launch({ args: ARGS });
+  const browser = await launch();
   for (let i = 0; i < QUIET; i += 1) {
     const row = await openOnce(browser, "quiet", i + 1, deviceOf(i));
     rows.push(row);
@@ -87,7 +99,7 @@ const deviceOf = (i) => (i % 2 === 0 ? "desktop" : "phone");
 
 // 乙: a new browser every time.
 for (let i = 0; i < FRESH; i += 1) {
-  const browser = await chromium.launch({ args: ARGS });
+  const browser = await launch();
   const row = await openOnce(browser, "fresh", i + 1, deviceOf(i));
   rows.push(row);
   say(row);
@@ -96,7 +108,7 @@ for (let i = 0; i < FRESH; i += 1) {
 
 // 丙: three browsers opening at once.
 {
-  const browsers = await Promise.all([0, 1, 2].map(() => chromium.launch({ args: ARGS })));
+  const browsers = await Promise.all([0, 1, 2].map(() => launch()));
   for (let round = 0; round < LOADED / 3; round += 1) {
     const three = await Promise.all(browsers.map((browser, k) => openOnce(browser, "loaded", round * 3 + k + 1, deviceOf(round + k))));
     for (const row of three) {

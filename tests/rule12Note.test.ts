@@ -1,7 +1,8 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { chromium, type Browser, type CDPSession, type Locator, type Page } from "playwright";
+import { type Browser, type CDPSession, type Locator, type Page } from "playwright";
 import { openWatched } from "../scripts/pageWatch.mjs";
 import { PREVIEW_URL } from "./globalSetup";
+import { launchBrowser } from "./siteBrowser";
 
 /**
  * D11 rule 12's counter at the slider's end, in the room as it is drawn (the
@@ -30,7 +31,7 @@ afterAll(() => {
 
 let browser: Browser;
 beforeAll(async () => {
-  browser = await chromium.launch({ args: ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist"] });
+  browser = await launchBrowser({ args: ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist"] });
 });
 afterAll(async () => {
   await browser?.close();

@@ -1,7 +1,8 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { chromium, type Browser, type CDPSession, type Page } from "playwright";
+import { type Browser, type CDPSession, type Page } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
 import { openWatched } from "../scripts/pageWatch.mjs";
+import { launchBrowser } from "./siteBrowser";
 
 /**
  * Round 81: a room rebuilt while cabinets are faded draws none of them solid.
@@ -48,7 +49,7 @@ beforeAll(async () => {
   // On the GPU when there is one. What is asserted is a count of frames, not
   // a time, but the phone slowed four times would not finish in the budget on
   // software rendering.
-  browser = await chromium.launch({
+  browser = await launchBrowser({
     args: ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist"],
   });
 });

@@ -1,7 +1,8 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { chromium, type Browser, type BrowserContext, type Page } from "playwright";
+import { type Browser, type BrowserContext, type Page } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
 import { report } from "../scripts/pageWatch.mjs";
+import { launchBrowser } from "./siteBrowser";
 
 /**
  * The fonts round, 2026-11-06 (Leo: 「字体自带：字体文件放进网站自己的文件里、
@@ -40,7 +41,7 @@ afterAll(() => {
 
 let browser: Browser;
 beforeAll(async () => {
-  browser = await chromium.launch({ args: ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist"] });
+  browser = await launchBrowser({ args: ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist"] });
 });
 afterAll(async () => {
   await browser?.close();

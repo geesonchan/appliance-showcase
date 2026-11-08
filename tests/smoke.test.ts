@@ -1,8 +1,10 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { chromium, type Browser, type Page } from "playwright";
+import { type Browser, type Page } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
 import { openWatched } from "../scripts/pageWatch.mjs";
+import { launchBrowser } from "./siteBrowser";
+import { realServerContext } from "../scripts/siteRoute.mjs";
 
 const DESKTOP = { width: 1440, height: 900 };
 const MOBILE = { width: 390, height: 844 };
@@ -30,7 +32,7 @@ afterAll(() => {
 let browser: Browser;
 
 beforeAll(async () => {
-  browser = await chromium.launch();
+  browser = await launchBrowser();
 
   // Warm the browser as well as the server. The first page in a fresh Chromium
   // pays for the GPU process and the shader cache before a WebGL canvas
@@ -48,8 +50,8 @@ afterAll(async () => {
 });
 
 /** A page with console errors collected, and the scene given time to draw. */
-async function openPage(viewport: typeof DESKTOP, isMobile = false, query = "") {
-  const context = await browser.newContext({
+async function openPage(viewport: typeof DESKTOP, isMobile = false, query = "", realServer = false) {
+  const context = await (realServer ? realServerContext : (b: Browser, o: Parameters<Browser["newContext"]>[0]) => b.newContext(o))(browser, {
     viewport,
     isMobile,
     hasTouch: isMobile,
@@ -179,7 +181,8 @@ const drawsPerFrame = (page: Page) =>
 
 describe("desktop", () => {
   it("loads the scene with all six pins and no console errors", async () => {
-    const { page, errors } = await openPage(DESKTOP);
+    // On the real local server, not 丁 (docs/plans/route-wiring-plan.md, section 3): may meet the 10 s wait now and then.
+    const { page, errors } = await openPage(DESKTOP, false, "", true);
     expect(await pinOpacities(page)).toEqual(["1", "1", "1", "1", "1", "1"]);
     expect(errors).toEqual([]);
     await page.close();
@@ -397,7 +400,8 @@ describe("mobile", () => {
    * screen — 195px on a phone — to lay three words out in.
    */
   it("keeps the three render modes on one line", async () => {
-    const { page } = await openPage(MOBILE, true);
+    // On the real local server, not 丁 (docs/plans/route-wiring-plan.md, section 3): may meet the 10 s wait now and then.
+    const { page } = await openPage(MOBILE, true, "", true);
     const control = page.locator('[data-segment="mode"]');
     const buttons = control.locator("button");
     expect(await buttons.count()).toBe(3);

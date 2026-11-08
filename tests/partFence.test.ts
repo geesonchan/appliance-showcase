@@ -1,8 +1,9 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { chromium, type Browser, type BrowserContextOptions, type Page } from "playwright";
+import { type Browser, type BrowserContextOptions, type Page } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
 import en from "../src/i18n/en.json";
 import { gotoWatched } from "../scripts/pageWatch.mjs";
+import { launchBrowser } from "./siteBrowser";
 
 /**
  * Round 99c, Leo: a part that fails shows its own message and the page goes
@@ -37,7 +38,7 @@ afterAll(() => {
 
 let browser: Browser;
 beforeAll(async () => {
-  browser = await chromium.launch({ args: ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist"] });
+  browser = await launchBrowser({ args: ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist"] });
 });
 afterAll(async () => {
   await browser?.close();

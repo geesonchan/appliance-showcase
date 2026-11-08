@@ -1,11 +1,12 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { chromium, type Browser } from "playwright";
+import { type Browser } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
 import { LINK_FIELDS, noticeItemKey, writeLink } from "../src/store/shareLink";
 import { kitchenNow } from "../src/store/openLink";
 import { resetRoom } from "../src/data/testRoom";
 import en from "../src/i18n/en.json";
 import { gotoWatched } from "../scripts/pageWatch.mjs";
+import { launchBrowser } from "./siteBrowser";
 
 /**
  * Round 99c, Leo: a share link cut short — by a chat app, or typed in part —
@@ -48,7 +49,7 @@ const names = [...whole.keys()].filter((name) => name !== "v");
 
 let browser: Browser;
 beforeAll(async () => {
-  browser = await chromium.launch({ args: ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist"] });
+  browser = await launchBrowser({ args: ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist"] });
 });
 afterAll(async () => {
   await browser?.close();

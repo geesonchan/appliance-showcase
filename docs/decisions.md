@@ -7375,7 +7375,10 @@ Registered, not scheduled. None of these is a round of its own.
   the connection and its shut-off valve. Whether the install checklist says so
   waits for Leo.
 - **A browser test that times out waiting for the page to draw.** *(Round 83,
-  cause not found.)* Twice in round 83 a page opened by a browser test never
+  cause not found. **Done 2026-11-07 by 丁** — the browser tests and the pixel
+  scripts answered from the build by Playwright, never through a connection
+  on this machine; 戊 not needed; see "丁's wiring, built" and "Closed" at
+  the end of this entry.)* Twice in round 83 a page opened by a browser test never
   showed its canvas within 60 seconds, so the case failed before any of its
   checks ran: one run of `tests/rangeSwap.test.ts`, and one full `npm test`
   (`tests/modelCard.test.ts`, package A on a desktop — sixteen of sixteen
@@ -8074,6 +8077,174 @@ Registered, not scheduled. None of these is a round of its own.
     git (`git ls-files --eol`) and the folder is no repository — run in the
     repository, where it reads the index, the commit's own content, 2 of 2;
     its build exit 0.
+  - **丁, the last experiment of this item** (Leo, 2026-11-07 afternoon:
+    「断连这一项的最后一个实验：丁。只在循环脚本里加选项，不改测试、不改拍照脚本」): the
+    plan, `docs/plans/route-plan.md` — every request of the site from the
+    page measured answered by Playwright from `dist/` (`context.route`),
+    the address unchanged; the server and the heartbeat as before, the
+    heartbeat the control. Leo's judgement, written in the plan: the page 0
+    times stalled, reset or blank → 丁 is the fix, and a plan of its own
+    wires it into the tests and the pixel scripts; 丁 stalls as well → the
+    whole program freezes, the test environment cannot get round it, and
+    the item closes as 戊 (red reported as red, run again, each time
+    written down). Either way the item ends there, no more experiments.
+    - **Tests red first** (15:25): `routeFileOf`, `contentTypeOf`,
+      `pageRequestsAtServer` in `scripts/resetLoopStats.mjs`, four tests
+      red on the old code ("… is not a function"; one of my own expectations
+      was wrong before any code — the address parser folds `%2e%2e`, so
+      that path stays inside the build — and was corrected first); `ROUTE=1`
+      in `scripts/serverResetLoop.mjs`. `npm run test:unit` 125 files,
+      **3,159 of 3,159**, exit 0. A trial of 4 (port 4178): 4 drew; the
+      server got 75 heartbeat requests and no other.
+    - **丁, 600 fresh openings** (15:29:16–16:16:34, exit 0; the same
+      `dist/`, `index-DXl3ZdsD.js`, `localhost`, port 4176; power plan
+      never, never, never and on mains; the firewall read "on" at 15:29:14,
+      nine times during, and at 16:16:47). **0 stalls, 0 resets, 0 blank.**
+      The server got 10,907 heartbeat requests and **0 others**; no file
+      missing from the build; no failed request. Each own file (median /
+      slowest 1% / slowest, ms; sent whole, not compressed): the page 2 / 6
+      / 22; the CSS 20 / 39 / 81; `react` 14 / 33 / 76; the main chunk 13 /
+      31 / 75; `three` 18 / 37 / 80; Inter latin 44 / 61 / 94; Cormorant
+      latin (300) 47 / 59 / 93. Launch median 99 ms, slowest 356.
+      **The heartbeat, the control, never failed either** (0 of 10,907;
+      slowest 287 ms). In 甲, 乙 and the warm-up group it failed 31 times in
+      all, every one inside a page's event. So what 丁 shows is that with
+      the browser not connecting to the local server, neither the page nor
+      the heartbeat is held — not that the trouble went on and 丁 kept it
+      out. Were 丁 no help at all, 0 in 600 has a chance of about 0.7% at
+      the three groups' 15 in 1,800, and 4.9% at 0.5%; 47 minutes with no
+      heartbeat failure, at 15 events in 150 minutes, about 0.9%.
+      Afterwards (16:16:48): no 42, 506, 507, 107, 187, 41 or 6008 from
+      15:25 on; nothing of the loop left — the only node and esbuild
+      processes the preview Leo was looking at (port 4173), which was also
+      running, idle, during 丁 and during none of the other three groups.
+      Records: `<scratch>/n3/ding600/` (`openings.jsonl` 600,
+      `server.jsonl` 13,729, `heartbeat.jsonl` 10,907, `typeperf.csv`
+      2,789, no network log kept — none had an event).
+    - **By Leo's judgement: 丁 is the fix.** Next, a plan of its own to wire
+      it into the tests and the pixel scripts, shown to Leo first; this item
+      runs no more experiments.
+  - **Live: `d668c58`** (committed 16:31 and pushed, `664b570..d668c58`,
+    after Leo's look at the preview, `index-DXl3ZdsD.js`: 「预览看过了，确认」).
+    Pages run 42430127134: build a success (00:31:26–00:32:45 UTC), deploy
+    a success (00:32:49–00:32:59 UTC). Built at `d668c58` with the
+    counter's address, into a folder of its own: **twenty of twenty files
+    the same byte for byte as the live site** — `index.html`, the main
+    chunk `assets/index-TlXvMvno.js` (700,237 bytes), the CSS, `react`,
+    `three`, `shareQr`, twelve fonts and the two licences. Against
+    `664b570`'s live main chunk, six bytes differ, 669,018 to 669,024 — the
+    commit in the footer, `"664b570"` to `"d668c58"` — and `index.html`
+    only by the chunk's name. Not in the commit, left for the next: 丁, the
+    induction cooktop's registration and Leo's order, and this entry.
+  - **丁's wiring, the plan** (Leo, 2026-11-07: 「然后写丁的接入计划，先给我看，不动
+    手」): `docs/plans/route-wiring-plan.md` — a module of its own,
+    `scripts/siteRoute.mjs`, so that 35 test files change their launch
+    line only; `smoke.test.ts` the same, two of its tests (one desktop,
+    one phone) kept on the real local server, and `pageWatch.test.ts`
+    kept whole, each marked as able to meet the 10-s wait; `analytics.test.ts`
+    unchanged (it has answered its own build by route since round 96);
+    `pixelShots.mjs` and `blankCanvasProbe.mjs` wired (the probe keeps
+    `REAL_SERVER=1`); what 丁 cannot see (headers, caching, compression,
+    the server's fallback) covered by the live check, with the status,
+    `content-type` and `content-encoding` of every live file added; a
+    static check that fails on any browser launched without it and a
+    run-time one on the server's record; the proof a full suite against
+    the earlier ones and a pixel set. Five questions for Leo in its section
+    7. Not started.
+  - **丁's wiring, built** (Leo, 2026-11-07 evening: 「接入计划看过了，第 7 节五条都同意，
+    现在开始做，做完接着跑，中间不用等我」, with two points written into the plan's
+    section 9 first — siteRoute's tests as strict as previewServer's, and the
+    36 test files changing only how they launch their browser). Not
+    committed (「跑完就停，不提交、不推送」).
+    - **The module**, `scripts/siteRoute.mjs` (with `siteRoute.d.mts`):
+      `answerFor` answers as `vite preview` does — the page for the root,
+      each file with its type (a module script as JavaScript, `font/woff2`),
+      the page for a path with no file (written down), the live prefix
+      `/appliance-showcase/` read as the root, a path that would leave the
+      build refused; `launchSiteBrowser` routes every context a browser
+      opens, and the page `newPage` opens for itself; `realServerContext`
+      opens one on the real server, its requests marked `x-real-server: 1`;
+      `scripts/previewServer.mjs` writes `realServer: true` on such a
+      request. `routeFileOf` and `contentTypeOf` moved here from
+      `resetLoopStats.mjs`; the loop's `ROUTE=1` routes through it.
+    - **Tests red first** (17:01:41–17:01:52): `scripts/siteRoute.test.ts`
+      (the answers, on a small build in a temporary folder, after
+      previewServer.test.ts's cases, plus the prefix and ten ways of
+      writing a path out of the build; the end-of-suite reading; the static
+      guard) and `tests/siteRoute.test.ts` (a real browser on 4198, where
+      nothing listens: the module ran, the woff2 loaded, the prefix, a page
+      from `newPage`, the fallback written down, nothing read beside the
+      build, a real-server context not routed) failed to load their module;
+      previewServer.test.ts's new case failed on the missing `realServer`.
+      Then green. Three runs red on my own faults, kept here: the guard
+      counted only `realServerContext(` and missed smoke's, handed on as a
+      function (unit 17:06:33 exit 1; and 17:07:05 exit 1, an edit of mine
+      that had not applied — the same red again); the end-of-suite check
+      flagged the setup's own bare `/` (waiting for the server, then
+      `warm()`) as unrouted (three browser files on trial, 17:08:25 exit 1)
+      — now it looks only after the setup is ready, its test changed first
+      and red. `npm run test:unit` 126 files, **3,168**, exit 0 (17:09).
+    - **Wired**: 34 test files change their launch line and imports only —
+      each `git diff --numstat` 3 added, 2 removed (the playwright import
+      without `chromium`, `import { launchBrowser } from "./siteBrowser"`,
+      the launch line), every changed line checked; `smoke.test.ts` 10 and
+      6 (the same three, and `openPage` taking `realServer` for its two
+      opening checks, each marked as able to meet the 10-s wait);
+      `pageWatch.test.ts` 3 and 1 (its one real page, opened with
+      `realServerContext` so the record can tell it). Two differences from
+      the plan: `sliderWarning.test.ts` is not changed — it opens Vite's
+      development server, not the build 丁 answers from — and is on the
+      guard's list with that reason; and the real-server openings are three,
+      not four (pageWatch's other test opens a `data:` page). New:
+      `tests/siteBrowser.ts` (`launchBrowser`, bound to the suite's address
+      and `dist/`). `tests/globalSetup.ts` keeps the server and `warm()`,
+      and at the end reads the server's record and 丁's misses, writes
+      `test-results/site-route/summary.json`, and throws on any page request
+      unmarked after the setup or any miss — the trial showed the throw
+      fails the run (exit 1). `pixelShots.mjs` launches through 丁 and starts
+      no server; `blankCanvasProbe.mjs` too, `REAL_SERVER=1` for the old
+      way.
+    - **The full suite** (power plan never, never, never, on mains, at
+      17:10:03; `npm test` 17:10:14 to 18:28:20, exit 0): **166 files, 3,522
+      tests, green; 4,673 s** (78 min), against 5,173 s (the fonts round)
+      and 4,525 s (the night of 2026-11-06); the 39 browser files the three
+      share, 5,093 / 4,441 / 4,574 s; against the night's, 27 of the 39
+      within 5%, the most `sliderWarning` +29% (14.1 to 18.2 s, the
+      development server, not routed), `lightStrips` +12%, `shareLink` +8%,
+      the least `shareQr` −2%. No 42, 506, 507, 107, 187, 41 or 6008 from 17:05 — it ran
+      past 18:00 awake. The end check: **3 page requests from the tests kept
+      on the real server** (smoke's two at 17:10:37 and 17:13:45, 2 ms each;
+      pageWatch's at 18:23:06, 1 ms), **0 unrouted, 0 misses**. The server
+      had 26 requests in all (the night's suite: 2,359), none over 1 s, none
+      ended by a close, no connection error; its main thread held past 1 s
+      three times (1,544, 1,265 and 1,172 ms, with nothing to serve). No
+      blank-canvas record written. The two earlier suites met no stall
+      either, so 丁 does not make the suite faster; it takes away the
+      chance of the 10-s wait.
+    - **A pixel set through 丁** (18:29:02–18:37:42, exit 0): 45 shots on
+      `dist/` (`index-D3IWZtrQ.js`, `d668c58` without the counter), no
+      miss. Against the night of 2026-11-06's set (on the real server,
+      `664b570`), `pixelCompare.mjs`: every 3D canvas the same, 45 of 45;
+      the phones' screens the same; the desktops' differ by 1,4xx–1,5xx
+      pixels, the footer's commit, `664b570` to `d668c58`, its line moved a
+      pixel.
+    - Afterwards (18:38:51): no node, esbuild, typeperf or test browser (by
+      path), nothing listening on the tests' ports.
+  - **Closed** (Leo, 2026-11-07: 「丁接入的报告看过了，这一项可以收尾」; 「断连这一项在
+    decisions.md 和 HANDOFF 里标成已完成（丁），戊不用了」). Two lines he asked for:
+    - **Why the end check looks only after the warm-up**: before it there
+      are only globalSetup's own requests — waiting for the server, then
+      `warm()` — and every test starts after globalSetup has finished, so
+      what it checks is still the one thing: whether a test went round 丁.
+    - **Where the local server's wait can still be met** — when a full
+      suite is red again, look here first:
+      - `smoke.test.ts`, its two opening checks on the real server ("loads
+        the scene with all six pins and no console errors", desktop; "keeps
+        the three render modes on one line", phone);
+      - `pageWatch.test.ts`, its one real page ("the real page that
+        draws");
+      - `sliderWarning.test.ts`, on Vite's development server, which 丁
+        does not answer.
     - Afterwards (01:03:57): no node, esbuild, typeperf or test browser of
       ours, nothing listening on the tests' ports; no 42, 506, 507, 107 or
       187 from 23:26 on. Records: `<scratch>/n2/fresh600/` —
@@ -11664,6 +11835,122 @@ Registered, not scheduled. None of these is a round of its own.
   plan first, shown to him, built only once he confirms it. *(Until this
   was written, the whole order stood only in `docs/HANDOFF.md`; here only
   its pieces were.)*
+  **Amended 2026-11-07** (Leo: 「新需求，先登记，不动手、不写计划，排在断连这一项之后、
+  走廊式之前（HANDOFF 和 decisions.md 里的顺序一起改，只写一处，别处引用）」): **this is
+  now the one place Leo's order is written**; `docs/HANDOFF.md` refers here
+  and does not repeat it. The order:
+  1. the fonts in the site's own files — done, `664b570`;
+  2. the test environment's local server ("A browser test that times
+     out…"), ending with 丁's wiring (`docs/plans/route-wiring-plan.md`) —
+     done 2026-11-07;
+  3. **an induction cooktop in B's and D's rangetop choice** ("An induction
+     cooktop in B and D", below; registered only);
+  4. the galley ("A layout shape switch");
+  5. the U (the same entry).
+  Each a plan first, shown to him, built only once he confirms it.
+- **An induction cooktop in B and D.** *(Registered 2026-11-07; not started,
+  no plan. Its place in Leo's order: "His order of 2026-11-06", "Amended
+  2026-11-07", the entry above — after the test environment's local server,
+  before the galley.)* Leo's words:
+  「B，D套餐里面的rangetop选择项里面，增加一个induction cooktop的选项，记住cooktop和cabinet layout配置一起整体改动」
+  「换成induction cooktop之后，下面就是橱柜，不用oven在下面，该需要电outlet准备就在cooktop下面的柜子里面，下面柜子不要抽屉，直接swing door，以后维护方便」
+  - **Already decided** (Leo, 2026-11-07): choosing the induction cooktop
+    changes the cabinet under the cooking surface, the counter's cutout, the
+    machine's position and the utilities together — never half of them; under
+    it an ordinary base cabinet, no oven; the power in that cabinet; that
+    cabinet with no drawers, a swing door.
+  - **Found, read only (2026-11-07), nothing changed:**
+    - **CIT367YG** (E's induction cooktop): `data/appliances.json`
+      `thermador-cit367yg` (category `cooktop`, install `drop-in`, fuel
+      induction, cutout 34-3/4" x 19-7/8", 240 V / 50 A, no gas); E's
+      `slot-cooktop` in `data/packages.json` (240 V / 50 A dedicated, gas
+      null); `data/slots.json` `slot-cooktop`; its one rough-in point in
+      `data/rough-in.json` (power, `in-cutout`, 12" down from the top, rear).
+      Its counter hole: `islandCooktopHole` on the island and `cooktopHoles`
+      on a run (`src/data/counter.ts`); its place: `applianceBox.ts` (dropped
+      in by its 3-3/4"); drawn by `Cooktop` in `src/three/ApplianceModel.tsx`.
+      Pinned by `src/data/islandCooktop.test.ts` (which builds its own
+      package, D with the microwave swapped for the cooktop), `oneWall.test.ts`,
+      `islandRoughInHost.test.ts`, `rules.test.ts` and others.
+    - **E one wall, "the cooktop on the wall run"**: `cooking()` in
+      `src/data/layoutTemplate.ts` orders, when there is no `slot-range`,
+      `B36 base` — **a base cabinet with a door, not drawers** — under Leo's
+      words in its comment: 「电磁灶下面是平开门柜，不是抽屉底柜」 (Leo's answers
+      for round 98b-1, E's one-wall arrangement, quoted in this file); pinned by `oneWall.test.ts` (`["B36
+      base"]`). The rules hold the cooktop to everything a range on a run is
+      (landings, the tower's counter, the hood's width and centring;
+      `layoutRules.ts`). The guide's 3-3/4" and 13/16" cabinet clearances are
+      applied on the island only, not on the run.
+    - **E island, under the cooktop**: the box `island-cooktop-drawers`
+      (`src/data/cabinets.ts`), "a drawer base" in the code, in D20 and in
+      `schema.ts` — stopping 3-3/4" under the counter and 13/16" short at the
+      back (CIT367YG p. 7). **On screen it is drawn as one door slab**: every
+      base box with a front gets one door (`CabinetLayer.tsx`), and no drawer
+      fronts are drawn. It has no code and no line in the cabinet list.
+      **Its power** is written in `rough-in.json` (240/208V, 50A, hard wired
+      through the 39" conduit, the junction box about 12" below the cooktop,
+      within 3 ft, reachable for service; provenance "inferred"), shown as
+      "开口后壁, 距顶 12"" in the rough-in panel (titled 「管线接点」; the word
+      "水电" is nowhere in the repository), and as 240 V · 50 A on the spec
+      card and the quote (`utilities.ts`).
+    - **Round 83's rule, `dropsIntoCounter`** (D16, "Amended 2026-10-08
+      (round 83)": 「Rangetop 下面一定要有底柜」, and "One answer, asked by all
+      three"; `src/data/cookingSurface.ts`, a rangetop or a cooktop): **it
+      governs all three** — the cabinet under the cooking surface (a
+      `DB36 drawer-base` in `slot-range`, else an opening), the counter (a
+      hole, or stopping at the machine's sides), the machine's position — and
+      also the toe kick, the fillers and the anti-tip line. Today any
+      drop-in model in `slot-range` gets `DB36 drawer-base` (pinned by
+      `rangeJoinery.test.ts`), **not** the door base E has on one wall. A
+      change of `dropsIntoCounter` on a swap rebuilds the room
+      (`setRangeModel`, `layoutState.ts`).
+    - **B and D today**: `slot-range`, category `range`, install
+      `rangetop`, default PCG366W (gas). Offered there: HIS8055U (an
+      induction slide-in, 30"), MFGS4030RS, PCG366W, PRG304WH, PRG366WH;
+      `slot-range` accepts only category `range`, so CIT367YG (a `cooktop`)
+      is not offered. Their slot's utilities: gas 3/4" with a shut-off and no
+      power of its own (the slot record's 120 V / 15 A stands); choosing a
+      240 V machine fires `power-upgrade` ("需新增 240V/50A 专线").
+    - **The rough-in for B and D's PCG366W**: gas low on the back wall of
+      the cabinet under the rangetop (`cabinet-below`, Leo's site practice,
+      round 83), a NEMA 5-15 outlet in the cabinet to the right
+      (`adjacent-cabinet-right`); for CIT367YG, one power point and no gas.
+      Of the range-category models only PCG366W has rough-in points.
+  - **The guides** (in `docs/reference/`, page numbers as printed, which
+    match the PDF's):
+    - `CIT367YG_Installation.pdf`: **no plug** — "All models must be
+      connected with the included 39" (1 m) flexible conduit" to a junction
+      box (not furnished), 240/208 V 3-wire, **50 A** for CIT367YG (p. 9);
+      "The junction box must be located within 3 feet of the cooktop
+      connection. It should be easily accessible for service purposes."
+      (p. 8); the figure on p. 9: below the counter "max. 2-3/4" (69 mm) +
+      fitting/conduit 1" (25 mm)", "min. 1" (25 mm) air clearance", the box
+      "approx. 12" (300 mm)" down; the cabinet's ventilation, at least 3-3/4"
+      (95 mm) from the counter's surface to the top of a drawer under it,
+      13/16" (20 mm) at the back or an opening underneath, side cutouts if 29-1/2"
+      or narrower inside, an island ventilated too (p. 7); a heat shield
+      over a closed cabinet (p. 8); for a hood above, it defers to the
+      hood's instructions (p. 5).
+    - `vcin36gws-manual.pdf`: "from a minimum height of 30'' (762 mm) to a
+      suggested maximum height of 40'' (1,016 mm)" over the cooking surface,
+      "However, it is necessary to follow the cooking appliance
+      manufacturer's installation instructions" (p. 8) — and the cooktop's
+      guide sends it back to the hood's, so 30" to 40". (The code's 30"
+      "for gas and for electric or induction alike" in `hood.ts` is the
+      island hood HMIB42WS's guide, p. 9, D20 — not this hood's.)
+  - **Leo's additions, 2026-11-07 evening** (「电磁炉照登记的排在丁之后。计划里补两个只有我能
+    答的…另外把"rangetop 仍配 DB36、电磁炉配平开门"写成要我确认的一条」): it comes after
+    丁's wiring; its plan adds, for Leo only, how the rough-in list writes
+    the junction box, and whether E's island cooktop cabinet (a drawer base
+    in the code, one door slab on screen) becomes a swing door too; and,
+    for Leo to confirm, one line: **a rangetop keeps its `DB36` drawer
+    base; the induction cooktop gets a swing-door base.**
+  - **When its turn comes**: a plan first, with what only Leo can answer
+    listed apart (Leo, 2026-11-07): a false drawer front above the swing
+    door or not; which model; the hood; how the gas line is written once
+    there is no gas machine; what the shop calls it; whether E follows to
+    the same (E's island has "a drawer base" under its cooktop, drawn as a
+    door; E's one wall has a door base).
 - **The import's `_meta` is in the main chunk.** *(Leo, 2026-11-04: 「登记一
   条待办，不急…列出把它移出主文件的改法和代价，不要选」.)* The six modules
   that read the catalogue (`catalogue.ts`, `cookingSurface.ts`,

@@ -3,6 +3,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { chromium, type Browser } from "playwright";
 import { canvasWatched, gotoWatched, openWatched, watchOf } from "../scripts/pageWatch.mjs";
 import { PREVIEW_URL } from "./globalSetup";
+import { realServerContext } from "../scripts/siteRoute.mjs";
 
 /**
  * The shared watch on a page that does not draw (Leo, 2026-11-05: 「选丙，共用
@@ -82,7 +83,8 @@ describe("the shared watch on a page (scripts/pageWatch.mjs)", () => {
   });
 
   it("writes nothing for the page that draws, and keeps when its canvas came", async () => {
-    const page = await (await browser.newContext({ viewport: { width: 1440, height: 900 } })).newPage();
+    // On the real local server, not 丁 (docs/plans/route-wiring-plan.md, section 3), marked for the server's record: may meet the 10 s wait now and then.
+    const page = await (await realServerContext(browser, { viewport: { width: 1440, height: 900 } })).newPage();
     await openWatched(page, `${PREVIEW_URL}?quality=high`, { label: "pageWatch draws" });
     const log = await page.evaluate(() => (window as unknown as { __pageWatch?: { canvasAt: number | null; canvasSizedAt: number | null; contexts: { type: string; made: boolean }[]; webgl: unknown[] } }).__pageWatch);
     expect({

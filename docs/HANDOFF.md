@@ -20,9 +20,17 @@ commits). It replaces the v1–v9 briefs that were pasted into chat. Written at
 the end of a long session, for the next one, which has only the repository:
 **section 6 is how Leo works, and is not written anywhere else in one place.**
 
-### Live, 2026-11-06
+### Live, 2026-11-07
 
-- **`664b570`**, the fonts round (the fonts the site's own, no request to
+- **`d668c58`**, the server-reset round's 甲 (the test environment and
+  documents only, no page code), checked file by file after its Pages run
+  (42430127134, build and deploy each a success): twenty of twenty files
+  the same byte for byte as a build at `d668c58` with the counter's
+  address; the live main chunk **`assets/index-TlXvMvno.js`** (700,237
+  bytes), six bytes from `664b570`'s — the commit in the footer — and
+  `index.html` only by the chunk's name (decisions.md, Open items, "A
+  browser test that times out…", "The commit of 甲" and "Live").
+- Before it, **`664b570`**, the fonts round (the fonts the site's own, no request to
   Google), checked file by file after its Pages run (42317513405, build and
   deploy each a success): twenty of twenty files the same byte for byte as
   a build at `664b570` with the counter's address — `index.html`, the
@@ -258,9 +266,12 @@ confirms it** (Leo, 2026-10-24).
    answers in decisions.md): **done**, `05bb6e1`, live, after his look at
    the local preview (2026-11-06).
 
-### What comes next, in Leo's order (2026-11-06)
+### What comes next
 
-Each a plan first, shown to Leo, built only once he confirms it.
+**Leo's order is written in one place only**: `docs/decisions.md`, Open
+items, "His order of 2026-11-06" and its "Amended 2026-11-07" (Leo,
+2026-11-07: 「只写一处，别处引用」). Below, each item's state, in that order;
+each a plan first, shown to Leo, built only once he confirms it.
 
 1. **The fonts in the site's own files** — no request to Google, the system
    fonts shown until the files come. **Done**: the plan
@@ -271,7 +282,12 @@ Each a plan first, shown to Leo, built only once he confirms it.
    待 Leo 报 — he has it tried on a phone there.
 2. **The test environment: the local server resetting the main chunk's
    first request** (`ERR_CONNECTION_RESET`), which has made several full
-   suites run for nothing. The test environment only, never the page. **The
+   suites run for nothing. **Done 2026-11-07 by 丁; 戊 not needed** (Leo:
+   「这一项可以收尾」). A full suite red again: first check the places that
+   still meet the local server — smoke's two opening checks, pageWatch's
+   one real page, sliderWarning on the development server (decisions.md,
+   "A browser test that times out…", "Closed"). The test environment only,
+   never the page. **The
    plan**, `docs/plans/server-reset-plan.md`, confirmed by Leo: 甲 first.
    甲's code is written and its unit tests green (not committed); the night
    of 2026-11-06 ran the loop before (2,000 openings: 1 reset, 3 stalls,
@@ -285,14 +301,25 @@ Each a plan first, shown to Leo, built only once he confirms it.
    new browser (`docs/plans/warmup-plan.md`).
    The warm-up group (600, the firewall on): every warm-up arrived, the
    page still stalled 3 times — not enough; the waits are on later
-   connections, not a browser's first. Next: Leo's to say.
-   The item's order: the code →
-   the loop before → the results to Leo → the full suite → commit, push,
-   live check (decisions.md, Open items, "A browser test that times out…",
-   "Confirmed" and "Built 2026-11-06").
-3. **A galley** (Open items, "A layout shape switch";
+   connections, not a browser's first. 丁, the last experiment
+   (`docs/plans/route-plan.md`; the site's files answered from `dist/` by
+   Playwright): 600, **0 stalls**, the server reached by the heartbeat only,
+   and the heartbeat never held either — by Leo's judgement 丁 is the fix;
+   next a plan of its own to wire it into the tests and the pixel scripts.
+   甲 committed and live as `d668c58` (2026-11-07). The wiring plan,
+   `docs/plans/route-wiring-plan.md`, confirmed by Leo with all five
+   answers, is built (not committed): every browser test through 丁 but
+   three real-server openings, a static and a run-time guard, a full suite
+   green (4,673 s, 0 unrouted) and a pixel set the same as on the server;
+   committed with Leo's look at the preview (decisions.md, Open items, "A
+   browser test that times out…", "丁's wiring, built" and "Closed").
+3. **An induction cooktop in B's and D's rangetop choice** — registered
+   2026-11-07, not started, no plan yet (Open items, "An induction cooktop
+   in B and D", which holds Leo's words, what is already decided and what
+   was found).
+4. **A galley** (Open items, "A layout shape switch";
    `docs/plans/overnight-2026-10-23-galley.md`).
-4. **A U** (the same entry; `docs/plans/overnight-2026-10-24-u-shape.md`).
+5. **A U** (the same entry; `docs/plans/overnight-2026-10-24-u-shape.md`).
 
 ### Registered, not in that order
 
@@ -713,7 +740,7 @@ figures in a point are the guide's and which are not.
 
 ## 9. What is registered and not started
 
-Three things, each with its source:
+Four things, each with its source:
 - **A Run Composer** — registered in D14, before building it.
 - **The two run towers on separate legs** — D22, round 55: "splitting them
   across two legs is not being built now".
@@ -723,6 +750,10 @@ Three things, each with its source:
   items, "A layout shape switch"). Round 98's plan,
   `docs/plans/round-98-layout-shape-plan.md`, reads where the code holds for
   them and where it does not.
+- **An induction cooktop in B's and D's rangetop choice** — registered
+  2026-11-07 from Leo's words, not started, no plan (Open items, "An
+  induction cooktop in B and D"); its place in Leo's order is written in
+  decisions.md only ("His order of 2026-11-06", "Amended 2026-11-07").
 
 And the rounds Leo has queued, with what he decided for each: the last entry of
 the Open items, "Registered rounds after 78".

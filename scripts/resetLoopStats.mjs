@@ -94,6 +94,19 @@ export function warmupStats(rows) {
   };
 }
 
+/* 丁's answers (routeFileOf, contentTypeOf) moved to scripts/siteRoute.mjs, 2026-11-07. */
+
+/**
+ * The requests the test server got: the heartbeat's ("/") and any other. With
+ * 丁 the browser never reaches the server, so `other` must be 0, or the run
+ * did not bypass it.
+ */
+export function pageRequestsAtServer(log) {
+  const reqs = log.filter((r) => r.ev === "req");
+  const otherUrls = reqs.filter((r) => r.url !== "/").map((r) => r.url);
+  return { heartbeat: reqs.length - otherUrls.length, other: otherUrls.length, otherUrls };
+}
+
 /** The value at or above the share `q` of `values` (nearest rank); null for none. */
 export function percentile(values, q) {
   if (!values.length) return null;

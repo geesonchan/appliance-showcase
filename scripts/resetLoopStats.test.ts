@@ -1,5 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { around, batchSizes, classify, distributions, eventRate, ownTimes, parseTypeperf, percentile, tenSecondSteps, warmupOf, warmupStats, warmupTarget } from "./resetLoopStats.mjs";
+import {
+  around,
+  batchSizes,
+  classify,
+  distributions,
+  eventRate,
+  ownTimes,
+  pageRequestsAtServer,
+  parseTypeperf,
+  percentile,
+  tenSecondSteps,
+  warmupOf,
+  warmupStats,
+  warmupTarget,
+} from "./resetLoopStats.mjs";
 
 /**
  * The arithmetic of the server-reset loop (docs/plans/server-reset-plan.md,
@@ -182,5 +196,16 @@ describe("the warm-up: every new browser opens a small file first (2026-11-07)",
     expect(warmupStats([row()])).toEqual({ browsers: 0, ok: 0, failed: 0, stalls: 0, nearTen: 0, median: null, p99: null, max: null });
     // The measured page's stall is the page's, not the warm-up's.
     expect(eventRate(rows).withAnEvent).toBe(1);
+  });
+});
+
+describe("丁: the site's files from dist/ through Playwright, not through a connection on this machine (2026-11-07)", () => {
+  // Its answers, moved with them to scripts/siteRoute.mjs, are held in scripts/siteRoute.test.ts.
+
+  it("counts the requests the server got that were not the heartbeat's: 0 when 丁 bypasses it", () => {
+    const req = (url: string) => ({ ev: "req", url });
+    const log = [{ ev: "start" }, req("/"), { ev: "conn" }, req("/"), req("/?quality=high&qualityLock=1"), req("/assets/x.js")];
+    expect(pageRequestsAtServer(log)).toEqual({ heartbeat: 2, other: 2, otherUrls: ["/?quality=high&qualityLock=1", "/assets/x.js"] });
+    expect(pageRequestsAtServer([req("/"), req("/")])).toEqual({ heartbeat: 2, other: 0, otherUrls: [] });
   });
 });

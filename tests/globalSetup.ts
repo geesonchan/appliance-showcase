@@ -1,11 +1,19 @@
 import { spawn, type ChildProcess } from "node:child_process";
-import { join } from "node:path";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { startPreviewServer } from "../scripts/previewServer.mjs";
+import { readLog, startPreviewServer } from "../scripts/previewServer.mjs";
+import { readMisses, unroutedPageRequests } from "../scripts/siteRoute.mjs";
 
 /** Kept off 4173 so a preview server you already have open is left alone. */
 export const PREVIEW_PORT = 4174;
 export const PREVIEW_URL = `http://localhost:${PREVIEW_PORT}`;
+
+/**
+ * Where a test's 丁 writes a path it answered with the page for want of a file
+ * (tests/siteBrowser.ts); read when the suite ends.
+ */
+export const ROUTE_MISSES = fileURLToPath(new URL("../test-results/site-route/misses.jsonl", import.meta.url));
 
 async function waitForServer(url: string, timeoutMs = 30_000) {
   const deadline = Date.now() + timeoutMs;
@@ -70,12 +78,43 @@ const SERVER_LOGS = fileURLToPath(new URL("../test-results/preview-server", impo
 export async function startPreview(
   port: number,
   { outDir = DIST, logDir = SERVER_LOGS }: { outDir?: string; logDir?: string } = {},
-): Promise<() => Promise<void>> {
+): Promise<(() => Promise<void>) & { log: string; ready: string }> {
   const log = join(logDir, `${new Date().toISOString().replace(/[:.]/g, "-")}-${port}.jsonl`);
   const server = await startPreviewServer({ port, outDir, log });
   await waitForServer(server.url);
   await warm(server.url);
-  return server.stop;
+  // When the setup's own requests were done: the run-time guard looks only after it.
+  const ready = new Date().toISOString();
+  return Object.assign(() => server.stop(), { log, ready });
+}
+
+/**
+ * The run-time guard on 丁's wiring (docs/plans/route-wiring-plan.md, section
+ * 5), at the suite's end: every page the server was asked for came from a
+ * test kept on the real server (marked x-real-server: 1), and 丁 never had to
+ * answer a path with the page for want of a file. What it found is written to
+ * test-results/site-route/summary.json; anything wrong fails the suite.
+ */
+function checkRouting(serverLog: string, ready: string) {
+  const records = readLog(serverLog);
+  const unrouted = unroutedPageRequests(records, { after: ready });
+  const misses = readMisses(ROUTE_MISSES);
+  const kept = records.filter((r) => r.ev === "req" && r.realServer && /^\/(appliance-showcase\/)?(\?|$)/.test(String(r.url)));
+  const summary = {
+    serverLog,
+    keptPageRequests: kept.map((r) => ({ t: r.t, url: r.url, ms: r.ms, status: r.status })),
+    unrouted,
+    misses,
+  };
+  const out = fileURLToPath(new URL("../test-results/site-route/summary.json", import.meta.url));
+  mkdirSync(dirname(out), { recursive: true });
+  writeFileSync(out, JSON.stringify(summary, null, 2));
+  console.log(`丁's wiring: ${kept.length} page requests from the tests kept on the real server, ${unrouted.length} not routed, ${misses.length} paths answered with the page for want of a file`);
+  if (unrouted.length || misses.length) {
+    throw new Error(
+      `丁's wiring: ${unrouted.length} page requests reached the server unrouted, ${misses.length} paths had no file — ${JSON.stringify({ unrouted, misses })}`,
+    );
+  }
 }
 
 /**
@@ -109,5 +148,10 @@ export async function startDev(port: number): Promise<() => Promise<void>> {
  * of the two.
  */
 export default async function setup() {
-  return startPreview(PREVIEW_PORT);
+  rmSync(ROUTE_MISSES, { force: true });
+  const stop = await startPreview(PREVIEW_PORT);
+  return async () => {
+    await stop();
+    checkRouting(stop.log, stop.ready);
+  };
 }

@@ -149,6 +149,20 @@ describe("scripts/previewServer.mjs: the preview server, recorded (2026-11-06)",
   });
 });
 
+describe("the record marks a request from a test kept on the real server (丁's wiring, 2026-11-07)", () => {
+  it("writes realServer on a request that carries x-real-server: 1, and nothing on one that does not", async () => {
+    const root = mkdtempSync(join(tmpdir(), "preview-server-real-"));
+    const log = join(root, "server.jsonl");
+    const server = await startPreviewServer({ port: PORT + 10, outDir: dist, log });
+    await fetch(`${server.url}/?kept=1`, { headers: { "x-real-server": "1" } });
+    await fetch(`${server.url}/?routed=0`);
+    await server.stop();
+    const requests = readLog(log).filter((r) => r.ev === "req");
+    expect(requests.find((r) => r.url === "/?kept=1")).toMatchObject({ realServer: true });
+    expect(requests.find((r) => r.url === "/?routed=0")).not.toHaveProperty("realServer");
+  }, 60_000);
+});
+
 describe("the main-thread watch", () => {
   it("writes a stall when its thread is held, with how long, and nothing while it is free", async () => {
     const written: Array<Record<string, unknown>> = [];

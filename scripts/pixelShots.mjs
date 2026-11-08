@@ -10,12 +10,16 @@
  *
  *   node scripts/pixelShots.mjs <build folder> <out folder>
  *
- * The build is served by `scripts/previewServer.mjs`, started here and
- * stopped at the end, its record in `<out folder>/server.jsonl` (the
- * server-reset round, 2026-11-06; Leo: 「拍照的服务器也接上记录，用第 1 条那个启动
- * 脚本」): until then the old and the new build were each served by a `vite
- * preview` started by hand, and when one stalled and reset the main chunk
- * mid-run nothing of the server's side was kept. PORT sets its port (4177).
+ * The build is answered by 丁 (`scripts/siteRoute.mjs`; the wiring, Leo,
+ * 2026-11-07: 「第 7 节五条都同意」): every request of the page's address is
+ * answered from the build folder by Playwright, never through a connection
+ * on this machine, so no server is started; a path with no file, answered
+ * with the page, is written to `<out folder>/route-misses.jsonl`. Until then
+ * the build was served by `scripts/previewServer.mjs`, recorded (the
+ * server-reset round, 2026-11-06), and before that by a `vite preview`
+ * started by hand; the local server's 10 s waits and resets
+ * (docs/decisions.md, "A browser test that times out…") were why. PORT sets
+ * the address's port (4177); nothing listens there.
  *
  * QUALITY=low shoots the low tier (high by default). The page is opened with
  * `?qualityLock=1` (round 100, Leo): the guard never drops it mid-shot, which
@@ -25,22 +29,24 @@
  */
 import { mkdirSync, writeFileSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { chromium } from "playwright";
 import { openWatched } from "./pageWatch.mjs";
-import { startPreviewServer } from "./previewServer.mjs";
+import { launchSiteBrowser, missWriter } from "./siteRoute.mjs";
 
 const [build, out] = process.argv.slice(2);
 if (!build || !out) throw new Error("node scripts/pixelShots.mjs <build folder> <out folder>");
 if (/^https?:/.test(build)) throw new Error("pixelShots takes the build's folder and serves it itself, recorded (scripts/previewServer.mjs), not an address");
 mkdirSync(out, { recursive: true });
-const server = await startPreviewServer({ port: Number(process.env.PORT ?? 4177), outDir: resolve(build), log: resolve(out, "server.jsonl") });
-const base = `${server.url}/`;
+const origin = `http://localhost:${Number(process.env.PORT ?? 4177)}`;
+const base = `${origin}/`;
 const QUALITY = process.env.QUALITY ?? "high";
 const LOCK = process.env.LOCK !== "0";
 const ONLY = process.env.ONLY ? process.env.ONLY.split(",") : null;
 const FIX = JSON.parse(readFileSync(new URL("./pixelLinks.json", import.meta.url), "utf8"));
 
-const browser = await chromium.launch({ args: ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist"] });
+const browser = await launchSiteBrowser(
+  { args: ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist"] },
+  { origin, dir: resolve(build), onMiss: missWriter(resolve(out, "route-misses.jsonl")) },
+);
 const DESKTOP = { viewport: { width: 1440, height: 900 } };
 const PHONE = (width) => ({ viewport: { width, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 1 });
 
@@ -194,6 +200,5 @@ for (const [width, zh] of [[390, false], [360, true]]) {
 }
 
 await browser.close();
-await server.stop();
 writeFileSync(`${out}/shots.json`, JSON.stringify(shots, null, 1));
 console.log(`${shots.length} shots, bundles: ${[...new Set(shots.map((s) => s.bundle))].join(" ")}`);
