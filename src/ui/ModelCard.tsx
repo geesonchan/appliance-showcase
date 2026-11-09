@@ -10,6 +10,7 @@ import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
 import { useActivePackage, useSelection, useSlotLabel } from "../store/useSelection";
 import type { Appliance, SlotId } from "../types";
+import { alternativeTitle } from "../data/machineLabel";
 import { ModelLine } from "./ModelLine";
 import { useRefusalText } from "./RefusalNote";
 import { FitNotes } from "./SwapPanel";
@@ -116,15 +117,36 @@ export function ModelCard() {
                 : "border-line bg-bg hover:border-accent/60",
           ].join(" ")}
         >
-          <span className="flex items-center gap-1.5 text-[12px] tabular-nums text-ink">
-            {formatDimension(listWidth(appliance, slot).modelIn)}
-            {selected && (
-              <span className="rounded-full bg-accent px-1.5 py-px text-[9px] font-medium text-[#F7F5EF]">
-                {t("swap.selected")}
+          {phone ? (
+            <>
+              <span className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[12px] text-ink">
+                <span data-alt-title className="min-w-0">{alternativeTitle(appliance, t)}</span>
+                {selected && (
+                  <span className="shrink-0 rounded-full bg-accent px-1.5 py-px text-[9px] font-medium text-[#F7F5EF]">
+                    {t("swap.selected")}
+                  </span>
+                )}
               </span>
-            )}
-          </span>
-          <ModelLine className="mt-0.5 text-[11px] text-ink-muted" brand={appliance.brand} model={appliance.model} />
+              <ModelLine className="mt-0.5 text-[11px] text-ink-muted" brand={appliance.brand} model={appliance.model} />
+            </>
+          ) : (
+            <>
+              {/* One line, so the card is as tall as it was and the pin labels
+                  stay where they were (Leo, 2026-11-09, 乙): 11px on the 260px
+                  card, "Specified" at the right of the second line. */}
+              <span data-alt-title className="block whitespace-nowrap text-[11px] leading-[18px] text-ink">
+                {alternativeTitle(appliance, t)}
+              </span>
+              <span className="mt-0.5 flex items-center gap-1.5">
+                <ModelLine className="min-w-0 flex-1 text-[11px] text-ink-muted" brand={appliance.brand} model={appliance.model} />
+                {selected && (
+                  <span className="shrink-0 rounded-full bg-accent px-1.5 py-px text-[9px] font-medium leading-[12px] text-[#F7F5EF]">
+                    {t("swap.selected")}
+                  </span>
+                )}
+              </span>
+            </>
+          )}
           <FitNotes fit={fit} />
         </button>
       </li>

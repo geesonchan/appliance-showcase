@@ -22,12 +22,12 @@ the end of a long session, for the next one, which has only the repository:
 
 ### Live, 2026-11-08
 
-- **`7d8d437`**, the induction round, checked file by file after its Pages run
-  (42503308159, build and deploy each a success): twenty of twenty files the
-  same byte for byte as a build at `7d8d437` with the counter's address, each
+- **`a2a8646`**, E on one wall, checked file by file after its Pages run
+  (42553787002, build and deploy each a success): twenty of twenty files the
+  same byte for byte as a build at `a2a8646` with the counter's address, each
   with its status and headers recorded; the live main chunk
-  **`assets/index-De7IgzDD.js`** (decisions.md, "An induction cooktop in B and
-  D", "Shipped").
+  **`assets/index-DzJ-Aufm.js`** (`docs/plans/e-one-wall-report-2026-11-08.md`,
+  "发布").
 - Before it, **`07cb903`**, the server-reset round closed with 丁 (the test
   environment and documents only, no page code), checked file by file after
   its Pages run (42446402554, build and deploy each a success): twenty of
@@ -355,8 +355,9 @@ decisions.md is right.
 - The copied textures, and the high tier's textures left on the graphics card after a drop to low — "The copied textures" (and its 2026-10-28 note).
 - A pin label drawn before its font comes stays soft after the swap — on a slow network the self-hosted build's labels are the old build's, pixel for pixel; Leo, 2026-11-06: not in the order yet — "A pin label drawn before its font comes stays blurred after the swap".
 - The full suite's time, and the 90 minutes a run is planned as, six ways to shorten it, none chosen — "The full suite takes 75 to 86 minutes".
-- An alternative's main title: what the machine is, nominal size, fuel and kind, the model number under it; `webSize` is in the CSV and blank on all 44 rows (2026-11-08). Its place in the order is in `docs/decisions.md` ("Amended 2026-11-07") — "An alternative's main title".
-- The import's `_meta` to carry no day and no path, **with the next import** (chosen, 3) — "The import's `_meta` is in the main chunk".
+- An alternative's main title: what the machine is, nominal size, fuel and kind, the model number under it; Leo has filled `webSize` (2026-11-08); the plan, third draft, `docs/plans/alternative-title-plan.md`, built, with the desktop card's height mended (`docs/plans/alternative-title-card-height-plan.md`), confirmed by him 2026-11-09. Its place in the order is in `docs/decisions.md` ("Amended 2026-11-07") — "An alternative's main title".
+- The phone's model card 18-20px taller than before the main title, `06 Dishwasher` moved up, nothing covered; Leo, 2026-11-09: shipped so, mended later in a round of its own — "The phone's model card".
+- The import's `_meta` carries no day and no path: **done with 2026-11-08's import** — "The import's `_meta` is in the main chunk".
 - A hood's own outlet first, then 79a (the cabinet over the hood opens) and 79b (the duct turning); the 30" option in A paused — "Registered rounds after 78".
 - A Run Composer — D14; the two run towers on separate legs — D22, round 55.
 - A flush install for an oven tower — "A flush install for an oven tower, as an option a package chooses".
@@ -694,8 +695,9 @@ list.
 - **The catalogue and the code that reads it go in one commit** — a
   catalogue without its code can draw the wrong thing (the panel-ready
   round, `docs/plans/overnight-2026-10-28.md`).
-- The import's own rules are D4 and `docs/data-sheet-spec.md`; the next
-  import also stops writing a day and a path into `_meta` (Open items).
+- The import's own rules are D4 and `docs/data-sheet-spec.md`; `_meta` carries
+  the provenance alone, no day and no path (Open items, "The import's `_meta`
+  is in the main chunk", 2026-11-08).
 
 ### Nights, with nobody there
 

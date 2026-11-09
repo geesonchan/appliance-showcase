@@ -95,3 +95,24 @@ AK7136BS-BF、AK7300AS、HMWB361WS 的预留点不变。
 - 安装视图换这几台时，尺寸标签上移，别的标签跟着让位，这是标签避让，字没变。
 
 全套测试期间系统日志没有 Kernel-Power 42、506、507、187；开始前读的电源设置，插电时睡眠和关屏都是"从不"。结束后没有遗留的测试浏览器。
+
+## 发布（2026-11-08，太平洋时间）
+
+提交 `a2a8646`，49 个文件。推送前用 CI 自己的命令，跑在要提交的工作区上。
+
+| 步骤 | 开始 | 结束 | exit |
+|---|---|---|---|
+| `npm ci` | 18:57:20 | 18:57:26 | 0 |
+| `npm run test:unit`（129 个文件，3,258 条） | 18:57:26 | 18:57:40 | 0 |
+| `npm run build`（`index-Dsmn4o_U.js`） | 18:57:40 | 18:57:51 | 0 |
+| 提交和推送 | 18:58:07 | 18:58:15 | 0 |
+| Pages run 42553787002，build | 18:58:21 | 18:59:37 | success |
+| Pages run 42553787002，deploy | 18:59:41 | 18:59:53 | success |
+| 提交后带计数器地址构建（`index-DzJ-Aufm.js`） | 18:59:55 | 19:00:05 | 0 |
+| 和线上逐字节对比 | 19:00:06 | 19:00:09 | 0 |
+
+**线上 `a2a8646`，主文件 `assets/index-DzJ-Aufm.js`。** 20 个文件 20 个逐字节相同，每个状态码 200；根地址 200，和 `index.html` 相同。
+
+响应头：`cache-control: max-age=600`，`server: GitHub.com`，`last-modified: Mon, 09 Nov 2026 02:59:46 GMT`，20 个文件都一样。字体 `font/woff2`，不压缩；js `application/javascript; charset=utf-8`、css `text/css; charset=utf-8`、html `text/html; charset=utf-8`、txt `text/plain; charset=utf-8`，都是 gzip。
+
+本节写在提交之后，所以不在 `a2a8646` 里。

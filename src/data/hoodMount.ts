@@ -76,7 +76,9 @@ export const hungUnderACabinet = (mount: HoodMount | null) => mount === "under-c
 /**
  * The shop's installation distance: how far over the cooking surface it hangs
  * a hood's underside. Leo, 2026-11-08: 「公式里加的不叫"最小距离"，改叫"店里的安装距
- * 离"：壁挂式 30"，微波炉式 24"（出处 Leo）」.
+ * 离"：微波炉式以外的油烟机 30"，微波炉式 24"（出处 Leo）」. The words only, the
+ * meaning as it was (Leo, 2026-11-08): he had written 壁挂式, 「意思是"微波炉式以外
+ * 的油烟机"」, and 壁挂式 is not what any of them is called (under-cabinet is 吊柜式).
  *
  * Not a manufacturer's figure. Each hood's manual has its own minimum and
  * maximum, written apart in `HOOD_MANUALS` (hood.ts) and used only to check

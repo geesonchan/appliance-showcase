@@ -21,6 +21,8 @@ export interface RawRow {
   Height: string;
   Color: string;
   // Hand-filled columns to the right of the QUERY output.
+  /** The nominal size, a number; blank on a blower (Leo, 2026-11-08). */
+  webSize: string;
   cutoutWidthIn: string;
   cutoutHeightIn: string;
   cutoutDepthIn: string;

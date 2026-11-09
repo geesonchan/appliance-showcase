@@ -47,6 +47,10 @@ export interface ConversionSummary {
    * a judgement Leo should confirm rather than a silent deletion.
    */
   blankTypeModels: string[];
+  /** webSize cells that stop the run: blank, not a number, or filled on a blower. */
+  webSizeProblems: string[];
+  /** webSize more than 1" from the width, printed and not stopped. */
+  webSizeFarFromWidth: string[];
   /** The models skipped for having no usable Width. */
   noWidthModels: string[];
   /**
@@ -161,6 +165,8 @@ export function convert(
     blankFinishModels: [],
     unreadWebColors: [],
     pairProblems: [],
+    webSizeProblems: [],
+    webSizeFarFromWidth: [],
   };
   const warn = (reason: string, id: string) => {
     (summary.warnings[reason] ??= []).push(id);
@@ -242,6 +248,17 @@ export function convert(
     const id = toId(brand, model);
     const published = toPublished(drawnAs(row));
 
+    // The nominal size is Leo's to fill and never worked out here (2026-11-08):
+    // a number on every machine but a blower, or the run stops.
+    const webCell = (row.webSize ?? "").trim();
+    const webSizeIn = /^\d+(\.\d+)?$/.test(webCell) ? Number(webCell) : null;
+    const webName = `${brand} ${model}`;
+    if (category === "blower") {
+      if (webCell !== "") summary.webSizeProblems.push(`${webName}: a blower has no size, and this one says ${JSON.stringify(webCell)}`);
+    } else if (webCell === "") summary.webSizeProblems.push(`${webName}: blank`);
+    else if (webSizeIn === null) summary.webSizeProblems.push(`${webName}: ${JSON.stringify(webCell)} is not a number`);
+    else if (widthIn !== null && Math.abs(webSizeIn - widthIn) > 1) summary.webSizeFarFromWidth.push(`${webName}: webSize ${webSizeIn}, width ${widthIn}`);
+
     const voltage = voltageOf(row.voltage);
     const cfm = numberOrNull(row.cfm);
     // The web's own finish where showcase_specs gives one; Stock current's
@@ -274,6 +291,7 @@ export function convert(
       // word, per model, never a column in the sheet (D11 rule 12, round 73).
       rearVent: published.rearVent ?? null,
       widthIn,
+      webSizeIn: category === "blower" ? null : webSizeIn,
       // The drawing first, then the sheet — same reason as the width.
       heightIn: published.heightIn ?? numberOrNull(row.Height) ?? null,
       depthIn: published.depthIn ?? numberOrNull(row.Depth) ?? null,
@@ -541,6 +559,11 @@ export function formatSummary(summary: ConversionSummary, verbose = false): stri
     }
   }
 
+  if (summary.webSizeFarFromWidth.length > 0) {
+    lines.push('webSize more than 1" from the width (printed, not stopped):');
+    for (const line of summary.webSizeFarFromWidth) lines.push(`  ${line}`);
+  }
+
   if (verbose && summary.noWidthModels.length > 0) {
     lines.push(`no width (${summary.noWidthModels.length}):`);
     for (const model of summary.noWidthModels) lines.push(`  ${model}`);
@@ -637,6 +660,14 @@ export function runImport(
     return 1;
   }
 
+  // The nominal size is not guessed from the width (Leo, 2026-11-08).
+  if (result.summary.webSizeProblems.length > 0) {
+    io.log(formatSummary(result.summary, verbose));
+    const listed = result.summary.webSizeProblems.map((line) => `  ${line}`).join("\n");
+    io.error(`\nwebSize is a number on every machine but a blower; these are not:\n${listed}\nnothing written\n`);
+    return 1;
+  }
+
   // Read before anything is written: a checked model's hand-filled cells may
   // not come in blank unless the run names it (round 92).
   const committed = existsSync(at("data/appliances.json"))
@@ -661,8 +692,6 @@ export function runImport(
 
   const file = {
     _meta: {
-      generatedBy: `scripts/csv-to-json.ts from ${input}`,
-      updatedAt: new Date().toISOString().slice(0, 10),
       provenance:
         "Derived from the showcase_export tab of the 2026 AA Inventory Manager. " +
         "Brand, Model, Appliance Type, Feature, Width, Depth, Height and Color come " +

@@ -3,6 +3,7 @@ import { candidatesFor } from "../data/candidates";
 import { formatInches, requiredOpening, type FitResult } from "../data/fit";
 import { SLOT_BY_ID } from "../data/slots";
 import { DebugBadge } from "./DebugBadge";
+import { alternativeTitle } from "../data/machineLabel";
 import { ModelLine } from "./ModelLine";
 import { SCHEME_FALLBACKS } from "../data/catalogue";
 import { formatCfm } from "../data/ventilation";
@@ -219,24 +220,21 @@ function BlowerSection() {
               >
                 <span className="min-w-0 flex-1">
                   <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <ModelLine
-                      className="min-w-0 text-[13px] text-ink"
-                      brand={option.brand}
-                      model={option.model}
-                    />
+                    <span data-alt-title className="min-w-0 text-[13px] text-ink">{alternativeTitle(option, t)}</span>
                     {selected && (
-                      <span className="rounded-full bg-accent px-1.5 py-px text-[9px] font-medium text-[#F7F5EF]">
+                      <span className="shrink-0 rounded-full bg-accent px-1.5 py-px text-[9px] font-medium text-[#F7F5EF]">
                         {t("swap.selected")}
                       </span>
                     )}
                     {option.verifiedAt === null && <DebugBadge labelKey="debug.unverified" />}
                   </span>
-                  <span className="mt-0.5 block truncate text-[11px] text-ink-muted">
-                    {option.installType.join(", ")}
-                    {option.requires.cfm !== null
-                      ? ` · ${t("blower.cfm", { cfm: formatCfm(option.requires.cfm) })}`
-                      : ""}
-                  </span>
+                  <ModelLine className="mt-0.5 text-[11px] text-ink-muted" brand={option.brand} model={option.model} />
+                  {/* The main title says how it installs; it cannot say the airflow. */}
+                  {option.requires.cfm !== null && (
+                    <span className="mt-0.5 block truncate text-[11px] text-ink-muted">
+                      {t("blower.cfm", { cfm: formatCfm(option.requires.cfm) })}
+                    </span>
+                  )}
                 </span>
               </button>
             </li>
@@ -280,21 +278,19 @@ function CandidateRow({
         ].join(" ")}
       >
         <span className="min-w-0 flex-1">
-          {/* Brand · model on one line, the model never cut (D12, round 79;
-              the one layout of it since round 82). No price: D12, round 82. */}
+          {/* What the machine is first (Leo, 2026-11-08), then brand · model on
+              one line, the model never cut (D12, round 79; the one layout of it
+              since round 82). No price: D12, round 82. */}
           <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <ModelLine
-              className="min-w-0 text-[13px] text-ink"
-              brand={appliance.brand}
-              model={appliance.model}
-            />
+            <span data-alt-title className="min-w-0 text-[13px] text-ink">{alternativeTitle(appliance, t)}</span>
             {selected && (
-              <span className="rounded-full bg-accent px-1.5 py-px text-[9px] font-medium text-[#F7F5EF]">
+              <span className="shrink-0 rounded-full bg-accent px-1.5 py-px text-[9px] font-medium text-[#F7F5EF]">
                 {t("swap.selected")}
               </span>
             )}
             {appliance.verifiedAt === null && <DebugBadge labelKey="debug.unverified" />}
           </span>
+          <ModelLine className="mt-0.5 text-[11px] text-ink-muted" brand={appliance.brand} model={appliance.model} />
 
           <FitNotes fit={fit} />
         </span>

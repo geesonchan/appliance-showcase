@@ -1,0 +1,555 @@
+{
+ "_about": "The desktop model card's height and every pin label's place on the live layout (the build of a2a8646), read in a real browser, 2026-11-09. Leo: the card's height and the labels stay as they are live. Each state a fresh page.",
+ "states": {
+  "1440 A slot-hood": {
+   "cardHeight": 702.9,
+   "labels": {
+    "slot-fridge": [
+     121,
+     781
+    ],
+    "slot-range": [
+     745,
+     612
+    ],
+    "slot-hood": [
+     725,
+     328
+    ],
+    "slot-dishwasher": [
+     1087,
+     774
+    ],
+    "slot-microwave": [
+     557,
+     612
+    ],
+    "slot-wine": [
+     680,
+     590
+    ]
+   }
+  },
+  "1440 A slot-fridge": {
+   "cardHeight": 812,
+   "labels": {
+    "slot-fridge": [
+     680,
+     157
+    ],
+    "slot-microwave": [
+     1055,
+     269
+    ],
+    "slot-wine": [
+     1087,
+     247
+    ]
+   }
+  },
+  "1440 B slot-hood": {
+   "cardHeight": 702.9,
+   "labels": {
+    "slot-fridge": [
+     1087,
+     483
+    ],
+    "slot-range": [
+     728,
+     365
+    ],
+    "slot-hood": [
+     723,
+     343
+    ],
+    "slot-dishwasher": [
+     182,
+     781
+    ],
+    "slot-microwave": [
+     914,
+     483
+    ],
+    "slot-wine": [
+     1069,
+     461
+    ]
+   }
+  },
+  "1440 B slot-fridge": {
+   "cardHeight": 763.8,
+   "labels": {
+    "slot-fridge": [
+     725,
+     140
+    ],
+    "slot-range": [
+     231,
+     842
+    ],
+    "slot-hood": [
+     227,
+     864
+    ],
+    "slot-microwave": [
+     418,
+     108
+    ],
+    "slot-wine": [
+     572,
+     108
+    ]
+   }
+  },
+  "1440 C slot-hood": {
+   "cardHeight": 382.1,
+   "labels": {
+    "slot-fridge": [
+     147,
+     522
+    ],
+    "slot-range": [
+     717,
+     549
+    ],
+    "slot-hood": [
+     715,
+     388
+    ],
+    "slot-dishwasher": [
+     1087,
+     774
+    ],
+    "slot-microwave": [
+     557,
+     549
+    ],
+    "slot-wine": [
+     680,
+     366
+    ]
+   }
+  },
+  "1440 C slot-fridge": {
+   "cardHeight": 812,
+   "labels": {
+    "slot-fridge": [
+     696,
+     198
+    ],
+    "slot-range": [
+     1113,
+     879
+    ],
+    "slot-hood": [
+     1067,
+     117
+    ],
+    "slot-microwave": [
+     1055,
+     879
+    ],
+    "slot-wine": [
+     1087,
+     536
+    ]
+   }
+  },
+  "1440 D slot-hood": {
+   "cardHeight": 702.9,
+   "labels": {
+    "slot-range": [
+     718,
+     374
+    ],
+    "slot-hood": [
+     712,
+     352
+    ],
+    "slot-oven": [
+     884,
+     536
+    ],
+    "slot-coffee": [
+     40,
+     781
+    ],
+    "slot-dishwasher": [
+     478,
+     536
+    ],
+    "slot-dishwasher-2": [
+     40,
+     803
+    ],
+    "slot-microwave": [
+     321,
+     536
+    ]
+   }
+  },
+  "1440 D slot-fridge": {
+   "cardHeight": 581.7,
+   "labels": {
+    "slot-freezer": [
+     407,
+     177
+    ],
+    "slot-fridge": [
+     661,
+     137
+    ],
+    "slot-wine": [
+     749,
+     163
+    ],
+    "slot-coffee": [
+     910,
+     232
+    ],
+    "slot-dishwasher-2": [
+     902,
+     202
+    ],
+    "slot-microwave": [
+     1055,
+     356
+    ]
+   }
+  },
+  "1440 E slot-hood": {
+   "cardHeight": 280.8,
+   "labels": {
+    "slot-freezer": [
+     565,
+     116
+    ],
+    "slot-fridge": [
+     830,
+     141
+    ],
+    "slot-microwave": [
+     1057,
+     473
+    ],
+    "slot-cooktop": [
+     554,
+     768
+    ]
+   }
+  },
+  "1440 E slot-fridge": {
+   "cardHeight": 581.7,
+   "labels": {
+    "slot-freezer": [
+     399,
+     150
+    ],
+    "slot-fridge": [
+     664,
+     180
+    ],
+    "slot-microwave": [
+     1057,
+     115
+    ],
+    "slot-cooktop": [
+     1103,
+     675
+    ]
+   }
+  },
+  "1440 E-JVM slot-hood": {
+   "cardHeight": 771.4,
+   "labels": {
+    "slot-freezer": [
+     133,
+     849
+    ],
+    "slot-fridge": [
+     382,
+     218
+    ],
+    "slot-microwave": [
+     534,
+     362
+    ],
+    "slot-coffee": [
+     192,
+     871
+    ],
+    "slot-wine-2": [
+     203,
+     505
+    ],
+    "slot-dishwasher": [
+     975,
+     670
+    ],
+    "slot-cooktop": [
+     730,
+     555
+    ],
+    "slot-hood": [
+     754,
+     362
+    ]
+   }
+  },
+  "1280 A slot-hood": {
+   "cardHeight": 702.9,
+   "labels": {
+    "slot-fridge": [
+     50,
+     781
+    ],
+    "slot-range": [
+     675,
+     612
+    ],
+    "slot-hood": [
+     655,
+     328
+    ],
+    "slot-dishwasher": [
+     947,
+     774
+    ],
+    "slot-microwave": [
+     487,
+     612
+    ],
+    "slot-wine": [
+     609,
+     590
+    ]
+   }
+  },
+  "1280 A slot-fridge": {
+   "cardHeight": 812,
+   "labels": {
+    "slot-fridge": [
+     610,
+     157
+    ],
+    "slot-microwave": [
+     915,
+     269
+    ]
+   }
+  },
+  "1280 B slot-hood": {
+   "cardHeight": 702.9,
+   "labels": {
+    "slot-range": [
+     657,
+     365
+    ],
+    "slot-hood": [
+     653,
+     343
+    ],
+    "slot-dishwasher": [
+     112,
+     781
+    ],
+    "slot-microwave": [
+     844,
+     483
+    ],
+    "slot-wine": [
+     941,
+     461
+    ]
+   }
+  },
+  "1280 B slot-fridge": {
+   "cardHeight": 763.8,
+   "labels": {
+    "slot-fridge": [
+     655,
+     140
+    ],
+    "slot-range": [
+     161,
+     842
+    ],
+    "slot-hood": [
+     156,
+     864
+    ],
+    "slot-microwave": [
+     347,
+     108
+    ],
+    "slot-wine": [
+     502,
+     108
+    ]
+   }
+  },
+  "1280 C slot-hood": {
+   "cardHeight": 382.1,
+   "labels": {
+    "slot-fridge": [
+     76,
+     522
+    ],
+    "slot-range": [
+     646,
+     549
+    ],
+    "slot-hood": [
+     645,
+     388
+    ],
+    "slot-dishwasher": [
+     947,
+     774
+    ],
+    "slot-microwave": [
+     487,
+     549
+    ],
+    "slot-wine": [
+     609,
+     366
+    ]
+   }
+  },
+  "1280 C slot-fridge": {
+   "cardHeight": 812,
+   "labels": {
+    "slot-fridge": [
+     625,
+     198
+    ],
+    "slot-microwave": [
+     915,
+     879
+    ]
+   }
+  },
+  "1280 D slot-hood": {
+   "cardHeight": 702.9,
+   "labels": {
+    "slot-range": [
+     648,
+     374
+    ],
+    "slot-hood": [
+     642,
+     352
+    ],
+    "slot-oven": [
+     813,
+     536
+    ],
+    "slot-dishwasher": [
+     408,
+     536
+    ],
+    "slot-microwave": [
+     251,
+     625
+    ]
+   }
+  },
+  "1280 D slot-fridge": {
+   "cardHeight": 581.7,
+   "labels": {
+    "slot-freezer": [
+     336,
+     177
+    ],
+    "slot-fridge": [
+     590,
+     137
+    ],
+    "slot-wine": [
+     678,
+     163
+    ],
+    "slot-coffee": [
+     840,
+     232
+    ],
+    "slot-dishwasher-2": [
+     832,
+     202
+    ]
+   }
+  },
+  "1280 E slot-hood": {
+   "cardHeight": 280.8,
+   "labels": {
+    "slot-freezer": [
+     494,
+     116
+    ],
+    "slot-fridge": [
+     759,
+     141
+    ],
+    "slot-microwave": [
+     916,
+     473
+    ],
+    "slot-cooktop": [
+     483,
+     768
+    ]
+   }
+  },
+  "1280 E slot-fridge": {
+   "cardHeight": 581.7,
+   "labels": {
+    "slot-freezer": [
+     329,
+     150
+    ],
+    "slot-fridge": [
+     594,
+     180
+    ]
+   }
+  },
+  "1280 E-JVM slot-hood": {
+   "cardHeight": 771.4,
+   "labels": {
+    "slot-freezer": [
+     62,
+     849
+    ],
+    "slot-fridge": [
+     311,
+     271
+    ],
+    "slot-microwave": [
+     464,
+     362
+    ],
+    "slot-coffee": [
+     122,
+     871
+    ],
+    "slot-wine-2": [
+     133,
+     505
+    ],
+    "slot-dishwasher": [
+     905,
+     670
+    ],
+    "slot-cooktop": [
+     660,
+     555
+    ],
+    "slot-hood": [
+     684,
+     362
+    ]
+   }
+  }
+ }
+}

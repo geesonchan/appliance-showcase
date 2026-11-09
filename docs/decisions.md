@@ -11888,7 +11888,7 @@ Registered, not scheduled. None of these is a round of its own.
   4. **E on one wall: the dimension line's "4"** (Leo, 2026-11-08; the plan,
      `docs/plans/e-one-wall-dimension-plan.md`; **done 2026-11-08**);
   5. **an alternative's main title** ("An alternative's main title", below;
-     registered only; Leo, 2026-11-08: after E on one wall, before the galley);
+     Leo, 2026-11-08: after E on one wall, before the galley; **done 2026-11-09**);
   6. the galley ("A layout shape switch";
      `docs/plans/overnight-2026-10-23-galley.md`);
   7. the U (the same entry; `docs/plans/overnight-2026-10-24-u-shape.md`).
@@ -12122,11 +12122,17 @@ Registered, not scheduled. None of these is a round of its own.
     - **His answer, 2026-11-08.** 「两台 Zephyr 照你的建议：仍挂 66-1/4"（离玻璃面
       30"），字写它们说明书自己的（AK7136BS-BF 最小 24、最大 32；AK7300AS 最小 24、
       最大 34）。」 And two more, 「写进计划再动手」: 「公式里加的不叫"最小距离"，改叫
-      "店里的安装距离"：壁挂式 30"，微波炉式 24"（出处 Leo）。说明书的最小、最大值单独
+      "店里的安装距离"：微波炉式以外的油烟机 30"，微波炉式 24"（出处 Leo）。说明书的最小、最大值单独
       记，作为核对用的范围。两样分开写，规则只写一处。」 「加一条测试：每台油烟机，店里的
       安装距离都必须在它说明书的范围之内（有最大值的也要不超过）。先用一台假的、说明书最小
       值 32" 的油烟机让它变红，再相信它。」 The five manuals are in `docs/reference`,
       their sources in its README.
+    - **Shipped: `a2a8646`.** CI's commands on the tree as committed: `npm ci`,
+      `npm run test:unit` (129 files, 3,258), `npm run build`, each exit 0. Pages
+      run 42553787002, build and deploy each a success. Twenty of twenty files
+      the same byte for byte as a build at `a2a8646` with the counter's address,
+      each with its status and headers recorded; the live main chunk
+      `assets/index-DzJ-Aufm.js` (the report, "发布").
     - **Built 2026-11-08; Leo looked at the local preview and confirmed,
       2026-11-08: 「预览看过了，确认。」** With two things before the commit,
       in his words: VCIN36GWS's housing test 「没有回旧代码跑过。现在用旧代码
@@ -12257,7 +12263,7 @@ Registered, not scheduled. None of these is a round of its own.
       freezer columns; the wine columns; the 7 refrigerators. A stainless and a
       panel-ready row of the same column (`-SS`) will read the same even with
       a size.
-  - **`showcase_export.csv`, read and not imported** (Leo, 2026-11-08):
+  - **`showcase_export.csv`, read and not imported** (Leo, 2026-11-08; the first export, blank):
     `C:\Users\leoch\Downloads\showcase_export.csv`, modified 2026-11-08
     13:23:43 PST, 9,371 bytes, SHA-256
     `93eef087502c7c729860e8940223108bc2c66d4f668183a62f68a02e3f048739`. **At
@@ -12282,6 +12288,76 @@ Registered, not scheduled. None of these is a round of its own.
     - this import also does what is already chosen, "`_meta` no longer carries
       a day and a path" ("The import's `_meta` is in the main chunk");
     - the kinds the naming table lacks, listed apart, to ask him.
+  - **Leo, 2026-11-08**: 「webSize 已填好并重新导出到 Downloads，只有几台风机（blower）没填，
+    这是有意的：它们的主标题不带尺寸。」 **The plan**, first draft, not built:
+    `docs/plans/alternative-title-plan.md`. What is in Downloads is
+    `showcase_specs.csv`, the hand-filled tab, 18:53:52 PST, 7,879 bytes, SHA-256
+    `21f9106b3e8d4db0436df6918bd93e332e21f64a6d0d4054ae66bb9c9792010e`, and
+    `showcase_export.csv` is gone from there. Read only: 41 filled, the three
+    blowers blank, none not a number, one more than 1" from its width
+    (VCIN36GWS, 36 against 33-3/4"); 588 cells against the catalogue, none
+    different. The importer on this tab exports none of its 44 rows, so the
+    import waits for an export of `showcase_export` (the plan's first question).
+  - **Leo's answers to the first draft, 2026-11-08**: 「第 1 条：我已经从 showcase_export
+    那一页重新导出了 showcase_export.csv（之前导错了页）。…第 2、3、6、8、9 条：照建议。
+    第 4 条：分。那 4 台 under-cabinet 的中文叫"吊柜式油烟机"，不叫壁挂式（壁挂式是我写错的）。
+    英文 Under-Cabinet Hood。岛式照建议。第 5 条：分。柱式那几台中文叫"冷藏柱"，和冷冻柱、
+    酒柜柱统一；英文 Refrigerator Column。第 7 条：PODS302B 叫"双门蒸烤箱 / Double Steam
+    Oven"。第 8 条补充：CIT367YG 中文主标题"电磁炉灶片"，不带 Drop in。第 10 条：柱子的不锈钢
+    和可装门板两行，主标题后面带外观，例如 24" Refrigerator Column · Stainless / 24" 冷藏柱 ·
+    不锈钢，24" Refrigerator Column · Panel-Ready / 24" 冷藏柱 · 可装门板；冷冻柱、酒柜柱同样。
+    其余同名的先这样，预览时我再看。」 Second draft, not built, the same file.
+    - **`showcase_export.csv`, read and not imported**: 20:05:01 PST, 9,453
+      bytes, SHA-256
+      `ab656839c31958c341b787cf29553efcaed6eb09cd952b18dc20bb22080d68ba`; at the
+      import, check it is this file first. 25 columns as before. `webSize` the
+      same text on all 44 as the values read from `21f9106b…` at 19:01:59
+      (`showcase_specs.csv` itself had left Downloads by then, so the saved
+      values, trimmed). The importer: 44 read, 44 exported, no warning; 1,584
+      fields against the catalogue, none different.
+  - **Leo on the second draft, 2026-11-08**: 「第二稿看过了，主标题表同意。两处：1.
+    T36BT120NS 和 T36IT100NP 也带外观：36" Built-In Refrigerator · Stainless / 36"
+    内嵌式冰箱 · 不锈钢，36" Built-In Refrigerator · Panel-Ready / 36" 内嵌式冰箱 ·
+    可装门板。规则改成：目录里记了外观、有成对的，主标题都带外观，不只认柱子。测试跟着改：
+    每一对的两行主标题不同。2. 安装距离那条规则里的"壁挂式"，是我上一轮写给你的说法，意思是
+    "微波炉式以外的油烟机"。hoodMount.ts 的注释和 decisions.md 里改成"微波炉式以外的油烟机
+    30"，微波炉式 24""，意思不变，只改字，写明原因。」 Done in both, the code's figures
+    untouched. In the E on one wall entry above, his sentence now reads as he
+    asked; the plan and the report of that round keep what was written then.
+  - **Built 2026-11-08, waiting for Leo's look; not committed.** The rule is
+    `alternativeTitle` (machineLabel.ts), the size `webSizeIn` alone, the look on
+    every row with a `pairModel`, the finer words for this title only. The import
+    read `showcase_export.csv` (`ab656839…`): 44 `webSizeIn` and `_meta`, nothing else.
+    The report: `docs/plans/alternative-title-report-2026-11-08.md`.
+    - **Seen while building it, left for Leo**: a blower's second line also
+      carried its CFM, which the first draft did not say; the install word went
+      and the CFM stayed. The card grows with a two-line title, and at 1440 x 900
+      some pin labels no longer find room: B with the refrigerator selected, 02
+      goes under the card; E with JVM3160RFSS and the hood selected, 04. The
+      canvas is the same in all 115 states.
+  - **Leo on that report, 2026-11-08**: 「主标题这一轮看过报告了，先不提交。1. 风机那行小字里的
+    CFM 保留，只去掉 inline、internal、external（现在就是这样，不用改）。2. 桌面上模型卡因为主标题
+    折成两行而变高、盖住图钉标签（B 选中冰箱时的 02 Rangetop，E 换 JVM3160RFSS 后选中油烟机时的 04
+    Coffee machine），这一轮修好再上线。先写一个短计划，不动手…目标：桌面上卡的高度和线上一样，标签
+    避让的算法这一轮不动…3. 预览留着，我明天看预览和这份短计划一起定。今晚不再跑长任务。」 The short
+    plan, not built: `docs/plans/alternative-title-card-height-plan.md`.
+  - **Leo on the short plan, 2026-11-09**: 「短计划看过了，选乙：桌面卡宽保持 260，主标题 11 号字，
+    Specified 挪到第二行右边。手机不变。今晚做完，中间不用等我（电脑开着）」, with its tests
+    in his words in the report: 「桌面 1440 和 1280 下，44 台的主标题都一行放下（选中和没选中都
+    查）；B 选中冰箱、E 换 JVM3160RFSS 后选中油烟机，卡的高度和线上一样，02、03、04 标签的位置和
+    线上一样。上次没量到的 A、D、E 默认油烟机那几次，这次逐个查。」
+    **Built 2026-11-09, waiting for his look; not committed**: the desktop card's rows
+    in `ModelCard.tsx`, the phone's untouched; `tests/desktopCardHeight.test.ts` against
+    `tests/fixtures/desktopCardLive.json`, the live layout read from a2a8646's build. The
+    canvas the same in all 115 states; on a desktop the whole screen changes only in
+    the card's words. The report: `docs/plans/alternative-title-card-height-report-2026-11-09.md`.
+  - **Leo's look at the preview, 2026-11-09**: 「预览看过了，确认。」, the build `index-B1FNdAOA.js`.
+- **The phone's model card, 18-20px taller than before the main title.** *(Leo,
+  2026-11-09: 「手机 390 下那两个状态卡高 18–20 像素、06 Dishwasher 上移、没被盖住：这次先上线，
+  另登记一条，以后要修再单独做。」; registered, no plan, in no order.)* E on one wall at
+  390, the cooktop and the hood selected: the card, whose rows lie side by side, grows
+  by the title's second line, and the `06 Dishwasher` label moves up with it. Nothing
+  is covered. The desktop card was mended (乙), the phone's left as it was.
 - **Should a hood follow the cooking surface actually chosen?** *(Leo,
   2026-11-08: 「B、C、D 换 PRG304WH / PRG366WH 时油烟机低于最小值那几种，这一轮不改，
   登记一条：要不要让油烟机跟着实际的灶走（和 D13"按套餐打孔一次、换灶不挪"有关），等我
@@ -12327,6 +12403,9 @@ Registered, not scheduled. None of these is a round of its own.
   **Chosen 2026-11-04** (Leo): 3 — the import writes no day and no path;
   where each import came from and when goes on being written here, as
   every import's entry already is. Done with the next import, not before.
+  **Done with 2026-11-08's import** ("An alternative's main title"): `_meta`
+  is the provenance alone, and a test imports the same rows on another day
+  from another path and gets the same bytes.
 - **Registered rounds after 78, in Leo's order.** *(Leo, rounds 78-79; not
   started. Round 79 put the interface round first and moved the rest back.)*
   0. **An interface round, plan first, with phone and desktop sketches.**

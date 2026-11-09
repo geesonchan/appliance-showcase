@@ -212,6 +212,13 @@ export const applianceSchema = z.object({
    * something that goes in an opening, so the sheet has no width for it.
    */
   widthIn: inches.nullable(),
+  /**
+   * What the machine is sold as, in inches: `webSize`, which Leo fills in
+   * showcase_specs (2026-11-08). The main title's size, CIT367YG's 36" for its
+   * 37" of width: never worked out from the width. Null on a blower, whose title
+   * has no size; the import stops on any other blank.
+   */
+  webSizeIn: inches.nullable().default(null),
   heightIn: inches.nullable(),
   depthIn: inches.nullable(),
   /**
@@ -660,7 +667,10 @@ export const metaSchema = z.object({
 });
 
 export const appliancesFileSchema = z.object({
-  _meta: metaSchema,
+  // The provenance alone: a day or a path here is compiled into the main chunk,
+  // and the same rows on another day gave it another name (Open items, "The
+  // import's `_meta` is in the main chunk", the third way).
+  _meta: z.object({ provenance: z.string() }),
   appliances: z.array(applianceSchema).min(1),
 });
 
