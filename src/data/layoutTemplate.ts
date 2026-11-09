@@ -16,7 +16,8 @@ import type { FixtureId, Package, PackageSlot, SlotId } from "../types";
 import { PACKAGE, packageInShape, slotsOf } from "./packages";
 import { DROP_IN_COOKTOP, cabinetUnderCooking, rangeFillerIn, rangeModelFor } from "./cookingSurface";
 import {
-  aboveCookingSurfaceIn,
+  cookingSurfaceUnderHoodIn,
+  hoodUndersideIn,
   chimneyFillerIn,
   hoodMountFor,
   hoodWidthFor,
@@ -2733,8 +2734,10 @@ function banksOn(
   // finish. `hoodCabinetParts` gives it its shape.
   const housed = mount === "insert";
   const mountY = ft(
-    (spec["slot-hood"].builtForCooktopIn ?? 36) +
-      aboveCookingSurfaceIn(mount, CABINET_STANDARDS.hood.aboveCooktopMinIn),
+    hoodUndersideIn(
+      cookingSurfaceUnderHoodIn(PACKAGE, spec["slot-hood"].builtForCooktopIn ?? 36, CABINET_STANDARDS.base.counterHeightIn),
+      mount,
+    ),
   );
 
   const hoodBank: UpperBank = {

@@ -197,6 +197,7 @@
   "dimension.clearanceRangeCooktop": "最小 {min}，最大 {max}",
   "dimension.clearanceMinIsland": "最小 {min}，燃气与电磁相同",
   "dimension.shopPractice": "店内做法",
+  "dimension.shopPracticeFigure": "店里做法 {figure}",
   "dimension.fridgeDoorClearance": "开门空隙",
   "dimension.standard": "标准 {value}",
   "rule.canopyClearance": "罩底距炉面 {clearance}\"，燃气要求 {min}\"",

@@ -3,7 +3,7 @@ import { facingOf, toPlan } from "./frame";
 import { againstWall } from "./roomWalls";
 import { SLOT_BY_ID } from "./slots";
 import { SCRIBE_IN } from "./cookingSurface";
-import { hoodModelFor, hoodMount } from "./hoodMount";
+import { hoodModelFor, hoodMount, shopInstallDistanceIn } from "./hoodMount";
 import { PACKAGE } from "./packages";
 import { formatDimension } from "./dimensions";
 import type { Appliance, Slot } from "../types";
@@ -335,6 +335,59 @@ export const ISLAND_HOOD = {
    */
   aboveCookingSurfaceMinIn: 30,
 };
+
+/**
+ * What each hood's own manual says about its underside over the cooking
+ * surface. Leo, 2026-11-08: 「说明书的最小、最大值单独记，作为核对用的范围」: not part of
+ * the rule that hangs a hood (`hoodUndersideIn`, the shop's installation
+ * distance), and not where the shop hangs it. It words the note beside E's line
+ * on one wall, and a test holds the shop's distance inside it.
+ *
+ * Null where the manual gives no such figure. JVM3160RFSS's sets none for its
+ * underside (`hoodMount.ts`, round 97), so there is nothing to check it against.
+ */
+export interface HoodManual {
+  minIn: number | null;
+  maxIn: number | null;
+  /** The document in docs/reference, and the pages it says so on. */
+  read: string;
+}
+
+export const HOOD_MANUALS: Record<string, HoodManual> = {
+  HMCB36WS: { minIn: 30, maxIn: null, read: "hmcb36ws-install.pdf pp. 9, 13; gas, electric and induction alike; no maximum" },
+  HMCB30WS: { minIn: 30, maxIn: null, read: "hmcb36ws-install.pdf pp. 9, 13; the same guide; no maximum" },
+  HMIB42WS: { minIn: 30, maxIn: null, read: "HMIB42WS_Installation.pdf p. 9; gas and electric or induction alike; no maximum" },
+  HMWB361WS: { minIn: 30, maxIn: null, read: "hmwb361ws-install.pdf pp. 9, 13; gas and electric or induction alike; no maximum" },
+  PH36HWS: { minIn: 30, maxIn: 40, read: "ph36hws-install.pdf pp. 6, 11" },
+  VCIN36GWS: { minIn: 30, maxIn: 40, read: "vcin36gws-manual.pdf p. 8, a suggested maximum; p. 6 the minimum" },
+  "AK7136BS-BF": { minIn: 24, maxIn: 32, read: "ak7136bs-bf-install.pdf p. 13, a recommended maximum" },
+  AK7300AS: { minIn: 24, maxIn: 34, read: "ak7300as-install.pdf p. 10, a recommended maximum" },
+  JVM3160RFSS: { minIn: null, maxIn: null, read: "jvm3160rfss-install.pdf p. 6 gives no figure for the underside" },
+};
+
+/** What is wrong with hanging this hood `shopIn` over the surface, by its manual; empty if nothing. */
+export function outsideItsManual(model: string, shopIn: number, manual: HoodManual | undefined = HOOD_MANUALS[model]): string[] {
+  if (!manual) return [`${model}: no manual written down`];
+  if (manual.minIn !== null && shopIn < manual.minIn) return [`${model}: ${shopIn}" is under its manual's ${manual.minIn}"`];
+  if (manual.maxIn !== null && shopIn > manual.maxIn) return [`${model}: ${shopIn}" is over its manual's ${manual.maxIn}"`];
+  return [];
+}
+
+/**
+ * The note beside the line from a cooktop to the hood chosen: what that hood's
+ * manual says. Leo, 2026-11-08: 「读到什么写什么」, D21. A microwave's 24" is the
+ * shop's practice, and says so.
+ */
+export function manualNote(hood: Appliance): { noteKey: string; noteVars: Record<string, string | number> } {
+  if (hoodMount(hood) === "otr") {
+    return { noteKey: "dimension.shopPracticeFigure", noteVars: { figure: `${shopInstallDistanceIn("otr")}"` } };
+  }
+  const manual = HOOD_MANUALS[hood.model];
+  const min = manual?.minIn ?? shopInstallDistanceIn(hoodMount(hood));
+  return manual?.maxIn
+    ? { noteKey: "dimension.clearanceRangeCooktop", noteVars: { min, max: manual.maxIn } }
+    : { noteKey: "dimension.clearanceMinIsland", noteVars: { min } };
+}
 
 export interface IslandHoodParts {
   /** Bottom of the hood to the ceiling. */

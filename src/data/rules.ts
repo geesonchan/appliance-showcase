@@ -1,4 +1,4 @@
-import { dropsIntoCounter } from "./cookingSurface";
+import { cooktopGlassIn, dropsIntoCounter } from "./cookingSurface";
 import { hoodMount } from "./hoodMount";
 import rulesFile from "../../data/rules.json";
 import { z } from "zod";
@@ -343,10 +343,7 @@ export function canopyClearance(range: Appliance | undefined): number | null {
   //
   // A cooktop in a range's opening cooks on its glass, standing in the stone:
   // its height figure is only its body.
-  const glassIn =
-    range.category === "cooktop" && range.heightIn !== null && range.cutoutHeightIn !== null
-      ? SLOT_BY_ID["slot-range"].cutout.h + range.heightIn - range.cutoutHeightIn
-      : null;
+  const glassIn = range.category === "cooktop" ? cooktopGlassIn(SLOT_BY_ID["slot-range"].cutout.h, range) : null;
   const cooktopIn =
     glassIn ?? range.cooktopIn ?? range.heightIn ?? range.cutoutHeightIn ?? SLOT_BY_ID["slot-range"].cutout.h;
   return Number((hood.position[1] * 12 - cooktopIn).toFixed(3));

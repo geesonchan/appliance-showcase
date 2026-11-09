@@ -85,6 +85,23 @@ export function cabinetUnderCooking(
   return appliance && dropsIntoCounter(appliance) ? { code: `B${openingIn}`, kind: "base" } : null;
 }
 
+/**
+ * A cooktop's glass above the floor, in inches: the stone it stands in, less
+ * the hole it drops into, plus the body. CIT367YG, 4" tall in a 3-3/4" hole,
+ * stands 1/4" proud of a 36" counter. The cooking surface a hood's clearance
+ * and the dimension lines are measured from (Leo, 2026-11-08: 「30" 和 24" 都从灶面
+ * （电磁灶玻璃面）量，照说明书」), asked here alone. Null where a machine does not
+ * publish both figures.
+ */
+export function cooktopGlassIn(
+  counterIn: number,
+  cooktop: Pick<Appliance, "heightIn" | "cutoutHeightIn">,
+): number | null {
+  return cooktop.heightIn === null || cooktop.cutoutHeightIn === null
+    ? null
+    : counterIn + cooktop.heightIn - cooktop.cutoutHeightIn;
+}
+
 /** A cooktop as an opening specifies one, where no model is being asked about. */
 export const DROP_IN_COOKTOP: MachineKind = { category: "cooktop", installType: ["drop-in"] };
 

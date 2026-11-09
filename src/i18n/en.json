@@ -196,6 +196,7 @@
   "dimension.clearanceRangeCooktop": "min {min}, max {max}",
   "dimension.clearanceMinIsland": "min {min}, gas or induction",
   "dimension.shopPractice": "shop practice",
+  "dimension.shopPracticeFigure": "shop practice {figure}",
   "dimension.fridgeDoorClearance": "door swing",
   "dimension.standard": "standard {value}",
   "rule.canopyClearance": "Canopy sits {clearance}\" over the cooking surface; gas wants {min}\"",

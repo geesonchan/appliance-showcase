@@ -2,7 +2,7 @@ import appliancesFile from "../../data/appliances.json";
 import type { Appliance, Package, SlotId } from "../types";
 import { PACKAGE_SHAPE, shapeOfChoice, shapeOfPackage } from "./packages";
 import type { LayoutShape } from "./layoutShape";
-import { SCRIBE_IN } from "./cookingSurface";
+import { SCRIBE_IN, cooktopGlassIn } from "./cookingSurface";
 
 /**
  * How a hood hangs, and so what stands over it. Round 87, Leo.
@@ -74,9 +74,16 @@ export function ductRouteFor<R extends string>(mount: HoodMount, packageRoute: R
 export const hungUnderACabinet = (mount: HoodMount | null) => mount === "under-cabinet" || mount === "otr";
 
 /**
- * How far an over-the-range microwave's underside is above the cooking surface
- * the wall was drilled for. Leo's shop practice, round 97: "OTR 底部离炉头平面
- * 默认 24""".
+ * The shop's installation distance: how far over the cooking surface it hangs
+ * a hood's underside. Leo, 2026-11-08: 「公式里加的不叫"最小距离"，改叫"店里的安装距
+ * 离"：壁挂式 30"，微波炉式 24"（出处 Leo）」.
+ *
+ * Not a manufacturer's figure. Each hood's manual has its own minimum and
+ * maximum, written apart in `HOOD_MANUALS` (hood.ts) and used only to check
+ * this against and to word the note beside the line: AK7136BS-BF's manual allows
+ * 24"-32", and the shop hangs it at 30".
+ *
+ * The microwave: Leo's shop practice, round 97: "OTR 底部离炉头平面默认 24""".
  *
  * GE's manual sets no figure for the underside. It asks for the cabinet over it
  * "30" or more from the cooking surface" and the oven's top "66" or more from
@@ -89,16 +96,39 @@ export const hungUnderACabinet = (mount: HoodMount | null) => mount === "under-c
  * installation manual for clearances"), so the GE manual is followed (Leo,
  * round 97; decisions.md D13).
  */
-export const OTR_ABOVE_COOKING_SURFACE_IN = 24;
+export const SHOP_INSTALL_DISTANCE_IN = { wall: 30, otr: 24 } as const;
+
+export function shopInstallDistanceIn(mount: HoodMount | null): number {
+  return mount === "otr" ? SHOP_INSTALL_DISTANCE_IN.otr : SHOP_INSTALL_DISTANCE_IN.wall;
+}
 
 /**
- * The one answer to how far a wall hood's underside hangs over the cooking
- * surface the wall was drilled for: a canopy's clearance (`canopyIn`, D13), or
- * an over-the-range microwave's 24". The hood's placement, the housing's band
- * and the dimension drawn in the room all ask this.
+ * The rule, the one place it is written (Leo, 2026-11-08: 「规则只写一处：油烟机下沿 =
+ * 灶面高度 + 店里的安装距离，不写死 66"、60"」): where a wall hood's underside hangs,
+ * in inches off the floor. The hood's placement and the housing's band ask it. A
+ * chimney hood can go higher, as far as its cover has to reach (`place` in
+ * slots.ts); an island hood hangs at D20's 72", and is not asked.
  */
-export function aboveCookingSurfaceIn(mount: HoodMount | null, canopyIn: number): number {
-  return mount === "otr" ? OTR_ABOVE_COOKING_SURFACE_IN : canopyIn;
+export function hoodUndersideIn(cookingSurfaceIn: number, mount: HoodMount | null): number {
+  return cookingSurfaceIn + shopInstallDistanceIn(mount);
+}
+
+/**
+ * The cooking surface a package's wall hood hangs over, in inches.
+ *
+ * The figure its wall was drilled for (`builtForCooktopIn`, D13) in a package
+ * whose wall has a range opening. A cooktop on the run has no such figure of its
+ * own (E's 36" is written for its island), so it is that machine's glass. The
+ * package's own cooktop: E on one wall offers only CIT367YG, and a test goes red
+ * the day it offers a second one, which would have to be recorded when chosen.
+ */
+export function cookingSurfaceUnderHoodIn(pkg: Package, writtenIn: number, counterIn: number): number {
+  if (hoodMountFor(pkg) === "island") return writtenIn;
+  const id = pkg.defaultSelection["slot-cooktop"];
+  if (!id) return writtenIn;
+  const rows = (appliancesFile as unknown as { appliances: Appliance[] }).appliances;
+  const cooktop = rows.find((row) => row.id === id);
+  return (cooktop && cooktopGlassIn(counterIn, cooktop)) ?? writtenIn;
 }
 
 /**

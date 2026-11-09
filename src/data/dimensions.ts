@@ -1,5 +1,5 @@
 import { applianceBox } from "./applianceBox";
-import { openingAlong } from "./cookingSurface";
+import { cooktopGlassIn, openingAlong } from "./cookingSurface";
 import { cooktopHeight } from "./rangeModel";
 import {
   CABINET_STANDARDS,
@@ -13,7 +13,7 @@ import {
 } from "./room";
 import { SLOT_BY_ID } from "./slots";
 import { towerVents } from "./towerVent";
-import { ISLAND_HOOD } from "./hood";
+import { ISLAND_HOOD, manualNote } from "./hood";
 import { hoodMount } from "./hoodMount";
 import { onAxis, toWorld } from "./frame";
 import { cooksOnTheRun } from "./layoutTemplate";
@@ -124,15 +124,15 @@ export function dimensionsFor(
   // A cooktop set into the island is its glass, measured off the floor: its
   // box stands where it is set, and its own height is only the body. D20.
   // And one in a range's opening (B's and D's; Leo, 2026-11-07) is the same
-  // machine and the same glass; its line over it has no gas in it.
+  // machine and the same glass; its line over it has no gas in it. So is E's on
+  // one wall (Leo, 2026-11-08), where this read the machine's own 4".
   const cooktopInRangeOpening = cookingSlot === "slot-range" && rangeAppliance?.category === "cooktop";
+  const cooktopOnTheRun = cookingSlot === "slot-cooktop" && !onIsland;
+  const counterIn = ROOM.counterHeight * 12;
   const cooktop = !rangeAppliance
     ? ft(range.cutout.h)
-    : onIsland || cooktopInRangeOpening
-      ? (() => {
-          const box = applianceBox(range, rangeAppliance);
-          return range.position[1] + box.y + box.h;
-        })()
+    : rangeAppliance.category === "cooktop"
+      ? ft(cooktopGlassIn(counterIn, rangeAppliance) ?? counterIn)
       : cooktopHeight(rangeAppliance, applianceBox(range, rangeAppliance));
   const hoodBottom = hood.position[1];
   const hoodAppliance = selection["slot-hood"];
@@ -165,13 +165,16 @@ export function dimensionsFor(
       // A wall canopy's drawing gives gas 30"-40"; an island hood's guide gives
       // 30" for gas and induction alike and no maximum. Round 69.
       // An over-the-range microwave's 24" is Leo's shop practice (round 97,
-      // `aboveCookingSurfaceIn`), not a canopy's 30"-40".
+      // `shopInstallDistanceIn`), not a canopy's 30"-40". E on one wall says what
+      // the hood chosen says, from its own manual (Leo, 2026-11-08).
       ...(hood.mount === "island"
         ? {
             noteKey: "dimension.clearanceMinIsland",
             noteVars: { min: ISLAND_HOOD.aboveCookingSurfaceMinIn },
           }
-        : hoodAppliance && hoodMount(hoodAppliance) === "otr"
+        : cooktopOnTheRun && hoodAppliance
+          ? manualNote(hoodAppliance)
+          : hoodAppliance && hoodMount(hoodAppliance) === "otr"
           ? { noteKey: "dimension.shopPractice", noteVars: {} }
           : {
             noteKey: cooktopInRangeOpening ? "dimension.clearanceRangeCooktop" : "dimension.clearanceRange",

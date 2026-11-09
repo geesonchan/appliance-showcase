@@ -20,9 +20,15 @@ commits). It replaces the v1–v9 briefs that were pasted into chat. Written at
 the end of a long session, for the next one, which has only the repository:
 **section 6 is how Leo works, and is not written anywhere else in one place.**
 
-### Live, 2026-11-07
+### Live, 2026-11-08
 
-- **`07cb903`**, the server-reset round closed with 丁 (the test
+- **`7d8d437`**, the induction round, checked file by file after its Pages run
+  (42503308159, build and deploy each a success): twenty of twenty files the
+  same byte for byte as a build at `7d8d437` with the counter's address, each
+  with its status and headers recorded; the live main chunk
+  **`assets/index-De7IgzDD.js`** (decisions.md, "An induction cooktop in B and
+  D", "Shipped").
+- Before it, **`07cb903`**, the server-reset round closed with 丁 (the test
   environment and documents only, no page code), checked file by file after
   its Pages run (42446402554, build and deploy each a success): twenty of
   twenty files the same byte for byte as a build at `07cb903` with the
@@ -212,11 +218,11 @@ anywhere**: the file is the one source, and the tests read it.
   "The stone beside an oven tower that ends an L's leg at a wall", its
   items 5 to 9).
 
-### Next, in Leo's order (2026-10-24, after round 99d; amended 2026-11-05)
+### History: earlier orders, every item below done (not an order)
 
-Named here only; each has its entry in `docs/decisions.md`, which says where
-its figures are. **Every round a plan first, shown to Leo, built only once he
-confirms it** (Leo, 2026-10-24).
+Kept for where each finished round's plan and entry are. **Nothing here is
+still to do, and nothing here says what comes next**; that is the next
+section's one sentence. The list of 2026-10-24, amended 2026-11-05:
 
 1. **The geometries that climb with every model swap**
    (`docs/plans/geometry-leak-plan.md`; 甲, freed by hand, Leo 2026-10-24;
@@ -274,21 +280,18 @@ confirms it** (Leo, 2026-10-24).
    answers in decisions.md): **done**, `05bb6e1`, live, after his look at
    the local preview (2026-11-06).
 
-### What comes next
+### History: the order of 2026-11-06, the items done (not an order)
 
-**Leo's order is written in one place only**: `docs/decisions.md`, Open
-items, "His order of 2026-11-06" and its "Amended 2026-11-07" (Leo,
-2026-11-07: 「只写一处，别处引用」). Below, each item's state, in that order;
-each a plan first, shown to Leo, built only once he confirms it.
+What is still to do is in the place named above.
 
-1. **The fonts in the site's own files** — no request to Google, the system
+- **The fonts in the site's own files** — no request to Google, the system
    fonts shown until the files come. **Done**: the plan
    (`docs/plans/fonts-plan.md`), confirmed by Leo with his five answers,
    built, a full suite, committed and live as `664b570` (decisions.md,
    Open items, "The page waits for Google Fonts…", "Confirmed" and "Built
    2026-11-06"). Whether `geesonchan.github.io` opens in mainland China:
    待 Leo 报 — he has it tried on a phone there.
-2. **The test environment: the local server resetting the main chunk's
+- **The test environment: the local server resetting the main chunk's
    first request** (`ERR_CONNECTION_RESET`), which has made several full
    suites run for nothing. **Done 2026-11-07 by 丁; 戊 not needed** (Leo:
    「这一项可以收尾」). A full suite red again: first check the places that
@@ -321,7 +324,7 @@ each a plan first, shown to Leo, built only once he confirms it.
    green (4,673 s, 0 unrouted) and a pixel set the same as on the server;
    committed with Leo's look at the preview (decisions.md, Open items, "A
    browser test that times out…", "丁's wiring, built" and "Closed").
-3. **An induction cooktop in B's and D's rangetop choice** — registered
+- **An induction cooktop in B's and D's rangetop choice** — registered
    2026-11-07; **the plan**, `docs/plans/induction-plan.md`, in its second
    draft with Leo's decisions of 2026-11-07 and 2026-11-08 (every cooking
    surface in the stone on a swing-door `B36`, a rangetop too; a pair of
@@ -330,13 +333,15 @@ each a plan first, shown to Leo, built only once he confirms it.
    Leo's look at the local preview, `index-C9kPU2y7.js` (Open items, "An
    induction cooktop in B and D"; the report,
    `docs/plans/induction-report-2026-11-08.md`).
-4. **E on one wall: the dimension line's "4"** (Leo, 2026-11-08) — a plan first,
-   the figures from HMCB36WS's own document with pages, not B's and D's; its
-   pixel proof names those places as the changes (the same entry, "Found while
-   building it").
-5. **A galley** (Open items, "A layout shape switch";
-   `docs/plans/overnight-2026-10-23-galley.md`).
-6. **A U** (the same entry; `docs/plans/overnight-2026-10-24-u-shape.md`).
+- **E on one wall: the dimension line's "4"** (Leo, 2026-11-08): **done**, built 2026-11-08 and
+  committed after Leo's look at the local preview (Open items, "An induction
+  cooktop in B and D", "Found while building it";
+  the plan, `docs/plans/e-one-wall-dimension-plan.md`; the report,
+  `docs/plans/e-one-wall-report-2026-11-08.md`).
+
+### What comes next
+
+**Leo's order is written in one place only**: `docs/decisions.md`, Open items, "His order of 2026-11-06" and its "Amended 2026-11-07" (Leo, 2026-11-07: 「只写一处，别处引用」; 2026-11-08: 「HANDOFF 只留一句指向 decisions.md 的顺序」); every round a plan first, shown to Leo, built only once he confirms it.
 
 ### Registered, not in that order
 
@@ -350,6 +355,7 @@ decisions.md is right.
 - The copied textures, and the high tier's textures left on the graphics card after a drop to low — "The copied textures" (and its 2026-10-28 note).
 - A pin label drawn before its font comes stays soft after the swap — on a slow network the self-hosted build's labels are the old build's, pixel for pixel; Leo, 2026-11-06: not in the order yet — "A pin label drawn before its font comes stays blurred after the swap".
 - The full suite's time, and the 90 minutes a run is planned as, six ways to shorten it, none chosen — "The full suite takes 75 to 86 minutes".
+- An alternative's main title: what the machine is, nominal size, fuel and kind, the model number under it; `webSize` is in the CSV and blank on all 44 rows (2026-11-08). Its place in the order is in `docs/decisions.md` ("Amended 2026-11-07") — "An alternative's main title".
 - The import's `_meta` to carry no day and no path, **with the next import** (chosen, 3) — "The import's `_meta` is in the main chunk".
 - A hood's own outlet first, then 79a (the cabinet over the hood opens) and 79b (the duct turning); the 30" option in A paused — "Registered rounds after 78".
 - A Run Composer — D14; the two run towers on separate legs — D22, round 55.
@@ -770,9 +776,13 @@ Four things, each with its source:
 - **An induction cooktop in B's and D's rangetop choice** — registered
   2026-11-07 from Leo's words, built 2026-11-08 and committed after his look
   (Open items, "An induction cooktop in B and D"). What it left: E on one wall
-  reading its cooking surface as 4" (next in the order) and whether the model
-  list shows a nominal 36" for CIT367YG (Open items, "Should the model list
-  show a cooktop's nominal size?", for Leo later).
+  reading its cooking surface as 4" (done 2026-11-08) and whether the model
+  list shows a nominal 36" for CIT367YG (Open items, "An alternative's main
+  title", which took it in).
+- Whether a hood follows the cooking surface actually chosen, against D13's
+  drilled once — B, C and D with a 36-3/4" range read under the minimum; Leo,
+  2026-11-08: later (Open items, "Should a hood follow the cooking surface
+  actually chosen?").
 
 And the rounds Leo has queued, with what he decided for each: the last entry of
 the Open items, "Registered rounds after 78".

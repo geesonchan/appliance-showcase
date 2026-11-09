@@ -15,7 +15,7 @@ import {
 import { openingAlong } from "./cookingSurface";
 import { PACKAGE, PACKAGE_SLOTS } from "./packages";
 import { ovenTowerOf } from "./ovenTower";
-import { OTR_ABOVE_COOKING_SURFACE_IN, hoodMountFor } from "./hoodMount";
+import { cookingSurfaceUnderHoodIn, hoodMountFor, shopInstallDistanceIn } from "./hoodMount";
 import { SLOT_BY_ID } from "./slots";
 import { ONE_WALL_MAX_IN, cooksOnTheRun, cooktopLandingsIn, islandAcross } from "./layoutTemplate";
 import { acrossOf, axisIndex, extentsOnAxis, otherAxis, outward } from "./frame";
@@ -836,13 +836,14 @@ export function checkHeights(): LayoutViolation[] {
   // The canopy hangs its clearance above the cooking surface the wall was
   // drilled for — not above the counter, which is lower.
   const hoodSlot = SLOT_BY_ID["slot-hood"];
-  const builtFor = hoodSlot.builtForCooktopIn ?? base.counterHeightIn;
+  const builtFor = cookingSurfaceUnderHoodIn(PACKAGE, hoodSlot.builtForCooktopIn ?? base.counterHeightIn, base.counterHeightIn);
   const bottomAbove = inches(hoodSlot.position[1]) - builtFor;
   if (hoodMountFor(PACKAGE) === "otr") {
     // An over-the-range microwave is not a canopy: its underside is Leo's 24"
-    // (round 97, `aboveCookingSurfaceIn`), and D13's 30"-40" is a canopy's.
-    if (Math.abs(bottomAbove - OTR_ABOVE_COOKING_SURFACE_IN) > 1e-6) {
-      fail("d13-hood", `the OTR sits ${bottomAbove}" over the cooktop, wants ${OTR_ABOVE_COOKING_SURFACE_IN}"`);
+    // (round 97, `shopInstallDistanceIn`), and D13's 30"-40" is a canopy's.
+    const wantsIn = shopInstallDistanceIn("otr");
+    if (Math.abs(bottomAbove - wantsIn) > 1e-6) {
+      fail("d13-hood", `the OTR sits ${bottomAbove}" over the cooktop, wants ${wantsIn}"`);
     }
   } else if (bottomAbove < hood.aboveCooktopMinIn || bottomAbove > hood.aboveCooktopMaxIn) {
     fail(

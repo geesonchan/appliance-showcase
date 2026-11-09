@@ -2174,6 +2174,10 @@ It is one figure, `OTR_ABOVE_COOKING_SURFACE_IN`, asked through
 housing's band (`banksOn`) and the D13 check (`layoutRules.ts`, which holds an
 OTR to 24" and a canopy to 30"-40"). The dimension drawn from the cooking
 surface to it says "shop practice" / "店内做法" (approved by Leo, round 97).
+*(2026-11-08, E on one wall: these two names are gone. The figure is the shop's
+installation distance, `SHOP_INSTALL_DISTANCE_IN` and `shopInstallDistanceIn`,
+and the rule is `hoodUndersideIn`, both in hoodMount.ts; each hood's manual is
+written apart, in `HOOD_MANUALS`, hood.ts.)*
 
 **What this forbids:** a cabinet width off the 3" grid; a canopy hung by eye; a
 wall cabinet that stops short of the canopy's top; offering a blower because it
@@ -11881,8 +11885,13 @@ Registered, not scheduled. None of these is a round of its own.
      done 2026-11-07;
   3. **an induction cooktop in B's and D's rangetop choice** ("An induction
      cooktop in B and D", below; registered only);
-  4. the galley ("A layout shape switch");
-  5. the U (the same entry).
+  4. **E on one wall: the dimension line's "4"** (Leo, 2026-11-08; the plan,
+     `docs/plans/e-one-wall-dimension-plan.md`; **done 2026-11-08**);
+  5. **an alternative's main title** ("An alternative's main title", below;
+     registered only; Leo, 2026-11-08: after E on one wall, before the galley);
+  6. the galley ("A layout shape switch";
+     `docs/plans/overnight-2026-10-23-galley.md`);
+  7. the U (the same entry; `docs/plans/overnight-2026-10-24-u-shape.md`).
   Each a plan first, shown to him, built only once he confirms it.
 - **An induction cooktop in B and D.** *(Registered 2026-11-07; not started,
   no plan. Its place in Leo's order: "His order of 2026-11-06", "Amended
@@ -12067,18 +12076,228 @@ Registered, not scheduled. None of these is a round of its own.
     the quote sheet and the rough-in list, which was this session's own
     addition since the two sheets had no place for it, **stays** (「配置单和
     预留清单上新加的柜子说明那一行保留」).
+  - **Shipped: `7d8d437`.** CI's commands on the tree as committed, 2026-11-08
+    09:05:52-09:06:33: `npm ci`, `npm run test:unit` (128 files, 3,218) and
+    `npm run build`, each exit 0. Pages run 42503308159, success: build
+    09:06:57-09:08:07, deploy 09:08:11-09:08:22. Built at `7d8d437`, the tree
+    clean, with the counter's address: twenty of twenty files the same byte
+    for byte as the live site, every one status 200 (`index.html`, the main
+    chunk **`assets/index-De7IgzDD.js`**, 702,242 bytes, the CSS, `react`,
+    `three`, `shareQr` and the two licences `content-encoding: gzip`; the
+    twelve fonts `font/woff2`, none), `cache-control: max-age=600`,
+    `last-modified` 17:08:16 GMT, and the root the same as `index.html`. The
+    chunk Leo looked at, `index-C9kPU2y7.js`, is the same code without the
+    counter's address and with the previous commit in the footer.
+  - **Reading HMCB36WS's guide for the next round (2026-11-08)**, a dealer's
+    copy not yet in `docs/reference`, 9001396686: 30" minimum over gas and
+    over electric or induction, English pp. 9, 13, 14, 18, and no maximum
+    over the cooking surface; the plan is
+    `docs/plans/e-one-wall-dimension-plan.md`, nothing built. Once the line
+    reads the glass, five of the eight hoods offered on E's one wall read
+    29-3/4" and the over-the-range microwave 23-3/4"; for Leo in the plan.
+  - **Leo's decisions on that plan, 2026-11-08** (「第 5 节第 1、3、4 条照你的建
+    议。第 2 条 Leo 定」):
+    - The words beside the line are E's island's own, 「最小 30，燃气与电磁相同」.
+    - The guide's notice on heat at minimum clearance: no words on the page
+      this round, registered.
+    - The guide goes into `docs/reference`, from Thermador's or BSH's own
+      server first, a dealer's copy only failing that, its source written.
+    - **His own on the hoods: 「30" 和 24" 都从灶面（电磁灶玻璃面）量，照说明书。」**
+      AK7136BS-BF, AK7300AS, VCIN36GWS, HMWB361WS and PH36HWS go up 1/4", their
+      underside at 66-1/4", the microwave JVM3160RFSS at 60-1/4", in this
+      round, their 3D an intended change, shot apart with close-ups, every
+      other state identical to the pixel. **「规则只写一处：油烟机下沿 = 灶面高度
+      + 最小距离，不写死 66"、60"。」** Other places with such a height, B, D, A
+      and the rest: 「只查不改，结果写进计划」. 「改好计划给我看，不动手。」
+    - **His word on the five hoods' figures, 2026-11-08, and where it stopped.**
+      「没读过说明书不写"30 到 40"（D21）…如果哪台说明书的最小值不是 30"（微波炉
+      式不算），先停下报给我，不动手。」 Read, each from its maker's server:
+      AK7136BS-BF, Zephyr Gust guide SEP26.0501 p. 13, at least 24", at most
+      32" recommended; AK7300AS, Zephyr Tidal I guide SEP26.0801 p. 10, at
+      least 24", at most 34" recommended; VCIN36GWS p. 8, 30" to a suggested
+      40"; HMWB361WS, 9001396692_B pp. 9, 13, at least 30", gas or induction,
+      no maximum; PH36HWS, 8001213268_A pp. 6, 11, 30" to 40". **Two are not
+      30", so nothing is built**; the plan's section 3a holds the question
+      for him.
+    - **His answer, 2026-11-08.** 「两台 Zephyr 照你的建议：仍挂 66-1/4"（离玻璃面
+      30"），字写它们说明书自己的（AK7136BS-BF 最小 24、最大 32；AK7300AS 最小 24、
+      最大 34）。」 And two more, 「写进计划再动手」: 「公式里加的不叫"最小距离"，改叫
+      "店里的安装距离"：壁挂式 30"，微波炉式 24"（出处 Leo）。说明书的最小、最大值单独
+      记，作为核对用的范围。两样分开写，规则只写一处。」 「加一条测试：每台油烟机，店里的
+      安装距离都必须在它说明书的范围之内（有最大值的也要不超过）。先用一台假的、说明书最小
+      值 32" 的油烟机让它变红，再相信它。」 The five manuals are in `docs/reference`,
+      their sources in its README.
+    - **Built 2026-11-08; Leo looked at the local preview and confirmed,
+      2026-11-08: 「预览看过了，确认。」** With two things before the commit,
+      in his words: VCIN36GWS's housing test 「没有回旧代码跑过。现在用旧代码
+      跑一次，确认它是红的、红的原因对」 (red, 5.7083 ft against 5.7292 ft,
+      the housing 1/4" low; the report), and 「HANDOFF 只留一句指向
+      decisions.md 的顺序，旧列表里都是已完成的，删掉或明确标成历史」 (the
+      sentence kept, the lists under two headings marked history). The rule is
+      `hoodUndersideIn` (hoodMount.ts): the cooking surface plus the shop's
+      installation distance, 30" or 24". Each hood's manual is `HOOD_MANUALS`
+      (hood.ts), a check and the words beside the line, not in the rule. E on
+      one wall reads its cooktop's own glass; A to D and E's island keep what
+      they read. The figures and the proof are in
+      `docs/plans/e-one-wall-report-2026-11-08.md`.
+    - **Left as they are, seen while reading the manuals (2026-11-08)**: page 9
+      of HMCB36WS's guide warns a Masterpiece cooktop on high burners can
+      heat-damage a hood at its minimum: nothing on the page says so (Leo:
+      registered, not added). The same guide's page 8 gives the total height as
+      32-1/16" to 53-3/8" ducted, 36-3/8" to 57-5/16" recirculating, beside the
+      sheet's 30"-42" ("HMCB36WS's sheet gives a chimney height that does not
+      square"); its page 9 gives 53.3 lb, the sheet 69 lb. A, B, C and D still
+      say "gas min 30, max 40" whichever hood is chosen, against the two
+      Zephyrs' 24"-32" and 24"-34" and HMCB36WS's no maximum. JVM3160RFSS's
+      manual gives no figure for its underside, so the manual test has nothing
+      to hold it to. E on one wall reads its package's own cooktop: it offers
+      one, and a test goes red the day it offers a second.
   - **When its turn comes**: a plan first, with what only Leo can answer
     listed apart (Leo, 2026-11-07): a false drawer front above the swing
     door or not; which model; the hood; how the gas line is written once
     there is no gas machine; what the shop calls it; whether E follows to
     the same (E's island has "a drawer base" under its cooktop, drawn as a
     door; E's one wall has a door base).
-- **Should the model list show a cooktop's nominal size?** *(Leo, 2026-11-08:
-  「CIT367YG 在选择项里显示 37" 这一轮不改。另登记一条：选择项要不要显示名义尺寸（36"），
-  等我以后定」.)* The list's rows lead with each machine's own catalogue width,
-  so CIT367YG, offered for B's and D's 36" opening, reads `37"` (its glass); it
-  fits by its 34-3/4" cutout. Whether a row should read a nominal 36" instead
-  is for Leo, later; nothing is planned.
+- **An alternative's main title: what the machine is, not its model number.**
+  *(Registered 2026-11-08; not started, no plan. Its place in Leo's order is in
+  "Amended 2026-11-07" above, the one place the order is written.)*
+  Leo's words, 2026-11-08: 「当我们点中一个家电的时候，会显示这个家电的可替换选项，里面的
+  选项显示的主标题是这个item的归类更好，而不是model number，因为很多使用者都不熟悉model
+  number，只知道 36" Gas Range， 36" Gas Rangetop，30" Gas Range等」
+  - **Leo 已定（2026-11-08）**：
+    - 范围：所有家电的可替换选项都改，不只灶类；
+    - 主标题：名义尺寸 + 燃料（有的话）+ 种类，例如 36" Gas Rangetop、36" Induction Cooktop；
+    - 中文页主标题照叫法表；
+    - 名义尺寸：在 showcase_specs 加一列，由 Leo 填，导出 CSV 后导入（D4、D21）；代码不按实际宽度取整；
+    - 副标题：品牌 · 型号（预览时 Leo 再看）；
+    - 顺序：E 一字型这一轮之后、走廊式之前。
+  - **Merged into this one** (Leo, 2026-11-08), and solved by it: 上一轮登记的
+    "CIT367YG 在选择项里显示 37"，要不要显示名义尺寸 36""。
+  - **What a row shows today**, read only:
+    - The model card (`src/ui/ModelCard.tsx:119-128`). First line, the width:
+      `formatDimension(listWidth(appliance, slot).modelIn)`, which is
+      `widthIn ?? cutoutWidthIn ?? slot.cutout.w` (`src/data/fit.ts:254`), with
+      "Specified" beside the one chosen. Second line, `ModelLine`: `brand` ·
+      `model`. Then `FitNotes` (fillers, too wide, and so on). So on the card
+      the line on top is a width and the model number is under it.
+    - The list rail's alternatives (`src/ui/SwapPanel.tsx:286`). First line
+      `ModelLine`, `brand` · `model`, 13px, no width at all, then `FitNotes`.
+      Here the model number is the main title. The blowers' rows
+      (`SwapPanel.tsx:222`) are the same.
+    - No price on either (D12).
+  - **Every catalogue row by the new rule**, 44. The kind is `kindOf`'s
+    (`src/data/machineLabel.ts`, the naming table of round 99), the fuel is the
+    catalogue's `fuel`, in English title-cased to match his examples.
+    `[webSize]` stands where the size goes, because the column is blank on
+    every row (below); the code does not take a size from the width. Chinese
+    fuel words 燃气 and 电磁 are not in the naming table and are placeholders.
+
+  | Model | Actual width | CSV Width | webSize | English | Chinese |
+  |---|---|---|---|---|---|
+  | HIS8055U | 30 | 30 | blank | [webSize] Induction Range | [webSize] 电磁 炉头 |
+  | SHV78CM3N | 24 | 24 | blank | [webSize] Dishwasher | [webSize] 洗碗机 |
+  | SHX78CM5N | 24 | 24 | blank | [webSize] Dishwasher | [webSize] 洗碗机 |
+  | JVM3160RFSS | 29.875 | 30 | blank | [webSize] OTR | [webSize] 微波炉油烟机 |
+  | MFGS4030RS | 29.875 | 30 | blank | [webSize] Gas Range | [webSize] 燃气 炉头 |
+  | CIT367YG | 37 | 37 | blank | [webSize] Induction Cooktop | [webSize] 电磁 Drop in 炉灶片 |
+  | HMCB30WS | 29.9375 | 30 | blank | [webSize] Ventilation Hood | [webSize] 油烟机 |
+  | HMCB36WS | 35.9375 | 36 | blank | [webSize] Ventilation Hood | [webSize] 油烟机 |
+  | HMIB42WS | 42 | 42 | blank | [webSize] Ventilation Hood | [webSize] 油烟机 |
+  | HMWB361WS | 36 | 36 | blank | [webSize] Ventilation Hood | [webSize] 油烟机 |
+  | MD24BS | 24 | 24 | blank | [webSize] Microwave Drawer | [webSize] 微波抽屉 |
+  | ME301YP | 29.75 | 30 | blank | [webSize] Single Oven | [webSize] 单门烤箱 |
+  | MEM301WS | 29.75 | 30 | blank | [webSize] Combination Oven | [webSize] 组合烤箱 |
+  | PCG366W | 35.9375 | 36 | blank | [webSize] Gas Rangetop | [webSize] 燃气 炉灶头 |
+  | PH36HWS | 36 | 36 | blank | [webSize] Ventilation Hood | [webSize] 油烟机 |
+  | PO302W | 29.75 | 30 | blank | [webSize] Double Oven | [webSize] 双门烤箱 |
+  | PODS302B | 29.75 | 30 | blank | [webSize] Steam Combo Oven | [webSize] 蒸烤箱 |
+  | PRG304WH | 30 | 30 | blank | [webSize] Gas Range | [webSize] 燃气 炉头 |
+  | PRG366WH | 36 | 36 | blank | [webSize] Gas Range | [webSize] 燃气 炉头 |
+  | T18IF900SP | 18 | 18 | blank | [webSize] Freezer Column | [webSize] 冷冻柱 |
+  | T18IW905SP | 18 | 18 | blank | [webSize] Wine Column | [webSize] 酒柜柱 |
+  | T24IF905SP | 24 | 24 | blank | [webSize] Freezer Column | [webSize] 冷冻柱 |
+  | T24IR905SP | 24 | 24 | blank | [webSize] Refrigerator | [webSize] 冰箱 |
+  | T24IW905SP | 24 | 24 | blank | [webSize] Wine Column | [webSize] 酒柜柱 |
+  | T30IR905SP | 30 | 30 | blank | [webSize] Refrigerator | [webSize] 冰箱 |
+  | T36BT120NS | 36 | 36 | blank | [webSize] Refrigerator | [webSize] 冰箱 |
+  | T36FT820NS | 35.625 | 36 | blank | [webSize] Refrigerator | [webSize] 冰箱 |
+  | T36IT100NP | 36 | 36 | blank | [webSize] Refrigerator | [webSize] 冰箱 |
+  | TCM24PS | 24 | 24 | blank | [webSize] Coffee Machine | [webSize] 咖啡机 |
+  | VCIN36GWS | 33.75 | 36 | blank | [webSize] Ventilation Hood | [webSize] 油烟机 |
+  | VTI2FZ | none | blank | blank | none | none |
+  | VTN2FZ | none | blank | blank | none | none |
+  | VTR2FZ | none | blank | blank | none | none |
+  | AK7136BS-BF | 36 | 36 | blank | [webSize] Ventilation Hood | [webSize] 油烟机 |
+  | AK7300AS | 30 | 30 | blank | [webSize] Ventilation Hood | [webSize] 油烟机 |
+  | PRW24C01CG | 24 | 24 | blank | [webSize] Wine Cooler | [webSize] 小酒柜 |
+  | T18IW100SP | 17.75 | 18 | blank | [webSize] Wine Column | [webSize] 酒柜柱 |
+  | T18IW100SP-SS | 17.75 | 18 | blank | [webSize] Wine Column | [webSize] 酒柜柱 |
+  | T24IF905SP-SS | 24 | 24 | blank | [webSize] Freezer Column | [webSize] 冷冻柱 |
+  | T30IR905SP-SS | 30 | 30 | blank | [webSize] Refrigerator | [webSize] 冰箱 |
+  | T18IF900SP-SS | 18 | 18 | blank | [webSize] Freezer Column | [webSize] 冷冻柱 |
+  | T24IW905SP-SS | 24 | 24 | blank | [webSize] Wine Column | [webSize] 酒柜柱 |
+  | T18IW905SP-SS | 18 | 18 | blank | [webSize] Wine Column | [webSize] 酒柜柱 |
+  | T24IR905SP-SS | 24 | 24 | blank | [webSize] Refrigerator | [webSize] 冰箱 |
+
+  - **Which cannot be made**:
+    - **All 44 have no size**: `webSize` is blank on every row.
+    - **No kind in the naming table, and no width in the catalogue**: VTI2FZ,
+      VTN2FZ, VTR2FZ (blowers, `category: blower`; `kindOf` gives null).
+    - **The kind does not say which it is**: all 8 hoods are "Ventilation Hood"
+      / 油烟机, whether chimney (HMCB30WS, HMCB36WS), under-cabinet (HMWB361WS,
+      PH36HWS, AK7136BS-BF, AK7300AS), insert (VCIN36GWS) or island (HMIB42WS);
+      all 7 refrigerators are "Refrigerator" / 冰箱, whether built-in, counter
+      depth or column.
+    - **Unclear words**: PODS302B is double and steam, and the table calls it
+      "Steam Combo Oven" / 蒸烤箱; the cooktop's Chinese is "Drop in 炉灶片", so
+      with a fuel it reads `电磁 Drop in 炉灶片`; "OTR" is the English word for
+      JVM3160RFSS. The table has no fuel words in Chinese.
+    - **Same words in one slot's list, for the size alone to tell apart**:
+      SHV78CM3N, SHX78CM5N; MFGS4030RS, PRG304WH, PRG366WH; the 8 hoods; the
+      freezer columns; the wine columns; the 7 refrigerators. A stainless and a
+      panel-ready row of the same column (`-SS`) will read the same even with
+      a size.
+  - **`showcase_export.csv`, read and not imported** (Leo, 2026-11-08):
+    `C:\Users\leoch\Downloads\showcase_export.csv`, modified 2026-11-08
+    13:23:43 PST, 9,371 bytes, SHA-256
+    `93eef087502c7c729860e8940223108bc2c66d4f668183a62f68a02e3f048739`. **At
+    the import, check it is this file first; if not, say so and check the new
+    one again.** 44 rows, every catalogue model there and none extra.
+    - **`webSize` is there, the 11th column, between `pairModel` and
+      `cutoutWidthIn`, and blank on all 44 rows**; checked through the parser
+      and again by splitting the raw lines. So there are none that are not
+      numbers and none to compare with the width: Leo's example, CIT367YG, 37"
+      actual, webSize 36, cannot be checked yet.
+    - **Other columns.** The export is written over the same file, so there is
+      no earlier copy to compare cell by cell. What can be said: the importer's
+      own `convert`, run on this file in memory, gives 44 rows, none skipped, no
+      warning, and all 44 the same field for field as the committed
+      `data/appliances.json`. Two columns are not read by the importer, so
+      nothing is known of them: `webSize` and `makeupAirRequired`.
+    - The CSV's `Width` is not a nominal size to fall back on: CIT367YG reads
+      37 there, and the code is not to round.
+  - **When its turn comes**: a plan first (Leo, 2026-11-08), saying:
+    - **核对 Leo 已填的 webSize**: the result and what he still has to fill (not
+      how to fill it);
+    - this import also does what is already chosen, "`_meta` no longer carries
+      a day and a path" ("The import's `_meta` is in the main chunk");
+    - the kinds the naming table lacks, listed apart, to ask him.
+- **Should a hood follow the cooking surface actually chosen?** *(Leo,
+  2026-11-08: 「B、C、D 换 PRG304WH / PRG366WH 时油烟机低于最小值那几种，这一轮不改，
+  登记一条：要不要让油烟机跟着实际的灶走（和 D13"按套餐打孔一次、换灶不挪"有关），等我
+  以后定。」)* D13 hangs a hood once, off the surface the package's wall was
+  drilled for (`builtForCooktopIn`: A 36-3/4", B and D 36-7/16", C 36"), and
+  a swap that differs from it is what the clearance rule catches. Worked out
+  at `7d8d437` over 299 pairs of cooking machine and hood, the L and one
+  wall alike:
+  - **A**: none under its minimum.
+  - **B and D with PRG304WH or PRG366WH** (36-3/4"): the under-cabinet hoods
+    and VCIN36GWS 29-11/16", the chimney hoods 29-3/4", the microwave
+    23-11/16". With CIT367YG all clear (30-3/16", 30-1/4", 24-3/16").
+  - **C with PRG304WH**: AK7300AS 29-1/4", HMCB30WS 29-3/4", the microwave
+    23-1/4".
+  - Beside it, not changed: A to D still write "gas min 30, max 40" for the
+    two Zephyr hoods, whose guides give 24" to 32" and 24" to 34".
 - **The import's `_meta` is in the main chunk.** *(Leo, 2026-11-04: 「登记一
   条待办，不急…列出把它移出主文件的改法和代价，不要选」.)* The six modules
   that read the catalogue (`catalogue.ts`, `cookingSurface.ts`,
