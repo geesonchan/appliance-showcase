@@ -11889,9 +11889,11 @@ Registered, not scheduled. None of these is a round of its own.
      `docs/plans/e-one-wall-dimension-plan.md`; **done 2026-11-08**);
   5. **an alternative's main title** ("An alternative's main title", below;
      Leo, 2026-11-08: after E on one wall, before the galley; **done 2026-11-09**);
-  6. the galley ("A layout shape switch";
+  6. **the ovens' control panels** ("The ovens do not look like ovens", below; Leo,
+     2026-11-09: before the galley);
+  7. the galley ("A layout shape switch";
      `docs/plans/overnight-2026-10-23-galley.md`);
-  7. the U (the same entry; `docs/plans/overnight-2026-10-24-u-shape.md`).
+  8. the U (the same entry; `docs/plans/overnight-2026-10-24-u-shape.md`).
   Each a plan first, shown to him, built only once he confirms it.
 - **An induction cooktop in B and D.** *(Registered 2026-11-07; not started,
   no plan. Its place in Leo's order: "His order of 2026-11-06", "Amended
@@ -12352,6 +12354,111 @@ Registered, not scheduled. None of these is a round of its own.
     canvas the same in all 115 states; on a desktop the whole screen changes only in
     the card's words. The report: `docs/plans/alternative-title-card-height-report-2026-11-09.md`.
   - **Leo's look at the preview, 2026-11-09**: 「预览看过了，确认。」, the build `index-B1FNdAOA.js`.
+  - **Shipped: `735bfbc`.** CI's commands on the tree as committed: `npm ci`,
+    `npm run test:unit` (131 files, 3,345), `npm run build`, each exit 0. Pages run
+    42685806236, build and deploy each a success. Twenty of twenty files the same byte
+    for byte as a build at `735bfbc` with the counter's address, each with its status and
+    headers recorded; the live main chunk `assets/index-CWb90dQa.js` (the report, "发布").
+- **The ovens do not look like ovens.** *(Registered 2026-11-09; a plan next, not built.
+  Its place in Leo's order is in "Amended 2026-11-07" above.)* Leo's words, 2026-11-09:
+  「当我选择B套仓里面的Oven Combo的时候，换成Single Oven或者Double Oven的时候，Single Oven和
+  Double Oven的渲染都不像一个Oven，没有Oven中间的黑色Control Panel」 (with two screenshots of
+  the live a2a8646.)
+  - **The plan**, first draft, not built: `docs/plans/ovens-control-panel-plan.md`, a comparison
+    for each of the four in `docs/plans/ovens-control-panel-2026-11-09/`. PO302W's strip is
+    drawn, 3-1/2" of its 4-1/2" behind the door over it; only ME301YP's display is black.
+  - **Leo's answers, 2026-11-09**: 「烤箱计划看过了，第 5 节四条：1. 样子照规格书：ME301YP
+    灰色面板、中间黑色显示屏、印的按键；PO302W、PODS302B 不锈钢面板、四个旋钮、浅色显示屏；MEM301WS
+    顶上一条、两门之间一条。2. PO302W 在 B 里照甲：选这台时开口长到 50"，上面的柜门短 1-1/2"。测试守着：
+    换过去、换回来、分享链接重开，开口和柜门都跟着变。3. 四台都改。B、D、E 默认画面的变化列为有意要变的，
+    逐个做新旧特写；其余逐像素相同。4. 旋钮画成圆柱，按键上的字不画。」 And: 「面板高度先去各台的安装
+    说明书找印出来的尺寸（写文件名、页码）。找不到的，用规格书照片比例量，decisions.md 里写明"从照片量出，
+    推断"，并写出量的方法。」「ME301YP、PO302W 补上 trim 数据（规格书第 1 页：顶 3/8"–2"，侧 9/16"，
+    底 0；把手 2-5/8" 在第 2 页），机身站到柜门面上，不再退后 2"。」
+  - **The installation guides print no panel height.** Read: BSH 8001185222_A, the
+    built-in ovens' guide (PO302W, MEM301WS; now `docs/reference/thermador-built-in-ovens-install.pdf`);
+    BSH 8001140295_A, the combination ovens' insert (MEM301WS); and ME301YP's guide,
+    8001189463, from a dealer's copy (AJ Madison) — BSH's own `8001189463_A.pdf` is the
+    use and care guide. Each prints only the panel's lap over the cabinet, 3/8" to
+    2" (8001185222_A pp. 18 and 23; ME301YP's pp. 8 and 10), which is the trim's top.
+    The use and care guide's front drawings (pp. 13-14) carry no figures.
+  - **So the panels are measured off each sheet's page-1 photograph — 从照片量出，推断
+    (D21).** The method, `measure.py` in the round's scratch, repeatable: render page 1
+    at 4x; inside the photograph, the front's edges are the first and last rows and
+    columns where more than half the pixels are darker than the white page (luminance
+    under 235); inches per pixel from the sheet's printed overall height (29",
+    49", 52-1/16", 48-7/8"), checked against its printed width, 29-3/4" (the two
+    agree within 0.3%: 30.86/30.89, 24.16/24.24, 24.16/24.24, 24.25/24.34 px per inch);
+    then down a column a fifth of the way in, clear of knobs and displays, the dark
+    rows (luminance under 110) are the gaps between panel and door. Read so:
+    - ME301YP: panel 5.38" (the gap at 5.38" from the top, 0.49" thick); the black
+      display 4.86" x 2.07", centred, its top 1.17" down.
+    - MEM301WS: top panel 5.38"; the microwave door to 19.58"; the second panel
+      20.04" to 25.37" from the top (5.33"); the lower oven's door under it.
+    - PO302W: panel 5.38"; the doors divide 23.79" off the floor (the code's
+      23-3/4" holds). PODS302B: panel 5.40"; dividing 23.8" (holds).
+    - Knobs (PO302W, PODS302B), the displays' sizes and MEM301WS's pale display were
+      read off the same 4x render by eye against the same scale, to about 1/4".
+    Taken as 5-3/8" for every top panel and 5-5/16" for MEM301WS's second; the doors'
+    handles were left where the tower is hung from (39" and 22" on MEM301WS), and
+    both fall on their doors.
+  - **Built 2026-11-09, waiting for Leo's look; not committed.** The fronts in one
+    function, `ovenFront` (columnModel.ts, `OVEN_PANELS`), a single oven drawn by the
+    same component as the others; ME301YP and PO302W's trim in `ovenTrim.ts`, a machine
+    shorter than the tower's hole lapping its own cutout (ME301YP: 2" over 27"); the
+    tower's opening in `towerOven.ts`, grown to the chosen oven's standard cutout where
+    it is taller and never shrunk. **Written once, it is not B's alone**: PO302W opens
+    D's tower too (47-3/8" to 50"), and so does MEM301WS (to 48-1/2"); E's like B's.
+    D's round-97 link carries PO302W, so it opens a new room: the opening and the
+    cabinet over it, nothing else (`shareLinkV2.test.ts`, `CHANGED_BY_OVEN_TOWER`). The
+    report: `docs/plans/ovens-control-panel-report-2026-11-09.md`.
+    - **The full suite three times** (the report): the first red on smoke's "a hung oven's
+      front" — the knobs stand 1" proud and only handles were let stand proud; the
+      knobs now carry the same mark (`userData.proud`, SceneDebug's measure), the
+      picture the same to the pixel. The second red on fadeRebuild's back wall slider,
+      a phone, the CPU slowed four times: a 30 s wait for a button; it passed in the
+      first run and twice alone, nothing of this round's in its path (package A, no
+      tower). The third, on the same code, green: 175 files, 3,750.
+  - **Leo's look at the preview, 2026-11-10**: 「预览看过了，确认。」, the build
+    `index-DOxX9Pq4.js`. And, in his words: 「"开口跟着烤箱长、只长不缩"写成一条规则、B、D、
+    E 都适用：同意。decisions.md 里写明是 Leo 2026-11-10 确认的，第 97 轮那条 D 分享链接的变化
+    和原因一起写上。」 **So the rule is Leo's, confirmed 2026-11-10**: an oven tower's
+    opening grows to the chosen oven's standard cutout where that is taller than the
+    tower was built for, never shrinks, in B, D and E alike (`towerOven.ts`). **D's
+    round-97 link** (`shareLink.round97.json`) carries PO302W in D's tower, built for
+    PODS302B's 47-3/8": it opens to 50", PO302W's (po302w-spec.pdf p. 1), and the
+    cabinet over it starts at 62" off the floor where it started at 59-3/8", its top at
+    96" as before — every difference between that room on the old code and the new,
+    held by `shareLinkV2.test.ts`'s `CHANGED_BY_OVEN_TOWER`.
+  - **The knobs' exemption, made narrow (Leo, 2026-11-10)**: 「旋钮的豁免：证明它只认标成
+    旋钮的零件，凸出不超过规格书上旋钮的尺寸（写页码）；再加一条测试，让一块没标记的东西凸出
+    1"，要变红。先在现在的代码上跑红、再跑绿，结果写进报告。」 **No sheet or guide prints a
+    knob's size** (po302w-spec.pdf, pods302b-spec.pdf, 8001185222_A). What they print that
+    stands furthest off the door is the handle, "Door Handle Depth … 2 5/8" … Protrusion
+    of handle from door skin", page 2 of each sheet; a knob is held to that. The reading
+    is one function, `ovenFrontIn` (src/three/ovenFrontMeasure.ts): every part counts but a
+    handle, and a part marked `knob` and nothing else standing no more than 2-5/8"; the
+    knobs drawn stand 1" (D21: inferred). Its test: an unmarked part 1" proud counts, the
+    plane check red; a part marked only "proud" counts; a knob 2-7/8" proud counts. Red
+    on the code before, green after (the report).
+  - **Old builds for a pixel proof are built from the commit itself (Leo, 2026-11-10)**:
+    「以后像素证明的旧版本从提交本身构建（git worktree 之类），页脚版本戳别再出现 dev。」 The
+    ovens' old build was made from `git archive` of the commit, which has no history, so
+    its footer read `dev` and every whole-screen comparison had that line in it.
+- **A full suite's timeout: fadeRebuild, the back wall slider on a phone, the CPU slowed.**
+  *(Registered 2026-11-10, Leo: 「单独登记进 Open items：测试名、哪次全套测试、报错原文、单跑两次都过、
+  第三次全套测试也过。不挡这一轮。」; not in his order.)*
+  - **The test**: `tests/fadeRebuild.test.ts`, "a room rebuilt while cabinets are
+    faded > draws no faded cabinet solid, dragging the back wall slider, on a phone
+    with touch, the CPU slowed four times".
+  - **The run**: the ovens' round's second full suite, 2026-11-10 01:59:00-03:23:58,
+    on the ovens' code with the knobs' mark; red after 73,685 ms.
+  - **The error, as printed**: `locator.scrollIntoViewIfNeeded: Timeout 30000ms exceeded.`
+  - **Alone, twice, green**: 03:24:25-03:25:23 and 03:25:23-03:26:21 (54,790 ms and
+    54,863 ms). **The third full suite**, 03:26:35-04:51:07, the same code: green
+    (53,447 ms). The first, 00:27:41-01:55:42, green too (53,552 ms).
+  - Not this round's: it drags A's back wall, and A has no oven tower. The system log
+    shows no sleep in any of the three runs. Not investigated further.
 - **The phone's model card, 18-20px taller than before the main title.** *(Leo,
   2026-11-09: 「手机 390 下那两个状态卡高 18–20 像素、06 Dishwasher 上移、没被盖住：这次先上线，
   另登记一条，以后要修再单独做。」; registered, no plan, in no order.)* E on one wall at

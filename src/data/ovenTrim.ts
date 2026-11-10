@@ -48,6 +48,24 @@ export const OVEN_TRIM: Record<
     handleProudIn: 2.625,
     source: "docs/reference/pods302b-spec.pdf",
   },
+  // Leo, 2026-11-09: 「ME301YP、PO302W 补上 trim 数据（规格书第 1 页：顶 3/8"–2"，侧 9/16"，
+  // 底 0；把手 2-5/8" 在第 2 页），机身站到柜门面上，不再退后 2"。」 "3/8" to 2" – 9/16" – 0"",
+  // and "Door Handle Depth … 2 5/8"" on p. 2; the guides say the same of the
+  // control panel's lap (8001185222_A, 8001189463).
+  ME301YP: {
+    topIn: { min: 0.375, max: 2 },
+    sidesIn: 0.5625,
+    bottomIn: 0,
+    handleProudIn: 2.625,
+    source: "docs/reference/me301yp-spec.pdf",
+  },
+  PO302W: {
+    topIn: { min: 0.375, max: 2 },
+    sidesIn: 0.5625,
+    bottomIn: 0,
+    handleProudIn: 2.625,
+    source: "docs/reference/po302w-spec.pdf",
+  },
 };
 
 /** A cabinet door's thickness, which is what puts its face in front of the carcass. */
@@ -100,8 +118,12 @@ export function standardInstall(slot: Slot, appliance: Appliance): StandardInsta
   }
 
   // The machine stands on the bottom of its opening and its trim runs on up
-  // past the top; what is past the top is the overlap.
-  const top = h - trim.bottomIn - slot.cutout.h;
+  // past the top; what is past the top is the overlap. A machine shorter than
+  // the tower's hole (ME301YP in a tower built for 48-1/2") laps its own
+  // standard cutout, which the joiner builds in the hole with a panel over it.
+  const opening =
+    h < slot.cutout.h && appliance.cutoutHeightIn !== null ? appliance.cutoutHeightIn : slot.cutout.h;
+  const top = h - trim.bottomIn - opening;
   const doorFrontIn = (ROOM.counterDepth * 12) / 2 + CABINET_DOOR_IN;
   const sides = trim.sidesIn;
   return {

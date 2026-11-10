@@ -86,3 +86,24 @@ Leo 选乙。计划：`docs/plans/alternative-title-card-height-plan.md`。特�
 **一个像素**：`link-D-noisland`，没有打开卡，差 1 像素，和昨晚那两个是同一类噪声。
 
 特写：B 选中冰箱 `one-line-B-fridge-*`；E 选中油烟机 `one-line-E-hood-*`；E 换 JVM3160RFSS `one-line-E-JVM-hood-*`。每组 live、new、diff 三张。
+
+## 发布（2026-11-09，太平洋时间）
+
+提交 `735bfbc`，62 个文件：主标题、模型卡、E 一字型的发布记录一起。全套测试是这份代码（02:20:12–03:44:37，exit 0，3,732 条），之后只改了文档。
+
+| 步骤 | 开始 | 结束 | exit |
+|---|---|---|---|
+| `npm ci` | 11:40:38 | 11:40:47 | 0 |
+| `npm run test:unit`（131 个文件，3,345 条） | 11:40:47 | 11:41:09 | 0 |
+| `npm run build`（`index-B1FNdAOA.js`） | 11:41:09 | 11:41:25 | 0 |
+| 提交和推送 | 11:41:37 | 11:41:44 | 0 |
+| Pages run 42685806236，build | 11:41:50 | 11:43:23 | success |
+| Pages run 42685806236，deploy | 11:43:28 | 11:43:39 | success |
+| 提交后带计数器地址构建（`index-CWb90dQa.js`） | 11:43:45 | 11:44:00 | 0 |
+| 和线上逐字节对比 | 11:44:00 | 11:44:04 | 0 |
+
+**线上 `735bfbc`，主文件 `assets/index-CWb90dQa.js`。** 20 个文件 20 个逐字节相同，每个状态码 200；根地址 200，和 `index.html` 相同。
+
+响应头：`cache-control: max-age=600`，`server: GitHub.com`，20 个文件都一样；`last-modified` 是 `Mon, 09 Nov 2026 19:43:32`、`:33`、`:34 GMT` 三个时间。字体 `font/woff2`，不压缩；js `application/javascript; charset=utf-8`、css `text/css; charset=utf-8`、html `text/html; charset=utf-8`、txt `text/plain; charset=utf-8`，都是 gzip。
+
+本节写在提交之后，所以不在 `735bfbc` 里。

@@ -39,7 +39,7 @@ function selectionOf(m: RoomModules, pkg: any, swap?: [string, string]): Record<
 }
 
 /** Each slot whose model the room is built round, and how to say so (rounds 83, 87, 89). */
-const SETTERS: Record<string, string> = { "slot-range": "setRangeModel", "slot-hood": "setHoodModel", "slot-fridge": "setFridgeModel" };
+const SETTERS: Record<string, string> = { "slot-range": "setRangeModel", "slot-hood": "setHoodModel", "slot-fridge": "setFridgeModel", "slot-microwave": "setOvenModel", "slot-oven": "setOvenModel" };
 
 /** Every arrangement the L's switches make, as round 98a's dump built them. */
 function lArrangements(): Record<string, unknown>[] {

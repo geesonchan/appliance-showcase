@@ -38,10 +38,21 @@ export const COMBO_OVEN = {
   microwaveHandleIn: 39,
   /** The lower oven's. */
   ovenHandleIn: 22,
-  /** Where the microwave door starts, and the oven door stops. */
-  microwaveSillIn: 26,
-  /** The control panel across the top, above both doors. */
-  controlIn: 8,
+  /**
+   * Where the microwave door starts. Under it, the lower oven's own panel,
+   * between the two doors, and under that the oven's door.
+   *
+   * 2026-11-09 (Leo: 「MEM301WS 顶上一条、两门之间一条」): measured off the sheet's
+   * page-1 photograph (D21: inferred; the method in docs/decisions.md, "The
+   * ovens do not look like ovens"). Until then 26", with no panel between the
+   * doors and 8" across the top. The two handles above did not move: the
+   * tower is hung from them.
+   */
+  microwaveSillIn: 29.1875,
+  /** The lower oven's panel, between the doors: 5-5/16" off the photograph. */
+  lowerControlIn: 5.3125,
+  /** The microwave's panel across the top: 5-3/8" off the photograph (8" until 2026-11-09). */
+  controlIn: 5.375,
   /**
    * How far off the floor the opening may start, from the drawing.
    *
@@ -247,8 +258,12 @@ export const STEAM_OVEN = {
   drawerFrontIn: 8,
   /** Where the lower door stops and the steam oven's door starts. */
   splitIn: 23.75,
-  /** The control strip across the top. */
-  controlIn: 4.5,
+  /**
+   * The control panel across the top: 5-3/8", PO302W's and PODS302B's alike,
+   * measured off each sheet's page-1 photograph (D21: inferred; 4-1/2" until
+   * Leo's 2026-11-09).
+   */
+  controlIn: 5.375,
   /** The upper door's bar, down from its own top. */
   upperHandleDropIn: 1.75,
 };
@@ -358,6 +373,8 @@ export interface ComboOvenParts {
     kind: "oven" | "microwave" | "steam" | "control";
     /** Where the bar sits on it, or null for the control panel. */
     handleAt: number | null;
+    /** A control panel's face: what the sheet's photograph shows on it. */
+    panel?: OvenPanel;
   }[];
   handle: { r: number; proud: number; width: number };
   glassInset: number;
@@ -380,11 +397,13 @@ export function comboOvenParts(box: { w: number; h: number }): ComboOvenParts {
   const at = (inches: number) => (ft(inches) / drawn) * box.h;
 
   const microwaveSill = at(C.microwaveSillIn);
+  const lowerControl = microwaveSill - reveal - at(C.lowerControlIn);
   const controlFloor = box.h - at(C.controlIn);
 
   return {
     doors: [
-      { band: [0, microwaveSill - reveal] as const, kind: "oven", handleAt: at(C.ovenHandleIn) },
+      { band: [0, lowerControl - reveal] as const, kind: "oven", handleAt: at(C.ovenHandleIn) },
+      { band: [lowerControl, microwaveSill - reveal] as const, kind: "control", handleAt: null },
       {
         band: [microwaveSill, controlFloor - reveal] as const,
         kind: "microwave",
@@ -424,3 +443,77 @@ export const isCombo = (appliance: Appliance) => appliance.installType.includes(
 
 /** True when this machine is a full-height column rather than an under-counter box. */
 export const isColumn = (appliance: Appliance) => appliance.installType.includes("column");
+
+
+/**
+ * A control panel's face, as each oven's spec sheet shows it on page 1.
+ *
+ * Leo, 2026-11-09 (the ovens' plan, section 5): 「样子照规格书：ME301YP 灰色面板、中间
+ * 黑色显示屏、印的按键；PO302W、PODS302B 不锈钢面板、四个旋钮、浅色显示屏；MEM301WS 顶上
+ * 一条、两门之间一条」, 「旋钮画成圆柱，按键上的字不画」. The keys are printed on the
+ * glass and are not drawn.
+ *
+ * Every figure is off the photograph (D21: inferred). The installation guides
+ * print no panel height — 8001185222_A and 8001140295_A (BSH), and ME301YP's
+ * 8001189463 — only the panel's lap over the cabinet, 3/8"-2", which is the
+ * trim's top (ovenTrim.ts). The method is in docs/decisions.md, "The ovens do
+ * not look like ovens".
+ */
+export interface OvenPanel {
+  /** Grey glass across the whole panel, steel framing a grey glass field, or plain steel. */
+  finish: "greyGlass" | "framedGlass" | "stainless";
+  /** The display, centred across the panel; its top `dropIn` below the panel's. `frameIn`: a grey frame round a pale screen. */
+  display: { colour: "black" | "light"; wIn: number; hIn: number; dropIn: number; frameIn?: number };
+  /** Knob centres, in inches from the machine's left; drawn as cylinders. */
+  knobs: { xIn: number }[];
+  knobDiameterIn: number;
+}
+
+const FOUR_KNOBS = [{ xIn: 2.75 }, { xIn: 6.5 }, { xIn: 23.25 }, { xIn: 27 }];
+
+export const OVEN_PANELS: Record<string, OvenPanel> = {
+  // me301yp-spec.pdf p. 1: "full surface gray glass"; the display black, 4-7/8" x 2-1/16".
+  ME301YP: { finish: "greyGlass", display: { colour: "black", wIn: 4.875, hIn: 2.0625, dropIn: 1.1875 }, knobs: [], knobDiameterIn: 0 },
+  // mem301ws-spec.pdf p. 1: "gray glass on stainless steel"; a pale display in each panel.
+  MEM301WS: { finish: "framedGlass", display: { colour: "light", wIn: 5.5, hIn: 1.375, dropIn: 0.625 }, knobs: [], knobDiameterIn: 0 },
+  // po302w-spec.pdf p. 1: steel, four knobs, a grey-framed pale display.
+  PO302W: { finish: "stainless", display: { colour: "light", wIn: 9.5, hIn: 2.75, dropIn: 1, frameIn: 0.5 }, knobs: FOUR_KNOBS, knobDiameterIn: 2.5 },
+  // pods302b-spec.pdf p. 1: the same panel as PO302W's.
+  PODS302B: { finish: "stainless", display: { colour: "light", wIn: 9.5, hIn: 2.75, dropIn: 1, frameIn: 0.5 }, knobs: FOUR_KNOBS, knobDiameterIn: 2.5 },
+};
+
+/** A single oven: the control panel across the top, 5-3/8" (ME301YP's photograph), one door under it. */
+export const SINGLE_OVEN = {
+  controlIn: 5.375,
+  /** The bar, down from the door's top: about 1" on the photograph. */
+  handleDropIn: 1,
+};
+
+export function singleOvenParts(box: { w: number; h: number }): ComboOvenParts {
+  const reveal = ft(COMBO_OVEN.revealIn);
+  const controlFloor = box.h - ft(SINGLE_OVEN.controlIn);
+  return {
+    doors: [
+      { band: [0, controlFloor - reveal] as const, kind: "oven", handleAt: controlFloor - reveal - ft(SINGLE_OVEN.handleDropIn) },
+      { band: [controlFloor, box.h] as const, kind: "control", handleAt: null },
+    ],
+    handle: {
+      r: ft(COMBO_OVEN.handleDiameterIn) / 2,
+      proud: ft(COMBO_OVEN.handleProudIn),
+      width: box.w * COMBO_OVEN.handleFraction,
+    },
+    glassInset: ft(COMBO_OVEN.glassInsetIn),
+  };
+}
+
+/**
+ * An oven's front: its doors and its control panels, bottom to top, each panel
+ * with its face (`OVEN_PANELS`). One function for every wall oven, so a
+ * single oven is drawn as the others are rather than as a box with a door.
+ */
+export function ovenFront(appliance: Appliance, box: { w: number; h: number }): ComboOvenParts {
+  const parts = isCombo(appliance) ? comboOvenParts(box) : isDouble(appliance) ? doubleOvenParts(box) : singleOvenParts(box);
+  const panel = OVEN_PANELS[appliance.model];
+  if (!panel) return parts;
+  return { ...parts, doors: parts.doors.map((door) => (door.kind === "control" ? { ...door, panel } : door)) };
+}

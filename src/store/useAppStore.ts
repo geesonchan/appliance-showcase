@@ -5,9 +5,10 @@ import {
   migrateSelection,
 } from "../data/catalogue";
 import { DEFAULT_PACKAGE, PACKAGE_BY_ID, PACKAGE_SHAPE, packageInShape, setPackage, slotsKeptPerShape } from "../data/packages";
-import { setActivePackage, setFridgeModel, setHoodModel, setLayoutParams, setLayoutParamsGrowing, setRangeModel } from "../data/layoutState";
+import { setActivePackage, setFridgeModel, setHoodModel, setLayoutParams, setLayoutParamsGrowing, setOvenModel, setRangeModel } from "../data/layoutState";
 import { recordRangeModel } from "../data/cookingSurface";
 import { recordFridgeModel } from "../data/fridgeMount";
+import { recordTowerOven, towerSlotOf } from "../data/towerOven";
 import { recordHoodModel } from "../data/hoodMount";
 import { oneWallWantedIn, paramLimitsFor } from "../data/layoutTemplate";
 import type { LayoutShape } from "../data/layoutShape";
@@ -343,6 +344,8 @@ function recordModels(selection: Record<SlotId, string>, packageId: string, shap
   recordHoodModel(APPLIANCE_BY_ID[selection["slot-hood"]], packageId, shape);
   recordRangeModel(packageId, APPLIANCE_BY_ID[selection["slot-range"]], shape);
   recordFridgeModel(APPLIANCE_BY_ID[selection["slot-fridge"]], packageId, shape);
+  const tower = towerSlotOf(PACKAGE_BY_ID[packageId]);
+  recordTowerOven(tower ? APPLIANCE_BY_ID[selection[tower]] : undefined, packageId, shape);
 }
 
 /** The switches a room can grow for, each with the words for why. */
@@ -537,6 +540,22 @@ export const useAppStore = create<AppState>((set, get) => ({
       }));
       return;
     }
+    if (slot === towerSlotOf(PACKAGE_BY_ID[get().packageId])) {
+      // An oven whose standard cutout is taller than the tower was built for
+      // opens the tower to it, and the cabinet over it is that much shorter
+      // (Leo, 2026-11-09, 甲): the room is generated again where it stands.
+      const result = setOvenModel(APPLIANCE_BY_ID[applianceId], get().packageId);
+      if (!result.ok) {
+        set({ layoutIssues: result.reasons });
+        return;
+      }
+      set((s) => ({
+        selection: { ...s.selection, [slot]: applianceId },
+        ...(result.params ? { layoutParams: result.params } : {}),
+        layoutVersion: result.rebuilt ? s.layoutVersion + 1 : s.layoutVersion,
+      }));
+      return;
+    }
     if (slot === "slot-fridge") {
       // A built-in stands in an enclosure and a counter-depth machine among
       // rule 11's parts, each to its own height (round 89): changing one for
@@ -618,6 +637,9 @@ export const useAppStore = create<AppState>((set, get) => ({
       // And the refrigerator, which a switch carries across only when it is
       // built in the way the new slot is (round 89).
       if (selection["slot-fridge"]) setFridgeModel(APPLIANCE_BY_ID[selection["slot-fridge"]], packageId);
+      // And the tower's oven, whose cutout may open the tower (Leo, 2026-11-09, 甲).
+      const tower = towerSlotOf(PACKAGE_BY_ID[packageId]);
+      if (tower && selection[tower]) setOvenModel(APPLIANCE_BY_ID[selection[tower]], packageId);
       return {
         packageId,
         selection,
@@ -800,6 +822,8 @@ export const useAppStore = create<AppState>((set, get) => ({
     setHoodModel(APPLIANCE_BY_ID[back.selection["slot-hood"]]);
     recordRangeModel(back.packageId, APPLIANCE_BY_ID[back.selection["slot-range"]]);
     recordFridgeModel(APPLIANCE_BY_ID[back.selection["slot-fridge"]], back.packageId);
+    const backTower = towerSlotOf(PACKAGE_BY_ID[back.packageId]);
+    recordTowerOven(backTower ? APPLIANCE_BY_ID[back.selection[backTower]] : undefined, back.packageId);
     // The room as it was, a slider's 6" beside the tower included.
     const result = setLayoutParams(back.layoutParams, { dragged: true });
     set((s) => ({

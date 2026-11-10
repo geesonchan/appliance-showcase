@@ -22,7 +22,8 @@ the end of a long session, for the next one, which has only the repository:
 
 ### Live, 2026-11-08
 
-- **`a2a8646`**, E on one wall, checked file by file after its Pages run
+- **`735bfbc`**, an alternative's main title and the desktop card kept to its height, checked file by file after its Pages run (42685806236, build and deploy each a success): twenty of twenty files the same byte for byte as a build at `735bfbc` with the counter's address, each with its status and headers recorded; the live main chunk **`assets/index-CWb90dQa.js`** (`docs/plans/alternative-title-card-height-report-2026-11-09.md`, "发布").
+- Before it, **`a2a8646`**, E on one wall, checked file by file after its Pages run
   (42553787002, build and deploy each a success): twenty of twenty files the
   same byte for byte as a build at `a2a8646` with the counter's address, each
   with its status and headers recorded; the live main chunk
@@ -356,6 +357,7 @@ decisions.md is right.
 - A pin label drawn before its font comes stays soft after the swap — on a slow network the self-hosted build's labels are the old build's, pixel for pixel; Leo, 2026-11-06: not in the order yet — "A pin label drawn before its font comes stays blurred after the swap".
 - The full suite's time, and the 90 minutes a run is planned as, six ways to shorten it, none chosen — "The full suite takes 75 to 86 minutes".
 - An alternative's main title: what the machine is, nominal size, fuel and kind, the model number under it; Leo has filled `webSize` (2026-11-08); the plan, third draft, `docs/plans/alternative-title-plan.md`, built, with the desktop card's height mended (`docs/plans/alternative-title-card-height-plan.md`), confirmed by him 2026-11-09. Its place in the order is in `docs/decisions.md` ("Amended 2026-11-07") — "An alternative's main title".
+- A full suite's timeout, fadeRebuild's back wall slider on a slowed phone (2026-11-10, red once in three runs, green alone twice) — "A full suite's timeout".
 - The phone's model card 18-20px taller than before the main title, `06 Dishwasher` moved up, nothing covered; Leo, 2026-11-09: shipped so, mended later in a round of its own — "The phone's model card".
 - The import's `_meta` carries no day and no path: **done with 2026-11-08's import** — "The import's `_meta` is in the main chunk".
 - A hood's own outlet first, then 79a (the cabinet over the hood opens) and 79b (the duct turning); the 30" option in A paused — "Registered rounds after 78".
@@ -666,7 +668,9 @@ list.
   states, the quality locked (`?qualityLock=1`), the old build and the new
   each shot twice, alternated (old, new, old, new), each build also against
   itself. A difference in the room is never explained away; close-ups
-  before and after for Leo where it changes.
+  before and after for Leo where it changes. **The old build is built from
+  the commit itself** (a `git worktree` of it), so its footer stamps the
+  commit and not `dev` (Leo, 2026-11-10).
 - **The full suite** (`npm test`; how long it takes, and the 90 minutes a
   run is planned as, are in decisions.md, Open items, "The full suite
   takes 75 to 86 minutes"):

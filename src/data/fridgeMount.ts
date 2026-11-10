@@ -2,6 +2,7 @@ import appliancesFile from "../../data/appliances.json";
 import type { Appliance, Package, PackageSlot, SlotId } from "../types";
 import { PACKAGE_SHAPE, shapeOfChoice, shapeOfPackage, slotsOf } from "./packages";
 import type { LayoutShape } from "./layoutShape";
+import { towerSlotAsBuilt, towerSlotOf } from "./towerOven";
 
 /**
  * How a refrigerator installs, and so what stands round it. Round 89, Leo.
@@ -102,5 +103,8 @@ export function fridgeSlotAsBuilt(pkg: Package, spec: PackageSlot): PackageSlot 
 export function slotsAsBuilt(pkg: Package): Record<SlotId, PackageSlot> {
   const spec = slotsOf(pkg);
   const fridge = spec["slot-fridge"];
-  return fridge ? { ...spec, "slot-fridge": fridgeSlotAsBuilt(pkg, fridge) } : spec;
+  const built = fridge ? { ...spec, "slot-fridge": fridgeSlotAsBuilt(pkg, fridge) } : spec;
+  // And the oven tower's opening, as the chosen oven needs it (Leo, 2026-11-09, 甲).
+  const tower = towerSlotOf(pkg);
+  return tower && built[tower] ? { ...built, [tower]: towerSlotAsBuilt(pkg, built[tower]) } : built;
 }

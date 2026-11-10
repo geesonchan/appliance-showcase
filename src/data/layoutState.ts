@@ -17,6 +17,7 @@ import { rebuildSlots } from "./slots";
 import { hoodModelFor, hoodMount, recordHoodModel } from "./hoodMount";
 import { cookingSurfaceKind, rangeFillerIn, rangeModelFor, recordRangeModel } from "./cookingSurface";
 import { fridgeModelFor, fridgeMount, fridgeOpeningHeightIn, recordFridgeModel } from "./fridgeMount";
+import { recordTowerOven, towerOpeningHeightIn, towerOvenFor, towerSlotOf } from "./towerOven";
 import type { Appliance } from "../types";
 
 /**
@@ -146,6 +147,38 @@ export function setRangeModel(
   const result = rebuildWhereItStands(asked);
   if (!result.ok) {
     recordRangeModel(packageId, before);
+    asDragged(() => setLayoutParams(asked));
+    return { ...result, rebuilt: false };
+  }
+  return { ...result, rebuilt: true };
+}
+
+/**
+ * The oven the customer has chosen for the package's tower, whose standard
+ * cutout may need a taller opening than the tower was built for (Leo,
+ * 2026-11-09, 甲; `towerOven.ts`). Where the opening it needs differs, the
+ * room is generated again where it stands, as a range of another kind
+ * regenerates it; otherwise nothing round it changes. Refused, the previous
+ * choice is put back and the reasons come out.
+ */
+export function setOvenModel(
+  appliance: Appliance | undefined,
+  packageId: string = PACKAGE.id,
+): { ok: boolean; reasons: Refusal[]; rebuilt: boolean; grown?: WallGrowth[]; params?: LayoutParams } {
+  const before = towerOvenFor(PACKAGE);
+  recordTowerOven(appliance, packageId);
+  if (packageId !== PACKAGE.id) return { ok: true, reasons: [], rebuilt: false };
+  const slot = towerSlotOf(PACKAGE);
+  const built = slot ? slotsOf(PACKAGE)[slot].heightIn : undefined;
+  if (built === null || built === undefined) return { ok: true, reasons: [], rebuilt: false };
+  const after = towerOvenFor(PACKAGE);
+  if (towerOpeningHeightIn(built, before) === towerOpeningHeightIn(built, after)) {
+    return { ok: true, reasons: [], rebuilt: false };
+  }
+  const asked = REQUESTED_PARAMS;
+  const result = rebuildWhereItStands(asked);
+  if (!result.ok) {
+    recordTowerOven(before, packageId);
     asDragged(() => setLayoutParams(asked));
     return { ...result, rebuilt: false };
   }

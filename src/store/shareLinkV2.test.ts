@@ -100,6 +100,20 @@ const CHANGED_BY_INDUCTION: Record<string, string> = {
   E: "799cc6eece751f38586b134ef37b61fc08f3bd35072494fec8f3c03dd16cd240",
 };
 
+/**
+ * Package D's, which opens a different room since the ovens' round, because
+ * Leo changed the tower (2026-11-09, 甲): its link carries PO302W in D's
+ * tower, built for PODS302B's 47-3/8", and an oven whose standard cutout is
+ * taller opens the tower to it — 50", PO302W's (po302w-spec.pdf p. 1). Those
+ * are every difference between this room on the old code and the new: the
+ * opening 47-3/8" to 50", and the cabinet over it from 59-3/8" to 62" off the
+ * floor, its top at 96" as it was. Hashed as `roomAsRound97Held` hashes, on
+ * this round's code; looked up first.
+ */
+const CHANGED_BY_OVEN_TOWER: Record<string, string> = {
+  D: "e5cb84835d98a504e1a0fc5b92f96278c9eb8a773402e0d6b9e36669ca4fe96d",
+};
+
 const CHANGED_BY_END_ROUND: Record<string, string> = {
   B: "9007cddd2f6294ca2086858edf53c7238278bb78a24da4db1869c71db39735cf",
 };
@@ -125,7 +139,7 @@ describe("the five links round 97 wrote, one per package", () => {
     it("opens the room round 97 opened, every run, opening and cabinet box", () => {
       freshPage();
       openSharedLink(fixture.link);
-      expect(roomAsRound97Held()).toBe(CHANGED_BY_INDUCTION[code] ?? CHANGED_BY_END_ROUND[code] ?? CHANGED_BY_FRIDGE_FRONT[code] ?? CHANGED_BY_ROUND_101[code] ?? fixture.room);
+      expect(roomAsRound97Held()).toBe(CHANGED_BY_OVEN_TOWER[code] ?? CHANGED_BY_INDUCTION[code] ?? CHANGED_BY_END_ROUND[code] ?? CHANGED_BY_FRIDGE_FRONT[code] ?? CHANGED_BY_ROUND_101[code] ?? fixture.room);
     });
   });
 });

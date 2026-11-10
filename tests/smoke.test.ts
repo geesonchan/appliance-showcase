@@ -860,7 +860,8 @@ describe("a hung oven's front", () => {
   /**
    * Round 36, Leo: a standard install. The machine's trim laps over its cutout
    * and its front is in the plane of the tower's doors, not back inside the
-   * hole. Handles excepted — they are meant to stand proud.
+   * hole. Handles excepted — they are meant to stand proud — and since the
+   * ovens' round (Leo, 2026-11-09) the knobs on PO302W's and PODS302B's panels.
    */
   it("stands in the plane of the tower's doors, in B and D", async () => {
     const { page, errors } = await openPage(DESKTOP, false, "?debug=1");
@@ -874,7 +875,7 @@ describe("a hung oven's front", () => {
       await page.waitForTimeout(600);
       const fronts = await page.evaluate(() =>
         (
-          window as unknown as { __ovenFronts: () => { slot: string; ovenIn: number; doorIn: number }[] }
+          window as unknown as { __ovenFronts: () => { slot: string; ovenIn: number; doorIn: number; knobsIn: number | null }[] }
         ).__ovenFronts(),
       );
       const front = fronts.find((each) => each.slot === slot);
@@ -883,6 +884,11 @@ describe("a hung oven's front", () => {
       expect(Math.abs(off), `${code}: oven front ${off.toFixed(3)}" from the door plane`).toBeLessThanOrEqual(
         0.125 + 1e-3,
       );
+      // The knobs let stand proud are D's PODS302B's, within the handle's
+      // published 2-5/8" (Leo, 2026-11-10; ovenFrontMeasure.ts); B's MEM301WS has none.
+      if (code === "D") expect(front!.knobsIn, "D: PODS302B's knobs").toBeGreaterThan(0.5);
+      if (code === "D") expect(front!.knobsIn!).toBeLessThanOrEqual(2.625);
+      if (code === "B") expect(front!.knobsIn).toBeNull();
     }
     expect(errors).toEqual([]);
     await page.context().close();

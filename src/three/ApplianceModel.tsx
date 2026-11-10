@@ -7,11 +7,9 @@ import { SCRIBE_IN } from "../data/cookingSurface";
 import { standardInstall, type StandardInstall } from "../data/ovenTrim";
 import {
   coffeeParts,
-  comboOvenParts,
-  doubleOvenParts,
-  isCombo,
+  ovenFront,
+  type OvenPanel,
   isColumn,
-  isDouble,
   wineColumnParts,
   wineColumnStance,
 } from "../data/columnModel";
@@ -94,6 +92,13 @@ export function ApplianceModel({ slot, appliance }: ApplianceModelProps) {
   // as a cabinet finish.
   const trim = { ...surface(renderMode, "#8E938D", { metalness: 0.9, roughness: 0.25 }), hardware: true };
   const glass = { ...surface(renderMode, "#2B322D", { metalness: 0.3, roughness: 0.1 }), hardware: true };
+  // An oven's control panels (Leo, 2026-11-09): grey glass, and a black or a
+  // pale display, as each sheet's photograph shows them.
+  const panelFaces: PanelFaces = {
+    glass: { ...surface(renderMode, "#5F6462", { metalness: 0.15, roughness: 0.25 }), hardware: true },
+    dark: { ...surface(renderMode, "#121514", { metalness: 0.2, roughness: 0.1 }), hardware: true },
+    light: { ...surface(renderMode, "#D9DCD7", { metalness: 0.1, roughness: 0.35 }), hardware: true },
+  };
 
   const box = applianceBox(def, appliance);
   // A hung oven with a published trim stands its front in the plane of the
@@ -161,6 +166,7 @@ export function ApplianceModel({ slot, appliance }: ApplianceModelProps) {
           body={body}
           trim={trim}
           glass={glass}
+          faces={panelFaces}
         />
         {selected && (
           <lineSegments geometry={outline} position={[0, box.h / 2, 0]} scale={1.03}>
@@ -336,6 +342,8 @@ interface BodyProps {
   body: SurfaceProps;
   trim: SurfaceProps;
   glass: SurfaceProps;
+  /** An oven's control panel surfaces. */
+  faces: PanelFaces;
 }
 
 /**
@@ -361,6 +369,7 @@ function Body({
   body,
   trim,
   glass,
+  faces,
 }: BodyProps) {
   /** How far a handle stands off the door face. */
   const grip = ft(1.5);
@@ -462,37 +471,23 @@ function Body({
     }
 
     case "wall-oven":
-      // A combination oven is two machines in one carcass, and that is what is
-      // on its face: a microwave door over an oven door, each with its own
-      // handle. A single oven keeps the one door it always had.
-      // A double oven is two doors too — steam over convection — with a control
-      // strip across the top, so it is drawn by the same component.
-      return isCombo(appliance) || isDouble(appliance) ? (
+      // Every wall oven by one component, its front from its own sheet
+      // (`ovenFront`): a combination oven a microwave door over an oven door, a
+      // double oven steam or convection over convection, a single oven one
+      // door — and each its control panels, a single oven's too (Leo,
+      // 2026-11-09: until then it was a box with a door and no panel).
+      return (
         <ComboOven
           install={standardInstall(SLOT_BY_ID[slot], appliance)}
-          double={!isCombo(appliance)}
+          appliance={appliance}
           w={w}
           h={h}
           d={d}
           body={body}
           trim={trim}
           glass={glass}
+          faces={faces}
         />
-      ) : (
-        <group>
-          <mesh position={[0, h / 2, cz]} castShadow>
-            <boxGeometry args={[w, h, cd]} />
-            <Mat s={body} />
-          </mesh>
-          <mesh position={[0, h * 0.44, face]}>
-            <boxGeometry args={[w * 0.82, h * 0.6, 0.01]} />
-            <Mat s={glass} />
-          </mesh>
-          <mesh position={[0, h * 0.8, gripZ]}>
-            <boxGeometry args={[w * 0.9, bar, bar]} />
-            <Mat s={trim} />
-          </mesh>
-        </group>
       );
 
     case "wine":
@@ -912,18 +907,20 @@ function Fridge({
  */
 function ComboOven({
   install,
-  double = false,
+  appliance,
   w,
   h,
   d,
   body,
   trim,
   glass,
+  faces,
 }: {
   /** The standard install, where the machine's own sheet gives its trim. */
   install: StandardInstall | null;
-  /** Steam over convection rather than microwave over oven. */
-  double?: boolean;
+  /** The oven, whose sheet its front is drawn from. */
+  appliance: Appliance;
+  faces: PanelFaces;
   w: number;
   h: number;
   d: number;
@@ -932,8 +929,8 @@ function ComboOven({
   glass: SurfaceProps;
 }) {
   const parts = useMemo(
-    () => (double ? doubleOvenParts({ w, h }) : comboOvenParts({ w, h })),
-    [double, w, h],
+    () => ovenFront(appliance, { w, h }),
+    [appliance, w, h],
   );
   // What the doors and their glass take off the front of the envelope.
   const doors = ft(0.65);
@@ -981,11 +978,11 @@ function ComboOven({
           <Mat s={body} />
         </mesh>
       )}
-      {parts.doors.map((door) => {
+      {parts.doors.map((door, index) => {
         const height = door.band[1] - door.band[0];
         const middle = (door.band[0] + door.band[1]) / 2;
         return (
-          <group key={door.kind} name={`combo-${door.kind}`}>
+          <group key={index} name={`combo-${door.kind}`}>
             {/* The door: a stainless frame with a glass field in it. The
                 control panel across the top is the same frame with no glass —
                 it is where the display and the touch keys are. */}
@@ -1003,7 +1000,10 @@ function ComboOven({
                 <Mat s={glass} />
               </mesh>
             )}
-            {door.kind === "control" && (
+            {door.panel && (
+              <OvenPanelFace panel={door.panel} w={w} band={door.band} z={face + ft(0.5)} faces={faces} trim={trim} />
+            )}
+            {door.kind === "control" && !door.panel && (
               <mesh position={[0, middle, face + ft(0.6)]}>
                 <boxGeometry args={[w * 0.42, height * 0.4, ft(0.1)]} />
                 <Mat s={glass} />
@@ -1025,6 +1025,85 @@ function ComboOven({
           </group>
         );
       })}
+    </group>
+  );
+}
+
+/** The surfaces an oven's control panel is made of. */
+interface PanelFaces {
+  glass: SurfaceProps;
+  dark: SurfaceProps;
+  light: SurfaceProps;
+}
+
+/**
+ * An oven's control panel, as its sheet's photograph shows it (`OVEN_PANELS`):
+ * grey glass across it or framed in steel, or plain steel; the display, black
+ * or pale and grey-framed; and the knobs, cylinders (Leo, 2026-11-09: 「旋钮画成
+ * 圆柱，按键上的字不画」). Laid on the panel's steel face, `z` its front.
+ */
+function OvenPanelFace({
+  panel,
+  w,
+  band,
+  z,
+  faces,
+  trim,
+}: {
+  panel: OvenPanel;
+  w: number;
+  band: readonly [number, number];
+  z: number;
+  faces: PanelFaces;
+  trim: SurfaceProps;
+}) {
+  const height = band[1] - band[0];
+  const middle = (band[0] + band[1]) / 2;
+  const d = panel.display;
+  const dw = ft(d.wIn);
+  const dh = ft(d.hIn);
+  const dy = band[1] - ft(d.dropIn) - dh / 2;
+  const frame = d.frameIn ?? 0;
+  const knobR = ft(panel.knobDiameterIn) / 2;
+  return (
+    <group name="oven-panel">
+      {panel.finish === "greyGlass" && (
+        <mesh position={[0, middle, z + ft(0.03)]}>
+          <boxGeometry args={[w - ft(0.25), height - ft(0.25), ft(0.05)]} />
+          <Mat s={faces.glass} />
+        </mesh>
+      )}
+      {panel.finish === "framedGlass" && (
+        <mesh position={[0, middle, z + ft(0.03)]}>
+          <boxGeometry args={[w - ft(2), height - ft(1), ft(0.05)]} />
+          <Mat s={faces.glass} />
+        </mesh>
+      )}
+      {frame > 0 && (
+        <mesh name="oven-display-frame" position={[0, dy, z + ft(0.07)]}>
+          <boxGeometry args={[dw, dh, ft(0.05)]} />
+          <Mat s={faces.glass} />
+        </mesh>
+      )}
+      <mesh name="oven-display" position={[0, dy, z + ft(0.1)]}>
+        <boxGeometry args={[dw - 2 * ft(frame), dh - 2 * ft(frame), ft(0.05)]} />
+        <Mat s={d.colour === "black" ? faces.dark : faces.light} />
+      </mesh>
+      {panel.knobs.map((knob, i) => (
+        <mesh
+          key={i}
+          name={`oven-knob-${i}`}
+          position={[-w / 2 + ft(knob.xIn), middle, z + ft(0.5)]}
+          rotation={[Math.PI / 2, 0, 0]}
+          castShadow
+          // A knob stands proud of the panel, as a handle does of its door; the
+          // smoke test lets it, up to the handle's 2-5/8" (ovenFrontMeasure.ts).
+          userData={{ knob: true }}
+        >
+          <cylinderGeometry args={[knobR, knobR, ft(1), 20]} />
+          <Mat s={trim} />
+        </mesh>
+      ))}
     </group>
   );
 }

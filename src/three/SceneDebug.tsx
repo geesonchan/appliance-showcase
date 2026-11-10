@@ -6,6 +6,7 @@ import { hasGenericDoors } from "../data/fridgeModel";
 import { hasGenericRoughIn } from "../data/roughIn";
 import { DEBUG } from "../debug";
 import { useSelection } from "../store/useSelection";
+import { ovenFrontIn, type FrontPart } from "./ovenFrontMeasure";
 
 /**
  * Measured dimensions of what actually reached the scene graph, in inches.
@@ -114,12 +115,12 @@ export function SceneDebug() {
   }, [scene]);
 
   // Each hung oven's front against the door of the cabinet over it, in inches
-  // along the way both of them face. Handles are left out: they are meant to
-  // stand proud. Round 36: a standard install puts the machine's trim in the
+  // along the way both of them face. Handles and knobs are left out: they are
+  // meant to stand proud (knobs only as far as the handle's 2-5/8"). Round 36: a standard install puts the machine's trim in the
   // plane of the doors, not back in its cutout.
   useEffect(() => {
     if (!DEBUG) return;
-    type Front = { slot: string; ovenIn: number; doorIn: number };
+    type Front = { slot: string; ovenIn: number; doorIn: number; knobsIn: number | null };
     (window as unknown as { __ovenFronts?: () => Front[] }).__ovenFronts = () => {
       const fronts: Front[] = [];
       scene.traverse((object) => {
@@ -134,15 +135,16 @@ export function SceneDebug() {
         // The run's boxes open toward +x on the left wall and +z on the back.
         const size = new THREE.Box3().setFromObject(bridge).getSize(new THREE.Vector3());
         const axis = size.x < size.z ? "x" : "z";
-        const face = new THREE.Box3();
+        // Every mesh's forward reach; handles and knobs (within the handle's
+        // published depth) are let stand proud — `ovenFrontIn`.
+        const doorIn = new THREE.Box3().setFromObject(door).max[axis] * 12;
+        const parts: FrontPart[] = [];
         object.traverse((part) => {
-          if ((part as THREE.Mesh).isMesh && !part.userData.handle) face.expandByObject(part);
+          if (!(part as THREE.Mesh).isMesh) return;
+          parts.push({ userData: part.userData, frontIn: new THREE.Box3().setFromObject(part).max[axis] * 12 });
         });
-        fronts.push({
-          slot,
-          ovenIn: face.max[axis] * 12,
-          doorIn: new THREE.Box3().setFromObject(door).max[axis] * 12,
-        });
+        const read = ovenFrontIn(parts, doorIn);
+        fronts.push({ slot, ovenIn: read.frontIn, doorIn, knobsIn: read.knobsIn });
       });
       return fronts;
     };
