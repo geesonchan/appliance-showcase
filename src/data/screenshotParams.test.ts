@@ -53,7 +53,8 @@ describe("a screenshot address is read by the link's table", () => {
   });
 
   it("opens the default room and says why, for a value it cannot use", () => {
-    const { params, issues } = paramsFromQuery(new URLSearchParams("?shape=U&back=180"));
+    // U-1 (2026-11-11): the U is built now, so the shape no template builds is the galley (cancelled, Leo 2026-11-10); the check is the same.
+    const { params, issues } = paramsFromQuery(new URLSearchParams("?shape=galley&back=180"));
     expect({ params, issues: issues.length }).toEqual({ params: DEFAULT_PARAMS, issues: 1 });
   });
 

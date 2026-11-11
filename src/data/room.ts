@@ -203,6 +203,28 @@ export function segmentForSlot(slotId: SlotId): RunSegment | undefined {
 }
 
 /**
+ * Where the services come into the kitchen: on the wall of the run the cooking
+ * surface stands on, 4' back from that run's far end; on the back run's where
+ * the cooking is in an island. Leo, 2026-11-11: 「炉头在哪边就假设从那一头进来厨房」,
+ * 「水、电、煤气都从炉头所在的那面墙进来；电表箱也按这一侧假设」, and for the U
+ * 「右墙（炉头那一段）、离开放端 4'，和 L 型对应」. In the L and on one wall it is the
+ * point the utility layer has drawn since round 52 (the back wall, 4' back from
+ * U's is its right wall, 4' from the open end. Data only in
+ * U-1: the utility layer is wired to it in U-2.
+ *
+ * Found 2026-11-11: the utility layer draws the L's entry 4 INCHES from the
+ * back wall's far end (`ROOM.halfX - ft(4)`, `ft` taking inches), where its
+ * comment and the U's plan said four feet. Not changed (U-1 changes nothing on
+ * the page); Leo decides (Open items, "The services' entry: 4" or 4'").
+ */
+export const SERVICE_ENTRY_FROM_END_IN = 48;
+export function serviceEntry(runs: CabinetRun[] = RUNS): { run: RunId; along: number } {
+  const cooking = runs.find((run) => run.segments.some(cooksOnTheRun)) ?? runs.find((run) => run.id === "back")!;
+  const end = cooking.segments[cooking.segments.length - 1].to;
+  return { run: cooking.id, along: end - ft(SERVICE_ENTRY_FROM_END_IN) };
+}
+
+/**
  * Which stretch of cabinetry a slot stands in.
  *
  * The cabinetry around an appliance is finished with the run it belongs to, so

@@ -148,6 +148,18 @@ export const LAYOUT_LIMITS = {
   /** D11 rule 1: a tower is never hard against the corner cabinet. */
   cornerLandingIn: 12,
   /**
+   * Counter between a corner cabinet and a dishwasher, at least. Leo,
+   * 2026-11-10, site practice (D11 rule 10's amendment): 「不要贴着……另外那边的
+   * 抽屉或者橱柜门handle会挡着洗碗机的门不能拉下来」, 「洗碗机到转角至少留 12" 台面」.
+   */
+  dishwasherFromCornerIn: 12,
+  /**
+   * The aisle between two legs facing each other — a U's left and right legs —
+   * at least: counter edge to counter edge (D20). Leo, 2026-11-11: 「照甲，48" 是
+   * 最小值，实际过道由尽头排决定」. A check: the back leg always asks for more.
+   */
+  facingAisleIn: 48,
+  /**
    * D11 rule 4: counter each side of the range, and the two are not equal.
    * From `layout.rangeLandingIn` in data/rules.json.
    */
@@ -287,6 +299,12 @@ export type ModuleKind =
    * See `insertHood.ts`.
    */
   | "hood-cabinet"
+  /**
+   * A full-height cabinet with nothing in it but shelves: the U's 15" pantry
+   * cabinet, T1596, between the columns and the oven tower (Leo, 2026-11-10:
+   * 「15"做成高柜」; 2026-11-11: 「储物高柜 / Pantry Cabinet，编号 T1596」).
+   */
+  | "pantry"
   | "corner"
   | "filler"
   | "opening";

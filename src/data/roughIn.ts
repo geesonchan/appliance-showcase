@@ -397,8 +397,12 @@ function hostFor(slot: Slot, appliance: Appliance, point: RoughInPoint): HostBox
  * A 5/8" column spacer, a 3" finished end panel and a filler are joinery, not
  * cabinets: until round 71 any of them could be picked, and package B's
  * refrigerator had its socket drawn 6" past a 3" board, on the live site.
+ *
+ * The U's pantry cabinet (U-1) is one: shelves behind a door, floor to 96".
+ * B's wine column stands beside it, the refrigerator on its other side, since
+ * Leo's order of 2026-11-11, and its socket goes in the pantry.
  */
-const DOORED: ModuleKind[] = ["base", "drawer-base", "sink-base", "corner", "tall"];
+const DOORED: ModuleKind[] = ["base", "drawer-base", "sink-base", "corner", "tall", "pantry"];
 /** A segment that holds a machine is that machine, whatever it is built of. */
 const isMachine = (segment: RunSegment) =>
   segment.kind === "appliance" || Boolean(segment.slot) || segment.modules.some((m) => m.slot);

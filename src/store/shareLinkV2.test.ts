@@ -180,7 +180,8 @@ describe("a link written now", () => {
   });
 
   it("says so when a version 2 link names a shape this page does not build, and shows an L", () => {
-    openSharedLink(linkWith({ shape: "U" }));
+    // U-1 (2026-11-11): the U is built now, so the shape no template builds is the galley (cancelled, Leo 2026-11-10); the check is the same.
+    openSharedLink(linkWith({ shape: "galley" }));
     expect({ lines: fields(), shape: (LAYOUT_PARAMS as { shape?: unknown }).shape }).toEqual({ lines: ["shape"], shape: "L" });
   });
 

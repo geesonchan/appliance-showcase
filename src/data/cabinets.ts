@@ -302,6 +302,18 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
       return;
     }
 
+    // The U's pantry cabinet (U-1): a full-height box of shelves behind one
+    // door, standing on the kick with the towers beside it.
+    if (module.kind === "pantry") {
+      boxes.push(
+        onRun(run, `${segment.id}-${module.code}-${index}`, "tall", along, [KICK_LIFT, ft(module.heightIn ?? 96)], ROOM.counterDepth, 0, {
+          outline: segment.id,
+          module,
+        }),
+      );
+      return;
+    }
+
     if (module.kind === "tall") {
       // A finished panel each side, the appliance opening between them, and a
       // cabinet over the top. That cabinet starts where the opening stops, so

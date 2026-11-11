@@ -1,5 +1,5 @@
 import { inchesSpoken } from "./inches";
-import { LAYOUT_SHAPES } from "./layoutShape";
+import { BUILT_SHAPES } from "./layoutShape";
 import { PARAM_LIMITS, paramLimitsFor, type LayoutParams } from "./layoutTemplate";
 
 /**
@@ -71,8 +71,8 @@ function inches(
   // goes to 264"). Whether the room takes it in its own shape is the
   // template's to say, as it is for every other figure a link carries.
   const limits = {
-    min: Math.min(...LAYOUT_SHAPES.map((each) => paramLimitsFor(each)[key].min)),
-    max: Math.max(...LAYOUT_SHAPES.map((each) => paramLimitsFor(each)[key].max)),
+    min: Math.min(...BUILT_SHAPES.map((each) => paramLimitsFor(each)[key].min)),
+    max: Math.max(...BUILT_SHAPES.map((each) => paramLimitsFor(each)[key].max)),
   };
   return {
     name,
@@ -140,7 +140,9 @@ const shape = choice(
   "shape",
   "shape",
   "panel.layout.shape",
-  Object.fromEntries(LAYOUT_SHAPES.map((value) => [value, `panel.layout.shape.${value}`])),
+  // Every shape built, the U too (U-1): a link edited by hand reaches it before
+  // the page's switch offers it (U-2).
+  Object.fromEntries(BUILT_SHAPES.map((value) => [value, `panel.layout.shape.${value}`])),
   { since: { version: 2, before: "L" } },
 );
 

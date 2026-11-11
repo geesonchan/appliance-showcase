@@ -12473,12 +12473,175 @@ Registered, not scheduled. None of these is a round of its own.
        read 2026-11-10); the page goes into `docs/reference/` with its row when the slab
        is built (D21).
     4. 「右段中间的缝：B 离后墙 42"、D 102"、E 66"，同意。」
+       **Corrected 2026-11-11 (Leo, answering the U-1 plan): E's is 69", not 66"** — 「decisions.md
+       里把 E 的 66" 更正成 69"，写明原因」. Why: the 66" was read off the third draft's sketch,
+       which split the counter before E's cooktop into exact halves (50-5/8"). The generator
+       hands out spare length 3" at a time and splits a stretch into stock cabinets
+       (`packLeg`, `counterWidths`): that stretch is 53-1/4", built 27 + 24 + a 2-1/4" filler,
+       so the first cabinet joint at least 58" from the back wall (the right leg's 178" of
+       stone less the 120" slab) is at 42 + 27 = 69". The seam is a rule, not a figure —
+       the first cabinet joint that keeps both pieces within 120" and is not over a cutout,
+       a dishwasher or a microwave drawer — and at the shortest walls it gives B 42", D 102"
+       and E 69" (`docs/plans/u1-plan.md`, sections 3 and 6;
+       `docs/plans/u1-2026-11-11/usim-output.txt`).
     - And: 「计划定了，把这四条照原话写进 decisions.md。开始 U-0（准备，页面不变）」 — the
       tests red on the old code first; the page proved unchanged, the L's and one wall's
       dumps line for line and every existing pixel state; the full suite on the final
       code, the power plan read before it and the system log after; every step's start,
       end and exit code in the report, a failure as it failed; a local preview at the
       end and its main chunk named; not committed.
+  - **Leo's answers to the U-1 plan, 2026-11-11** (`docs/plans/u1-plan.md`; his words):
+    1. 「炉头两边的台面照生成器 3" 一档分，和 L 型、一字型一样。」
+    2. 「右段中间的缝用"第一个柜子接缝"这条规则：最短墙时 B 42"、D 102"、E 69"。」 (E's 66"
+       corrected above, under the third draft's answers.)
+    3. 「烤箱塔在开放端用它自己的 3/4" 侧板收口，不另加一块。」
+    - 「B 的柱子顺序照现有的左段规则（从转角起冰箱柱、酒柜柱）：同意。D 的微波抽屉固定在离转角
+      12"：同意。」
+    - 「照计划动手」 — the 11 test groups red on the old code first; the L's and one wall's
+      dumps byte for byte the same on `2bcc22f` and the new code, all 45 pixel states the
+      same, the old build from `2bcc22f` itself; the U's own dump, its five packages' three
+      runs checked segment by segment against the plan's table, any difference listed; the
+      full suite on the final code, the power plan before and the system log after; every
+      step's start, end and real exit code, a failure as it failed; a local preview, its
+      main chunk named; not committed.
+  - **U-1, built 2026-11-11, committed after Leo's look at the local preview**
+    (`index-BHYPfr83.js`; Leo, 2026-11-11: 「U-1 看过了，预览确认」), his four answers to its
+    report applied first (below, "Leo's answers after his look at U-1"). The U as `shape=U`
+    builds it, reached by a link edited by hand; the page's shape switch still offers
+    the L and one wall (`LAYOUT_SHAPES`; the U in `BUILT_SHAPES`). `src/data/uShape.test.ts`,
+    12 groups, 62 cases at his look (63 since: the pantry's socket case, below):
+    - **The generator** (`layoutTemplate.ts`, `uLegs`): the left leg — corner, the
+      refrigerator's 15", the columns, a coffee tower, the 15" pantry cabinet `T1596`,
+      the oven tower at the open end; A and C their island's two machines before the
+      refrigerator's landing; the right leg — corner, 15", the cooking surface, 12",
+      the open end's cabinet and `BEP`, slack 3" at a time either side; the island's
+      machines there only where the left leg would pass 216" with them (`sparesRun`:
+      D's microwave drawer, its 12" off the corner held at 12"); the back leg — 12" off
+      the left corner, the dishwasher, the sink, 18". `uWantedIn` the walls a U is built
+      at; the U's walls in `paramLimitsFor` (back to 264", sides to 216"); a package
+      chosen as a U grows to them (`setActivePackage`). The back leg's wall cabinets
+      stop where the right corner's do (`banksOn`'s `stopAt`).
+    - **B's columns, a correction to the U-1 plan**: the plan's section 3 said the left
+      leg's existing rule puts B's refrigerator column first from the corner. It does
+      not. `columnsAlongRun` reverses only a package that names its own order (D, E); B
+      names none, so `TALL_ORDER` stands on either leg: the wine column first from the
+      corner, then the refrigerator — as the third draft's sketch drew it. Leo's answer
+      was 「B 的柱子顺序照现有的左段规则（从转角起冰箱柱、酒柜柱）：同意」; the rule is followed,
+      the bracket was the plan's mistake. Built as the rule has it; his to overrule.
+      **Overruled by Leo, 2026-11-11, after his look**: the refrigerator first from the
+      corner, against its 15", the wine column past it — in B's U only (below).
+    - **D13's floor for a leg eaten at both ends**: its wall, the two corners' squares
+      included (`requirementFor`, `d13-leg`) — a U's 84" back run between two blind
+      corners stands on a 132" wall. Counted as its own 84" against 96" it would have
+      asked for 144", not the 132" Leo confirmed. Built so, and **confirmed by Leo on
+      2026-11-11**: 「D13 每段至少 96"：两头都是转角的那一段按整面墙量，确认」.
+    - **The stone** (`counter.ts`, `uPieces`, `firstSeam`, `SLAB_MAX_IN` = 120): 乙, the side
+      legs to the back wall; a piece longer than 120" seamed at the first cabinet joint
+      that keeps both within 120" and is not over a cutout, a dishwasher or a microwave
+      drawer (a joint at a cutout's edge is over it). The slab's page saved on 2026-11-11 at
+      Leo's word, `docs/reference/caesarstone-design-and-specification.html` (its row says
+      where from: the address read on 2026-11-10 now redirects).
+    - **Rules** (`layoutRules.ts`): a dishwasher 12" off a corner (D11 rule 10, 2026-11-10;
+      every shape — the L's dump unchanged); the aisle between two legs facing each other
+      at least 48" (`facingAisleIn`); D13's floor as above.
+    - **Words**: 「储物高柜」 / "Pantry Cabinet" (`cabinet.pantry`, `requirement.pantry`) and
+      「右段」 / "Right leg", Leo's own, locked in `reviewed.json`; 「U 型厨房」 / "U-shaped
+      kitchen", 「右」 / "right", 「收尾柜」 for the right leg's end, and 「转角与洗碗机之间
+      的台面」 / "counter between the corner and the dishwasher" — not yet read by Leo.
+    - **Services** (`room.ts`, `serviceEntry`): the cooking surface's wall, 48" from its
+      run's far end; data only, the utility layer wired in U-2 (Open items, "The
+      services' entry: 4" or 4'", found while writing it). Leo, 2026-11-11: 「管线进口：U 型用
+      4'（48"）」 — the U's as built; the L's stays registered.
+    - **E's U** (`packages.json`, `shapes.U`): the cooktop on the right leg, HMCB36WS, as on
+      one wall.
+    - **Three old tests' example of a shape no template builds** was "U"; it is
+      "galley" now (`layoutShape.test.ts`, `screenshotParams.test.ts`,
+      `shareLinkV2.test.ts`), the check the same, the reason beside each.
+    - **The U's dump** (`scripts/uDump.ts`, `roomSets.uRooms`): 112 rooms, all built; each
+      package's U as it opens the same as the plan's section 2 segment by segment —
+      walls, every cabinet's code and width on all three legs, every piece of stone —
+      with B's columns as above. Two install notes the U has and the L and one wall do
+      not: D's oven tower's connection in the drawer under its opening
+      (`roughIn.noCabinet.drawerBelow`) and E's wine cooler's (`roughIn.noCabinet`), each
+      with no base cabinet beside its tower on the left leg. *(Both gone since: the pantry
+      cabinet beside them holds them, and the table check had not looked at connections at
+      all — below, "What his answers changed".)*
+    - **The proof** (2026-11-11): red first on `2bcc22f`, 58 of the 60 first cases red for
+      their reasons, 2 guards green; the services' 2 cases red too. Dumps on a worktree of
+      `2bcc22f` and on the final code, every run exit 0, the L's (1,065 lines, 538 built,
+      527 refused) and one wall's (108) byte for byte the same. Pixels: 45 states, old
+      built from that worktree (`index-D8OiPXWG.js`, stamped `2bcc22f`), new
+      `index-BHYPfr83.js`, old, new, old, new: the canvas alone 0 pixels different in all
+      45; the whole screen 0 but for one pixel in `link-B` and `link-E-noisland`, (144,
+      225) — the background pixel U-0 found flickering — and re-shot four times
+      alternated it flips between 236 and 237 inside each build, so it is not the code.
+      Full suite: `npm test` 02:29:22 to 03:56:25, exit 0, 178 files, 3,844 passed and 1
+      todo; on mains power, screen-off, sleep and hibernate "never"; in the System log no
+      Kernel-Power or Power-Troubleshooter event in the window (one event 1 at 03:25:04,
+      `Microsoft-Windows-IsolatedUserMode`, a trustlet starting). A U opened from a link
+      by mouse on a 1440 desktop and by finger on a 390 phone, packages C then D tapped:
+      no page error.
+  - **Leo's answers after his look at U-1, 2026-11-11** (his words; 「U-1 看过了，预览确认。四件事」):
+    1. 「B 的柱子顺序（Leo 定，2026-11-11）：左段从转角起 15" 台面 → 冰箱柱 → 酒柜柱，冰箱挨着台面。
+       B 的 U 里写明这个顺序；L 型和一字型的 B 不变。测试的预期值跟着改，写明原因；uDump 里 B 的清单
+       重新对一遍。这一处改完，单元测试、两份底稿（L、一字型不变）和 U 底稿重跑，结果写进报告。」
+    2. 「D13 每段至少 96"：两头都是转角的那一段按整面墙量，确认。decisions.md 写明是 Leo 2026-11-11
+       确认的。」
+    3. 「管线进口：U 型用 4'（48"）。L 型线上画的是 4 英寸、注释写四英尺，保持登记，等 U 型做完单独修
+       一轮，这一轮不动。」
+    4. 「Caesarstone 那一页可以存进 docs/reference/，写明网址和下载日期。」
+    - And: CI's commands, commit, push, the deploy's two steps, a build at the commit with
+      the counter's address compared byte for byte with the live site, with each file's
+      status code and response headers; 「全套测试要在发布的那个提交上是过的：第 1 条改了代码，所以
+      提交前在最终代码上再跑一次全套测试」; then U-2's detailed plan (the shape switch, the right
+      wall's floor line, the camera, the services, the notices, the link), not built, listing
+      every new Chinese and English word and where it appears, for him to settle the names.
+  - **What his answers changed (2026-11-11, before the commit):**
+    - **B's columns in the U** (`layoutTemplate.ts`, `tallSlots`): a bank the template orders
+      itself — B's, the only one — stands its refrigerator against its 15" of counter and the
+      wine column past it, in the U only. A bank a package names in order (D, E) keeps it; the
+      L and one wall are unchanged (their dumps below). `uShape.test.ts` (2): B's left leg now
+      `42 | 15 | 3/4 | 36 | 18 | 3/4 | 15 | 30`, corner, counter, board, refrigerator, wine, board,
+      pantry, oven tower, the reason beside it. The plan's section 2 drew B so; the table check
+      (`ucmp`) is back to the plan's own row, and the U dump matches it, 0 differences.
+    - **The pantry cabinet holds the connection of a machine beside it** (`roughIn.ts`,
+      `DOORED`). Found by the new order: B's wine column, now between the refrigerator and the
+      pantry, asks for its socket in the cabinet on its left (T18IW100SP's sheet), found no
+      cabinet — the pantry, a new kind in U-1, was not counted as one — and the point dropped
+      out of the list with no note: in 25 of B's 27 U rooms. A check of every U room for any
+      point a model asks for that does not resolve then found the same gap in U-1 as Leo
+      looked at it, in rooms the order does not touch: the coffee machine's water, drain and
+      power missing in all 32 of D's U rooms and all 18 of E's (the coffee tower between the
+      column bank and the pantry, boards either side), and the oven tower's socket
+      (`beside-tower`) missing in 24 of B's, 15 of E's and 1 of D's. **U-1's report did not see
+      them**: its table check compared cabinets and stone, not connections. The pantry is
+      shelves behind a door, floor to 96" — a cabinet somebody can open, round 71's word for
+      the side a socket goes — and counted as one, every point in all 112 U rooms resolves:
+      the check finds 0 dropped (and 0 on one wall; on the L, 32 rooms, all E's — Open items,
+      "E's L: the combination oven tower's socket dropped", unchanged). With it D's oven
+      tower's socket moves from the drawer under its opening to the pantry beside it, and
+      E's wine cooler's from behind the machine to the pantry, both notes gone. Test:
+      `uShape.test.ts` (11), B's wine socket in the pantry — red on the code before it
+      (`[undefined, undefined]`), green after.
+    - **The U's dump records the right leg** (`scripts/uDump.ts`): the walls' requirement and
+      the bill's words for `right` as well, which it left out; that alone changed all 112 lines.
+    - **The proof** (2026-11-11): `uShape.test.ts` 08:42:19-08:42:25 exit 0 (62) after the
+      order; the socket case 08:45:15-08:45:21 exit 1, red for its reason; the file
+      08:45:34-08:45:39 exit 0, 63 passed. Dumps on a new worktree of `2bcc22f` and on the
+      final code, every run exit 0: the L's (1,065 lines, 538 built, 527 refused) and one
+      wall's (108) byte for byte the same, before the pantry change and after it. The U's:
+      112 rooms built; the five packages as they open the same as the plan's section 2 —
+      walls, all three legs and the stone — 0 differences; against U-1's dump, B's 27 lines
+      changed by the order (the same cabinets and widths, the refrigerator and the wine
+      swapped, and their connections), then 77 lines (B 27, D 32, E 18) by the pantry, only
+      in their connections and notes.
+      Full suite on the final code: a first run from 08:51:57 is void — the machine was put
+      to sleep at 09:20:13 (event 187, `SetSuspendState`, sleep reason "Application API",
+      Winlogon 7002 just before; 42 then 107) and woke at 10:08, the app with it; no failure
+      in its log up to then. Run again on the same tree: `npm test` 10:31:37 to 12:06:58,
+      exit 0, 178 files, 3,845 passed and 1 todo; on mains power, screen-off, sleep and
+      hibernate "never", read before each run; in the System log no event 42, 506, 507, 107,
+      187, 566 or 1 in that window.
   - **U-0, built 2026-11-10/11, committed after Leo's look at the local preview**
     (`index-9MkgIPWJ.js`; Leo, 2026-11-11: 「U-0 看过了，预览确认」). What the plan's
     section 6 calls U-0, as far as it can be exercised with no U in `SHAPES`: each piece
@@ -12526,7 +12689,18 @@ Registered, not scheduled. None of these is a round of its own.
       new: 0 pixels in all 45 states, canvas and whole screen; and `link-A`'s pixel read
       237 in the new build's first run and 236 in its second — the same flip inside one
       build, which in that set a build against itself shows in 10 states, 1 pixel each.
-      The first set's one pixel was that, not the code. Full suite: `npm
+      The first set's one pixel was that, not the code.
+    - **Shipped: `2bcc22f`** (2026-11-11). CI's commands on the tree as committed: `npm ci`
+      01:22:10-01:22:17, `npm run test:unit` 01:22:17-01:22:54 (135 files, 3,389 passed,
+      1 todo), `npm run build` 01:22:54-01:23:07, each exit 0. Pushed 01:23:24-01:23:28.
+      Pages run 42994774268: build 09:23:34-09:24:41 UTC and deploy 09:24:46-09:24:58 UTC,
+      each a success. Built at `2bcc22f`, the tree clean, with the counter's address, and
+      compared with the live site file by file: **twenty of twenty the same byte for byte**,
+      each 200, `last-modified` Wed, 11 Nov 2026 09:24:52 GMT, `cache-control: max-age=600`;
+      the JavaScript, CSS, `index.html` and the two licences gzip, the twelve fonts
+      `font/woff2` with no encoding; the live main chunk **`assets/index-Bm-US0Lo.js`**
+      (712,506 bytes), `index.html` 579, `index-DsMIaSu3.css` 37,823, `react-i_nGBwMY.js`
+      145,992, `shareQr-BXYgausd.js` 21,968, `three-C6wp6xxT.js` 704,119. Full suite: `npm
       test` 2026-11-10 22:41:16 to 2026-11-11 00:06:34, exit 0, 177 files, 3,776 passed
       and 1 todo; on mains power, screen-off, sleep and hibernate "never"; no event 42,
       506, 507, 107, 187, 1 or 566 in the System log in that window.
@@ -12557,6 +12731,30 @@ Registered, not scheduled. None of these is a round of its own.
   Whether a combination oven in its own tower, a 3/4" board between, is "on side of" it in
   the sense the manual means: the manual does not say. The U does not put them together
   (`docs/plans/u-shape-plan.md`).
+- **The services' entry: 4" or 4'.** *(Found 2026-11-11 in U-1, not changed — U-1 changes
+  nothing on the page; Leo decides. Not in his order.)* The utility layer draws every
+  service entering on the back wall at `ROOM.halfX - ft(4)` (`src/three/UtilityLayer.tsx`,
+  `entry`), and `ft` takes inches: **4 inches** from the back wall's far end, where its
+  comment says "four feet back from the corner" — since round 52 (D22 step 3), on the live
+  site too. The U's plan repeated the comment ("L 的进口在后墙、离开放的那头 4'"), and Leo's
+  answer for the U was 「右墙（炉头那一段）、离开放端 4'，和 L 型对应」. U-1 writes the rule as
+  data with his 4' (`serviceEntry`, `SERVICE_ENTRY_FROM_END_IN` = 48, `room.ts`): the
+  cooking surface's wall, 48" from its run's far end — the U's right wall 48" from its open
+  end; the L's back wall 48" from its far end, which is not what the L draws today. Whether
+  the L's should be 4' too (the page changes) or the drawing was meant: Leo's.
+  *(Leo, 2026-11-11: 「管线进口：U 型用 4'（48"）。L 型线上画的是 4 英寸、注释写四英尺，保持登记，
+  等 U 型做完单独修一轮，这一轮不动」 — the U's is 48"; the L's, a round of its own after the U.)*
+- **E's L: the combination oven tower's socket dropped.** *(Found 2026-11-11 while U-1's
+  connections were checked, not changed — the L is untouched this round, Leo: 「L 型和一字型的 B
+  不变」, and the corner entry below is to be fixed in a round of its own after the U.)*
+  MEM301WS asks for its socket in the cabinet beside its tower (`beside-tower`,
+  `data/rough-in.json`) and has no `whenNoCabinet`; where both sides of the tower are
+  machines, no cabinet is found and the point drops out of the list with no note. In **32
+  of the L's 538 rooms that build**, all E's with the sink on the left leg and the
+  refrigerator on the back: the 16 of the corner entry below (the tower first on the back
+  leg, the coffee tower past it) and 16 with the coffee on the left leg (sink, dishwasher,
+  the tower, the coffee tower). On the live site too. The same check finds 0 on one wall and
+  0 in the U.
 - **E's L: the combination oven tower hard against the corner.** *(Found 2026-11-10 in U-0,
   not changed — U-0 changes nothing on the page. Leo, 2026-11-11: 「保持登记，等 U 型做完再单独
   修一轮，这一轮不动」 — a round of its own after the U.)* U-0 asked

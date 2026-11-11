@@ -176,3 +176,54 @@ export function oneWallRooms(m: RoomModules): RoomCase[] {
   m.testRoom.resetRoom();
   return cases;
 }
+
+/** A package's U, at the walls it is built at (`uWantedIn`) or the ones asked. */
+function standU(m: RoomModules, pkg: any, patch: Record<string, unknown> = {}) {
+  m.testRoom.resetRoom();
+  m.layoutState.setActivePackage(pkg.id);
+  const asked: any = { ...m.room.REQUESTED_PARAMS, ...patch, shape: "U" };
+  const wanted = m.layoutTemplate.uWantedIn(asked, pkg);
+  return m.layoutState.setLayoutParamsGrowing({ ...asked, ...wanted, ...patch });
+}
+
+/**
+ * The U's rooms (U-1, 2026-11-11): each package as it opens as a U, at both
+ * corners and with the housing's other shape; and every model each slot can
+ * hold, one at a time, in its own U. Written by `scripts/uDump.ts`, run on the
+ * commit before a round and on the round from U-2 on.
+ */
+export function uRooms(m: RoomModules): RoomCase[] {
+  const cases: RoomCase[] = [];
+  for (const written of m.packages.PACKAGES.filter((p: any) => p.available)) {
+    const shaped = m.packages.packageInShape(written, "U");
+    for (const patch of [{}, { cornerType: "lazy-susan" }, { housingStyle: "sweep" }]) {
+      cases.push({
+        label: `${written.code} U ${JSON.stringify(patch)}`,
+        pkg: shaped,
+        build: () => standU(m, written, patch),
+        selection: () => selectionOf(m, shaped),
+      });
+    }
+    standU(m, written);
+    for (const spec of shaped.slots) {
+      for (const candidate of m.candidates.candidatesFor(spec.slotId, shaped)) {
+        if (!candidate.fit.fits) continue;
+        const id = candidate.appliance.id;
+        if (id === shaped.defaultSelection[spec.slotId]) continue;
+        cases.push({
+          label: `${written.code} U swap ${spec.slotId}=${candidate.appliance.model}`,
+          pkg: shaped,
+          build: () => {
+            standU(m, written);
+            const setter = SETTERS[spec.slotId];
+            if (setter) m.layoutState[setter](m.catalogue.APPLIANCE_BY_ID[id]);
+            return { ok: true };
+          },
+          selection: () => selectionOf(m, shaped, [spec.slotId, id]),
+        });
+      }
+    }
+  }
+  m.testRoom.resetRoom();
+  return cases;
+}

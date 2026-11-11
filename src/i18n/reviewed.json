@@ -815,6 +815,21 @@
       "text": "Only 6\" of counter left here — not practical.",
       "approval": "written",
       "reviewed": "Leo's own wording, 2026-11-05 (decisions.md, \"Chosen 2026-11-05\", 乙: the note beside a wall slider dragged until D11 rule 12's counter is 6\": 「台面只剩 6\"，实际不建议」 / \"Only 6\" of counter left here — not practical.\"; under the back wall's slider only, the 9\" round's question 3)"
+    },
+    "cabinet.pantry": {
+      "text": "Pantry Cabinet",
+      "approval": "written",
+      "reviewed": "Leo's own wording, 2026-11-11: 「15\" 高柜叫\"储物高柜 / Pantry Cabinet\"，编号 T1596」 (decisions.md, the U's answers to the third draft)"
+    },
+    "requirement.pantry": {
+      "text": "Pantry Cabinet",
+      "approval": "written",
+      "reviewed": "Leo's own wording, 2026-11-11: 「15\" 高柜叫\"储物高柜 / Pantry Cabinet\"，编号 T1596」 (decisions.md, the U's answers to the third draft)"
+    },
+    "panel.layout.leg.right": {
+      "text": "Right leg",
+      "approval": "written",
+      "reviewed": "Leo's own wording, 2026-11-11: 「左段、后段、右段，和 L 型现在的叫法接上；英文照 L 型现有的词」 (decisions.md, the U's answers to the first draft)"
     }
   },
   "zh": {
@@ -1637,6 +1652,21 @@
       "text": "台面只剩 6\"，实际不建议",
       "approval": "written",
       "reviewed": "Leo's own wording, 2026-11-05 (decisions.md, \"Chosen 2026-11-05\", 乙: the note beside a wall slider dragged until D11 rule 12's counter is 6\": 「台面只剩 6\"，实际不建议」 / \"Only 6\" of counter left here — not practical.\"; under the back wall's slider only, the 9\" round's question 3)"
+    },
+    "cabinet.pantry": {
+      "text": "储物高柜",
+      "approval": "written",
+      "reviewed": "Leo's own wording, 2026-11-11: 「15\" 高柜叫\"储物高柜 / Pantry Cabinet\"，编号 T1596」 (decisions.md, the U's answers to the third draft)"
+    },
+    "requirement.pantry": {
+      "text": "储物高柜",
+      "approval": "written",
+      "reviewed": "Leo's own wording, 2026-11-11: 「15\" 高柜叫\"储物高柜 / Pantry Cabinet\"，编号 T1596」 (decisions.md, the U's answers to the third draft)"
+    },
+    "panel.layout.leg.right": {
+      "text": "右段",
+      "approval": "written",
+      "reviewed": "Leo's own wording, 2026-11-11: 「左段、后段、右段，和 L 型现在的叫法接上；英文照 L 型现有的词」 (decisions.md, the U's answers to the first draft)"
     }
   }
 }

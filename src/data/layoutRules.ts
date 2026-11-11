@@ -55,6 +55,13 @@ const CORNER_WIDTHS = [24, 33, 36, 39, 42, 45, 48];
 /** Wall heights: the three standard ones plus the bridge sizes. */
 const UPPER_HEIGHTS = [12, 15, 18, 21, 24, 30, 36, 42];
 
+/** How far a corner box reaches across the run it eats: a blind corner's 24", a susan's 36". */
+function cornerAcrossIn(runs: CabinetRun[]): number {
+  const box = runs.map((run) => run.segments[0]).find((segment) => segment?.kind === "corner");
+  const module = box?.modules.find((m) => m.kind === "corner");
+  return module?.depthIn ?? CABINET_STANDARDS.base.depthIn;
+}
+
 function isOrderable(module: CabinetModule): boolean {
   switch (module.kind) {
     case "filler":
@@ -410,7 +417,12 @@ export function checkLayout(
     // past D13's 216" (Leo, round 98, third batch 1-3; `ONE_WALL_MAX_IN`).
     const { shortMin } = CABINET_STANDARDS.legIn;
     const longMax = run.ends.includes("corner") ? CABINET_STANDARDS.legIn.longMax : ONE_WALL_MAX_IN;
-    if (legIn < shortMin) {
+    // A leg with a corner at each end — a U's back leg (U-1) — has no outward
+    // to measure: its floor is its wall, the two corners' squares included,
+    // which is what `requirementFor` builds it to.
+    const bothEnds = run.ends[0] === "corner" && run.ends[1] === "corner" && run.segments[0]?.kind !== "corner";
+    const acrossIn = bothEnds ? cornerAcrossIn(runs) * 2 : 0;
+    if (legIn + acrossIn < shortMin) {
       fail("d13-leg", `the ${run.id} leg is ${legIn}", wants at least ${shortMin}"`);
     }
     if (legIn > longMax) {
@@ -680,6 +692,51 @@ export function checkLayout(
           "d11-10",
           `sink base is ${between.toFixed(0)}" of counter from the corner, needs ${fromCornerIn}"`,
         );
+      }
+    }
+  }
+
+  // D11 rule 10, amended 2026-11-10 (Leo, site practice): a dishwasher keeps
+  // 12" of counter off a corner cabinet, or the drawer or door handles across
+  // the corner stop its door coming down. Measured as the sink is, the whole
+  // stretch between the corner and the machine; a dishwasher in the bottom of
+  // a tower (D's second, under the coffee machine) from the tower's side. The
+  // L never puts one closer (checked 2026-11-10: 48" at least by the sink, D's
+  // second 12-3/4"); a U's stands 12" off the left corner.
+  for (const run of runs) {
+    const cornerAt = run.segments.findIndex((s) => s.kind === "corner");
+    run.segments.forEach((segment, index) => {
+      const dishwasher =
+        segment.slot === "slot-dishwasher" ||
+        segment.slot === "slot-dishwasher-2" ||
+        segment.modules.some((module) => module.lowerSlot === "slot-dishwasher" || module.lowerSlot === "slot-dishwasher-2");
+      if (!dishwasher) return;
+      const stretch = (from: number, to: number) =>
+        run.segments.slice(from, to).reduce((sum, s) => sum + widthIn(s), 0);
+      const fromCorners: number[] = [];
+      if (cornerAt >= 0 && cornerAt < index) fromCorners.push(stretch(cornerAt + 1, index));
+      else if (run.ends[0] === "corner") fromCorners.push(stretch(0, index));
+      if (run.ends[1] === "corner") fromCorners.push(stretch(index + 1, run.segments.length));
+      for (const between of fromCorners) {
+        if (between < LAYOUT_LIMITS.dishwasherFromCornerIn - 1e-6) {
+          fail(
+            "d11-10",
+            `dishwasher is ${between.toFixed(1)}" from the corner, needs ${LAYOUT_LIMITS.dishwasherFromCornerIn}"`,
+          );
+        }
+      }
+    });
+  }
+
+  // Two legs facing each other — a U's left and right (U-1): the aisle between
+  // their counter edges at least `facingAisleIn`. No L or one-wall room has two.
+  for (const [i, a] of runs.entries()) {
+    for (const b of runs.slice(i + 1)) {
+      if (a.axis !== b.axis || a.facing.axis !== b.facing.axis || a.facing.sign === b.facing.sign) continue;
+      const front = (run: CabinetRun) => run.centre + run.facing.sign * (ROOM.counterDepth / 2 + ROOM.counterOverhang);
+      const aisle = inches(Math.abs(front(a) - front(b)));
+      if (aisle < LAYOUT_LIMITS.facingAisleIn - 1e-6) {
+        fail("d11-7-aisle", `the aisle between the ${a.id} and ${b.id} legs is ${aisle.toFixed(1)}", needs ${LAYOUT_LIMITS.facingAisleIn}"`);
       }
     }
   }

@@ -5,6 +5,7 @@ import {
   asDragged,
   generateLayout,
   oneWallWantedIn,
+  uWantedIn,
   openingIn,
   paramLimitsFor,
   wallKeepingSpares,
@@ -485,12 +486,14 @@ export function setActivePackage(id: string): {
   // everything it has, nothing left out for want of wall — the same rule as
   // the shape switch (`oneWallWantedIn`, D18). Its L figures are the L's.
   const oneWall = asked.shape === "one-wall";
+  // And a U at the U's walls (U-1), whatever the L's own figures are.
+  const u = asked.shape === "U" ? uWantedIn({ ...asked, ...released, ...defaults, shape: "U" }, PACKAGE) : null;
   const arranged: LayoutParams = {
     ...asked,
     ...released,
     ...defaults,
-    backWallIn: Math.max(asked.backWallIn, oneWall ? oneWallWantedIn(asked, PACKAGE) : (defaults.backWallIn ?? 0)),
-    leftWallIn: Math.max(asked.leftWallIn, oneWall ? 0 : (defaults.leftWallIn ?? 0)),
+    backWallIn: Math.max(asked.backWallIn, oneWall ? oneWallWantedIn(asked, PACKAGE) : u ? u.backWallIn : (defaults.backWallIn ?? 0)),
+    leftWallIn: Math.max(asked.leftWallIn, oneWall ? 0 : u ? u.leftWallIn : (defaults.leftWallIn ?? 0)),
   };
   const moved: Partial<LayoutParams> = {};
   for (const key of [...Object.keys(defaults), ...Object.keys(released)] as (keyof LayoutParams)[]) {

@@ -1,0 +1,45 @@
+
+=== A: back wall 132", side walls 155-1/4" (tall needs 155-1/4, working 105-3/4)
+  left (tall): BBC42 42 | B12 12 | RO24 24 | PNL0.75 3/4 | RO24 24 | B15 15 | PNL0.75+T3696+PNL0.75 37-1/2
+  sketch    : 盲角 BBC42 42 | 台面 12 | 微波抽屉 24 | 隔板 3/4 | 酒柜 24 | 台面（冰箱旁） 15 | 冰箱 37-1/2
+  right (cooking): BBC42 42 | B21 21 | B18+BF1-1/2 19-1/2 | RO36 36 | B36 36 | BEP0.75 3/4
+  sketch    : 盲角 BBC42 42 | 台面 39-3/4 | 炉 36" 36 | 台面 36-3/4 | 开放端侧板 3/4
+  back: B12 12 | RO24 24 | SB30 30 | B18 18
+  right stone: 82-1/2" + 37-3/4" (freestanding range breaks it)
+  left stone 117-3/4", back stone 82"
+
+=== B: back wall 132", side walls 157-1/2" (tall needs 157-1/2, working 105-3/4)
+  left (tall): BBC42 42 | B15 15 | PNL0.75 3/4 | T3696 36 | T1896 18 | PNL0.75 3/4 | T1596 15 | T3096 30
+  sketch    : 盲角 BBC42 42 | 台面（冰箱旁） 15 | 侧板 3/4 | 酒柜柱 18" 18 | 冰箱柱 36" 36 | 侧板 3/4 | 高柜 15 | 烤箱塔 30" 30
+  right (cooking): BBC42 42 | B21 21 | B21+BF3/4 21-3/4 | B36 36 | B36 36 | BEP0.75 3/4
+  sketch    : 盲角 BBC42 42 | 台面 40-7/8 | 灶台 36" 36 | 台面 37-7/8 | 开放端侧板 3/4
+  back: B12 12 | RO24 24 | SB30 30 | B18 18
+  right stone 158-1/2": first joint at or past 38-1/2" clear of cutout and machines: 42" -> 42" + 116-1/2"; cutout 84-3/4-120-3/4"; joints 42, 63, 84-3/4, 120-3/4, 156-3/4
+  left stone 57", back stone 82"
+
+=== C: back wall 132", side walls 159-3/4" (tall needs 159-3/4, working 99-3/4)
+  left (tall): BBC42 42 | B12 12 | RO24 24 | PNL0.75 3/4 | RO24 24 | B15 15 | PNL3+RO36+PNL3 42
+  sketch    : 盲角 BBC42 42 | 台面 12 | 微波抽屉 24 | 隔板 3/4 | 酒柜 24 | 台面（冰箱旁） 15 | 冰箱 42
+  right (cooking): BBC42 42 | B24 24 | B21 21 | RO30 30 | B21 21 | B21 21 | BEP0.75 3/4
+  sketch    : 盲角 BBC42 42 | 台面 45 | 炉 30" 30 | 台面 42 | 开放端侧板 3/4
+  back: B12 12 | RO24 24 | SB30 30 | B18 18
+  right stone: 87" + 43-3/4" (freestanding range breaks it)
+  left stone 117-3/4", back stone 82"
+
+=== D: back wall 132", side walls 207" (tall needs 207, working 141-3/4), microwave drawer on the working run
+  left (tall): BBC42 42 | B15 15 | PNL0.75 3/4 | T2496 24 | T3096 30 | T2496 24 | PNL0.75 3/4 | PNL0.75 3/4 | T2496 24 | PNL0.75 3/4 | T1596 15 | T3096 30
+  sketch    : 盲角 BBC42 42 | 台面（冰箱旁） 15 | 侧板 3/4 | 酒柜柱 24" 24 | 冰箱柱 30" 30 | 冷冻柱 24" 24 | 侧板 3/4 | 咖啡塔 25-1/2 | 高柜 15 | 烤箱塔 30" 30
+  right (cooking): BBC42 42 | B12 12 | RO24 24 | B24 24 | B24+BF2-1/4 26-1/4 | B36 36 | B21 21 | B21 21 | BEP0.75 3/4
+  sketch    : 盲角 BBC42 42 | 台面 12 | 微波抽屉 24 | 台面 47-5/8 | 灶台 36" 36 | 台面 44-5/8 | 开放端侧板 3/4
+  back: B12 12 | RO24 24 | SB30 30 | B18 18
+  right stone 208": first joint at or past 88" clear of cutout and machines: 102" -> 102" + 106"; cutout 128-1/4-164-1/4"; joints 42, 54, 78, 102, 128-1/4, 164-1/4, 185-1/4, 206-1/4
+  left stone 57", back stone 82"
+
+=== E: back wall 132", side walls 177" (tall needs 177, working 105-3/4)
+  left (tall): BBC42 42 | B15 15 | PNL0.75 3/4 | T3096 30 | T1896 18 | PNL0.75 3/4 | PNL0.75 3/4 | T2496 24 | PNL0.75 3/4 | T1596 15 | T3096 30
+  sketch    : 盲角 BBC42 42 | 台面（冰箱旁） 15 | 侧板 3/4 | 冰箱柱 30" 30 | 冷冻柱 18" 18 | 侧板 3/4 | 咖啡塔 25-1/2 | 高柜 15 | 组合烤箱塔 30
+  right (cooking): BBC42 42 | B27 27 | B24+BF2-1/4 26-1/4 | B36 36 | B24 24 | B21 21 | BEP0.75 3/4
+  sketch    : 盲角 BBC42 42 | 台面 50-5/8 | 电磁灶 36" 36 | 台面 47-5/8 | 开放端侧板 3/4
+  back: B12 12 | RO24 24 | SB30 30 | B18 18
+  right stone 178": first joint at or past 58" clear of cutout and machines: 69" -> 69" + 109"; cutout 95-1/4-131-1/4"; joints 42, 69, 95-1/4, 131-1/4, 155-1/4, 176-1/4
+  left stone 57", back stone 82"

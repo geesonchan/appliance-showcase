@@ -18,9 +18,17 @@ import { alongOf, type Axis, type Facing } from "./frame";
  * Leo's answers.
  */
 
-/** The shapes this page builds: the L, and one wall since round 98b. */
-export type LayoutShape = "L" | "one-wall";
+/** The shapes this page builds: the L, one wall since round 98b, and the U since U-1. */
+export type LayoutShape = "L" | "one-wall" | "U";
+/**
+ * The shapes the page offers on its shape switch. The U is built (U-1,
+ * 2026-11-11) but not offered until U-2 gives it its controls, its right wall's
+ * floor line and its camera: until then a link edited by hand reaches it, as
+ * one wall was reached in 98b-1.
+ */
 export const LAYOUT_SHAPES: readonly LayoutShape[] = ["L", "one-wall"];
+/** Every shape the generator builds and a link may carry. */
+export const BUILT_SHAPES: readonly LayoutShape[] = ["L", "one-wall", "U"];
 
 /**
  * A run's name. The L's two legs, and the U's third, along the right-hand wall
@@ -97,6 +105,26 @@ export const SHAPES: Record<LayoutShape, ShapeSpec> = {
   "one-wall": {
     runs: [{ id: "back", axis: "x", facing: { axis: "z", sign: 1 }, ends: ["wall", "open"] }],
     corners: [],
+  },
+  /**
+   * The U (Leo, 2026-11-10, his six points): three runs — the left leg along
+   * the left wall facing +x, the back leg along the back wall facing +z, the
+   * right leg along the right wall facing -x. Each side leg holds the corner at
+   * its back end, so the back leg is eaten at both of its ends; the side legs'
+   * far ends are open to the room (3/4" end panel, the stone 1" past it). The
+   * right wall is the one that hides the room from the default view, drawn only
+   * as a line on the floor (U-2).
+   */
+  U: {
+    runs: [
+      { id: "left", axis: "z", facing: { axis: "x", sign: 1 }, ends: ["corner", "open"] },
+      { id: "back", axis: "x", facing: { axis: "z", sign: 1 }, ends: ["corner", "corner"] },
+      { id: "right", axis: "z", facing: { axis: "x", sign: -1 }, ends: ["corner", "open"] },
+    ],
+    corners: [
+      { owner: "left", other: "back", at: 0 },
+      { owner: "right", other: "back", at: 1 },
+    ],
   },
 };
 

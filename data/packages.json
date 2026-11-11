@@ -625,6 +625,26 @@
           "defaultSelection": {
             "slot-hood": "thermador-hmcb36ws"
           }
+        },
+        "U": {
+          "omit": [],
+          "slots": [
+            {
+              "slotId": "slot-cooktop",
+              "bestView": {
+                "azimuth": 40,
+                "pitch": 28
+              }
+            },
+            {
+              "slotId": "slot-hood",
+              "widthIn": 36,
+              "installType": "chimney"
+            }
+          ],
+          "defaultSelection": {
+            "slot-hood": "thermador-hmcb36ws"
+          }
         }
       }
     }

@@ -84,6 +84,13 @@ export function counterOutline(
   const islandPieces = island ? [islandTop(island)] : [];
   const band = [ROOM.counterHeight - ROOM.counterThickness, ROOM.counterHeight] as const;
 
+  // The U (U-1): three slabs, no corner turned (Leo, 2026-11-10: 「要在转角接缝」;
+  // 乙, 2026-11-10: 「左右两段各一块顶到后墙，接缝在后段上」).
+  const right = runs.find((run) => run.id === "right");
+  if (left && right) {
+    return { pieces: [...uPieces(left, back, right, range).map((outline) => ({ outline, holes: holes.filter((hole) => inside(centroid(hole), outline)) })), ...islandPieces], band };
+  }
+
   // One wall (round 98b): one run and no corner to turn, so the stone is the
   // stretches between its cuts, from the wall at its first end.
   if (!left) {
@@ -150,6 +157,91 @@ export function counterOutline(
     band,
   };
 }
+
+/**
+ * The longest piece of stone, in inches: Caesarstone's standard slab, "Width
+ * 144 cm", "Height 305 cm" (Products Technical Info,
+ * https://www.caesarstone.ca/about-us/products-technical-info/, read
+ * 2026-11-10; it redirects to /design-and-specification/, saved 2026-11-11 as
+ * docs/reference/caesarstone-design-and-specification.html), about 120". Leo,
+ * 2026-11-10: 「石板最长按 120" 算：同意」.
+ */
+export const SLAB_MAX_IN = 120;
+
+/**
+ * Where a piece of stone longer than a slab is seamed: the first cabinet joint
+ * at which the rest is no longer than a slab and the piece so far no longer
+ * either, and not over a cutout, a dishwasher or a microwave drawer — a joint
+ * at either edge of one is over it. In inches from the piece's start; null
+ * where no joint will do. Leo, 2026-11-11: 「右段中间的缝用"第一个柜子接缝"这条规则」.
+ */
+export function firstSeam({
+  length,
+  joints,
+  avoid,
+  slabIn = SLAB_MAX_IN,
+}: {
+  length: number;
+  joints: number[];
+  avoid: [number, number][];
+  slabIn?: number;
+}): number | null {
+  const least = length - slabIn;
+  const eps = 1e-6;
+  const found = [...joints]
+    .sort((a, b) => a - b)
+    .find(
+      (at) =>
+        at >= least - eps &&
+        at <= slabIn + eps &&
+        at > eps &&
+        at < length - eps &&
+        !avoid.some(([a, b]) => at >= a - eps && at <= b + eps),
+    );
+  return found ?? null;
+}
+
+/**
+ * The U's stone (U-1): each side leg one piece from the back wall to its open
+ * end, the back leg's piece between the two side legs' front edges — the
+ * seams on the back leg, 25" off each side wall (乙) — and a piece longer than
+ * a slab seamed again at `firstSeam`. Left, back, right, in that order.
+ */
+function uPieces(left: CabinetRun, back: CabinetRun, right: CabinetRun, range?: Appliance): Point2[][] {
+  const half = ROOM.counterDepth / 2;
+  const edge = (run: CabinetRun, side: 1 | -1) => run.centre + run.facing.sign * side * half + (side === 1 ? run.facing.sign * ROOM.counterOverhang : 0);
+  const zWall = back.centre - back.facing.sign * half;
+  const zFront = edge(back, 1);
+  const leftAcross = ordered(edge(left, -1), edge(left, 1));
+  const rightAcross = ordered(edge(right, -1), edge(right, 1));
+
+  /** A side leg's spans, each seamed where it is longer than a slab. */
+  const sideLeg = (run: CabinetRun, across: readonly [number, number]): Point2[][] =>
+    spans(zWall, runEnd(run), cuts(run, range)).flatMap(([from, to]) => {
+      const pieces: [number, number][] = [];
+      let start = from;
+      for (;;) {
+        const lengthIn = (to - start) * 12;
+        if (lengthIn <= SLAB_MAX_IN + 1e-6) break;
+        const joints = run.segments.map((segment) => (segment.to - start) * 12).filter((at) => at > 0 && at < lengthIn);
+        const avoid = run.segments
+          .filter((segment) => cooksOnTheRunHere(segment) || segment.slot === "slot-dishwasher" || segment.slot === "slot-microwave")
+          .map((segment): [number, number] => [(segment.from - start) * 12, (segment.to - start) * 12]);
+        const at = firstSeam({ length: lengthIn, joints, avoid });
+        if (at === null) break;
+        pieces.push([start, start + ft(at)]);
+        start += ft(at);
+      }
+      pieces.push([start, to]);
+      return pieces.map((span) => rect(span, across, "z"));
+    });
+
+  const backPieces = spans(leftAcross[1], rightAcross[0], cuts(back, range)).map((span) => rect(span, ordered(zWall, zFront), "x"));
+  return [...sideLeg(left, leftAcross), ...backPieces, ...sideLeg(right, rightAcross)];
+}
+
+/** The cooking surface standing on a run, which the stone is cut for. */
+const cooksOnTheRunHere = (segment: { slot?: SlotId }) => segment.slot === "slot-range" || segment.slot === "slot-cooktop";
 
 /** The island's top with a cooktop in it: the island, its slot and the machine specified. */
 export interface IslandTop {

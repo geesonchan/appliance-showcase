@@ -28,7 +28,7 @@ import {
 import { slotsAsBuilt } from "./fridgeMount";
 import { ovenTowerOf } from "./ovenTower";
 import { alongOf, extentsOnAxis, faceRotation, onAxis, rotationOf, sizeOnAxis } from "./frame";
-import { runCentre, shapeRun, shapeSpec, type LayoutShape, type RunEnd, type RunId, type ShapeSpec } from "./layoutShape";
+import { cornersOf, runCentre, shapeRun, shapeSpec, type LayoutShape, type RunEnd, type RunId, type ShapeSpec } from "./layoutShape";
 import { LAYOUT_POLICY, shrinkRank, type ShrinkGroup } from "./layoutPolicy";
 import { comboSillFor } from "./columnModel";
 import { hoodCabinetBand } from "./insertHood";
@@ -211,8 +211,22 @@ export const PARAM_LIMITS = {
  */
 export const ONE_WALL_MAX_IN = 276;
 
-/** The slider ends a shape's walls take: the L's, and one wall's longer back wall. */
+/**
+ * The U's walls (U-1; the plan's section 1, Leo's 43 answers "照倾向"): the
+ * side walls to D13's 216", one leg's longest; the back wall to 216" and the
+ * two blind corners' 24" each, 264".
+ */
+export const U_BACK_MAX_IN = 264;
+
+/** The slider ends a shape's walls take: the L's, one wall's longer back wall, and the U's. */
 export function paramLimitsFor(shape: LayoutShape): typeof PARAM_LIMITS {
+  if (shape === "U") {
+    return {
+      ...PARAM_LIMITS,
+      backWallIn: { ...PARAM_LIMITS.backWallIn, max: U_BACK_MAX_IN },
+      leftWallIn: { ...PARAM_LIMITS.leftWallIn, max: CABINET_STANDARDS.legIn.longMax },
+    };
+  }
   if (shape !== "one-wall") return PARAM_LIMITS;
   return { ...PARAM_LIMITS, backWallIn: { ...PARAM_LIMITS.backWallIn, max: ONE_WALL_MAX_IN } };
 }
@@ -232,6 +246,21 @@ export function paramLimitsFor(shape: LayoutShape): typeof PARAM_LIMITS {
 export const ONE_WALL_SETS = ["hasIsland", "towerSide", "fridgeEnd", "sinkLeg", "coffeeLeg", "fridgeEndAbuts"] as const;
 
 function asBuilt(params: LayoutParams, pkg: Package): LayoutParams {
+  // The U (U-1): no island (Leo, 2026-11-10, 5); the refrigerator on the left
+  // leg, the sink on the back leg (2), every tall unit on the left leg (3) —
+  // so none of the L's switches about which leg has a say; the left leg's far
+  // end is open to the room, the refrigeration beside cabinetry.
+  if (params.shape === "U") {
+    return {
+      ...params,
+      hasIsland: false,
+      towerSide: "right",
+      fridgeEnd: "left",
+      sinkLeg: "back",
+      coffeeLeg: "left",
+      fridgeEndAbuts: "cabinet",
+    };
+  }
   if (params.shape !== "one-wall") return params;
   const coffeeAtWall = pkg.slots.some((slot) => slot.tallUnit && slot.beside === "run");
   return {
@@ -296,7 +325,7 @@ function coffeeFirstAfterCorner(pkg: Package, params: LayoutParams): boolean {
 }
 
 /** Whether a cooktop stands on a run where a range would: on one wall, where there is no island (round 98b). */
-const cooktopOnARun = (params: Pick<LayoutParams, "shape">) => params.shape === "one-wall";
+const cooktopOnARun = (params: Pick<LayoutParams, "shape">) => params.shape !== "L";
 
 /**
  * Where the coffee machine's opening starts, off the floor. Round 75, Leo.
@@ -510,7 +539,7 @@ export interface RequirementItem {
 
 /** What has to go on a leg, and the wall lengths that hold it. */
 export interface WallRequirement {
-  leg: "left" | "back";
+  leg: RunId;
   items: RequirementItem[];
   /** Including whatever the corner takes out of this leg's wall. */
   minimumIn: number;
@@ -620,7 +649,10 @@ function farEnd(shape: ShapeSpec, id: RunId): "wall" | "open" {
 function templateBuilds(shape: ShapeSpec) {
   const ids = shape.runs.map((run) => run.id).join(",");
   const corner = shape.corners.map((c) => `${c.owner}>${c.other}`).join(",");
-  const builds = (ids === "left,back" && corner === "left>back") || (ids === "back" && corner === "");
+  const builds =
+    (ids === "left,back" && corner === "left>back") ||
+    (ids === "back" && corner === "") ||
+    (ids === "left,back,right" && corner === "left>back,right>back");
   if (!builds) {
     throw new Error(`layoutTemplate: the template cannot build runs ${ids} with corners ${corner}`);
   }
@@ -1911,7 +1943,15 @@ function planLegs(
   // One wall reads from the wall end, so its bank is read outer end first:
   // the order the L's left leg builds it in, turned round (`fromTheWall`).
   const oneWall = params.shape === "one-wall";
-  const tallSlots = columnsAlongRun(pkg, oneWall ? "left" : params.fridgeEnd);
+  const alongRun = columnsAlongRun(pkg, oneWall ? "left" : params.fridgeEnd);
+  // The U's left leg (Leo, 2026-11-11, 「左段从转角起 15" 台面 → 冰箱柱 → 酒柜柱，
+  // 冰箱挨着台面」): a bank the template orders itself — B's — stands its
+  // refrigerator against its 15" of counter and the rest past it. A bank a
+  // package names in order keeps that order; the L and one wall are unchanged.
+  const tallSlots: SlotId[] =
+    params.shape === "U" && !pkg.columnOrder && alongRun.includes("slot-fridge")
+      ? ["slot-fridge", ...alongRun.filter((slotId) => slotId !== "slot-fridge")]
+      : alongRun;
 
   /**
    * One full-height unit: the machine's own opening in a 96" carcass.
@@ -2226,6 +2266,7 @@ function planLegs(
   }
 
   if (oneWall) return { back: { items: mergeGaps(oneWallRun()), availableIn: params.backWallIn } };
+  if (params.shape === "U") return uLegs();
 
   if (params.fridgeEnd === "left") {
     if (coffeeHere("left")) left.push(...inRunGroup());
@@ -2242,6 +2283,92 @@ function planLegs(
     left: { items: mergeGaps(left), availableIn: params.leftWallIn },
     back: { items: mergeGaps(back), availableIn: params.backWallIn - corner.acrossIn },
   };
+
+  /**
+   * The U's three legs (U-1, 2026-11-11; docs/plans/u1-plan.md, section 1).
+   *
+   * The left leg, from the corner: the corner box, the refrigerator's 15"
+   * (rule 6, which is also rule 1's 12" off the corner), the columns in the
+   * left leg's order (`columnsAlongRun`; B's refrigerator first, against its
+   * counter, the wine column past it — Leo, 2026-11-11), then a coffee tower, the 15" pantry cabinet and the oven tower
+   * at the open end, its own 3/4" sides its finish (Leo, 2026-11-10 and
+   * 2026-11-11). A and C, with no oven tower, keep their refrigerator at the
+   * open end and the island's two machines before its landing, as an L with no
+   * island does.
+   *
+   * The right leg: the corner box, the wide 15" toward the sink round the
+   * corner, the cooking surface, the narrow 12" and the open end's cabinet and
+   * panel, the slack shared 3" at a time either side (Leo, 2026-11-11, 1).
+   * The island's machines come here only when the left leg would pass D13's
+   * 216" with them (`sparesRun`): D's microwave drawer, 12" off the corner.
+   *
+   * The back leg: 12" of counter off the left corner (D11 rule 10, 2026-11-10),
+   * the dishwasher, the sink, its 18" toward the cooking leg's corner.
+   */
+  function uLegs(): Partial<Record<RunId, RunPlan>> {
+    const cornerBox = () =>
+      fixed("corner", corner.alongIn, "corner", M(corner.code, "corner", corner.alongIn, { depthIn: corner.depthIn }));
+    const { panelIn } = LAYOUT_LIMITS.towerSpacer;
+    const coffee = inRun.filter((slot) => !ovenTowerOf(pkg, slot));
+    const ovens = pkg.slots.filter(
+      (slot) => slot.tallUnit && (slot.beside === "range" || (slot.beside === "run" && ovenTowerOf(pkg, slot))),
+    );
+    const coffeeItems = coffee.flatMap((slot) => {
+      const id = slot.slotId.replace("slot-", "");
+      const side = (end: "start" | "end") =>
+        fixed(`${id}-panel-${end}`, panelIn, "tall", M(`PNL${panelIn}`, "panel", panelIn));
+      return [side("start"), column(slot.slotId), side("end")];
+    });
+    const pantry =
+      ovens.length > 0
+        ? [
+            fixed("pantry", U_PANTRY.widthIn, "tall", M(U_PANTRY.code, "pantry", U_PANTRY.widthIn, { heightIn: 96 }), {
+              labelKey: "requirement.pantry",
+            }),
+          ]
+        : [];
+    const tallLeg = (withSpares: boolean): Item[] => [
+      cornerBox(),
+      gap("corner-landing", LAYOUT_LIMITS.cornerLandingIn, "d11-1", { shrink: "corner-to-range" }),
+      ...(withSpares ? spare : []),
+      gap("fridge-landing", LAYOUT_LIMITS.fridgeLandingIn, "d11-6"),
+      ...tower,
+      ...coffeeItems,
+      ...pantry,
+      ...ovens.map((slot) => column(slot.slotId)),
+    ];
+    const needIn = (items: Item[]) =>
+      mergeGaps(items).reduce((sum, item) => sum + (item.kind === "fixed" ? item.widthIn : item.minIn), 0);
+    const sparesOn = spare.length === 0 ? "tall" : sparesRun(needIn(tallLeg(true)));
+    const landing = LAYOUT_LIMITS.rangeLanding;
+    const cookingLeg: Item[] = [
+      cornerBox(),
+      ...(sparesOn === "cooking"
+        ? [
+            gap("corner-landing", LAYOUT_LIMITS.cornerLandingIn, "d11-1", {
+              shrink: "corner-to-range",
+              maxIn: LAYOUT_LIMITS.cornerLandingIn,
+            }),
+            ...spare,
+          ]
+        : []),
+      gap("range-landing-right", landing.wideIn, "d11-4", { shrink: "range-to-sink" }),
+      cooking(),
+      gap("range-landing-left", landing.narrowIn, "d11-4", { shrink: "corner-to-range" }),
+      ...terminal("right-end", "open"),
+    ];
+    const backLeg: Item[] = [
+      gap("dishwasher-landing", LAYOUT_LIMITS.dishwasherFromCornerIn, "d11-10"),
+      dishwasher,
+      sink,
+      gap("sink-landing", sinkRule.narrowIn, "d11-10"),
+    ];
+    return {
+      left: { items: mergeGaps(tallLeg(sparesOn === "tall")), availableIn: params.leftWallIn },
+      back: { items: mergeGaps(backLeg), availableIn: params.backWallIn - 2 * corner.acrossIn },
+      right: { items: mergeGaps(cookingLeg), availableIn: params.leftWallIn },
+    };
+  }
 
   /**
    * One wall, left to right as you face it. Round 98b, Leo.
@@ -2299,7 +2426,7 @@ function fromTheWall(items: Item[]): Item[] {
  */
 function requirementFor(
   params: LayoutParams,
-  leg: "left" | "back",
+  leg: RunId,
   pkg: Package,
   omitted: readonly SlotId[],
 ): WallRequirement {
@@ -2318,8 +2445,10 @@ function requirementFor(
   // both bills: 36" of the left wall as a cabinet, and 36" of the back wall as
   // the bite it takes out of it. One box, two walls. Which wall is bitten is the
   // shape's (round 98a).
-  const bitten = turnedInto(shapeSpec(params.shape), leg);
-  if (bitten) {
+  //
+  // A U's back leg is bitten at both ends (U-1): a line on the bill for each.
+  const bites = cornersOf(shapeSpec(params.shape), leg).filter((role) => role === "eaten").length;
+  for (let n = 0; n < bites; n += 1) {
     items.push({
       widthIn: corner.acrossIn,
       code: corner.code,
@@ -2350,14 +2479,20 @@ function requirementFor(
     }
   }
 
-  const across = bitten ? corner.acrossIn : 0;
+  const across = bites * corner.acrossIn;
   const legIn = items.reduce((sum, item) => sum + item.widthIn, 0) - across;
   const floor = CABINET_STANDARDS.legIn.shortMin;
-  if (legIn < floor) {
-    items.push({ widthIn: floor - legIn, rule: "d13-leg", labelKey: "requirement.legFloor" });
+  // D13's 96" is a leg measured from the inside corner outward, the corner
+  // square counted once. A leg with a corner at each end has no outward: its
+  // floor is the wall it stands on, corners and all — a U's back wall of 132"
+  // between two blind corners is the one Leo confirmed (2026-11-10, the plan's
+  // third draft), where counting its own 84" against 96" would ask for 144".
+  const measured = bites === 2 ? legIn + across : legIn;
+  if (measured < floor) {
+    items.push({ widthIn: floor - measured, rule: "d13-leg", labelKey: "requirement.legFloor" });
   }
 
-  let minimumIn = Math.max(legIn, floor) + across;
+  let minimumIn = bites === 2 ? Math.max(legIn + across, floor) : Math.max(legIn, floor) + across;
 
   // A wall is two things at once: the length of its own run, and the width or
   // depth of the room the island stands in. Whichever asks for more is the
@@ -2526,8 +2661,42 @@ export function wallRequirement(
 ): WallRequirement {
   const pkg = packageInShape(written, asked.shape);
   const params = asBuilt(asked, pkg);
-  return asDragged(() => requirementFor(params, leg, pkg, omittedSlots(params, pkg)));
+  return asDragged(() => {
+    const omitted = omittedSlots(params, pkg);
+    const own = requirementFor(params, leg, pkg, omitted);
+    // The U's left and right walls are one length (the room is a rectangle):
+    // the left wall's slider answers for both, and the longer leg sets it.
+    if (params.shape !== "U" || leg !== "left") return own;
+    const right = requirementFor(params, "right", pkg, omitted);
+    return right.minimumIn > own.minimumIn ? { ...right, leg: "left" as const } : own;
+  });
 }
+
+/**
+ * The walls a U is built at when it is chosen: each at what its legs ask for
+ * (U-1; as `oneWallWantedIn` is one wall's, D18).
+ */
+export function uWantedIn(params: LayoutParams, pkg: Package = PACKAGE): Pick<LayoutParams, "backWallIn" | "leftWallIn"> {
+  // Asked at the sliders' tops, as `oneWallWantedIn` is: everything the
+  // package has, nothing left out for want of the wall being worked out.
+  const asked = { ...params, shape: "U" as const, backWallIn: U_BACK_MAX_IN, leftWallIn: CABINET_STANDARDS.legIn.longMax };
+  return {
+    backWallIn: wallRequirement(asked, "back", pkg).wantedIn,
+    leftWallIn: wallRequirement(asked, "left", pkg).wantedIn,
+  };
+}
+
+/**
+ * Where a U puts the island's two machines: on the tall leg, as an L with no
+ * island does, unless that takes the leg past D13's 216"; then on the cooking
+ * leg, 12" off the corner (U-1; D's microwave drawer, Leo, 2026-11-11).
+ */
+export function sparesRun(tallLegIn: number): "tall" | "cooking" {
+  return tallLegIn <= CABINET_STANDARDS.legIn.longMax + 1e-9 ? "tall" : "cooking";
+}
+
+/** The U's pantry cabinet (Leo, 2026-11-10 and 2026-11-11): 15" wide, 96" tall, T1596. */
+export const U_PANTRY = { code: "T1596", widthIn: 15 } as const;
 
 /**
  * The lengths of one wall this configuration can actually be built at.
@@ -2706,8 +2875,10 @@ function banksOn(
   hoodWidthIn: number | null,
   /** Whether the run's far end is open: its wall cabinets end there on a WEP (A-11). */
   endsOpen = false,
+  /** Where the bank stops when that is past the run's own end: a U's back leg, at the far corner. */
+  stopAt?: number,
 ): UpperBank[] {
-  const stop = bankStop(segments);
+  const stop = stopAt ?? bankStop(segments);
   // The wall cabinets' end panel, where they reach the open end (A-11): the
   // bank stops where the base run's end panel does, its outer 3/4" the WEP.
   const endPanelIn = endsOpen && Math.abs(stop - segments[segments.length - 1].to) < 1e-9 ? WALL_END_PANEL.widthIn : 0;
@@ -3273,11 +3444,8 @@ export function generateLayout(
   // other waiting is the worst way to learn a room is too small. A wall that is
   // wrong carries what is standing on it and one change that would make it fit.
   const wrongLength: Refusal[] = [];
-  for (const { id } of shape.runs) {
-    // A right leg's bill is U-1's to write; no shape here has one yet
-    // (`templateBuilds` refuses any that does), so say so if one turns up.
-    if (id === "right") throw new Error("layoutTemplate: no bill is written for a right leg yet");
-    const leg = id;
+  for (const { id: leg } of shape.runs) {
+    // A U's right leg stands on the right wall, which is the left wall's length.
     const key = leg === "back" ? ("backWallIn" as const) : ("leftWallIn" as const);
     const requirement = requirementFor(params, leg, pkg, omitted);
     const vars = {
@@ -3361,6 +3529,11 @@ export function generateLayout(
   // the bank, and a window that cannot have both slides along the wall in
   // whole cabinet steps until it can. See D11 rule 13.
   const bankStart = (wall: RunId) => runStart(wall, corner.upper.acrossIn);
+  // And where a run's far end is a corner another run's box eats (a U's back
+  // leg), its wall cabinets stop where that corner's wall cabinet does: 12" off
+  // the wall over a blind corner, 24" over a susan, as they start at its low end.
+  const bankEnd = (wall: RunId) =>
+    shapeRun(shape, wall).ends[1] === "corner" ? halfAlong(wall) - ft(corner.upper.acrossIn) : undefined;
   const unfitted: Refusal[] = [];
   const windows: ResolvedWindow[] = [];
   for (const window of params.windows) {
@@ -3382,6 +3555,7 @@ export function generateLayout(
       mount,
       hoodWidthIn,
       endsOpen: shape.runs.find((run) => run.id === wall)?.ends[1] === "open",
+      stopAt: bankEnd(wall),
     });
     if (!fitted) {
       unfitted.push({
@@ -3413,7 +3587,7 @@ export function generateLayout(
   // What a window may not be behind, and how far the sink ended up from it.
   const blocked = windowRefusals(
     windows,
-    { left: segmentsOf("left"), back: segmentsOf("back") },
+    { left: segmentsOf("left"), back: segmentsOf("back"), right: segmentsOf("right") },
     spec,
     params,
   );
@@ -3481,6 +3655,7 @@ export function generateLayout(
       mount,
       hoodWidthIn,
       run.ends[1] === "open",
+      bankEnd(run.id),
     ),
   }));
 
@@ -3585,6 +3760,7 @@ function fitWindow(
     mount: HoodMount | null;
     hoodWidthIn: number | null;
     endsOpen: boolean;
+    stopAt?: number;
   },
 ): ResolvedWindow | null {
   const centre = (span: readonly [number, number]) => (span[0] + span[1]) / 2;
@@ -3592,7 +3768,7 @@ function fitWindow(
 
   // The middle of the stretch this window is in, which is where two equal
   // banks come from.
-  const stop = bankStop(leg.segments);
+  const stop = leg.stopAt ?? bankStop(leg.segments);
   const cuts = wallCuts(leg.segments, leg.spec);
   const reserved = reservedFor(window);
   const edges = [leg.start, stop, ...cuts.flatMap((cut) => [cut.from, cut.to])];
@@ -3655,6 +3831,7 @@ function evenBeside(
     mount: HoodMount | null;
     hoodWidthIn: number | null;
     endsOpen: boolean;
+    stopAt?: number;
   },
 ): boolean {
   const banks = banksOn(
@@ -3668,6 +3845,7 @@ function evenBeside(
     leg.mount,
     leg.hoodWidthIn,
     leg.endsOpen,
+    leg.stopAt,
   );
   // A bank beside a window has to be a bank: a stretch of nothing but fillers
   // is the board-on-its-own problem again, and the window should move rather

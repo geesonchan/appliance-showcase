@@ -111,6 +111,7 @@ describe("the layout's shape", () => {
   });
 
   it("is refused loudly where no template builds it, rather than drawn as an L", () => {
-    expect(() => generateLayout({ ...DEFAULT_PARAMS, shape: "U" } as unknown as LayoutParams)).toThrow(/shape "U"/);
+    // U-1 (2026-11-11): the U is built now, so the shape no template builds is the galley (cancelled, Leo 2026-11-10); the check is the same.
+    expect(() => generateLayout({ ...DEFAULT_PARAMS, shape: "galley" } as unknown as LayoutParams)).toThrow(/shape "galley"/);
   });
 });

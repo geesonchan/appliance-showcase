@@ -644,7 +644,7 @@ export const packageSchema = z
      * (`packageShapeSchema`; `packageInShape` in packages.ts). None is the L's
      * own list in every shape.
      */
-    shapes: z.partialRecord(z.enum(["one-wall"]), packageShapeSchema).default({}),
+    shapes: z.partialRecord(z.enum(["one-wall", "U"]), packageShapeSchema).default({}),
   })
   .refine((p) => !p.available || p.slots.length > 0, {
     message: "an available package declares its slots",
