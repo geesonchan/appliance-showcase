@@ -94,7 +94,9 @@ describe("the accent colour goes on a whole run", () => {
    */
   it("finishes the joinery round an appliance with the run it stands in", () => {
     for (const slot of SLOT_ORDER) {
-      const run = runForSlot(slot);
+      // U-0 (2026-11-10): `runForSlot` can name a right leg now; no shape builds
+      // one yet, and the line below holds every slot to the L's three.
+      const run = runForSlot(slot) as "left" | "back" | "island";
       expect(["left", "back", "island"], `${slot} is on no run`).toContain(run);
 
       // On the accent run it is the accent, everywhere else the primary — and

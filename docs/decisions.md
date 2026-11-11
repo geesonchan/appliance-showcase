@@ -732,6 +732,33 @@ each one has a test with a case that breaks it.
     the machine you load from it. The figures are Leo's to change and live
     in `LAYOUT_LIMITS` in `roomShell.ts`, where the generator lays a run out to
     them and `checkLayout` holds it to them.
+    *Amended 2026-11-10 (Leo, answering the U's plan, question 4), site
+    practice: **a dishwasher stands clear of the corner too — at least 12" of
+    counter between it and the corner cabinet.*** His words: 「不要贴着，我们遇到很多
+    情况，洗碗机贴着转角，另外那边的抽屉或者橱柜门handle会挡着洗碗机的门不能拉下来」;
+    and 「洗碗机到转角至少留 12" 台面」. Written as a rule, not built yet: the U
+    builds it (`docs/plans/u-shape-plan.md`). **The L, checked the same day and
+    not changed** (Leo: report it, change nothing): no dishwasher in the L
+    stands within 12" of a corner. Over the L room set (`roomSets.lRooms`, the
+    538 that build), and each again with both walls dragged to the least
+    `feasibleRange` gives, every dishwasher on a run with a corner: the one by
+    the sink never closer than 48" (the sink group's landing and the sink stand
+    between, rule 10's 15" and 18"); D's second dishwasher, under the coffee
+    machine, 12-3/4" — the 12" corner landing (rule 1) and the coffee tower's
+    3/4" board. Nothing holds the 12" for a dishwasher as such; it holds today
+    because rule 10 and rule 1 come first.
+    *Amended 2026-11-11 (Leo, after U-0's preview: 「D11 第 10 条的量法……确认」): **the
+    sink's 15" from the corner is the whole stretch between the corner cabinet and
+    the sink base, not its counter alone.*** Why: what the corner cabinet's door has
+    to clear is the sink base, and in the U Leo confirmed on 2026-11-10 the
+    dishwasher stands between them, 12" of counter off the corner (the amendment
+    above); counting the counter alone read that sink as 12" from the corner and
+    refused a room he had chosen. Until U-0 only counter segments were counted, at
+    the run's low end only; U-0 counts every segment between, at either end
+    (`layoutRules.ts`, rule 10). The evidence it changes nothing built so far: the
+    L's dump (`scripts/lDump.ts`, 1,063 rooms, every finding) and one wall's
+    (`scripts/oneWallDump.ts`, 106) on `9b06f41` and on U-0, byte for byte the same
+    (2026-11-10, "U-0, built").
 
 11. **A refrigerator is surrounded by what it is sold as.** A built-in gets a
     finished panel each side and a cabinet over it; a freestanding one gets
@@ -11898,8 +11925,9 @@ Registered, not scheduled. None of these is a round of its own.
      settled points; "A layout shape switch"; `docs/plans/overnight-2026-10-24-u-shape.md`).
      A plan first, shown to him, built only once he confirms it.
   Each a plan first, shown to him, built only once he confirms it.
-- **An induction cooktop in B and D.** *(Registered 2026-11-07; not started,
-  no plan. Its place in Leo's order: "His order of 2026-11-06", "Amended
+- **An induction cooktop in B and D.** *(Registered 2026-11-07; **done**, built
+  2026-11-08 and shipped as `7d8d437`, its "Shipped" below — this headline said
+  "not started, no plan" until 2026-11-10. Its place in Leo's order: "His order of 2026-11-06", "Amended
   2026-11-07", the entry above — after the test environment's local server,
   before the galley.)* Leo's words:
   「B，D套餐里面的rangetop选择项里面，增加一个induction cooktop的选项，记住cooktop和cabinet layout配置一起整体改动」
@@ -12373,21 +12401,182 @@ Registered, not scheduled. None of these is a round of its own.
     2. 水槽在 U 底部那一排，洗碗机紧挨水槽；
     3. 一条侧排放高柜，另一条是操作排，炉头在操作排中段，烤箱塔和灶之间台面至少 9"；
     4. 左右两排之间过道默认 48"；
+       **Corrected 2026-11-10 (Leo, answering the plan's first draft): 48" is the
+       aisle's least, not its default; the aisle actually built is what the back
+       run leaves** — his words: 「照甲，48" 是最小值，实际过道由尽头排决定」. Why: as
+       written, "默认 48"" could not be built together with points 2 and 6 — the
+       back run holds a corner's 24" at each end, the sink and the dishwasher
+       beside it, and the counter rules 10 and 1 ask for, 132" with blind corners,
+       which leaves about 82" between the side runs' counter edges; at 48" the
+       back wall would be 98", 50" between the corners, and the sink and
+       dishwasher alone are 54" (`docs/plans/u-shape-plan.md`, first draft,
+       section 2).
     5. 不配岛台；
     6. 转角先照 L 型的转角规矩，开放端 3/4" 侧板、台面出 1"，高柜靠墙 3" 整高填充板。
+  - **Leo's answers to the plan's first draft, 2026-11-10** (`docs/plans/u-shape-plan.md`;
+    his words copied as he wrote them):
+    - **A correction — the oven tower is on the tall run**: 「烤箱塔放在高柜排，不放操作排。
+      我同意的原话是"左墙冰箱和烤箱塔，右墙炉头"。"烤箱塔和灶之间台面至少 9""的意思是"如果挨着
+      至少 9""，不是要它们挨着。所以：高柜排：冰箱、柱子、烤箱塔、咖啡塔，都在这一排；操作排：
+      炉头在中段，两边都是台面，油烟机在上方；第 2 题（D、E 两座塔分到两排）不用做，第 55
+      轮"现在不做"照旧；五个套餐的墙长和示意图照这个重算、重画，哪个套餐高柜排变得太长，写出来。」
+      The first draft had read point 3 as putting the tower beside the cooking surface;
+      it was wrong. D22's round-55 note ("splitting them across two legs is not being
+      built now") stands.
+    - 1, the aisle: 「照甲，48" 是最小值，实际过道由尽头排决定。decisions.md 里把我原来那句
+      "默认 48""更正成这个意思，写明原因。」 (Done: point 4 above.)
+    - 3, the countertop: 「要在转角接缝」。「两个转角各一道接缝，画法和位置你提建议给我看。」
+      A U's top is not one slab, as the L's is (D11 rule 8): a seam at each corner.
+    - 4, the dishwasher: 「不要贴着，我们遇到很多情况，洗碗机贴着转角，另外那边的抽屉或者橱柜门
+      handle会挡着洗碗机的门不能拉下来」。「洗碗机到转角至少留 12" 台面，照你现在的排法。这条
+      写成规则，L 型现在如果允许洗碗机贴转角，查出来报给我，先不改。」 Written as D11 rule
+      10's amendment of 2026-11-10, with what the L does (it never lets one).
+    - 5, services: 「炉头在哪边就假设从那一头进来厨房」。「水、电、煤气都从炉头所在的那面墙
+      进来；电表箱也按这一侧假设，预留清单上照这个写。」
+    - 6, the runs' names: 「左段、后段、右段，和 L 型现在的叫法接上；英文照 L 型现有的词。」
+      The L's words are `panel.layout.leg.left` / `.back`: 「左段」「后段」, "Left leg" /
+      "Back leg"; the U adds 「右段」, "Right leg".
+    - The L's corner, the plan's section 3, nine points: 「确认，两个转角都照 L 型的做法，
+      右边镜像。」
+    - Which side: 「高柜排在左、操作排在右：同意。右排吊柜和油烟机看起来悬空的问题，U-2 预览时
+      我看了再定。」
+    - 「其余 43 题照你的倾向。」 (The plan's section 5.2, first draft.)
+    - And: 「你挑出的 HANDOFF 和 decisions.md 那 4 处旧了的地方，照 decisions.md 和实际情况
+      改掉，跟下一次提交一起。」
+    - 「改好计划第二稿和五张图给我看，不动手。」
+  - **Leo's answers to the plan's second draft, 2026-11-10** (his words as he wrote them;
+    「U 型第二稿看过了，烤箱塔的位置和洗碗机规则都对」):
+    1. The seams: 「选乙」 — 「左右两段各一块顶到后墙，接缝在后段上、落在后段第一个柜子的边上，
+       两个转角各一道」 (the second draft's 乙, `docs/plans/u-shape-2026-11-10/u-seams.png`).
+    2. The left leg's order: 「15"做成高柜，让烤箱塔靠近开放端」 — 「烤箱塔和柱子之间不留 15"
+       台面，改成一个 15" 的高柜把它们隔开；烤箱塔放在靠开放端那一头」. And: 「咖啡塔不能挨着
+       烤箱塔（TCM24PS 说明书第 9 页）。它放哪里你提建议，在图上画出来，我确认」; 「柱子离发热
+       电器至少 1-3/16"（柱子说明书第 9 页）：有 15" 高柜隔着就满足，写明这一点」; 「这个 15"
+       高柜的编号和叫法照现有的高柜规矩，没有现成的就列出来问我」.
+    3. The services' entry: 「同意，右墙（炉头那一段）、离开放端 4'，和 L 型对应」.
+    4. E's L: 「E 的 L 型咖啡塔挨着组合烤箱塔、和 TCM24PS 说明书第 9 页冲突：登记进 Open
+       items，写明页码和原话，这一轮不动」 — registered below, "E's L: the coffee tower
+       beside the combination oven".
+    5. The slab's length: 「石板有最大长度，接缝要补算：把每个套餐三段台面各自的长度列出来；板长
+       用多少你提建议并写出处，我确认；超过板长、侧段中间要再接一道缝的，建议缝落在哪里（避开
+       水槽、炉头开孔和洗碗机上方），在图上画出来」.
+    - 「改好第三稿，五个套餐的图照新顺序重画、墙长重算，给我看，不动手。」
+  - **Leo's answers to the plan's third draft, 2026-11-10 — the plan settled** (his words
+    as he wrote them; 「U 型第三稿看过了，四件事」):
+    1. 「咖啡塔放在柱子和 15" 高柜之间：同意。」 The left leg, from the corner: the blind
+       corner, 15" of counter, the columns, the coffee tower, the 15" pantry cabinet, the
+       oven tower at the open end (`docs/plans/u-shape-plan.md`, third draft, section 2).
+    2. 「15" 高柜叫"储物高柜 / Pantry Cabinet"，编号 T1596。现有的"高柜 / Tall tower"继续只用在
+       装机器的塔上。」
+    3. 「石板最长按 120" 算：同意。」 The slab's length is Caesarstone's standard slab,
+       "Width 144 cm", "Height 305 cm" (<https://www.caesarstone.ca/about-us/products-technical-info/>,
+       read 2026-11-10); the page goes into `docs/reference/` with its row when the slab
+       is built (D21).
+    4. 「右段中间的缝：B 离后墙 42"、D 102"、E 66"，同意。」
+    - And: 「计划定了，把这四条照原话写进 decisions.md。开始 U-0（准备，页面不变）」 — the
+      tests red on the old code first; the page proved unchanged, the L's and one wall's
+      dumps line for line and every existing pixel state; the full suite on the final
+      code, the power plan read before it and the system log after; every step's start,
+      end and exit code in the report, a failure as it failed; a local preview at the
+      end and its main chunk named; not committed.
+  - **U-0, built 2026-11-10/11, committed after Leo's look at the local preview**
+    (`index-9MkgIPWJ.js`; Leo, 2026-11-11: 「U-0 看过了，预览确认」). What the plan's
+    section 6 calls U-0, as far as it can be exercised with no U in `SHAPES`: each piece
+    tested on a U stood up by hand (`src/data/uShapePrep.test.ts`, 21 cases):
+    - `layoutShape.ts`: a run named `right`; a corner says which end of the run it eats
+      (`ShapeCorner.at`, the L's `0`); `cornersOf` and `validateShape`.
+    - `layoutRules.ts`: rule 1's "hard against the corner" at a run's high end where a
+      corner is; rule 10's sink measured from the corner at either end, as the whole
+      stretch between the corner and the sink base, not its counter alone (the U Leo
+      confirmed has the dishwasher between, 12" off the corner — counted as counter
+      alone it read 12"); a hood centred along the run its range stands on (`axisIndex`),
+      not along x alone; a corner end is not what finishes a run, at either end.
+    - `cabinets.ts`: a susan's diagonal door faces the room from the box's own facing,
+      so the back-right corner's faces -x and +z; the toe kick reaches into a corner at
+      either end of the run it eats, from the nearest corner box (`kickIntoCorners`);
+      a corner kick for every run holding a susan (`cornerKick`).
+    - Types: a box's run, a window's wall, `cutsFor` and `runForSlot` take `right`; a
+      run's windows are its own wall's (until now any run not the back read the left's).
+    - **Left to U-1 and U-2**, since only a generator that builds a U exercises them: the
+      template (a back run eaten at both ends, its bill, its wall cabinets either side),
+      the U's stone (seams per 乙, 120" slabs), the scene (the right wall's floor line,
+      the camera, lights), the services from the right wall, the interface.
+    - **Red first**: on `9b06f41` 17 of the cases red, each for its reason (no
+      `cornersOf`/`validateShape`/`kickIntoCorners`/`cornerKick` export; no finding at the
+      high-end corner; the dishwasher-between case flagged at 12"; a machine at the
+      high corner called the run's finish; the hood compared on x; the back-right door
+      toward +x), 4 green as guards.
+    - **Found and registered, not changed**: asking rule 1 at a run's low end too finds 16
+      of the L's rooms with E's combination oven tower hard against the corner (entry
+      below, "E's L: the combination oven tower hard against the corner"); the low end
+      stays unasked and its case is a `todo`.
+    - **The proof** — dumps: `scripts/lDump.ts` and `scripts/oneWallDump.ts` on a worktree of
+      `9b06f41` and on this tree, every run exit 0, both pairs byte for byte the same (L
+      1,065 lines, 538 built and 527 refused; one wall 108 lines). Pixels: 45 states, old
+      built from a worktree of `9b06f41` (`index-CcA7aDbR.js`, stamped `9b06f41`), new
+      `index-9MkgIPWJ.js`, shot old, new, old, new: the canvas alone 0 pixels different in
+      all 45; the whole screen 0 in 44, and in `link-A` 1 pixel, (144, 225), 236,234,227
+      old and 237,235,228 new in both runs of each, on the scene's background beside the
+      room where the canvas is the only element. A build of `9b06f41` with only a no-op
+      line in `main.tsx` gave the old value; one with only the new `cabinets.ts` the new;
+      the 57 boxes `cabinets.ts` builds in that room are the same, door and all. Shot
+      again four times alternated: 237,235,228 in all four, old and new alike; a probe
+      reading the pixel every 0.4 s for 18 s read 237 on both builds. A second whole set,
+      shot after the full suite (2026-11-11 00:07 to 00:41, every run exit 0), old against
+      new: 0 pixels in all 45 states, canvas and whole screen; and `link-A`'s pixel read
+      237 in the new build's first run and 236 in its second — the same flip inside one
+      build, which in that set a build against itself shows in 10 states, 1 pixel each.
+      The first set's one pixel was that, not the code. Full suite: `npm
+      test` 2026-11-10 22:41:16 to 2026-11-11 00:06:34, exit 0, 177 files, 3,776 passed
+      and 1 todo; on mains power, screen-off, sleep and hibernate "never"; no event 42,
+      506, 507, 107, 187, 1 or 566 in the System log in that window.
   - **What is not settled**: everything else the galley's question lists asked
     (`docs/plans/galley-questions-sorted.md`, `docs/plans/overnight-2026-10-23-galley.md`),
     read again for a U — the walls' lengths and their sliders, which leg is which side,
     the window, the names, what a short wall leaves out. The U's plan lists them, with
-    what these six answers already decide, and asks him the rest.
+    what these six answers already decide, and asks him the rest. *(2026-11-10: the
+    plan's first draft asked them; his answers are the list above, and its second
+    draft is what is left.)*
   - The rules of the last days hold in a U as anywhere (each its entry): a cooking surface
     in the stone stands on a swing-door `B36`, nothing within 4-3/4" under the counter
     ("An induction cooktop in B and D"); a hood hangs off the cooking surface by the
     shop's installation distance (`hoodUndersideIn`, "E on one wall"); an oven tower's
     opening grows to the oven chosen ("The ovens do not look like ovens"); an alternative's
     main title and the desktop card's height ("An alternative's main title").
-- **The ovens do not look like ovens.** *(Registered 2026-11-09; a plan next, not built.
-  Its place in Leo's order is in "Amended 2026-11-07" above.)* Leo's words, 2026-11-09:
+- **E's L: the coffee tower beside the combination oven.** *(Registered 2026-11-10, Leo,
+  answering the U's plan, second draft: 「登记进 Open items，写明页码和原话，这一轮不动」. Not
+  in his order; not changed.)* On E's L the back leg reads, from the corner, a counter
+  (18" in E's own room, 12" at the least), the 30" combination oven tower (`T3096`, `slot-microwave`), then the coffee tower's own
+  3/4" board and the coffee machine — the two towers side by side (D22, round 55: E's two
+  towers are welded to one leg). TCM24PS's installation instructions,
+  `docs/reference/TCM24PS_Install_Manual.pdf` (8001250535), page 9, its safety list, word
+  for word: "Do not mount the appliance directly over or under or on side of a heating
+  appliance. This appliance must always be enclosed in its own cabinetry unless specified
+  otherwise." (Read off the PDF's page 9 on 2026-11-10; round 98b quoted the same line,
+  "What the documents say about E's coffee tower…", and drew no conclusion for the L.)
+  Whether a combination oven in its own tower, a 3/4" board between, is "on side of" it in
+  the sense the manual means: the manual does not say. The U does not put them together
+  (`docs/plans/u-shape-plan.md`).
+- **E's L: the combination oven tower hard against the corner.** *(Found 2026-11-10 in U-0,
+  not changed — U-0 changes nothing on the page. Leo, 2026-11-11: 「保持登记，等 U 型做完再单独
+  修一轮，这一轮不动」 — a round of its own after the U.)* U-0 asked
+  D11 rule 1's "a tall cabinet ... never at a corner" (`d11-1`, "hard against the corner")
+  at every end of a run that is a corner, not only beside a corner box on the same run.
+  Asked at a run's low end, it finds **16 of the L's 538 rooms that build**
+  (`roomSets.lRooms`), all package E, all with the sink on the left leg, the refrigerator
+  on the back leg and the coffee on the back leg — every corner type, tower side, return
+  and island turn of that arrangement, at E's own walls, 180" x 168": the back leg's
+  first box is the 30" combination oven tower (`back-microwave`, `T3096`), standing where
+  the left leg's corner box stops, with no counter between. On the live site too
+  (`9b06f41` builds the same rooms). Rule 1's reason: "a tower at a corner blocks the
+  corner cabinet's door"; its 12" (`LAYOUT_LIMITS.cornerLandingIn`) is what every other
+  room keeps there. The old check only looked for a corner segment on the same run, which
+  on the back leg there never is. U-0 asks it at a run's high end only, where no L or
+  one-wall run has a corner (a U's back run does); the low end is a `todo` in
+  `src/data/uShapePrep.test.ts`, waiting on this entry.
+- **The ovens do not look like ovens.** *(Registered 2026-11-09; **done**, shipped as
+  `96cfaf9`, its "Shipped" below — this headline said "a plan next, not built" until
+  2026-11-10. Its place in Leo's order is in "Amended 2026-11-07" above.)* Leo's words, 2026-11-09:
   「当我选择B套仓里面的Oven Combo的时候，换成Single Oven或者Double Oven的时候，Single Oven和
   Double Oven的渲染都不像一个Oven，没有Oven中间的黑色Control Panel」 (with two screenshots of
   the live a2a8646.)

@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="1215" viewBox="0 0 1100 1215" font-family="Microsoft YaHei, PingFang SC, sans-serif">
+<defs>
+<pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="#8a7a60" stroke-width="1.5"/></pattern>
+<marker id="arr" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c0392b"/></marker>
+<marker id="arr2" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker>
+</defs>
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="550" y="34" font-size="22" font-weight="bold" text-anchor="middle">E · 组合烤箱塔、冰箱柱 + 冷冻柱、咖啡塔、电磁灶上墙</text>
+<text x="550" y="62" font-size="15" text-anchor="middle" fill="#555">U 型俯视示意，按比例（1" = 5 像素），最短的墙；计划第三稿，不是页面截图</text>
+<line x1="210" y1="154" x2="876" y2="154" stroke="#222" stroke-width="10"/>
+<line x1="204" y1="154" x2="204" y2="1045" stroke="#222" stroke-width="10"/>
+<line x1="876" y1="154" x2="876" y2="1045" stroke="#888" stroke-width="3" stroke-dasharray="10 8"/>
+<line x1="495" y1="154" x2="675" y2="154" stroke="#7fc4f0" stroke-width="10"/>
+<text x="585" y="138" font-size="14" fill="#2a7ab8" text-anchor="middle" dominant-baseline="middle"  >窗（水槽上方）</text>
+<rect x="210" y="160" width="120" height="120" fill="#e8dfd0" stroke="#333" stroke-width="1" />
+<text x="270" y="205" font-size="15" fill="#111" text-anchor="middle" dominant-baseline="middle"  >让出 24</text>
+<text x="270" y="245" font-size="14" fill="#111" text-anchor="middle" dominant-baseline="middle"  >24"</text>
+<rect x="330" y="160" width="60" height="120" fill="#f4efe6" stroke="#333" stroke-width="1" />
+<text x="360" y="205" font-size="13" fill="#111" text-anchor="middle" dominant-baseline="middle"  >台面</text>
+<text x="360" y="245" font-size="14" fill="#111" text-anchor="middle" dominant-baseline="middle"  >12"</text>
+<rect x="390" y="160" width="120" height="120" fill="#8fbf7f" stroke="#333" stroke-width="1" />
+<text x="450" y="205" font-size="15" fill="#111" text-anchor="middle" dominant-baseline="middle"  >洗碗机</text>
+<text x="450" y="245" font-size="14" fill="#111" text-anchor="middle" dominant-baseline="middle"  >24"</text>
+<rect x="510" y="160" width="150" height="120" fill="#5aa9e6" stroke="#333" stroke-width="1" />
+<text x="585" y="205" font-size="15" fill="#111" text-anchor="middle" dominant-baseline="middle"  >水槽 SB30</text>
+<text x="585" y="245" font-size="14" fill="#111" text-anchor="middle" dominant-baseline="middle"  >30"</text>
+<rect x="660" y="160" width="90" height="120" fill="#f4efe6" stroke="#333" stroke-width="1" />
+<text x="705" y="205" font-size="15" fill="#111" text-anchor="middle" dominant-baseline="middle"  >台面</text>
+<text x="705" y="245" font-size="14" fill="#111" text-anchor="middle" dominant-baseline="middle"  >18"</text>
+<rect x="750" y="160" width="120" height="120" fill="#e8dfd0" stroke="#333" stroke-width="1" />
+<text x="810" y="205" font-size="15" fill="#111" text-anchor="middle" dominant-baseline="middle"  >让出 24</text>
+<text x="810" y="245" font-size="14" fill="#111" text-anchor="middle" dominant-baseline="middle"  >24"</text>
+<rect x="210" y="160" width="120" height="210" fill="#c9b79c" stroke="#333" stroke-width="1" />
+<text x="270" y="316" font-size="14" fill="#111" text-anchor="middle" dominant-baseline="middle"  >盲角 BBC42</text>
+<text x="270" y="335" font-size="14" fill="#111" text-anchor="middle" dominant-baseline="middle"  >42"</text>
+<rect x="210" y="370" width="120" height="75" fill="#f4efe6" stroke="#333" stroke-width="1" />
+<text x="270" y="398.5" font-size="14" fill="#111" text-anchor="middle" dominant-baseline="middle"  >台面</text>
+<text x="270" y="417.5" font-size="14" fill="#111" text-anchor="middle" dominant-baseline="middle"  >15"</text>
+<rect x="210" y="445" width="120" height="3.75" fill="#2f3a44" stroke="#333" stroke-width="1" />
+<rect x="210" y="448.75" width="120" height="150" fill="#5b6b7a" stroke="#333" stroke-width="1" />
+<text x="270" y="514.75" font-size="14" fill="#fff" text-anchor="middle" dominant-baseline="middle"  >冰箱柱</text>
+<text x="270" y="533.75" font-size="14" fill="#fff" text-anchor="middle" dominant-baseline="middle"  >30"</text>
+<rect x="210" y="598.75" width="120" height="90" fill="#5b6b7a" stroke="#333" stroke-width="1" />
+<text x="270" y="634.75" font-size="14" fill="#fff" text-anchor="middle" dominant-baseline="middle"  >冷冻柱</text>
+<text x="270" y="653.75" font-size="14" fill="#fff" text-anchor="middle" dominant-baseline="middle"  >18"</text>
+<rect x="210" y="688.75" width="120" height="3.75" fill="#2f3a44" stroke="#333" stroke-width="1" />
+<rect x="210" y="692.5" width="120" height="127.5" fill="#8a6d3b" stroke="#333" stroke-width="1" />
+<text x="270" y="747.25" font-size="14" fill="#fff" text-anchor="middle" dominant-baseline="middle"  >咖啡塔</text>
+<text x="270" y="766.25" font-size="14" fill="#fff" text-anchor="middle" dominant-baseline="middle"  >25-1/2"</text>
+<rect x="210" y="820" width="120" height="75" fill="#9aa7b3" stroke="#333" stroke-width="1" />
+<text x="270" y="848.5" font-size="14" fill="#111" text-anchor="middle" dominant-baseline="middle"  >高柜</text>
+<text x="270" y="867.5" font-size="14" fill="#111" text-anchor="middle" dominant-baseline="middle"  >15"</text>
+<rect x="210" y="895" width="120" height="150" fill="#7a4f8f" stroke="#333" stroke-width="1" />
+<text x="270" y="961" font-size="14" fill="#fff" text-anchor="middle" dominant-baseline="middle"  >组合烤箱塔</text>
+<text x="270" y="980" font-size="14" fill="#fff" text-anchor="middle" dominant-baseline="middle"  >30"</text>
+<rect x="750" y="160" width="120" height="210" fill="#c9b79c" stroke="#333" stroke-width="1" />
+<text x="810" y="316" font-size="14" fill="#111" text-anchor="middle" dominant-baseline="middle"  >盲角 BBC42</text>
+<text x="810" y="335" font-size="14" fill="#111" text-anchor="middle" dominant-baseline="middle"  >42"</text>
+<rect x="750" y="370" width="120" height="253.125" fill="#f4efe6" stroke="#333" stroke-width="1" />
+<text x="810" y="487.5625" font-size="14" fill="#111" text-anchor="middle" dominant-baseline="middle"  >台面</text>
+<text x="810" y="506.5625" font-size="14" fill="#111" text-anchor="middle" dominant-baseline="middle"  >50-5/8"</text>
+<rect x="750" y="623.125" width="120" height="180" fill="#d9534f" stroke="#333" stroke-width="1" />
+<text x="810" y="704.125" font-size="14" fill="#fff" text-anchor="middle" dominant-baseline="middle"  >电磁灶 36"</text>
+<text x="810" y="723.125" font-size="14" fill="#fff" text-anchor="middle" dominant-baseline="middle"  >36"</text>
+<rect x="750" y="803.125" width="120" height="238.125" fill="#f4efe6" stroke="#333" stroke-width="1" />
+<text x="810" y="913.1875" font-size="14" fill="#111" text-anchor="middle" dominant-baseline="middle"  >台面</text>
+<text x="810" y="932.1875" font-size="14" fill="#111" text-anchor="middle" dominant-baseline="middle"  >47-5/8"</text>
+<rect x="750" y="1041.25" width="120" height="3.75" fill="#2f3a44" stroke="#333" stroke-width="1" />
+<rect x="210" y="160" width="120" height="120" fill="url(#hatch)" stroke="#333"/>
+<rect x="750" y="160" width="120" height="120" fill="url(#hatch)" stroke="#333"/>
+<rect x="746" y="619.125" width="128" height="188" fill="none" stroke="#333" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="810" y="791.125" font-size="12" fill="#fff" text-anchor="middle" dominant-baseline="middle"  >油烟机在上方</text>
+<line x1="335" y1="160" x2="335" y2="285" stroke="#d6249f" stroke-width="5"/>
+<line x1="745" y1="160" x2="745" y2="285" stroke="#d6249f" stroke-width="5"/>
+<text x="341" y="297" font-size="13" fill="#d6249f" text-anchor="start" dominant-baseline="middle" font-weight="bold" >接缝</text>
+<text x="739" y="297" font-size="13" fill="#d6249f" text-anchor="end" dominant-baseline="middle" font-weight="bold" >接缝</text>
+<line x1="745" y1="490" x2="870" y2="490" stroke="#d6249f" stroke-width="5"/>
+<text x="739" y="490" font-size="13" fill="#d6249f" text-anchor="end" dominant-baseline="middle" font-weight="bold" >接缝（离后墙 66"）</text>
+<text x="540" y="1133" font-size="14" fill="#111" text-anchor="middle" dominant-baseline="middle" font-weight="bold" >台面石板：后段 82"；左段 57"；右段 66" + 112"</text>
+<text x="140" y="602.5" font-size="18" fill="#111" text-anchor="middle" dominant-baseline="middle" font-weight="bold" transform="rotate(-90 140 602.5)">左墙 177"</text>
+<text x="950" y="602.5" font-size="18" fill="#111" text-anchor="middle" dominant-baseline="middle" font-weight="bold" transform="rotate(90 950 602.5)">右墙 177"（只画地面墙线）</text>
+<text x="540" y="108" font-size="18" fill="#111" text-anchor="middle" dominant-baseline="middle" font-weight="bold" >后墙 132"（后段：水槽、洗碗机）</text>
+<text x="270" y="1067" font-size="15" fill="#111" text-anchor="middle" dominant-baseline="middle" font-weight="bold" >左段（高柜）</text>
+<text x="810" y="1067" font-size="15" fill="#111" text-anchor="middle" dominant-baseline="middle" font-weight="bold" >右段（炉头）</text>
+<text x="270" y="1087" font-size="13" fill="#111" text-anchor="middle" dominant-baseline="middle"  >需要 177"</text>
+<text x="810" y="1087" font-size="13" fill="#111" text-anchor="middle" dominant-baseline="middle"  >需要 105-3/4"</text>
+<text x="540" y="1107" font-size="13" fill="#555" text-anchor="middle" dominant-baseline="middle"  >斜线方块：转角，属于侧排的盲角柜；后段从它前面开始</text>
+<text x="540" y="1067" font-size="13" fill="#555" text-anchor="middle" dominant-baseline="middle"  >开放端（左段、右段的尽头：3/4" 侧板，台面出 1"）</text>
+<line x1="335" y1="610" x2="745" y2="610" stroke="#c0392b" stroke-width="2" marker-start="url(#arr)" marker-end="url(#arr)"/>
+<text x="540" y="596" font-size="15" fill="#c0392b" text-anchor="middle" dominant-baseline="middle" font-weight="bold" >过道约 82"（台面边到台面边）</text>
+<line x1="1020" y1="1165" x2="910" y2="1065" stroke="#555" stroke-width="2" marker-end="url(#arr2)"/>
+<text x="990" y="1180" font-size="13" fill="#555" text-anchor="middle" dominant-baseline="middle"  >默认视角（右前方 45°）</text>
+</svg>

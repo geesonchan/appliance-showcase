@@ -1,4 +1,5 @@
 import { ROOM, ft, type RunSegment } from "./roomShell";
+import type { RunId } from "./layoutShape";
 
 /**
  * A window in one of the room's two walls.
@@ -11,7 +12,8 @@ import { ROOM, ft, type RunSegment } from "./roomShell";
  * D11 rule 13.
  */
 export interface WindowOpening {
-  wall: "back" | "left";
+  /** The run whose wall it is in: "back" or "left" in an L; "right" named since U-0 (2026-11-10). */
+  wall: RunId;
   /**
    * Where its middle is along that wall, in inches from the room's own middle
    * — the same x for the back wall and z for the left one that everything else
@@ -208,7 +210,7 @@ export const lowestSillIn = () => ROOM.counterHeight * 12 + WINDOW.aboveCounterI
  * leg, and the window is in the middle of it. So the bank breaks at the
  * window, and what is either side of the opening is finished as an end.
  */
-export const cutsFor = (windows: ResolvedWindow[], wall: "back" | "left") =>
+export const cutsFor = (windows: ResolvedWindow[], wall: RunId) =>
   windows
     .filter((window) => window.wall === wall)
     .map((window) => ({

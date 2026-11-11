@@ -1,0 +1,465 @@
+{
+  "A": {
+    "W": 132,
+    "H": 155.25,
+    "lNeed": 155.25,
+    "rNeed": 105.75,
+    "left": [
+      {
+        "label": "盲角 BBC42",
+        "w": 42,
+        "kind": "corner"
+      },
+      {
+        "label": "台面",
+        "w": 12,
+        "kind": "counter"
+      },
+      {
+        "label": "微波抽屉",
+        "w": 24,
+        "kind": "spare"
+      },
+      {
+        "label": "隔板",
+        "w": 0.75,
+        "kind": "panel"
+      },
+      {
+        "label": "酒柜",
+        "w": 24,
+        "kind": "spare"
+      },
+      {
+        "label": "台面（冰箱旁）",
+        "w": 15,
+        "kind": "counter"
+      },
+      {
+        "label": "冰箱 T3696 连两侧 3/4\" 板",
+        "w": 37.5,
+        "kind": "tall",
+        "short": "冰箱"
+      }
+    ],
+    "right": [
+      {
+        "label": "盲角 BBC42",
+        "w": 42,
+        "kind": "corner"
+      },
+      {
+        "label": "台面",
+        "w": 39.75,
+        "kind": "counter"
+      },
+      {
+        "label": "炉 36\"（落地）",
+        "w": 36,
+        "kind": "range",
+        "short": "炉 36\"",
+        "free": true
+      },
+      {
+        "label": "台面",
+        "w": 36.75,
+        "kind": "counter"
+      },
+      {
+        "label": "开放端侧板",
+        "w": 0.75,
+        "kind": "panel"
+      }
+    ],
+    "stone": {
+      "back": [
+        82
+      ],
+      "left": [
+        117.75
+      ],
+      "right": [
+        81.75,
+        38.5
+      ]
+    }
+  },
+  "B": {
+    "W": 132,
+    "H": 157.5,
+    "lNeed": 157.5,
+    "rNeed": 105.75,
+    "left": [
+      {
+        "label": "盲角 BBC42",
+        "w": 42,
+        "kind": "corner"
+      },
+      {
+        "label": "台面（冰箱旁）",
+        "w": 15,
+        "kind": "counter"
+      },
+      {
+        "label": "侧板",
+        "w": 0.75,
+        "kind": "panel"
+      },
+      {
+        "label": "酒柜柱 18\"",
+        "w": 18,
+        "kind": "tall"
+      },
+      {
+        "label": "冰箱柱 36\"",
+        "w": 36,
+        "kind": "tall"
+      },
+      {
+        "label": "侧板",
+        "w": 0.75,
+        "kind": "panel"
+      },
+      {
+        "label": "15\" 高柜 T1596",
+        "w": 15,
+        "kind": "pantry",
+        "short": "高柜"
+      },
+      {
+        "label": "烤箱塔 30\"",
+        "w": 30,
+        "kind": "oven"
+      }
+    ],
+    "right": [
+      {
+        "label": "盲角 BBC42",
+        "w": 42,
+        "kind": "corner"
+      },
+      {
+        "label": "台面",
+        "w": 40.875,
+        "kind": "counter"
+      },
+      {
+        "label": "灶台 36\"",
+        "w": 36,
+        "kind": "range"
+      },
+      {
+        "label": "台面",
+        "w": 37.875,
+        "kind": "counter"
+      },
+      {
+        "label": "开放端侧板",
+        "w": 0.75,
+        "kind": "panel"
+      }
+    ],
+    "stone": {
+      "back": [
+        82
+      ],
+      "left": [
+        57
+      ],
+      "right": [
+        42,
+        116.5
+      ]
+    }
+  },
+  "C": {
+    "W": 132,
+    "H": 159.75,
+    "lNeed": 159.75,
+    "rNeed": 99.75,
+    "left": [
+      {
+        "label": "盲角 BBC42",
+        "w": 42,
+        "kind": "corner"
+      },
+      {
+        "label": "台面",
+        "w": 12,
+        "kind": "counter"
+      },
+      {
+        "label": "微波抽屉",
+        "w": 24,
+        "kind": "spare"
+      },
+      {
+        "label": "隔板",
+        "w": 0.75,
+        "kind": "panel"
+      },
+      {
+        "label": "酒柜",
+        "w": 24,
+        "kind": "spare"
+      },
+      {
+        "label": "台面（冰箱旁）",
+        "w": 15,
+        "kind": "counter"
+      },
+      {
+        "label": "独立式冰箱 连两侧 3\" 板",
+        "w": 42,
+        "kind": "tall",
+        "short": "冰箱"
+      }
+    ],
+    "right": [
+      {
+        "label": "盲角 BBC42",
+        "w": 42,
+        "kind": "corner"
+      },
+      {
+        "label": "台面",
+        "w": 45,
+        "kind": "counter"
+      },
+      {
+        "label": "炉 30\"（落地）",
+        "w": 30,
+        "kind": "range",
+        "short": "炉 30\"",
+        "free": true
+      },
+      {
+        "label": "台面",
+        "w": 42,
+        "kind": "counter"
+      },
+      {
+        "label": "开放端侧板",
+        "w": 0.75,
+        "kind": "panel"
+      }
+    ],
+    "stone": {
+      "back": [
+        82
+      ],
+      "left": [
+        117.75
+      ],
+      "right": [
+        87,
+        43.75
+      ]
+    }
+  },
+  "D": {
+    "W": 132,
+    "H": 207,
+    "lNeed": 207,
+    "rNeed": 141.75,
+    "left": [
+      {
+        "label": "盲角 BBC42",
+        "w": 42,
+        "kind": "corner"
+      },
+      {
+        "label": "台面（冰箱旁）",
+        "w": 15,
+        "kind": "counter"
+      },
+      {
+        "label": "侧板",
+        "w": 0.75,
+        "kind": "panel"
+      },
+      {
+        "label": "酒柜柱 24\"",
+        "w": 24,
+        "kind": "tall"
+      },
+      {
+        "label": "冰箱柱 30\"",
+        "w": 30,
+        "kind": "tall"
+      },
+      {
+        "label": "冷冻柱 24\"",
+        "w": 24,
+        "kind": "tall"
+      },
+      {
+        "label": "侧板",
+        "w": 0.75,
+        "kind": "panel"
+      },
+      {
+        "label": "咖啡塔 连两侧板",
+        "w": 25.5,
+        "kind": "coffee",
+        "short": "咖啡塔"
+      },
+      {
+        "label": "15\" 高柜 T1596",
+        "w": 15,
+        "kind": "pantry",
+        "short": "高柜"
+      },
+      {
+        "label": "烤箱塔 30\"",
+        "w": 30,
+        "kind": "oven"
+      }
+    ],
+    "right": [
+      {
+        "label": "盲角 BBC42",
+        "w": 42,
+        "kind": "corner"
+      },
+      {
+        "label": "台面",
+        "w": 12,
+        "kind": "counter"
+      },
+      {
+        "label": "微波抽屉",
+        "w": 24,
+        "kind": "spare"
+      },
+      {
+        "label": "台面",
+        "w": 47.625,
+        "kind": "counter"
+      },
+      {
+        "label": "灶台 36\"",
+        "w": 36,
+        "kind": "range"
+      },
+      {
+        "label": "台面",
+        "w": 44.625,
+        "kind": "counter"
+      },
+      {
+        "label": "开放端侧板",
+        "w": 0.75,
+        "kind": "panel"
+      }
+    ],
+    "stone": {
+      "back": [
+        82
+      ],
+      "left": [
+        57
+      ],
+      "right": [
+        102,
+        106
+      ]
+    }
+  },
+  "E": {
+    "W": 132,
+    "H": 177,
+    "lNeed": 177,
+    "rNeed": 105.75,
+    "left": [
+      {
+        "label": "盲角 BBC42",
+        "w": 42,
+        "kind": "corner"
+      },
+      {
+        "label": "台面（冰箱旁）",
+        "w": 15,
+        "kind": "counter"
+      },
+      {
+        "label": "侧板",
+        "w": 0.75,
+        "kind": "panel"
+      },
+      {
+        "label": "冰箱柱 30\"",
+        "w": 30,
+        "kind": "tall"
+      },
+      {
+        "label": "冷冻柱 18\"",
+        "w": 18,
+        "kind": "tall"
+      },
+      {
+        "label": "侧板",
+        "w": 0.75,
+        "kind": "panel"
+      },
+      {
+        "label": "咖啡塔 连两侧板",
+        "w": 25.5,
+        "kind": "coffee",
+        "short": "咖啡塔"
+      },
+      {
+        "label": "15\" 高柜 T1596",
+        "w": 15,
+        "kind": "pantry",
+        "short": "高柜"
+      },
+      {
+        "label": "组合烤箱塔 30\"",
+        "w": 30,
+        "kind": "oven",
+        "short": "组合烤箱塔"
+      }
+    ],
+    "right": [
+      {
+        "label": "盲角 BBC42",
+        "w": 42,
+        "kind": "corner"
+      },
+      {
+        "label": "台面",
+        "w": 50.625,
+        "kind": "counter"
+      },
+      {
+        "label": "电磁灶 36\"（B36 上）",
+        "w": 36,
+        "kind": "range",
+        "short": "电磁灶 36\""
+      },
+      {
+        "label": "台面",
+        "w": 47.625,
+        "kind": "counter"
+      },
+      {
+        "label": "开放端侧板",
+        "w": 0.75,
+        "kind": "panel"
+      }
+    ],
+    "stone": {
+      "back": [
+        82
+      ],
+      "left": [
+        57
+      ],
+      "right": [
+        66,
+        112
+      ]
+    }
+  }
+}

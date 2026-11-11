@@ -251,7 +251,10 @@ export function checkLayout(
       // An appliance is never what finishes a run. Something has to give its
       // door somewhere to swing and close the carcass off — a filler against a
       // wall, a cabinet in the open, a finished panel beside a tower.
-      if (i === run.segments.length - 1) {
+      // At either end where that is a corner, the corner box closes the run
+      // and nothing here is its finish: an L's first end always, and a U's back
+      // run's last end too (U-0, 2026-11-10).
+      if (i === run.segments.length - 1 && run.ends[1] !== "corner") {
         const last = segment.modules[segment.modules.length - 1];
         if (last && (last.kind === "opening" || last.kind === "tall-open")) {
           fail("d13-terminal", `${run.id} run finishes on ${segment.slot ?? segment.id}`);
@@ -299,7 +302,20 @@ export function checkLayout(
           `${segment.id} is a tall cabinet with ${after.length} segment(s) of counter after it`,
         );
       }
-      if (run.segments[i - 1]?.kind === "corner" || run.segments[i + 1]?.kind === "corner") {
+      // Hard against the corner: beside the corner box on the run that holds
+      // it, or last on a run whose high end is a corner another run's box eats
+      // — a U's back run (U-0, 2026-11-10). No L or one-wall run has a corner
+      // there, so nothing they build is judged differently.
+      //
+      // The same at a run's LOW end is not checked, on purpose, for now: asked
+      // there, it finds 16 of the L's rooms (E, sink on the left leg, the
+      // refrigerator and the coffee tower on the back leg) whose combination
+      // oven tower is the back leg's first box, hard against the corner — on
+      // the live site too. U-0 changes nothing on the page; it is Leo's to
+      // decide (Open items, "E's L: the combination oven tower hard against the
+      // corner").
+      const againstEatenCorner = i === run.segments.length - 1 && run.ends[1] === "corner";
+      if (run.segments[i - 1]?.kind === "corner" || run.segments[i + 1]?.kind === "corner" || againstEatenCorner) {
         fail("d11-1", `${segment.id} is a tall cabinet hard against the corner`);
       }
     }
@@ -515,11 +531,14 @@ export function checkLayout(
     const rangeW = slots[rangeSlot].cutout.w;
     const hoodW = slots["slot-hood"].cutout.w;
     if (hoodW < rangeW) fail("d13-hood-width", `hood is ${hoodW}" over a ${rangeW}" range`);
-    // And centred on it. Against a wall that is along the run, which is x: the
-    // range is only ever on the back leg. (A hood over an island is checked
-    // against the island's cooktop, above; round 48 found the x-only compare
-    // letting a hood slid along an island turned across the room pass.)
-    if (Math.abs(slots["slot-hood"].position[0] - slots[rangeSlot].position[0]) > 1e-6) {
+    // And centred on it. Against a wall that is along the run the range stands
+    // on: x on the back leg, where an L and one wall put it, and z on a side
+    // leg, where a U does (U-0, 2026-11-10; until then "the range is only ever
+    // on the back leg" and the compare was x alone). (A hood over an island is
+    // checked against the island's cooktop, above; round 48 found the x-only
+    // compare letting a hood slid along an island turned across the room pass.)
+    const along = range ? axisIndex(range.run.axis) : 0;
+    if (Math.abs(slots["slot-hood"].position[along] - slots[rangeSlot].position[along]) > 1e-6) {
       fail("d11-4", "hood is not centred over the range");
     }
   }
@@ -639,17 +658,29 @@ export function checkLayout(
     //
     // A run with no corner at its first end — one wall, round 98b — has no
     // corner door to clear: its first end is the wall.
+    //
+    // U-0 (2026-11-10): measured from the corner at either end — a U's back
+    // run has one at each — and as the whole stretch between the corner and
+    // the sink base rather than its counter alone. Until now the counter alone:
+    // in an L only counter ever stood between the two, or a range and its
+    // landings, which are well past 15". In the U Leo confirmed (2026-11-10)
+    // the dishwasher stands between, 12" of counter off the corner (D11 rule
+    // 10's amendment of that day), and what the corner door has to clear is the
+    // sink base, 36" off; counted as counter alone it read 12".
     const cornerAt = sinkRun.segments.findIndex((s) => s.kind === "corner");
-    const between = sinkRun.segments
-      .slice(cornerAt + 1, index)
-      .filter((s) => s.kind === "counter")
-      .reduce((sum, s) => sum + widthIn(s), 0);
-    const fromACorner = cornerAt >= 0 || sinkRun.ends[0] === "corner";
-    if (fromACorner && between < fromCornerIn - 1e-6) {
-      fail(
-        "d11-10",
-        `sink base is ${between.toFixed(0)}" of counter from the corner, needs ${fromCornerIn}"`,
-      );
+    const stretch = (from: number, to: number) =>
+      sinkRun.segments.slice(from, to).reduce((sum, s) => sum + widthIn(s), 0);
+    const fromCorners: number[] = [];
+    if (cornerAt >= 0 && cornerAt < index) fromCorners.push(stretch(cornerAt + 1, index));
+    else if (sinkRun.ends[0] === "corner") fromCorners.push(stretch(0, index));
+    if (sinkRun.ends[1] === "corner") fromCorners.push(stretch(index + 1, sinkRun.segments.length));
+    for (const between of fromCorners) {
+      if (between < fromCornerIn - 1e-6) {
+        fail(
+          "d11-10",
+          `sink base is ${between.toFixed(0)}" of counter from the corner, needs ${fromCornerIn}"`,
+        );
+      }
     }
   }
 

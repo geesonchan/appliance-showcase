@@ -18,6 +18,7 @@ import {
 } from "./roomShell";
 import type { ResolvedWindow } from "./windows";
 import type { FixtureId, SlotId } from "../types";
+import type { RunId } from "./layoutShape";
 import { alongIsToTheRight, onAxis, sizeOnAxis } from "./frame";
 import { isShareLink } from "./linkVersion";
 import { LAYOUT_FIELDS } from "./layoutFields";
@@ -208,7 +209,7 @@ export function segmentForSlot(slotId: SlotId): RunSegment | undefined {
  * anything drawn as joinery beside an appliance has to be able to ask this. An
  * island slot is on the island; everything else is on the leg carrying it.
  */
-export function runForSlot(slotId: SlotId): "left" | "back" | "island" {
+export function runForSlot(slotId: SlotId): RunId | "island" {
   if (SLOT_PLACEMENT[slotId]?.mount === "island") return "island";
   for (const run of RUNS) {
     if (run.segments.some((segment) => carries(segment, slotId))) return run.id;

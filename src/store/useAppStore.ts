@@ -11,7 +11,7 @@ import { recordFridgeModel } from "../data/fridgeMount";
 import { recordTowerOven, towerSlotOf } from "../data/towerOven";
 import { recordHoodModel } from "../data/hoodMount";
 import { oneWallWantedIn, paramLimitsFor } from "../data/layoutTemplate";
-import type { LayoutShape } from "../data/layoutShape";
+import type { LayoutShape, RunId } from "../data/layoutShape";
 import { inchesSpoken } from "../data/inches";
 import type { LayoutParams, Refusal } from "../data/layoutTemplate";
 import { LAYOUT_ISSUES, REQUESTED_PARAMS } from "../data/room";
@@ -245,7 +245,7 @@ export {
  */
 export function cabinetPaint(
   finishes: { cabinet: string; accent: string; accentRun: AccentRun },
-  run: "left" | "back" | "island",
+  run: RunId | "island",
 ) {
   const value = run === finishes.accentRun ? finishes.accent : finishes.cabinet;
   const token = cabinetToken(value);

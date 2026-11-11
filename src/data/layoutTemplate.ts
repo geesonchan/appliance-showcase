@@ -2694,7 +2694,7 @@ export function hoodSpan(
  * meant to be empty.
  */
 function banksOn(
-  runId: string,
+  runId: RunId,
   segments: RunSegment[],
   start: number,
   corner: (typeof CORNERS)[keyof typeof CORNERS] | null,
@@ -2711,7 +2711,9 @@ function banksOn(
   // The wall cabinets' end panel, where they reach the open end (A-11): the
   // bank stops where the base run's end panel does, its outer 3/4" the WEP.
   const endPanelIn = endsOpen && Math.abs(stop - segments[segments.length - 1].to) < 1e-9 ? WALL_END_PANEL.widthIn : 0;
-  const openings = cutsFor(windows, runId === "back" ? "back" : "left").filter(
+  // A run's own wall's windows. Until U-0 (2026-11-10) any run that was not
+  // the back was read as the left, which a right leg would not be.
+  const openings = cutsFor(windows, runId).filter(
     (cut) => cut.to > start && cut.from < stop,
   );
   const hood = hoodSpan(segments, spec);
@@ -3271,7 +3273,11 @@ export function generateLayout(
   // other waiting is the worst way to learn a room is too small. A wall that is
   // wrong carries what is standing on it and one change that would make it fit.
   const wrongLength: Refusal[] = [];
-  for (const { id: leg } of shape.runs) {
+  for (const { id } of shape.runs) {
+    // A right leg's bill is U-1's to write; no shape here has one yet
+    // (`templateBuilds` refuses any that does), so say so if one turns up.
+    if (id === "right") throw new Error("layoutTemplate: no bill is written for a right leg yet");
+    const leg = id;
     const key = leg === "back" ? ("backWallIn" as const) : ("leftWallIn" as const);
     const requirement = requirementFor(params, leg, pkg, omitted);
     const vars = {
@@ -3570,7 +3576,7 @@ function slideToWindow(
 function fitWindow(
   window: ResolvedWindow,
   leg: {
-    runId: "back" | "left";
+    runId: RunId;
     segments: RunSegment[];
     start: number;
     corner: (typeof CORNERS)[keyof typeof CORNERS] | null;
@@ -3640,7 +3646,7 @@ function fitWindow(
 function evenBeside(
   window: ResolvedWindow,
   leg: {
-    runId: "back" | "left";
+    runId: RunId;
     segments: RunSegment[];
     start: number;
     corner: (typeof CORNERS)[keyof typeof CORNERS] | null;
@@ -3730,13 +3736,13 @@ function gapsBeside(
  */
 function windowRefusals(
   windows: ResolvedWindow[],
-  segments: { left: RunSegment[]; back: RunSegment[] },
+  segments: Partial<Record<RunId, RunSegment[]>>,
   spec: Record<SlotId, PackageSlot>,
   params: LayoutParams,
 ): Refusal[] {
   const reasons: Refusal[] = [];
   for (const window of windows) {
-    const leg = segments[window.wall];
+    const leg = segments[window.wall] ?? [];
     const blocked = blockedBy(window, leg, hoodSpan(leg, spec));
     if (blocked) {
       reasons.push({

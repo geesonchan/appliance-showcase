@@ -22,8 +22,13 @@ import { alongOf, type Axis, type Facing } from "./frame";
 export type LayoutShape = "L" | "one-wall";
 export const LAYOUT_SHAPES: readonly LayoutShape[] = ["L", "one-wall"];
 
-/** A run's name. The L's two legs; a later shape adds its own. */
-export type RunId = "back" | "left";
+/**
+ * A run's name. The L's two legs, and the U's third, along the right-hand wall
+ * facing -x (U-0, 2026-11-10: named now so everything typed by a run's name
+ * can say it; no shape builds it until U-1). Leo's words for the three, on the
+ * page: 「左段」「后段」「右段」, "Left leg", "Back leg", "Right leg" (2026-11-10).
+ */
+export type RunId = "back" | "left" | "right";
 
 /**
  * What is at one end of a run.
@@ -47,11 +52,18 @@ export interface ShapeRun {
 
 /**
  * A corner: the run whose first box it is, and the run it eats into, whose
- * cabinetry starts where the corner box stops (D11 rule 8).
+ * cabinetry starts — or, at its high end, stops — where the corner box stops
+ * (D11 rule 8).
+ *
+ * `at` is which end of `other` it eats: 0 its low end, 1 its high end. Until
+ * U-0 there was one corner and it always ate the low end, which went without
+ * saying; a U's back run is eaten at both (2026-11-10). The owner holds the
+ * corner as its own first box, at its low end, in every shape.
  */
 export interface ShapeCorner {
   owner: RunId;
   other: RunId;
+  at: 0 | 1;
 }
 
 export interface ShapeSpec {
@@ -73,7 +85,7 @@ export const SHAPES: Record<LayoutShape, ShapeSpec> = {
       { id: "left", axis: "z", facing: { axis: "x", sign: 1 }, ends: ["corner", "open"] },
       { id: "back", axis: "x", facing: { axis: "z", sign: 1 }, ends: ["corner", "wall"] },
     ],
-    corners: [{ owner: "left", other: "back" }],
+    corners: [{ owner: "left", other: "back", at: 0 }],
   },
   /**
    * One wall: one run along the back wall, facing +z, with no corner. Round
@@ -101,6 +113,56 @@ export function shapeSpec(shape: string): ShapeSpec {
   const spec = (SHAPES as Record<string, ShapeSpec | undefined>)[shape];
   if (!spec) throw new Error(`layoutTemplate: no template builds the shape "${shape}"`);
   return spec;
+}
+
+/**
+ * What each end of a run is to the shape's corners: the corner box it holds as
+ * its first box (`holds`), a corner another run's box eats (`eaten`), or
+ * neither. Low end first. U-0: written once, so that nothing has to assume the
+ * one corner is at a run's low end.
+ */
+export function cornersOf(spec: ShapeSpec, id: RunId): [CornerRole, CornerRole] {
+  const roles: [CornerRole, CornerRole] = [null, null];
+  for (const corner of spec.corners) {
+    if (corner.owner === id) roles[0] = "holds";
+    if (corner.other === id) roles[corner.at] = "eaten";
+  }
+  return roles;
+}
+export type CornerRole = "holds" | "eaten" | null;
+
+/**
+ * A shape that says what it means, or a loud refusal: every corner's owner has
+ * a corner at its low end and eats an end of the other run that is a corner,
+ * no end is eaten twice, and every end called a corner has a corner there.
+ */
+export function validateShape(spec: ShapeSpec): void {
+  const ids = spec.runs.map((run) => run.id);
+  const taken = new Set<string>();
+  for (const corner of spec.corners) {
+    for (const id of [corner.owner, corner.other]) {
+      if (!ids.includes(id)) throw new Error(`layoutShape: a corner names "${id}", which the shape does not have`);
+    }
+    const key = `${corner.other}:${corner.at}`;
+    if (taken.has(key)) throw new Error(`layoutShape: the ${corner.other} run's ${corner.at ? "high" : "low"} end is eaten twice`);
+    taken.add(key);
+    const owner = shapeRun(spec, corner.owner);
+    if (owner.ends[0] !== "corner") {
+      throw new Error(`layoutShape: the ${corner.owner} run holds a corner but its low end is ${owner.ends[0]}`);
+    }
+  }
+  for (const run of spec.runs) {
+    const roles = cornersOf(spec, run.id);
+    run.ends.forEach((end, i) => {
+      const role = roles[i];
+      if ((end === "corner") !== (role !== null)) {
+        throw new Error(
+          `layoutShape: the ${run.id} run's ${i ? "high" : "low"} end is ${end}, ` +
+            `but the corners make it ${role ?? "no corner"}`,
+        );
+      }
+    });
+  }
 }
 
 /** One run of a shape, by its name. */

@@ -27,7 +27,11 @@ anywhere else in one place.**
   only by the commit in the footer and so takes another name, and
   `index.html`, only by that name. Its check against the live site was
   reported to Leo in the conversation that wrote it; **the next session checks
-  the live site again** (step 2 below) before anything else.
+  the live site again** (step 2 below) before anything else. That handoff
+  commit is **`9b06f41`**: checked again on 2026-11-10 by the session that
+  wrote the U's plan, built at `9b06f41` with the counter's address, twenty of
+  twenty files the same byte for byte as the live site, the live main chunk
+  **`assets/index-ByzCSeq-.js`** (711,964 bytes).
 - **`96cfaf9`**, the ovens' control panels, checked file by file after its Pages run (42912454527, build and deploy each a success): twenty of twenty files the same byte for byte as a build at `96cfaf9` with the counter's address, each with its status and headers recorded; the live main chunk **`assets/index-DOZqAYgh.js`** (`docs/plans/ovens-control-panel-report-2026-11-09.md`, "发布").
 - Before it, **`735bfbc`**, an alternative's main title and the desktop card kept to its height, checked file by file after its Pages run (42685806236, build and deploy each a success): twenty of twenty files the same byte for byte as a build at `735bfbc` with the counter's address, each with its status and headers recorded; the live main chunk **`assets/index-CWb90dQa.js`** (`docs/plans/alternative-title-card-height-report-2026-11-09.md`, "发布").
 - Before it, **`a2a8646`**, E on one wall, checked file by file after its Pages run
@@ -487,6 +491,7 @@ decisions.md is right.
 | `src/data/columnModel.ts` (`ovenFront`, `OVEN_PANELS`), `src/data/ovenFront.test.ts` | **Each oven's front from its own sheet**: doors and control panels, a single oven drawn as the others; panel heights measured off each sheet's photograph (no guide prints them; the method in "The ovens do not look like ovens", the script `docs/plans/ovens-control-panel-2026-11-09/measure.py`). |
 | `src/data/ovenTrim.ts` | A hung oven's trim from its sheet (MEM301WS, PODS302B, ME301YP, PO302W): its front on the doors' plane; a machine shorter than the tower's hole laps its own cutout. |
 | `src/data/towerOven.ts`, `src/store/ovenTowerOpening.test.ts` | **An oven tower's opening grows to the oven chosen** where its standard cutout is taller, never shrinks — B, D and E (Leo, 2026-11-10); there, back, and from a share link. |
+| `src/data/layoutShape.ts` (`cornersOf`, `validateShape`), `src/data/uShapePrep.test.ts` | **U-0, the U's preparation** (2026-11-10, page unchanged): a corner eats either end of a run (`ShapeCorner.at`), a run named `right`; rule 1 at a corner a run's high end meets, rule 10 from the corner at either end, a hood centred along the run its range stands on, a corner end not a run's finish; a susan's door and toe kick at either back corner (`diagonalDoor`, `kickIntoCorners`, `cornerKick`) — on a U stood up by hand. |
 | `src/three/ovenFrontMeasure.ts`, `src/three/ovenFrontMeasure.test.ts` | How smoke's "a hung oven's front" reads the front: only handles, and parts marked `knob` within the handle's printed 2-5/8", stand proud; an unmarked part counts (Leo, 2026-11-10). |
 
 Commands: `npm run dev`, `npm run build`, `npm run test:unit` (unit only,
@@ -841,18 +846,14 @@ Four things, each with its source:
 - **A Run Composer** — registered in D14, before building it.
 - **The two run towers on separate legs** — D22, round 55: "splitting them
   across two legs is not being built now".
-- **The rest of the layout shape switch: U-shaped and galley** — registered
-  in round 98, from a colleague's feedback from use; one wall is built
-  (rounds 98a, 98b-1, 98b-2), the galley and the U are not started (Open
-  items, "A layout shape switch"). Round 98's plan,
+- **The rest of the layout shape switch: the U** — registered in round 98,
+  from a colleague's feedback from use; one wall is built (rounds 98a, 98b-1,
+  98b-2). **The galley is cancelled** (Leo, 2026-11-10: "直接做 U 型，不做走廊式");
+  **the U is next**, its plan in `docs/plans/u-shape-plan.md`, not started
+  (Open items, "The U: Leo's answers of 2026-11-10, and the galley cancelled",
+  and "A layout shape switch"). Round 98's plan,
   `docs/plans/round-98-layout-shape-plan.md`, reads where the code holds for
-  them and where it does not.
-- **An induction cooktop in B's and D's rangetop choice** — registered
-  2026-11-07 from Leo's words, built 2026-11-08 and committed after his look
-  (Open items, "An induction cooktop in B and D"). What it left: E on one wall
-  reading its cooking surface as 4" (done 2026-11-08) and whether the model
-  list shows a nominal 36" for CIT367YG (Open items, "An alternative's main
-  title", which took it in).
+  it and where it does not.
 - Whether a hood follows the cooking surface actually chosen, against D13's
   drilled once — B, C and D with a 36-3/4" range read under the minimum; Leo,
   2026-11-08: later (Open items, "Should a hood follow the cooking surface

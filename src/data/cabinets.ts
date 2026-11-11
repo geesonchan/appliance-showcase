@@ -1,4 +1,5 @@
 import type { SlotId } from "../types";
+import type { RunId } from "./layoutShape";
 import { HOOD_CABINET } from "./insertHood";
 import { hoodTopFt } from "./hood";
 import { filledBesideTower, islandAcross, islandAlong, islandHasCooktop, islandPoint } from "./layoutTemplate";
@@ -49,7 +50,7 @@ export interface CabinetBox {
    * towers together. So every box carries its run, and the finish picker asks
    * about runs rather than about heights. See docs/decisions.md D15.
    */
-  run: "left" | "back" | "island";
+  run: RunId | "island";
   /**
    * Drawn only in the install view.
    *
@@ -611,7 +612,10 @@ function runBoxes(run: CabinetRun): CabinetBox[] {
   // At the inside corner the leg without the corner box starts at the other
   // leg's carcass front; its kick starts at the other leg's kick front instead,
   // so the two meet with no notch between them.
-  let start = run.segments[0].from - intoTheCorner(run);
+  // U-0 (2026-11-10): and at its far end too, where a U's back run meets the
+  // right leg's corner box (`kickIntoCorners`).
+  const [reachLow, reachHigh] = kickIntoCorners(run, RUNS);
+  let start = run.segments[0].from - reachLow;
   const rangeOnTheFloor = standsOnTheFloor(rangeModelFor(PACKAGE));
   for (const [i, segment] of run.segments.entries()) {
     // And a machine standing on the floor in the bottom of a tower — the wine
@@ -635,7 +639,7 @@ function runBoxes(run: CabinetRun): CabinetBox[] {
     // under them (round 84, Leo).
     const [breakFrom, breakTo] =
       segment.slot === "slot-range" ? openingAlong(segment) : [segment.from, segment.to];
-    const end = breaks ? breakFrom : last ? segment.to - endOnTheFloor(segment) : segment.to;
+    const end = breaks ? breakFrom : last ? segment.to - endOnTheFloor(segment) + reachHigh : segment.to;
     if ((breaks || last) && end > start) {
       boxes.push(
         onRun(
@@ -658,23 +662,41 @@ function runBoxes(run: CabinetRun): CabinetBox[] {
   return boxes;
 }
 
-/** The leg that holds the corner box, if either does. */
-const cornerRun = () => RUNS.find((run) => run.segments[0]?.kind === "corner");
+/** Whether a run holds a corner box, as its first box. */
+const holdsCorner = (run: CabinetRun) => run.segments[0]?.kind === "corner";
 
 /**
- * How far a leg's kick reaches past its first segment into the corner.
+ * How far a leg's kick reaches past its first segment and past its last into
+ * a corner, in feet: [low end, high end].
  *
  * Nothing for the leg that holds the corner box: its kick starts at the wall.
  * The other leg starts at the corner box's front — 24" off the wall for a blind
  * corner, 36" for a susan — and its kick has to start at the corner leg's kick
  * front, 21" off that wall, or the two leave a notch between them.
+ *
+ * U-0 (2026-11-10): at either end of the run, from the corner box nearest that
+ * end. Until then the one corner of an L, at the run's low end, read off the
+ * first run that held one; a U's back run is eaten at both ends, by the left
+ * leg's box and the right leg's, which need not be the same depth.
  */
-function intoTheCorner(run: CabinetRun): number {
-  const holder = cornerRun();
-  if (!holder || holder === run) return 0;
-  const corner = holder.segments[0].modules.find((module) => module.kind === "corner");
-  const depth = corner?.depthIn ? ft(corner.depthIn) : ROOM.counterDepth;
-  return depth - (ROOM.counterDepth - ROOM.toeRecess);
+export function kickIntoCorners(run: CabinetRun, runs: readonly CabinetRun[]): [number, number] {
+  const holders = runs.filter((other) => other !== run && holdsCorner(other));
+  const reach = (end: 0 | 1): number => {
+    if (run.ends[end] !== "corner" || (end === 0 && holdsCorner(run)) || holders.length === 0) return 0;
+    const along = end === 0 ? run.segments[0].from : run.segments[run.segments.length - 1].to;
+    const [ex, , ez] = onAxis(run.axis, along, run.centre, 0);
+    const nearest = holders
+      .map((holder) => {
+        const box = holder.segments[0];
+        const [hx, , hz] = onAxis(holder.axis, (box.from + box.to) / 2, holder.centre, 0);
+        return { holder, distance: Math.hypot(hx - ex, hz - ez) };
+      })
+      .sort((a, b) => a.distance - b.distance)[0].holder;
+    const corner = nearest.segments[0].modules.find((module) => module.kind === "corner");
+    const depth = corner?.depthIn ? ft(corner.depthIn) : ROOM.counterDepth;
+    return depth - (ROOM.counterDepth - ROOM.toeRecess);
+  };
+  return [reach(0), reach(1)];
 }
 
 /**
@@ -724,10 +746,15 @@ function endOnTheFloor(segment: RunSegment): number {
  * The two legs' kicks leave the triangle behind that door without one, so this
  * piece runs along the chord, 3" behind it like every other kick front, from
  * one leg's kick front to the other's. A blind corner is a straight box and
- * needs none: the legs' kicks meet (`intoTheCorner`). Round 92b.
+ * needs none: the legs' kicks meet (`kickIntoCorners`). Round 92b.
+ *
+ * U-0 (2026-11-10): one for every run that holds a susan — a U has two corners
+ * — rather than for the first run found holding one. What follows was already
+ * written in the run's own terms (its axis, the way it faces), so the right
+ * leg's, facing -x, lands on its own side of the room.
  */
-function cornerKick(run: CabinetRun): CabinetBox | null {
-  if (cornerRun() !== run) return null;
+export function cornerKick(run: CabinetRun): CabinetBox | null {
+  if (!holdsCorner(run)) return null;
   const segment = run.segments[0];
   const module = segment.modules.find((m) => m.kind === "corner");
   if (!module?.depthIn || module.depthIn !== module.widthIn) return null;
@@ -933,8 +960,12 @@ const OUTLINE_SKIP: CabinetKind[] = ["counter", "toe"];
  * carcass is what is behind it. A blind corner is a long shallow box with an
  * ordinary front, and gets one.
  *
- * Everything is in the box's own frame, centred on it, with the room at +x and
- * +z: that is the inside corner of the L, and it is where the door faces.
+ * Everything is measured from the box's centre on the room's own axes. The
+ * door faces the room: out of the run the box stands on, which is the way that
+ * run faces, and along it away from the corner's wall, which is +z for a leg
+ * holding a back corner. For the L's back-left corner that is +x and +z, as
+ * it always was; for a U's back-right corner, held by the right leg facing -x,
+ * it is -x and +z (U-0, 2026-11-10).
  */
 export function diagonalDoor(box: CabinetBox): {
   /** Centre of the door on the floor plan, in feet from the box's centre. */
@@ -962,7 +993,10 @@ export function diagonalDoor(box: CabinetBox): {
   const width = cut * Math.SQRT2;
   // The chord's midpoint, measured from the box's own centre toward the room.
   const mid = leg / 2 - cut / 2;
-  return { x: mid, z: mid, width, rotationY: Math.PI / 4 };
+  // Out of the run on the axis it faces, and +1 along the run: a corner box is
+  // the first box of the run that holds it, at its low end (`ShapeCorner`).
+  const [sx, , sz] = onAxis(box.facing?.axis ?? "x", box.facing?.sign ?? 1, 1);
+  return { x: sx * mid, z: sz * mid, width, rotationY: Math.atan2(sx, sz) };
 }
 
 /**
