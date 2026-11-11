@@ -12,17 +12,24 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **the fonts round** (2026-11-06), `664b570`,
-live — after **the end-of-run round**, `05bb6e1`, and the handoff commit
-after it, `476591c`, which changed only `docs/`
-(`docs/decisions.md` is the record of rounds; `git log` is the record of
-commits). It replaces the v1–v9 briefs that were pasted into chat. Written at
-the end of a long session, for the next one, which has only the repository:
-**section 6 is how Leo works, and is not written anywhere else in one place.**
+Covers the repository up to **the ovens' round** (2026-11-10), `96cfaf9`, live,
+and the handoff commit after it, which changes only `docs/` (written
+2026-11-10 for the next session, which starts the U). `docs/decisions.md` is
+the record of rounds; `git log` is the record of commits. It replaces the
+v1–v9 briefs that were pasted into chat, and was first written on 2026-11-06
+after the end-of-run round. **Section 6 is how Leo works, and is not written
+anywhere else in one place.**
 
-### Live, 2026-11-08
+### Live, 2026-11-10
 
-- **`735bfbc`**, an alternative's main title and the desktop card kept to its height, checked file by file after its Pages run (42685806236, build and deploy each a success): twenty of twenty files the same byte for byte as a build at `735bfbc` with the counter's address, each with its status and headers recorded; the live main chunk **`assets/index-CWb90dQa.js`** (`docs/plans/alternative-title-card-height-report-2026-11-09.md`, "发布").
+- **The handoff commit after `96cfaf9`** changes only `docs/`: every file the
+  build makes is `96cfaf9`'s byte for byte but the main chunk, which differs
+  only by the commit in the footer and so takes another name, and
+  `index.html`, only by that name. Its check against the live site was
+  reported to Leo in the conversation that wrote it; **the next session checks
+  the live site again** (step 2 below) before anything else.
+- **`96cfaf9`**, the ovens' control panels, checked file by file after its Pages run (42912454527, build and deploy each a success): twenty of twenty files the same byte for byte as a build at `96cfaf9` with the counter's address, each with its status and headers recorded; the live main chunk **`assets/index-DOZqAYgh.js`** (`docs/plans/ovens-control-panel-report-2026-11-09.md`, "发布").
+- Before it, **`735bfbc`**, an alternative's main title and the desktop card kept to its height, checked file by file after its Pages run (42685806236, build and deploy each a success): twenty of twenty files the same byte for byte as a build at `735bfbc` with the counter's address, each with its status and headers recorded; the live main chunk **`assets/index-CWb90dQa.js`** (`docs/plans/alternative-title-card-height-report-2026-11-09.md`, "发布").
 - Before it, **`a2a8646`**, E on one wall, checked file by file after its Pages run
   (42553787002, build and deploy each a success): twenty of twenty files the
   same byte for byte as a build at `a2a8646` with the counter's address, each
@@ -106,6 +113,14 @@ anywhere**: the file is the one source, and the tests read it.
 
 ### Where it stands (2026-11-06, after the end-of-run round)
 
+- **Since then, each live and each its entry in `docs/decisions.md`**: the
+  fonts in the site's own files; the test environment answered from the build
+  by Playwright (丁, "A browser test that times out…"); an induction cooktop in
+  B's and D's rangetop choice, every cooking surface in the stone on a `B36`;
+  E on one wall's dimension line, the hood hung off the cooking surface by the
+  shop's installation distance; an alternative's main title, the desktop card
+  kept to its height; the ovens' control panels and an oven tower's opening
+  grown to the oven chosen. The live list above names each commit.
 - **All five packages are live, as an L and on one wall.** Rounds 73–79, 81–90, 92, 92a, 92b, 92c, 93, 94, 95, 91, 96, 97, 98a, 98b-1, 98b-2, 99, 99a, 99b, 100, 99c and 99d each shipped
   (round 80 built nothing; 91 was built after 95, below), and each was checked against the live page's asset hashes
   after its workflow finished.
@@ -463,6 +478,16 @@ decisions.md is right.
 | `src/data/machineLabel.ts`, `src/data/machineLabel.test.ts` | What a machine is called: `slotLabelKey` for every pin, card, list, quote line and share notice, `billLabelKey` for a wall's bill; every model each slot can hold named by what it is (D10, round 99). |
 | `src/ui/shapeControls.ts`, `src/ui/shapeControls.test.ts` | Which Layout tab controls one wall shows, held to the settings one wall decides itself (round 98b-2). |
 | `src/store/shareLinkRound98b1.test.ts`, `src/store/shareLink.round98b1.json` | Ten links written by 98b-1's code open the same room by its hash, but E on one wall, which opens at its own wall (round 98b-2). |
+| `scripts/siteRoute.mjs`, `scripts/siteRoute.test.ts`, `tests/siteRoute.test.ts` | 丁: every browser test and pixel script has its page answered from `dist/` by Playwright, never through a connection on this machine; three openings kept on the real server and marked, a static and an end-of-suite guard (Open items, "A browser test that times out…", "丁's wiring" and "Closed"). |
+| `src/data/hoodMount.ts`, `src/data/hood.ts`, `src/data/cookingSurface.ts`, `src/data/eOneWallHood.test.ts` | A hood's underside: the cooking surface plus **the shop's installation distance**, `SHOP_INSTALL_DISTANCE_IN` (微波炉式以外的油烟机 30"，微波炉式 24"), one rule, `hoodUndersideIn`; each hood's manual range apart, `HOOD_MANUALS`, a check and the words beside the line; `cooktopGlassIn` (Open items, "An induction cooktop in B and D", "Found while building it", and "E on one wall"). |
+| `src/data/inductionRangetop.test.ts` | HIS8055U and CIT367YG in B's and D's rangetop choice; every cooking surface in the stone on a swing-door `B36`; nothing within 4-3/4" under the counter (Open items, "An induction cooktop in B and D"). |
+| `src/data/machineLabel.ts` (`alternativeTitle`), `src/data/alternativeTitle.test.ts`, `tests/alternativeTitle.test.ts` | **An alternative's main title**: nominal size (`webSizeIn`, never the width), fuel, kind, and the look where the catalogue has a pair; brand · model under it; written once, on the model card and in the list (Open items, "An alternative's main title"). |
+| `scripts/webSizeImport.test.ts` | `webSize` at the import: a number on every machine but a blower, or the run stops; `_meta` with no day and no path, the same bytes on another day. |
+| `tests/desktopCardHeight.test.ts`, `tests/fixtures/desktopCardLive.json` | The desktop model card as tall as before the main title and the pin labels where they were, against the live layout read from `a2a8646`'s build; every title on one line at 1440 and 1280 (Leo, 2026-11-09, 乙). |
+| `src/data/columnModel.ts` (`ovenFront`, `OVEN_PANELS`), `src/data/ovenFront.test.ts` | **Each oven's front from its own sheet**: doors and control panels, a single oven drawn as the others; panel heights measured off each sheet's photograph (no guide prints them; the method in "The ovens do not look like ovens", the script `docs/plans/ovens-control-panel-2026-11-09/measure.py`). |
+| `src/data/ovenTrim.ts` | A hung oven's trim from its sheet (MEM301WS, PODS302B, ME301YP, PO302W): its front on the doors' plane; a machine shorter than the tower's hole laps its own cutout. |
+| `src/data/towerOven.ts`, `src/store/ovenTowerOpening.test.ts` | **An oven tower's opening grows to the oven chosen** where its standard cutout is taller, never shrinks — B, D and E (Leo, 2026-11-10); there, back, and from a share link. |
+| `src/three/ovenFrontMeasure.ts`, `src/three/ovenFrontMeasure.test.ts` | How smoke's "a hung oven's front" reads the front: only handles, and parts marked `knob` within the handle's printed 2-5/8", stand proud; an unmarked part counts (Leo, 2026-11-10). |
 
 Commands: `npm run dev`, `npm run build`, `npm run test:unit` (unit only,
 `vitest.unit.config.ts`), `npm test` (build then the whole suite including the
@@ -599,7 +624,10 @@ list.
    changes, which rooms, before and after, what stays as it is, and the
    questions he has to answer.
 2. **He confirms**, often with answers; his answers go into
-   `docs/decisions.md` in his words, with the date.
+   `docs/decisions.md` in his words, with the date. A new requirement that
+   arrives mid-round is **registered only** (Open items, his words, its place
+   in his order written in `docs/decisions.md` alone) and does not interrupt
+   the round.
 3. **Build it**: tests red first (below), then the code, then the proof.
 4. **A local preview**, and the report names its main chunk
    (`assets/index-….js`). The preview server is `vite preview` on 4173; the
@@ -636,6 +664,12 @@ list.
 - **Before the report goes out**, every probe, aside and "note this" from
   the round is in the report or in Open items (D17, round 73).
 - **A figure is quoted from the run that was checked**, and says which run.
+- **Every step with its start, its end and its exit code, and the files
+  changed** (Leo: 「报告里写清楚：改了哪些文件；每一步的开始、结束时间和 exit code」).
+  **A step that failed is written as it failed** — 「中途哪一步失败了照实写，不要重跑掉」
+  — and a run made again is listed beside it, not in its place.
+- **The live site's check goes into the report's own text**: the commit, the
+  main chunk's name, each file's status and headers, the Pages run's two jobs.
 - **A flaky or red result is reported as it was**, with its record; it is
   not a pass. Run again, and report both.
 - **What Leo sends from his shop is data, not code**: site practice, the
@@ -654,6 +688,14 @@ list.
   the new — and the reason is written beside it.
 - Fixtures that are symmetric (square openings, nothing turned) pass broken
   logic: pick lopsided cases.
+- **A test with a fake in it shows it can go red**: a fake hood whose manual
+  says 32" in the real table (E on one wall), a fake size far from its width
+  (the main title) — put in, the test red, taken out, green.
+- **An exemption in a test is narrow** (Leo, 2026-11-10, the ovens' knobs):
+  only the part marked for it, only as far as a printed figure allows, and a
+  test that an unmarked part goes red.
+- **A browser test is run red on the old build too**: copy the old build into
+  `dist/`, run it, put the new one back.
 - A script `click()` in the page and a real mouse, finger or key can differ
   here (D17): say which input a result came from, and check both before
   saying what a customer sees.
@@ -671,6 +713,12 @@ list.
   before and after for Leo where it changes. **The old build is built from
   the commit itself** (a `git worktree` of it), so its footer stamps the
   commit and not `dev` (Leo, 2026-11-10).
+- **What a pixel proof says**: the 3D canvas, shot alone, the same to the pixel
+  in every state not named; the states meant to change listed one by one, each
+  with a close-up before and after; on the whole screen, every changed pixel
+  inside a text that changed, and any pin label that moved named.
+- **Real input for every swap a round touches**: the mouse on a desktop and a
+  finger on a phone, each once, the page's errors read.
 - **The full suite** (`npm test`; how long it takes, and the 90 minutes a
   run is planned as, are in decisions.md, Open items, "The full suite
   takes 75 to 86 minutes"):
@@ -684,12 +732,32 @@ list.
     the run (events 42, 506, 507, 107, 187) means it is **not a pass**,
     however it ended. So does any red.
   - Vitest's exit code is written to a file of its own (D17).
+  - **It runs on the commit that ships.** A change after the last full suite,
+    however small, means another run on the commit itself — a `git worktree`
+    of it, so nothing uncommitted is in it (Leo, 2026-11-10: 96cfaf9 had not
+    had one).
 - **A preview server that is stopped is checked to be gone**: its port free,
   and no `node.exe` or `esbuild.exe` left from it — a leftover `esbuild.exe`
   makes `npm ci` fail on the locked file. End them by hand before `npm ci`.
 - Windows: Python's `open()` writes CRLF here, and every text file is LF;
   edit repository files with Node or the editor tools, and quote a diff's
   size from `git -c core.autocrlf=false diff --stat`.
+
+### Figures and their sources
+
+- **A manufacturer's document goes into `docs/reference/`**, with a row in its
+  `README.md`: what it is, where it came from (the URL, the server's own date),
+  and what it settles (Leo: 「官方说明书放进 docs/reference/，写明来源」). A figure with
+  no source there is not a source (D21).
+- **A figure is the printed one first**: the installation guide, then the spec
+  sheet, with the file and the page. **Where none prints it**, it is measured
+  off the sheet's photograph, and `docs/decisions.md` says so — 「从照片量出，推断」
+  — with the method, so it can be measured again (Leo, 2026-11-09; the ovens'
+  panels, "The ovens do not look like ovens").
+- **The shop's practice and a manual's figure are written apart**: the rule
+  uses the shop's (the shop's installation distance, 30" and 24"); the
+  manual's minimum and maximum are a check and the words beside the line
+  (Leo, 2026-11-08). A rule is written once (D17).
 
 ### Imports from Leo's sheet
 

@@ -11890,10 +11890,13 @@ Registered, not scheduled. None of these is a round of its own.
   5. **an alternative's main title** ("An alternative's main title", below;
      Leo, 2026-11-08: after E on one wall, before the galley; **done 2026-11-09**);
   6. **the ovens' control panels** ("The ovens do not look like ovens", below; Leo,
-     2026-11-09: before the galley);
-  7. the galley ("A layout shape switch";
-     `docs/plans/overnight-2026-10-23-galley.md`);
-  8. the U (the same entry; `docs/plans/overnight-2026-10-24-u-shape.md`).
+     2026-11-09: before the galley; **done 2026-11-10**, `96cfaf9`);
+  7. ~~the galley~~ — **cancelled** (Leo, 2026-11-10: "直接做 U 型，不做走廊式"; "The U: Leo's
+     answers of 2026-11-10", below; the galley's first draft, `docs/plans/galley-plan.md`,
+     kept as a record);
+  8. **the U — next** (Leo, 2026-11-10; "The U: Leo's answers of 2026-11-10", below, his six
+     settled points; "A layout shape switch"; `docs/plans/overnight-2026-10-24-u-shape.md`).
+     A plan first, shown to him, built only once he confirms it.
   Each a plan first, shown to him, built only once he confirms it.
 - **An induction cooktop in B and D.** *(Registered 2026-11-07; not started,
   no plan. Its place in Leo's order: "His order of 2026-11-06", "Amended
@@ -12359,6 +12362,30 @@ Registered, not scheduled. None of these is a round of its own.
     42685806236, build and deploy each a success. Twenty of twenty files the same byte
     for byte as a build at `735bfbc` with the counter's address, each with its status and
     headers recorded; the live main chunk `assets/index-CWb90dQa.js` (the report, "发布").
+- **The U: Leo's answers of 2026-11-10, and the galley cancelled.** *(Next in his order,
+  "Amended 2026-11-07" above. Not started; a plan first.)*
+  - **Leo's words, 2026-11-10**, answering the galley plan's eight questions
+    (`docs/plans/galley-plan.md`, section 2): 「走廊式就好像我们常说的U字型厨房，水槽一般就在
+    U型的底部的位置；第6题先按48"作为默认，其他按照建议答案」; and he chose **直接做 U 型，不做
+    走廊式**. His sixth question in that list was the aisle's width (the sorted list's 19).
+  - **The U, settled (Leo, 2026-11-10)**, in his words:
+    1. 三排（左、右、尽头），挡视线的墙只画地面墙线；
+    2. 水槽在 U 底部那一排，洗碗机紧挨水槽；
+    3. 一条侧排放高柜，另一条是操作排，炉头在操作排中段，烤箱塔和灶之间台面至少 9"；
+    4. 左右两排之间过道默认 48"；
+    5. 不配岛台；
+    6. 转角先照 L 型的转角规矩，开放端 3/4" 侧板、台面出 1"，高柜靠墙 3" 整高填充板。
+  - **What is not settled**: everything else the galley's question lists asked
+    (`docs/plans/galley-questions-sorted.md`, `docs/plans/overnight-2026-10-23-galley.md`),
+    read again for a U — the walls' lengths and their sliders, which leg is which side,
+    the window, the names, what a short wall leaves out. The U's plan lists them, with
+    what these six answers already decide, and asks him the rest.
+  - The rules of the last days hold in a U as anywhere (each its entry): a cooking surface
+    in the stone stands on a swing-door `B36`, nothing within 4-3/4" under the counter
+    ("An induction cooktop in B and D"); a hood hangs off the cooking surface by the
+    shop's installation distance (`hoodUndersideIn`, "E on one wall"); an oven tower's
+    opening grows to the oven chosen ("The ovens do not look like ovens"); an alternative's
+    main title and the desktop card's height ("An alternative's main title").
 - **The ovens do not look like ovens.** *(Registered 2026-11-09; a plan next, not built.
   Its place in Leo's order is in "Amended 2026-11-07" above.)* Leo's words, 2026-11-09:
   「当我选择B套仓里面的Oven Combo的时候，换成Single Oven或者Double Oven的时候，Single Oven和
@@ -12445,6 +12472,15 @@ Registered, not scheduled. None of these is a round of its own.
     「以后像素证明的旧版本从提交本身构建（git worktree 之类），页脚版本戳别再出现 dev。」 The
     ovens' old build was made from `git archive` of the commit, which has no history, so
     its footer read `dev` and every whole-screen comparison had that line in it.
+  - **Shipped: `96cfaf9`.** CI's commands on the tree as committed: `npm ci`, `npm run
+    test:unit` (134 files, 3,369), `npm run build`, each exit 0. Pages run 42912454527, build
+    and deploy each a success. Twenty of twenty files the same byte for byte as a build at
+    `96cfaf9` with the counter's address, each with its status and headers recorded; the
+    live main chunk `assets/index-DOZqAYgh.js` (the report, "发布").
+  - **The full suite on `96cfaf9` itself** (Leo, 2026-11-10: the third run was the code
+    before the knobs' mark): a worktree of the commit, 15:12:11-16:48:35, green, 176 files,
+    3,756; no sleep in the system log. Only smoke's "a hung oven's front" and the measure's
+    own test use it.
 - **A full suite's timeout: fadeRebuild, the back wall slider on a phone, the CPU slowed.**
   *(Registered 2026-11-10, Leo: 「单独登记进 Open items：测试名、哪次全套测试、报错原文、单跑两次都过、
   第三次全套测试也过。不挡这一轮。」; not in his order.)*

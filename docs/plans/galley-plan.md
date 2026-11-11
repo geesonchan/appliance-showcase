@@ -1,6 +1,6 @@
 # 走廊式（计划第一稿，2026-11-09）
 
-**状态：给 Leo 看，没有动手。** 代码没改。顺序上排在烤箱之后（`docs/decisions.md`，"Amended 2026-11-07" 那一处）。
+**状态：取消（Leo，2026-11-10：直接做 U 型，不做走廊式）。** 留作记录：他对第 2 节 8 题的回答和 U 型已定的六条，在 `docs/decisions.md`，"The U: Leo's answers of 2026-11-10, and the galley cancelled"。
 
 读的：`docs/plans/galley-questions-sorted.md`（下面叫"三类表"），`docs/plans/overnight-2026-10-23-galley.md`，`docs/decisions.md` 里 2026-11-07 以后新定的全部条目。题号都用三类表的。
 

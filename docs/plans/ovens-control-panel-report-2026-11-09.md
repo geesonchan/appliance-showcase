@@ -1,6 +1,6 @@
 # 四台烤箱的控制面板，报告（2026-11-09 至 11-10）
 
-计划：`docs/plans/ovens-control-panel-plan.md`。图：`docs/plans/ovens-control-panel-2026-11-09/`。**没有提交，线上仍是 `735bfbc`。** 本地构建主文件 `index-DOxX9Pq4.js`。像素是在 `index-DOR-Hdv5.js` 上拍的，之后只给旋钮加了一个标记，四台烤箱的截图逐像素相同。
+计划：`docs/plans/ovens-control-panel-plan.md`。图：`docs/plans/ovens-control-panel-2026-11-09/`。**Leo 2026-11-10 看过预览，确认；已上线，见文末"发布"。** 本地构建主文件 `index-DOxX9Pq4.js`。像素是在 `index-DOR-Hdv5.js` 上拍的，之后只给旋钮加了一个标记，四台烤箱的截图逐像素相同。
 
 ## 改了什么
 
@@ -150,3 +150,35 @@ B 里在模型卡上依次选 PO302W、ME301YP、PODS302B、MEM301WS，桌面鼠
 
 - smoke 整个文件（29 条，含上面这条）：13:51:46 开始，跑 1,058 秒，exit 0，29 条全过。构建 `index-D45wtPYG.js`（13:51:31–13:51:45，exit 0），类型检查 13:51:20–13:51:30，exit 0。
 - 只改了旋钮的标记名和量法，画面不变：四台烤箱重拍（14:09:44–14:11:31，exit 0），和 Leo 看过的那版逐像素相同。
+
+## 发布（2026-11-10，太平洋时间）
+
+提交 `96cfaf9`，123 个文件：烤箱、走廊式的计划第一稿、主标题那一轮的发布记录一起。
+
+- `npm ci`：14:11:49–14:11:58，exit 0
+- `npm run test:unit`：14:11:58–14:12:22，exit 0（134 个文件，3,369 条）
+- `npm run build`：14:12:22–14:12:35，exit 0（`index-D45wtPYG.js`）
+- 提交、推送：14:12:48–14:12:55，exit 0
+- Pages run 42912454527，build：14:13:01–14:14:17，success
+- Pages run 42912454527，deploy：14:14:22–14:14:34，success
+- 提交后带计数器地址构建：14:14:39–14:14:55，exit 0（`index-DOZqAYgh.js`，里面有 `96cfaf9`）
+- 和线上逐字节对比：14:14:55–14:14:59，exit 0
+
+**线上 `96cfaf9`，主文件 `assets/index-DOZqAYgh.js`。** 20 个文件 20 个逐字节相同，每个状态码 200；根地址 200，和 `index.html` 相同。
+
+响应头：
+- `cache-control: max-age=600`，`server: GitHub.com`，20 个文件都一样。
+- `last-modified: Tue, 10 Nov 2026 22:14:27 GMT`，20 个文件都一样。
+- 字体 `font/woff2`，不压缩；js `application/javascript; charset=utf-8`、css `text/css; charset=utf-8`、html `text/html; charset=utf-8`、txt `text/plain; charset=utf-8`，都是 gzip。
+
+全套测试是这份代码之前的版本跑的（第三次，全过）；之后改了旋钮的标记名和量法，跑了 smoke 整个文件（29 条全过）和单元测试，没有再跑全套。
+
+**Leo 2026-11-10 要求补跑：在 `96cfaf9` 本身上跑全套测试。**
+- 用到这次改的"烤箱正面怎么量"的，只有两处：浏览器里 `tests/smoke.test.ts` 那一条（经过调试用的 `__ovenFronts`，只在 `?debug=1` 下有），和这个函数自己的单元测试 `src/three/ovenFrontMeasure.test.ts`。别的测试不读旋钮的标记，也不调这个函数。
+- 跑在 `96cfaf9` 的 git worktree 上，不带工作区里没提交的文档。
+- 跑前读电源设置：插电时关屏、睡眠、休眠都是"从不"。
+- **全套测试：15:12:11–16:48:35，exit 0，176 个文件、3,756 条全过。**
+- 跑后查系统日志：15:05 以后没有 Kernel-Power 42、506、507、107、187；没有遗留的测试浏览器和 node。
+- 工作区里没提交的三份文档，单跑 `src/data/handoff.test.ts`（它读 HANDOFF 和 decisions）：15:12:16–15:12:18，exit 0，3 条全过。
+
+本节写在提交之后，所以不在 `96cfaf9` 里。
