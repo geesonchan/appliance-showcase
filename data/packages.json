@@ -451,6 +451,11 @@
             "slot-wine": "thermador-t18iw905sp-ss",
             "slot-oven": "thermador-mem301ws"
           }
+        },
+        "U": {
+          "omit": [],
+          "slots": [],
+          "defaultSelection": {}
         }
       }
     },

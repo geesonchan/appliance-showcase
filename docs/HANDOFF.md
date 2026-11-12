@@ -493,6 +493,13 @@ decisions.md is right.
 | `src/data/towerOven.ts`, `src/store/ovenTowerOpening.test.ts` | **An oven tower's opening grows to the oven chosen** where its standard cutout is taller, never shrinks — B, D and E (Leo, 2026-11-10); there, back, and from a share link. |
 | `src/data/layoutShape.ts` (`cornersOf`, `validateShape`), `src/data/uShapePrep.test.ts` | **U-0, the U's preparation** (2026-11-10, page unchanged): a corner eats either end of a run (`ShapeCorner.at`), a run named `right`; rule 1 at a corner a run's high end meets, rule 10 from the corner at either end, a hood centred along the run its range stands on, a corner end not a run's finish; a susan's door and toe kick at either back corner (`diagonalDoor`, `kickIntoCorners`, `cornerKick`) — on a U stood up by hand. |
 | `src/data/layoutTemplate.ts` (`uLegs`, `uWantedIn`, `sparesRun`, `U_PANTRY`), `src/data/counter.ts` (`uPieces`, `firstSeam`, `SLAB_MAX_IN`), `src/data/room.ts` (`serviceEntry`), `src/data/uShape.test.ts` | **U-1, the U's data and generator** (2026-11-11, page unchanged; `shape=U` by a hand-edited link): the three legs, the walls, the stone in three slabs seamed at 120", a dishwasher 12" off a corner, the aisle between facing legs, the pantry cabinet `T1596` (a cabinet a neighbour's socket goes in, `roughIn.ts`); B's refrigerator against its counter in the U (Leo, 2026-11-11); 12 groups. |
+| `src/store/shapeSwitch.ts`, `src/ui/shapeControls.ts` (`shapeButtons`), `src/ui/TopBar.tsx` (`ShapeButtons`), `src/ui/planWalls.ts`, `src/store/uInterface.test.ts`, `tests/topBar.test.ts` | **U-2, the U's interface** (2026-11-11/12, not yet committed): the shapes as a row of buttons in the top bar (its own row below 1024px), none in the Layout tab; one notice for every switch with a line per wall changed and Undo (乙: a wall changes only when it is short of what the shape wants or past its top); a package switch in a U the same lines (`packageSwitchLines`; Leo, 2026-11-12, 7), no notice where no wall changed; the U's right wall a line on the floor; the plan thumbnail's walls; D1's fourth reason. |
+| `src/data/layoutTemplate.ts` (`uLegs`, `U_SPARE_BEFORE_OVEN_TOWER`, `wallRequirement`), `src/data/uOrder.test.ts` | **The U's new order** (Leo, 2026-11-11/12): B's, D's and E's oven tower at the cooking leg's open end, the cooking surface 15" off the corner, the wall's spare inches to the counter before the tower (one rule), D's microwave drawer between the cooking surface and the tower, the pantry cabinet at the tall leg's open end; the side walls at the longer of the legs' wants. |
+| `src/data/backBoards.ts` (`legBackBoards`), `src/three/CabinetLayer.tsx` (`BackBoards`), `src/data/backBoards.test.ts` | The backs of a U's side legs closed by one board each, the door finish, 3/4" (Leo, 2026-11-12); none in an L or one wall. |
+| `src/data/defaultView.ts`, `tests/uLabels.test.ts` | The default view by shape: the L and one wall 45° round, 35° down; the U straight in front, 50° down (Leo, 2026-11-12, by his rule that every label shows in the default view; the table of 48 ways in `docs/plans/u-view-2026-11-12/`). The guard holds every label of all five packages' U in view, desktop and phone. |
+| `src/i18n/index.ts` (`translate`), `src/i18n/cjkSpacing.test.ts`, `docs/plans/u-view-2026-11-12/zhSpacingSweep.mjs` | A space where Chinese meets a Latin letter at a name put into a Chinese line (Leo, 2026-11-12: 「已切换为 U 型厨房」, 「退回 L 型」, 「退回一字型」): one rule, at the seams, in `translate`; the test holds every line and every main title to it, the sweep reads the page. |
+| `src/data/insertHood.ts` (`housingFrame`), `src/three/HoodCabinet.tsx`, `src/data/housingFrame.test.ts` | An insert liner's housing built in its own frame and turned with its run: on the U's right leg it had been drawn the wrong way round (Leo, 2026-11-11). |
+| `src/three/CameraRig.tsx`, `tests/cameraKeep.test.ts` | The zoom buttons keep the angle; another model on the card pulls the camera back to the whole room, the card open (D1's fifth reason) — every shape, mouse and finger. |
 | `scripts/uDump.ts`, `src/data/roomSets.ts` (`uRooms`) | The U's dump, one room a line, 112 rooms, all three legs' requirement and bill; from U-2 on run on the commit before a round and on the round, as the L's and one wall's are. |
 | `src/three/ovenFrontMeasure.ts`, `src/three/ovenFrontMeasure.test.ts` | How smoke's "a hung oven's front" reads the front: only handles, and parts marked `knob` within the handle's printed 2-5/8", stand proud; an unmarked part counts (Leo, 2026-11-10). |
 
@@ -511,7 +518,7 @@ order puts D15 before D14 — read by number, not by position.)
 
 | # | What it settles |
 |---|---|
-| D1 | The camera moves for three reasons and no others. |
+| D1 | The camera moves for five reasons and no others (the fourth, a switch into a U, since U-2; the fifth, another model chosen for the machine on screen, since 2026-11-12); a zoom step keeps the angle. |
 | D2 | Layers are mounted once and toggled by `visible`. |
 | D3 | Product data is JSON, validated at load. |
 | D4 | The inventory sheet is read-only; cleaning happens in code. |
@@ -657,6 +664,35 @@ list.
    name, its size, and whether it is the same byte for byte. Write it into
    `docs/decisions.md` under the round, as "Shipped"; that change to the
    docs is committed with the next round (or on its own when Leo asks).
+
+### 3D before the plan is settled (Leo, 2026-11-11)
+
+「有时候没有预览，没有办法看到问题，下次看看怎样能早点看到预览3D草图，而不是文件描述，早点发现问题」.
+Anything judged by eye — how the cabinets are ordered, what a machine looks
+like, the camera, where labels and buttons sit — is shown to Leo in 3D while
+it is still a plan:
+
+1. **A throwaway prototype alongside the plan**: the new way put together in a
+   temporary copy (a git worktree or the scratchpad), with no tests, never
+   committed, never in the main folder.
+2. **Real 3D screenshots of every package it touches**: the default view, from
+   above, and flown to the main machines, one each, the page in Chinese; and a
+   local preview of the prototype, its address and main chunk reported, said
+   plainly to be a prototype and not the finished work.
+3. **The proper round starts only when Leo has looked at the 3D and confirmed
+   it** (tests red then green, the dumps, the pixels, the full suite). The
+   prototype's code is not merged: it is written again to the plan, or the
+   parts used as they were are named.
+4. A round that changes only rules, words or the test setup, the page the
+   same, needs no prototype.
+5. **A fly-in is shot with the model card open**, as the page is used (Leo,
+   2026-11-12: 「以后拍飞近的图，一律卡片开着拍（正常使用的样子）」). Closing the
+   card ends the selection, and the sight-line fade with it (D1, reason 3): a
+   fly-in shot after closing it shows cabinetry solid that a customer sees
+   through, and once reported a rangetop "blocked" that was not.
+
+Recorded in `docs/decisions.md` with the U's new order, the first round to
+work this way.
 
 ### Reports
 

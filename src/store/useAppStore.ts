@@ -10,11 +10,13 @@ import { recordRangeModel } from "../data/cookingSurface";
 import { recordFridgeModel } from "../data/fridgeMount";
 import { recordTowerOven, towerSlotOf } from "../data/towerOven";
 import { recordHoodModel } from "../data/hoodMount";
-import { oneWallWantedIn, paramLimitsFor } from "../data/layoutTemplate";
+import { DEFAULT_PARAMS, oneWallWantedIn, paramLimitsFor, uWantedIn } from "../data/layoutTemplate";
+import { wallToastKey } from "../ui/shapeControls";
 import type { LayoutShape, RunId } from "../data/layoutShape";
 import { inchesSpoken } from "../data/inches";
 import type { LayoutParams, Refusal } from "../data/layoutTemplate";
-import { LAYOUT_ISSUES, REQUESTED_PARAMS } from "../data/room";
+import { LAYOUT_ISSUES, OMITTED_FOR_WALL, REQUESTED_PARAMS } from "../data/room";
+import { packageSwitchLines, shapeSwitchLines } from "./shapeSwitch";
 import type { Lang, Lighting, RenderMode, SlotId, UtilityType } from "../types";
 import { readRails, readTab, writeRails, writeTab, type RightTab } from "./railState";
 import {
@@ -53,6 +55,14 @@ export interface ToastMessage {
    * to give; until then each says "Undo".
    */
   undoLabel?: { key: string; vars?: Record<string, string | number> };
+  /**
+   * The L a shape switch back to the L had kept, for its Undo to keep again
+   * (U-2): Undo puts the other shape back, and a switch to the L after it
+   * comes back to the same L.
+   */
+  lRoom?: RoomSnapshot | null;
+  /** Each of `lines` on a line of its own: a shape switch's walls (U-2, 9.3). */
+  stacked?: boolean;
   /**
    * What a page opened from a share link could not show as the link had it,
    * one line each, or that the link could not be read at all. Stays until it
@@ -326,7 +336,8 @@ function modelGrewToast(
     lines: grown.map((growth) => ({
       key: "toast.modelGrew",
       vars: {
-        wallKey: growth.key === "backWallIn" ? "toast.wall.back" : "toast.wall.left",
+        // In a U the left wall is both side walls (U-2).
+        wallKey: wallToastKey(growth.key, before.layoutParams.shape),
         toIn: inchesSpoken(growth.toIn),
       },
     })),
@@ -472,7 +483,7 @@ export const useAppStore = create<AppState>((set, get) => ({
               lines: result.grown.map((growth) => ({
                 key: "toast.wallGrew",
                 vars: {
-                  wallKey: growth.key === "backWallIn" ? "toast.wall.back" : "toast.wall.left",
+                  wallKey: wallToastKey(growth.key, asked.shape),
                   fromIn: inchesSpoken(growth.fromIn),
                   toIn: inchesSpoken(growth.toIn),
                   reasonKey: growReasonKey(patch),
@@ -640,6 +651,20 @@ export const useAppStore = create<AppState>((set, get) => ({
       // And the tower's oven, whose cutout may open the tower (Leo, 2026-11-09, 甲).
       const tower = towerSlotOf(PACKAGE_BY_ID[packageId]);
       if (tower && selection[tower]) setOvenModel(APPLIANCE_BY_ID[selection[tower]], packageId);
+      // In a U, the walls that changed, as a shape switch says them (Leo,
+      // 2026-11-12, on U-2's seven points, 7); none changed, nothing said (1).
+      const uLines =
+        shape === "U" && result.grown
+          ? packageSwitchLines(entry.name[s.lang] ?? entry.name.en, s.layoutParams, {
+              backWallIn: REQUESTED_PARAMS.backWallIn,
+              leftWallIn: REQUESTED_PARAMS.leftWallIn,
+              shape,
+            })
+          : null;
+      const undoLabel = {
+        key: "toast.undo.package",
+        vars: { package: PACKAGE_BY_ID[s.packageId]?.name[s.lang] ?? s.packageId },
+      };
       return {
         packageId,
         selection,
@@ -660,7 +685,16 @@ export const useAppStore = create<AppState>((set, get) => ({
         // customer's, so the change is announced rather than slipped in.
         // Only a wall that grew: the package's own arrangement moving the sink
         // to the other leg is not the room getting bigger (round 60).
-        toast: result.grown
+        toast: uLines
+          ? {
+              id: ++toastId,
+              key: uLines[0].key,
+              lines: uLines,
+              stacked: true,
+              undo: built ? before : undefined,
+              undoLabel,
+            }
+          : result.grown && shape !== "U"
           ? {
               id: ++toastId,
               key: "toast.roomGrew",
@@ -673,10 +707,7 @@ export const useAppStore = create<AppState>((set, get) => ({
                 leftIn: Number(REQUESTED_PARAMS.leftWallIn.toFixed(1)),
               },
               undo: built ? before : undefined,
-              undoLabel: {
-                key: "toast.undo.package",
-                vars: { package: PACKAGE_BY_ID[s.packageId]?.name[s.lang] ?? s.packageId },
-              },
+              undoLabel,
             }
           : // A toast that offers Undo is about the room before this switch —
             // "Package D needs a longer run", and Undo back to where D came
@@ -729,6 +760,11 @@ export const useAppStore = create<AppState>((set, get) => ({
         set({ layoutIssues: result.reasons });
         return { ok: false, grown: null };
       }
+      // Said, wall by wall, and undone, as every switch is (U-2; Leo,
+      // 2026-11-11: 「退回（Undo）要能回到切换前的形状和墙长」); its Undo keeps
+      // this L for the next switch back.
+      const lines = shapeSwitchLines(s.layoutParams, back.layoutParams, []);
+      const built = s.layoutIssues.length === 0;
       set((now) => ({
         selection,
         blowerId: migrateBlower(to, hood, now.blowerId),
@@ -738,24 +774,67 @@ export const useAppStore = create<AppState>((set, get) => ({
         selectedSlot: null,
         lRoom: null,
         shapePicks: picks,
+        toast: lines
+          ? {
+              id: ++toastId,
+              key: lines[0].key,
+              lines,
+              stacked: true,
+              undo: built ? before : undefined,
+              undoLabel: { key: "toast.undo.toShape", vars: { shapeKey: `topbar.shape.${was}` } },
+              lRoom: back,
+            }
+          : now.toast?.undo
+            ? null
+            : now.toast,
       }));
       return { ok: true, grown: null };
     }
     // The wall the package needs in this shape, never shorter than it stands
     // (D18); the L's own ceiling where it comes back to an L it did not leave.
     const limits = paramLimitsFor(shape);
+    // A U grows both its back wall and its side walls to what the package's U
+    // wants (`uWantedIn`), and no further than the U's own sliders go (U-2).
+    const u = shape === "U" ? uWantedIn({ ...s.layoutParams, shape }, written) : null;
     const backWallIn =
       shape === "one-wall"
         ? Math.max(s.layoutParams.backWallIn, oneWallWantedIn(s.layoutParams, written))
-        : Math.min(s.layoutParams.backWallIn, limits.backWallIn.max);
-    const result = setLayoutParamsGrowing({ ...s.layoutParams, shape, backWallIn });
+        : u
+          ? Math.min(Math.max(s.layoutParams.backWallIn, u.backWallIn), limits.backWallIn.max)
+          : Math.min(s.layoutParams.backWallIn, limits.backWallIn.max);
+    const leftWallIn = u
+      ? Math.min(Math.max(s.layoutParams.leftWallIn, u.leftWallIn), limits.leftWallIn.max)
+      : s.layoutParams.leftWallIn;
+    let result = setLayoutParamsGrowing({ ...s.layoutParams, shape, backWallIn, leftWallIn });
+    // An L with none kept — the package changed in the other shape, whose walls
+    // were the last package's L's — where those walls will not do: the
+    // package's own L walls (U-2; Leo, 2026-11-11, B: 「切换形状永远成功」, and 乙:
+    // 「放不下……才调」). The switch refused here before, in 14 ways from one
+    // wall (the plan's section 2.1, the after-a-package-switch probe).
+    if (!result.ok && shape === "L") {
+      const own = written.defaultLayout;
+      result = setLayoutParamsGrowing({
+        ...s.layoutParams,
+        ...own,
+        shape,
+        // A package that names no walls is built at the ordinary L's (A, C).
+        backWallIn: own.backWallIn ?? DEFAULT_PARAMS.backWallIn,
+        leftWallIn: own.leftWallIn ?? DEFAULT_PARAMS.leftWallIn,
+      });
+    }
     if (!result.ok) {
       recordModels(s.selection, s.packageId, was);
       set({ layoutIssues: result.reasons });
       return { ok: false, grown: null };
     }
-    const grew = result.params.backWallIn > s.layoutParams.backWallIn;
+    const backGrew = result.params.backWallIn > s.layoutParams.backWallIn;
+    const sidesGrew = shape === "U" && result.params.leftWallIn > s.layoutParams.leftWallIn;
     const built = s.layoutIssues.length === 0;
+    // Every wall that changed, lengthened or cut to the shape's top, from and
+    // to (Leo, 2026-11-11, 乙 and the words of 9.3); and what even the top
+    // leaves out, where it does — never an L's own (round 98b's L comes back
+    // as it was, and an L's island is its own matter).
+    const lines = shapeSwitchLines(s.layoutParams, result.params, shape === "L" ? [] : OMITTED_FOR_WALL);
     set((now) => ({
       selection,
       blowerId: migrateBlower(to, hood, now.blowerId),
@@ -765,23 +844,33 @@ export const useAppStore = create<AppState>((set, get) => ({
       selectedSlot: null,
       lRoom: was === "L" ? before : now.lRoom,
       shapePicks: picks,
-      // The wall grown for the shape is said, and can be undone, as a package
-      // switch's is (Leo, round 98b: "形状切换用同一种提示"), in its own words:
-      // one wall grows only its back wall (Leo, round 98b-2). Only one wall
-      // grows a wall on the way in; the L comes back to the room it left.
-      toast: grew
+      // D1's fourth reason (Leo, 2026-11-11: 「切到 U 时镜头自动转到正前方」):
+      // into a U the camera goes to the U's default view, as the reset button
+      // takes it; to an L or one wall it stays where it is.
+      resetToken: shape === "U" ? now.resetToken + 1 : now.resetToken,
+      // Said, and undone, as a package switch is (Leo, round 98b: "形状切换用同
+      // 一种提示"): one notice for every shape, a line for each wall (U-2, 9.3).
+      toast: lines
         ? {
             id: ++toastId,
-            key: "toast.shapeGrew",
-            vars: { backIn: Number(result.params.backWallIn.toFixed(1)) },
+            key: lines[0].key,
+            lines,
+            stacked: true,
             undo: built ? before : undefined,
-            undoLabel: { key: "toast.undo.shape" },
+            undoLabel: { key: "toast.undo.toShape", vars: { shapeKey: `topbar.shape.${was}` } },
           }
         : now.toast?.undo
           ? null
           : now.toast,
     }));
-    return { ok: true, grown: grew ? { fromIn: s.layoutParams.backWallIn, toIn: result.params.backWallIn } : null };
+    return {
+      ok: true,
+      grown: sidesGrew
+        ? { fromIn: s.layoutParams.leftWallIn, toIn: result.params.leftWallIn }
+        : backGrew
+          ? { fromIn: s.layoutParams.backWallIn, toIn: result.params.backWallIn }
+          : null,
+    };
   },
   resetView: () => set((s) => ({ resetToken: s.resetToken + 1, selectedSlot: null })),
   requestZoom: (direction) =>
@@ -826,7 +915,10 @@ export const useAppStore = create<AppState>((set, get) => ({
     recordTowerOven(backTower ? APPLIANCE_BY_ID[back.selection[backTower]] : undefined, back.packageId);
     // The room as it was, a slider's 6" beside the tower included.
     const result = setLayoutParams(back.layoutParams, { dragged: true });
+    const kept = get().toast?.lRoom;
     set((s) => ({
+      // A U put back is a switch into it (D1's fourth reason, U-2).
+      resetToken: back.layoutParams.shape === "U" && s.layoutParams.shape !== "U" ? s.resetToken + 1 : s.resetToken,
       packageId: back.packageId,
       selection: back.selection,
       blowerId: back.blowerId,
@@ -835,8 +927,9 @@ export const useAppStore = create<AppState>((set, get) => ({
       layoutVersion: s.layoutVersion + 1,
       selectedSlot: null,
       toast: null,
-      // Back in an L there is no other shape's room to keep (round 98b-2).
-      lRoom: back.layoutParams.shape === "L" ? null : s.lRoom,
+      // Back in an L there is no other shape's room to keep (round 98b-2);
+      // out of the L a switch had come back to, that L again (U-2).
+      lRoom: back.layoutParams.shape === "L" ? null : kept !== undefined ? kept : s.lRoom,
     }));
   },
   reportModeSwitch: (ms) => set({ modeSwitchMs: Math.round(ms), modeSwitchStartedAt: null }),

@@ -277,7 +277,16 @@ async function fadedWithHood(
   await s.page.waitForTimeout(1500);
   const canvas = (await s.page.locator("canvas").boundingBox())!;
   const x0 = canvas.x + canvas.width / 2;
-  const y0 = canvas.y + canvas.height * (s.phone ? 0.25 : 0.5);
+  // Where the finger or the mouse goes down must be the 3D view itself, not a
+  // pin's label over it: since U-2 the phone's view is 40px shorter (the shape
+  // buttons' row) and at a quarter of its height lay "05 Microwave drawer"'s
+  // label, so the drag turned nothing. From that point down, 8px at a time.
+  let y0 = canvas.y + canvas.height * (s.phone ? 0.25 : 0.5);
+  for (let i = 0; i < 30; i += 1) {
+    const onCanvas = await s.page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.tagName === "CANVAS", [x0, y0] as const);
+    if (onCanvas) break;
+    y0 += 8;
+  }
   for (let i = 0; i < 14 && !enough(await faded(s)); i += 1) {
     await drag(s, x0, y0, s.phone ? 40 : 90);
     await s.page.waitForTimeout(500);

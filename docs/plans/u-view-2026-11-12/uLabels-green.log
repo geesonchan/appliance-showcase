@@ -1,0 +1,30 @@
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mC:/Users/leoch/Downloads/appliance-showcase[39m
+
+ [32m✓[39m tests/cameraKeep.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 69753[2mms[22m[39m
+   [33m[2m✓[22m[39m the zoom buttons step the zoom and keep the angle (Leo, 2026-11-12)[2m > [22mpackage A's L flown to the dishwasher, zoom in, on a desktop by the mouse [33m7677[2mms[22m[39m
+   [33m[2m✓[22m[39m the zoom buttons step the zoom and keep the angle (Leo, 2026-11-12)[2m > [22mpackage A's L flown to the refrigerator, zoom out, on a phone by a finger [33m7236[2mms[22m[39m
+   [33m[2m✓[22m[39m the zoom buttons step the zoom and keep the angle (Leo, 2026-11-12)[2m > [22mpackage D on one wall flown to the range, zoom in, on a desktop by the mouse [33m9858[2mms[22m[39m
+   [33m[2m✓[22m[39m the zoom buttons step the zoom and keep the angle (Leo, 2026-11-12)[2m > [22mpackage D's U at its own view, zoom in, on a desktop by the mouse [33m6896[2mms[22m[39m
+   [33m[2m✓[22m[39m another model on the card pulls the camera back to the whole room (D1's fifth reason, Leo, 2026-11-11)[2m > [22mpackage A's L, the dishwasher, on a desktop by the mouse [33m8196[2mms[22m[39m
+   [33m[2m✓[22m[39m another model on the card pulls the camera back to the whole room (D1's fifth reason, Leo, 2026-11-11)[2m > [22mpackage A's L, the dishwasher, on a phone by a finger [33m8029[2mms[22m[39m
+   [33m[2m✓[22m[39m another model on the card pulls the camera back to the whole room (D1's fifth reason, Leo, 2026-11-11)[2m > [22mpackage E on one wall, the refrigerator, on a desktop by the mouse [33m10607[2mms[22m[39m
+   [33m[2m✓[22m[39m another model on the card pulls the camera back to the whole room (D1's fifth reason, Leo, 2026-11-11)[2m > [22mpackage D's U, the hood, on a desktop by the mouse [33m10570[2mms[22m[39m
+ [32m✓[39m tests/uLabels.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 52956[2mms[22m[39m
+   [33m[2m✓[22m[39m the U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mA's U, the mouse at 1440 [33m6371[2mms[22m[39m
+   [33m[2m✓[22m[39m the U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mA's U, a finger at 390 [33m5043[2mms[22m[39m
+   [33m[2m✓[22m[39m the U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mB's U, the mouse at 1440 [33m4950[2mms[22m[39m
+   [33m[2m✓[22m[39m the U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mB's U, a finger at 390 [33m5018[2mms[22m[39m
+   [33m[2m✓[22m[39m the U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mC's U, the mouse at 1440 [33m4937[2mms[22m[39m
+   [33m[2m✓[22m[39m the U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mC's U, a finger at 390 [33m5020[2mms[22m[39m
+   [33m[2m✓[22m[39m the U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mD's U, the mouse at 1440 [33m4941[2mms[22m[39m
+   [33m[2m✓[22m[39m the U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mD's U, a finger at 390 [33m6034[2mms[22m[39m
+   [33m[2m✓[22m[39m the U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mE's U, the mouse at 1440 [33m5294[2mms[22m[39m
+   [33m[2m✓[22m[39m the U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mE's U, a finger at 390 [33m5028[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m18 passed[39m[22m[90m (18)[39m
+[2m   Start at [22m 11:58:16
+[2m   Duration [22m 125.75s[2m (transform 77ms, setup 0ms, collect 579ms, tests 122.71s, environment 0ms, prepare 120ms)[22m
+
+丁's wiring: 0 page requests from the tests kept on the real server, 0 not routed, 0 paths answered with the page for want of a file

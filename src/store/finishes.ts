@@ -10,14 +10,15 @@ import type { WallFinish } from "../three/materials";
  * that have since been replaced. docs/decisions.md D23.
  */
 
-export type AccentRun = "none" | "left" | "back" | "island";
+export type AccentRun = "none" | "left" | "back" | "island" | "right";
 export type CounterFinish = "quartz-white" | "marble-veined" | "wood-oak";
 export type FloorFinish = "floor-oak" | "floor-tile";
 /** Large-format panel sizes, long side first along the room. Round 33. */
 export type TileSize = "24x48" | "32x32" | "48x48";
 export const TILE_SIZES: TileSize[] = ["24x48", "32x32", "48x48"];
 export const WALL_FINISHES: WallFinish[] = ["warm-grey", "mid-grey", "taupe", "white"];
-export const ACCENT_RUNS: AccentRun[] = ["none", "left", "back", "island"];
+/** The U's right leg last (U-2): a link's `accentRun=right` names it. */
+export const ACCENT_RUNS: AccentRun[] = ["none", "left", "back", "island", "right"];
 
 /** RAL 5015's value, read from the RAL table rather than written again here. */
 const RAL_5015 = (() => {

@@ -20,8 +20,15 @@ import { launchBrowser } from "./siteBrowser";
 
 const WIDTHS = [360, 375, 390, 414] as const;
 const LANGS = ["en", "zh"] as const;
+/**
+ * U-2, A (Leo, 2026-11-11: 「形状开关放到主界面……我的倾向是顶栏、紧挨套餐按钮；手机顶栏
+ * 放不下就放第二行」): the shape buttons beside the packages from 1024px, the bar
+ * still 56px high; below it on a row of their own, the bar 96px. Measured in
+ * docs/plans/u2-2026-11-11/topBarMeasure.mjs.
+ */
+const DESKTOP_WIDTHS = [1024, 1280, 1440] as const;
 
-const EXPECTED_TESTS = WIDTHS.length * LANGS.length + 2;
+const EXPECTED_TESTS = WIDTHS.length * LANGS.length + 2 + DESKTOP_WIDTHS.length * LANGS.length;
 let testsRun = 0;
 const filtered = process.argv.some((arg) => arg === "-t" || arg.startsWith("--testNamePattern"));
 beforeEach(() => {
@@ -97,6 +104,17 @@ const controls = (page: Page): Promise<Box[]> =>
       .map(({ name, x, y, w, h }) => ({ name, x, y, w, h })),
   );
 
+/** Which row the shape buttons are on, how many, and the bar's height (U-2). */
+const shapeRow = (page: Page) =>
+  page.evaluate(() => {
+    const row = [...document.querySelectorAll("header [data-shape-row]")].find((e) => getComputedStyle(e).display !== "none");
+    return {
+      row: row?.getAttribute("data-shape-row") ?? null,
+      buttons: row?.querySelectorAll("[data-segment=shape] button").length ?? 0,
+      header: Math.round(document.querySelector("header")!.getBoundingClientRect().height),
+    };
+  });
+
 /** Pairs of controls that share any area, to a hundredth of a pixel. */
 function overlaps(boxes: Box[]): string[] {
   const found: string[] = [];
@@ -122,6 +140,7 @@ describe("the phone's top bar", () => {
       it(`at ${width}px in ${lang === "en" ? "English" : "Chinese"} draws no control over another, and none off the screen`, async () => {
         const page = await openPhone(width, lang);
         const boxes = await controls(page);
+        const shapes = await shapeRow(page);
         const off = boxes
           .filter((b) => b.x < -0.01 || b.x + b.w > width + 0.01)
           .map((b) => `"${b.name}" (${b.x.toFixed(1)}–${(b.x + b.w).toFixed(1)})`);
@@ -130,9 +149,28 @@ describe("the phone's top bar", () => {
         // The pairs are in the message, so each red case says which two
         // controls and by how much (vitest folds failures with one message).
         expect(found, `${width}px ${lang}, ${boxes.length} controls: ${found.join("; ")}`).toEqual([]);
+        // The shapes on the second row, under the bar (U-2).
+        expect(shapes).toEqual({ row: "second", buttons: 3, header: 96 });
         // An empty set passes anything (D22, round 72): the bar has at least
-        // the five packages, Quote, two languages and Help.
-        expect(boxes.length).toBeGreaterThanOrEqual(9);
+        // the five packages, the three shapes, Quote, two languages and Help.
+        expect(boxes.length).toBeGreaterThanOrEqual(12);
+      });
+    }
+  }
+
+  for (const lang of LANGS) {
+    for (const width of DESKTOP_WIDTHS) {
+      it(`at ${width}px in ${lang === "en" ? "English" : "Chinese"} has the shapes beside the packages, the bar 56px, nothing over anything`, async () => {
+        const context = await browser.newContext({ viewport: { width, height: 900 } });
+        const page = await context.newPage();
+        await openWatched(page, `${PREVIEW_URL}?quality=high&lang=${lang}`, { gotoTimeout: 90_000, canvasTimeout: 60_000, label: `topBar · ${expect.getState().currentTestName ?? ""}` });
+        await page.waitForTimeout(800);
+        const boxes = await controls(page);
+        const shapes = await shapeRow(page);
+        const off = boxes.filter((b) => b.x < -0.01 || b.x + b.w > width + 0.01).map((b) => `"${b.name}" off the screen`);
+        await context.close();
+        const found = [...overlaps(boxes), ...off];
+        expect({ found, shapes }).toEqual({ found: [], shapes: { row: "first", buttons: 3, header: 56 } });
       });
     }
   }

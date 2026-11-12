@@ -2285,22 +2285,29 @@ function planLegs(
   };
 
   /**
-   * The U's three legs (U-1, 2026-11-11; docs/plans/u1-plan.md, section 1).
+   * The U's three legs (U-1, 2026-11-11; the new order, Leo, 2026-11-11 and
+   * 2026-11-12, docs/plans/u-order-plan.md).
    *
    * The left leg, from the corner: the corner box, the refrigerator's 15"
    * (rule 6, which is also rule 1's 12" off the corner), the columns in the
    * left leg's order (`columnsAlongRun`; B's refrigerator first, against its
-   * counter, the wine column past it — Leo, 2026-11-11), then a coffee tower, the 15" pantry cabinet and the oven tower
-   * at the open end, its own 3/4" sides its finish (Leo, 2026-11-10 and
-   * 2026-11-11). A and C, with no oven tower, keep their refrigerator at the
-   * open end and the island's two machines before its landing, as an L with no
-   * island does.
+   * counter, the wine column past it — Leo, 2026-11-11), then a coffee tower,
+   * and where the package has an oven tower the 15" pantry cabinet at the open
+   * end (「储物高柜留着，放在左段开放端」). A and C, with no oven tower, keep their
+   * refrigerator at the open end and the island's two machines before its
+   * landing, as an L with no island does.
    *
-   * The right leg: the corner box, the wide 15" toward the sink round the
-   * corner, the cooking surface, the narrow 12" and the open end's cabinet and
-   * panel, the slack shared 3" at a time either side (Leo, 2026-11-11, 1).
-   * The island's machines come here only when the left leg would pass D13's
-   * 216" with them (`sparesRun`): D's microwave drawer, 12" off the corner.
+   * The right leg, with an oven tower (B, D, E; 「B，D，E套仓的烤箱塔为什么不分布在
+   * Rangetop或者cooktop那边去」): the corner box, 15" of counter, the cooking
+   * surface, then B and E the counter rule 12 asks for and D 15", its
+   * microwave drawer and its counter (「D 右段照丙」), and the oven tower at the
+   * open end, its own 3/4" sides its finish. Where the wall is longer than the
+   * leg needs, the spare goes to the counter before the oven tower, and only
+   * there (`U_SPARE_BEFORE_OVEN_TOWER`). Without one (A, C): the corner box,
+   * the wide 15" toward the sink round the corner, the cooking surface, the
+   * narrow 12" and the open end's cabinet and panel, the slack shared 3" at a
+   * time either side (Leo, 2026-11-11, 1); the island's machines here only
+   * when the left leg would pass D13's 216" with them (`sparesRun`).
    *
    * The back leg: 12" of counter off the left corner (D11 rule 10, 2026-11-10),
    * the dishwasher, the sink, its 18" toward the cooking leg's corner.
@@ -2335,13 +2342,38 @@ function planLegs(
       ...tower,
       ...coffeeItems,
       ...pantry,
-      ...ovens.map((slot) => column(slot.slotId)),
     ];
     const needIn = (items: Item[]) =>
       mergeGaps(items).reduce((sum, item) => sum + (item.kind === "fixed" ? item.widthIn : item.minIn), 0);
-    const sparesOn = spare.length === 0 ? "tall" : sparesRun(needIn(tallLeg(true)));
     const landing = LAYOUT_LIMITS.rangeLanding;
-    const cookingLeg: Item[] = [
+    // With an oven tower on the cooking leg the island's machines stand between
+    // the cooking surface and the tower (D's microwave drawer; Leo, 2026-11-11,
+    // 丙); without one, on the tall leg unless that passes 216" (`sparesRun`).
+    const sparesOn = spare.length === 0 ? "tall" : ovens.length > 0 ? "cooking" : sparesRun(needIn(tallLeg(true)));
+    const { cookingFromCornerIn } = U_SPARE_BEFORE_OVEN_TOWER;
+    const ovenLeg = (): Item[] => [
+      cornerBox(),
+      gap("range-landing-right", cookingFromCornerIn, "d11-4", { shrink: "range-to-sink", maxIn: cookingFromCornerIn }),
+      cooking(),
+      ...(sparesOn === "cooking"
+        ? [
+            gap("drawer-landing", landing.wideIn, "d11-4", { shrink: "range-to-sink", maxIn: landing.wideIn }),
+            ...spare,
+            // The counter before the tower, where the leg's spare inches go.
+            gap("tower-landing", 0, "d11-12", { shrink: "range-to-sink" }),
+          ]
+        : [
+            // Rule 12's counter between the tower and the cooking surface: 9"
+            // at the least (6" on a wall dragged short), 18" wanted, and every
+            // spare inch of the leg past that.
+            gap("tower-clearance", dragged ? LAYOUT_LIMITS.towerSpacer.draggedMinIn : LAYOUT_LIMITS.towerSpacer.builtMinIn, "d11-12", {
+              shrink: "range-to-sink",
+              wantIn: LAYOUT_LIMITS.towerSpacer.wantIn,
+            }),
+          ]),
+      ...ovens.map((slot) => column(slot.slotId)),
+    ];
+    const cookingLeg: Item[] = ovens.length > 0 ? ovenLeg() : [
       cornerBox(),
       ...(sparesOn === "cooking"
         ? [
@@ -2668,7 +2700,10 @@ export function wallRequirement(
     // the left wall's slider answers for both, and the longer leg sets it.
     if (params.shape !== "U" || leg !== "left") return own;
     const right = requirementFor(params, "right", pkg, omitted);
-    return right.minimumIn > own.minimumIn ? { ...right, leg: "left" as const } : own;
+    const longer = right.minimumIn > own.minimumIn ? { ...right, leg: "left" as const } : own;
+    // And what either leg wants, not only what it needs (Leo, 2026-11-11: 「U 的左右墙
+    // 长度要把"想要的"18" 也算进去」): the right leg's 18" before its oven tower.
+    return { ...longer, wantedIn: Math.max(own.wantedIn, right.wantedIn) };
   });
 }
 
@@ -2697,6 +2732,19 @@ export function sparesRun(tallLegIn: number): "tall" | "cooking" {
 
 /** The U's pantry cabinet (Leo, 2026-11-10 and 2026-11-11): 15" wide, 96" tall, T1596. */
 export const U_PANTRY = { code: "T1596", widthIn: 15 } as const;
+
+/**
+ * One rule for every U with an oven tower on its cooking leg (Leo, 2026-11-11:
+ * 「灶离转角 15"，多出来的墙长加在灶和烤箱塔之间（E 是 18" 变 24"）。写成一条规则，B、D、E 都照它，
+ * 不要每个套餐单独写」): the cooking surface stands 15" of counter off the corner,
+ * and where the wall is longer than the leg needs, the spare goes to the
+ * counter before the oven tower — rule 12's between the tower and the cooking
+ * surface in B and E, the counter past D's microwave drawer in D.
+ */
+export const U_SPARE_BEFORE_OVEN_TOWER = {
+  cookingFromCornerIn: 15,
+  rule: "the cooking surface 15\" off the corner; the wall's spare inches to the counter before the oven tower",
+} as const;
 
 /**
  * The lengths of one wall this configuration can actually be built at.

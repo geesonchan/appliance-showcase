@@ -1,0 +1,191 @@
+diff --git a/C:/Users/leoch/Downloads/appliance-showcase/src/data/defaultView.ts b/src/data/defaultView.ts
+index 646de4d..feb3dda 100644
+--- a/C:/Users/leoch/Downloads/appliance-showcase/src/data/defaultView.ts
++++ b/src/data/defaultView.ts
+@@ -1,22 +1,25 @@
+ import type { LayoutShape } from "./layoutShape";
++import { protoView } from "../protoSwitch";
+ 
+ /**
+  * The angle the room is first seen from, and gone back to by "reset view".
+  *
+  * The L and one wall from front right, 45° round and 35° down (§10, the
+- * isometric default since the first commit). The U from straight in front, 50°
+- * down (Leo, 2026-11-12: 「U 的默认视角定：正前方，往下 50°」), by his rule that the
+- * default view shows every machine's label, seen and clickable, and a machine's
+- * front is seen by flying to it. Of the 48 ways he had counted (0° to 45° left,
+- * 25° to 45° down, with and without the backs' boards) none kept every label in
+- * all five packages — turned left, the left leg's machines face away — and only
+- * straight in front at 50° to 60° did (`docs/plans/u-view-2026-11-12/`).
+- * `tests/uLabels.test.ts` holds it there. It was 45° to the left and 25° down
+- * the night before (his first pick), straight in front at 45° down before that
+- * (U-2).
++ * isometric default since the first commit). The U from front left, 45° round
++ * and 25° down (Leo, 2026-11-12: 「U 的默认视角定：往左 45°、往下 25°」): from the
++ * left its cooking leg faces the camera — the cooking surface, the hood and the
++ * oven tower from the front — and the left leg's back, nearest, is closed by
++ * one board (`legBackBoards`). It was from straight in front, 45° down (U-2;
++ * Leo, 2026-11-11), until he compared the three ways round.
+  *
+  * Only the default: switching the shape leaves the camera where it is (D1).
+  */
+ export function defaultView(shape: LayoutShape): { azimuthDeg: number; pitchDeg: number } {
+-  return shape === "U" ? { azimuthDeg: 0, pitchDeg: 50 } : { azimuthDeg: 45, pitchDeg: 35 };
++  // PROTOTYPE (Leo, 2026-11-12: the U view chosen again): ?protoAz= (negative is to
++  // the left) and ?protoPitch= in the link set the U's view.
++  if (shape === "U" && typeof window !== "undefined") {
++    const picked = protoView();
++    if (picked) return { azimuthDeg: picked.az, pitchDeg: picked.pitch };
++  }
++  return shape === "U" ? { azimuthDeg: -45, pitchDeg: 25 } : { azimuthDeg: 45, pitchDeg: 35 };
+ }
+diff --git a/C:/Users/leoch/Downloads/appliance-showcase/src/three/CabinetLayer.tsx b/src/three/CabinetLayer.tsx
+index 6bb2772..4823c1e 100644
+--- a/C:/Users/leoch/Downloads/appliance-showcase/src/three/CabinetLayer.tsx
++++ b/src/three/CabinetLayer.tsx
+@@ -543,7 +543,11 @@ function BackBoards() {
+   const isMobile = useIsMobile();
+   // CABINETS is rebuilt with the layout, which re-renders this layer.
+   // eslint-disable-next-line react-hooks/exhaustive-deps
+-  const boards = useMemo(() => legBackBoards(CABINETS, shape), [shape, layoutVersion]);
++  const boards = useMemo(() => {
++    // PROTOTYPE: ?protoBoard=both|none|left|right in the link.
++    const want = typeof window === "undefined" ? "both" : new URLSearchParams(window.location.search).get("protoBoard") ?? "both";
++    return legBackBoards(CABINETS, shape).filter((b) => want === "both" || b.run === want);
++  }, [shape, layoutVersion]);
+   const install = renderMode === "install";
+   return (
+     <>
+diff --git a/C:/Users/leoch/Downloads/appliance-showcase/src/three/SceneDebug.tsx b/src/three/SceneDebug.tsx
+index 0e5185a..8da54b0 100644
+--- a/C:/Users/leoch/Downloads/appliance-showcase/src/three/SceneDebug.tsx
++++ b/src/three/SceneDebug.tsx
+@@ -22,6 +22,15 @@ export function SceneDebug() {
+   // is exactly the case worth checking.
+   const selection = useSelection();
+ 
++  // PROTOTYPE: the scene and three itself, for the view probe.
++  const camera = useThree((s) => s.camera);
++  useEffect(() => {
++    const w = window as unknown as Record<string, unknown>;
++    w.__THREE = THREE;
++    w.__scene = scene;
++    w.__cam = camera;
++  }, [scene, camera]);
++
+   useEffect(() => {
+     if (!DEBUG) return;
+     // One frame after mount, so every layer has been added.
+diff --git a/C:/Users/leoch/Downloads/appliance-showcase/src/main.tsx b/src/main.tsx
+index 6ddf4a8..a84f646 100644
+--- a/C:/Users/leoch/Downloads/appliance-showcase/src/main.tsx
++++ b/src/main.tsx
+@@ -11,6 +11,7 @@ import { kitchenNow, openSharedLink, shareUrl } from "./store/openLink";
+ // for as long as Google took, and for good where Google is blocked.
+ import "./fonts.css";
+ import "./index.css";
++import { mountProtoSwitch } from "./protoSwitch";
+ 
+ // The visit counter, on the live site only and before the link is read, so a
+ // page opened from a link counts its view and then the link (D24).
+@@ -30,6 +31,9 @@ if (DEBUG) {
+   });
+ }
+ 
++// PROTOTYPE: the view switch on the page.
++mountProtoSwitch();
++
+ ReactDOM.createRoot(document.getElementById("root")!).render(
+   <React.StrictMode>
+     <App />
+diff --git a/src/protoSwitch.ts b/src/protoSwitch.ts
+new file mode 100644
+index 0000000..df1c824
+--- /dev/null
++++ b/src/protoSwitch.ts
+@@ -0,0 +1,85 @@
++// PROTOTYPE ONLY (Leo, 2026-11-12: 「我用你上面给的角度的三个链接，但链接没能正确固定角度」): a
++// panel on the page to switch the U's default view between the candidates without
++// editing the link. Each button writes the view into the address and into this
++// browser's storage (so a link that lost its tail still opens at the last pick) and
++// presses "reset view". The board needs the room rebuilt, so it reloads the page.
++const VIEWS: [string, number, number][] = [
++  ["正前方·往下50°", 0, 50],
++  ["正前方·往下55°", 0, 55],
++  ["正前方·往下60°", 0, 60],
++  ["现在：往左45°·往下25°", -45, 25],
++];
++
++export function protoView(): { az: number; pitch: number } | null {
++  const q = new URLSearchParams(window.location.search);
++  if (q.has("protoAz") || q.has("protoPitch")) {
++    return { az: Number(q.get("protoAz") ?? -45), pitch: Number(q.get("protoPitch") ?? 25) };
++  }
++  try {
++    const kept = JSON.parse(localStorage.getItem("protoView") ?? "null");
++    if (kept && typeof kept.az === "number" && typeof kept.pitch === "number") return kept;
++  } catch {
++    /* storage blocked: the default */
++  }
++  return null;
++}
++
++function setQuery(values: Record<string, string>) {
++  const q = new URLSearchParams(window.location.search);
++  for (const [k, v] of Object.entries(values)) q.set(k, v);
++  history.replaceState(null, "", `${window.location.pathname}?${q}`);
++}
++
++export function mountProtoSwitch() {
++  const panel = document.createElement("div");
++  panel.setAttribute("data-proto-switch", "");
++  panel.style.cssText =
++    "position:fixed;top:72px;left:52px;z-index:60;display:flex;flex-direction:column;gap:6px;align-items:stretch;width:170px;" +
++    "padding:6px 10px;background:#fff8e1;border:1px solid #e0b84c;border-radius:10px;font:12px system-ui,'Microsoft YaHei',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.12)";
++  const title = document.createElement("span");
++  title.textContent = "原型·U 默认视角：";
++  title.style.fontWeight = "600";
++  panel.append(title);
++  const buttons: [HTMLButtonElement, number, number][] = [];
++  const paint = () => {
++    const now = protoView() ?? { az: -45, pitch: 25 };
++    for (const [b, az, pitch] of buttons) {
++      const on = now.az === az && now.pitch === pitch;
++      b.style.background = on ? "#2f5d46" : "#fff";
++      b.style.color = on ? "#fff" : "#222";
++    }
++  };
++  for (const [label, az, pitch] of VIEWS) {
++    const b = document.createElement("button");
++    b.type = "button";
++    b.textContent = label;
++    b.style.cssText = "padding:3px 8px;border:1px solid #bbb;border-radius:6px;cursor:pointer";
++    b.addEventListener("click", () => {
++      setQuery({ protoAz: String(az), protoPitch: String(pitch) });
++      try {
++        localStorage.setItem("protoView", JSON.stringify({ az, pitch }));
++      } catch {
++        /* storage blocked: the address carries it */
++      }
++      paint();
++      const reset = [...document.querySelectorAll<HTMLButtonElement>("button")].find((x) =>
++        ["重置视角", "Reset view"].includes(x.getAttribute("aria-label") ?? ""),
++      );
++      reset?.click();
++    });
++    buttons.push([b, az, pitch]);
++    panel.append(b);
++  }
++  const board = document.createElement("button");
++  board.type = "button";
++  const boardOn = () => (new URLSearchParams(window.location.search).get("protoBoard") ?? "both") !== "none";
++  board.textContent = boardOn() ? "背板：有（点一下去掉）" : "背板：没有（点一下加上）";
++  board.style.cssText = "padding:3px 8px;border:1px solid #bbb;border-radius:6px;cursor:pointer;margin-top:6px";
++  board.addEventListener("click", () => {
++    setQuery({ protoBoard: boardOn() ? "none" : "both" });
++    window.location.reload();
++  });
++  panel.append(board);
++  document.body.append(panel);
++  paint();
++}

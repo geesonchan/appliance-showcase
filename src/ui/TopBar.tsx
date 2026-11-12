@@ -7,6 +7,38 @@ import { shareUrl } from "../store/openLink";
 import { useAppStore } from "../store/useAppStore";
 import { copyText } from "./copyText";
 import { Segmented } from "./primitives";
+import { shapeButtons } from "./shapeControls";
+import type { LayoutShape } from "../data/layoutShape";
+
+/**
+ * The kitchen's shape, a row of buttons beside the packages (U-2, A; Leo,
+ * 2026-11-11: 「形状开关放到主界面，像套餐 A–E 那样一排按钮（L 型、一字型、U 型）……
+ * 我的倾向是顶栏、紧挨套餐按钮；手机顶栏放不下就放第二行」). The short names on
+ * the buttons, the long ones on their titles and as their names to a screen
+ * reader. Switching always succeeds: the walls the new shape needs, said wall
+ * by wall with Undo (D18; his answer 3, 乙), and into a U the U's view (D1's
+ * fourth reason).
+ */
+function ShapeButtons() {
+  const t = useT();
+  const shape = useAppStore((s) => s.layoutParams.shape);
+  const setLayoutShape = useAppStore((s) => s.setLayoutShape);
+  return (
+    <Segmented
+      size="sm"
+      tight
+      name="shape"
+      value={shape}
+      onChange={(next: LayoutShape) => void setLayoutShape(next)}
+      options={shapeButtons().map((button) => ({
+        value: button.value,
+        label: t(button.labelKey),
+        title: t(button.titleKey),
+        ariaLabel: t(button.titleKey),
+      }))}
+    />
+  );
+}
 
 function useFullscreen() {
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -184,7 +216,9 @@ export function TopBar() {
   // 360px phone, in both languages, with room for Share: tighter padding and
   // gaps, nothing taken away (round 94, D23; tests/topBar.test.ts).
   return (
-    <header className="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-line bg-surface px-3 md:gap-4 md:px-6">
+    <header className="shrink-0 border-b border-line bg-surface">
+      {/* 55px and the border under the header: the bar is the 56px it always was. */}
+      <div className="flex h-[55px] items-center justify-between gap-2 px-3 md:gap-4 md:px-6">
       <div className="flex min-w-0 items-center gap-3 md:gap-5">
         {/* The title gives way first. On a narrow phone the header has to hold
             the package switch and the quote, and both of those are controls —
@@ -220,7 +254,13 @@ export function TopBar() {
             })}
           />
         </div>
-        <span className="tracking-label hidden shrink-0 rounded-full border border-line px-2.5 py-1 text-[9px] text-ink-muted lg:inline-block">
+        {/* The shapes, beside the packages where the bar has room for them. */}
+        <div data-shape-row="first" className="hidden shrink-0 lg:block">
+          <ShapeButtons />
+        </div>
+        {/* From 1280px since U-2: between 1024 and 1280 the bar has room for
+            the shape buttons or the tagline, not both (measured, English). */}
+        <span className="tracking-label hidden shrink-0 rounded-full border border-line px-2.5 py-1 text-[9px] text-ink-muted xl:inline-block">
           {t("app.tagline")}
         </span>
       </div>
@@ -295,6 +335,12 @@ export function TopBar() {
             />
           </svg>
         </button>
+      </div>
+      </div>
+      {/* Where it has not, a second row under the bar with the shapes alone
+          (Leo: 「手机顶栏放不下就放第二行」). */}
+      <div data-shape-row="second" className="flex h-10 items-center justify-center border-t border-line lg:hidden">
+        <ShapeButtons />
       </div>
     </header>
   );

@@ -1,7 +1,6 @@
 import { PARAM_LIMITS, feasibleRange, narrowCounterLeg, wallRequirement, type LayoutParams } from "../data/room";
-import { LAYOUT_SHAPES } from "../data/layoutShape";
 import { paramLimitsFor } from "../data/layoutTemplate";
-import { showsControl, type LayoutControl } from "./shapeControls";
+import { showsControl, sideWallLabelKey, sideWallLimits, type LayoutControl } from "./shapeControls";
 import { useT } from "../i18n/useT";
 import { useAppStore } from "../store/useAppStore";
 import { selectionOf, useActivePackage, useSelectedAppliance } from "../store/useSelection";
@@ -149,11 +148,21 @@ export function LayoutControls() {
   const hasHousing = !!hood && hoodMount(hood) === "insert";
   const issues = useAppStore((s) => s.layoutIssues);
   const setLayout = useAppStore((s) => s.setLayout);
-  const setLayoutShape = useAppStore((s) => s.setLayoutShape);
   // What the shape shows (round 98b-2): one wall hides what it has not got
   // and what it decides itself (`shapeControls.ts`).
   const on = (control: LayoutControl) => showsControl(params.shape, control);
   const limits = paramLimitsFor(params.shape);
+  // Whether the first section has anything to show in this shape (U-2).
+  const firstSectionShows =
+    on("fridgeEnd") ||
+    on("fridgeEndAbuts") ||
+    on("sinkLeg") ||
+    on("cornerType") ||
+    (hasHousing && on("housingStyle")) ||
+    (hasTower && on("towerSide")) ||
+    (hasCoffee && on("coffeeLeg")) ||
+    on("hasIsland") ||
+    issues.length > 0;
 
   // Probing the generator, so the greyed band and the room can never disagree:
   // again whenever the room is rebuilt, a model swapped included, in the
@@ -177,16 +186,11 @@ export function LayoutControls() {
     <>
       {/* What is where. These are the decisions a designer makes first and
           changes most, so they sit above the dimensions they are made in. */}
+      {/* The layout's shape is chosen in the top bar since U-2 (Leo,
+          2026-11-11: 「右边面板的形状开关拿掉，只留主界面那一排」). A shape with
+          nothing of this section to choose shows no empty heading. */}
+      {firstSectionShows && (
       <PanelSection title={t("panel.layout")}>
-        {/* The layout's shape, first: it decides which of the rest apply.
-            Round 98b-2. Switching it grows the wall where the package needs
-            it, says so and offers Undo (D18), and leaves the camera (D1). */}
-        <Choice
-          label={t("panel.layout.shape")}
-          value={params.shape}
-          onChange={(shape) => setLayoutShape(shape)}
-          options={LAYOUT_SHAPES.map((shape) => ({ value: shape, label: t(`panel.layout.shape.${shape}`) }))}
-        />
         {on("fridgeEnd") && (
           <Choice
             label={t("panel.layout.fridge")}
@@ -297,6 +301,7 @@ export function LayoutControls() {
           </ul>
         )}
       </PanelSection>
+      )}
 
       {/* And the dimensions those decisions are made in. The island's own are
           here rather than beside its switch: they are sizes, and they are
@@ -310,11 +315,13 @@ export function LayoutControls() {
           caption={<WallMinimum params={params} leg="back" />}
           onChange={(backWallIn) => setLayout({ backWallIn })}
         />
+        {/* In a U one slider for both side walls (Leo, 2026-11-11, U-2), to
+            the U's own top. */}
         {on("leftWallIn") && (
           <Slider
-            label={t("panel.room.leftWall")}
+            label={t(sideWallLabelKey(params.shape))}
             value={params.leftWallIn}
-            {...PARAM_LIMITS.leftWallIn}
+            {...(params.shape === "U" ? sideWallLimits(params.shape) : PARAM_LIMITS.leftWallIn)}
             feasible={feasible.leftWallIn}
             caption={<WallMinimum params={params} leg="left" />}
             onChange={(leftWallIn) => setLayout({ leftWallIn })}

@@ -30,13 +30,17 @@ const signature = (run: CabinetRun) =>
   run.segments.map((s) => s.slot ?? s.fixture ?? (s.modules[0]?.kind === ("pantry" as string) ? "pantry" : s.kind));
 const pkgOf = (code: string) => packages.PACKAGES.find((p) => p.code === code)!;
 
-/** The walls each package's U is built at, shortest (the plan's section 2). */
+/**
+ * The walls each package's U is built at, shortest (the plan's section 2).
+ * B's, D's and E's since the new order (Leo, 2026-11-11 and 2026-11-12; the oven
+ * tower on the cooking leg): 141", 177", 147" — they were 157-1/2", 207", 177".
+ */
 const WALLS: Record<string, { back: number; side: number }> = {
   A: { back: 132, side: 155.25 },
-  B: { back: 132, side: 157.5 },
+  B: { back: 132, side: 141 },
   C: { back: 132, side: 159.75 },
-  D: { back: 132, side: 207 },
-  E: { back: 132, side: 177 },
+  D: { back: 132, side: 177 },
+  E: { back: 132, side: 147 },
 };
 
 /** A package's U, generated at its own walls from the params it opens with. */
@@ -63,8 +67,10 @@ describe("U-1 (1): the U is a shape the generator builds", () => {
     expect(() => layoutShape.validateShape(spec)).not.toThrow();
   });
 
-  it("is not offered on the page's shape switch yet (U-2)", () => {
-    expect(layoutShape.LAYOUT_SHAPES).toEqual(["L", "one-wall"]);
+  // Until U-2 the U was built but not offered; U-2 (2026-11-11, Leo: 「照计划第 10 节
+  // 动手」) puts it on the switch, last (`uInterface.test.ts`, group 1).
+  it("is offered on the page's shape switch since U-2, after the L and one wall", () => {
+    expect(layoutShape.LAYOUT_SHAPES).toEqual(["L", "one-wall", "U"]);
   });
 
   for (const code of ["A", "B", "C", "D", "E"]) {
@@ -82,36 +88,13 @@ describe("U-1 (2): each package's three runs, segment by segment (the plan's sec
       left: { widths: [42, 12, 24, 0.75, 24, 15, 37.5], signature: ["corner", "counter", "slot-microwave", "counter", "slot-wine", "counter", "slot-fridge"] },
       right: { widths: [42, 21, 19.5, 36, 36, 0.75], signature: ["corner", "counter", "counter", "slot-range", "counter", "counter"] },
     },
-    B: {
-      // B names no order, and the L's rule (`columnsAlongRun`, `TALL_ORDER`) would
-      // stand the wine column first from the corner. Leo, 2026-11-11, after
-      // looking at U-1: 「左段从转角起 15" 台面 → 冰箱柱 → 酒柜柱，冰箱挨着台面」 —
-      // the U's own order, the refrigerator against its landing; B's L and one
-      // wall keep theirs (their dumps byte for byte the same).
-      left: { widths: [42, 15, 0.75, 36, 18, 0.75, 15, 30], signature: ["corner", "counter", "tall", "slot-fridge", "slot-wine", "tall", "pantry", "slot-microwave"] },
-      right: { widths: [42, 21, 21.75, 36, 36, 0.75], signature: ["corner", "counter", "counter", "slot-range", "counter", "counter"] },
-    },
     C: {
       left: { widths: [42, 12, 24, 0.75, 24, 15, 42], signature: ["corner", "counter", "slot-microwave", "counter", "slot-wine", "counter", "slot-fridge"] },
       right: { widths: [42, 24, 21, 30, 21, 21, 0.75], signature: ["corner", "counter", "counter", "slot-range", "counter", "counter", "counter"] },
     },
-    D: {
-      left: {
-        widths: [42, 15, 0.75, 24, 30, 24, 0.75, 0.75, 24, 0.75, 15, 30],
-        signature: ["corner", "counter", "tall", "slot-wine", "slot-fridge", "slot-freezer", "tall", "tall", "slot-coffee", "tall", "pantry", "slot-oven"],
-      },
-      right: {
-        widths: [42, 12, 24, 24, 26.25, 36, 21, 21, 0.75],
-        signature: ["corner", "counter", "slot-microwave", "counter", "counter", "slot-range", "counter", "counter", "counter"],
-      },
-    },
-    E: {
-      left: {
-        widths: [42, 15, 0.75, 30, 18, 0.75, 0.75, 24, 0.75, 15, 30],
-        signature: ["corner", "counter", "tall", "slot-fridge", "slot-freezer", "tall", "tall", "slot-coffee", "tall", "pantry", "slot-microwave"],
-      },
-      right: { widths: [42, 27, 26.25, 36, 24, 21, 0.75], signature: ["corner", "counter", "counter", "slot-cooktop", "counter", "counter", "counter"] },
-    },
+    // B, D and E: the new order since 2026-11-12 (the oven tower on the cooking
+    // leg, the pantry cabinet at the tall leg's open end), segment by segment in
+    // `uOrder.test.ts` (2). Their U-1 lists were here.
   };
   for (const code of Object.keys(PLAN)) {
     for (const leg of ["left", "right"] as const) {
@@ -238,10 +221,13 @@ describe("U-1 (7): where the island's machines go in a U", () => {
     expect(["slot-microwave", "slot-wine"].map((slot) => runs.left.segments.some((s) => s.slot === slot))).toEqual([true, true]);
   });
 
-  it("puts D's microwave drawer on the cooking leg, 12\" off the corner", () => {
+  // Leo, 2026-11-11: 「D 再改一处：微波抽屉放在灶和烤箱塔之间，不放在转角和灶之间」 (丙). It
+  // was 12" off the corner (U-1, Leo, 2026-11-11).
+  it("puts D's microwave drawer on the cooking leg between the cooking surface and the oven tower, 15\" past the cooking surface", () => {
     const runs = runsOf("D");
     const at = runs.right.segments.findIndex((s) => s.slot === "slot-microwave");
-    expect([at, IN(runs.right.segments[at - 1].to - runs.right.segments[at - 1].from)]).toEqual([2, 12]);
+    const seg = (i: number) => runs.right.segments[i];
+    expect([seg(at - 2).slot, IN(seg(at - 1).to - seg(at - 1).from), seg(at + 2).slot]).toEqual(["slot-range", 15, "slot-oven"]);
   });
 
   it("keeps them on the tall leg while it is 216\" or less, and moves them past that", () => {
@@ -251,18 +237,23 @@ describe("U-1 (7): where the island's machines go in a U", () => {
 });
 
 // --- 8 -----------------------------------------------------------------------
+// Since the new order (2026-11-12) the oven tower is on the cooking leg, at its
+// open end, and every column and the coffee tower on the tall leg: the two rules
+// hold by the legs (the columns' 1-3/16" from a heat source, Leo 2026-11-10;
+// TCM24PS p. 9). U-1 had them side by side on the tall leg, the pantry between.
 describe("U-1 (8): the oven tower never against a column, the coffee tower never against the oven", () => {
   for (const code of ["B", "D", "E"]) {
     it(`${code}`, () => {
-      const run = runsOf(code).left;
+      const runs = runsOf(code);
       const ovenSlot = code === "D" ? "slot-oven" : "slot-microwave";
-      const oven = run.segments.findIndex((s) => s.slot === ovenSlot);
-      const columns = ["slot-fridge", "slot-freezer", "slot-wine"];
-      const near = (i: number) => [run.segments[i - 1], run.segments[i + 1]].filter(Boolean) as RunSegment[];
+      const right = runs.right.segments;
+      const oven = right.findIndex((s) => s.slot === ovenSlot);
+      const cold = ["slot-fridge", "slot-freezer", "slot-wine", "slot-coffee"];
       expect({
-        besideOven: near(oven).map((s) => s.slot ?? (s.modules[0]?.kind as string)),
-        columnTouchesOven: near(oven).some((s) => columns.includes(s.slot ?? "")),
-      }).toEqual({ besideOven: ["pantry"], columnTouchesOven: false });
+        ovenAtTheOpenEnd: oven === right.length - 1,
+        besideOven: (right[oven - 1] as RunSegment).kind,
+        coldOnTheCookingLeg: right.filter((s) => cold.includes(s.slot ?? "")).map((s) => s.slot),
+      }).toEqual({ ovenAtTheOpenEnd: true, besideOven: "counter", coldOnTheCookingLeg: [] });
     });
   }
 });
@@ -272,10 +263,11 @@ describe("U-1 (9): the stone — three slabs seamed at the back leg's ends, none
   const STONE: Record<string, number[]> = {
     // left, back, right pieces, in inches along each run (the plan's section 2)
     A: [117.75, 82, 82.5, 37.75],
-    B: [57, 82, 42, 116.5],
+    // B, D, E since the new order (2026-11-12): worked out again by the same rule.
+    B: [70.5, 82, 111],
     C: [117.75, 82, 87, 43.75],
-    D: [57, 82, 102, 106],
-    E: [57, 82, 69, 109],
+    D: [57, 82, 42, 105],
+    E: [57, 82, 117],
   };
   const lengths = (code: string) => {
     const result = generated(code);

@@ -1,0 +1,20 @@
+changed 19 of 105
+A-one-wall-slot-microwave | + appliance-body-slot-wine 
+B-L-slot-wine | + fridge, fridge-panel-door-left, fridge-panel-drawer-freezer 
+B-one-wall-slot-fridge | + wine-column 
+B-U-slot-fridge | + wine-column 
+C-one-wall-slot-microwave | + appliance-body-slot-wine 
+D-L-slot-fridge | + fridge, fridge-panel-door 
+D-L-slot-wine | + fridge-panel-door, fridge-reveal-right 
+D-one-wall-slot-freezer | + fridge, fridge-panel-door 
+D-one-wall-slot-fridge | + wine-column 
+D-U-slot-freezer | + appliance-body-slot-dishwasher-2, coffee-display, coffee-machine 
+D-U-slot-fridge | + fridge, fridge-panel-door 
+D-U-slot-wine | + fridge-panel-door, fridge-reveal-right 
+E-L-slot-fridge | + fridge, fridge-panel-door 
+E-L-slot-microwave | + appliance-body-slot-wine-2, coffee-display, coffee-machine 
+E-one-wall-slot-freezer | + fridge, fridge-panel-door 
+E-one-wall-slot-coffee | + fridge, fridge-panel-door 
+E-one-wall-slot-wine-2 | + fridge, fridge-panel-door 
+E-U-slot-freezer | + appliance-body-slot-wine-2, coffee-display, coffee-machine 
+E-U-slot-fridge | + fridge, fridge-panel-door 

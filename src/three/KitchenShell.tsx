@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { HOOD_OPENING, ROOM, RUN_BY_ID, WINDOWS, ft, fridgeReturnWall } from "../data/room";
+import { HOOD_OPENING, ROOM, RUN_BY_ID, WINDOWS, floorLineWalls, ft, fridgeReturnWall } from "../data/room";
+import { onAxis, otherAxis } from "../data/frame";
 import { useAppStore } from "../store/useAppStore";
 import { finish, floorColor, wallColor, type FinishToken } from "./materials";
 import { Surface } from "./Surface";
@@ -116,6 +117,9 @@ export function KitchenShell() {
 
       <ReturnWall colour={wall} opacity={wallOpacity} />
 
+      {/* The U's right wall, as a line on the floor (U-2). */}
+      <FloorLines colour={wall} />
+
       {/* left wall (-X), faces +X */}
       <mesh
         name="wall-left"
@@ -137,6 +141,34 @@ export function KitchenShell() {
 
       <WindowLayer />
     </group>
+  );
+}
+
+/**
+ * A wall that would stand between the default view and the cabinets, drawn as
+ * a line on the floor where it is (U-2; Leo, 2026-11-10: 「挡视线的墙只画地面墙
+ * 线」): the U's right wall, `floorLineWalls`. In the wall's own colour, 1"
+ * wide, just outside the room line, the same in every mode.
+ */
+function FloorLines({ colour }: { colour: string }) {
+  const layoutVersion = useAppStore((s) => s.layoutVersion);
+  const lines = useMemo(() => floorLineWalls(), [layoutVersion]);
+  return (
+    <>
+      {lines.map((line) => {
+        const along = otherAxis(line.axis);
+        const width = ft(line.widthIn);
+        const lift = ft(1 / 8);
+        const position = onAxis(along, (line.from + line.to) / 2, line.at + (line.outward * width) / 2, lift / 2);
+        const size = onAxis(along, line.to - line.from, width, lift);
+        return (
+          <mesh key={line.wall} name={`floor-line-${line.wall}`} position={position} receiveShadow>
+            <boxGeometry args={size} />
+            <meshStandardMaterial color={colour} roughness={0.95} metalness={0} />
+          </mesh>
+        );
+      })}
+    </>
   );
 }
 

@@ -6,17 +6,25 @@ exist to stop a behaviour creeping back in.
 
 ---
 
-## D1 · The camera moves for three reasons, and no others
+## D1 · The camera moves for five reasons, and no others
 
 **Decided:** 2026-09-05 (round 2), extended round 3 and M3-2.
 
 The camera pose is user state. Nothing may move it as a side effect of an
-unrelated change. Exactly three behaviours are allowed to move it, or to change
-what it shows, on their own:
+unrelated change. Exactly five behaviours are allowed to move it, or to change
+what it shows, on their own (the fourth since U-2, the fifth since 2026-11-12, below):
 
 1. **Direct navigation.** Selecting an appliance flies the camera in; the reset
    button returns it to the default isometric view; the zoom buttons step the
    orthographic zoom. All are the direct result of the user asking to move.
+
+   *Amended 2026-11-12, Leo: 「放大、缩小按钮把镜头转回 45°/35°：这一轮修，三种形状一起，
+   缩放时保持当前的角度」.* A zoom step keeps the angle and the centre the camera
+   has. It had stepped the zoom through the fly-in's tween without the camera's
+   own angle, so the tween's default, the L's 45°/35°, turned the camera round
+   to it — after any fly-in in every shape, and from a U's own view
+   (`docs/plans/u-order-2026-11-11/zoomCheck.mjs`, the live `bdeedb5` as well).
+   `tests/cameraKeep.test.ts` holds it, by the mouse and a finger.
 2. **The mobile sheet framing offset.** While the half-height sheet is open the
    framing shifts up by 12% of the viewport height, easing over 300ms, and
    returns when the sheet closes. Implemented as a pan — target and position
@@ -52,6 +60,32 @@ what it shows, on their own:
    run's fillers either side of a range narrower than its opening, and the
    stone over them, are not on its sight line — they stand where its own
    strips stood (D16, round 84, `inOwnFillers`).
+
+4. **Switching the shape into a U.** *Added 2026-11-11 (U-2), Leo: 「切到 U 时镜头
+   自动转到正前方。这给 D1 加第四种原因"切换形状"」.* Arriving in a U from an L or
+   one wall — by the shape buttons, or by an Undo that puts a U back — turns the
+   camera to the U's default view (straight in front, 50° down: Leo, 2026-11-12,
+   「U 的默认视角定：正前方，往下 50°」, by his rule that the default view shows every
+   machine's label, seen and clickable, and a machine's front is seen by flying to
+   it; `tests/uLabels.test.ts` holds every label in view in all five packages. It
+   overturns that night's 「往左 45°、往下 25°」, which hid most labels — turned left,
+   the left leg's machines face away; of the 48 ways counted, only straight in front
+   at 50° to 60° showed every label. Before that, straight in front at 45° down,
+   Leo, 2026-11-11), as the reset button does, and closes what was selected. Switching
+   to an L or to one wall moves nothing, as before U-2 (Leo asked for that to be
+   listed, not changed): the camera stays where it is, even at the U's front
+   view, until the reset button takes it to that shape's own default (45° round,
+   35° down). `src/store/uInterface.test.ts` holds both.
+
+5. **Another model chosen for the machine on screen.** *Added 2026-11-12, Leo
+   (2026-11-11): 「换了型号以后镜头放远：照原型的做法（角度和中心不动，远近回到看得见整个
+   厨房，卡片不关）。L 型、一字型、U 型一起做，规则只写一处；给 D1 加第五种原因"换了型号"」.*
+   With a machine selected, its model changed — on the card, or by anything
+   else that changes it while the card is open — the camera keeps its angle and
+   its centre and its zoom goes back to the one that frames the whole room; the
+   card stays open, so the next model can be tried. In one place,
+   `CameraRig.tsx`, keyed on the selected machine's model. `tests/cameraKeep.test.ts`
+   holds it, by the mouse and a finger, in the L, one wall and the U.
 
 *Amended 2026-10-12 (round 94), Leo: a page opened from a share link starts
 at the default view, and that is the page loading — not a fourth reason for
@@ -12415,6 +12449,9 @@ Registered, not scheduled. None of these is a round of its own.
     6. 转角先照 L 型的转角规矩，开放端 3/4" 侧板、台面出 1"，高柜靠墙 3" 整高填充板。
   - **Leo's answers to the plan's first draft, 2026-11-10** (`docs/plans/u-shape-plan.md`;
     his words copied as he wrote them):
+    - *(Void since 2026-11-11: this correction was made by the reviewer of the report from an
+      old suggestion, not by Leo, and the first draft's reading was right — see "Leo's new
+      order for the U, 2026-11-11" below.)*
     - **A correction — the oven tower is on the tall run**: 「烤箱塔放在高柜排，不放操作排。
       我同意的原话是"左墙冰箱和烤箱塔，右墙炉头"。"烤箱塔和灶之间台面至少 9""的意思是"如果挨着
       至少 9""，不是要它们挨着。所以：高柜排：冰箱、柱子、烤箱塔、咖啡塔，都在这一排；操作排：
@@ -12642,6 +12679,497 @@ Registered, not scheduled. None of these is a round of its own.
       exit 0, 178 files, 3,845 passed and 1 todo; on mains power, screen-off, sleep and
       hibernate "never", read before each run; in the System log no event 42, 506, 507, 107,
       187, 566 or 1 in that window.
+    - **Shipped: `bdeedb5`** (2026-11-11). CI's commands on the tree as committed: `npm ci`
+      12:07:34-12:07:42, `npm run test:unit` 12:07:42-12:08:22 (136 files, 3,458 passed, 1
+      todo), `npm run build` 12:08:22-12:08:40, each exit 0. Pushed 12:09:01-12:09:05. Pages
+      run 43093785685: build 20:09:11-20:10:18 UTC and deploy 20:10:23-20:10:32 UTC, each a
+      success. Built at `bdeedb5`, the tree clean, with the counter's address, and compared
+      with the live site file by file: **twenty of twenty the same byte for byte**, each 200,
+      `last-modified` Wed, 11 Nov 2026 20:10:27 GMT, `cache-control: max-age=600`; the
+      JavaScript, CSS, `index.html` and the two licences gzip, the twelve fonts `font/woff2`
+      with no encoding; the live main chunk **`assets/index-D2-pKYDP.js`** (717,512 bytes),
+      `index.html` 579, `index-DsMIaSu3.css` 37,823, `react-i_nGBwMY.js` 145,992,
+      `shareQr-BXYgausd.js` 21,968, `three-C6wp6xxT.js` 704,119.
+    - **Leo on the fix outside his four items, 2026-11-11**: 「储物高柜算作可装插座的柜子，这个修法
+      同意，问题也确实该修。但它在我那四件事之外，没给我看就一起提交了。以后范围外的改动，哪怕是修
+      bug，先停下来报给我，等我说了再并进来。E 的 L 型 32 个房间烤箱塔插座消失那条，保持登记，等 U 型做完
+      和"贴转角"那条一起修。」
+  - **Leo's answers to the U-2 plan, 2026-11-11** (`docs/plans/u2-plan.md`, section 9; his words):
+    1. 「左右墙一根滑杆管两面，叫"左右墙长度 / Side walls"：同意。」
+    2. 「U 的默认视角从正前方看：同意。」
+    3. 「第 8 节的词：8.1 三个未审的和 8.2 六条草稿都同意，照写。」
+    4. 「D 的微波抽屉挪到右段：加一句提示，句式照 E 那句，例如"U 型：不配岛台；微波抽屉改到右段台面下。"
+       中英文你写出来，放进第 8 节，预览时我看。」 (Section 8.2, item 7.)
+    5. 「右段吊柜和油烟机悬空：先照画，预览里我看了再定。」
+    - 「照计划第 10 节动手，做完起本地预览，报主文件名，等我看。不提交。全套测试要跑 90 分钟左右，开跑前
+      告诉我预计的结束时间；我傍晚 18:00 前后可能让电脑睡眠，赶不上就停在全套测试之前等我。」
+  - **Leo's two more items for U-2, 2026-11-11** (his words, copied as he wrote them): 「我想把厨房的layout
+    的几个形状都像套仓那样在主界面显示出来，而且转换的时候，有时候出现墙身过长或者过短，可以让用户成功转换，自动调整
+    好墙身长度，只是提示做好说明就好」. And, with them: 「先改计划给我看，不动手」:
+    - 「A. 形状开关放到主界面，像套餐 A–E 那样一排按钮（L 型、一字型、U 型）。出两种摆法：桌面和手机各一张示意或
+      截图。我的倾向是顶栏、紧挨套餐按钮；手机顶栏放不下就放第二行。右边"布局"面板里现有的形状开关留不留，你提
+      建议。标签、桌面模型卡、图钉有没有被新按钮挡住，像素证明里列出来。」
+    - 「B. 切换形状永远成功，墙自动调整，用提示说明。先查现状，列全：L 型、一字型、U 型两两互换共 6 个方向 × 五个
+      套餐，墙太短、墙太长、放不下东西各会发生什么（成功并加长、成功但省掉东西、拒绝、没反应），现在弹什么提示。和
+      D18（切换不因为墙不够而拒绝）对一遍，哪些已经做到，哪些没有。再提方案：墙太短时加长到放得下；墙太长时怎么办
+      （我的倾向：调到新形状的默认长度，提示里写"从多少改到多少"；另一种是只在放不下时才调）。两种各写清楚，我来
+      定。提示的中英文草稿列进第 8 节。退回（Undo）要能回到切换前的形状和墙长。」
+    - 「改好的 U-2 计划给我看。全套测试要跑 90 分钟左右，动手以后开跑前告诉我预计的结束时间；我傍晚 18:00 前后可能
+      让电脑睡眠，赶不上就停在全套测试之前等我。」
+    - *(This came while U-2 was being built to the plan's section 10, 12:26 to 12:37: the plan's
+      sections 1-7 written, `src/store/uInterface.test.ts` red first on `bdeedb5` (22 of 27, the 5
+      link round trips green as guards) and green after; the unit suite and the build exit 0.
+      Stopped there, not committed, for the plan to be revised first.)*
+  - **Leo's answers to the U-2 plan's second draft, 2026-11-11** (`docs/plans/u2-plan.md`, section
+    10; his words, copied as he wrote them):
+    1. 「右边面板的形状开关拿掉，只留主界面那一排。」
+    2. 「切到 U 时镜头自动转到正前方。这给 D1 加第四种原因"切换形状"，decisions.md 里照这个修订 D1，写明是
+       Leo 2026-11-11 定的；切到 L 型、一字型时镜头怎么办，照现在的做法，列出来给我看。」 (D1, item 4.)
+    3. 「墙太长时照乙：放得下就不动，放不下或超过上限才调。」
+    4. 「新词同意：按钮「L 型 / 一字型 / U 型」，统一提示两句，"退回{形状}"。」
+    5. 「用统一提示代替 toast.shapeGrew 和 toast.shapeGrew.U：同意。」
+    6. 「右边面板平面小图里 U 的右墙画成实线：这一轮一起改。」
+    - 「再加一条：A、C 切到 U 时不要省掉微波抽屉和小酒柜，改成把墙加长、东西都留着，提示里写"从多少加到多少"。
+      只有加长会超过墙长上限时才省掉东西，提示里写明省了什么。其他套餐、其他方向有同样"省东西而不加长"的，一并
+      照这个改，列出来。」
+    - 「改计划里受影响的几节，然后照第 10 节之后的做法动手：测试先红后绿；L 型、一字型的底稿逐字节相同；桌面 45
+      个状态的 3D 画面逐像素相同；手机因为多一行按钮画面变矮，逐个状态列出标签、图钉、弹出卡在不在画面里、有没有
+      被挡；真鼠标、真手指切 L → U → 一字型 → U → 退回，再换套餐；全套测试在最终代码上跑。做完起本地预览，报主
+      文件名，等我看。不提交。」
+    - 「全套测试开跑前告诉我预计结束时间；18:00 前跑不完就停在全套测试之前等我。」
+    - *How 乙 is read (the plan's section 2.2, as Leo chose it): a wall shorter than the new
+      shape wants for everything the package has (`oneWallWantedIn`, `uWantedIn`, D18) is
+      lengthened to that; a wall longer than the new shape's slider goes is cut to its top
+      (one wall 276", a U's back 264", its sides 216"); any other wall stays as it is.
+      Back to an L is still the L it left (round 98b). The shapes' words are 9.3's as Leo
+      agreed them: a wall that changed reads 「{wall}从 {fromIn} 改为 {toIn}」, lengthened or
+      cut. Where even the top of the slider leaves something out, one more line names it
+      (`toast.shapeOmitted`, a draft for Leo's look in the preview; no package reaches it
+      today).*
+    - *Found while building B, and changed with it as part of 「切换形状永远成功」 (reported
+      to Leo, the plan's section 2.4): a package changed on one wall keeps no L, and the
+      switch back to the L, built on one wall's walls — the last package's L's — refused
+      in 14 of 80 ways on `bdeedb5` (A's L, one wall, D, then the L: a 144" left wall D's L
+      cannot stand on). Now 乙: those walls where they do, else the package's own L walls
+      (the ordinary L's 168"/144" for A and C, which name none); said wall by wall with
+      Undo. `src/store/uInterface.test.ts` group 15, red in those 14 first.*
+    - *Two things the top bar's buttons brought with them, for Leo's look (the plan's
+      section 1): the first row is 55px under the header's border, so the bar is the 56px
+      it was; the "Interactive kitchen explorer" tag shows from 1280px, not 1024px — at
+      1024px in English the bar holds the shape buttons or the tag, not both (11px short,
+      `docs/plans/u2-2026-11-11/topBarMeasure.mjs`). Below 1024px the shapes are on a
+      second row, the bar 96px.*
+  - **U-2 built to the plan's third draft, 2026-11-11, not committed** (Leo: 「做完起本地预览，报主
+    文件名，等我看。不提交」); proof:
+    - `src/store/uInterface.test.ts`'s new groups red on the code before them, 14:20 (95 red, 38
+      green: the earlier groups, and the switches where no wall changes), then 133 green; group 15
+      red in its 14 refusals with the L's fallback taken out, then green (173 in all).
+    - The unit suite, 15:31:16 to 15:31:55, exit 0: 137 files, 3,654 passed, 1 todo. The build
+      exit 0, `index-DNAwbbjt.js` (the bundle the pixel proof shot).
+    - The dumps against `bdeedb5` (a git worktree of it): the L's (39,751,376 bytes) and one wall's
+      (7,347,726) byte for byte the same; the U's different only in A's and C's 33 rooms, where
+      the checklist's line is `rule.uSpares` (the first draft's, passed by Leo) in place of the L's
+      `rule.noIslandFallback`.
+    - The switch probe (`docs/plans/u2-2026-11-11/shapeProbe.ts`), the same 110 switches as on
+      `bdeedb5`: 0 refused, 0 left anything out, 0 changed a wall unsaid; 94 said, each Undo back
+      to the shape and walls before; 16 changed no wall and said nothing. After a package switch
+      in another shape (80 ways): 0 refused, 0 left out, 0 unsaid.
+    - Pixels, `bdeedb5`'s build against the new, each shot twice, 14:38 to 15:14: the 3D view the
+      same to the pixel in all 35 desktop and link states; on the screen only the top bar
+      differs (x 329 to 886, y 11 to 43; one pixel at 144,225 differs between bdeedb5's own two
+      runs as well). The ten phone states and five desktop states by the box of every pin's
+      label and dot and the model card (`docs/plans/u2-2026-11-11/phoneLayout.mjs`): on both
+      builds every label and dot inside the 3D view, none under the bar, no label over another,
+      the card on screen and clear of the bar; the phone's view 96 + 748 where it was 56 + 788.
+    - Real input (`realInput.mjs`), the mouse at 1440 and a finger at 390, in Chinese and
+      English: L → U → one wall → U, Undo, package D, the L, one wall, Undo, U, one wall, the
+      view reset, Undo back into the U: no page error; into a U the view turned to 0°/45°, to an L
+      or one wall it stayed. The fourth switch, one wall to the U, changed no wall (one wall kept
+      the U's side walls), so it said nothing and offered no Undo — 乙 as agreed, put to Leo.
+    - Every machine of each package's U flown to (`uFlyIns.mjs`, 36), contact sheets
+      `u-flyins-ABC.png` and `u-flyins-DE.png`, for Leo to look at machine by machine.
+    - The full suite on that code, 15:32:32 to 17:12:52, exit 1: 179 files, 1 failed; 4,041
+      passed, 6 failed, 1 todo; no Kernel-Power event (42, 506, 507, 107, 187) in the system log
+      between. The six: `tests/fadeRebuild.test.ts`'s phone cases of a room rebuilt while
+      cabinets are faded, nothing faded before the rebuild. The test's finger went down at a
+      quarter of the 3D view's height, which on the phone's shorter view (the shape buttons'
+      row) is "05 Microwave drawer"'s pin label, and the drag turned nothing
+      (`docs/plans/u2-2026-11-11/fadeDragProbe.mjs`; on `bdeedb5` the same point is the 3D view
+      and the fourth drag fades five). The test now goes down on the 3D view itself, from that
+      point down 8px at a time: the file alone 17:15:09 to 17:26:56, exit 0, 24 of 24.
+    - Not run again whole: Leo, 2026-11-11: 「如果6pm没有办法完成，在前面一步停下来，让我回家之后
+      再重新启动测试」. The full suite on the final code waits for him.
+    - The full suite on the final code, started at Leo's word that evening (「开跑全套测试」),
+      19:00:04 to 20:26:55, exit 0: 179 files passed; 4,047 passed, 1 todo; 5,196 s. No
+      Kernel-Power, Power-Troubleshooter or Kernel-General power event (1, 42, 107, 187, 506,
+      507) in the system log between 19:00 and 20:27; on mains, sleep and screen-off at never.
+  - **Leo on the U-2 preview: the insert hood on the right leg, 2026-11-11** (his words, with a
+    screenshot of B's U): 「B，D套餐的insert hood形状不对」. In the U a board hung off the wall over a
+    thin strip of steel where VCIN36GWS's housing should be, its top an open frame. In U-2's
+    scope (the U's right leg), fixed this round; the L and one wall were checked and are right.
+    - The cause: `HoodCabinet` built the housing from the box's size on the room's axes, taking
+      `[x, y, z]` as width along the wall, height and depth. True of a run along x (the back
+      wall, where the L and one wall hang it); on the right leg, along z and facing −x, a 36"
+      housing 13" deep was drawn 13" wide and 36" deep. Every other hood on the right leg
+      (chimney, under-cabinet, over-the-range microwave) is drawn by `ApplianceModel`, turned
+      with its slot, and was right.
+    - The fix: `housingFrame` (`insertHood.ts`) reads the housing's width, height and depth as a
+      door is read (`doorFace`, D22) and the turn from `rotationOf`; `HoodCabinet` builds in that
+      frame and turns the group. On the back wall the turn is 0 and the sizes the same.
+    - `src/data/housingFrame.test.ts`: red on the code before the fix (13 of 14: the function
+      missing, and `HoodCabinet` reading `box.size`; the 14th, that the right leg's housing faces
+      −x, green on both), then 14 green.
+    - Looked at before and after (`docs/plans/u2-2026-11-11/hoodShots.mjs`, the mouse at 1440, the
+      page in Chinese): VCIN36GWS in B's and D's L, one wall and U, each housing style, and in E
+      on one wall picked on the card (`hood-liner-before.png`, `hood-liner-after.png`): only the
+      U's were wrong, and are right after; the chimney, the under-cabinet hood and the
+      over-the-range microwave on B's and D's right leg right before and after
+      (`hood-others-*.png`).
+    - The unit suite 22:36:45 to 22:37:22 exit 1, one failure in `scripts/previewServer.test.ts`
+      (the main-thread watch's timing: a stall written while the thread was free); that file
+      alone 6 of 6, and the suite again 22:37:49 to 22:38:27, exit 0: 138 files, 3,668 passed,
+      1 todo. The build exit 0, `index-BMkSfQdK.js`.
+    - The dumps on the fixed tree: the L's (39,751,376 bytes) and one wall's (7,347,726) byte for
+      byte `bdeedb5`'s; the U's (9,184,186) byte for byte U-2's before the fix (the fix draws, it
+      changes no figure).
+    - Pixels, the fixed build shot twice (22:38:34 to 22:56:29) against `bdeedb5`'s two runs of
+      the afternoon: as U-2's afternoon proof (the 3D view the same in all 35 desktop and link
+      states, the top bar the difference); against U-2's own build before the fix
+      (`index-DNAwbbjt.js`): all 45 states the same, 3D view and screen, but for the pixel at
+      144,225 in two states, which differs between two runs of one build as well.
+    - The browser tests that touch a housing (`hoodHousing`, `hoodKinds`, `defaultDoors`,
+      `sideStrips`), 23:11:44 to 23:16:36, exit 0: 4 files, 24 of 24. The U's 36 fly-ins shot
+      again on the fixed build, 23:17:14 to 23:19:52, no page error
+      (`u-flyins-ABC-hoodfix.png`, `u-flyins-DE-hoodfix.png`).
+    - Leo also asked for the backs of the left leg's tall units with the left wall not drawn,
+      a state of things, not changed: B's, D's and E's U from the left front and the right
+      front (`docs/plans/u2-2026-11-11/u-backs.png`); from the left front the machines' bodies
+      show through the backs of the tall units. His to decide whether the backs become one board.
+  - **Leo's new order for the U, 2026-11-11** (his words): 「B，D，E套仓的烤箱塔为什么不分布在
+    Rangetop或者cooktop那边去，让Rangetop和cooktop靠近水槽那边，烤箱塔在它们的右边，冰箱，wine
+    column在另外一遍」.
+    - The earlier entry "A correction — the oven tower is on the tall run" (the answers to the
+      plan's first draft, 2026-11-10) was the reviewer of the report correcting the plan from an
+      old suggestion; it was not Leo's way of doing it, and it is void. The first draft's
+      reading — the oven tower on the working leg, at the open end — was right.
+    - The order asked for (B, D, E; A and C have no oven tower and are unchanged): the right leg
+      from the corner, counter, the rangetop or cooktop at the sink's end, counter (at least 9"
+      between the oven tower and the cooking surface, 18" when the page orders it itself, D11
+      rule 12), the oven tower at the open end, the hood over the cooking surface; the left leg
+      the refrigerator, freezer and wine columns, and D's and E's coffee tower; the back leg as
+      it is, the sink and the dishwasher 12" off the corner.
+    - A new plan and drawings first, nothing built; U-2's changes held, not committed. The plan's
+      first draft, with a throwaway prototype (a git worktree of `bdeedb5` carrying U-2's
+      uncommitted changes, in the scratchpad): `docs/plans/u-order-plan.md` and
+      `docs/plans/u-order-2026-11-11/`. Found by the prototype: without the pantry cabinet the
+      coffee machine's three connection points (D, E) and one of B's wine column's drop out of
+      the list, since they are hosted in it; and the U's side wall counted only the right leg's
+      minimum, not its wants, so the 18" before an oven tower there needs that counted too.
+  - **Leo on seeing it in 3D early, 2026-11-11** (his words): 「有时候没有预览，没有办法看到问题，
+    下次看看怎样能早点看到预览3D草图，而不是文件描述，早点发现问题」. The way of working it sets is in
+    `docs/HANDOFF.md`, section 6, "3D before the plan is settled": a throwaway prototype in a
+    worktree or the scratchpad alongside the plan, real 3D screenshots of each package it
+    touches (the default view, from above, flown to the main machines; in Chinese) and a local
+    preview said to be a prototype; the proper round (tests, dumps, pixels, the full suite) only
+    after Leo has looked and confirmed; the prototype's code written again to the plan, or the
+    parts used named; no prototype for a round of rules, words or the test setup alone. The U's
+    new order is the first round done this way: B, D and E each the default view, from above,
+    flown to the cooking surface and to the oven tower, with the pantry cabinet kept and
+    without it.
+  - **Leo's answers to the new order's first draft and the prototype, 2026-11-11** (his words as
+    he wrote them; 「三件事看过了。」):
+    - 「一、油烟机罩柜的修法同意，留在 U-2 里一起提交。」
+    - 「二、新排法：1. B、E 的新排法同意：右段从转角起 15" 台面 → 灶 → 18" 台面 → 烤箱塔在开放端。
+      2. 储物高柜留着，放在左段开放端。3. D 再改一处：微波抽屉放在灶和烤箱塔之间，不放在转角和灶之
+      间。右段从转角起：15" 台面 → 灶 36" → 15" 台面 → 微波抽屉 24" → 烤箱塔。这样灶靠水槽那个角，
+      和 B、E 一样。"微波抽屉离灶至少 15""照旧。右段比左段短出来的部分怎么处理（加长台面放在哪一段），
+      你提建议。4. 接缝照规则（第一个柜子接缝），按新排法重算。5. U 的左右墙长度要把"想要的"18" 也
+      算进去：同意改。」
+    - 「D 再出一版原型：默认视角、俯视、飞近炉头、飞近烤箱塔四张，加按比例的俯视示意，起预览给我看。
+      B、E 不用重出。原型阶段不跑全套测试。」
+    - 「三、npx 下载到缓存里的 vite 8.3.8 删掉，写明删了哪个目录。以后起预览只用项目自己的 vite。」
+    - 「四、我看了两个预览，意见如下：U型默认视角太陡了，放平一点。另外我觉得每一个家电选择另外一个
+      选项替换之后，可以再重新放远」
+    - Done the same evening: `C:\Users\leoch\AppData\Local\npm-cache\_npx\9ed06546b0653f96` deleted
+      (created 23:22:54, `vite` 8.3.8 alone, 37 MB; the tarballs npm keeps in `_cacache` are
+      npm's own cache and were left). D's second prototype, a flatter U view (35°, 30°, 25°)
+      and the camera pulled back after a swap, in the plan's second draft
+      (`docs/plans/u-order-plan.md`, sections A to E).
+    - **Found while prototyping, not changed (outside the round; his rule of 2026-11-11):**
+      the + and − buttons turn the camera to the L's default 45°/35°, by the mouse on the live
+      `bdeedb5` as on U-2: A's L flown to the refrigerator (45°/26°) or the dishwasher
+      (55°/26°), then 放大, both 45°/35°; U-2's U at 0°/45°, then 放大, 45°/35°
+      (`docs/plans/u-order-2026-11-11/zoomCheck.mjs`). The zoom step runs the fly-in's tween
+      without the camera's own angle, so it takes the default one; D1 reason 1 says they
+      "step the orthographic zoom". And D's new order puts its rangetop 15" off the corner,
+      where the fly-in to it looks across the room through the left leg's coffee tower and
+      columns, which do not fade (`proto-D-cooking-blocked.png`).
+  - **Leo's answers to the plan's second draft and the prototype, 2026-11-11** (his words as he
+    wrote them; 「原型看过了。」):
+    - 「一、D 右段照丙：15" 台面 → 灶 → 15" 台面 → 微波抽屉 → 15" 台面 → 烤箱塔。」
+    - 「二、D 飞近炉头被左段的机器挡住：照第 2 种，挡在前面的机器也变半透明，和柜子同一条规矩。先做原型，
+      发新旧对比图给我看，再定。」
+    - 「三、E 和 D 同一条规矩：灶离转角 15"，多出来的墙长加在灶和烤箱塔之间（E 是 18" 变 24"）。写成一条
+      规则，B、D、E 都照它，不要每个套餐单独写。」
+    - 「四、U 的默认视角：我的选择写在最后。」 — 「U 的默认视角我选：往下25度，往右45度」.
+    - 「五、换了型号以后镜头放远：照原型的做法（角度和中心不动，远近回到看得见整个厨房，卡片不关）。L 型、
+      一字型、U 型一起做，规则只写一处；给 D1 加第五种原因"换了型号"，写明是 Leo 2026-11-11 定的。像素
+      证明里把换型号后的状态列为有意要变的。」
+    - 「六、放大、缩小按钮把镜头转回 45°/35°：这一轮修，三种形状一起，缩放时保持当前的角度。测试先在现在的
+      代码上变红。」
+    - 「第二条的原型我看过、确认以后，开始正规流程，不再用原型的代码直接并入：U-1 的生成器照新排法重做（B、
+      D、E 的右段、左段，储物高柜在左段开放端，左右墙长度算上"想要的"台面）；U 底稿、测试预期值、接点位置
+      跟着改，写明每处改了什么、为什么；U-2 的界面、油烟机罩柜的修复、上面第五、六条；证明：L 型和一字型的
+      底稿逐字节相同；像素证明写清哪些必须相同、哪些有意要变；真鼠标、真手指；全套测试在最终代码上跑，开跑前
+      告诉我预计结束时间。做完起本地预览，报主文件名，等我看。不提交。」
+    - The prototype of item 2 (`docs/plans/u-order-2026-11-11/fadeShots.mjs`, every machine of
+      every package in the L, one wall and the U flown to, 105, the card open, on the prototype
+      built with and without the rule): 19 change, every one a machine beside the selected one in
+      the same bank turned to glass, which is what D1's "clear in front" rule (round 55) was
+      written to stop; D's rangetop in the U the same either way. **A correction to the second
+      draft's section B**: the rangetop was not blocked. The picture had been taken with the card
+      closed, and closing the card ends the selection and the fade; with it open the fade
+      already turns the coffee tower's cabinetry to glass and the rangetop shows through. Put to
+      Leo: keep the rule as it is. His chosen U view (45° right, 25° down) shot for all five
+      packages (`proto-view-45-25.png`): from front right the right leg is nearest the camera
+      and shows its back, the right wall not being drawn.
+  - **Leo's answers to the fade prototype and the U's view, 2026-11-12** (his words as he wrote
+    them; 「原型和对比看过了。」):
+    - 「1. 挡在前面的机器：留现在的规矩，不改。上一轮"第 2 种"作废，decisions.md 里写明原因（卡片开着时
+      本来就看得见；新规矩多出 19 处相邻机器变透明）。」 **So item 2 of 2026-11-11 ("挡在前面的机器也变
+      半透明，和柜子同一条规矩") is void**: with the card open, as it is in use, the fade already
+      turned the coffee tower's cabinetry to glass and D's rangetop showed through it — the
+      "blocked" picture had been taken with the card closed; and the same rule for machines
+      turned a neighbour in the same bank to glass in 19 of the 105 fly-ins, which D1's "clear in
+      front" rule (round 55) exists to stop. D1 reason 3 stays as it is.
+    - 「2. U 的默认视角再比一次再定：五个套餐，往下都是 25°，方向三种——往右 45°、往左 45°、正前方——并排拍
+      （原型，卡片关着的默认画面），每种再配一张"左段或右段背面画成整块板"的版本，让我看哪一种能看到灶、
+      油烟机、烤箱塔的正面。起预览，链接里能切这三种方向。」 His choice of 45° right, 25° down is
+      held until he has compared them.
+    - 「3. 以后拍飞近的图，一律卡片开着拍（正常使用的样子），HANDOFF 第 6 节里加上这一条。」 (Done:
+      HANDOFF section 6, "3D before the plan is settled", point 5.)
+    - 「第 2 条我选定以后，就照上一条回复里列的正规流程开始。」
+    - The comparison for item 2 (the prototype, `index-B1tlgQ-w.js`; `protoAz=45|-45|0`,
+      `protoPitch=25`, `protoBoard=1` in the link): each package's U at 25° down from the right,
+      the left and in front, each as it is and with the back of the left and right legs closed by
+      one board in the door finish, 3/4" against the leg's outer face, floor to its tallest box,
+      back wall to open end (`docs/plans/u-order-2026-11-11/view-compare-A.png` to `-E.png`).
+      From the left the cooking leg faces the camera, its cooking surface, hood and oven tower
+      seen from the front, and the left leg's back is what shows nearest; from the right the
+      columns face it and the cooking leg's back is nearest; from in front both legs show their
+      ends.
+  - **Leo's choice of the U's view, and the round to build, 2026-11-12** (his words as he wrote
+    them): 「三种方向看过了。U 的默认视角定：往左 45°、往下 25°；不画墙的那一侧，柜子背面画成一整块板（柜门
+    颜色，3/4" 厚，从地面到那段最高的柜顶，从后墙到开放端）。Leo 2026-11-12 定，写进 decisions.md；D1 里
+    "切换形状"那条写明 U 转到这个角度。」 And: 「我去睡了，电脑一直开着，今晚中间不用等我。不提交、不推送。
+    照正规流程把已经定的都做掉」 — seven items (the generator to the new order; U-2's interface and
+    "上次 7 件里已定的那几处字"; the hood housing; the view and the board; the camera pulled back
+    after a swap; the zoom buttons keeping the angle; the fade unchanged) and the proofs: new tests
+    red on the code before them, each old test changed with its reason, the L's and one wall's
+    dumps byte for byte `bdeedb5`'s, pixels with what must stay and what is meant to change, the
+    old build from `bdeedb5` itself, fly-ins with the card open, one page of the U's five
+    packages, real mouse and finger, the full suite with the power checks, every step's times and
+    exit code, failures as they happened. 「范围外发现的问题只登记、报给我，不改。」
+    - "上次 7 件里已定的那几处字": none of the seven points of U-2's report (2026-11-11 evening:
+      the notice when no wall changes, the tagline from 1280px, 「退回 {shape}」's space, 「改为」
+      or 「加到」, the `toast.shapeOmitted` draft, the 36 fly-ins, `toast.roomGrew.U`) has an answer
+      in this file or in Leo's messages of 2026-11-11 and 2026-11-12. The words stay as U-2
+      built them; put back to Leo.
+  - **The round built, the night of 2026-11-12, not committed** (on U-2's uncommitted tree; the
+    prototype's code not merged: written again to the plan; times are the machine's clock):
+    - **The tests first, red on the code before them.** `src/data/uOrder.test.ts`, 01:00:33 to
+      01:00:43 and again 01:01:01 to 01:01:11 after a corner's name was put right in the test
+      (`lazy-susan`): exit 1, 21 of 31 red, 10 green (A's and C's walls, the rule check in the
+      blind corner, the coffee machine's connections — guards). Two of its cases were then
+      corrected as tests, not as code: the rule check reads the room as built (applied first,
+      as U-1's group 5 does; it had read a stale island), and B's least wall is 129", the 6" a
+      slider dragged short builds before the oven tower, not 132". `src/data/backBoards.test.ts`
+      red by its module missing. `tests/cameraKeep.test.ts` on `index-BMkSfQdK.js` (U-2 with the
+      housing fixed), 01:02:06 to 01:03:18, exit 1, 8 of 8 red: the zoom swung 55°/26°, 45°/26°,
+      40°/28° and the U's 0°/45° to 45°/35°; after a swap the zoom stayed close.
+    - **The generator** (`uLegs`): B's, D's and E's cooking leg from the corner 15", the
+      cooking surface, B and E rule 12's counter (9" least, 18" wanted, and every spare inch
+      past it), D 15", its microwave drawer and a counter, the oven tower at the open end; the
+      tall leg the columns, D's and E's coffee tower, the pantry cabinet at its open end; one
+      rule, `U_SPARE_BEFORE_OVEN_TOWER`; the island's machines on the cooking leg wherever there
+      is an oven tower; `wallRequirement` the longer of the two legs' wants. A and C as they were.
+      The walls the U opens at: B 141" (was 157-1/2"), D 177" (207"), E 147" (177"); A 155-1/4"
+      and C 159-3/4" the same.
+    - **The view and the board**: `defaultView("U")` 45° to the left, 25° down; `legBackBoards`
+      and `BackBoards` (the U's left and right legs, none in an L or one wall).
+    - **The camera**: the zoom step at the angle and centre it has; another model on the card
+      pulls back to the whole room's zoom, the card open (D1, five reasons, amended above).
+    - **Green**: `uOrder.test.ts` 31 of 31; `backBoards.test.ts` with the orientation guard 28 of
+      28; `cameraKeep.test.ts` on `index-C0hkhp9l.js`, 01:07:11 to 01:08:24, exit 0, 8 of 8.
+    - **Old tests changed, each with its reason in the file**: `uShape.test.ts` — the walls B, D,
+      E; group 2's B, D and E lists moved to `uOrder.test.ts` (2); group 7, D's microwave drawer
+      between the cooking surface and the oven tower (丙; it was 12" off the corner); group 8, the
+      oven tower at the cooking leg's open end with counter beside it and nothing cold on that
+      leg (it was the pantry between it and the columns); group 9, B's, D's, E's stone.
+      `uInterface.test.ts` — group 3 and group 11 by package A (D's U, 177", is now shorter than
+      its L's 178-3/4" side, so its switch changes no wall and offers no Undo); D's U 177" where
+      a package switch grows the walls (was 207"); group 5, the U's view −45°/25°.
+    - **The unit suite** 01:08:43 to 01:09:25 exit 1 (20 failures, all the expectations above),
+      then after them 01:11:22 to 01:12:02, exit 0: 140 files, 3,699 passed, 1 todo. The build
+      01:06:51 to 01:07:06, exit 0, `index-C0hkhp9l.js`.
+    - **Dumps against `bdeedb5`**: the L's 01:12:43 to 01:12:49, exit 0, 39,751,376 bytes, and one
+      wall's 01:12:49 to 01:12:53, exit 0, 7,347,726 bytes, byte for byte the same (the first run
+      at 01:12:10 printed `date`'s exit code, not the dump's, so they were run again). The U's,
+      exit 0, against U-2's: A's 21 rooms and C's 14 the same; B's 27, D's 32 and E's 18 all
+      different (the new order). Its connection points: none dropped in any of the 112, none
+      without a cabinet; moved: the range's from the open end's cabinet to the counter cabinet
+      on its far side (23 rooms beside rule 12's counter, 26 beside D's drawer landing), B's and
+      E's oven tower's from the pantry to rule 12's counter (41), D's to the counter past its
+      drawer (29) and in one D room to rule 12's counter.
+    - **Pixels** (the old build from a git worktree of `bdeedb5`, shot twice the afternoon of
+      2026-11-11; the new, `index-C0hkhp9l.js`, twice, 01:13:31 to 01:30:29; compared 01:30:58,
+      exit 0). Must be the same: the 3D view in all 35 desktop and link states — the same, to the
+      pixel. Meant to change (U-2's): the top bar on every screen, and the phone's view, shorter
+      by the shape buttons' row, in all ten phone states. Against U-2's own shots from before
+      this round (01:31:22 to 01:31:43, exit 0): all 45 the same, screen and 3D view, but one
+      pixel at 144,225 in one state, which differs between two runs of one build as well. Meant
+      to change, shot on `bdeedb5` and on the new build (`intendedShots.mjs`, 01:31:49 to
+      01:33:28, exit 0 each): after a swap the zoom back to the whole room (A's L 75.4 to 44.4,
+      E's one wall 60.9 to 35.8, D's U 85 to 50; on `bdeedb5` it stayed), and a zoom step at the
+      angle it was (55°/26°, 45°/26°, −45°/25° kept; on `bdeedb5` 45°/35°).
+    - **The U's page** (`uPage.mjs`, 01:37:26 to 01:38:46, exit 0, the card open):
+      `docs/plans/u-order-2026-11-11/u-page.png`.
+    - **Found, put to Leo, not changed**: from the view he chose, the left leg stands between the
+      camera and its own machines' pins, and between the camera and the back leg's: the labels
+      hidden in the default view are A's and C's dishwasher, microwave drawer and wine cooler,
+      B's refrigerator, wine column and dishwasher, D's freezer, refrigerator, wine column,
+      rangetop, coffee machine and both dishwashers, E's freezer, refrigerator, coffee machine,
+      wine cooler and dishwasher (`pinCheck.mjs`); from U-2's view from in front every label
+      showed. The board adds only D's and E's dishwasher (the prototype with it off). Those
+      machines are reached by the list, or by turning the room.
+    - **Real input** (`realInput2.mjs`, 01:39:02 to 01:40:40, exit 0; the mouse at 1440, a finger
+      at 390, Chinese and English): A's L to the U (−45°/25°, 144" to 155-1/4", Undo offered), to
+      one wall, back to the U (no wall changed, no notice), package D, flown to the hood, another
+      hood (the zoom 73.5 to 43.2, the card open), zoom in and out (−45°/20° kept), reset view,
+      the L (no wall changed: no notice, no Undo); no page error in any of the four.
+    - **The full suite on the final code** (`npm test`, the build `index-C0hkhp9l.js`), the power
+      plan read before (Balanced; on mains — battery status 2 — sleep, screen-off and hibernate
+      at never), 01:41:06 to 03:11:30, exit 0: 183 files passed; 4,100 passed, 1 todo; 5,407 s.
+      No Kernel-Power, Power-Troubleshooter or Kernel-General power event (1, 42, 107, 187, 506,
+      507) in the system log between 01:40 and 03:13. The before-and-after of the states meant to
+      change: `docs/plans/u-order-2026-11-11/intended-old-new.png`.
+  - **Leo on the night's round, 2026-11-12** (his words as he wrote them; 「夜里这一轮看过了，先不提交。」):
+    - 「一、U 的默认视角要重选。往左 45° 把一多半标签挡住了，不行。新的规矩（Leo 2026-11-12）：默认画面里，
+      每台机器的标签都要看得见、点得到；在满足这一条的角度里，挑最能看到灶、油烟机、烤箱塔正面的。」
+      - 「1. 算一张表：方向 0°、往左 10°、15°、20°、30°、45°，俯角 25°、30°、35°、45°，五个套餐各数一遍——
+        看得见的标签几个、总共几个、哪几个被挡；灶、油烟机、烤箱塔的正面各看不看得到。带背板和不带背板各算
+        一遍。」
+      - 「2. 所有套餐标签全看得见的组合列出来，按"看到的机器正面多少"排序，前三名各拍五个套餐的默认画面，
+        起预览，链接里能切。我看了再定。」
+      - 「3. 默认视角还是那一处常量，我定了只改它；背板两边都留还是只留一边，到时候一起定。」
+    - 「二、上次报告里那 7 件字，照下面改：1. 墙没变时不弹提示，不给退回。2. 1024–1279 宽时英文小标签
+      让位：同意。3. 中文退回按钮：后面是英文字母时留空格（退回 L 型、退回 U 型），后面是中文时不留（退回
+      一字型）。4. 每面墙那一行保持「改为」，加长、缩短都用它。5. 「墙已到最长，放不下{item}，已省略。」
+      同意。6. U 里机器的飞近图：等默认视角定了，我在预览里逐台看。7. 在 U 里换套餐的提示：只列真正变了
+      的墙，没变的不提，句式和切换形状的提示统一。另外：提示第一行「已切换为U 型厨房」，"为"和"U"之间加一个
+      空格；其他中文里夹英文字母的地方照同样的规矩查一遍。」
+    - 「三、原型用的临时 worktree 可以拆掉，拆之前把还要用的原型图和脚本留在 docs/plans/ 里。」
+    - 「第二条改完，跑单元测试和受影响的浏览器测试；默认视角定了以后，再在最终代码上跑全套测试。」
+    - **So the rule for the U's default view** (D1, item 4) is now Leo's of 2026-11-12: every
+      machine's label seen and clickable in the default view; among the angles that keep it,
+      the one that shows most of the cooking surface's, the hood's and the oven tower's fronts.
+      −45°/25° stays in `defaultView` until he picks from the table.
+  - **Done the morning of 2026-11-12, paused at Leo's word (「我准备要上班，帮我把工作做好暂停的动作，让我回到公司
+    再继续」), not committed:**
+    - **二, the words.** One rule in `translate` (`src/i18n/index.ts`): in Chinese, a space where a
+      name put into a line meets the line with a Latin letter on one side and Chinese on the other;
+      the lines' own words untouched. 「退回{shape}」 and 「退回{package}」 written without the space,
+      so 「退回 L 型」, 「退回 U 型」, 「退回一字型」, 「退回套餐 A」 (Leo's own 「退回 {package}」 of round 98b-2
+      re-entered in `reviewed.json` with his rule 3). 「已切换为 U 型厨房」. A package switch in a U says
+      `toast.packageSwitched` (「已切换为{package}，墙长已调整：」 / "Switched to {package}; the walls
+      were adjusted:", new, in the shape switch's pattern, not yet read by Leo) and a line per wall
+      that changed (`packageSwitchLines`, `shapeSwitch.ts`); none changed, no notice, no Undo;
+      `toast.roomGrew.U` gone. Points 1, 2, 4, 5 needed no change (1 as U-2 built it, tested again
+      in `uInterface.test.ts` group 16). The L's and one wall's `toast.roomGrew` left as it is.
+      - Red first, 08:22:13 to 08:22:27, exit 1: 14 of 214 red (`cjkSpacing.test.ts` 6, group 16 4,
+        groups 3 and 13 3, `oneWallSwitch.test.ts` 1), the rest green as guards
+        (`docs/plans/u-view-2026-11-12/words-red.log`). Old tests changed, each with its reason in
+        the file: `uInterface.test.ts` groups 3, 7, 13; `oneWallSwitch.test.ts` 「退回套餐 A」.
+      - Green 08:23:33 to 08:23:44, exit 0, 574 of 574. Typecheck 08:23:49 to 08:24:02, exit 0. The
+        unit suite 08:24:06 to 08:24:51, exit 0: 141 files, 3,713 passed, 1 todo. The build
+        08:25:13 to 08:25:30, exit 0, `index-Dx-TG4dh.js`. The browser tests the notice touches
+        (`cameraKeep`, `fridgeFront`, `topBar`, `modelCard`, `rule12Note`) 08:25:34 to 08:35:03, exit
+        0, 46 of 46.
+      - The page read for Chinese against a letter (`zhSpacingSweep.mjs`, 195 states, every
+        package in every shape, each machine, the four tabs): no text node breaks the rule; the 174
+        hits reading an element's whole text were neighbours on separate lines or buttons (one
+        checked by eye: 「微波抽屉 · anti-tip」 over 「开口后壁」, a block). The rerun reading the text as
+        laid out (`innerText`) was stopped at the pause: **to run again**.
+    - **一, the view table** (`docs/plans/u-view-2026-11-12/`; the prototype `proto2`, a git
+      worktree of `bdeedb5` with the tree applied and `protoAz`/`protoPitch`/`protoBoard` in the
+      link, in the scratchpad, `dist-proto`): `viewTable.mjs`, `viewRank.mjs`, `view-table-desktop.json`
+      (Leo's 48 combinations × 5 packages, 08:28:51 to 08:37:11, exit 0, every view at its angle,
+      no page error), `view-table-extra.json` (0° and 2° left at 50°, 55°, 60°), `view-table-phone.json`,
+      `view-rank.txt`, `view-candidates.png`.
+      - **Of Leo's 48, none shows every label in all five packages.** The legs face each other:
+        turned left even 2°, the left leg's machines face away and their labels are hidden; at 0° and
+        35° or 45° every label shows in A to D, E's cooktop hidden behind the cooking leg's oven tower
+        at its open end. The board changes nothing here.
+      - 0° at 50°, 55° and 60° (outside his list) show every label in all five, desktop and phone,
+        board or none; but from in front the side legs are edge on: no cooking surface, hood or oven
+        tower front seen, E's cooktop's top under its hood. Those three shot for all five, with
+        today's −45°/25° beside them: `view-candidates.png`.
+      - **Left for Leo**: the rule and the fronts pull opposite ways in a U; his call which gives
+        (the three, or the rule changed). The preview of the prototype was not started yet.
+      - Later that morning, Leo: 「我用你上面给的角度的三个链接，但链接没能正确固定角度，然后就变回默认的
+        角度了」. Not reproduced: in the browser pane the three links opened at their angle and kept
+        it through the notice closed, reset view, a package and a shape switched; the likeliest
+        cause a link opened without its tail. So the prototype (`index-CnuZiTfN.js`, on 4180, a
+        temporary entry in `.claude/launch.json`) got a panel on the page: the three candidates
+        and today's view as buttons, the board on and off; a pick kept in the browser for a link
+        with no angle; this morning's words brought in. Checked by the real mouse
+        (`docs/plans/u-view-2026-11-12/switchCheck.mjs`, 11:28:15 to 11:28:46, exit 0): each button
+        to its angle, a link with no angle at the last pick, a package switch keeping it, the
+        board button; no page error.
+    - **三**: the old prototype worktree removed (its node_modules link taken off first); its code
+      kept as `docs/plans/u-order-2026-11-11/prototype-code.diff`; its sheets were already in
+      `docs/plans/u-order-2026-11-11/`. `proto2` stays until the view is chosen.
+  - **Leo's choice of the U's view, 2026-11-12** (his words as he wrote them): 「视角看过了。U 的默认视角
+    定：正前方，往下 50°（Leo 2026-11-12）。这推翻了前一晚"往左 45°、往下 25°"那条，decisions.md 里写明原因：
+    往左会把一多半标签挡住；48 种组合里只有正前方 50°–60° 能让五个套餐的标签全看得见；规矩是默认画面里每台
+    机器的标签都要看得见、点得到，机器的正面靠飞近去看。D1"切换形状"那条跟着改。」 「背板两边都留。」 And:
+    「1. 改 defaultView 那一处常量；受影响的测试预期值跟着改，写明原因。原型里那个切视角的小面板不进成品。
+    2. 加一条守门的测试：五个套餐的 U，默认画面里每台机器的标签都在画面里、没被挡住。以后谁改视角或排法把标签
+    挡住了，它会变红。先证明它能红（用往左 45° 试一次）。3. U 的一页图重拍（默认画面，加每台机器飞近，卡片开
+    着），给我逐台看。4. 拆掉 proto2 和 .claude/launch.json 里那条临时启动项。5. 在最终代码上跑全套测试，开跑
+    前告诉我预计结束时间；18:00 前跑不完就停在全套测试之前等我。6. 做完起本地预览，报主文件名，等我看。不提交。」
+    - **Why the night's choice is overturned** (D1, item 4): from the left, most labels were hidden
+      (the left leg's machines face away from the camera); of the 48 ways counted none showed every
+      label in all five packages; straight in front at 50° to 60° did; the rule is every label seen
+      and clickable in the default view, a machine's front seen by flying to it. Both boards stay.
+    - `defaultView("U")` is `{ azimuthDeg: 0, pitchDeg: 50 }`; the prototype's panel is not in it.
+      `src/data/uOrder.test.ts` group 8 and `src/store/uInterface.test.ts` group 5 changed with it,
+      each with its reason.
+    - **The guard**, `tests/uLabels.test.ts`: each package's U opened by a link at its walls, the
+      mouse at 1440 and a finger at 390, every pin label not hidden, on screen and the point at its
+      middle the label itself. Red on `index-Dx-TG4dh.js` (45° left, 25° down), 11:55:32 to 11:56:31,
+      exit 1, 10 of 10 (A, B, C three labels hidden each, D seven, E five, desktop and phone alike;
+      `docs/plans/u-view-2026-11-12/uLabels-red.log`).
+    - The unit suite 11:57:10 to 11:57:49, exit 0: 141 files, 3,713 passed, 1 todo. The build
+      11:57:49 to 11:58:07, exit 0, `index-Di6BnIIo.js`.
+    - Green on it: `uLabels.test.ts` with `cameraKeep.test.ts` (the browser test that opens a U),
+      11:58:14 to 12:00:23, exit 0, 18 of 18 (`uLabels-green.log`).
+    - The U's page again (`uPageFlyIns.mjs`, 11:59:17 to 12:02:21, exit 0, the mouse at 1440, the
+      page in Chinese): each package's default view and its 36 machines flown to by their labels,
+      every card open, no page error: `docs/plans/u-view-2026-11-12/u-page-0-50.png`.
+    - proto2 removed (its node_modules link taken off first, its own code kept as
+      `docs/plans/u-view-2026-11-12/prototype-code.diff`); `.claude/launch.json` back as it was.
+    - **The full suite on the final code** (`npm test`, `index-Di6BnIIo.js`), the power plan read
+      before (Balanced; on mains, battery status 2; sleep, screen-off and hibernate at never),
+      12:03:27 to 13:41:38, exit 1: 185 files, 1 failed; 4,123 passed, 1 failed, 1 todo; 5,872 s. No
+      power event (1, 42, 107, 187, 506, 507) in the system log between 12:03 and 13:42. The one:
+      `scripts/previewServer.test.ts`, the main-thread watch, two stalls written where one was held
+      (the second 473 ms, the machine busy with the suite) — the timing that failed once on
+      2026-11-11 as well, untouched by this round; the file alone 13:42:16 to 13:42:30, exit 0, 6 of
+      6. **Registered, not changed** (outside the round). Not a pass, so run again from 13:44.
+    - **The full suite again**, 13:42:42 to 15:22:41, exit 0: 185 files passed; 4,124 passed, 1 todo;
+      5,979 s. No power event in the system log between 13:42 and 15:23. The build it made and
+      tested, `index-Di6BnIIo.js`, is the one the local preview serves.
   - **U-0, built 2026-11-10/11, committed after Leo's look at the local preview**
     (`index-9MkgIPWJ.js`; Leo, 2026-11-11: 「U-0 看过了，预览确认」). What the plan's
     section 6 calls U-0, as far as it can be exercised with no U in `SHAPES`: each piece

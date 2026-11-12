@@ -28,10 +28,42 @@ export const isMachineTranslated = (lang: Lang) =>
 export function translate(lang: Lang, key: string, vars?: Record<string, string | number>): string {
   const raw = dictionaries[lang][key] ?? dictionaries.en[key] ?? key;
   if (!vars) return raw;
-  return raw.replace(/\{(\w+)\}/g, (match, name: string) =>
-    name in vars ? String(vars[name]) : match,
-  );
+  if (lang !== "zh") {
+    return raw.replace(/\{(\w+)\}/g, (match, name: string) =>
+      name in vars ? String(vars[name]) : match,
+    );
+  }
+  // Chinese: a space where a name put in meets the line with a Latin letter on
+  // one side and Chinese on the other (Leo, 2026-11-12: 「已切换为U 型厨房」，"为"和"U"
+  // 之间加一个空格；其他中文里夹英文字母的地方照同样的规矩查一遍」; and for Undo, 「后面是英文
+  // 字母时留空格（退回 L 型、退回 U 型），后面是中文时不留（退回一字型）」). Only at the seams: a
+  // line's own words are written to the rule already (cjkSpacing.test.ts holds
+  // them to it), and a name's own inside is the name's.
+  let said = "";
+  let last = 0;
+  let seam = false;
+  const add = (piece: string, isSeam: boolean) => {
+    if (piece === "") return;
+    if ((seam || isSeam) && said !== "" && needsSpace(said[said.length - 1], piece[0])) said += " ";
+    said += piece;
+    seam = isSeam;
+  };
+  for (const match of raw.matchAll(/\{(\w+)\}/g)) {
+    const name = match[1];
+    add(raw.slice(last, match.index), false);
+    if (name in vars) add(String(vars[name]), true);
+    else add(match[0], false);
+    last = match.index! + match[0].length;
+  }
+  add(raw.slice(last), false);
+  return said;
 }
+
+const HAN = /\p{Script=Han}/u;
+const LATIN = /[A-Za-z]/;
+/** Chinese on one side, a Latin letter on the other. */
+const needsSpace = (before: string, after: string) =>
+  (HAN.test(before) && LATIN.test(after)) || (LATIN.test(before) && HAN.test(after));
 
 type Vars = Record<string, string | number>;
 

@@ -1,0 +1,271 @@
+{
+ "A": {
+  "points": [
+   "slot-fridge:0 in left-fridge-landing-0",
+   "slot-fridge:1 in left-fridge-landing-0",
+   "slot-fridge:2 in slot-fridge-opening",
+   "slot-hood:0 in upper-right-hood",
+   "slot-dishwasher:0 in back-sink",
+   "slot-dishwasher:1 in back-sink",
+   "slot-dishwasher:2 in back-sink",
+   "slot-dishwasher:3 in back-sink",
+   "slot-microwave:0 in slot-microwave-opening",
+   "slot-microwave:1 in slot-microwave-opening",
+   "slot-wine:0 in left-fridge-landing-0"
+  ],
+  "walls": {
+   "backWallIn": 132,
+   "leftWallIn": 155.25
+  },
+  "sideWalls": {
+   "minIn": 106,
+   "maxIn": 216
+  },
+  "omitted": [],
+  "legs": {
+   "left": [
+    "corner 42\" [BBC42]",
+    "counter 12\" [B12]",
+    "microwave 24\" [RO24]",
+    "counter 0.75\" [PNL0.75]",
+    "wine 24\" [RO24]",
+    "counter 15\" [B15]",
+    "fridge 37.5\" [PNL0.75 T3696 PNL0.75]"
+   ],
+   "back": [
+    "counter 12\" [B12]",
+    "dishwasher 24\" [RO24]",
+    "fixture-sink 30\" [SB30]",
+    "counter 18\" [DB18]"
+   ],
+   "right": [
+    "corner 42\" [BBC42]",
+    "counter 21\" [DB21]",
+    "counter 19.5\" [DB18 BF1.5]",
+    "range 36\" [RO36]",
+    "counter 36\" [B36]",
+    "counter 0.75\" [BEP0.75]"
+   ]
+  },
+  "stone": [
+   117.75,
+   82,
+   82.5,
+   37.75
+  ]
+ },
+ "B": {
+  "points": [
+   "slot-fridge:0 in left-corner-landing-0",
+   "slot-fridge:1 in left-corner-landing-0",
+   "slot-fridge:2 in slot-fridge-opening",
+   "slot-range:0 in slot-range-below",
+   "slot-range:1 in right-tower-clearance-0",
+   "slot-hood:0 in slot-hood-opening",
+   "slot-hood:1 in upper-right-hood",
+   "slot-microwave:0 in right-tower-clearance-0",
+   "slot-wine:0 in left-pantry",
+   "slot-wine:1 in slot-wine-opening"
+  ],
+  "walls": {
+   "backWallIn": 132,
+   "leftWallIn": 141
+  },
+  "sideWalls": {
+   "minIn": 132,
+   "maxIn": 216
+  },
+  "omitted": [],
+  "legs": {
+   "left": [
+    "corner 42\" [BBC42]",
+    "counter 28.5\" [B27 BF1.5]",
+    "tall 0.75\" [PNL0.75]",
+    "fridge 36\" [T3696]",
+    "wine 18\" [T1896]",
+    "tall 0.75\" [PNL0.75]",
+    "tall 15\" [T1596]"
+   ],
+   "back": [
+    "counter 12\" [B12]",
+    "dishwasher 24\" [RO24]",
+    "fixture-sink 30\" [SB30]",
+    "counter 18\" [DB18]"
+   ],
+   "right": [
+    "corner 42\" [BBC42]",
+    "counter 15\" [B15]",
+    "range 36\" [B36]",
+    "counter 18\" [DB18]",
+    "microwave 30\" [T3096]"
+   ]
+  },
+  "stone": [
+   70.5,
+   82,
+   111
+  ]
+ },
+ "C": {
+  "points": [
+   "slot-microwave:0 in slot-microwave-opening",
+   "slot-microwave:1 in slot-microwave-opening",
+   "slot-wine:0 in left-fridge-landing-0"
+  ],
+  "walls": {
+   "backWallIn": 132,
+   "leftWallIn": 159.75
+  },
+  "sideWalls": {
+   "minIn": 100,
+   "maxIn": 216
+  },
+  "omitted": [],
+  "legs": {
+   "left": [
+    "corner 42\" [BBC42]",
+    "counter 12\" [B12]",
+    "microwave 24\" [RO24]",
+    "counter 0.75\" [PNL0.75]",
+    "wine 24\" [RO24]",
+    "counter 15\" [B15]",
+    "fridge 42\" [PNL3 RO36 PNL3]"
+   ],
+   "back": [
+    "counter 12\" [B12]",
+    "dishwasher 24\" [RO24]",
+    "fixture-sink 30\" [SB30]",
+    "counter 18\" [DB18]"
+   ],
+   "right": [
+    "corner 42\" [BBC42]",
+    "counter 24\" [B24]",
+    "counter 21\" [DB21]",
+    "range 30\" [RO30]",
+    "counter 21\" [DB21]",
+    "counter 21\" [DB21]",
+    "counter 0.75\" [BEP0.75]"
+   ]
+  },
+  "stone": [
+   117.75,
+   82,
+   87,
+   43.75
+  ]
+ },
+ "D": {
+  "points": [
+   "slot-range:0 in slot-range-below",
+   "slot-range:1 in right-tower-clearance-0",
+   "slot-hood:0 in slot-hood-opening",
+   "slot-hood:1 in upper-right-hood",
+   "slot-oven:0 in right-tower-clearance-0",
+   "slot-coffee:0 in left-pantry",
+   "slot-coffee:1 in left-pantry",
+   "slot-coffee:2 in left-pantry",
+   "slot-microwave:0 in slot-microwave-opening",
+   "slot-microwave:1 in slot-microwave-opening"
+  ],
+  "walls": {
+   "backWallIn": 132,
+   "leftWallIn": 177
+  },
+  "sideWalls": {
+   "minIn": 177,
+   "maxIn": 216
+  },
+  "omitted": [],
+  "legs": {
+   "left": [
+    "corner 42\" [BBC42]",
+    "counter 15\" [B15]",
+    "tall 0.75\" [PNL0.75]",
+    "wine 24\" [T2496]",
+    "fridge 30\" [T3096]",
+    "freezer 24\" [T2496]",
+    "tall 0.75\" [PNL0.75]",
+    "tall 0.75\" [PNL0.75]",
+    "coffee 24\" [T2496]",
+    "tall 0.75\" [PNL0.75]",
+    "tall 15\" [T1596]"
+   ],
+   "back": [
+    "counter 12\" [B12]",
+    "dishwasher 24\" [RO24]",
+    "fixture-sink 30\" [SB30]",
+    "counter 18\" [DB18]"
+   ],
+   "right": [
+    "corner 42\" [BBC42]",
+    "counter 12\" [B12]",
+    "microwave 24\" [RO24]",
+    "counter 15\" [B15]",
+    "range 36\" [B36]",
+    "counter 18\" [DB18]",
+    "oven 30\" [T3096]"
+   ]
+  },
+  "stone": [
+   57,
+   82,
+   42,
+   105
+  ]
+ },
+ "E": {
+  "points": [
+   "slot-microwave:0 in right-tower-clearance-0",
+   "slot-coffee:0 in left-pantry",
+   "slot-coffee:1 in left-pantry",
+   "slot-coffee:2 in left-pantry",
+   "slot-wine-2:0 in left-pantry",
+   "slot-dishwasher:0 in back-sink",
+   "slot-dishwasher:1 in back-sink",
+   "slot-dishwasher:2 in back-sink",
+   "slot-dishwasher:3 in back-sink",
+   "slot-cooktop:0 in slot-cooktop-opening"
+  ],
+  "walls": {
+   "backWallIn": 132,
+   "leftWallIn": 147
+  },
+  "sideWalls": {
+   "minIn": 147,
+   "maxIn": 216
+  },
+  "omitted": [],
+  "legs": {
+   "left": [
+    "corner 42\" [BBC42]",
+    "counter 15\" [B15]",
+    "tall 0.75\" [PNL0.75]",
+    "fridge 30\" [T3096]",
+    "freezer 18\" [T1896]",
+    "tall 0.75\" [PNL0.75]",
+    "tall 0.75\" [PNL0.75]",
+    "coffee 24\" [T2496]",
+    "tall 0.75\" [PNL0.75]",
+    "tall 15\" [T1596]"
+   ],
+   "back": [
+    "counter 12\" [B12]",
+    "dishwasher 24\" [RO24]",
+    "fixture-sink 30\" [SB30]",
+    "counter 18\" [DB18]"
+   ],
+   "right": [
+    "corner 42\" [BBC42]",
+    "counter 21\" [DB21]",
+    "cooktop 36\" [B36]",
+    "counter 18\" [DB18]",
+    "microwave 30\" [T3096]"
+   ]
+  },
+  "stone": [
+   57,
+   82,
+   117
+  ]
+ }
+}

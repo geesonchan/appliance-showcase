@@ -1,4 +1,7 @@
 import { ROOM, ft, type HousingStyle } from "./roomShell";
+import type { CabinetBox } from "./cabinets";
+import { doorFace } from "./doorFace";
+import { rotationOf } from "./frame";
 
 /**
  * The hood a joiner builds, with a manufacturer's liner in the underside of it.
@@ -118,6 +121,21 @@ export interface HoodCabinetParts {
   top: { w: number; d: number; z: number };
   /** The hole in the underside the liner hangs in, and the ledge round it. */
   opening: { w: number; d: number; ledge: number };
+}
+
+/**
+ * The housing's own frame: its width along the run, its height, its depth out
+ * from the wall, and the turn that faces it the way its box does.
+ *
+ * A box's size is on the room's axes, and the housing is built in its own: on
+ * the back wall the two agree, on a run along z they are the wrong way round
+ * (U-2; Leo, 2026-11-11: 「B，D套餐的insert hood形状不对」 — on the U's right leg a
+ * 36" housing had been drawn 13" wide and 36" deep). Read as a door is
+ * (`doorFace`, D22).
+ */
+export function housingFrame(box: CabinetBox): { w: number; h: number; d: number; rotationY: number } {
+  const face = doorFace(box);
+  return { w: face.width, h: face.height, d: face.depth, rotationY: rotationOf(face) };
 }
 
 /**

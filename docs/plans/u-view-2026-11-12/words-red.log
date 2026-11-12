@@ -1,0 +1,366 @@
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mC:/Users/leoch/Downloads/appliance-showcase[39m
+
+ [31m❯[39m src/i18n/cjkSpacing.test.ts [2m([22m[2m11 tests[22m[2m | [22m[31m6 failed[39m[2m)[22m[90m 17[2mms[22m[39m
+[31m   [31m×[31m a space between Chinese and a Latin letter (Leo, 2026-11-12)[2m > [22mputs one between 为 and U: 已切换为 U 型厨房[90m 8[2mms[22m[31m[39m
+[31m     → expected '已切换为U 型厨房，墙长已调整：' to be '已切换为 U 型厨房，墙长已调整：' // Object.is equality[39m
+[31m   [31m×[31m a space between Chinese and a Latin letter (Leo, 2026-11-12)[2m > [22msays 退回 L 型 and 退回 U 型 with the space, 退回一字型 without[90m 3[2mms[22m[31m[39m
+[31m     → expected [ '退回 L 型', '退回 U 型', '退回 一字型' ] to deeply equal [ '退回 L 型', '退回 U 型', '退回一字型' ][39m
+[31m   [31m×[31m a space between Chinese and a Latin letter (Leo, 2026-11-12)[2m > [22msays 退回套餐 A: the package's name begins in Chinese[90m 1[2mms[22m[31m[39m
+[31m     → expected '退回 套餐 A' to be '退回套餐 A' // Object.is equality[39m
+[31m   [31m×[31m a space between Chinese and a Latin letter (Leo, 2026-11-12)[2m > [22mputs one after a name that ends in a letter: 套餐 D 需要[90m 0[2mms[22m[31m[39m
+[31m     → expected '套餐 D需要更大的厨房，已把后墙加到 132″、左墙加到 178.8″。' to be '套餐 D 需要更大的厨房，已把后墙加到 132″、左墙加到 178.8″。' // Object.is equality[39m
+[31m   [31m×[31m a space between Chinese and a Latin letter (Leo, 2026-11-12)[2m > [22mputs one before a name that begins with a letter: 放不下 Drop in 炉灶片[90m 0[2mms[22m[31m[39m
+[31m     → expected '墙已到最长，放不下Drop in 炉灶片，已省略。' to be '墙已到最长，放不下 Drop in 炉灶片，已省略。' // Object.is equality[39m
+[31m   [31m×[31m a space between Chinese and a Latin letter (Leo, 2026-11-12)[2m > [22mkeeps it in every Chinese line with a name put in, a letter at either end of the name[90m 2[2mms[22m[31m[39m
+[31m     → expected [ …(26) ] to deeply equal [][39m
+ [31m❯[39m src/store/oneWallSwitch.test.ts [2m([22m[2m25 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[90m 130[2mms[22m[39m
+[31m   [31m×[31m what the switch says, and what Undo puts back (round 98b-2)[2m > [22msays 退回 the package a package switch came from, in Chinese[90m 11[2mms[22m[31m[39m
+[31m     → expected '退回 套餐 A' to be '退回套餐 A' // Object.is equality[39m
+ [31m❯[39m src/store/uInterface.test.ts [2m([22m[2m178 tests[22m[2m | [22m[31m7 failed[39m[2m)[22m[33m 2841[2mms[22m[39m
+[31m   [31m×[31m U-2 (3): switching to the U grows the walls, says so, and Undo goes back[2m > [22msays the side walls when a package switch in a U grows them[90m 16[2mms[22m[31m[39m
+[31m     → expected [ 'toast.roomGrew.U', 177 ] to deeply equal [ 'toast.packageSwitched', 177 ][39m
+[31m   [31m×[31m U-2 (13): the words of the switch, as Leo agreed them (9.3)[2m > [22mhas toast.undo.toShape in both languages[90m 2[2mms[22m[31m[39m
+[31m     → expected [ '退回 {shape}', 'Back to {shape}' ] to deeply equal [ '退回{shape}', 'Back to {shape}' ][39m
+[31m   [31m×[31m U-2 (13): the words of the switch, as Leo agreed them (9.3)[2m > [22mreads A's switch from its L to the U in full, in Chinese[90m 2[2mms[22m[31m[39m
+[31m     → expected [ [ '已切换为U 型厨房，墙长已调整：', …(1) ], …(1) ] to deeply equal [ [ '已切换为 U 型厨房，墙长已调整：', …(1) ], …(1) ][39m
+[31m   [31m×[31m U-2 (16): a package switch in a U says the walls that changed, as a shape switch does[2m > [22mnames only the side walls when only they grow: A's U to D's, the back wall at 132″ unsaid[90m 3[2mms[22m[31m[39m
+[31m     → expected [ 132, 'toast.roomGrew.U', …(4) ] to deeply equal [ 132, 'toast.packageSwitched', …(4) ][39m
+[31m   [31m×[31m U-2 (16): a package switch in a U says the walls that changed, as a shape switch does[2m > [22mreads it in full in Chinese: 已切换为套餐 D, the wall from and to, 退回套餐 A[90m 2[2mms[22m[31m[39m
+[31m     → Cannot read properties of undefined (reading 'map')[39m
+[31m   [31m×[31m U-2 (16): a package switch in a U says the walls that changed, as a shape switch does[2m > [22mhas the line in both languages, in the shape switch's pattern[90m 0[2mms[22m[31m[39m
+[31m     → expected [ 'toast.packageSwitched', …(1) ] to deeply equal [ '已切换为{package}，墙长已调整：', …(1) ][39m
+[31m   [31m×[31m U-2 (16): a package switch in a U says the walls that changed, as a shape switch does[2m > [22mno longer has toast.roomGrew.U[90m 0[2mms[22m[31m[39m
+[31m     → expected [ …(2) ] to deeply equal [ 'toast.roomGrew.U', …(1) ][39m
+
+[31m⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 14 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/i18n/cjkSpacing.test.ts[2m > [22ma space between Chinese and a Latin letter (Leo, 2026-11-12)[2m > [22mputs one between 为 and U: 已切换为 U 型厨房
+[31m[1mAssertionError[22m: expected '已切换为U 型厨房，墙长已调整：' to be '已切换为 U 型厨房，墙长已调整：' // Object.is equality[39m
+
+Expected: [32m"已切换为[7m [27mU 型厨房，墙长已调整："[39m
+Received: [31m"已切换为U 型厨房，墙长已调整："[39m
+
+[36m [2m❯[22m src/i18n/cjkSpacing.test.ts:[2m25:80[22m[39m
+    [90m 23| [39m[34mdescribe[39m([32m"a space between Chinese and a Latin letter (Leo, 2026-11-12)[39m…
+    [90m 24| [39m  [34mit[39m([32m"puts one between 为 and U: 已切换为 U 型厨房"[39m[33m,[39m () [33m=>[39m {
+    [90m 25| [39m    [34mexpect[39m([34mzhSay[39m([32m"toast.shapeSwitched"[39m[33m,[39m { shapeKey[33m:[39m [32m"panel.layout.shap[39m…
+    [90m   | [39m                                                                               [31m^[39m
+    [90m 26| [39m  })[33m;[39m
+    [90m 27| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/14]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/i18n/cjkSpacing.test.ts[2m > [22ma space between Chinese and a Latin letter (Leo, 2026-11-12)[2m > [22msays 退回 L 型 and 退回 U 型 with the space, 退回一字型 without
+[31m[1mAssertionError[22m: expected [ '退回 L 型', '退回 U 型', '退回 一字型' ] to deeply equal [ '退回 L 型', '退回 U 型', '退回一字型' ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  Array [[22m
+[2m    "退回 L 型",[22m
+[2m    "退回 U 型",[22m
+[32m-   "退回一字型",[39m
+[31m+   "退回 一字型",[39m
+[2m  ][22m
+
+[36m [2m❯[22m src/i18n/cjkSpacing.test.ts:[2m34:54[22m[39m
+    [90m 32| [39m  [34mit[39m([32m"says 退回 L 型 and 退回 U 型 with the space, 退回一字型 without"[39m…
+    [90m 33| [39m    [35mconst[39m back [33m=[39m (shape[33m:[39m string) [33m=>[39m [34mzhSay[39m([32m"toast.undo.toShape"[39m[33m,[39m { shap…
+    [90m 34| [39m    [34mexpect[39m([[34mback[39m([32m"L"[39m)[33m,[39m [34mback[39m([32m"U"[39m)[33m,[39m [34mback[39m([32m"one-wall"[39m)])[33m.[39m[34mtoEqual[39m([[32m"退回 L [39m…
+    [90m   | [39m                                                     [31m^[39m
+    [90m 35| [39m  })[33m;[39m
+    [90m 36| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/14]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/i18n/cjkSpacing.test.ts[2m > [22ma space between Chinese and a Latin letter (Leo, 2026-11-12)[2m > [22msays 退回套餐 A: the package's name begins in Chinese
+[31m[1mAssertionError[22m: expected '退回 套餐 A' to be '退回套餐 A' // Object.is equality[39m
+
+Expected: [32m"退回套餐 A"[39m
+Received: [31m"退回[7m [27m套餐 A"[39m
+
+[36m [2m❯[22m src/i18n/cjkSpacing.test.ts:[2m38:72[22m[39m
+    [90m 36| [39m
+    [90m 37| [39m  [34mit[39m([32m"says 退回套餐 A: the package's name begins in Chinese"[39m[33m,[39m () [33m=>[39m {
+    [90m 38| [39m    [34mexpect[39m([34mtranslate[39m([32m"zh"[39m[33m,[39m [32m"toast.undo.package"[39m[33m,[39m { [35mpackage[39m[33m:[39m [32m"套餐 A"[39m }…
+    [90m   | [39m                                                                       [31m^[39m
+    [90m 39| [39m  })[33m;[39m
+    [90m 40| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/14]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/i18n/cjkSpacing.test.ts[2m > [22ma space between Chinese and a Latin letter (Leo, 2026-11-12)[2m > [22mputs one after a name that ends in a letter: 套餐 D 需要
+[31m[1mAssertionError[22m: expected '套餐 D需要更大的厨房，已把后墙加到 132″、左墙加到 178.8″。' to be '套餐 D 需要更大的厨房，已把后墙加到 132″、左墙加到 178.8″。' // Object.is equality[39m
+
+Expected: [32m"套餐 D[7m [27m需要更大的厨房，已把后墙加到 132″、左墙加到 178.8″。"[39m
+Received: [31m"套餐 D需要更大的厨房，已把后墙加到 132″、左墙加到 178.8″。"[39m
+
+[36m [2m❯[22m src/i18n/cjkSpacing.test.ts:[2m42:96[22m[39m
+    [90m 40| [39m
+    [90m 41| [39m  [34mit[39m([32m"puts one after a name that ends in a letter: 套餐 D 需要"[39m[33m,[39m () [33m=>[39m…
+    [90m 42| [39m    [34mexpect[39m([34mtranslate[39m([32m"zh"[39m[33m,[39m [32m"toast.roomGrew"[39m[33m,[39m { [35mpackage[39m[33m:[39m [32m"套餐 D"[39m[33m,[39m back…
+    [90m   | [39m                                                                                               [31m^[39m
+    [90m 43| [39m      [32m"套餐 D 需要更大的厨房，已把后墙加到 132″、左墙加到 178.8″。"[39m[33m,[39m
+    [90m 44| [39m    )[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/14]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/i18n/cjkSpacing.test.ts[2m > [22ma space between Chinese and a Latin letter (Leo, 2026-11-12)[2m > [22mputs one before a name that begins with a letter: 放不下 Drop in 炉灶片
+[31m[1mAssertionError[22m: expected '墙已到最长，放不下Drop in 炉灶片，已省略。' to be '墙已到最长，放不下 Drop in 炉灶片，已省略。' // Object.is equality[39m
+
+Expected: [32m"墙已到最长，放不下[7m [27mDrop in 炉灶片，已省略。"[39m
+Received: [31m"墙已到最长，放不下Drop in 炉灶片，已省略。"[39m
+
+[36m [2m❯[22m src/i18n/cjkSpacing.test.ts:[2m48:70[22m[39m
+    [90m 46| [39m
+    [90m 47| [39m  [34mit[39m([32m"puts one before a name that begins with a letter: 放不下 Drop in[39m…
+    [90m 48| [39m    [34mexpect[39m([34mzhSay[39m([32m"toast.shapeOmitted"[39m[33m,[39m { itemKey[33m:[39m [32m"slot.cooktop"[39m }))[33m.[39m[34mt[39m…
+    [90m   | [39m                                                                     [31m^[39m
+    [90m 49| [39m  })[33m;[39m
+    [90m 50| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/14]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/i18n/cjkSpacing.test.ts[2m > [22ma space between Chinese and a Latin letter (Leo, 2026-11-12)[2m > [22mkeeps it in every Chinese line with a name put in, a letter at either end of the name
+[31m[1mAssertionError[22m: expected [ …(26) ] to deeply equal [][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- Array [][39m
+[31m+ Array [[39m
+[31m+   "layout.showing: 仍在显示：Ab\" 岛台，冰箱在Ab段。",[39m
+[31m+   "rule.noIslandFallback: 无岛台：微波抽屉在Ab侧灶台旁的地柜内，小酒柜收在Ab侧末端",[39m
+[31m+   "toast.roomGrew: Ab需要更大的厨房，已把后墙加到 Ab″、左墙加到 Ab″。",[39m
+[31m+   "toast.shapeSwitched: 已切换为Ab，墙长已调整：",[39m
+[31m+   "toast.shapeWall: Ab从 Ab 改为 Ab",[39m
+[31m+   "toast.shapeOmitted: 墙已到最长，放不下Ab，已省略。",[39m
+[31m+   "toast.roomGrew.U: Ab需要更大的厨房，已把后墙加到 Ab″、左右墙加到 Ab″。",[39m
+[31m+   "toast.modelGrew: 换了型号，Ab不够长，已加长到 Ab。",[39m
+[31m+   "toast.wallGrew: Ab已从 Ab 加长到 Ab，以容纳Ab。",[39m
+[31m+   "refusal.windowBlocked: Ab的窗被Ab挡住：Ab″ 的洞口前面钉着柜体",[39m
+[31m+   "refusal.windowGap: Ab的窗两侧无法各留 Ab″ 收口条（窗套 Ab″）：两边余下的墙不一样长，水槽 ±6″ 内也找不到能对称的位置",[39m
+[31m+   "refusal.sinkFromWindow: 水槽距Ab窗中心 Ab″，这段柜体最多只能挪到 Ab″ 以内",[39m
+[31m+   "suggestion.dropWindow: 取消Ab的窗",[39m
+[31m+   "refusal.outOfRange: Ab的范围是 Ab\"–Ab\"，Ab\" 不在其中。",[39m
+[31m+   "refusal.offStep: Ab从 Ab\" 起按 Ab\" 步进，Ab\" 落在 Ab\" 与 Ab\" 之间。",[39m
+[31m+   "refusal.oneLegBoth: Ab段放不下水槽和冰箱：单段上限 Ab\"，这两样加上灶台已经超了。",[39m
+[31m+   "refusal.wallShort: Ab现为 Ab\"，比要放的东西少 Ab\"。可行的最小值是 Ab\"。",[39m
+[31m+   "suggestion.round: 把Ab改成 Ab\"。",[39m
+[31m+   "suggestion.moveSink: 把水槽放到Ab段。",[39m
+[31m+   "suggestion.moveSinkMinimum: 把水槽移到Ab段，Ab最小变 Ab\"。",[39m
+[31m+   "suggestion.lengthen: 把Ab改成 Ab\"。",[39m
+[31m+   "refusal.wallLong: 单段柜列最长 Ab\"，所以Ab不能是 Ab\"——多出的 Ab\" 无处安放。",[39m
+[31m+   "suggestion.shorten: 把Ab改成 Ab\"。",[39m
+[31m+   "suggestion.corner: 转角改用Ab，Ab最小变 Ab\"。",[39m
+[31m+   "suggestion.island: 把岛台加回来（微波抽屉和小酒柜就不占墙了），Ab最小变 Ab\"。",[39m
+[31m+   "suggestion.coffeeLeg: 把咖啡机柜放到Ab段。",[39m
+[31m+ ][39m
+
+[36m [2m❯[22m src/i18n/cjkSpacing.test.ts:[2m71:20[22m[39m
+    [90m 69| [39m      [35mreturn[39m [33mHAN_THEN_LATIN[39m[33m.[39m[34mtest[39m(said) [33m?[39m [[32m`[39m[36m${[39mkey[36m}[39m[32m: [39m[36m${[39msaid[36m}[39m[32m`[39m] [33m:[39m [][33m;[39m
+    [90m 70| [39m    })[33m;[39m
+    [90m 71| [39m    [34mexpect[39m(broken)[33m.[39m[34mtoEqual[39m([])[33m;[39m
+    [90m   | [39m                   [31m^[39m
+    [90m 72| [39m  })[33m;[39m
+    [90m 73| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/14]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/store/oneWallSwitch.test.ts[2m > [22mwhat the switch says, and what Undo puts back (round 98b-2)[2m > [22msays 退回 the package a package switch came from, in Chinese
+[31m[1mAssertionError[22m: expected '退回 套餐 A' to be '退回套餐 A' // Object.is equality[39m
+
+Expected: [32m"退回套餐 A"[39m
+Received: [31m"退回[7m [27m套餐 A"[39m
+
+[36m [2m❯[22m src/store/oneWallSwitch.test.ts:[2m225:26[22m[39m
+    [90m223| [39m    [34mstore[39m()[33m.[39m[34msetLang[39m([32m"zh"[39m)[33m;[39m
+    [90m224| [39m    [34mstore[39m()[33m.[39m[34msetPackageId[39m([32m"package-b"[39m)[33m;[39m
+    [90m225| [39m    [34mexpect[39m([34mbutton[39m([32m"zh"[39m))[33m.[39m[34mtoBe[39m([32m"退回套餐 A"[39m)[33m;[39m
+    [90m   | [39m                         [31m^[39m
+    [90m226| [39m  })[33m;[39m
+    [90m227| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/14]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/store/uInterface.test.ts[2m > [22mU-2 (3): switching to the U grows the walls, says so, and Undo goes back[2m > [22msays the side walls when a package switch in a U grows them
+[31m[1mAssertionError[22m: expected [ 'toast.roomGrew.U', 177 ] to deeply equal [ 'toast.packageSwitched', 177 ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  Array [[22m
+[32m-   "toast.packageSwitched",[39m
+[31m+   "toast.roomGrew.U",[39m
+[2m    177,[22m
+[2m  ][22m
+
+[36m [2m❯[22m src/store/uInterface.test.ts:[2m118:67[22m[39m
+    [90m116| [39m    [34mstore[39m()[33m.[39m[34msetPackageId[39m([32m"package-d"[39m)[33m;[39m
+    [90m117| [39m    [90m// D's U, 177" since the new order (2026-11-12; it was 207").[39m
+    [90m118| [39m    [34mexpect[39m([[34mstore[39m()[33m.[39mtoast[33m?.[39mkey[33m,[39m [34mstore[39m()[33m.[39mlayoutParams[33m.[39mleftWallIn])[33m.[39m[34mtoEq[39m…
+    [90m   | [39m                                                                  [31m^[39m
+    [90m119| [39m  })[33m;[39m
+    [90m120| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/14]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/store/uInterface.test.ts[2m > [22mU-2 (13): the words of the switch, as Leo agreed them (9.3)[2m > [22mhas toast.undo.toShape in both languages
+[31m[1mAssertionError[22m: expected [ '退回 {shape}', 'Back to {shape}' ] to deeply equal [ '退回{shape}', 'Back to {shape}' ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  Array [[22m
+[32m-   "退回{shape}",[39m
+[31m+   "退回 {shape}",[39m
+[2m    "Back to {shape}",[22m
+[2m  ][22m
+
+[36m [2m❯[22m src/store/uInterface.test.ts:[2m453:60[22m[39m
+    [90m451| [39m  [35mfor[39m ([35mconst[39m [key[33m,[39m [zh[33m,[39m en]] [35mof[39m [33mObject[39m[33m.[39m[34mentries[39m([33mWORDS[39m)) {
+    [90m452| [39m    [34mit[39m([32m`has [39m[36m${[39mkey[36m}[39m[32m in both languages`[39m[33m,[39m () [33m=>[39m {
+    [90m453| [39m      [34mexpect[39m([[34mtranslate[39m([32m"zh"[39m[33m,[39m key)[33m,[39m [34mtranslate[39m([32m"en"[39m[33m,[39m key)])[33m.[39m[34mtoEqual[39m([zh…
+    [90m   | [39m                                                           [31m^[39m
+    [90m454| [39m    })[33m;[39m
+    [90m455| [39m  }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/14]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/store/uInterface.test.ts[2m > [22mU-2 (13): the words of the switch, as Leo agreed them (9.3)[2m > [22mreads A's switch from its L to the U in full, in Chinese
+[31m[1mAssertionError[22m: expected [ [ '已切换为U 型厨房，墙长已调整：', …(1) ], …(1) ] to deeply equal [ [ '已切换为 U 型厨房，墙长已调整：', …(1) ], …(1) ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  Array [[22m
+[2m    Array [[22m
+[32m-     "已切换为 U 型厨房，墙长已调整：",[39m
+[31m+     "已切换为U 型厨房，墙长已调整：",[39m
+[2m      "左右墙从 144″ 改为 155¼″",[22m
+[2m    ],[22m
+[2m    "退回 L 型",[22m
+[2m  ][22m
+
+[36m [2m❯[22m src/store/uInterface.test.ts:[2m469:118[22m[39m
+    [90m467| [39m    [90m// 「已切换为 U 型厨房」 since 2026-11-12 (Leo: 「"为"和"U"之间加[39m…
+    [90m468| [39m    [90m// 「已切换为U 型厨房」.[39m
+    [90m469| [39m    [34mexpect[39m([toast[33m.[39mlines[33m![39m[33m.[39m[34mmap[39m((line) [33m=>[39m [34msay[39m(line[33m.[39mkey[33m,[39m line[33m.[39mvars))[33m,[39m [34msay[39m(…
+    [90m   | [39m                                                                                                                     [31m^[39m
+    [90m470| [39m      [[32m"已切换为 U 型厨房，墙长已调整："[39m[33m,[39m [32m"左右墙从 144″ 改为 155¼″"[39m][33m,[39m
+    [90m471| [39m      [32m"退回 L 型"[39m[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/14]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/store/uInterface.test.ts[2m > [22mU-2 (16): a package switch in a U says the walls that changed, as a shape switch does[2m > [22mnames only the side walls when only they grow: A's U to D's, the back wall at 132″ unsaid
+[31m[1mAssertionError[22m: expected [ 132, 'toast.roomGrew.U', …(4) ] to deeply equal [ 132, 'toast.packageSwitched', …(4) ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  Array [[22m
+[2m    132,[22m
+[32m-   "toast.packageSwitched",[39m
+[32m-   Array [[39m
+[32m-     Object {[39m
+[32m-       "key": "toast.packageSwitched",[39m
+[32m-       "vars": Object {[39m
+[32m-         "package": "Package D",[39m
+[32m-       },[39m
+[32m-     },[39m
+[32m-     Object {[39m
+[32m-       "key": "toast.shapeWall",[39m
+[32m-       "vars": Object {[39m
+[32m-         "fromIn": "155¼″",[39m
+[32m-         "toIn": "177″",[39m
+[32m-         "wallKey": "toast.wall.sides",[39m
+[32m-       },[39m
+[32m-     },[39m
+[32m-   ],[39m
+[32m-   true,[39m
+[31m+   "toast.roomGrew.U",[39m
+[31m+   undefined,[39m
+[31m+   undefined,[39m
+[2m    Object {[22m
+[2m      "key": "toast.undo.package",[22m
+[2m      "vars": Object {[22m
+[2m        "package": "Package A",[22m
+[2m      },[22m
+[2m    },[22m
+[2m    true,[22m
+[2m  ][22m
+
+[36m [2m❯[22m src/store/uInterface.test.ts:[2m488:122[22m[39m
+    [90m486| [39m    [34mstore[39m()[33m.[39m[34msetPackageId[39m([32m"package-d"[39m)[33m;[39m
+    [90m487| [39m    [35mconst[39m toast [33m=[39m [34mstore[39m()[33m.[39mtoast[33m;[39m
+    [90m488| [39m    [34mexpect[39m([[34mstore[39m()[33m.[39mlayoutParams[33m.[39mbackWallIn[33m,[39m toast[33m?.[39mkey[33m,[39m toast[33m?.[39mlines[33m,[39m…
+    [90m   | [39m                                                                                                                         [31m^[39m
+    [90m489| [39m      [34m132[39m[33m,[39m
+    [90m490| [39m      [32m"toast.packageSwitched"[39m[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/14]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/store/uInterface.test.ts[2m > [22mU-2 (16): a package switch in a U says the walls that changed, as a shape switch does[2m > [22mreads it in full in Chinese: 已切换为套餐 D, the wall from and to, 退回套餐 A
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'map')[39m
+[36m [2m❯[22m src/store/uInterface.test.ts:[2m508:26[22m[39m
+    [90m506| [39m    [34mstore[39m()[33m.[39m[34msetPackageId[39m([32m"package-d"[39m)[33m;[39m
+    [90m507| [39m    [35mconst[39m toast [33m=[39m [34mstore[39m()[33m.[39mtoast[33m![39m[33m;[39m
+    [90m508| [39m    [34mexpect[39m([toast[33m.[39mlines[33m![39m[33m.[39m[34mmap[39m((line) [33m=>[39m [34msay[39m(line[33m.[39mkey[33m,[39m line[33m.[39mvars))[33m,[39m [34msay[39m(…
+    [90m   | [39m                         [31m^[39m
+    [90m509| [39m      [[32m"已切换为套餐 D，墙长已调整："[39m[33m,[39m [32m"左右墙从 155¼″ 改为 177″"[39m][33m,[39m
+    [90m510| [39m      [32m"退回套餐 A"[39m[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/14]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/store/uInterface.test.ts[2m > [22mU-2 (16): a package switch in a U says the walls that changed, as a shape switch does[2m > [22mhas the line in both languages, in the shape switch's pattern
+[31m[1mAssertionError[22m: expected [ 'toast.packageSwitched', …(1) ] to deeply equal [ '已切换为{package}，墙长已调整：', …(1) ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  Array [[22m
+[32m-   "已切换为{package}，墙长已调整：",[39m
+[32m-   "Switched to {package}; the walls were adjusted:",[39m
+[31m+   "toast.packageSwitched",[39m
+[31m+   "toast.packageSwitched",[39m
+[2m  ][22m
+
+[36m [2m❯[22m src/store/uInterface.test.ts:[2m534:98[22m[39m
+    [90m532| [39m
+    [90m533| [39m  [34mit[39m([32m"has the line in both languages, in the shape switch's pattern"[39m[33m,[39m …
+    [90m534| [39m    [34mexpect[39m([[34mtranslate[39m([32m"zh"[39m[33m,[39m [32m"toast.packageSwitched"[39m)[33m,[39m [34mtranslate[39m([32m"en"[39m[33m,[39m …
+    [90m   | [39m                                                                                                 [31m^[39m
+    [90m535| [39m      [32m"已切换为{package}，墙长已调整："[39m[33m,[39m
+    [90m536| [39m      [32m"Switched to {package}; the walls were adjusted:"[39m[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/14]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/store/uInterface.test.ts[2m > [22mU-2 (16): a package switch in a U says the walls that changed, as a shape switch does[2m > [22mno longer has toast.roomGrew.U
+[31m[1mAssertionError[22m: expected [ …(2) ] to deeply equal [ 'toast.roomGrew.U', …(1) ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  Array [[22m
+[32m-   "toast.roomGrew.U",[39m
+[32m-   "toast.roomGrew.U",[39m
+[31m+   "{package}需要更大的厨房，已把后墙加到 {backIn}″、左右墙加到 {sideIn}″。",[39m
+[31m+   "{package} needs a bigger kitchen: the back wall is now {backIn}″ and the side walls {sideIn}″.",[39m
+[2m  ][22m
+
+[36m [2m❯[22m src/store/uInterface.test.ts:[2m541:88[22m[39m
+    [90m539| [39m
+    [90m540| [39m  [34mit[39m([32m"no longer has toast.roomGrew.U"[39m[33m,[39m () [33m=>[39m {
+    [90m541| [39m    [34mexpect[39m([[34mtranslate[39m([32m"zh"[39m[33m,[39m [32m"toast.roomGrew.U"[39m)[33m,[39m [34mtranslate[39m([32m"en"[39m[33m,[39m [32m"toas[39m…
+    [90m   | [39m                                                                                       [31m^[39m
+    [90m542| [39m  })[33m;[39m
+    [90m543| [39m})[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/14]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m3 failed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[31m14 failed[39m[22m[2m | [22m[1m[32m200 passed[39m[22m[90m (214)[39m
+[2m   Start at [22m 08:22:18
+[2m   Duration [22m 7.72s[2m (transform 1.21s, setup 0ms, collect 2.81s, tests 2.99s, environment 0ms, prepare 512ms)[22m
+

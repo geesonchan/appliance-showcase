@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2207.2000000000003" height="766.4" font-family="Microsoft YaHei, PingFang SC, sans-serif">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/></marker></defs>
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="20" y="30" font-size="20" font-weight="bold">E · U 型俯视示意（按比例，从生成器的数字画的，不是页面截图；新排法是原型）</text><text x="476.20000000000005" y="68" font-size="17" font-weight="bold" text-anchor="middle">现在（U-2）</text>
+<text x="476.20000000000005" y="90" font-size="14" text-anchor="middle" fill="#333">后墙 132"，左右墙 177"</text>
+<path d="M265 686.4 V120 H687.4000000000001 V686.4" fill="none" stroke="#222" stroke-width="6"/>
+<rect x="265" y="120" width="76.80000000000001" height="134.4" fill="#d9d4c7" stroke="#333" stroke-width="0.8"/>
+<text x="303.4" y="187.2" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 303.4 187.2)">转角 42"</text>
+<rect x="265" y="254.4" width="76.80000000000001" height="48" fill="#efe9dc" stroke="#333" stroke-width="0.8"/>
+<text x="303.4" y="278.4" font-size="9" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 303.4 278.4)">台面 15"</text>
+<rect x="265" y="302.4" width="76.80000000000001" height="2.4000000000000004" fill="#555" stroke="#333" stroke-width="1.5"/>
+<rect x="265" y="304.8" width="76.80000000000001" height="96" fill="#b9d7ea" stroke="#333" stroke-width="1.5"/>
+<text x="303.4" y="352.8" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 303.4 352.8)">冰箱 30"</text>
+<rect x="265" y="400.8" width="76.80000000000001" height="57.6" fill="#b9d7ea" stroke="#333" stroke-width="1.5"/>
+<text x="303.4" y="429.6" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 303.4 429.6)">冷冻柱 18"</text>
+<rect x="265" y="458.40000000000003" width="76.80000000000001" height="2.4000000000000004" fill="#555" stroke="#333" stroke-width="1.5"/>
+<rect x="265" y="460.8" width="76.80000000000001" height="2.4000000000000004" fill="#555" stroke="#333" stroke-width="1.5"/>
+<rect x="265" y="463.20000000000005" width="76.80000000000001" height="76.80000000000001" fill="#c8a27a" stroke="#333" stroke-width="1.5"/>
+<text x="303.4" y="501.6" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 303.4 501.6)">咖啡塔 24"</text>
+<rect x="265" y="540" width="76.80000000000001" height="2.4000000000000004" fill="#555" stroke="#333" stroke-width="1.5"/>
+<rect x="265" y="542.4000000000001" width="76.80000000000001" height="48" fill="#9bb7d4" stroke="#333" stroke-width="1.5"/>
+<text x="303.4" y="566.4000000000001" font-size="9" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 303.4 566.4000000000001)">储物高柜 15"</text>
+<rect x="265" y="590.4000000000001" width="76.80000000000001" height="96" fill="#f0b35b" stroke="#333" stroke-width="1.5"/>
+<text x="303.4" y="638.4" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 303.4 638.4)">烤箱塔 30"</text>
+<rect x="610.6" y="120" width="76.80000000000001" height="134.4" fill="#d9d4c7" stroke="#333" stroke-width="0.8"/>
+<text x="649" y="187.2" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(90 649 187.2)">转角 42"</text>
+<rect x="610.6" y="254.4" width="76.80000000000001" height="86.4" fill="#efe9dc" stroke="#333" stroke-width="0.8"/>
+<text x="649" y="297.6" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(90 649 297.6)">台面 27"</text>
+<rect x="610.6" y="340.8" width="76.80000000000001" height="84" fill="#efe9dc" stroke="#333" stroke-width="0.8"/>
+<text x="649" y="382.8" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(90 649 382.8)">台面 26.25"</text>
+<rect x="610.6" y="424.8" width="76.80000000000001" height="115.2" fill="#e8a19a" stroke="#333" stroke-width="0.8"/>
+<text x="649" y="482.40000000000003" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(90 649 482.40000000000003)">灶 36"</text>
+<rect x="610.6" y="540" width="76.80000000000001" height="76.80000000000001" fill="#efe9dc" stroke="#333" stroke-width="0.8"/>
+<text x="649" y="578.4000000000001" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(90 649 578.4000000000001)">台面 24"</text>
+<rect x="610.6" y="616.8" width="76.80000000000001" height="67.2" fill="#efe9dc" stroke="#333" stroke-width="0.8"/>
+<text x="649" y="650.4" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(90 649 650.4)">台面 21"</text>
+<rect x="610.6" y="684" width="76.80000000000001" height="2.4000000000000004" fill="#efe9dc" stroke="#333" stroke-width="0.8"/>
+<rect x="341.8" y="120" width="38.400000000000006" height="76.80000000000001" fill="#efe9dc" stroke="#333" stroke-width="0.8"/>
+<text x="361" y="158.4" font-size="10" font-weight="normal" text-anchor="middle" dominant-baseline="middle">台面</text>
+<rect x="380.2" y="120" width="76.80000000000001" height="76.80000000000001" fill="#d0d0d0" stroke="#333" stroke-width="0.8"/>
+<text x="418.6" y="158.4" font-size="10" font-weight="normal" text-anchor="middle" dominant-baseline="middle">洗碗机</text>
+<rect x="457" y="120" width="96" height="76.80000000000001" fill="#9fd0f0" stroke="#333" stroke-width="0.8"/>
+<text x="505" y="158.4" font-size="10" font-weight="normal" text-anchor="middle" dominant-baseline="middle">水槽</text>
+<rect x="553" y="120" width="57.6" height="76.80000000000001" fill="#efe9dc" stroke="#333" stroke-width="0.8"/>
+<text x="581.8" y="158.4" font-size="10" font-weight="normal" text-anchor="middle" dominant-baseline="middle">台面</text>
+<line x1="552.6" y1="482.40000000000003" x2="602.6" y2="482.40000000000003" stroke="#b03a2e" stroke-width="2.5" marker-end="url(#arr)"/>
+<text x="548.6" y="482.40000000000003" font-size="13" font-weight="bold" fill="#b03a2e" text-anchor="end" dominant-baseline="middle">灶</text>
+<text x="476.20000000000005" y="714.4" font-size="13" text-anchor="middle" fill="#333">石板：57" / 82" / 69" / 109"</text><text x="1198.6000000000001" y="68" font-size="17" font-weight="bold" text-anchor="middle">新排法 · 留储物高柜</text>
+<text x="1198.6000000000001" y="90" font-size="14" text-anchor="middle" fill="#333">后墙 132"，左右墙 147"</text>
+<path d="M987.4000000000001 590.4000000000001 V120 H1409.8000000000002 V590.4000000000001" fill="none" stroke="#222" stroke-width="6"/>
+<rect x="987.4000000000001" y="120" width="76.80000000000001" height="134.4" fill="#d9d4c7" stroke="#333" stroke-width="0.8"/>
+<text x="1025.8000000000002" y="187.2" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 1025.8000000000002 187.2)">转角 42"</text>
+<rect x="987.4000000000001" y="254.4" width="76.80000000000001" height="48" fill="#efe9dc" stroke="#333" stroke-width="0.8"/>
+<text x="1025.8000000000002" y="278.4" font-size="9" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 1025.8000000000002 278.4)">台面 15"</text>
+<rect x="987.4000000000001" y="302.4" width="76.80000000000001" height="2.4000000000000004" fill="#555" stroke="#333" stroke-width="1.5"/>
+<rect x="987.4000000000001" y="304.8" width="76.80000000000001" height="96" fill="#b9d7ea" stroke="#333" stroke-width="1.5"/>
+<text x="1025.8000000000002" y="352.8" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 1025.8000000000002 352.8)">冰箱 30"</text>
+<rect x="987.4000000000001" y="400.8" width="76.80000000000001" height="57.6" fill="#b9d7ea" stroke="#333" stroke-width="1.5"/>
+<text x="1025.8000000000002" y="429.6" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 1025.8000000000002 429.6)">冷冻柱 18"</text>
+<rect x="987.4000000000001" y="458.40000000000003" width="76.80000000000001" height="2.4000000000000004" fill="#555" stroke="#333" stroke-width="1.5"/>
+<rect x="987.4000000000001" y="460.8" width="76.80000000000001" height="2.4000000000000004" fill="#555" stroke="#333" stroke-width="1.5"/>
+<rect x="987.4000000000001" y="463.20000000000005" width="76.80000000000001" height="76.80000000000001" fill="#c8a27a" stroke="#333" stroke-width="1.5"/>
+<text x="1025.8000000000002" y="501.6" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 1025.8000000000002 501.6)">咖啡塔 24"</text>
+<rect x="987.4000000000001" y="540" width="76.80000000000001" height="2.4000000000000004" fill="#555" stroke="#333" stroke-width="1.5"/>
+<rect x="987.4000000000001" y="542.4000000000001" width="76.80000000000001" height="48" fill="#9bb7d4" stroke="#333" stroke-width="1.5"/>
+<text x="1025.8000000000002" y="566.4000000000001" font-size="9" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 1025.8000000000002 566.4000000000001)">储物高柜 15"</text>
+<rect x="1333" y="120" width="76.80000000000001" height="134.4" fill="#d9d4c7" stroke="#333" stroke-width="0.8"/>
+<text x="1371.4" y="187.2" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(90 1371.4 187.2)">转角 42"</text>
+<rect x="1333" y="254.4" width="76.80000000000001" height="67.2" fill="#efe9dc" stroke="#333" stroke-width="0.8"/>
+<text x="1371.4" y="288" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(90 1371.4 288)">台面 21"</text>
+<rect x="1333" y="321.6" width="76.80000000000001" height="115.2" fill="#e8a19a" stroke="#333" stroke-width="0.8"/>
+<text x="1371.4" y="379.2" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(90 1371.4 379.2)">灶 36"</text>
+<rect x="1333" y="436.8" width="76.80000000000001" height="57.6" fill="#efe9dc" stroke="#333" stroke-width="0.8"/>
+<text x="1371.4" y="465.6" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(90 1371.4 465.6)">台面 18"</text>
+<rect x="1333" y="494.40000000000003" width="76.80000000000001" height="96" fill="#f0b35b" stroke="#333" stroke-width="1.5"/>
+<text x="1371.4" y="542.4000000000001" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(90 1371.4 542.4000000000001)">烤箱塔 30"</text>
+<rect x="1064.2" y="120" width="38.400000000000006" height="76.80000000000001" fill="#efe9dc" stroke="#333" stroke-width="0.8"/>
+<text x="1083.4" y="158.4" font-size="10" font-weight="normal" text-anchor="middle" dominant-baseline="middle">台面</text>
+<rect x="1102.6000000000001" y="120" width="76.80000000000001" height="76.80000000000001" fill="#d0d0d0" stroke="#333" stroke-width="0.8"/>
+<text x="1141" y="158.4" font-size="10" font-weight="normal" text-anchor="middle" dominant-baseline="middle">洗碗机</text>
+<rect x="1179.4" y="120" width="96" height="76.80000000000001" fill="#9fd0f0" stroke="#333" stroke-width="0.8"/>
+<text x="1227.4" y="158.4" font-size="10" font-weight="normal" text-anchor="middle" dominant-baseline="middle">水槽</text>
+<rect x="1275.4" y="120" width="57.6" height="76.80000000000001" fill="#efe9dc" stroke="#333" stroke-width="0.8"/>
+<text x="1304.2" y="158.4" font-size="10" font-weight="normal" text-anchor="middle" dominant-baseline="middle">台面</text>
+<line x1="1275" y1="379.2" x2="1325" y2="379.2" stroke="#b03a2e" stroke-width="2.5" marker-end="url(#arr)"/>
+<text x="1271" y="379.2" font-size="13" font-weight="bold" fill="#b03a2e" text-anchor="end" dominant-baseline="middle">灶：转角这一头（靠水槽）</text>
+<line x1="1275" y1="542.4000000000001" x2="1325" y2="542.4000000000001" stroke="#b06a00" stroke-width="2.5" marker-end="url(#arr)"/>
+<text x="1271" y="542.4000000000001" font-size="13" font-weight="bold" fill="#b06a00" text-anchor="end" dominant-baseline="middle">烤箱塔：开放端</text>
+<text x="1198.6000000000001" y="618.4000000000001" font-size="13" text-anchor="middle" fill="#333">石板：57" / 82" / 117"</text><text x="1921.0000000000002" y="68" font-size="17" font-weight="bold" text-anchor="middle">新排法 · 不留储物高柜</text>
+<text x="1921.0000000000002" y="90" font-size="14" text-anchor="middle" fill="#333">后墙 132"，左右墙 141"</text>
+<path d="M1709.8000000000002 571.2 V120 H2132.2000000000003 V571.2" fill="none" stroke="#222" stroke-width="6"/>
+<rect x="1709.8000000000002" y="120" width="76.80000000000001" height="134.4" fill="#d9d4c7" stroke="#333" stroke-width="0.8"/>
+<text x="1748.2000000000003" y="187.2" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 1748.2000000000003 187.2)">转角 42"</text>
+<rect x="1709.8000000000002" y="254.4" width="76.80000000000001" height="76.80000000000001" fill="#efe9dc" stroke="#333" stroke-width="0.8"/>
+<text x="1748.2000000000003" y="292.8" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 1748.2000000000003 292.8)">台面 24"</text>
+<rect x="1709.8000000000002" y="331.20000000000005" width="76.80000000000001" height="2.4000000000000004" fill="#555" stroke="#333" stroke-width="1.5"/>
+<rect x="1709.8000000000002" y="333.6" width="76.80000000000001" height="96" fill="#b9d7ea" stroke="#333" stroke-width="1.5"/>
+<text x="1748.2000000000003" y="381.6" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 1748.2000000000003 381.6)">冰箱 30"</text>
+<rect x="1709.8000000000002" y="429.6" width="76.80000000000001" height="57.6" fill="#b9d7ea" stroke="#333" stroke-width="1.5"/>
+<text x="1748.2000000000003" y="458.40000000000003" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 1748.2000000000003 458.40000000000003)">冷冻柱 18"</text>
+<rect x="1709.8000000000002" y="487.20000000000005" width="76.80000000000001" height="2.4000000000000004" fill="#555" stroke="#333" stroke-width="1.5"/>
+<rect x="1709.8000000000002" y="489.6" width="76.80000000000001" height="2.4000000000000004" fill="#555" stroke="#333" stroke-width="1.5"/>
+<rect x="1709.8000000000002" y="492" width="76.80000000000001" height="76.80000000000001" fill="#c8a27a" stroke="#333" stroke-width="1.5"/>
+<text x="1748.2000000000003" y="530.4000000000001" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 1748.2000000000003 530.4000000000001)">咖啡塔 24"</text>
+<rect x="1709.8000000000002" y="568.8" width="76.80000000000001" height="2.4000000000000004" fill="#555" stroke="#333" stroke-width="1.5"/>
+<rect x="2055.4" y="120" width="76.80000000000001" height="134.4" fill="#d9d4c7" stroke="#333" stroke-width="0.8"/>
+<text x="2093.8" y="187.2" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(90 2093.8 187.2)">转角 42"</text>
+<rect x="2055.4" y="254.4" width="76.80000000000001" height="48" fill="#efe9dc" stroke="#333" stroke-width="0.8"/>
+<text x="2093.8" y="278.4" font-size="9" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(90 2093.8 278.4)">台面 15"</text>
+<rect x="2055.4" y="302.4" width="76.80000000000001" height="115.2" fill="#e8a19a" stroke="#333" stroke-width="0.8"/>
+<text x="2093.8" y="360" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(90 2093.8 360)">灶 36"</text>
+<rect x="2055.4" y="417.6" width="76.80000000000001" height="57.6" fill="#efe9dc" stroke="#333" stroke-width="0.8"/>
+<text x="2093.8" y="446.40000000000003" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(90 2093.8 446.40000000000003)">台面 18"</text>
+<rect x="2055.4" y="475.20000000000005" width="76.80000000000001" height="96" fill="#f0b35b" stroke="#333" stroke-width="1.5"/>
+<text x="2093.8" y="523.2" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(90 2093.8 523.2)">烤箱塔 30"</text>
+<rect x="1786.6000000000001" y="120" width="38.400000000000006" height="76.80000000000001" fill="#efe9dc" stroke="#333" stroke-width="0.8"/>
+<text x="1805.8000000000002" y="158.4" font-size="10" font-weight="normal" text-anchor="middle" dominant-baseline="middle">台面</text>
+<rect x="1825.0000000000002" y="120" width="76.80000000000001" height="76.80000000000001" fill="#d0d0d0" stroke="#333" stroke-width="0.8"/>
+<text x="1863.4" y="158.4" font-size="10" font-weight="normal" text-anchor="middle" dominant-baseline="middle">洗碗机</text>
+<rect x="1901.8000000000002" y="120" width="96" height="76.80000000000001" fill="#9fd0f0" stroke="#333" stroke-width="0.8"/>
+<text x="1949.8000000000002" y="158.4" font-size="10" font-weight="normal" text-anchor="middle" dominant-baseline="middle">水槽</text>
+<rect x="1997.8000000000002" y="120" width="57.6" height="76.80000000000001" fill="#efe9dc" stroke="#333" stroke-width="0.8"/>
+<text x="2026.6000000000001" y="158.4" font-size="10" font-weight="normal" text-anchor="middle" dominant-baseline="middle">台面</text>
+<line x1="1997.4" y1="360" x2="2047.4" y2="360" stroke="#b03a2e" stroke-width="2.5" marker-end="url(#arr)"/>
+<text x="1993.4" y="360" font-size="13" font-weight="bold" fill="#b03a2e" text-anchor="end" dominant-baseline="middle">灶：转角这一头（靠水槽）</text>
+<line x1="1997.4" y1="523.2" x2="2047.4" y2="523.2" stroke="#b06a00" stroke-width="2.5" marker-end="url(#arr)"/>
+<text x="1993.4" y="523.2" font-size="13" font-weight="bold" fill="#b06a00" text-anchor="end" dominant-baseline="middle">烤箱塔：开放端</text>
+<text x="1921.0000000000002" y="599.2" font-size="13" text-anchor="middle" fill="#333">石板：66" / 82" / 111"</text></svg>

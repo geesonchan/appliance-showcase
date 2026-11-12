@@ -21,12 +21,11 @@ import { alongOf, type Axis, type Facing } from "./frame";
 /** The shapes this page builds: the L, one wall since round 98b, and the U since U-1. */
 export type LayoutShape = "L" | "one-wall" | "U";
 /**
- * The shapes the page offers on its shape switch. The U is built (U-1,
- * 2026-11-11) but not offered until U-2 gives it its controls, its right wall's
- * floor line and its camera: until then a link edited by hand reaches it, as
- * one wall was reached in 98b-1.
+ * The shapes the page offers on its shape switch, in its order. The U since
+ * U-2 (2026-11-11), with its controls, its right wall's floor line and its
+ * camera; built since U-1.
  */
-export const LAYOUT_SHAPES: readonly LayoutShape[] = ["L", "one-wall"];
+export const LAYOUT_SHAPES: readonly LayoutShape[] = ["L", "one-wall", "U"];
 /** Every shape the generator builds and a link may carry. */
 export const BUILT_SHAPES: readonly LayoutShape[] = ["L", "one-wall", "U"];
 

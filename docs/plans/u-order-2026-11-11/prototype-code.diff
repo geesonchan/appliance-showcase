@@ -1,0 +1,2404 @@
+diff --git a/src/data/insertHood.ts b/src/data/insertHood.ts
+index 345c612..ec94047 100644
+--- a/src/data/insertHood.ts
++++ b/src/data/insertHood.ts
+@@ -1,4 +1,7 @@
+ import { ROOM, ft, type HousingStyle } from "./roomShell";
++import type { CabinetBox } from "./cabinets";
++import { doorFace } from "./doorFace";
++import { rotationOf } from "./frame";
+ 
+ /**
+  * The hood a joiner builds, with a manufacturer's liner in the underside of it.
+@@ -120,6 +123,21 @@ export interface HoodCabinetParts {
+   opening: { w: number; d: number; ledge: number };
+ }
+ 
++/**
++ * The housing's own frame: its width along the run, its height, its depth out
++ * from the wall, and the turn that faces it the way its box does.
++ *
++ * A box's size is on the room's axes, and the housing is built in its own: on
++ * the back wall the two agree, on a run along z they are the wrong way round
++ * (U-2; Leo, 2026-11-11: 「B，D套餐的insert hood形状不对」 — on the U's right leg a
++ * 36" housing had been drawn 13" wide and 36" deep). Read as a door is
++ * (`doorFace`, D22).
++ */
++export function housingFrame(box: CabinetBox): { w: number; h: number; d: number; rotationY: number } {
++  const face = doorFace(box);
++  return { w: face.width, h: face.height, d: face.depth, rotationY: rotationOf(face) };
++}
++
+ /**
+  * The housing's sections, given its own envelope and the shape asked for.
+  *
+diff --git a/src/data/layoutShape.ts b/src/data/layoutShape.ts
+index bb5fd73..ccfd5f5 100644
+--- a/src/data/layoutShape.ts
++++ b/src/data/layoutShape.ts
+@@ -21,12 +21,11 @@ import { alongOf, type Axis, type Facing } from "./frame";
+ /** The shapes this page builds: the L, one wall since round 98b, and the U since U-1. */
+ export type LayoutShape = "L" | "one-wall" | "U";
+ /**
+- * The shapes the page offers on its shape switch. The U is built (U-1,
+- * 2026-11-11) but not offered until U-2 gives it its controls, its right wall's
+- * floor line and its camera: until then a link edited by hand reaches it, as
+- * one wall was reached in 98b-1.
++ * The shapes the page offers on its shape switch, in its order. The U since
++ * U-2 (2026-11-11), with its controls, its right wall's floor line and its
++ * camera; built since U-1.
+  */
+-export const LAYOUT_SHAPES: readonly LayoutShape[] = ["L", "one-wall"];
++export const LAYOUT_SHAPES: readonly LayoutShape[] = ["L", "one-wall", "U"];
+ /** Every shape the generator builds and a link may carry. */
+ export const BUILT_SHAPES: readonly LayoutShape[] = ["L", "one-wall", "U"];
+ 
+diff --git a/src/data/layoutTemplate.ts b/src/data/layoutTemplate.ts
+index 9214c40..dda03b6 100644
+--- a/src/data/layoutTemplate.ts
++++ b/src/data/layoutTemplate.ts
+@@ -2327,6 +2327,10 @@ function planLegs(
+             }),
+           ]
+         : [];
++    // PROTOTYPE (Leo, 2026-11-11): the oven tower moves to the cooking leg's
++    // open end; the tall leg keeps the columns and the coffee tower, and the
++    // pantry, when kept (VITE_U_PANTRY != "none"), at its open end.
++    const keepPantry = (import.meta as unknown as { env?: Record<string, string> }).env?.VITE_U_PANTRY !== "none";
+     const tallLeg = (withSpares: boolean): Item[] => [
+       cornerBox(),
+       gap("corner-landing", LAYOUT_LIMITS.cornerLandingIn, "d11-1", { shrink: "corner-to-range" }),
+@@ -2334,16 +2338,31 @@ function planLegs(
+       gap("fridge-landing", LAYOUT_LIMITS.fridgeLandingIn, "d11-6"),
+       ...tower,
+       ...coffeeItems,
+-      ...pantry,
+-      ...ovens.map((slot) => column(slot.slotId)),
++      ...(keepPantry ? pantry : []),
+     ];
+     const needIn = (items: Item[]) =>
+       mergeGaps(items).reduce((sum, item) => sum + (item.kind === "fixed" ? item.widthIn : item.minIn), 0);
+-    const sparesOn = spare.length === 0 ? "tall" : sparesRun(needIn(tallLeg(true)));
+     const landing = LAYOUT_LIMITS.rangeLanding;
+-    const cookingLeg: Item[] = [
++    // PROTOTYPE (Leo, 2026-11-11, D): with an oven tower on the cooking leg the
++    // island's machines go between the cooking surface and the tower — from
++    // the corner 15", the cooking surface, 15", the microwave drawer, the
++    // tower. Where the leg's spare inches go is VITE_D_SLACK: "corner" (before
++    // the cooking surface), "range" (between it and the drawer, the default)
++    // or "tower" (between the drawer and the tower).
++    const slack = (import.meta as unknown as { env?: Record<string, string> }).env?.VITE_D_SLACK ?? "range";
++    const capped = (where: string, minIn: number) => (slack === where ? {} : { maxIn: minIn });
++    const sparesBetween = (): Item[] => [
++      cornerBox(),
++      gap("range-landing-right", landing.wideIn, "d11-4", { shrink: "range-to-sink", ...capped("corner", landing.wideIn) }),
++      cooking(),
++      gap("drawer-landing", landing.wideIn, "d11-4", { shrink: "range-to-sink", ...capped("range", landing.wideIn) }),
++      ...spare,
++      ...(slack === "tower" ? [gap("tower-landing", 0, "d11-12", { shrink: "range-to-sink" })] : []),
++      ...ovens.map((slot) => column(slot.slotId)),
++    ];
++    const cookingLegWith = (withSpares: boolean): Item[] => withSpares && ovens.length > 0 ? sparesBetween() : [
+       cornerBox(),
+-      ...(sparesOn === "cooking"
++      ...(withSpares
+         ? [
+             gap("corner-landing", LAYOUT_LIMITS.cornerLandingIn, "d11-1", {
+               shrink: "corner-to-range",
+@@ -2354,9 +2373,35 @@ function planLegs(
+         : []),
+       gap("range-landing-right", landing.wideIn, "d11-4", { shrink: "range-to-sink" }),
+       cooking(),
+-      gap("range-landing-left", landing.narrowIn, "d11-4", { shrink: "corner-to-range" }),
+-      ...terminal("right-end", "open"),
++      ...(ovens.length > 0
++        ? [
++            gap("tower-clearance", LAYOUT_LIMITS.towerSpacer.builtMinIn, "d11-12", {
++              shrink: "range-to-sink",
++              wantIn: LAYOUT_LIMITS.towerSpacer.wantIn,
++              maxIn: LAYOUT_LIMITS.towerSpacer.wantIn,
++            }),
++            ...ovens.map((slot) => column(slot.slotId)),
++          ]
++        : [
++            gap("range-landing-left", landing.narrowIn, "d11-4", { shrink: "corner-to-range" }),
++            ...terminal("right-end", "open"),
++          ]),
+     ];
++    // PROTOTYPE: with an oven tower on the cooking leg, the island's machines
++    // go on whichever leg keeps the longer of the two shorter (D's microwave
++    // drawer); A and C as before.
++    const wantIn = (items: Item[]) =>
++      mergeGaps(items).reduce((sum, item) => sum + (item.kind === "fixed" ? item.widthIn : Math.max(item.minIn, item.wantIn ?? 0)), 0);
++    const sparesOn =
++      spare.length === 0
++        ? "tall"
++        : ovens.length === 0
++          ? sparesRun(needIn(tallLeg(true)))
++          : Math.max(wantIn(tallLeg(true)), wantIn(cookingLegWith(false))) <=
++              Math.max(wantIn(tallLeg(false)), wantIn(cookingLegWith(true)))
++            ? "tall"
++            : "cooking";
++    const cookingLeg = cookingLegWith(sparesOn === "cooking");
+     const backLeg: Item[] = [
+       gap("dishwasher-landing", LAYOUT_LIMITS.dishwasherFromCornerIn, "d11-10"),
+       dishwasher,
+@@ -2668,7 +2713,10 @@ export function wallRequirement(
+     // the left wall's slider answers for both, and the longer leg sets it.
+     if (params.shape !== "U" || leg !== "left") return own;
+     const right = requirementFor(params, "right", pkg, omitted);
+-    return right.minimumIn > own.minimumIn ? { ...right, leg: "left" as const } : own;
++    // PROTOTYPE: the longer of the two legs' wants too, not only their minimums —
++    // the right leg's 18" before its oven tower is a want.
++    const longer = right.minimumIn > own.minimumIn ? { ...right, leg: "left" as const } : own;
++    return { ...longer, wantedIn: Math.max(own.wantedIn, right.wantedIn) };
+   });
+ }
+ 
+diff --git a/src/data/orientationGuard.test.ts b/src/data/orientationGuard.test.ts
+index 59a77f7..eecaa11 100644
+--- a/src/data/orientationGuard.test.ts
++++ b/src/data/orientationGuard.test.ts
+@@ -198,7 +198,8 @@ const ROOM_SIZE_ALLOWED: Record<string, { hits: number; why: string }> = {
+   "src/three/KitchenShell.tsx": { hits: 6, why: "the walls and the floor themselves" },
+   "src/three/Lights.tsx": { hits: 2, why: "where a window's sun stands outside the room" },
+   "src/three/WindowLayer.tsx": { hits: 2, why: "the plane a window is cut in" },
+-  "src/three/UtilityLayer.tsx": { hits: 1, why: "entry: how far along the back wall the meter is" },
++  // Moved from UtilityLayer.tsx with the entry in U-2 (2026-11-11), the L's own figure unchanged.
++  "src/data/serviceRoute.ts": { hits: 1, why: "serviceEntryPoint: how far along the L's back wall the meter is" },
+   "src/ui/LeftPanel.tsx": { hits: 2, why: "the room's size, written out for the reader" },
+   "src/ui/PlanThumbnail.tsx": { hits: 4, why: "the plan's own extents and origin" },
+ };
+diff --git a/src/data/room.ts b/src/data/room.ts
+index f6929d2..fa86205 100644
+--- a/src/data/room.ts
++++ b/src/data/room.ts
+@@ -20,6 +20,7 @@ import type { ResolvedWindow } from "./windows";
+ import type { FixtureId, SlotId } from "../types";
+ import type { RunId } from "./layoutShape";
+ import { alongIsToTheRight, onAxis, sizeOnAxis } from "./frame";
++import { wallBehind } from "./roomWalls";
+ import { isShareLink } from "./linkVersion";
+ import { LAYOUT_FIELDS } from "./layoutFields";
+ 
+@@ -224,6 +225,42 @@ export function serviceEntry(runs: CabinetRun[] = RUNS): { run: RunId; along: nu
+   return { run: cooking.id, along: end - ft(SERVICE_ENTRY_FROM_END_IN) };
+ }
+ 
++/**
++ * A wall drawn only as a line on the floor (U-2): one that would stand between
++ * the default view and the cabinets — the U's right wall, the default view
++ * looking in from the open end (Leo, 2026-11-10: 「挡视线的墙只画地面墙线」). Where
++ * the wall is, across its own axis (`axis`, `at`, as `wallBehind` has it), and
++ * along it from the back wall to 1" past the run's open end, as the stone runs;
++ * 1" wide. None in an L or on one wall.
++ */
++export interface FloorLineWall {
++  wall: "right";
++  axis: "x" | "z";
++  at: number;
++  /** Outward from the room: the side of `at` the line is drawn on. */
++  outward: 1 | -1;
++  from: number;
++  to: number;
++  widthIn: number;
++}
++export function floorLineWalls(): FloorLineWall[] {
++  const right = RUN_BY_ID.right;
++  if (!right) return [];
++  const wall = wallBehind(right.facing);
++  const end = right.segments[right.segments.length - 1].to;
++  return [
++    {
++      wall: "right",
++      axis: wall.axis,
++      at: wall.at,
++      outward: (-right.facing.sign) as 1 | -1,
++      from: wallBehind(RUN_BY_ID.back.facing).at,
++      to: end + ft(1),
++      widthIn: 1,
++    },
++  ];
++}
++
+ /**
+  * Which stretch of cabinetry a slot stands in.
+  *
+diff --git a/src/data/serviceRoute.ts b/src/data/serviceRoute.ts
+index 9e9edc5..83c477f 100644
+--- a/src/data/serviceRoute.ts
++++ b/src/data/serviceRoute.ts
+@@ -1,5 +1,10 @@
+ import { islandRiser } from "./islandRiser";
+ import { wallAnchor } from "./wallAnchor";
++import { facingOf, onAxis, otherAxis, type Facing } from "./frame";
++import { againstWall, wallBehind } from "./roomWalls";
++import { RUN_BY_ID, serviceEntry } from "./room";
++import { ROOM, ft } from "./roomShell";
++import { LEFT_WALL_FACING } from "./layoutShape";
+ import type { ServicePoint } from "../types";
+ 
+ /**
+@@ -27,3 +32,68 @@ export function serviceRoute(slot: ServicePoint, standoff: number): ServiceRoute
+ }
+ 
+ export { islandRiser };
++
++/**
++ * Where the services come into the room, a standoff off the wall (U-2).
++ *
++ * The U's: on the cooking surface's wall, 48" back from its run's open end
++ * (`serviceEntry`; Leo, 2026-11-11: 「管线进口：U 型用 4'（48"）」). The L's and one
++ * wall's as the utility layer has drawn them since round 52: the back run's wall,
++ * `ft(4)` — 4 inches — from the room's far end, the comment there saying four
++ * feet. Registered, not changed (Open items, "The services' entry: 4" or 4'"; Leo:
++ * 「保持登记，等 U 型做完单独修一轮」).
++ */
++export function serviceEntryPoint(standoff: number): { x: number; z: number } {
++  if (RUN_BY_ID.right) {
++    const { run: id, along } = serviceEntry();
++    const run = RUN_BY_ID[id];
++    const wall = wallBehind(run.facing);
++    const [x, , z] = onAxis(otherAxis(wall.axis), along, wall.at + run.facing.sign * standoff);
++    return { x, z };
++  }
++  const run = RUN_BY_ID.back;
++  const wall = wallBehind(run.facing);
++  const [x, , z] = onAxis(otherAxis(wall.axis), ROOM.halfX - ft(4), wall.at + run.facing.sign * standoff);
++  return { x, z };
++}
++
++/** Where two walls meet, a standoff off each: the inside corner a trunk turns. */
++function cornerOf(a: Facing, b: Facing, standoff: number): { x: number; z: number } {
++  const first = wallBehind(a);
++  const second = wallBehind(b);
++  const at = { x: 0, z: 0 };
++  at[first.axis] = first.at + a.sign * standoff;
++  at[second.axis] = second.at + b.sign * standoff;
++  return at;
++}
++
++/**
++ * A trunk's way from the entry to a machine on a wall, on the plan: along the
++ * walls, turning their inside corners, never across the floor. The L's: the
++ * back wall, then round the corner to the left wall (round 52). The U's (U-2):
++ * from the right wall, round the right-back corner to the back wall, and round
++ * the back-left corner to the left wall.
++ */
++export function trunkPath(slot: ServicePoint, standoff: number): { x: number; z: number }[] {
++  const anchor = wallAnchor(slot, standoff);
++  // A trunk runs along the walls, and an island slot is on none of them: its
++  // services come up through the floor (`islandRiser`). D22.
++  if (!anchor) throw new Error(`serviceRoute: no wall trunk to ${slot.id}, which is in the island`);
++  const points = [serviceEntryPoint(standoff)];
++  const back = RUN_BY_ID.back.facing;
++  const left = RUN_BY_ID.left?.facing ?? LEFT_WALL_FACING;
++  const right = RUN_BY_ID.right?.facing;
++  if (right) {
++    const { wall } = againstWall(facingOf(slot.rotationY), slot.position[0], slot.position[2], standoff);
++    const on = (facing: Facing) => {
++      const behind = wallBehind(facing);
++      return behind.axis === wall.axis && behind.at === wall.at;
++    };
++    if (!on(right)) points.push(cornerOf(right, back, standoff));
++    if (on(left)) points.push(cornerOf(back, left, standoff));
++  } else if (anchor.onLeftWall) {
++    points.push(cornerOf(back, left, standoff));
++  }
++  points.push({ x: anchor.x, z: anchor.z });
++  return points;
++}
+diff --git a/src/data/uShape.test.ts b/src/data/uShape.test.ts
+index 990b6ca..a32ca4c 100644
+--- a/src/data/uShape.test.ts
++++ b/src/data/uShape.test.ts
+@@ -63,8 +63,10 @@ describe("U-1 (1): the U is a shape the generator builds", () => {
+     expect(() => layoutShape.validateShape(spec)).not.toThrow();
+   });
+ 
+-  it("is not offered on the page's shape switch yet (U-2)", () => {
+-    expect(layoutShape.LAYOUT_SHAPES).toEqual(["L", "one-wall"]);
++  // Until U-2 the U was built but not offered; U-2 (2026-11-11, Leo: 「照计划第 10 节
++  // 动手」) puts it on the switch, last (`uInterface.test.ts`, group 1).
++  it("is offered on the page's shape switch since U-2, after the L and one wall", () => {
++    expect(layoutShape.LAYOUT_SHAPES).toEqual(["L", "one-wall", "U"]);
+   });
+ 
+   for (const code of ["A", "B", "C", "D", "E"]) {
+diff --git a/src/data/useChecklist.ts b/src/data/useChecklist.ts
+index 4fcde7c..520bf64 100644
+--- a/src/data/useChecklist.ts
++++ b/src/data/useChecklist.ts
+@@ -549,6 +549,16 @@ function noIslandFallback(): Finding[] {
+     return placed ? [{ ruleId: "no-island-fallback", severity: "info", messageKey: "rule.oneWallSpares", slot: "slot-microwave", params: {} }] : [];
+   }
+ 
++  // In a U both stand on the left leg, between the corner's counter and the
++  // refrigerator's (U-1), and the L's line — beside the range, at the leg's
++  // end — is not true of it either: the U's own (U-2; Leo, 2026-11-11, 「照写」).
++  if (LAYOUT_PARAMS.shape === "U") {
++    const placed = (["slot-wine", "slot-microwave"] as const).every((slot) =>
++      RUNS.some((run) => run.segments.some((segment) => segment.slot === slot)),
++    );
++    return placed ? [{ ruleId: "no-island-fallback", severity: "info", messageKey: "rule.uSpares", slot: "slot-microwave", params: {} }] : [];
++  }
++
+   const runOf = (slot: SlotId) =>
+     RUNS.find((run) => run.segments.some((segment) => segment.slot === slot))?.id;
+   const wineRun = runOf("slot-wine");
+diff --git a/src/i18n/en.json b/src/i18n/en.json
+index 19e0750..d59cc6e 100644
+--- a/src/i18n/en.json
++++ b/src/i18n/en.json
+@@ -203,6 +203,9 @@
+   "fixture.sink": "Sink",
+   "topbar.package.planned": "Coming soon",
+   "topbar.quote": "Quote",
++  "topbar.shape.L": "L-shape",
++  "topbar.shape.one-wall": "Single wall",
++  "topbar.shape.U": "U-shape",
+   "panel.collapseList": "Hide list",
+   "panel.collapseConfig": "Hide panel",
+   "quote.backToRoom": "Back to the room",
+@@ -292,6 +295,7 @@
+   "rule.oneWallOmittedWine": "Not enough wall: the wine cooler is left out. Lengthen the back wall to put it back.",
+   "rule.oneWallOmittedMicrowave": "Not enough wall: the microwave drawer is left out. Lengthen the back wall to put it back.",
+   "rule.oneWallSpares": "Single wall: the wine cooler and the microwave drawer sit under the counter, the wine cooler on the refrigerator side and the microwave drawer on the range side.",
++  "rule.uSpares": "U-shaped: the wine cooler and the microwave drawer sit under the counter on the left leg, between the corner's counter and the refrigerator's.",
+   "rule.ventOutside": "Ducted to the outside only — this liner cannot be recirculated",
+   "rule.columnJoints.one": "{count} column joint side by side: join it as the installation guide shows.",
+   "rule.columnJoints.many": "{count} column joints side by side: join them as the installation guide shows.",
+@@ -302,17 +306,23 @@
+   "rule.antiTip": "Anti-tip bracket: fix it to the floor or wall behind the range before sliding the range in; the rear leg must engage the bracket.",
+   "rule.rangetopCornerSupports": "2\" x 4\" corner supports in the cabinet under the rangetop, under the corners of its cutout, to carry it (142 lb).",
+   "toast.roomGrew": "{package} needs a bigger kitchen: the back wall is now {backIn}″ and the left wall {leftIn}″.",
+-  "toast.shapeGrew": "A single-wall kitchen needs a longer wall: the back wall is now {backIn}″.",
++  "toast.shapeSwitched": "Switched to {shape}; the walls were adjusted:",
++  "toast.shapeWall": "{wall}: {fromIn} → {toIn}",
++  "toast.shapeOmitted": "The walls are at their longest: {item} left out.",
++  "toast.roomGrew.U": "{package} needs a bigger kitchen: the back wall is now {backIn}″ and the side walls {sideIn}″.",
+   "toast.modelGrew": "The new model needs more room: {wall} is now {toIn}.",
+   "toast.wallGrew": "{wall} lengthened from {fromIn} to {toIn} to fit {reason}.",
+   "toast.wall.back": "Back wall",
+   "toast.wall.left": "Left wall",
++  "toast.wall.sides": "Side walls",
+   "toast.undo": "Undo",
+   "toast.undo.package": "Back to {package}",
+   "toast.undo.layout": "Undo this change",
+-  "toast.undo.shape": "Back to L",
++  "toast.undo.toShape": "Back to {shape}",
+   "shape.note.one-wall.D": "Single wall: coffee machine, second dishwasher and microwave drawer omitted; the oven is a combination oven with microwave; freezer, refrigerator and wine columns are the 18\" / 24\" / 18\" models.",
+   "shape.note.one-wall.E": "Single wall: no island; the induction cooktop moves to the wall, with the 36\" chimney wall hood HMCB36WS.",
++  "shape.note.U.D": "U-shaped: no island; the microwave drawer moves under the counter on the right leg.",
++  "shape.note.U.E": "U-shaped: no island; the induction cooktop moves to the right leg's wall, with the 36\" chimney wall hood HMCB36WS.",
+   "toast.growReason.fridgeEndAbuts": "the door clearance at the return wall",
+   "toast.growReason.towerSide": "the oven tower on that side",
+   "toast.growReason.sinkLeg": "the sink on that leg",
+@@ -362,6 +372,7 @@
+   "panel.room": "Room",
+   "panel.room.backWall": "Back wall",
+   "panel.room.leftWall": "Left wall",
++  "panel.room.sideWalls": "Side walls",
+   "panel.room.corner": "Corner",
+   "panel.room.corner.lazySusan": "Lazy susan",
+   "panel.room.corner.blind": "Blind",
+diff --git a/src/i18n/reviewed.json b/src/i18n/reviewed.json
+index 007ae3b..0e069dd 100644
+--- a/src/i18n/reviewed.json
++++ b/src/i18n/reviewed.json
+@@ -491,11 +491,6 @@
+       "approval": "written",
+       "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
+     },
+-    "toast.shapeGrew": {
+-      "text": "A single-wall kitchen needs a longer wall: the back wall is now {backIn}″.",
+-      "approval": "written",
+-      "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
+-    },
+     "toast.modelGrew": {
+       "text": "The new model needs more room: {wall} is now {toIn}.",
+       "approval": "written",
+@@ -506,11 +501,6 @@
+       "approval": "written",
+       "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
+     },
+-    "toast.undo.shape": {
+-      "text": "Back to L",
+-      "approval": "written",
+-      "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
+-    },
+     "toast.undo.layout": {
+       "text": "Undo this change",
+       "approval": "written",
+@@ -830,6 +820,76 @@
+       "text": "Right leg",
+       "approval": "written",
+       "reviewed": "Leo's own wording, 2026-11-11: 「左段、后段、右段，和 L 型现在的叫法接上；英文照 L 型现有的词」 (decisions.md, the U's answers to the first draft)"
++    },
++    "panel.layout.shape.U": {
++      "text": "U-shaped kitchen",
++      "approval": "read",
++      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「第 8 节的词：8.1 三个未审的和 8.2 六条草稿都同意，照写」 (decisions.md, Leo's answers to the U-2 plan; docs/plans/u2-plan.md, section 8)"
++    },
++    "leg.right": {
++      "text": "right",
++      "approval": "read",
++      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「第 8 节的词：8.1 三个未审的和 8.2 六条草稿都同意，照写」 (decisions.md, Leo's answers to the U-2 plan; docs/plans/u2-plan.md, section 8)"
++    },
++    "requirement.dishwasher-landing": {
++      "text": "counter between the corner and the dishwasher",
++      "approval": "read",
++      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「第 8 节的词：8.1 三个未审的和 8.2 六条草稿都同意，照写」 (decisions.md, Leo's answers to the U-2 plan; docs/plans/u2-plan.md, section 8)"
++    },
++    "panel.room.sideWalls": {
++      "text": "Side walls",
++      "approval": "written",
++      "reviewed": "Leo's own wording, 2026-11-11: 「左右墙一根滑杆管两面，叫\"左右墙长度 / Side walls\"：同意」 (decisions.md, Leo's answers to the U-2 plan)"
++    },
++    "toast.wall.sides": {
++      "text": "Side walls",
++      "approval": "read",
++      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「第 8 节的词：8.1 三个未审的和 8.2 六条草稿都同意，照写」 (decisions.md, Leo's answers to the U-2 plan; docs/plans/u2-plan.md, section 8)"
++    },
++    "toast.roomGrew.U": {
++      "text": "{package} needs a bigger kitchen: the back wall is now {backIn}″ and the side walls {sideIn}″.",
++      "approval": "read",
++      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「第 8 节的词：8.1 三个未审的和 8.2 六条草稿都同意，照写」 (decisions.md, Leo's answers to the U-2 plan; docs/plans/u2-plan.md, section 8)"
++    },
++    "rule.uSpares": {
++      "text": "U-shaped: the wine cooler and the microwave drawer sit under the counter on the left leg, between the corner's counter and the refrigerator's.",
++      "approval": "read",
++      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「第 8 节的词：8.1 三个未审的和 8.2 六条草稿都同意，照写」 (decisions.md, Leo's answers to the U-2 plan; docs/plans/u2-plan.md, section 8)"
++    },
++    "shape.note.U.E": {
++      "text": "U-shaped: no island; the induction cooktop moves to the right leg's wall, with the 36\" chimney wall hood HMCB36WS.",
++      "approval": "read",
++      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「第 8 节的词：8.1 三个未审的和 8.2 六条草稿都同意，照写」 (decisions.md, Leo's answers to the U-2 plan; docs/plans/u2-plan.md, section 8)"
++    },
++    "topbar.shape.L": {
++      "text": "L-shape",
++      "approval": "read",
++      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「新词同意：按钮「L 型 / 一字型 / U 型」，统一提示两句，\"退回{形状}\"」 (decisions.md, Leo's answers to the U-2 plan's second draft, 4; docs/plans/u2-plan.md, section 9.3)"
++    },
++    "topbar.shape.one-wall": {
++      "text": "Single wall",
++      "approval": "read",
++      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「新词同意：按钮「L 型 / 一字型 / U 型」，统一提示两句，\"退回{形状}\"」 (decisions.md, Leo's answers to the U-2 plan's second draft, 4; docs/plans/u2-plan.md, section 9.3)"
++    },
++    "topbar.shape.U": {
++      "text": "U-shape",
++      "approval": "read",
++      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「新词同意：按钮「L 型 / 一字型 / U 型」，统一提示两句，\"退回{形状}\"」 (decisions.md, Leo's answers to the U-2 plan's second draft, 4; docs/plans/u2-plan.md, section 9.3)"
++    },
++    "toast.shapeSwitched": {
++      "text": "Switched to {shape}; the walls were adjusted:",
++      "approval": "read",
++      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「新词同意：按钮「L 型 / 一字型 / U 型」，统一提示两句，\"退回{形状}\"」 (decisions.md, Leo's answers to the U-2 plan's second draft, 4; docs/plans/u2-plan.md, section 9.3)"
++    },
++    "toast.shapeWall": {
++      "text": "{wall}: {fromIn} → {toIn}",
++      "approval": "read",
++      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「新词同意：按钮「L 型 / 一字型 / U 型」，统一提示两句，\"退回{形状}\"」 (decisions.md, Leo's answers to the U-2 plan's second draft, 4; docs/plans/u2-plan.md, section 9.3)"
++    },
++    "toast.undo.toShape": {
++      "text": "Back to {shape}",
++      "approval": "read",
++      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「新词同意：按钮「L 型 / 一字型 / U 型」，统一提示两句，\"退回{形状}\"」 (decisions.md, Leo's answers to the U-2 plan's second draft, 4; docs/plans/u2-plan.md, section 9.3)"
+     }
+   },
+   "zh": {
+@@ -1328,11 +1388,6 @@
+       "approval": "written",
+       "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
+     },
+-    "toast.shapeGrew": {
+-      "text": "一字型厨房需要更长的墙，已把后墙加到 {backIn}″。",
+-      "approval": "written",
+-      "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
+-    },
+     "toast.modelGrew": {
+       "text": "换了型号，{wall}不够长，已加长到 {toIn}。",
+       "approval": "written",
+@@ -1343,11 +1398,6 @@
+       "approval": "written",
+       "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
+     },
+-    "toast.undo.shape": {
+-      "text": "退回 L 型",
+-      "approval": "written",
+-      "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
+-    },
+     "toast.undo.layout": {
+       "text": "撤销这次改动",
+       "approval": "written",
+@@ -1667,6 +1717,71 @@
+       "text": "右段",
+       "approval": "written",
+       "reviewed": "Leo's own wording, 2026-11-11: 「左段、后段、右段，和 L 型现在的叫法接上；英文照 L 型现有的词」 (decisions.md, the U's answers to the first draft)"
++    },
++    "panel.layout.shape.U": {
++      "text": "U 型厨房",
++      "approval": "read",
++      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「第 8 节的词：8.1 三个未审的和 8.2 六条草稿都同意，照写」 (decisions.md, Leo's answers to the U-2 plan; docs/plans/u2-plan.md, section 8)"
++    },
++    "leg.right": {
++      "text": "右",
++      "approval": "read",
++      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「第 8 节的词：8.1 三个未审的和 8.2 六条草稿都同意，照写」 (decisions.md, Leo's answers to the U-2 plan; docs/plans/u2-plan.md, section 8)"
++    },
++    "requirement.dishwasher-landing": {
++      "text": "转角与洗碗机之间的台面",
++      "approval": "read",
++      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「第 8 节的词：8.1 三个未审的和 8.2 六条草稿都同意，照写」 (decisions.md, Leo's answers to the U-2 plan; docs/plans/u2-plan.md, section 8)"
++    },
++    "panel.room.sideWalls": {
++      "text": "左右墙长度",
++      "approval": "written",
++      "reviewed": "Leo's own wording, 2026-11-11: 「左右墙一根滑杆管两面，叫\"左右墙长度 / Side walls\"：同意」 (decisions.md, Leo's answers to the U-2 plan)"
++    },
++    "toast.wall.sides": {
++      "text": "左右墙",
++      "approval": "read",
++      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「第 8 节的词：8.1 三个未审的和 8.2 六条草稿都同意，照写」 (decisions.md, Leo's answers to the U-2 plan; docs/plans/u2-plan.md, section 8)"
++    },
++    "toast.roomGrew.U": {
++      "text": "{package}需要更大的厨房，已把后墙加到 {backIn}″、左右墙加到 {sideIn}″。",
++      "approval": "read",
++      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「第 8 节的词：8.1 三个未审的和 8.2 六条草稿都同意，照写」 (decisions.md, Leo's answers to the U-2 plan; docs/plans/u2-plan.md, section 8)"
++    },
++    "rule.uSpares": {
++      "text": "U 型：小酒柜和微波抽屉都在左段台面下，在转角台面和冰箱台面之间。",
++      "approval": "read",
++      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「第 8 节的词：8.1 三个未审的和 8.2 六条草稿都同意，照写」 (decisions.md, Leo's answers to the U-2 plan; docs/plans/u2-plan.md, section 8)"
++    },
++    "shape.note.U.E": {
++      "text": "U 型：不配岛台；电磁灶改到右段墙上，油烟机为 36\" 墙挂烟囱式 HMCB36WS。",
++      "approval": "read",
++      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「第 8 节的词：8.1 三个未审的和 8.2 六条草稿都同意，照写」 (decisions.md, Leo's answers to the U-2 plan; docs/plans/u2-plan.md, section 8)"
++    },
++    "topbar.shape.L": {
++      "text": "L 型",
++      "approval": "read",
++      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「新词同意：按钮「L 型 / 一字型 / U 型」，统一提示两句，\"退回{形状}\"」 (decisions.md, Leo's answers to the U-2 plan's second draft, 4; docs/plans/u2-plan.md, section 9.3)"
++    },
++    "topbar.shape.one-wall": {
++      "text": "一字型",
++      "approval": "read",
++      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「新词同意：按钮「L 型 / 一字型 / U 型」，统一提示两句，\"退回{形状}\"」 (decisions.md, Leo's answers to the U-2 plan's second draft, 4; docs/plans/u2-plan.md, section 9.3)"
++    },
++    "topbar.shape.U": {
++      "text": "U 型",
++      "approval": "read",
++      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「新词同意：按钮「L 型 / 一字型 / U 型」，统一提示两句，\"退回{形状}\"」 (decisions.md, Leo's answers to the U-2 plan's second draft, 4; docs/plans/u2-plan.md, section 9.3)"
++    },
++    "toast.shapeSwitched": {
++      "text": "已切换为{shape}，墙长已调整：",
++      "approval": "read",
++      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「新词同意：按钮「L 型 / 一字型 / U 型」，统一提示两句，\"退回{形状}\"」 (decisions.md, Leo's answers to the U-2 plan's second draft, 4; docs/plans/u2-plan.md, section 9.3)"
++    },
++    "toast.shapeWall": {
++      "text": "{wall}从 {fromIn} 改为 {toIn}",
++      "approval": "read",
++      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「新词同意：按钮「L 型 / 一字型 / U 型」，统一提示两句，\"退回{形状}\"」 (decisions.md, Leo's answers to the U-2 plan's second draft, 4; docs/plans/u2-plan.md, section 9.3)"
+     }
+   }
+ }
+diff --git a/src/i18n/zh.json b/src/i18n/zh.json
+index f87f8aa..f588a4c 100644
+--- a/src/i18n/zh.json
++++ b/src/i18n/zh.json
+@@ -204,6 +204,9 @@
+   "fixture.sink": "水槽",
+   "topbar.package.planned": "即将推出",
+   "topbar.quote": "清单",
++  "topbar.shape.L": "L 型",
++  "topbar.shape.one-wall": "一字型",
++  "topbar.shape.U": "U 型",
+   "panel.collapseList": "收起列表",
+   "panel.collapseConfig": "收起面板",
+   "quote.backToRoom": "返回房间",
+@@ -293,6 +296,7 @@
+   "rule.oneWallOmittedWine": "墙不够长，已省略小酒柜。加长后墙即可放回。",
+   "rule.oneWallOmittedMicrowave": "墙不够长，已省略微波抽屉。加长后墙即可放回。",
+   "rule.oneWallSpares": "一字型：小酒柜和微波抽屉都在台面下，小酒柜靠冰箱一侧，微波抽屉靠灶台一侧。",
++  "rule.uSpares": "U 型：小酒柜和微波抽屉都在左段台面下，在转角台面和冰箱台面之间。",
+   "rule.ventOutside": "必须排到室外——此内嵌机芯不可内循环",
+   "rule.columnJoints.one": "柱子并排共 {count} 处，按说明书连接。",
+   "rule.columnJoints.many": "柱子并排共 {count} 处，按说明书连接。",
+@@ -303,17 +307,23 @@
+   "rule.antiTip": "防倾支架：灶推入到位前，先固定在灶后方的地面或墙上；推入后，灶的后脚要卡进支架。",
+   "rule.rangetopCornerSupports": "柜内在炉灶头开孔的角部下方加 2\" × 4\" 木方支撑，承托炉灶头的重量（142 磅）。",
+   "toast.roomGrew": "{package}需要更大的厨房，已把后墙加到 {backIn}″、左墙加到 {leftIn}″。",
+-  "toast.shapeGrew": "一字型厨房需要更长的墙，已把后墙加到 {backIn}″。",
++  "toast.shapeSwitched": "已切换为{shape}，墙长已调整：",
++  "toast.shapeWall": "{wall}从 {fromIn} 改为 {toIn}",
++  "toast.shapeOmitted": "墙已到最长，放不下{item}，已省略。",
++  "toast.roomGrew.U": "{package}需要更大的厨房，已把后墙加到 {backIn}″、左右墙加到 {sideIn}″。",
+   "toast.modelGrew": "换了型号，{wall}不够长，已加长到 {toIn}。",
+   "toast.wallGrew": "{wall}已从 {fromIn} 加长到 {toIn}，以容纳{reason}。",
+   "toast.wall.back": "后墙",
+   "toast.wall.left": "左墙",
++  "toast.wall.sides": "左右墙",
+   "toast.undo": "撤销",
+   "toast.undo.package": "退回 {package}",
+   "toast.undo.layout": "撤销这次改动",
+-  "toast.undo.shape": "退回 L 型",
++  "toast.undo.toShape": "退回 {shape}",
+   "shape.note.one-wall.D": "一字型：已省略咖啡机、第二台洗碗机和微波抽屉；烤箱为带微波的组合烤箱；冷冻柱、冷藏柱、酒柜柱为 18\" / 24\" / 18\" 款。",
+   "shape.note.one-wall.E": "一字型：不配岛台；电磁灶改到墙上，油烟机为 36\" 墙挂烟囱式 HMCB36WS。",
++  "shape.note.U.D": "U 型：不配岛台；微波抽屉改到右段台面下。",
++  "shape.note.U.E": "U 型：不配岛台；电磁灶改到右段墙上，油烟机为 36\" 墙挂烟囱式 HMCB36WS。",
+   "toast.growReason.fridgeEndAbuts": "返墙间隙",
+   "toast.growReason.towerSide": "换边后的烤箱塔",
+   "toast.growReason.sinkLeg": "换腿后的水槽",
+@@ -363,6 +373,7 @@
+   "panel.room": "房间",
+   "panel.room.backWall": "后墙长度",
+   "panel.room.leftWall": "左墙长度",
++  "panel.room.sideWalls": "左右墙长度",
+   "panel.room.corner": "转角柜",
+   "panel.room.corner.lazySusan": "转盘",
+   "panel.room.corner.blind": "盲角",
+diff --git a/src/store/finishes.ts b/src/store/finishes.ts
+index 23f93f1..7cfb5c9 100644
+--- a/src/store/finishes.ts
++++ b/src/store/finishes.ts
+@@ -10,14 +10,15 @@ import type { WallFinish } from "../three/materials";
+  * that have since been replaced. docs/decisions.md D23.
+  */
+ 
+-export type AccentRun = "none" | "left" | "back" | "island";
++export type AccentRun = "none" | "left" | "back" | "island" | "right";
+ export type CounterFinish = "quartz-white" | "marble-veined" | "wood-oak";
+ export type FloorFinish = "floor-oak" | "floor-tile";
+ /** Large-format panel sizes, long side first along the room. Round 33. */
+ export type TileSize = "24x48" | "32x32" | "48x48";
+ export const TILE_SIZES: TileSize[] = ["24x48", "32x32", "48x48"];
+ export const WALL_FINISHES: WallFinish[] = ["warm-grey", "mid-grey", "taupe", "white"];
+-export const ACCENT_RUNS: AccentRun[] = ["none", "left", "back", "island"];
++/** The U's right leg last (U-2): a link's `accentRun=right` names it. */
++export const ACCENT_RUNS: AccentRun[] = ["none", "left", "back", "island", "right"];
+ 
+ /** RAL 5015's value, read from the RAL table rather than written again here. */
+ const RAL_5015 = (() => {
+diff --git a/src/store/oneWallSwitch.test.ts b/src/store/oneWallSwitch.test.ts
+index bd82c55..ab1a060 100644
+--- a/src/store/oneWallSwitch.test.ts
++++ b/src/store/oneWallSwitch.test.ts
+@@ -164,6 +164,8 @@ describe("which model each opening keeps between the shapes (round 98b-2)", () =
+ });
+ 
+ describe("what the switch says, and what Undo puts back (round 98b-2)", () => {
++  // Since U-2 (Leo, 2026-11-11, the plan's second draft, 4 and 5) in the one
++  // notice every shape switch gives, in place of toast.shapeGrew.
+   it("says the room grew, as a package switch does, with an Undo that goes back to the L", () => {
+     dWithChoices();
+     const before = { shape: store().layoutParams.shape, params: store().layoutParams, selection: store().selection };
+@@ -176,8 +178,8 @@ describe("what the switch says, and what Undo puts back (round 98b-2)", () => {
+       back: { shape: store().layoutParams.shape, params: store().layoutParams, selection: store().selection },
+       kept: store().lRoom,
+     }).toEqual({
+-      key: "toast.shapeGrew",
+-      label: { key: "toast.undo.shape" },
++      key: "toast.shapeSwitched",
++      label: { key: "toast.undo.toShape", vars: { shapeKey: "topbar.shape.L" } },
+       back: before,
+       kept: null,
+     });
+@@ -221,10 +223,10 @@ describe("what the switch says, and what Undo puts back (round 98b-2)", () => {
+     expect(button("zh")).toBe("退回 套餐 A");
+   });
+ 
+-  it("says 'Back to L' / 退回 L 型 when one wall grew the wall", () => {
++  it("says 'Back to L-shape' / 退回 L 型 when one wall grew the wall (U-2, 9.3: 「退回{形状}」)", () => {
+     dWithChoices();
+     store().setLayoutShape("one-wall");
+-    expect([button("en"), button("zh")]).toEqual(["Back to L", "退回 L 型"]);
++    expect([button("en"), button("zh")]).toEqual(["Back to L-shape", "退回 L 型"]);
+   });
+ 
+   it("says 'Undo this change' / 撤销这次改动 when a switch in the Layout tab grew the wall", () => {
+@@ -240,7 +242,12 @@ describe("what the switch says, and what Undo puts back (round 98b-2)", () => {
+     const toast = store().toast!;
+     // 248″ since round 101 (A-3), where it said 249.3″.
+     // 245.8″ since the end-of-run round, the open end's panel 3/4" (A-12).
+-    expect(sayWith((key, vars) => translate("zh", key, vars), toast.key, toast.vars)).toBe("一字型厨房需要更长的墙，已把后墙加到 245.8″。");
++    // Since U-2 the one notice of every shape switch, the wall from and to
++    // (Leo, 2026-11-11, 9.3): 224¼″ is D's L, 245¾″ the same 245.75 as before.
++    expect(toast.lines!.map((line) => sayWith((key, vars) => translate("zh", key, vars), line.key, line.vars))).toEqual([
++      "已切换为一字型厨房，墙长已调整：",
++      "后墙从 224¼″ 改为 245¾″",
++    ]);
+   });
+ 
+   it("says D's and E's one-wall lines, and none for A, B and C", () => {
+diff --git a/src/store/shareLink.ts b/src/store/shareLink.ts
+index 0c62d1d..bedaefc 100644
+--- a/src/store/shareLink.ts
++++ b/src/store/shareLink.ts
+@@ -119,6 +119,7 @@ export const FINISH_FIELDS: FinishField<AnyValue>[] = [
+     left: "panel.layout.leg.left",
+     back: "panel.layout.leg.back",
+     island: "panel.layout.island",
++    right: "panel.layout.leg.right",
+   }),
+   paint("accent", "accent", ACCENT_COLORS, "finish.accent"),
+   named("counter", "counter", "finish.counter", COUNTER_NAMES, {
+diff --git a/src/store/useAppStore.ts b/src/store/useAppStore.ts
+index 1959a00..deca6bb 100644
+--- a/src/store/useAppStore.ts
++++ b/src/store/useAppStore.ts
+@@ -10,11 +10,13 @@ import { recordRangeModel } from "../data/cookingSurface";
+ import { recordFridgeModel } from "../data/fridgeMount";
+ import { recordTowerOven, towerSlotOf } from "../data/towerOven";
+ import { recordHoodModel } from "../data/hoodMount";
+-import { oneWallWantedIn, paramLimitsFor } from "../data/layoutTemplate";
++import { DEFAULT_PARAMS, oneWallWantedIn, paramLimitsFor, uWantedIn } from "../data/layoutTemplate";
++import { wallToastKey } from "../ui/shapeControls";
+ import type { LayoutShape, RunId } from "../data/layoutShape";
+ import { inchesSpoken } from "../data/inches";
+ import type { LayoutParams, Refusal } from "../data/layoutTemplate";
+-import { LAYOUT_ISSUES, REQUESTED_PARAMS } from "../data/room";
++import { LAYOUT_ISSUES, OMITTED_FOR_WALL, REQUESTED_PARAMS } from "../data/room";
++import { shapeSwitchLines } from "./shapeSwitch";
+ import type { Lang, Lighting, RenderMode, SlotId, UtilityType } from "../types";
+ import { readRails, readTab, writeRails, writeTab, type RightTab } from "./railState";
+ import {
+@@ -53,6 +55,14 @@ export interface ToastMessage {
+    * to give; until then each says "Undo".
+    */
+   undoLabel?: { key: string; vars?: Record<string, string | number> };
++  /**
++   * The L a shape switch back to the L had kept, for its Undo to keep again
++   * (U-2): Undo puts the other shape back, and a switch to the L after it
++   * comes back to the same L.
++   */
++  lRoom?: RoomSnapshot | null;
++  /** Each of `lines` on a line of its own: a shape switch's walls (U-2, 9.3). */
++  stacked?: boolean;
+   /**
+    * What a page opened from a share link could not show as the link had it,
+    * one line each, or that the link could not be read at all. Stays until it
+@@ -326,7 +336,8 @@ function modelGrewToast(
+     lines: grown.map((growth) => ({
+       key: "toast.modelGrew",
+       vars: {
+-        wallKey: growth.key === "backWallIn" ? "toast.wall.back" : "toast.wall.left",
++        // In a U the left wall is both side walls (U-2).
++        wallKey: wallToastKey(growth.key, before.layoutParams.shape),
+         toIn: inchesSpoken(growth.toIn),
+       },
+     })),
+@@ -472,7 +483,7 @@ export const useAppStore = create<AppState>((set, get) => ({
+               lines: result.grown.map((growth) => ({
+                 key: "toast.wallGrew",
+                 vars: {
+-                  wallKey: growth.key === "backWallIn" ? "toast.wall.back" : "toast.wall.left",
++                  wallKey: wallToastKey(growth.key, asked.shape),
+                   fromIn: inchesSpoken(growth.fromIn),
+                   toIn: inchesSpoken(growth.toIn),
+                   reasonKey: growReasonKey(patch),
+@@ -663,14 +674,17 @@ export const useAppStore = create<AppState>((set, get) => ({
+         toast: result.grown
+           ? {
+               id: ++toastId,
+-              key: "toast.roomGrew",
++              // In a U the left wall is both side walls, in its own line (U-2).
++              key: shape === "U" ? "toast.roomGrew.U" : "toast.roomGrew",
+               vars: {
+                 package: entry.name[s.lang] ?? entry.name.en,
+                 // To the tenth, the way every other figure on screen is
+                 // printed: the wall is 147-5/8" and nobody wants three
+                 // decimal places of it in a message.
+                 backIn: Number(REQUESTED_PARAMS.backWallIn.toFixed(1)),
+-                leftIn: Number(REQUESTED_PARAMS.leftWallIn.toFixed(1)),
++                ...(shape === "U"
++                  ? { sideIn: Number(REQUESTED_PARAMS.leftWallIn.toFixed(1)) }
++                  : { leftIn: Number(REQUESTED_PARAMS.leftWallIn.toFixed(1)) }),
+               },
+               undo: built ? before : undefined,
+               undoLabel: {
+@@ -729,6 +743,11 @@ export const useAppStore = create<AppState>((set, get) => ({
+         set({ layoutIssues: result.reasons });
+         return { ok: false, grown: null };
+       }
++      // Said, wall by wall, and undone, as every switch is (U-2; Leo,
++      // 2026-11-11: 「退回（Undo）要能回到切换前的形状和墙长」); its Undo keeps
++      // this L for the next switch back.
++      const lines = shapeSwitchLines(s.layoutParams, back.layoutParams, []);
++      const built = s.layoutIssues.length === 0;
+       set((now) => ({
+         selection,
+         blowerId: migrateBlower(to, hood, now.blowerId),
+@@ -738,24 +757,67 @@ export const useAppStore = create<AppState>((set, get) => ({
+         selectedSlot: null,
+         lRoom: null,
+         shapePicks: picks,
++        toast: lines
++          ? {
++              id: ++toastId,
++              key: lines[0].key,
++              lines,
++              stacked: true,
++              undo: built ? before : undefined,
++              undoLabel: { key: "toast.undo.toShape", vars: { shapeKey: `topbar.shape.${was}` } },
++              lRoom: back,
++            }
++          : now.toast?.undo
++            ? null
++            : now.toast,
+       }));
+       return { ok: true, grown: null };
+     }
+     // The wall the package needs in this shape, never shorter than it stands
+     // (D18); the L's own ceiling where it comes back to an L it did not leave.
+     const limits = paramLimitsFor(shape);
++    // A U grows both its back wall and its side walls to what the package's U
++    // wants (`uWantedIn`), and no further than the U's own sliders go (U-2).
++    const u = shape === "U" ? uWantedIn({ ...s.layoutParams, shape }, written) : null;
+     const backWallIn =
+       shape === "one-wall"
+         ? Math.max(s.layoutParams.backWallIn, oneWallWantedIn(s.layoutParams, written))
+-        : Math.min(s.layoutParams.backWallIn, limits.backWallIn.max);
+-    const result = setLayoutParamsGrowing({ ...s.layoutParams, shape, backWallIn });
++        : u
++          ? Math.min(Math.max(s.layoutParams.backWallIn, u.backWallIn), limits.backWallIn.max)
++          : Math.min(s.layoutParams.backWallIn, limits.backWallIn.max);
++    const leftWallIn = u
++      ? Math.min(Math.max(s.layoutParams.leftWallIn, u.leftWallIn), limits.leftWallIn.max)
++      : s.layoutParams.leftWallIn;
++    let result = setLayoutParamsGrowing({ ...s.layoutParams, shape, backWallIn, leftWallIn });
++    // An L with none kept — the package changed in the other shape, whose walls
++    // were the last package's L's — where those walls will not do: the
++    // package's own L walls (U-2; Leo, 2026-11-11, B: 「切换形状永远成功」, and 乙:
++    // 「放不下……才调」). The switch refused here before, in 14 ways from one
++    // wall (the plan's section 2.1, the after-a-package-switch probe).
++    if (!result.ok && shape === "L") {
++      const own = written.defaultLayout;
++      result = setLayoutParamsGrowing({
++        ...s.layoutParams,
++        ...own,
++        shape,
++        // A package that names no walls is built at the ordinary L's (A, C).
++        backWallIn: own.backWallIn ?? DEFAULT_PARAMS.backWallIn,
++        leftWallIn: own.leftWallIn ?? DEFAULT_PARAMS.leftWallIn,
++      });
++    }
+     if (!result.ok) {
+       recordModels(s.selection, s.packageId, was);
+       set({ layoutIssues: result.reasons });
+       return { ok: false, grown: null };
+     }
+-    const grew = result.params.backWallIn > s.layoutParams.backWallIn;
++    const backGrew = result.params.backWallIn > s.layoutParams.backWallIn;
++    const sidesGrew = shape === "U" && result.params.leftWallIn > s.layoutParams.leftWallIn;
+     const built = s.layoutIssues.length === 0;
++    // Every wall that changed, lengthened or cut to the shape's top, from and
++    // to (Leo, 2026-11-11, 乙 and the words of 9.3); and what even the top
++    // leaves out, where it does — never an L's own (round 98b's L comes back
++    // as it was, and an L's island is its own matter).
++    const lines = shapeSwitchLines(s.layoutParams, result.params, shape === "L" ? [] : OMITTED_FOR_WALL);
+     set((now) => ({
+       selection,
+       blowerId: migrateBlower(to, hood, now.blowerId),
+@@ -765,23 +827,33 @@ export const useAppStore = create<AppState>((set, get) => ({
+       selectedSlot: null,
+       lRoom: was === "L" ? before : now.lRoom,
+       shapePicks: picks,
+-      // The wall grown for the shape is said, and can be undone, as a package
+-      // switch's is (Leo, round 98b: "形状切换用同一种提示"), in its own words:
+-      // one wall grows only its back wall (Leo, round 98b-2). Only one wall
+-      // grows a wall on the way in; the L comes back to the room it left.
+-      toast: grew
++      // D1's fourth reason (Leo, 2026-11-11: 「切到 U 时镜头自动转到正前方」):
++      // into a U the camera goes to the U's default view, as the reset button
++      // takes it; to an L or one wall it stays where it is.
++      resetToken: shape === "U" ? now.resetToken + 1 : now.resetToken,
++      // Said, and undone, as a package switch is (Leo, round 98b: "形状切换用同
++      // 一种提示"): one notice for every shape, a line for each wall (U-2, 9.3).
++      toast: lines
+         ? {
+             id: ++toastId,
+-            key: "toast.shapeGrew",
+-            vars: { backIn: Number(result.params.backWallIn.toFixed(1)) },
++            key: lines[0].key,
++            lines,
++            stacked: true,
+             undo: built ? before : undefined,
+-            undoLabel: { key: "toast.undo.shape" },
++            undoLabel: { key: "toast.undo.toShape", vars: { shapeKey: `topbar.shape.${was}` } },
+           }
+         : now.toast?.undo
+           ? null
+           : now.toast,
+     }));
+-    return { ok: true, grown: grew ? { fromIn: s.layoutParams.backWallIn, toIn: result.params.backWallIn } : null };
++    return {
++      ok: true,
++      grown: sidesGrew
++        ? { fromIn: s.layoutParams.leftWallIn, toIn: result.params.leftWallIn }
++        : backGrew
++          ? { fromIn: s.layoutParams.backWallIn, toIn: result.params.backWallIn }
++          : null,
++    };
+   },
+   resetView: () => set((s) => ({ resetToken: s.resetToken + 1, selectedSlot: null })),
+   requestZoom: (direction) =>
+@@ -826,7 +898,10 @@ export const useAppStore = create<AppState>((set, get) => ({
+     recordTowerOven(backTower ? APPLIANCE_BY_ID[back.selection[backTower]] : undefined, back.packageId);
+     // The room as it was, a slider's 6" beside the tower included.
+     const result = setLayoutParams(back.layoutParams, { dragged: true });
++    const kept = get().toast?.lRoom;
+     set((s) => ({
++      // A U put back is a switch into it (D1's fourth reason, U-2).
++      resetToken: back.layoutParams.shape === "U" && s.layoutParams.shape !== "U" ? s.resetToken + 1 : s.resetToken,
+       packageId: back.packageId,
+       selection: back.selection,
+       blowerId: back.blowerId,
+@@ -835,8 +910,9 @@ export const useAppStore = create<AppState>((set, get) => ({
+       layoutVersion: s.layoutVersion + 1,
+       selectedSlot: null,
+       toast: null,
+-      // Back in an L there is no other shape's room to keep (round 98b-2).
+-      lRoom: back.layoutParams.shape === "L" ? null : s.lRoom,
++      // Back in an L there is no other shape's room to keep (round 98b-2);
++      // out of the L a switch had come back to, that L again (U-2).
++      lRoom: back.layoutParams.shape === "L" ? null : kept !== undefined ? kept : s.lRoom,
+     }));
+   },
+   reportModeSwitch: (ms) => set({ modeSwitchMs: Math.round(ms), modeSwitchStartedAt: null }),
+diff --git a/src/three/CabinetLayer.tsx b/src/three/CabinetLayer.tsx
+index 5cf144e..19d4e03 100644
+--- a/src/three/CabinetLayer.tsx
++++ b/src/three/CabinetLayer.tsx
+@@ -510,6 +510,7 @@ export function CabinetLayer() {
+   return (
+     <group name="cabinet-layer" visible={showCabinets}>
+       <CounterSlab />
++      <ProtoBackBoards boxes={CABINETS} />
+       {solids.map((box) => (
+         <group
+           key={box.id}
+@@ -526,3 +527,39 @@ export function CabinetLayer() {
+     </group>
+   );
+ }
++
++/**
++ * PROTOTYPE (Leo, 2026-11-12: 「左段或右段背面画成整块板」): with `?protoBoard=1`, the back
++ * of the U's left and right legs closed by one board each, in the leg's door
++ * finish: 3/4" thick against the leg's outer face, from the floor to the top
++ * of its tallest box, from the back wall to the leg's open end.
++ */
++function ProtoBackBoards({ boxes }: { boxes: CabinetBox[] }) {
++  const finishes = useAppStore((s) => s.finishes);
++  const renderMode = useAppStore((s) => s.renderMode);
++  const shape = useAppStore((s) => s.layoutParams.shape);
++  const on = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("protoBoard") === "1";
++  if (!on || shape !== "U") return null;
++  const thick = ft(0.75);
++  return (
++    <>
++      {(["left", "right"] as const).map((run) => {
++        const own = boxes.filter((box) => box.run === run && box.kind !== "counter");
++        if (own.length === 0) return null;
++        const xs = own.flatMap((box) => [box.position[0] - box.size[0] / 2, box.position[0] + box.size[0] / 2]);
++        const zs = own.flatMap((box) => [box.position[2] - box.size[2] / 2, box.position[2] + box.size[2] / 2]);
++        const top = Math.max(...own.map((box) => box.position[1] + box.size[1] / 2));
++        const outer = run === "left" ? Math.min(...xs) - thick / 2 : Math.max(...xs) + thick / 2;
++        const [z0, z1] = [Math.min(...zs), Math.max(...zs)];
++        const door = cabinetPaint(finishes, run);
++        const props = finish(renderMode, door.token, door.colour);
++        return (
++          <mesh key={run} position={[outer, top / 2, (z0 + z1) / 2]} castShadow receiveShadow>
++            <boxGeometry args={[thick, top, z1 - z0]} />
++            <Surface s={props} size={[z1 - z0, top]} />
++          </mesh>
++        );
++      })}
++    </>
++  );
++}
+diff --git a/src/three/CameraRig.tsx b/src/three/CameraRig.tsx
+index b5f5901..4049007 100644
+--- a/src/three/CameraRig.tsx
++++ b/src/three/CameraRig.tsx
+@@ -8,10 +8,21 @@ import { outward } from "../data/frame";
+ import { flyInAzimuth } from "../data/flyIn";
+ import { useIsMobile } from "../hooks/useIsMobile";
+ import { useAppStore } from "../store/useAppStore";
++import { defaultView } from "../data/defaultView";
++import { useSelection } from "../store/useSelection";
++import type { LayoutShape } from "../data/layoutShape";
+ 
+-/** Isometric default: ~35 degrees elevation, ~45 degrees azimuth, per §10. */
+-const ELEVATION = THREE.MathUtils.degToRad(35);
+-const AZIMUTH = THREE.MathUtils.degToRad(45);
++/**
++ * The default view for a shape, in radians: the L's and one wall's isometric
++ * ~35 degrees elevation, ~45 degrees azimuth, per §10; the U's from straight in
++ * front, 45 degrees down (U-2, `defaultView`).
++ */
++const viewFor = (shape: LayoutShape) => {
++  const { azimuthDeg, pitchDeg } = defaultView(shape);
++  return { azimuth: THREE.MathUtils.degToRad(azimuthDeg), pitch: THREE.MathUtils.degToRad(pitchDeg) };
++};
++const ELEVATION = viewFor("L").pitch;
++const AZIMUTH = viewFor("L").azimuth;
+ /** Centre of the room's bounding box, which is what the default view frames. */
+ const DEFAULT_TARGET = new THREE.Vector3(0, 4.5, 0);
+ const DEFAULT_DISTANCE = 22;
+@@ -50,9 +61,9 @@ const isoOffset = (distance: number, azimuth = AZIMUTH, pitch = ELEVATION) =>
+  * the end of the left run they cropped it. An orthographic view of a box has a
+  * closed-form extent along any axis, so there is no reason to guess.
+  */
+-function fitExtents() {
++function fitExtents(azimuth = AZIMUTH, pitch = ELEVATION) {
+   const half = new THREE.Vector3(ROOM.halfX, ROOM.wallHeight / 2, ROOM.halfZ);
+-  const forward = isoOffset(1).negate();
++  const forward = isoOffset(1, azimuth, pitch).negate();
+   const right = new THREE.Vector3(0, 1, 0).cross(forward).normalize();
+   const up = forward.clone().cross(right).normalize();
+   const extent = (axis: THREE.Vector3) =>
+@@ -107,7 +118,12 @@ export function CameraRig() {
+   // room's own size is a parameter, so this is recomputed when it changes
+   // rather than measured once at import.
+   const layoutVersion = useAppStore((s) => s.layoutVersion);
+-  const fit = useMemo(fitExtents, [layoutVersion]);
++  // Framed from the shape's own default view (U-2).
++  const shape = useAppStore((s) => s.layoutParams.shape);
++  const fit = useMemo(() => {
++    const view = viewFor(shape);
++    return fitExtents(view.azimuth, view.pitch);
++  }, [layoutVersion, shape]);
+   const fitZoom = Math.min(size.width / fit.w, size.height / fit.h);
+ 
+   const startTween = (
+@@ -139,11 +155,18 @@ export function CameraRig() {
+    * ever re-created (a renderer swap, a fast-refresh in dev), the view has to
+    * come back exactly where it was rather than snapping to the default.
+    */
+-  const pose = useRef({
+-    target: DEFAULT_TARGET.clone(),
+-    position: DEFAULT_TARGET.clone().add(isoOffset(DEFAULT_DISTANCE)),
+-    zoom: 0,
+-  });
++  // The page opens on the default view of the shape it opens in: a link to a
++  // U, from in front (U-2).
++  const pose = useRef(
++    (() => {
++      const view = viewFor(useAppStore.getState().layoutParams.shape);
++      return {
++        target: DEFAULT_TARGET.clone(),
++        position: DEFAULT_TARGET.clone().add(isoOffset(DEFAULT_DISTANCE, view.azimuth, view.pitch)),
++        zoom: 0,
++      };
++    })(),
++  );
+ 
+   useEffect(() => {
+     const controls = new OrbitControls(camera, gl.domElement);
+@@ -221,9 +244,31 @@ export function CameraRig() {
+     // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [selectedSlot]);
+ 
++  // PROTOTYPE (Leo, 2026-11-11: 「每一个家电选择另外一个选项替换之后，可以再重新放远」):
++  // another model chosen for the machine on screen pulls the camera back to
++  // the whole room's zoom, at the angle it is at, the machine still in the
++  // middle and its card still open.
++  const selection = useSelection();
++  const shownModel = selectedSlot ? selection[selectedSlot]?.id : undefined;
++  const lastShown = useRef<{ slot: string | null; model: string | undefined }>({ slot: null, model: undefined });
++  useEffect(() => {
++    const last = lastShown.current;
++    lastShown.current = { slot: selectedSlot, model: shownModel };
++    const controls = controlsRef.current;
++    if (!controls || !selectedSlot || last.slot !== selectedSlot || last.model === shownModel || !last.model) return;
++    const offset = camera.position.clone().sub(controls.target);
++    const distance = offset.length();
++    const pitch = Math.asin(offset.y / distance);
++    const azimuth = Math.atan2(offset.x, offset.z);
++    startTween(controls.target.clone().sub(appliedOffset.current), distance, fitZoom, 700, azimuth, pitch);
++    // eslint-disable-next-line react-hooks/exhaustive-deps
++  }, [selectedSlot, shownModel]);
++
+   useEffect(() => {
+     if (resetToken === 0) return;
+-    startTween(DEFAULT_TARGET, DEFAULT_DISTANCE, fitZoom, 600);
++    // Back to the default view of the shape on screen (U-2).
++    const view = viewFor(useAppStore.getState().layoutParams.shape);
++    startTween(DEFAULT_TARGET, DEFAULT_DISTANCE, fitZoom, 600, view.azimuth, view.pitch);
+     // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [resetToken]);
+ 
+diff --git a/src/three/HoodCabinet.tsx b/src/three/HoodCabinet.tsx
+index 0fc74ec..6e181a7 100644
+--- a/src/three/HoodCabinet.tsx
++++ b/src/three/HoodCabinet.tsx
+@@ -4,6 +4,7 @@ import {
+   HOOD_CABINET,
+   HOUSING_STYLES,
+   hoodCabinetParts,
++  housingFrame,
+   type HoodCabinetParts,
+ } from "../data/insertHood";
+ import { ft } from "../data/slots";
+@@ -35,7 +36,9 @@ export function HoodCabinet({
+   /** The band's own finish, which is usually not the door's. */
+   band: SurfaceProps;
+ }) {
+-  const [w, h, d] = box.size;
++  // In its own frame, turned to face the room with its run: on a run along z
++  // the box's size is the other way round (U-2).
++  const { w, h, d, rotationY } = housingFrame(box);
+   const style = box.module?.housing ?? "box";
+   const parts = useMemo(() => hoodCabinetParts({ w, h, d }, style), [w, h, d, style]);
+   const cove = useMemo(() => (parts.cove.h > 0 ? shell(parts.cove.rings) : null), [parts]);
+@@ -49,7 +52,7 @@ export function HoodCabinet({
+   const y = (at: number) => at - h / 2;
+ 
+   return (
+-    <group name="hood-cabinet">
++    <group name="hood-cabinet" rotation={[0, rotationY, 0]}>
+       {/* The bottom box, which the liner hangs in. */}
+       <mesh position={[0, y(parts.base.y), 0]} castShadow receiveShadow>
+         <boxGeometry args={[parts.base.w, parts.base.h, parts.base.d]} />
+diff --git a/src/three/KitchenShell.tsx b/src/three/KitchenShell.tsx
+index bdd2e8c..5b4da04 100644
+--- a/src/three/KitchenShell.tsx
++++ b/src/three/KitchenShell.tsx
+@@ -1,5 +1,6 @@
+ import { useMemo } from "react";
+-import { HOOD_OPENING, ROOM, RUN_BY_ID, WINDOWS, ft, fridgeReturnWall } from "../data/room";
++import { HOOD_OPENING, ROOM, RUN_BY_ID, WINDOWS, floorLineWalls, ft, fridgeReturnWall } from "../data/room";
++import { onAxis, otherAxis } from "../data/frame";
+ import { useAppStore } from "../store/useAppStore";
+ import { finish, floorColor, wallColor, type FinishToken } from "./materials";
+ import { Surface } from "./Surface";
+@@ -116,6 +117,9 @@ export function KitchenShell() {
+ 
+       <ReturnWall colour={wall} opacity={wallOpacity} />
+ 
++      {/* The U's right wall, as a line on the floor (U-2). */}
++      <FloorLines colour={wall} />
++
+       {/* left wall (-X), faces +X */}
+       <mesh
+         name="wall-left"
+@@ -140,6 +144,34 @@ export function KitchenShell() {
+   );
+ }
+ 
++/**
++ * A wall that would stand between the default view and the cabinets, drawn as
++ * a line on the floor where it is (U-2; Leo, 2026-11-10: 「挡视线的墙只画地面墙
++ * 线」): the U's right wall, `floorLineWalls`. In the wall's own colour, 1"
++ * wide, just outside the room line, the same in every mode.
++ */
++function FloorLines({ colour }: { colour: string }) {
++  const layoutVersion = useAppStore((s) => s.layoutVersion);
++  const lines = useMemo(() => floorLineWalls(), [layoutVersion]);
++  return (
++    <>
++      {lines.map((line) => {
++        const along = otherAxis(line.axis);
++        const width = ft(line.widthIn);
++        const lift = ft(1 / 8);
++        const position = onAxis(along, (line.from + line.to) / 2, line.at + (line.outward * width) / 2, lift / 2);
++        const size = onAxis(along, line.to - line.from, width, lift);
++        return (
++          <mesh key={line.wall} name={`floor-line-${line.wall}`} position={position} receiveShadow>
++            <boxGeometry args={size} />
++            <meshStandardMaterial color={colour} roughness={0.95} metalness={0} />
++          </mesh>
++        );
++      })}
++    </>
++  );
++}
++
+ /**
+  * The wall past the refrigerator, when the layout says one is there.
+  *
+diff --git a/src/three/OcclusionFade.tsx b/src/three/OcclusionFade.tsx
+index 23a1440..eef748a 100644
+--- a/src/three/OcclusionFade.tsx
++++ b/src/three/OcclusionFade.tsx
+@@ -314,7 +314,10 @@ export function OcclusionFade() {
+         const out = standing
+           ? toLocal(slot, standing.position[0], standing.position[2]).out
+           : 0;
+-        if (!blocksSightLine(isAppliance(mesh), out, ownDepth)) continue;
++        // PROTOTYPE (Leo, 2026-11-11: 「挡在前面的机器也变半透明，和柜子同一条规矩」): a
++        // machine on the sight line fades as a cabinet does, when VITE_FADE_MACHINES is "1".
++        const sameRule = (import.meta as unknown as { env?: Record<string, string> }).env?.VITE_FADE_MACHINES === "1";
++        if (!sameRule && !blocksSightLine(isAppliance(mesh), out, ownDepth)) continue;
+         // An appliance's own enclosure is not in its way — nor, now that the
+         // appliances are cast against, is the machine itself. Round 55: the
+         // group carries `userData.slot` so this finds it.
+diff --git a/src/three/UtilityLayer.tsx b/src/three/UtilityLayer.tsx
+index 1db28e9..569fa69 100644
+--- a/src/three/UtilityLayer.tsx
++++ b/src/three/UtilityLayer.tsx
+@@ -1,7 +1,7 @@
+ import { useMemo } from "react";
+ import { useDisposable } from "./useDisposable";
+ import * as THREE from "three";
+-import { CABINET_STANDARDS, ROOM, SLOTS, ft } from "../data/slots";
++import { CABINET_STANDARDS, SLOTS, ft } from "../data/slots";
+ import { FIXTURES } from "../data/fixtures";
+ import { ceilingStub, cordHole, ductCallout, ductRoute, hoodCabinetFloor, hoodOutlet } from "../data/hood";
+ import { deriveUtilities } from "../data/utilities";
+@@ -9,12 +9,9 @@ import { useAppStore } from "../store/useAppStore";
+ import { useSelection, useSelectedBlower } from "../store/useSelection";
+ import { effectiveCfm } from "../data/ventilation";
+ import { resolveRoughIn } from "../data/roughIn";
+-import { serviceRoute } from "../data/serviceRoute";
++import { serviceEntryPoint, serviceRoute, trunkPath } from "../data/serviceRoute";
+ import { alongOf, facingOf, onAxis, otherAxis, sizeOnPlan } from "../data/frame";
+ import { wallBehind } from "../data/roomWalls";
+-import { RUN_BY_ID } from "../data/room";
+-import { LEFT_WALL_FACING } from "../data/layoutShape";
+-import { wallAnchor } from "../data/wallAnchor";
+ import type { Appliance, ServicePoint, SlotId, UtilityType, Utilities } from "../types";
+ import { UNCONFIRMED, UNREVIEWED, UTILITY_COLORS, UTILITY_RADIUS_IN } from "./materials";
+ 
+@@ -217,65 +214,24 @@ function FloorService({
+   );
+ }
+ 
+-/** The wall a run's machines back onto: behind the way the run faces (round 98a). */
+-const wallOf = (run: typeof RUN_BY_ID.back) => wallBehind(run.facing);
+-
+-/**
+- * Every service enters on the back run's wall, at its open end.
+- *
+- * Which wall the meter is on is a fact about the house, so it is named — the
+- * back run's. Where along it is the room's own far end, four feet back from the
+- * corner, and that is the one figure here that is still the room's rather than
+- * a run's. Round 52 (D22 step 3).
+- */
+-const entry = (standoff: number) => {
+-  const run = RUN_BY_ID.back;
+-  const wall = wallOf(run);
+-  // Off the wall into the room, the way the run faces.
+-  const [x, , z] = onAxis(otherAxis(wall.axis), ROOM.halfX - ft(4), wall.at + run.facing.sign * standoff);
+-  return { x, z };
+-};
+-
+ /**
+- * Inside corner, where the two runs' walls meet. The left wall's facing where
+- * there is no left run, on one wall (round 98b): nothing there needs a
+- * service, but the corner is still where the two walls are.
++ * Where every service enters: the L's back wall as drawn since round 52, the
++ * U's right wall 48" from its open end (U-2) — `serviceEntryPoint`.
+  */
+-const corner = (standoff: number) => {
+-  const back = wallOf(RUN_BY_ID.back);
+-  const leftFacing = RUN_BY_ID.left?.facing ?? LEFT_WALL_FACING;
+-  const left = wallBehind(leftFacing);
+-  const [x, , z] = onAxis(
+-    otherAxis(back.axis),
+-    left.at + leftFacing.sign * standoff,
+-    back.at + RUN_BY_ID.back.facing.sign * standoff,
+-  );
+-  return { x, z };
+-};
++const entry = (standoff: number) => serviceEntryPoint(standoff);
+ 
+ /**
+  * A trunk route from the service entry to a slot, at a fixed height. Runs stay
+- * on the walls: back wall first, then around the corner onto the left wall,
+- * never diagonally across the floor.
++ * on the walls, turning their inside corners, never diagonally across the
++ * floor (`trunkPath`: the L's back wall then the left; the U's right wall, the
++ * back, the left). An island slot has none (D22): its caller asks for a riser.
+  */
+ function trunkPoints(
+   slot: ServicePoint,
+   y: number,
+   standoff = STANDOFF.default,
+ ): [number, number, number][] {
+-  const anchor = wallAnchor(slot, standoff);
+-  // A trunk runs along the walls, and an island slot is on none of them: its
+-  // services come up through the floor (`islandRiser`). Asking for a trunk to
+-  // one is a bug in the caller, not a route to draw. D22.
+-  if (!anchor) throw new Error(`UtilityLayer: no wall trunk to ${slot.id}, which is in the island`);
+-  const start = entry(standoff);
+-  const points: [number, number, number][] = [[start.x, y, start.z]];
+-  if (anchor.onLeftWall) {
+-    const bend = corner(standoff);
+-    points.push([bend.x, y, bend.z]);
+-  }
+-  points.push([anchor.x, y, anchor.z]);
+-  return points;
++  return trunkPath(slot, standoff).map((at) => [at.x, y, at.z] as [number, number, number]);
+ }
+ 
+ /** Draws a polyline of pipe, with an elbow at each interior corner. */
+diff --git a/src/ui/FinishPicker.tsx b/src/ui/FinishPicker.tsx
+index 8829cb7..d4d893a 100644
+--- a/src/ui/FinishPicker.tsx
++++ b/src/ui/FinishPicker.tsx
+@@ -13,6 +13,7 @@ import {
+ import { TILE_LABEL } from "../store/finishes";
+ import type { WallFinish } from "../three/materials";
+ import { PanelSection, Segmented } from "./primitives";
++import { accentRunsFor } from "./shapeControls";
+ 
+ /**
+  * How the room is finished, as against what is in it.
+@@ -180,19 +181,19 @@ export function FinishPicker() {
+   // that one wall has not got shows as none, which is what the room shows;
+   // the choice is kept for the L. The one run is the whole run (Leo, round
+   // 98b-2: "整排"), a key of its own.
++  // The U's three legs (U-2), the right one Leo's 「右段」.
+   const shape = useAppStore((s) => s.layoutParams.shape);
+-  const runs: { value: AccentRun; label: string }[] =
+-    shape === "one-wall"
+-      ? [
+-          { value: "none", label: t("finish.accentRun.none") },
+-          { value: "back", label: t("finish.accentRun.whole") },
+-        ]
+-      : [
+-          { value: "none", label: t("finish.accentRun.none") },
+-          { value: "left", label: t("panel.layout.leg.left") },
+-          { value: "back", label: t("panel.layout.leg.back") },
+-          { value: "island", label: t("panel.layout.island") },
+-        ];
++  const RUN_WORD: Record<AccentRun, string> = {
++    none: "finish.accentRun.none",
++    left: "panel.layout.leg.left",
++    back: shape === "one-wall" ? "finish.accentRun.whole" : "panel.layout.leg.back",
++    right: "panel.layout.leg.right",
++    island: "panel.layout.island",
++  };
++  const runs: { value: AccentRun; label: string }[] = accentRunsFor(shape).map((value) => ({
++    value,
++    label: t(RUN_WORD[value]),
++  }));
+   const setFinish = useAppStore((s) => s.setFinish);
+ 
+   return (
+diff --git a/src/ui/LayoutControls.tsx b/src/ui/LayoutControls.tsx
+index c4d2d74..7ff1da7 100644
+--- a/src/ui/LayoutControls.tsx
++++ b/src/ui/LayoutControls.tsx
+@@ -1,7 +1,6 @@
+ import { PARAM_LIMITS, feasibleRange, narrowCounterLeg, wallRequirement, type LayoutParams } from "../data/room";
+-import { LAYOUT_SHAPES } from "../data/layoutShape";
+ import { paramLimitsFor } from "../data/layoutTemplate";
+-import { showsControl, type LayoutControl } from "./shapeControls";
++import { showsControl, sideWallLabelKey, sideWallLimits, type LayoutControl } from "./shapeControls";
+ import { useT } from "../i18n/useT";
+ import { useAppStore } from "../store/useAppStore";
+ import { selectionOf, useActivePackage, useSelectedAppliance } from "../store/useSelection";
+@@ -149,11 +148,21 @@ export function LayoutControls() {
+   const hasHousing = !!hood && hoodMount(hood) === "insert";
+   const issues = useAppStore((s) => s.layoutIssues);
+   const setLayout = useAppStore((s) => s.setLayout);
+-  const setLayoutShape = useAppStore((s) => s.setLayoutShape);
+   // What the shape shows (round 98b-2): one wall hides what it has not got
+   // and what it decides itself (`shapeControls.ts`).
+   const on = (control: LayoutControl) => showsControl(params.shape, control);
+   const limits = paramLimitsFor(params.shape);
++  // Whether the first section has anything to show in this shape (U-2).
++  const firstSectionShows =
++    on("fridgeEnd") ||
++    on("fridgeEndAbuts") ||
++    on("sinkLeg") ||
++    on("cornerType") ||
++    (hasHousing && on("housingStyle")) ||
++    (hasTower && on("towerSide")) ||
++    (hasCoffee && on("coffeeLeg")) ||
++    on("hasIsland") ||
++    issues.length > 0;
+ 
+   // Probing the generator, so the greyed band and the room can never disagree:
+   // again whenever the room is rebuilt, a model swapped included, in the
+@@ -177,16 +186,11 @@ export function LayoutControls() {
+     <>
+       {/* What is where. These are the decisions a designer makes first and
+           changes most, so they sit above the dimensions they are made in. */}
++      {/* The layout's shape is chosen in the top bar since U-2 (Leo,
++          2026-11-11: 「右边面板的形状开关拿掉，只留主界面那一排」). A shape with
++          nothing of this section to choose shows no empty heading. */}
++      {firstSectionShows && (
+       <PanelSection title={t("panel.layout")}>
+-        {/* The layout's shape, first: it decides which of the rest apply.
+-            Round 98b-2. Switching it grows the wall where the package needs
+-            it, says so and offers Undo (D18), and leaves the camera (D1). */}
+-        <Choice
+-          label={t("panel.layout.shape")}
+-          value={params.shape}
+-          onChange={(shape) => setLayoutShape(shape)}
+-          options={LAYOUT_SHAPES.map((shape) => ({ value: shape, label: t(`panel.layout.shape.${shape}`) }))}
+-        />
+         {on("fridgeEnd") && (
+           <Choice
+             label={t("panel.layout.fridge")}
+@@ -297,6 +301,7 @@ export function LayoutControls() {
+           </ul>
+         )}
+       </PanelSection>
++      )}
+ 
+       {/* And the dimensions those decisions are made in. The island's own are
+           here rather than beside its switch: they are sizes, and they are
+@@ -310,11 +315,13 @@ export function LayoutControls() {
+           caption={<WallMinimum params={params} leg="back" />}
+           onChange={(backWallIn) => setLayout({ backWallIn })}
+         />
++        {/* In a U one slider for both side walls (Leo, 2026-11-11, U-2), to
++            the U's own top. */}
+         {on("leftWallIn") && (
+           <Slider
+-            label={t("panel.room.leftWall")}
++            label={t(sideWallLabelKey(params.shape))}
+             value={params.leftWallIn}
+-            {...PARAM_LIMITS.leftWallIn}
++            {...(params.shape === "U" ? sideWallLimits(params.shape) : PARAM_LIMITS.leftWallIn)}
+             feasible={feasible.leftWallIn}
+             caption={<WallMinimum params={params} leg="left" />}
+             onChange={(leftWallIn) => setLayout({ leftWallIn })}
+diff --git a/src/ui/PlanThumbnail.tsx b/src/ui/PlanThumbnail.tsx
+index 049bbed..a9abf08 100644
+--- a/src/ui/PlanThumbnail.tsx
++++ b/src/ui/PlanThumbnail.tsx
+@@ -3,6 +3,7 @@ import { SLOT_ORDER } from "../data/catalogue";
+ import { ROOM, SLOT_BY_ID, isOmitted } from "../data/slots";
+ import { planFootprint } from "../data/planFootprint";
+ import { useAppStore } from "../store/useAppStore";
++import { planWalls } from "./planWalls";
+ 
+ const PAD = 0.6;
+ 
+@@ -30,7 +31,8 @@ export function PlanThumbnail() {
+       role="img"
+       aria-label="Kitchen floor plan"
+     >
+-      {/* room outline; the two solid edges are the walls the run sits against */}
++      {/* room outline; the solid edges are the walls the runs sit against: the
++          left and back, and in a U the right as well (U-2) */}
+       <rect
+         x={PAD}
+         y={PAD}
+@@ -47,6 +49,16 @@ export function PlanThumbnail() {
+         stroke="var(--ink-muted)"
+         strokeWidth={0.16}
+       />
++      {planWalls().map((points, index) => (
++        <path
++          key={index}
++          data-plan-wall={index}
++          d={points.map(([x, z], at) => `${at === 0 ? "M" : "L"} ${sx(x)} ${sz(z)}`).join(" ")}
++          fill="none"
++          stroke="var(--ink-muted)"
++          strokeWidth={0.16}
++        />
++      ))}
+ 
+       {CABINETS.filter((box) => box.kind === "base" || box.kind === "tall").map((box) => (
+         <rect
+diff --git a/src/ui/SceneControls.tsx b/src/ui/SceneControls.tsx
+index 81eb886..830339d 100644
+--- a/src/ui/SceneControls.tsx
++++ b/src/ui/SceneControls.tsx
+@@ -204,7 +204,18 @@ export function Toast() {
+         visible ? "opacity-100" : "opacity-0",
+       ].join(" ")}
+     >
+-      <span>{message}</span>
++      {/* A shape switch's walls, one to a line (U-2, 9.3). */}
++      {toast.stacked && toast.lines ? (
++        <span>
++          {toast.lines.map((line, index) => (
++            <span key={index} className="block">
++              {say(line.key, line.vars)}
++            </span>
++          ))}
++        </span>
++      ) : (
++        <span>{message}</span>
++      )}
+       {toast.undo && (
+         <button
+           type="button"
+diff --git a/src/ui/TopBar.tsx b/src/ui/TopBar.tsx
+index f814a57..fe9b5a7 100644
+--- a/src/ui/TopBar.tsx
++++ b/src/ui/TopBar.tsx
+@@ -7,6 +7,38 @@ import { shareUrl } from "../store/openLink";
+ import { useAppStore } from "../store/useAppStore";
+ import { copyText } from "./copyText";
+ import { Segmented } from "./primitives";
++import { shapeButtons } from "./shapeControls";
++import type { LayoutShape } from "../data/layoutShape";
++
++/**
++ * The kitchen's shape, a row of buttons beside the packages (U-2, A; Leo,
++ * 2026-11-11: 「形状开关放到主界面，像套餐 A–E 那样一排按钮（L 型、一字型、U 型）……
++ * 我的倾向是顶栏、紧挨套餐按钮；手机顶栏放不下就放第二行」). The short names on
++ * the buttons, the long ones on their titles and as their names to a screen
++ * reader. Switching always succeeds: the walls the new shape needs, said wall
++ * by wall with Undo (D18; his answer 3, 乙), and into a U the U's view (D1's
++ * fourth reason).
++ */
++function ShapeButtons() {
++  const t = useT();
++  const shape = useAppStore((s) => s.layoutParams.shape);
++  const setLayoutShape = useAppStore((s) => s.setLayoutShape);
++  return (
++    <Segmented
++      size="sm"
++      tight
++      name="shape"
++      value={shape}
++      onChange={(next: LayoutShape) => void setLayoutShape(next)}
++      options={shapeButtons().map((button) => ({
++        value: button.value,
++        label: t(button.labelKey),
++        title: t(button.titleKey),
++        ariaLabel: t(button.titleKey),
++      }))}
++    />
++  );
++}
+ 
+ function useFullscreen() {
+   const [isFullscreen, setIsFullscreen] = useState(false);
+@@ -184,7 +216,9 @@ export function TopBar() {
+   // 360px phone, in both languages, with room for Share: tighter padding and
+   // gaps, nothing taken away (round 94, D23; tests/topBar.test.ts).
+   return (
+-    <header className="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-line bg-surface px-3 md:gap-4 md:px-6">
++    <header className="shrink-0 border-b border-line bg-surface">
++      {/* 55px and the border under the header: the bar is the 56px it always was. */}
++      <div className="flex h-[55px] items-center justify-between gap-2 px-3 md:gap-4 md:px-6">
+       <div className="flex min-w-0 items-center gap-3 md:gap-5">
+         {/* The title gives way first. On a narrow phone the header has to hold
+             the package switch and the quote, and both of those are controls —
+@@ -220,7 +254,13 @@ export function TopBar() {
+             })}
+           />
+         </div>
+-        <span className="tracking-label hidden shrink-0 rounded-full border border-line px-2.5 py-1 text-[9px] text-ink-muted lg:inline-block">
++        {/* The shapes, beside the packages where the bar has room for them. */}
++        <div data-shape-row="first" className="hidden shrink-0 lg:block">
++          <ShapeButtons />
++        </div>
++        {/* From 1280px since U-2: between 1024 and 1280 the bar has room for
++            the shape buttons or the tagline, not both (measured, English). */}
++        <span className="tracking-label hidden shrink-0 rounded-full border border-line px-2.5 py-1 text-[9px] text-ink-muted xl:inline-block">
+           {t("app.tagline")}
+         </span>
+       </div>
+@@ -296,6 +336,12 @@ export function TopBar() {
+           </svg>
+         </button>
+       </div>
++      </div>
++      {/* Where it has not, a second row under the bar with the shapes alone
++          (Leo: 「手机顶栏放不下就放第二行」). */}
++      <div data-shape-row="second" className="flex h-10 items-center justify-center border-t border-line lg:hidden">
++        <ShapeButtons />
++      </div>
+     </header>
+   );
+ }
+diff --git a/src/ui/primitives.tsx b/src/ui/primitives.tsx
+index 18ee0d5..2d3567b 100644
+--- a/src/ui/primitives.tsx
++++ b/src/ui/primitives.tsx
+@@ -152,6 +152,8 @@ export interface SegmentOption<T extends string> {
+   label: string;
+   disabled?: boolean;
+   title?: string;
++  /** The button's name to a screen reader, where the label is a short form (U-2). */
++  ariaLabel?: string;
+ }
+ 
+ export function Segmented<T extends string>({
+@@ -211,6 +213,7 @@ export function Segmented<T extends string>({
+             data-value={option.value}
+             disabled={option.disabled}
+             title={option.title}
++            aria-label={option.ariaLabel}
+             onClick={() => onChange(option.value)}
+             className={[
+               "whitespace-nowrap rounded-full font-medium transition-colors",
+diff --git a/src/ui/shapeControls.ts b/src/ui/shapeControls.ts
+index d704ee7..055c1b0 100644
+--- a/src/ui/shapeControls.ts
++++ b/src/ui/shapeControls.ts
+@@ -1,5 +1,6 @@
+-import type { LayoutShape } from "../data/layoutShape";
+-import type { LayoutParams } from "../data/layoutTemplate";
++import { LAYOUT_SHAPES, type LayoutShape } from "../data/layoutShape";
++import { paramLimitsFor, type LayoutParams } from "../data/layoutTemplate";
++import type { AccentRun } from "../store/finishes";
+ 
+ /**
+  * Which of the Layout tab's controls a shape shows, by the setting each sets.
+@@ -36,6 +37,48 @@ export type LayoutControl = keyof Pick<
+ 
+ export const SHOWN_ON_ONE_WALL: readonly LayoutControl[] = ["housingStyle", "backWallIn", "microwaveHandleIn", "coffeeSillIn"];
+ 
++/**
++ * The U's (U-2; docs/plans/u2-plan.md, section 2): one wall's, the side walls'
++ * one slider (Leo, 2026-11-11: 「左右墙一根滑杆管两面」) and the corner, one
++ * choice for both of its corners. What the U decides itself — which leg the
++ * refrigerator, the sink and the coffee go on, the tower's side, the island —
++ * is hidden, and the L's own choice kept for the L (`asBuilt`).
++ */
++export const SHOWN_IN_U: readonly LayoutControl[] = [...SHOWN_ON_ONE_WALL, "leftWallIn", "cornerType"];
++
+ /** Whether the Layout tab shows a control in a shape. */
+ export const showsControl = (shape: LayoutShape, control: LayoutControl) =>
+-  shape === "L" || SHOWN_ON_ONE_WALL.includes(control);
++  shape === "L" || (shape === "U" ? SHOWN_IN_U : SHOWN_ON_ONE_WALL).includes(control);
++
++/**
++ * The side wall slider's name: the L's left wall, the U's two side walls as one
++ * (Leo, 2026-11-11: 「叫"左右墙长度 / Side walls"」).
++ */
++export const sideWallLabelKey = (shape: LayoutShape) => (shape === "U" ? "panel.room.sideWalls" : "panel.room.leftWall");
++
++/** Where that slider stops: the shape's own limits, the U's sides at D13's 216". */
++export const sideWallLimits = (shape: LayoutShape) => paramLimitsFor(shape).leftWallIn;
++
++/** The wall a grown-wall notice names: in a U the left wall is both side walls. */
++export const wallToastKey = (key: "backWallIn" | "leftWallIn", shape: LayoutShape) =>
++  key === "backWallIn" ? "toast.wall.back" : shape === "U" ? "toast.wall.sides" : "toast.wall.left";
++
++/**
++ * The runs the accent colour can go on (Finishes panel): one wall's one run,
++ * the whole of it (round 98b-2); the L's two legs and its island; the U's three
++ * legs (U-2), with no island.
++ */
++export function accentRunsFor(shape: LayoutShape): AccentRun[] {
++  if (shape === "one-wall") return ["none", "back"];
++  if (shape === "U") return ["none", "left", "back", "right"];
++  return ["none", "left", "back", "island"];
++}
++
++/**
++ * The shape buttons in the top bar (U-2, A; Leo, 2026-11-11: 「形状开关放到主界面，
++ * 像套餐 A–E 那样一排按钮」): the short names on the buttons (「L 型 / 一字型 /
++ * U 型」, 9.3), the long ones on their titles. The Layout tab has no switch of
++ * its own since (his answer 1: 「右边面板的形状开关拿掉，只留主界面那一排」).
++ */
++export const shapeButtons = () =>
++  LAYOUT_SHAPES.map((shape) => ({ value: shape, labelKey: `topbar.shape.${shape}`, titleKey: `panel.layout.shape.${shape}` }));
+diff --git a/src/data/defaultView.ts b/src/data/defaultView.ts
+new file mode 100644
+index 0000000..0f5c4f3
+--- /dev/null
++++ b/src/data/defaultView.ts
+@@ -0,0 +1,23 @@
++import type { LayoutShape } from "./layoutShape";
++
++/**
++ * The angle the room is first seen from, and gone back to by "reset view".
++ *
++ * The L and one wall from front right, 45° round and 35° down (§10, the
++ * isometric default since the first commit). The U from straight in front, 45°
++ * down (U-2; Leo, 2026-11-11: 「U 的默认视角从正前方看：同意」): from front right
++ * the right leg turns its back to the camera, its doors facing the left leg.
++ *
++ * Only the default: switching the shape leaves the camera where it is (D1).
++ */
++export function defaultView(shape: LayoutShape): { azimuthDeg: number; pitchDeg: number } {
++  // PROTOTYPE (Leo, 2026-11-11: 「U型默认视角太陡了，放平一点」): the U's pitch from
++  // `?protoPitch=`, 30° when the link does not say.
++  const asked = typeof window === "undefined" ? NaN : Number(new URLSearchParams(window.location.search).get("protoPitch"));
++  // Leo, 2026-11-12: 25° down, and three ways round to compare — `?protoAz=45`
++  // (from the right), `-45` (from the left), `0` (from in front); 45 when the link does not say.
++  const pitchDeg = Number.isFinite(asked) && asked > 0 ? asked : 25;
++  const az = typeof window === "undefined" ? NaN : Number(new URLSearchParams(window.location.search).get("protoAz") ?? "45");
++  const azimuthDeg = Number.isFinite(az) ? az : 45;
++  return shape === "U" ? { azimuthDeg, pitchDeg } : { azimuthDeg: 45, pitchDeg: 35 };
++}
+diff --git a/src/data/housingFrame.test.ts b/src/data/housingFrame.test.ts
+new file mode 100644
+index 0000000..db26687
+--- /dev/null
++++ b/src/data/housingFrame.test.ts
+@@ -0,0 +1,90 @@
++/**
++ * The housing round an insert liner, turned with its run (U-2; Leo, 2026-11-11:
++ * 「B，D套餐的insert hood形状不对」).
++ *
++ * A cabinet box's size is on the room's axes, `[x, y, z]`; `HoodCabinet` built
++ * the housing as though the first of them were always its width along the
++ * wall and the last its depth, which is true only of a run along x. On the U's
++ * right leg, along z and facing −x, a 36" housing 13" deep was drawn 13" wide
++ * and 36" deep, the wrong way round: a board hanging off the wall over a thin
++ * strip of steel, its top an open frame. The L and one wall hang it on the back
++ * wall, along x, where the two readings agree.
++ *
++ * So the housing is built in its own frame — width along the run, depth out
++ * from the wall — and turned to the way its box faces, as a door is
++ * (`doorFace`, `rotationOf`, D22). Checked for B and D, the two packages with a
++ * liner, in each shape and each housing style; on the plan the turned housing
++ * must cover its box exactly. Reached through the module, so on code without
++ * the function each case fails on its own.
++ */
++import { readFileSync } from "node:fs";
++import { afterAll, describe, expect, it } from "vitest";
++import * as insertHood from "./insertHood";
++import { CABINETS, type CabinetBox } from "./cabinets";
++import { rotationOf, sizeOnPlan } from "./frame";
++import { resetRoom } from "./testRoom";
++import { openSharedLink } from "../store/openLink";
++import { useAppStore } from "../store/useAppStore";
++
++const OPENED = useAppStore.getState();
++const inches = (ft: number) => Math.round(ft * 12 * 1000) / 1000 + 0;
++const SIDE: Record<string, number> = { B: 157.5, D: 207 };
++const linkFor = (code: string, shape: string, housing: string) =>
++  shape === "U"
++    ? `?v=2&pkg=${code}&shape=U&back=132&left=${SIDE[code]}&corner=blind&housing=${housing}`
++    : `?v=2&pkg=${code}&shape=${shape}&housing=${housing}`;
++
++type Frame = { w: number; h: number; d: number; rotationY: number };
++const frameOf = (box: CabinetBox): Frame =>
++  (insertHood as unknown as { housingFrame: (box: CabinetBox) => Frame }).housingFrame(box);
++
++function housing(code: string, shape: string, style: string) {
++  resetRoom();
++  useAppStore.setState(OPENED, true);
++  openSharedLink(linkFor(code, shape, style));
++  const boxes = CABINETS.filter((box) => box.module?.kind === "hood-cabinet");
++  if (boxes.length !== 1) throw new Error(`${code} ${shape}: ${boxes.length} housings`);
++  return boxes[0];
++}
++
++afterAll(() => {
++  resetRoom();
++  useAppStore.setState(OPENED, true);
++});
++
++const CASES = ["B", "D"].flatMap((code) =>
++  ["L", "one-wall", "U"].flatMap((shape) => ["box", "sweep"].map((style) => [code, shape, style] as const)),
++);
++
++describe("the insert liner's housing, in its own frame and turned with its run", () => {
++  it.each(CASES)("%s %s %s: 36\" along the run, out from the wall, facing the room", (code, shape, style) => {
++    const box = housing(code, shape, style);
++    const frame = frameOf(box);
++    const [planX, planZ] = sizeOnPlan(frame.rotationY, frame.w, frame.d);
++    expect({
++      shape: useAppStore.getState().layoutParams.shape,
++      style: box.module?.housing,
++      wide: inches(frame.w),
++      turned: frame.rotationY,
++      onPlan: [inches(planX), inches(planZ)],
++      height: inches(frame.h),
++    }).toEqual({
++      shape,
++      style,
++      wide: 36,
++      turned: rotationOf(box.facing),
++      onPlan: [inches(box.size[0]), inches(box.size[2])],
++      height: inches(box.size[1]),
++    });
++  });
++
++  it("is what HoodCabinet builds from, never the box's size on the room's axes", () => {
++    const source = readFileSync("src/three/HoodCabinet.tsx", "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
++    expect({ frame: source.includes("housingFrame(box)"), size: /box\.size/.test(source) }).toEqual({ frame: true, size: false });
++  });
++
++  it("faces −x on the U's right leg, the one place the two readings differ", () => {
++    const box = housing("B", "U", "box");
++    expect([box.facing.axis, box.facing.sign]).toEqual(["x", -1]);
++  });
++});
+diff --git a/src/store/shapeSwitch.ts b/src/store/shapeSwitch.ts
+new file mode 100644
+index 0000000..11d5870
+--- /dev/null
++++ b/src/store/shapeSwitch.ts
+@@ -0,0 +1,36 @@
++import { inchesSpoken } from "../data/inches";
++import type { LayoutParams } from "../data/layoutTemplate";
++import type { SlotId } from "../types";
++import { wallToastKey } from "../ui/shapeControls";
++
++type Walls = Pick<LayoutParams, "backWallIn" | "leftWallIn">;
++export interface NoticeLine {
++  key: string;
++  vars?: Record<string, string | number>;
++}
++
++/** The walls a shape has: one wall its back wall alone; an L and a U both. */
++export const wallsOf = (shape: LayoutParams["shape"]) =>
++  shape === "one-wall" ? (["backWallIn"] as const) : (["backWallIn", "leftWallIn"] as const);
++
++/**
++ * What a shape switch says (U-2; Leo, 2026-11-11, the plan's section 9.3, 4
++ * and 5): that the room is now the new shape, and each of its walls that
++ * changed, from and to — lengthened, cut to the shape's top, or the L it left
++ * put back. Where even the walls' top leaves a machine out, a line names it
++ * (「只有加长会超过墙长上限时才省掉东西，提示里写明省了什么」). Null where nothing
++ * changed and nothing was left out: no notice.
++ */
++export function shapeSwitchLines(before: Walls, after: Walls & Pick<LayoutParams, "shape">, omitted: readonly SlotId[]): NoticeLine[] | null {
++  const changed = wallsOf(after.shape).filter((key) => Math.abs(after[key] - before[key]) > 1e-9);
++  const left = omitted.map((slotId) => ({ key: "toast.shapeOmitted", vars: { itemKey: `slot.${slotId.replace("slot-", "")}` } }));
++  if (changed.length === 0) return left.length > 0 ? left : null;
++  return [
++    { key: "toast.shapeSwitched", vars: { shapeKey: `panel.layout.shape.${after.shape}` } },
++    ...changed.map((key) => ({
++      key: "toast.shapeWall",
++      vars: { wallKey: wallToastKey(key, after.shape), fromIn: inchesSpoken(before[key]), toIn: inchesSpoken(after[key]) },
++    })),
++    ...left,
++  ];
++}
+diff --git a/src/store/uInterface.test.ts b/src/store/uInterface.test.ts
+new file mode 100644
+index 0000000..c1677e4
+--- /dev/null
++++ b/src/store/uInterface.test.ts
+@@ -0,0 +1,516 @@
++/**
++ * U-2, the U on the page (Leo, 2026-11-11: 「照计划第 10 节动手」; docs/plans/u2-plan.md).
++ * His answers to the plan's section 9: one slider for both side walls, 「左右墙长度 /
++ * Side walls」; the U seen from straight in front by default; section 8's words as
++ * written, D's line in E's pattern; the right leg's wall cabinets and hood drawn as
++ * they are, for him to look at.
++ *
++ * The new functions are reached through their modules rather than imported by
++ * name, so on the code before them each case fails on its own, for its own reason.
++ */
++import { describe, expect, it } from "vitest";
++import * as layoutShape from "../data/layoutShape";
++import * as shapeControls from "../ui/shapeControls";
++import * as room from "../data/room";
++import * as serviceRoute from "../data/serviceRoute";
++import * as packages from "../data/packages";
++import * as finishes from "./finishes";
++import { APPLIANCE_BY_ID } from "../data/catalogue";
++import { recordHoodModel } from "../data/hoodMount";
++import { checklistFor } from "../data/useChecklist";
++import { SLOT_BY_ID } from "../data/slots";
++import { ROOM, ft } from "../data/roomShell";
++import { wallBehind } from "../data/roomWalls";
++import { defaultSelectionOf, resetRoom } from "../data/testRoom";
++import { kitchenNow, openSharedLink } from "./openLink";
++import { writeLink } from "./shareLink";
++import { useAppStore } from "./useAppStore";
++import { sayWith, translate } from "../i18n";
++import * as layoutTemplate from "../data/layoutTemplate";
++import * as inches from "../data/inches";
++import { readFileSync } from "node:fs";
++
++// eslint-disable-next-line @typescript-eslint/no-explicit-any
++const any = (module: unknown) => module as Record<string, any>;
++const store = () => useAppStore.getState();
++const OPENED = useAppStore.getState();
++
++function freshPage() {
++  recordHoodModel(APPLIANCE_BY_ID[packages.DEFAULT_PACKAGE.defaultSelection["slot-hood"]!], packages.DEFAULT_PACKAGE.id);
++  resetRoom();
++  useAppStore.setState(OPENED, true);
++}
++
++/** The walls each package's U is built at, shortest (U-1's plan, section 2). */
++const SIDE: Record<string, number> = { A: 155.25, B: 157.5, C: 159.75, D: 207, E: 177 };
++const uLink = (code: string) => `?v=2&pkg=${code}&shape=U&back=132&left=${SIDE[code]}&corner=blind`;
++
++// --- 1 -----------------------------------------------------------------------
++describe("U-2 (1): the shape switch offers the U", () => {
++  it("lists the L, one wall and the U, in that order", () => {
++    expect(layoutShape.LAYOUT_SHAPES).toEqual(["L", "one-wall", "U"]);
++  });
++});
++
++// --- 2 -----------------------------------------------------------------------
++describe("U-2 (2): what the Layout tab shows in a U", () => {
++  // The plan's section 2: the shape, the back wall, the side walls, the corner,
++  // and the three that one wall shows on its conditions; the rest the U decides.
++  const SHOWN = ["backWallIn", "leftWallIn", "cornerType", "housingStyle", "microwaveHandleIn", "coffeeSillIn"];
++  const HIDDEN = ["fridgeEnd", "fridgeEndAbuts", "sinkLeg", "towerSide", "coffeeLeg", "hasIsland", "islandOrientation", "islandLengthIn", "islandDepthIn", "aisleIn"];
++
++  it("shows the walls, the corner and the conditional three, and hides what the U decides", () => {
++    const shows = (control: string) => shapeControls.showsControl("U", control as never);
++    expect({ shown: SHOWN.filter(shows), hidden: HIDDEN.filter(shows) }).toEqual({ shown: SHOWN, hidden: [] });
++  });
++
++  it("calls the one slider for both side walls 左右墙长度 / Side walls, the L's still Left wall", () => {
++    const key = any(shapeControls).sideWallLabelKey;
++    expect([key("U"), key("L"), translate("zh", "panel.room.sideWalls"), translate("en", "panel.room.sideWalls")]).toEqual([
++      "panel.room.sideWalls",
++      "panel.room.leftWall",
++      "左右墙长度",
++      "Side walls",
++    ]);
++  });
++
++  it("stops the side walls' slider at D13's 216\" in a U", () => {
++    expect(any(shapeControls).sideWallLimits("U").max).toBe(216);
++  });
++});
++
++// --- 3 -----------------------------------------------------------------------
++describe("U-2 (3): switching to the U grows the walls, says so, and Undo goes back", () => {
++  // Since the plan's second draft (Leo, 2026-11-11, 4 and 5): one notice for
++  // every shape switch, a line for each wall that changed, in place of
++  // toast.shapeGrew.U.
++  it("grows D's side walls to its U's, says the wall from and to, with Undo back to the L", () => {
++    freshPage();
++    store().setPackageId("package-d");
++    const before = store().layoutParams;
++    store().setLayoutShape("U");
++    const toast = store().toast;
++    expect([store().layoutParams.shape, store().layoutParams.leftWallIn, toast?.key, toast?.lines, toast?.undoLabel]).toEqual([
++      "U",
++      207,
++      "toast.shapeSwitched",
++      [
++        { key: "toast.shapeSwitched", vars: { shapeKey: "panel.layout.shape.U" } },
++        { key: "toast.shapeWall", vars: { wallKey: "toast.wall.sides", fromIn: "178¾″", toIn: "207″" } },
++      ],
++      { key: "toast.undo.toShape", vars: { shapeKey: "topbar.shape.L" } },
++    ]);
++    store().setLayoutShape("L");
++    expect(store().layoutParams).toEqual(before);
++  });
++
++  it("says the side walls when a package switch in a U grows them", () => {
++    freshPage();
++    openSharedLink(uLink("A"));
++    store().setPackageId("package-d");
++    expect([store().toast?.key, store().toast?.vars?.sideIn]).toEqual(["toast.roomGrew.U", 207]);
++  });
++
++  it("names the side walls 左右墙 / Side walls when a model grows them in a U", () => {
++    const key = any(shapeControls).wallToastKey;
++    expect([key("leftWallIn", "U"), key("leftWallIn", "L"), key("backWallIn", "U"), translate("zh", "toast.wall.sides")]).toEqual([
++      "toast.wall.sides",
++      "toast.wall.left",
++      "toast.wall.back",
++      "左右墙",
++    ]);
++  });
++});
++
++// --- 4 -----------------------------------------------------------------------
++describe("U-2 (4): the right wall is a line on the floor", () => {
++  it("draws none in an L", () => {
++    freshPage();
++    expect(any(room).floorLineWalls()).toEqual([]);
++  });
++
++  it("draws the right wall's line in a U, from the back wall to 1\" past the right leg's open end", () => {
++    freshPage();
++    openSharedLink(uLink("C"));
++    const right = room.RUN_BY_ID.right!;
++    const wall = wallBehind(right.facing);
++    const [line] = any(room).floorLineWalls();
++    const end = right.segments[right.segments.length - 1].to;
++    expect({ at: line?.at, from: line?.from, to: line?.to, width: line?.widthIn }).toEqual({
++      at: wall.at,
++      from: -ROOM.halfZ,
++      to: end + ft(1),
++      width: 1,
++    });
++  });
++});
++
++// --- 5 -----------------------------------------------------------------------
++describe("U-2 (5): the default view", () => {
++  it("looks at a U from straight in front, 45° down; at the L and one wall as it always has", async () => {
++    const { defaultView } = any(await import("../data/defaultView"));
++    expect([defaultView("U"), defaultView("L"), defaultView("one-wall")]).toEqual([
++      { azimuthDeg: 0, pitchDeg: 45 },
++      { azimuthDeg: 45, pitchDeg: 35 },
++      { azimuthDeg: 45, pitchDeg: 35 },
++    ]);
++  });
++});
++
++// --- 6 -----------------------------------------------------------------------
++describe("U-2 (6): the services come in on the right wall, 48\" from its open end", () => {
++  it("enters on the U's right wall at the cooking leg's open end less 48\"", () => {
++    freshPage();
++    openSharedLink(uLink("C"));
++    const right = room.RUN_BY_ID.right!;
++    const wall = wallBehind(right.facing);
++    const at = any(serviceRoute).serviceEntryPoint(0.25);
++    expect([at.x, at.z]).toEqual([wall.at + right.facing.sign * 0.25, room.serviceEntry().along]);
++  });
++
++  it("runs to the sink round the right-back corner, and to the refrigerator round both", () => {
++    freshPage();
++    openSharedLink(uLink("C"));
++    const turns = (slot: string) => any(serviceRoute).trunkPath(SLOT_BY_ID[slot as never], 0.25).length - 2;
++    expect([turns("slot-range"), turns("slot-dishwasher"), turns("slot-fridge")]).toEqual([0, 1, 2]);
++  });
++
++  // Leo, 2026-11-11: 「L 型线上画的是 4 英寸……保持登记，等 U 型做完单独修一轮，这一轮不动」.
++  it("leaves the L's where it is drawn today: the back wall, 4\" from its far end (registered)", () => {
++    freshPage();
++    const back = wallBehind(room.RUN_BY_ID.back.facing);
++    const at = any(serviceRoute).serviceEntryPoint(0.25);
++    expect([at.x, at.z]).toEqual([ROOM.halfX - ft(4), back.at + room.RUN_BY_ID.back.facing.sign * 0.25]);
++  });
++});
++
++// --- 7 -----------------------------------------------------------------------
++describe("U-2 (7): the U's own lines, in the words Leo passed", () => {
++  const WORDS: Record<string, [string, string]> = {
++    "toast.roomGrew.U": [
++      "{package}需要更大的厨房，已把后墙加到 {backIn}″、左右墙加到 {sideIn}″。",
++      "{package} needs a bigger kitchen: the back wall is now {backIn}″ and the side walls {sideIn}″.",
++    ],
++    "toast.wall.sides": ["左右墙", "Side walls"],
++    "rule.uSpares": [
++      "U 型：小酒柜和微波抽屉都在左段台面下，在转角台面和冰箱台面之间。",
++      "U-shaped: the wine cooler and the microwave drawer sit under the counter on the left leg, between the corner's counter and the refrigerator's.",
++    ],
++    "shape.note.U.E": [
++      "U 型：不配岛台；电磁灶改到右段墙上，油烟机为 36\" 墙挂烟囱式 HMCB36WS。",
++      "U-shaped: no island; the induction cooktop moves to the right leg's wall, with the 36\" chimney wall hood HMCB36WS.",
++    ],
++    "shape.note.U.D": ["U 型：不配岛台；微波抽屉改到右段台面下。", "U-shaped: no island; the microwave drawer moves under the counter on the right leg."],
++  };
++  for (const [key, [zh, en]] of Object.entries(WORDS)) {
++    it(`has ${key} in both languages`, () => {
++      expect([translate("zh", key), translate("en", key)]).toEqual([zh, en]);
++    });
++  }
++
++  it("says where A's and C's two machines are in a U with the U's line, not the L's", () => {
++    const keys = ["A", "C"].map((code) => {
++      freshPage();
++      openSharedLink(uLink(code));
++      const pkg = packages.PACKAGES.find((entry) => entry.code === code)!;
++      return checklistFor(defaultSelectionOf(pkg.id), null)
++        .findings.map((finding) => finding.messageKey)
++        .filter((key) => key === "rule.uSpares" || key === "rule.noIslandFallback");
++    });
++    expect(keys).toEqual([["rule.uSpares"], ["rule.uSpares"]]);
++  });
++
++  it("gives D and E their line in the left panel in a U, and none to A, B, C", () => {
++    const notes = ["A", "B", "C", "D", "E"].map((code) =>
++      packages.shapeNoteKey(packages.PACKAGES.find((entry) => entry.code === code)!, "U"),
++    );
++    expect(notes).toEqual([null, null, null, "shape.note.U.D", "shape.note.U.E"]);
++  });
++});
++
++// --- 8 -----------------------------------------------------------------------
++describe("U-2 (8): the accent colour can go on the right leg", () => {
++  it("is a run a colour goes on, and the U offers the three legs and no island", () => {
++    const runsFor = any(shapeControls).accentRunsFor;
++    expect([finishes.ACCENT_RUNS.includes("right" as never), runsFor("U"), runsFor("L"), runsFor("one-wall")]).toEqual([
++      true,
++      ["none", "left", "back", "right"],
++      ["none", "left", "back", "island"],
++      ["none", "back"],
++    ]);
++  });
++});
++
++// --- 9 -----------------------------------------------------------------------
++describe("U-2 (9): a link to a U opens the room it was written from (D23)", () => {
++  for (const id of ["package-a", "package-b", "package-c", "package-d", "package-e"]) {
++    it(`round-trips ${id}'s U`, () => {
++      freshPage();
++      store().setPackageId(id);
++      store().setLayoutShape("U");
++      const link = writeLink(kitchenNow());
++      const room1 = JSON.stringify({ params: room.LAYOUT_PARAMS, runs: room.RUNS, selection: store().selection });
++      freshPage();
++      openSharedLink(`?${link}`);
++      const room2 = JSON.stringify({ params: room.LAYOUT_PARAMS, runs: room.RUNS, selection: store().selection });
++      expect([new URLSearchParams(link).get("shape"), room2 === room1, store().toast]).toEqual(["U", true, null]);
++    });
++  }
++});
++
++// --- 10 ----------------------------------------------------------------------
++// Leo's answers to the plan's second draft, 2026-11-11 (decisions.md): 3. 乙 —
++// a wall the new shape cannot stand everything on is lengthened to what it
++// wants, one past the new shape's top is cut to it, any other stays; 「A、C 切到
++// U 时不要省掉微波抽屉和小酒柜，改成把墙加长」; every switch says each wall that
++// changed, from and to, and its Undo goes back to the shape and walls before.
++describe("U-2 (10): every switch succeeds, the walls by 乙, said wall by wall, and undone", () => {
++  const SHAPES = ["L", "one-wall", "U"] as const;
++  const PKGS = ["package-a", "package-b", "package-c", "package-d", "package-e"];
++  const TOP = { "one-wall": { backWallIn: 276 }, U: { backWallIn: 264, leftWallIn: 216 } } as const;
++  const wallsOf = (shape: string) => (shape === "one-wall" ? (["backWallIn"] as const) : (["backWallIn", "leftWallIn"] as const));
++
++  for (const pkg of PKGS) {
++    for (const from of SHAPES) {
++      for (const to of SHAPES) {
++        if (from === to) continue;
++        for (const walls of ["opened", "shortest", "longest"] as const) {
++          it(`${pkg.slice(-1).toUpperCase()} ${from} → ${to}, walls ${walls}`, () => {
++            freshPage();
++            store().setPackageId(pkg);
++            if (from !== "L") store().setLayoutShape(from);
++            if (walls !== "opened") {
++              for (const key of wallsOf(from)) {
++                const range = any(layoutTemplate).feasibleRange(store().layoutParams, key);
++                store().setLayout({ [key]: walls === "shortest" ? range.minIn : range.maxIn });
++              }
++            }
++            const lRoom = store().lRoom;
++            const before = { ...store().layoutParams };
++            const beforeSelection = store().selection;
++            const toastBefore = store().toast?.id;
++            const result = store().setLayoutShape(to);
++            const after = { ...store().layoutParams };
++
++            // What 乙 makes of each wall.
++            const wanted =
++              to === "one-wall"
++                ? { backWallIn: any(layoutTemplate).oneWallWantedIn(before, packages.PACKAGE_BY_ID[pkg]) }
++                : to === "U"
++                  ? any(layoutTemplate).uWantedIn({ ...before, shape: "U" }, packages.PACKAGE_BY_ID[pkg])
++                  : null;
++            const expected =
++              to === "L"
++                ? { backWallIn: lRoom!.layoutParams.backWallIn, leftWallIn: lRoom!.layoutParams.leftWallIn }
++                : Object.fromEntries(
++                    wallsOf(to).map((key) => [key, Math.min(Math.max(before[key], wanted[key]), (TOP[to] as Record<string, number>)[key])]),
++                  );
++            const changed = wallsOf(to).filter((key) => Math.abs(after[key] - before[key]) > 1e-9);
++            const toast = store().toast && store().toast!.id !== toastBefore ? store().toast : null;
++
++            expect({
++              ok: result.ok,
++              shape: after.shape,
++              walls: Object.fromEntries(wallsOf(to).map((key) => [key, after[key]])),
++              // Nothing left out for want of wall: the walls were grown instead.
++              omitted: to === "L" ? [] : [...room.OMITTED_FOR_WALL],
++              lines: toast?.lines?.filter((line) => line.key === "toast.shapeWall").map((line) => line.vars) ?? [],
++              undoLabel: toast ? toast.undoLabel : null,
++            }).toEqual({
++              ok: true,
++              shape: to,
++              walls: expected,
++              omitted: [],
++              lines: changed.map((key) => ({
++                wallKey: any(shapeControls).wallToastKey(key, to),
++                fromIn: inches.inchesSpoken(before[key]),
++                toIn: inches.inchesSpoken(after[key]),
++              })),
++              undoLabel: changed.length > 0 ? { key: "toast.undo.toShape", vars: { shapeKey: `topbar.shape.${from}` } } : null,
++            });
++
++            // Undo goes back to the shape, the walls and the models before.
++            if (toast?.undo) {
++              store().undo();
++              expect({ params: store().layoutParams, selection: store().selection }).toEqual({ params: before, selection: beforeSelection });
++            }
++          });
++        }
++      }
++    }
++  }
++
++  it("keeps the L it left through an Undo of the switch back to it", () => {
++    freshPage();
++    store().setPackageId("package-d");
++    const l = { ...store().layoutParams };
++    store().setLayoutShape("U");
++    store().setLayoutShape("L");
++    store().undo();
++    store().setLayoutShape("L");
++    expect(store().layoutParams).toEqual(l);
++  });
++
++  it("names what even the walls' top leaves out, one line each", async () => {
++    const shapeSwitch = await import("./shapeSwitch");
++    const lines = any(shapeSwitch).shapeSwitchLines(
++      { backWallIn: 270, leftWallIn: 200 },
++      { shape: "U", backWallIn: 264, leftWallIn: 216 },
++      ["slot-microwave", "slot-wine"],
++    );
++    expect(lines).toEqual([
++      { key: "toast.shapeSwitched", vars: { shapeKey: "panel.layout.shape.U" } },
++      { key: "toast.shapeWall", vars: { wallKey: "toast.wall.back", fromIn: "270″", toIn: "264″" } },
++      { key: "toast.shapeWall", vars: { wallKey: "toast.wall.sides", fromIn: "200″", toIn: "216″" } },
++      { key: "toast.shapeOmitted", vars: { itemKey: "slot.microwave" } },
++      { key: "toast.shapeOmitted", vars: { itemKey: "slot.wine" } },
++    ]);
++  });
++
++  it("says nothing where no wall changed", async () => {
++    const shapeSwitch = await import("./shapeSwitch");
++    expect(any(shapeSwitch).shapeSwitchLines({ backWallIn: 200, leftWallIn: 180 }, { shape: "U", backWallIn: 200, leftWallIn: 180 }, [])).toBe(null);
++  });
++});
++
++// --- 11 ----------------------------------------------------------------------
++// D1's fourth reason (Leo, 2026-11-11: 「切到 U 时镜头自动转到正前方」); to an L or
++// one wall, nothing moves, as before.
++describe("U-2 (11): a switch into a U turns the camera to the U's view", () => {
++  it("asks for the default view on the way into a U, and not on the way to an L or one wall", () => {
++    freshPage();
++    const tokens: number[] = [store().resetToken];
++    for (const shape of ["U", "one-wall", "U", "L", "one-wall", "L"] as const) {
++      store().setLayoutShape(shape);
++      tokens.push(store().resetToken);
++    }
++    const t0 = tokens[0];
++    expect(tokens.map((token) => token - t0)).toEqual([0, 1, 1, 2, 2, 2, 2]);
++  });
++
++  it("asks for it when an Undo puts a U back, and not when it puts an L back", () => {
++    freshPage();
++    store().setPackageId("package-d");
++    store().setLayoutShape("U");
++    const inU = store().resetToken;
++    store().setLayoutShape("L");
++    store().undo();
++    const backInU = store().resetToken;
++    store().setLayoutShape("L");
++    store().setLayoutShape("one-wall");
++    store().undo();
++    expect([backInU - inU, store().resetToken - backInU, store().layoutParams.shape]).toEqual([1, 0, "L"]);
++  });
++});
++
++// --- 12 ----------------------------------------------------------------------
++// A (Leo, 2026-11-11): the shapes as a row of buttons on the main screen, as the
++// packages are; 1: the Layout tab's switch taken away.
++describe("U-2 (12): the shape buttons in the top bar, and none in the Layout tab", () => {
++  it("offers L, one wall and U by their short names, the long name on the button's title", () => {
++    expect(any(shapeControls).shapeButtons()).toEqual([
++      { value: "L", labelKey: "topbar.shape.L", titleKey: "panel.layout.shape.L" },
++      { value: "one-wall", labelKey: "topbar.shape.one-wall", titleKey: "panel.layout.shape.one-wall" },
++      { value: "U", labelKey: "topbar.shape.U", titleKey: "panel.layout.shape.U" },
++    ]);
++  });
++
++  it("puts them in the top bar and takes them out of the Layout tab", () => {
++    const read = (path: string) => readFileSync(new URL(path, import.meta.url), "utf8");
++    expect({ topBar: read("../ui/TopBar.tsx").includes("shapeButtons("), layoutTab: read("../ui/LayoutControls.tsx").includes("setLayoutShape") }).toEqual({
++      topBar: true,
++      layoutTab: false,
++    });
++  });
++});
++
++// --- 13 ----------------------------------------------------------------------
++describe("U-2 (13): the words of the switch, as Leo agreed them (9.3)", () => {
++  const WORDS: Record<string, [string, string]> = {
++    "topbar.shape.L": ["L 型", "L-shape"],
++    "topbar.shape.one-wall": ["一字型", "Single wall"],
++    "topbar.shape.U": ["U 型", "U-shape"],
++    "toast.shapeSwitched": ["已切换为{shape}，墙长已调整：", "Switched to {shape}; the walls were adjusted:"],
++    "toast.shapeWall": ["{wall}从 {fromIn} 改为 {toIn}", "{wall}: {fromIn} → {toIn}"],
++    "toast.undo.toShape": ["退回 {shape}", "Back to {shape}"],
++    // A draft, for Leo's look in the preview (no package reaches it today).
++    "toast.shapeOmitted": ["墙已到最长，放不下{item}，已省略。", "The walls are at their longest: {item} left out."],
++  };
++  for (const [key, [zh, en]] of Object.entries(WORDS)) {
++    it(`has ${key} in both languages`, () => {
++      expect([translate("zh", key), translate("en", key)]).toEqual([zh, en]);
++    });
++  }
++
++  it("no longer has the one-wall and U lines the notice replaces, nor the fixed 退回 L 型", () => {
++    const keys = ["toast.shapeGrew", "toast.shapeGrew.U", "toast.undo.shape"];
++    expect(keys.map((key) => [translate("zh", key), translate("en", key)])).toEqual(keys.map((key) => [key, key]));
++  });
++
++  it("reads A's switch from its L to the U in full, in Chinese", () => {
++    freshPage();
++    store().setLayoutShape("U");
++    const toast = store().toast!;
++    const say = (key: string, vars?: Record<string, string | number>) => sayWith((k, v) => translate("zh", k, v), key, vars);
++    expect([toast.lines!.map((line) => say(line.key, line.vars)), say(toast.undoLabel!.key, toast.undoLabel!.vars)]).toEqual([
++      ["已切换为U 型厨房，墙长已调整：", "左右墙从 144″ 改为 155¼″"],
++      "退回 L 型",
++    ]);
++  });
++});
++
++// --- 14 ----------------------------------------------------------------------
++// Leo, 2026-11-11, 6: 「右边面板平面小图里 U 的右墙画成实线：这一轮一起改」.
++describe("U-2 (14): the plan thumbnail draws the U's right wall solid", () => {
++  it("adds nothing to the left and back walls in an L, and the right wall in a U, along the floor line", async () => {
++    const { planWalls } = any(await import("../ui/planWalls"));
++    freshPage();
++    const inL = planWalls();
++    openSharedLink(uLink("C"));
++    const inU = planWalls();
++    const [line] = any(room).floorLineWalls();
++    expect({ l: inL.length, u: inU.length, right: inU[0] }).toEqual({
++      l: 0,
++      u: 1,
++      right: [
++        [line.at, line.from],
++        [line.at, line.to],
++      ],
++    });
++  });
++});
++
++// --- 15 ----------------------------------------------------------------------
++// Found building B (Leo, 2026-11-11: 「切换形状永远成功」): a package changed on one
++// wall or in a U keeps no L, and the L the switch back built from the other
++// shape's walls — the last package's L's — refused in 14 ways from one wall
++// (on bdeedb5 too). Now 乙: those walls where they do, the package's own L's
++// where they will not; said wall by wall, with Undo.
++describe("U-2 (15): back to an L after a package changed in another shape", () => {
++  const PKGS = ["package-a", "package-b", "package-c", "package-d", "package-e"];
++  for (const shape of ["one-wall", "U"] as const) {
++    for (const a of PKGS) {
++      for (const b of PKGS) {
++        if (a === b) continue;
++        it(`${a.slice(-1).toUpperCase()} ${shape}, then ${b.slice(-1).toUpperCase()}, then the L`, () => {
++          freshPage();
++          store().setPackageId(a);
++          store().setLayoutShape(shape);
++          store().setPackageId(b);
++          const before = { ...store().layoutParams };
++          const toastBefore = store().toast?.id;
++          const result = store().setLayoutShape("L");
++          const after = store().layoutParams;
++          const changed = after.backWallIn !== before.backWallIn || after.leftWallIn !== before.leftWallIn;
++          const toast = store().toast && store().toast!.id !== toastBefore ? store().toast : null;
++          expect({ ok: result.ok, shape: after.shape, omitted: [...room.OMITTED_FOR_WALL], said: !!toast?.undo }).toEqual({
++            ok: true,
++            shape: "L",
++            omitted: [],
++            said: changed,
++          });
++        });
++      }
++    }
++  }
++});
+diff --git a/src/ui/planWalls.ts b/src/ui/planWalls.ts
+new file mode 100644
+index 0000000..5b0242e
+--- /dev/null
++++ b/src/ui/planWalls.ts
+@@ -0,0 +1,17 @@
++import { floorLineWalls } from "../data/room";
++import { onAxis, otherAxis } from "../data/frame";
++
++/**
++ * The walls the plan thumbnail draws solid beyond the left and back walls the
++ * L's runs stand against: in a U the right wall, along its line on the floor
++ * (U-2; Leo, 2026-11-11: 「右边面板平面小图里 U 的右墙画成实线：这一轮一起改」).
++ * Each a line through two world x/z points; none in an L or on one wall.
++ */
++export function planWalls(): [number, number][][] {
++  return floorLineWalls().map((wall) =>
++    [wall.from, wall.to].map((along): [number, number] => {
++      const [x, , z] = onAxis(otherAxis(wall.axis), along, wall.at);
++      return [x, z];
++    }),
++  );
++}

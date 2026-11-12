@@ -152,6 +152,8 @@ export interface SegmentOption<T extends string> {
   label: string;
   disabled?: boolean;
   title?: string;
+  /** The button's name to a screen reader, where the label is a short form (U-2). */
+  ariaLabel?: string;
 }
 
 export function Segmented<T extends string>({
@@ -211,6 +213,7 @@ export function Segmented<T extends string>({
             data-value={option.value}
             disabled={option.disabled}
             title={option.title}
+            aria-label={option.ariaLabel}
             onClick={() => onChange(option.value)}
             className={[
               "whitespace-nowrap rounded-full font-medium transition-colors",

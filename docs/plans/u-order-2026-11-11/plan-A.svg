@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="762.4000000000001" height="696.8" font-family="Microsoft YaHei, PingFang SC, sans-serif">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/></marker></defs>
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="20" y="30" font-size="20" font-weight="bold">A · U 型俯视示意（按比例，从生成器的数字画的，不是页面截图；新排法是原型）</text><text x="476.20000000000005" y="68" font-size="17" font-weight="bold" text-anchor="middle">现在 = 新排法（没有烤箱塔，不变）</text>
+<text x="476.20000000000005" y="90" font-size="14" text-anchor="middle" fill="#333">后墙 132"，左右墙 155.25"</text>
+<path d="M265 616.8 V120 H687.4000000000001 V616.8" fill="none" stroke="#222" stroke-width="6"/>
+<rect x="265" y="120" width="76.80000000000001" height="134.4" fill="#d9d4c7" stroke="#333" stroke-width="0.8"/>
+<text x="303.4" y="187.2" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 303.4 187.2)">转角 42"</text>
+<rect x="265" y="254.4" width="76.80000000000001" height="38.400000000000006" fill="#efe9dc" stroke="#333" stroke-width="0.8"/>
+<text x="303.4" y="273.6" font-size="9" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 303.4 273.6)">台面 12"</text>
+<rect x="265" y="292.8" width="76.80000000000001" height="76.80000000000001" fill="#cfe3c4" stroke="#333" stroke-width="0.8"/>
+<text x="303.4" y="331.20000000000005" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 303.4 331.20000000000005)">微波抽屉 24"</text>
+<rect x="265" y="369.6" width="76.80000000000001" height="2.4000000000000004" fill="#efe9dc" stroke="#333" stroke-width="0.8"/>
+<rect x="265" y="372" width="76.80000000000001" height="76.80000000000001" fill="#b9d7ea" stroke="#333" stroke-width="1.5"/>
+<text x="303.4" y="410.40000000000003" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 303.4 410.40000000000003)">酒柜柱 24"</text>
+<rect x="265" y="448.8" width="76.80000000000001" height="48" fill="#efe9dc" stroke="#333" stroke-width="0.8"/>
+<text x="303.4" y="472.8" font-size="9" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 303.4 472.8)">台面 15"</text>
+<rect x="265" y="496.8" width="76.80000000000001" height="120" fill="#b9d7ea" stroke="#333" stroke-width="1.5"/>
+<text x="303.4" y="556.8" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 303.4 556.8)">冰箱 37.5"</text>
+<rect x="610.6" y="120" width="76.80000000000001" height="134.4" fill="#d9d4c7" stroke="#333" stroke-width="0.8"/>
+<text x="649" y="187.2" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(90 649 187.2)">转角 42"</text>
+<rect x="610.6" y="254.4" width="76.80000000000001" height="67.2" fill="#efe9dc" stroke="#333" stroke-width="0.8"/>
+<text x="649" y="288" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(90 649 288)">台面 21"</text>
+<rect x="610.6" y="321.6" width="76.80000000000001" height="62.400000000000006" fill="#efe9dc" stroke="#333" stroke-width="0.8"/>
+<text x="649" y="352.8" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(90 649 352.8)">台面 19.5"</text>
+<rect x="610.6" y="384" width="76.80000000000001" height="115.2" fill="#e8a19a" stroke="#333" stroke-width="0.8"/>
+<text x="649" y="441.6" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(90 649 441.6)">灶 36"</text>
+<rect x="610.6" y="499.20000000000005" width="76.80000000000001" height="115.2" fill="#efe9dc" stroke="#333" stroke-width="0.8"/>
+<text x="649" y="556.8" font-size="11" font-weight="normal" text-anchor="middle" dominant-baseline="middle" transform="rotate(90 649 556.8)">台面 36"</text>
+<rect x="610.6" y="614.4000000000001" width="76.80000000000001" height="2.4000000000000004" fill="#efe9dc" stroke="#333" stroke-width="0.8"/>
+<rect x="341.8" y="120" width="38.400000000000006" height="76.80000000000001" fill="#efe9dc" stroke="#333" stroke-width="0.8"/>
+<text x="361" y="158.4" font-size="10" font-weight="normal" text-anchor="middle" dominant-baseline="middle">台面</text>
+<rect x="380.2" y="120" width="76.80000000000001" height="76.80000000000001" fill="#d0d0d0" stroke="#333" stroke-width="0.8"/>
+<text x="418.6" y="158.4" font-size="10" font-weight="normal" text-anchor="middle" dominant-baseline="middle">洗碗机</text>
+<rect x="457" y="120" width="96" height="76.80000000000001" fill="#9fd0f0" stroke="#333" stroke-width="0.8"/>
+<text x="505" y="158.4" font-size="10" font-weight="normal" text-anchor="middle" dominant-baseline="middle">水槽</text>
+<rect x="553" y="120" width="57.6" height="76.80000000000001" fill="#efe9dc" stroke="#333" stroke-width="0.8"/>
+<text x="581.8" y="158.4" font-size="10" font-weight="normal" text-anchor="middle" dominant-baseline="middle">台面</text>
+<line x1="552.6" y1="441.6" x2="602.6" y2="441.6" stroke="#b03a2e" stroke-width="2.5" marker-end="url(#arr)"/>
+<text x="548.6" y="441.6" font-size="13" font-weight="bold" fill="#b03a2e" text-anchor="end" dominant-baseline="middle">炉头</text>
+<text x="476.20000000000005" y="644.8" font-size="13" text-anchor="middle" fill="#333">石板：117.75" / 82" / 82.5" / 37.75"</text></svg>

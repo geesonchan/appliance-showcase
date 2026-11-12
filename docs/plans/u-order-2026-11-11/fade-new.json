@@ -1,0 +1,1250 @@
+[
+ {
+  "code": "A",
+  "shape": "L",
+  "slot": "slot-fridge",
+  "file": "A-L-slot-fridge.png",
+  "faded": [],
+  "errors": ""
+ },
+ {
+  "code": "A",
+  "shape": "L",
+  "slot": "slot-range",
+  "file": "A-L-slot-range.png",
+  "faded": [
+   "back-range-landing-right-0-B30-0",
+   "door-back-range-landing-right-0-B30-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "A",
+  "shape": "L",
+  "slot": "slot-hood",
+  "file": "A-L-slot-hood.png",
+  "faded": [],
+  "errors": ""
+ },
+ {
+  "code": "A",
+  "shape": "L",
+  "slot": "slot-dishwasher",
+  "file": "A-L-slot-dishwasher.png",
+  "faded": [
+   "back-back-end-BF3-0",
+   "cabinet-layer"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "A",
+  "shape": "L",
+  "slot": "slot-microwave",
+  "file": "A-L-slot-microwave.png",
+  "faded": [
+   "appliance-body-slot-hood",
+   "door-island-left",
+   "island-counter",
+   "island-left",
+   "range",
+   "range-grate-4",
+   "range-grate-5",
+   "range-knob-6",
+   "upper-back-hood-W36-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "A",
+  "shape": "L",
+  "slot": "slot-wine",
+  "file": "A-L-slot-wine.png",
+  "faded": [
+   "island-right"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "A",
+  "shape": "one-wall",
+  "slot": "slot-fridge",
+  "file": "A-one-wall-slot-fridge.png",
+  "faded": [
+   "back-fridge-landing-0-B15-0",
+   "door-back-fridge-landing-0-B15-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "A",
+  "shape": "one-wall",
+  "slot": "slot-range",
+  "file": "A-one-wall-slot-range.png",
+  "faded": [
+   "back-range-landing-right-0-DB18-0",
+   "door-back-range-landing-right-0-DB18-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "A",
+  "shape": "one-wall",
+  "slot": "slot-hood",
+  "file": "A-one-wall-slot-hood.png",
+  "faded": [],
+  "errors": ""
+ },
+ {
+  "code": "A",
+  "shape": "one-wall",
+  "slot": "slot-dishwasher",
+  "file": "A-one-wall-slot-dishwasher.png",
+  "faded": [
+   "back-back-end-0-B9-0",
+   "back-back-end-panel-BEP0.75-0",
+   "cabinet-layer",
+   "door-back-back-end-0-B9-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "A",
+  "shape": "one-wall",
+  "slot": "slot-microwave",
+  "file": "A-one-wall-slot-microwave.png",
+  "faded": [
+   "appliance-body-slot-wine",
+   "back-spare-divider-1-PNL0.75-0",
+   "cabinet-layer"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "A",
+  "shape": "one-wall",
+  "slot": "slot-wine",
+  "file": "A-one-wall-slot-wine.png",
+  "faded": [
+   "back-spare-divider-1-PNL0.75-0",
+   "strip-back-spare-divider-1-PNL0.75-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "A",
+  "shape": "U",
+  "slot": "slot-fridge",
+  "file": "A-U-slot-fridge.png",
+  "faded": [],
+  "errors": ""
+ },
+ {
+  "code": "A",
+  "shape": "U",
+  "slot": "slot-range",
+  "file": "A-U-slot-range.png",
+  "faded": [
+   "door-right-range-landing-left-0-B36-0",
+   "right-range-landing-left-0-B36-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "A",
+  "shape": "U",
+  "slot": "slot-hood",
+  "file": "A-U-slot-hood.png",
+  "faded": [],
+  "errors": ""
+ },
+ {
+  "code": "A",
+  "shape": "U",
+  "slot": "slot-dishwasher",
+  "file": "A-U-slot-dishwasher.png",
+  "faded": [
+   "appliance-body-slot-hood",
+   "back-sink-SB30-0",
+   "cabinet-layer",
+   "door-back-sink-SB30-0",
+   "door-upper-right-0-W2142-3",
+   "door-upper-right-0-W3642-2",
+   "fixture-layer",
+   "upper-right-0-W2142-3",
+   "upper-right-0-W3642-2"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "A",
+  "shape": "U",
+  "slot": "slot-microwave",
+  "file": "A-U-slot-microwave.png",
+  "faded": [
+   "appliance-body-slot-hood",
+   "back-sink-SB30-0",
+   "cabinet-layer",
+   "door-back-sink-SB30-0",
+   "door-upper-right-0-W2142-3",
+   "door-upper-right-0-W3642-2",
+   "fixture-layer",
+   "upper-right-0-W2142-3",
+   "upper-right-0-W3642-2"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "A",
+  "shape": "U",
+  "slot": "slot-wine",
+  "file": "A-U-slot-wine.png",
+  "faded": [],
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "shape": "L",
+  "slot": "slot-fridge",
+  "file": "B-L-slot-fridge.png",
+  "faded": [
+   "back-tall-outer-PNL0.75-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "shape": "L",
+  "slot": "slot-range",
+  "file": "B-L-slot-range.png",
+  "faded": [
+   "back-range-B36-0",
+   "back-tower-clearance-0-DB18-0",
+   "door-back-range-B36-0",
+   "door-back-tower-clearance-0-DB18-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "shape": "L",
+  "slot": "slot-hood",
+  "file": "B-L-slot-hood.png",
+  "faded": [],
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "shape": "L",
+  "slot": "slot-dishwasher",
+  "file": "B-L-slot-dishwasher.png",
+  "faded": [
+   "cabinet-layer",
+   "door-left-left-end-0-DB18-0",
+   "left-left-end-0-DB18-0",
+   "strip-left-left-end-panel-BEP0.75-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "shape": "L",
+  "slot": "slot-microwave",
+  "file": "B-L-slot-microwave.png",
+  "faded": [
+   "back-fridge-landing-0-B15-0",
+   "cabinet-layer"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "shape": "L",
+  "slot": "slot-wine",
+  "file": "B-L-slot-wine.png",
+  "faded": [
+   "door-island-right",
+   "fridge",
+   "fridge-panel-door-left",
+   "fridge-panel-drawer-freezer",
+   "island-counter",
+   "island-right"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "shape": "one-wall",
+  "slot": "slot-fridge",
+  "file": "B-one-wall-slot-fridge.png",
+  "faded": [
+   "door-back-wine-bridge",
+   "wine-column"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "shape": "one-wall",
+  "slot": "slot-range",
+  "file": "B-one-wall-slot-range.png",
+  "faded": [
+   "back-range-B36-0",
+   "back-range-landing-0-DB18-0",
+   "door-back-range-B36-0",
+   "door-back-range-landing-0-DB18-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "shape": "one-wall",
+  "slot": "slot-hood",
+  "file": "B-one-wall-slot-hood.png",
+  "faded": [],
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "shape": "one-wall",
+  "slot": "slot-dishwasher",
+  "file": "B-one-wall-slot-dishwasher.png",
+  "faded": [
+   "back-back-end-0-B9-0",
+   "back-back-end-panel-BEP0.75-0",
+   "cabinet-layer",
+   "door-back-back-end-0-B9-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "shape": "one-wall",
+  "slot": "slot-microwave",
+  "file": "B-one-wall-slot-microwave.png",
+  "faded": [
+   "back-tower-clearance-0-DB18-0",
+   "cabinet-layer"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "shape": "one-wall",
+  "slot": "slot-wine",
+  "file": "B-one-wall-slot-wine.png",
+  "faded": [
+   "back-fridge-landing-0-B15-0",
+   "back-tall-inner-PNL0.75-0",
+   "door-back-fridge-landing-0-B15-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "shape": "U",
+  "slot": "slot-fridge",
+  "file": "B-U-slot-fridge.png",
+  "faded": [
+   "door-left-wine-bridge",
+   "wine-column"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "shape": "U",
+  "slot": "slot-range",
+  "file": "B-U-slot-range.png",
+  "faded": [
+   "door-left-pantry-T1596-0",
+   "door-right-range-B36-0",
+   "door-right-tower-clearance-0-DB18-0",
+   "right-range-B36-0",
+   "right-tower-clearance-0-DB18-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "shape": "U",
+  "slot": "slot-hood",
+  "file": "B-U-slot-hood.png",
+  "faded": [],
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "shape": "U",
+  "slot": "slot-dishwasher",
+  "file": "B-U-slot-dishwasher.png",
+  "faded": [
+   "back-sink-SB30-0",
+   "cabinet-layer",
+   "door-back-sink-SB30-0",
+   "door-upper-right-0-W3342-1",
+   "fixture-layer",
+   "hood-cabinet",
+   "hood-liner",
+   "upper-right-0-W3342-1"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "shape": "U",
+  "slot": "slot-microwave",
+  "file": "B-U-slot-microwave.png",
+  "faded": [],
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "shape": "U",
+  "slot": "slot-wine",
+  "file": "B-U-slot-wine.png",
+  "faded": [
+   "door-left-pantry-T1596-0",
+   "left-pantry-T1596-0",
+   "left-tall-outer-PNL0.75-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "shape": "L",
+  "slot": "slot-fridge",
+  "file": "C-L-slot-fridge.png",
+  "faded": [],
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "shape": "L",
+  "slot": "slot-range",
+  "file": "C-L-slot-range.png",
+  "faded": [
+   "back-range-landing-right-0-B33-0",
+   "door-back-range-landing-right-0-B33-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "shape": "L",
+  "slot": "slot-hood",
+  "file": "C-L-slot-hood.png",
+  "faded": [],
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "shape": "L",
+  "slot": "slot-dishwasher",
+  "file": "C-L-slot-dishwasher.png",
+  "faded": [
+   "back-back-end-BF3-0",
+   "cabinet-layer"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "shape": "L",
+  "slot": "slot-microwave",
+  "file": "C-L-slot-microwave.png",
+  "faded": [
+   "appliance-body-slot-hood",
+   "chimney-lower",
+   "door-island-left",
+   "island-counter",
+   "island-left",
+   "range",
+   "range-backguard",
+   "range-grate-2",
+   "range-grate-3",
+   "range-grate-4",
+   "upper-back-0-W3642-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "shape": "L",
+  "slot": "slot-wine",
+  "file": "C-L-slot-wine.png",
+  "faded": [
+   "island-right"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "shape": "one-wall",
+  "slot": "slot-fridge",
+  "file": "C-one-wall-slot-fridge.png",
+  "faded": [
+   "back-fridge-landing-0-B15-0",
+   "door-back-fridge-landing-0-B15-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "shape": "one-wall",
+  "slot": "slot-range",
+  "file": "C-one-wall-slot-range.png",
+  "faded": [
+   "back-range-landing-right-0-DB18-0",
+   "door-back-range-landing-right-0-DB18-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "shape": "one-wall",
+  "slot": "slot-hood",
+  "file": "C-one-wall-slot-hood.png",
+  "faded": [],
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "shape": "one-wall",
+  "slot": "slot-dishwasher",
+  "file": "C-one-wall-slot-dishwasher.png",
+  "faded": [
+   "back-back-end-0-B9-0",
+   "back-back-end-panel-BEP0.75-0",
+   "cabinet-layer",
+   "door-back-back-end-0-B9-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "shape": "one-wall",
+  "slot": "slot-microwave",
+  "file": "C-one-wall-slot-microwave.png",
+  "faded": [
+   "appliance-body-slot-wine",
+   "back-spare-divider-1-PNL0.75-0",
+   "cabinet-layer"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "shape": "one-wall",
+  "slot": "slot-wine",
+  "file": "C-one-wall-slot-wine.png",
+  "faded": [
+   "back-spare-divider-1-PNL0.75-0",
+   "strip-back-spare-divider-1-PNL0.75-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "shape": "U",
+  "slot": "slot-fridge",
+  "file": "C-U-slot-fridge.png",
+  "faded": [],
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "shape": "U",
+  "slot": "slot-range",
+  "file": "C-U-slot-range.png",
+  "faded": [
+   "door-right-range-landing-left-0-DB21-0",
+   "right-range-landing-left-0-DB21-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "shape": "U",
+  "slot": "slot-hood",
+  "file": "C-U-slot-hood.png",
+  "faded": [],
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "shape": "U",
+  "slot": "slot-dishwasher",
+  "file": "C-U-slot-dishwasher.png",
+  "faded": [
+   "back-sink-SB30-0",
+   "cabinet-layer",
+   "door-back-sink-SB30-0",
+   "door-upper-right-0-W2742-2",
+   "door-upper-right-0-W3642-1",
+   "fixture-layer",
+   "upper-right-0-W2742-2",
+   "upper-right-0-W3642-1"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "shape": "U",
+  "slot": "slot-microwave",
+  "file": "C-U-slot-microwave.png",
+  "faded": [
+   "back-sink-SB30-0",
+   "cabinet-layer",
+   "door-back-sink-SB30-0",
+   "door-upper-right-0-W2742-2",
+   "door-upper-right-0-W3642-1",
+   "fixture-layer",
+   "upper-right-0-W2742-2",
+   "upper-right-0-W3642-1"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "shape": "U",
+  "slot": "slot-wine",
+  "file": "C-U-slot-wine.png",
+  "faded": [],
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "shape": "L",
+  "slot": "slot-freezer",
+  "file": "D-L-slot-freezer.png",
+  "faded": [
+   "left-tall-outer-PNL0.75-0",
+   "strip-left-tall-outer-PNL0.75-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "shape": "L",
+  "slot": "slot-fridge",
+  "file": "D-L-slot-fridge.png",
+  "faded": [
+   "fridge",
+   "fridge-panel-door"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "shape": "L",
+  "slot": "slot-wine",
+  "file": "D-L-slot-wine.png",
+  "faded": [
+   "fridge-panel-door",
+   "fridge-reveal-right"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "shape": "L",
+  "slot": "slot-range",
+  "file": "D-L-slot-range.png",
+  "faded": [
+   "back-range-B36-0",
+   "back-tower-clearance-0-DB18-0",
+   "door-back-range-B36-0",
+   "door-back-tower-clearance-0-DB18-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "shape": "L",
+  "slot": "slot-hood",
+  "file": "D-L-slot-hood.png",
+  "faded": [],
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "shape": "L",
+  "slot": "slot-oven",
+  "file": "D-L-slot-oven.png",
+  "faded": [
+   "back-back-end-BF3-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "shape": "L",
+  "slot": "slot-coffee",
+  "file": "D-L-slot-coffee.png",
+  "faded": [
+   "left-coffee-panel-end-PNL0.75-0",
+   "strip-left-coffee-panel-end-PNL0.75-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "shape": "L",
+  "slot": "slot-dishwasher",
+  "file": "D-L-slot-dishwasher.png",
+  "faded": [
+   "back-range-landing-0-B27-0",
+   "cabinet-layer",
+   "door-back-range-landing-0-B27-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "shape": "L",
+  "slot": "slot-dishwasher-2",
+  "file": "D-L-slot-dishwasher-2.png",
+  "faded": [
+   "cabinet-layer",
+   "door-left-fridge-landing-0-DB18-0",
+   "left-coffee-base",
+   "left-coffee-panel-end-PNL0.75-0",
+   "left-fridge-landing-0-DB18-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "shape": "L",
+  "slot": "slot-microwave",
+  "file": "D-L-slot-microwave.png",
+  "faded": [
+   "appliance-body-slot-dishwasher",
+   "cabinet-layer",
+   "door-island-left",
+   "island-counter",
+   "island-left",
+   "strip-upper-back-1-BF3-0",
+   "upper-back-1-BF3-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "shape": "one-wall",
+  "slot": "slot-freezer",
+  "file": "D-one-wall-slot-freezer.png",
+  "faded": [
+   "fridge",
+   "fridge-panel-door"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "shape": "one-wall",
+  "slot": "slot-fridge",
+  "file": "D-one-wall-slot-fridge.png",
+  "faded": [
+   "wine-column"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "shape": "one-wall",
+  "slot": "slot-wine",
+  "file": "D-one-wall-slot-wine.png",
+  "faded": [
+   "back-fridge-landing-0-B15-0",
+   "back-tall-inner-PNL0.75-0",
+   "door-back-fridge-landing-0-B15-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "shape": "one-wall",
+  "slot": "slot-range",
+  "file": "D-one-wall-slot-range.png",
+  "faded": [
+   "back-range-B36-0",
+   "back-range-landing-0-DB18-0",
+   "door-back-range-B36-0",
+   "door-back-range-landing-0-DB18-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "shape": "one-wall",
+  "slot": "slot-hood",
+  "file": "D-one-wall-slot-hood.png",
+  "faded": [],
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "shape": "one-wall",
+  "slot": "slot-oven",
+  "file": "D-one-wall-slot-oven.png",
+  "faded": [
+   "back-tower-clearance-0-DB18-0",
+   "cabinet-layer"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "shape": "one-wall",
+  "slot": "slot-dishwasher",
+  "file": "D-one-wall-slot-dishwasher.png",
+  "faded": [
+   "back-back-end-0-B9-0",
+   "back-back-end-panel-BEP0.75-0",
+   "cabinet-layer",
+   "door-back-back-end-0-B9-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "shape": "U",
+  "slot": "slot-freezer",
+  "file": "D-U-slot-freezer.png",
+  "faded": [
+   "appliance-body-slot-dishwasher-2",
+   "coffee-display",
+   "coffee-machine",
+   "door-left-coffee-bridge",
+   "left-coffee-bridge",
+   "left-coffee-panel-start-PNL0.75-0",
+   "left-tall-outer-PNL0.75-0",
+   "strip-left-coffee-panel-start-PNL0.75-0",
+   "strip-left-tall-outer-PNL0.75-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "shape": "U",
+  "slot": "slot-fridge",
+  "file": "D-U-slot-fridge.png",
+  "faded": [
+   "fridge",
+   "fridge-panel-door"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "shape": "U",
+  "slot": "slot-wine",
+  "file": "D-U-slot-wine.png",
+  "faded": [
+   "door-upper-right-end-W3642-0",
+   "door-upper-right-end-W3642-0-stack",
+   "fridge-panel-door",
+   "fridge-reveal-right",
+   "upper-right-end-W3642-0",
+   "upper-right-end-W3642-0-stack",
+   "upper-right-end-crown-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "shape": "U",
+  "slot": "slot-range",
+  "file": "D-U-slot-range.png",
+  "faded": [
+   "door-left-coffee-bridge",
+   "door-left-pantry-T1596-0",
+   "door-left-pantry-T1596-0-stack",
+   "door-right-drawer-landing-0-B15-0",
+   "door-right-range-B36-0",
+   "grille-door-left-coffee-bridge-stack",
+   "left-coffee-bridge",
+   "left-coffee-bridge-stack",
+   "left-coffee-panel-end-PNL0.75-0",
+   "left-coffee-panel-end-PNL0.75-0-stack",
+   "left-pantry-T1596-0",
+   "left-pantry-T1596-0-stack",
+   "right-drawer-landing-0-B15-0",
+   "right-range-B36-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "shape": "U",
+  "slot": "slot-hood",
+  "file": "D-U-slot-hood.png",
+  "faded": [],
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "shape": "U",
+  "slot": "slot-oven",
+  "file": "D-U-slot-oven.png",
+  "faded": [],
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "shape": "U",
+  "slot": "slot-coffee",
+  "file": "D-U-slot-coffee.png",
+  "faded": [
+   "door-left-pantry-T1596-0",
+   "left-coffee-panel-end-PNL0.75-0",
+   "left-pantry-T1596-0",
+   "strip-left-coffee-panel-end-PNL0.75-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "shape": "U",
+  "slot": "slot-dishwasher",
+  "file": "D-U-slot-dishwasher.png",
+  "faded": [
+   "back-sink-SB30-0",
+   "cabinet-layer",
+   "door-back-sink-SB30-0",
+   "door-upper-right-0-W3342-1",
+   "fixture-layer",
+   "hood-cabinet",
+   "hood-liner",
+   "upper-right-0-W3342-1"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "shape": "U",
+  "slot": "slot-dishwasher-2",
+  "file": "D-U-slot-dishwasher-2.png",
+  "faded": [
+   "door-left-pantry-T1596-0",
+   "left-coffee-base",
+   "left-coffee-panel-end-PNL0.75-0",
+   "left-pantry-T1596-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "shape": "U",
+  "slot": "slot-microwave",
+  "file": "D-U-slot-microwave.png",
+  "faded": [
+   "door-left-coffee-bridge",
+   "door-left-pantry-T1596-0",
+   "door-left-pantry-T1596-0-stack",
+   "door-right-drawer-landing-0-B15-0",
+   "door-right-range-B36-0",
+   "grille-door-left-coffee-bridge-stack",
+   "left-coffee-bridge",
+   "left-coffee-bridge-stack",
+   "left-coffee-panel-end-PNL0.75-0",
+   "left-coffee-panel-end-PNL0.75-0-stack",
+   "left-pantry-T1596-0",
+   "left-pantry-T1596-0-stack",
+   "right-drawer-landing-0-B15-0",
+   "right-range-B36-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "shape": "L",
+  "slot": "slot-freezer",
+  "file": "E-L-slot-freezer.png",
+  "faded": [
+   "left-tall-outer-PNL0.75-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "shape": "L",
+  "slot": "slot-fridge",
+  "file": "E-L-slot-fridge.png",
+  "faded": [
+   "fridge",
+   "fridge-panel-door"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "shape": "L",
+  "slot": "slot-microwave",
+  "file": "E-L-slot-microwave.png",
+  "faded": [
+   "appliance-body-slot-wine-2",
+   "back-coffee-base",
+   "back-coffee-bridge",
+   "back-coffee-panel-start-PNL0.75-0",
+   "coffee-display",
+   "coffee-machine",
+   "door-back-coffee-bridge",
+   "hood-island"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "shape": "L",
+  "slot": "slot-coffee",
+  "file": "E-L-slot-coffee.png",
+  "faded": [
+   "back-coffee-panel-end-PNL0.75-0",
+   "hood-island",
+   "strip-back-coffee-panel-end-PNL0.75-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "shape": "L",
+  "slot": "slot-wine-2",
+  "file": "E-L-slot-wine-2.png",
+  "faded": [
+   "back-coffee-base",
+   "back-coffee-panel-end-PNL0.75-0",
+   "back-sink-landing-0-B24-0",
+   "cabinet-layer",
+   "door-back-sink-landing-0-B24-0",
+   "hood-island"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "shape": "L",
+  "slot": "slot-dishwasher",
+  "file": "E-L-slot-dishwasher.png",
+  "faded": [
+   "back-back-end-BF3-0",
+   "cabinet-layer"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "shape": "L",
+  "slot": "slot-cooktop",
+  "file": "E-L-slot-cooktop.png",
+  "faded": [
+   "cabinet-layer",
+   "door-island-middle",
+   "island-left",
+   "island-middle",
+   "strip-back-microwave-panel-a-stack"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "shape": "L",
+  "slot": "slot-hood",
+  "file": "E-L-slot-hood.png",
+  "faded": [],
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "shape": "one-wall",
+  "slot": "slot-freezer",
+  "file": "E-one-wall-slot-freezer.png",
+  "faded": [
+   "fridge",
+   "fridge-panel-door"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "shape": "one-wall",
+  "slot": "slot-fridge",
+  "file": "E-one-wall-slot-fridge.png",
+  "faded": [
+   "back-fridge-landing-0-B15-0",
+   "back-tall-inner-PNL0.75-0",
+   "door-back-fridge-landing-0-B15-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "shape": "one-wall",
+  "slot": "slot-microwave",
+  "file": "E-one-wall-slot-microwave.png",
+  "faded": [
+   "back-tower-clearance-0-DB18-0",
+   "cabinet-layer"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "shape": "one-wall",
+  "slot": "slot-coffee",
+  "file": "E-one-wall-slot-coffee.png",
+  "faded": [
+   "back-coffee-panel-end-PNL0.75-0",
+   "back-tall-outer-PNL0.75-0",
+   "fridge",
+   "fridge-panel-door",
+   "strip-back-coffee-panel-end-PNL0.75-0",
+   "strip-back-tall-outer-PNL0.75-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "shape": "one-wall",
+  "slot": "slot-wine-2",
+  "file": "E-one-wall-slot-wine-2.png",
+  "faded": [
+   "back-coffee-base",
+   "back-coffee-panel-end-PNL0.75-0",
+   "back-tall-outer-PNL0.75-0",
+   "fridge",
+   "fridge-panel-door"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "shape": "one-wall",
+  "slot": "slot-dishwasher",
+  "file": "E-one-wall-slot-dishwasher.png",
+  "faded": [
+   "back-back-end-0-B9-0",
+   "back-back-end-panel-BEP0.75-0",
+   "cabinet-layer",
+   "door-back-back-end-0-B9-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "shape": "one-wall",
+  "slot": "slot-cooktop",
+  "file": "E-one-wall-slot-cooktop.png",
+  "faded": [
+   "back-cooktop-B36-0",
+   "back-range-landing-0-DB18-0",
+   "door-back-cooktop-B36-0",
+   "door-back-range-landing-0-DB18-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "shape": "one-wall",
+  "slot": "slot-hood",
+  "file": "E-one-wall-slot-hood.png",
+  "faded": [],
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "shape": "U",
+  "slot": "slot-freezer",
+  "file": "E-U-slot-freezer.png",
+  "faded": [
+   "appliance-body-slot-wine-2",
+   "coffee-display",
+   "coffee-machine",
+   "door-left-coffee-bridge",
+   "left-coffee-bridge",
+   "left-coffee-panel-start-PNL0.75-0",
+   "left-tall-outer-PNL0.75-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "shape": "U",
+  "slot": "slot-fridge",
+  "file": "E-U-slot-fridge.png",
+  "faded": [
+   "fridge",
+   "fridge-panel-door"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "shape": "U",
+  "slot": "slot-microwave",
+  "file": "E-U-slot-microwave.png",
+  "faded": [],
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "shape": "U",
+  "slot": "slot-coffee",
+  "file": "E-U-slot-coffee.png",
+  "faded": [
+   "door-left-pantry-T1596-0",
+   "left-coffee-panel-end-PNL0.75-0",
+   "left-pantry-T1596-0",
+   "strip-left-coffee-panel-end-PNL0.75-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "shape": "U",
+  "slot": "slot-wine-2",
+  "file": "E-U-slot-wine-2.png",
+  "faded": [
+   "door-left-pantry-T1596-0",
+   "left-coffee-base",
+   "left-coffee-panel-end-PNL0.75-0",
+   "left-pantry-T1596-0"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "shape": "U",
+  "slot": "slot-dishwasher",
+  "file": "E-U-slot-dishwasher.png",
+  "faded": [
+   "appliance-body-slot-hood",
+   "back-sink-SB30-0",
+   "cabinet-layer",
+   "chimney-lower",
+   "door-back-sink-SB30-0",
+   "door-upper-right-0-W1242-2",
+   "fixture-layer",
+   "upper-right-0-W1242-2"
+  ],
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "shape": "U",
+  "slot": "slot-cooktop",
+  "file": "E-U-slot-cooktop.png",
+  "faded": [],
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "shape": "U",
+  "slot": "slot-hood",
+  "file": "E-U-slot-hood.png",
+  "faded": [],
+  "errors": ""
+ }
+]

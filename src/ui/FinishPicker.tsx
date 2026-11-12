@@ -13,6 +13,7 @@ import {
 import { TILE_LABEL } from "../store/finishes";
 import type { WallFinish } from "../three/materials";
 import { PanelSection, Segmented } from "./primitives";
+import { accentRunsFor } from "./shapeControls";
 
 /**
  * How the room is finished, as against what is in it.
@@ -180,19 +181,19 @@ export function FinishPicker() {
   // that one wall has not got shows as none, which is what the room shows;
   // the choice is kept for the L. The one run is the whole run (Leo, round
   // 98b-2: "整排"), a key of its own.
+  // The U's three legs (U-2), the right one Leo's 「右段」.
   const shape = useAppStore((s) => s.layoutParams.shape);
-  const runs: { value: AccentRun; label: string }[] =
-    shape === "one-wall"
-      ? [
-          { value: "none", label: t("finish.accentRun.none") },
-          { value: "back", label: t("finish.accentRun.whole") },
-        ]
-      : [
-          { value: "none", label: t("finish.accentRun.none") },
-          { value: "left", label: t("panel.layout.leg.left") },
-          { value: "back", label: t("panel.layout.leg.back") },
-          { value: "island", label: t("panel.layout.island") },
-        ];
+  const RUN_WORD: Record<AccentRun, string> = {
+    none: "finish.accentRun.none",
+    left: "panel.layout.leg.left",
+    back: shape === "one-wall" ? "finish.accentRun.whole" : "panel.layout.leg.back",
+    right: "panel.layout.leg.right",
+    island: "panel.layout.island",
+  };
+  const runs: { value: AccentRun; label: string }[] = accentRunsFor(shape).map((value) => ({
+    value,
+    label: t(RUN_WORD[value]),
+  }));
   const setFinish = useAppStore((s) => s.setFinish);
 
   return (

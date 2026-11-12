@@ -204,7 +204,18 @@ export function Toast() {
         visible ? "opacity-100" : "opacity-0",
       ].join(" ")}
     >
-      <span>{message}</span>
+      {/* A shape switch's walls, one to a line (U-2, 9.3). */}
+      {toast.stacked && toast.lines ? (
+        <span>
+          {toast.lines.map((line, index) => (
+            <span key={index} className="block">
+              {say(line.key, line.vars)}
+            </span>
+          ))}
+        </span>
+      ) : (
+        <span>{message}</span>
+      )}
       {toast.undo && (
         <button
           type="button"

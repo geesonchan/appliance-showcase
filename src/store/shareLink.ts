@@ -119,6 +119,7 @@ export const FINISH_FIELDS: FinishField<AnyValue>[] = [
     left: "panel.layout.leg.left",
     back: "panel.layout.leg.back",
     island: "panel.layout.island",
+    right: "panel.layout.leg.right",
   }),
   paint("accent", "accent", ACCENT_COLORS, "finish.accent"),
   named("counter", "counter", "finish.counter", COUNTER_NAMES, {

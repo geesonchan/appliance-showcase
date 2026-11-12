@@ -491,11 +491,6 @@
       "approval": "written",
       "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
     },
-    "toast.shapeGrew": {
-      "text": "A single-wall kitchen needs a longer wall: the back wall is now {backIn}″.",
-      "approval": "written",
-      "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
-    },
     "toast.modelGrew": {
       "text": "The new model needs more room: {wall} is now {toIn}.",
       "approval": "written",
@@ -503,11 +498,6 @@
     },
     "toast.undo.package": {
       "text": "Back to {package}",
-      "approval": "written",
-      "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
-    },
-    "toast.undo.shape": {
-      "text": "Back to L",
       "approval": "written",
       "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
     },
@@ -830,6 +820,71 @@
       "text": "Right leg",
       "approval": "written",
       "reviewed": "Leo's own wording, 2026-11-11: 「左段、后段、右段，和 L 型现在的叫法接上；英文照 L 型现有的词」 (decisions.md, the U's answers to the first draft)"
+    },
+    "panel.layout.shape.U": {
+      "text": "U-shaped kitchen",
+      "approval": "read",
+      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「第 8 节的词：8.1 三个未审的和 8.2 六条草稿都同意，照写」 (decisions.md, Leo's answers to the U-2 plan; docs/plans/u2-plan.md, section 8)"
+    },
+    "leg.right": {
+      "text": "right",
+      "approval": "read",
+      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「第 8 节的词：8.1 三个未审的和 8.2 六条草稿都同意，照写」 (decisions.md, Leo's answers to the U-2 plan; docs/plans/u2-plan.md, section 8)"
+    },
+    "requirement.dishwasher-landing": {
+      "text": "counter between the corner and the dishwasher",
+      "approval": "read",
+      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「第 8 节的词：8.1 三个未审的和 8.2 六条草稿都同意，照写」 (decisions.md, Leo's answers to the U-2 plan; docs/plans/u2-plan.md, section 8)"
+    },
+    "panel.room.sideWalls": {
+      "text": "Side walls",
+      "approval": "written",
+      "reviewed": "Leo's own wording, 2026-11-11: 「左右墙一根滑杆管两面，叫\"左右墙长度 / Side walls\"：同意」 (decisions.md, Leo's answers to the U-2 plan)"
+    },
+    "toast.wall.sides": {
+      "text": "Side walls",
+      "approval": "read",
+      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「第 8 节的词：8.1 三个未审的和 8.2 六条草稿都同意，照写」 (decisions.md, Leo's answers to the U-2 plan; docs/plans/u2-plan.md, section 8)"
+    },
+    "rule.uSpares": {
+      "text": "U-shaped: the wine cooler and the microwave drawer sit under the counter on the left leg, between the corner's counter and the refrigerator's.",
+      "approval": "read",
+      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「第 8 节的词：8.1 三个未审的和 8.2 六条草稿都同意，照写」 (decisions.md, Leo's answers to the U-2 plan; docs/plans/u2-plan.md, section 8)"
+    },
+    "shape.note.U.E": {
+      "text": "U-shaped: no island; the induction cooktop moves to the right leg's wall, with the 36\" chimney wall hood HMCB36WS.",
+      "approval": "read",
+      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「第 8 节的词：8.1 三个未审的和 8.2 六条草稿都同意，照写」 (decisions.md, Leo's answers to the U-2 plan; docs/plans/u2-plan.md, section 8)"
+    },
+    "topbar.shape.L": {
+      "text": "L-shape",
+      "approval": "read",
+      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「新词同意：按钮「L 型 / 一字型 / U 型」，统一提示两句，\"退回{形状}\"」 (decisions.md, Leo's answers to the U-2 plan's second draft, 4; docs/plans/u2-plan.md, section 9.3)"
+    },
+    "topbar.shape.one-wall": {
+      "text": "Single wall",
+      "approval": "read",
+      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「新词同意：按钮「L 型 / 一字型 / U 型」，统一提示两句，\"退回{形状}\"」 (decisions.md, Leo's answers to the U-2 plan's second draft, 4; docs/plans/u2-plan.md, section 9.3)"
+    },
+    "topbar.shape.U": {
+      "text": "U-shape",
+      "approval": "read",
+      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「新词同意：按钮「L 型 / 一字型 / U 型」，统一提示两句，\"退回{形状}\"」 (decisions.md, Leo's answers to the U-2 plan's second draft, 4; docs/plans/u2-plan.md, section 9.3)"
+    },
+    "toast.shapeSwitched": {
+      "text": "Switched to {shape}; the walls were adjusted:",
+      "approval": "read",
+      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「新词同意：按钮「L 型 / 一字型 / U 型」，统一提示两句，\"退回{形状}\"」 (decisions.md, Leo's answers to the U-2 plan's second draft, 4; docs/plans/u2-plan.md, section 9.3)"
+    },
+    "toast.shapeWall": {
+      "text": "{wall}: {fromIn} → {toIn}",
+      "approval": "read",
+      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「新词同意：按钮「L 型 / 一字型 / U 型」，统一提示两句，\"退回{形状}\"」 (decisions.md, Leo's answers to the U-2 plan's second draft, 4; docs/plans/u2-plan.md, section 9.3)"
+    },
+    "toast.undo.toShape": {
+      "text": "Back to {shape}",
+      "approval": "read",
+      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「新词同意：按钮「L 型 / 一字型 / U 型」，统一提示两句，\"退回{形状}\"」 (decisions.md, Leo's answers to the U-2 plan's second draft, 4; docs/plans/u2-plan.md, section 9.3)"
     }
   },
   "zh": {
@@ -1328,25 +1383,15 @@
       "approval": "written",
       "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
     },
-    "toast.shapeGrew": {
-      "text": "一字型厨房需要更长的墙，已把后墙加到 {backIn}″。",
-      "approval": "written",
-      "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
-    },
     "toast.modelGrew": {
       "text": "换了型号，{wall}不够长，已加长到 {toIn}。",
       "approval": "written",
       "reviewed": "Leo's own wording (2026-10-27, the fridge-front plan's answers, 6): {wall} is toast.wall.*, {toIn} is inchesSpoken, which carries the ″"
     },
     "toast.undo.package": {
-      "text": "退回 {package}",
+      "text": "退回{package}",
       "approval": "written",
-      "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
-    },
-    "toast.undo.shape": {
-      "text": "退回 L 型",
-      "approval": "written",
-      "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
+      "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch), its space by his rule of 2026-11-12 (on U-2's seven points, 3: 「后面是英文字母时留空格……后面是中文时不留」): the space is put in by translate where a letter follows; 套餐 A begins in Chinese, so 退回套餐 A"
     },
     "toast.undo.layout": {
       "text": "撤销这次改动",
@@ -1667,6 +1712,66 @@
       "text": "右段",
       "approval": "written",
       "reviewed": "Leo's own wording, 2026-11-11: 「左段、后段、右段，和 L 型现在的叫法接上；英文照 L 型现有的词」 (decisions.md, the U's answers to the first draft)"
+    },
+    "panel.layout.shape.U": {
+      "text": "U 型厨房",
+      "approval": "read",
+      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「第 8 节的词：8.1 三个未审的和 8.2 六条草稿都同意，照写」 (decisions.md, Leo's answers to the U-2 plan; docs/plans/u2-plan.md, section 8)"
+    },
+    "leg.right": {
+      "text": "右",
+      "approval": "read",
+      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「第 8 节的词：8.1 三个未审的和 8.2 六条草稿都同意，照写」 (decisions.md, Leo's answers to the U-2 plan; docs/plans/u2-plan.md, section 8)"
+    },
+    "requirement.dishwasher-landing": {
+      "text": "转角与洗碗机之间的台面",
+      "approval": "read",
+      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「第 8 节的词：8.1 三个未审的和 8.2 六条草稿都同意，照写」 (decisions.md, Leo's answers to the U-2 plan; docs/plans/u2-plan.md, section 8)"
+    },
+    "panel.room.sideWalls": {
+      "text": "左右墙长度",
+      "approval": "written",
+      "reviewed": "Leo's own wording, 2026-11-11: 「左右墙一根滑杆管两面，叫\"左右墙长度 / Side walls\"：同意」 (decisions.md, Leo's answers to the U-2 plan)"
+    },
+    "toast.wall.sides": {
+      "text": "左右墙",
+      "approval": "read",
+      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「第 8 节的词：8.1 三个未审的和 8.2 六条草稿都同意，照写」 (decisions.md, Leo's answers to the U-2 plan; docs/plans/u2-plan.md, section 8)"
+    },
+    "rule.uSpares": {
+      "text": "U 型：小酒柜和微波抽屉都在左段台面下，在转角台面和冰箱台面之间。",
+      "approval": "read",
+      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「第 8 节的词：8.1 三个未审的和 8.2 六条草稿都同意，照写」 (decisions.md, Leo's answers to the U-2 plan; docs/plans/u2-plan.md, section 8)"
+    },
+    "shape.note.U.E": {
+      "text": "U 型：不配岛台；电磁灶改到右段墙上，油烟机为 36\" 墙挂烟囱式 HMCB36WS。",
+      "approval": "read",
+      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「第 8 节的词：8.1 三个未审的和 8.2 六条草稿都同意，照写」 (decisions.md, Leo's answers to the U-2 plan; docs/plans/u2-plan.md, section 8)"
+    },
+    "topbar.shape.L": {
+      "text": "L 型",
+      "approval": "read",
+      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「新词同意：按钮「L 型 / 一字型 / U 型」，统一提示两句，\"退回{形状}\"」 (decisions.md, Leo's answers to the U-2 plan's second draft, 4; docs/plans/u2-plan.md, section 9.3)"
+    },
+    "topbar.shape.one-wall": {
+      "text": "一字型",
+      "approval": "read",
+      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「新词同意：按钮「L 型 / 一字型 / U 型」，统一提示两句，\"退回{形状}\"」 (decisions.md, Leo's answers to the U-2 plan's second draft, 4; docs/plans/u2-plan.md, section 9.3)"
+    },
+    "topbar.shape.U": {
+      "text": "U 型",
+      "approval": "read",
+      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「新词同意：按钮「L 型 / 一字型 / U 型」，统一提示两句，\"退回{形状}\"」 (decisions.md, Leo's answers to the U-2 plan's second draft, 4; docs/plans/u2-plan.md, section 9.3)"
+    },
+    "toast.shapeSwitched": {
+      "text": "已切换为{shape}，墙长已调整：",
+      "approval": "read",
+      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「新词同意：按钮「L 型 / 一字型 / U 型」，统一提示两句，\"退回{形状}\"」 (decisions.md, Leo's answers to the U-2 plan's second draft, 4; docs/plans/u2-plan.md, section 9.3)"
+    },
+    "toast.shapeWall": {
+      "text": "{wall}从 {fromIn} 改为 {toIn}",
+      "approval": "read",
+      "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「新词同意：按钮「L 型 / 一字型 / U 型」，统一提示两句，\"退回{形状}\"」 (decisions.md, Leo's answers to the U-2 plan's second draft, 4; docs/plans/u2-plan.md, section 9.3)"
     }
   }
 }

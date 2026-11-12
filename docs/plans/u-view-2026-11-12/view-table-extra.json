@@ -1,0 +1,1556 @@
+[
+ {
+  "code": "A",
+  "board": "both",
+  "az": 0,
+  "pitch": 50,
+  "view": "0/50",
+  "total": 6,
+  "shown": 6,
+  "hiddenSlots": [],
+  "towerSlots": [],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": null
+  },
+  "square": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": null
+  },
+  "errors": ""
+ },
+ {
+  "code": "A",
+  "board": "both",
+  "az": 0,
+  "pitch": 55,
+  "view": "0/55",
+  "total": 6,
+  "shown": 6,
+  "hiddenSlots": [],
+  "towerSlots": [],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": null
+  },
+  "square": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": null
+  },
+  "errors": ""
+ },
+ {
+  "code": "A",
+  "board": "both",
+  "az": 0,
+  "pitch": 60,
+  "view": "0/60",
+  "total": 6,
+  "shown": 6,
+  "hiddenSlots": [],
+  "towerSlots": [],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": null
+  },
+  "square": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": null
+  },
+  "errors": ""
+ },
+ {
+  "code": "A",
+  "board": "both",
+  "az": -2,
+  "pitch": 50,
+  "view": "-2/50",
+  "total": 6,
+  "shown": 4,
+  "hiddenSlots": [
+   "microwave",
+   "wine"
+  ],
+  "towerSlots": [],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 100,
+   "hood": 100,
+   "tower": null
+  },
+  "square": {
+   "cooking": 2,
+   "hood": 2,
+   "tower": null
+  },
+  "errors": ""
+ },
+ {
+  "code": "A",
+  "board": "both",
+  "az": -2,
+  "pitch": 55,
+  "view": "-2/55",
+  "total": 6,
+  "shown": 4,
+  "hiddenSlots": [
+   "microwave",
+   "wine"
+  ],
+  "towerSlots": [],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 100,
+   "hood": 100,
+   "tower": null
+  },
+  "square": {
+   "cooking": 2,
+   "hood": 2,
+   "tower": null
+  },
+  "errors": ""
+ },
+ {
+  "code": "A",
+  "board": "both",
+  "az": -2,
+  "pitch": 60,
+  "view": "-2/60",
+  "total": 6,
+  "shown": 4,
+  "hiddenSlots": [
+   "microwave",
+   "wine"
+  ],
+  "towerSlots": [],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 100,
+   "hood": 100,
+   "tower": null
+  },
+  "square": {
+   "cooking": 2,
+   "hood": 2,
+   "tower": null
+  },
+  "errors": ""
+ },
+ {
+  "code": "A",
+  "board": "none",
+  "az": 0,
+  "pitch": 50,
+  "view": "0/50",
+  "total": 6,
+  "shown": 6,
+  "hiddenSlots": [],
+  "towerSlots": [],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": null
+  },
+  "square": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": null
+  },
+  "errors": ""
+ },
+ {
+  "code": "A",
+  "board": "none",
+  "az": 0,
+  "pitch": 55,
+  "view": "0/55",
+  "total": 6,
+  "shown": 6,
+  "hiddenSlots": [],
+  "towerSlots": [],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": null
+  },
+  "square": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": null
+  },
+  "errors": ""
+ },
+ {
+  "code": "A",
+  "board": "none",
+  "az": 0,
+  "pitch": 60,
+  "view": "0/60",
+  "total": 6,
+  "shown": 6,
+  "hiddenSlots": [],
+  "towerSlots": [],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": null
+  },
+  "square": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": null
+  },
+  "errors": ""
+ },
+ {
+  "code": "A",
+  "board": "none",
+  "az": -2,
+  "pitch": 50,
+  "view": "-2/50",
+  "total": 6,
+  "shown": 4,
+  "hiddenSlots": [
+   "microwave",
+   "wine"
+  ],
+  "towerSlots": [],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 100,
+   "hood": 100,
+   "tower": null
+  },
+  "square": {
+   "cooking": 2,
+   "hood": 2,
+   "tower": null
+  },
+  "errors": ""
+ },
+ {
+  "code": "A",
+  "board": "none",
+  "az": -2,
+  "pitch": 55,
+  "view": "-2/55",
+  "total": 6,
+  "shown": 4,
+  "hiddenSlots": [
+   "microwave",
+   "wine"
+  ],
+  "towerSlots": [],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 100,
+   "hood": 100,
+   "tower": null
+  },
+  "square": {
+   "cooking": 2,
+   "hood": 2,
+   "tower": null
+  },
+  "errors": ""
+ },
+ {
+  "code": "A",
+  "board": "none",
+  "az": -2,
+  "pitch": 60,
+  "view": "-2/60",
+  "total": 6,
+  "shown": 4,
+  "hiddenSlots": [
+   "microwave",
+   "wine"
+  ],
+  "towerSlots": [],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 100,
+   "hood": 100,
+   "tower": null
+  },
+  "square": {
+   "cooking": 2,
+   "hood": 2,
+   "tower": null
+  },
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "board": "both",
+  "az": 0,
+  "pitch": 50,
+  "view": "0/50",
+  "total": 6,
+  "shown": 6,
+  "hiddenSlots": [],
+  "towerSlots": [
+   "slot-microwave"
+  ],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "square": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "board": "both",
+  "az": 0,
+  "pitch": 55,
+  "view": "0/55",
+  "total": 6,
+  "shown": 6,
+  "hiddenSlots": [],
+  "towerSlots": [
+   "slot-microwave"
+  ],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "square": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "board": "both",
+  "az": 0,
+  "pitch": 60,
+  "view": "0/60",
+  "total": 6,
+  "shown": 6,
+  "hiddenSlots": [],
+  "towerSlots": [
+   "slot-microwave"
+  ],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "square": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "board": "both",
+  "az": -2,
+  "pitch": 50,
+  "view": "-2/50",
+  "total": 6,
+  "shown": 4,
+  "hiddenSlots": [
+   "hood",
+   "wine"
+  ],
+  "towerSlots": [
+   "slot-microwave"
+  ],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 100,
+   "hood": 69,
+   "tower": 100
+  },
+  "square": {
+   "cooking": 2,
+   "hood": 2,
+   "tower": 2
+  },
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "board": "both",
+  "az": -2,
+  "pitch": 55,
+  "view": "-2/55",
+  "total": 6,
+  "shown": 4,
+  "hiddenSlots": [
+   "hood",
+   "wine"
+  ],
+  "towerSlots": [
+   "slot-microwave"
+  ],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 100,
+   "hood": 83,
+   "tower": 100
+  },
+  "square": {
+   "cooking": 2,
+   "hood": 2,
+   "tower": 2
+  },
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "board": "both",
+  "az": -2,
+  "pitch": 60,
+  "view": "-2/60",
+  "total": 6,
+  "shown": 5,
+  "hiddenSlots": [
+   "wine"
+  ],
+  "towerSlots": [
+   "slot-microwave"
+  ],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 100,
+   "hood": 94,
+   "tower": 100
+  },
+  "square": {
+   "cooking": 2,
+   "hood": 2,
+   "tower": 2
+  },
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "board": "none",
+  "az": 0,
+  "pitch": 50,
+  "view": "0/50",
+  "total": 6,
+  "shown": 6,
+  "hiddenSlots": [],
+  "towerSlots": [
+   "slot-microwave"
+  ],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "square": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "board": "none",
+  "az": 0,
+  "pitch": 55,
+  "view": "0/55",
+  "total": 6,
+  "shown": 6,
+  "hiddenSlots": [],
+  "towerSlots": [
+   "slot-microwave"
+  ],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "square": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "board": "none",
+  "az": 0,
+  "pitch": 60,
+  "view": "0/60",
+  "total": 6,
+  "shown": 6,
+  "hiddenSlots": [],
+  "towerSlots": [
+   "slot-microwave"
+  ],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "square": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "board": "none",
+  "az": -2,
+  "pitch": 50,
+  "view": "-2/50",
+  "total": 6,
+  "shown": 4,
+  "hiddenSlots": [
+   "hood",
+   "wine"
+  ],
+  "towerSlots": [
+   "slot-microwave"
+  ],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 100,
+   "hood": 69,
+   "tower": 100
+  },
+  "square": {
+   "cooking": 2,
+   "hood": 2,
+   "tower": 2
+  },
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "board": "none",
+  "az": -2,
+  "pitch": 55,
+  "view": "-2/55",
+  "total": 6,
+  "shown": 4,
+  "hiddenSlots": [
+   "hood",
+   "wine"
+  ],
+  "towerSlots": [
+   "slot-microwave"
+  ],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 100,
+   "hood": 83,
+   "tower": 100
+  },
+  "square": {
+   "cooking": 2,
+   "hood": 2,
+   "tower": 2
+  },
+  "errors": ""
+ },
+ {
+  "code": "B",
+  "board": "none",
+  "az": -2,
+  "pitch": 60,
+  "view": "-2/60",
+  "total": 6,
+  "shown": 5,
+  "hiddenSlots": [
+   "wine"
+  ],
+  "towerSlots": [
+   "slot-microwave"
+  ],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 100,
+   "hood": 94,
+   "tower": 100
+  },
+  "square": {
+   "cooking": 2,
+   "hood": 2,
+   "tower": 2
+  },
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "board": "both",
+  "az": 0,
+  "pitch": 50,
+  "view": "0/50",
+  "total": 6,
+  "shown": 6,
+  "hiddenSlots": [],
+  "towerSlots": [],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": null
+  },
+  "square": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": null
+  },
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "board": "both",
+  "az": 0,
+  "pitch": 55,
+  "view": "0/55",
+  "total": 6,
+  "shown": 6,
+  "hiddenSlots": [],
+  "towerSlots": [],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": null
+  },
+  "square": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": null
+  },
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "board": "both",
+  "az": 0,
+  "pitch": 60,
+  "view": "0/60",
+  "total": 6,
+  "shown": 6,
+  "hiddenSlots": [],
+  "towerSlots": [],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": null
+  },
+  "square": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": null
+  },
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "board": "both",
+  "az": -2,
+  "pitch": 50,
+  "view": "-2/50",
+  "total": 6,
+  "shown": 4,
+  "hiddenSlots": [
+   "microwave",
+   "wine"
+  ],
+  "towerSlots": [],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 100,
+   "hood": 100,
+   "tower": null
+  },
+  "square": {
+   "cooking": 2,
+   "hood": 2,
+   "tower": null
+  },
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "board": "both",
+  "az": -2,
+  "pitch": 55,
+  "view": "-2/55",
+  "total": 6,
+  "shown": 4,
+  "hiddenSlots": [
+   "microwave",
+   "wine"
+  ],
+  "towerSlots": [],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 100,
+   "hood": 100,
+   "tower": null
+  },
+  "square": {
+   "cooking": 2,
+   "hood": 2,
+   "tower": null
+  },
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "board": "both",
+  "az": -2,
+  "pitch": 60,
+  "view": "-2/60",
+  "total": 6,
+  "shown": 4,
+  "hiddenSlots": [
+   "microwave",
+   "wine"
+  ],
+  "towerSlots": [],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 100,
+   "hood": 100,
+   "tower": null
+  },
+  "square": {
+   "cooking": 2,
+   "hood": 2,
+   "tower": null
+  },
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "board": "none",
+  "az": 0,
+  "pitch": 50,
+  "view": "0/50",
+  "total": 6,
+  "shown": 6,
+  "hiddenSlots": [],
+  "towerSlots": [],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": null
+  },
+  "square": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": null
+  },
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "board": "none",
+  "az": 0,
+  "pitch": 55,
+  "view": "0/55",
+  "total": 6,
+  "shown": 6,
+  "hiddenSlots": [],
+  "towerSlots": [],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": null
+  },
+  "square": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": null
+  },
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "board": "none",
+  "az": 0,
+  "pitch": 60,
+  "view": "0/60",
+  "total": 6,
+  "shown": 6,
+  "hiddenSlots": [],
+  "towerSlots": [],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": null
+  },
+  "square": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": null
+  },
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "board": "none",
+  "az": -2,
+  "pitch": 50,
+  "view": "-2/50",
+  "total": 6,
+  "shown": 4,
+  "hiddenSlots": [
+   "microwave",
+   "wine"
+  ],
+  "towerSlots": [],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 100,
+   "hood": 100,
+   "tower": null
+  },
+  "square": {
+   "cooking": 2,
+   "hood": 2,
+   "tower": null
+  },
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "board": "none",
+  "az": -2,
+  "pitch": 55,
+  "view": "-2/55",
+  "total": 6,
+  "shown": 4,
+  "hiddenSlots": [
+   "microwave",
+   "wine"
+  ],
+  "towerSlots": [],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 100,
+   "hood": 100,
+   "tower": null
+  },
+  "square": {
+   "cooking": 2,
+   "hood": 2,
+   "tower": null
+  },
+  "errors": ""
+ },
+ {
+  "code": "C",
+  "board": "none",
+  "az": -2,
+  "pitch": 60,
+  "view": "-2/60",
+  "total": 6,
+  "shown": 4,
+  "hiddenSlots": [
+   "microwave",
+   "wine"
+  ],
+  "towerSlots": [],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 100,
+   "hood": 100,
+   "tower": null
+  },
+  "square": {
+   "cooking": 2,
+   "hood": 2,
+   "tower": null
+  },
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "board": "both",
+  "az": 0,
+  "pitch": 50,
+  "view": "0/50",
+  "total": 10,
+  "shown": 10,
+  "hiddenSlots": [],
+  "towerSlots": [
+   "slot-oven"
+  ],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "square": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "board": "both",
+  "az": 0,
+  "pitch": 55,
+  "view": "0/55",
+  "total": 10,
+  "shown": 10,
+  "hiddenSlots": [],
+  "towerSlots": [
+   "slot-oven"
+  ],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "square": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "board": "both",
+  "az": 0,
+  "pitch": 60,
+  "view": "0/60",
+  "total": 10,
+  "shown": 10,
+  "hiddenSlots": [],
+  "towerSlots": [
+   "slot-oven"
+  ],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "square": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "board": "both",
+  "az": -2,
+  "pitch": 50,
+  "view": "-2/50",
+  "total": 10,
+  "shown": 7,
+  "hiddenSlots": [
+   "freezer",
+   "coffee",
+   "dishwasher-2"
+  ],
+  "towerSlots": [
+   "slot-oven"
+  ],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 100,
+   "hood": 100,
+   "tower": 100
+  },
+  "square": {
+   "cooking": 2,
+   "hood": 2,
+   "tower": 2
+  },
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "board": "both",
+  "az": -2,
+  "pitch": 55,
+  "view": "-2/55",
+  "total": 10,
+  "shown": 8,
+  "hiddenSlots": [
+   "coffee",
+   "dishwasher-2"
+  ],
+  "towerSlots": [
+   "slot-oven"
+  ],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 100,
+   "hood": 100,
+   "tower": 100
+  },
+  "square": {
+   "cooking": 2,
+   "hood": 2,
+   "tower": 2
+  },
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "board": "both",
+  "az": -2,
+  "pitch": 60,
+  "view": "-2/60",
+  "total": 10,
+  "shown": 8,
+  "hiddenSlots": [
+   "coffee",
+   "dishwasher-2"
+  ],
+  "towerSlots": [
+   "slot-oven"
+  ],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 100,
+   "hood": 100,
+   "tower": 100
+  },
+  "square": {
+   "cooking": 2,
+   "hood": 2,
+   "tower": 2
+  },
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "board": "none",
+  "az": 0,
+  "pitch": 50,
+  "view": "0/50",
+  "total": 10,
+  "shown": 10,
+  "hiddenSlots": [],
+  "towerSlots": [
+   "slot-oven"
+  ],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "square": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "board": "none",
+  "az": 0,
+  "pitch": 55,
+  "view": "0/55",
+  "total": 10,
+  "shown": 10,
+  "hiddenSlots": [],
+  "towerSlots": [
+   "slot-oven"
+  ],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "square": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "board": "none",
+  "az": 0,
+  "pitch": 60,
+  "view": "0/60",
+  "total": 10,
+  "shown": 10,
+  "hiddenSlots": [],
+  "towerSlots": [
+   "slot-oven"
+  ],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "square": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "board": "none",
+  "az": -2,
+  "pitch": 50,
+  "view": "-2/50",
+  "total": 10,
+  "shown": 7,
+  "hiddenSlots": [
+   "freezer",
+   "coffee",
+   "dishwasher-2"
+  ],
+  "towerSlots": [
+   "slot-oven"
+  ],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 100,
+   "hood": 100,
+   "tower": 100
+  },
+  "square": {
+   "cooking": 2,
+   "hood": 2,
+   "tower": 2
+  },
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "board": "none",
+  "az": -2,
+  "pitch": 55,
+  "view": "-2/55",
+  "total": 10,
+  "shown": 8,
+  "hiddenSlots": [
+   "coffee",
+   "dishwasher-2"
+  ],
+  "towerSlots": [
+   "slot-oven"
+  ],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 100,
+   "hood": 100,
+   "tower": 100
+  },
+  "square": {
+   "cooking": 2,
+   "hood": 2,
+   "tower": 2
+  },
+  "errors": ""
+ },
+ {
+  "code": "D",
+  "board": "none",
+  "az": -2,
+  "pitch": 60,
+  "view": "-2/60",
+  "total": 10,
+  "shown": 8,
+  "hiddenSlots": [
+   "coffee",
+   "dishwasher-2"
+  ],
+  "towerSlots": [
+   "slot-oven"
+  ],
+  "cookingSlot": "slot-range",
+  "fronts": {
+   "cooking": 100,
+   "hood": 100,
+   "tower": 100
+  },
+  "square": {
+   "cooking": 2,
+   "hood": 2,
+   "tower": 2
+  },
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "board": "both",
+  "az": 0,
+  "pitch": 50,
+  "view": "0/50",
+  "total": 8,
+  "shown": 8,
+  "hiddenSlots": [],
+  "towerSlots": [
+   "slot-microwave"
+  ],
+  "cookingSlot": "slot-cooktop",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "square": {
+   "cooking": 77,
+   "hood": 0,
+   "tower": 0
+  },
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "board": "both",
+  "az": 0,
+  "pitch": 55,
+  "view": "0/55",
+  "total": 8,
+  "shown": 8,
+  "hiddenSlots": [],
+  "towerSlots": [
+   "slot-microwave"
+  ],
+  "cookingSlot": "slot-cooktop",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "square": {
+   "cooking": 82,
+   "hood": 0,
+   "tower": 0
+  },
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "board": "both",
+  "az": 0,
+  "pitch": 60,
+  "view": "0/60",
+  "total": 8,
+  "shown": 8,
+  "hiddenSlots": [],
+  "towerSlots": [
+   "slot-microwave"
+  ],
+  "cookingSlot": "slot-cooktop",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "square": {
+   "cooking": 87,
+   "hood": 0,
+   "tower": 0
+  },
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "board": "both",
+  "az": -2,
+  "pitch": 50,
+  "view": "-2/50",
+  "total": 8,
+  "shown": 2,
+  "hiddenSlots": [
+   "freezer",
+   "fridge",
+   "coffee",
+   "wine-2",
+   "cooktop",
+   "hood"
+  ],
+  "towerSlots": [
+   "slot-microwave"
+  ],
+  "cookingSlot": "slot-cooktop",
+  "fronts": {
+   "cooking": 0,
+   "hood": 97,
+   "tower": 100
+  },
+  "square": {
+   "cooking": 77,
+   "hood": 2,
+   "tower": 2
+  },
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "board": "both",
+  "az": -2,
+  "pitch": 55,
+  "view": "-2/55",
+  "total": 8,
+  "shown": 5,
+  "hiddenSlots": [
+   "coffee",
+   "wine-2",
+   "cooktop"
+  ],
+  "towerSlots": [
+   "slot-microwave"
+  ],
+  "cookingSlot": "slot-cooktop",
+  "fronts": {
+   "cooking": 0,
+   "hood": 100,
+   "tower": 100
+  },
+  "square": {
+   "cooking": 82,
+   "hood": 2,
+   "tower": 2
+  },
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "board": "both",
+  "az": -2,
+  "pitch": 60,
+  "view": "-2/60",
+  "total": 8,
+  "shown": 5,
+  "hiddenSlots": [
+   "coffee",
+   "wine-2",
+   "cooktop"
+  ],
+  "towerSlots": [
+   "slot-microwave"
+  ],
+  "cookingSlot": "slot-cooktop",
+  "fronts": {
+   "cooking": 0,
+   "hood": 100,
+   "tower": 100
+  },
+  "square": {
+   "cooking": 87,
+   "hood": 2,
+   "tower": 2
+  },
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "board": "none",
+  "az": 0,
+  "pitch": 50,
+  "view": "0/50",
+  "total": 8,
+  "shown": 8,
+  "hiddenSlots": [],
+  "towerSlots": [
+   "slot-microwave"
+  ],
+  "cookingSlot": "slot-cooktop",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "square": {
+   "cooking": 77,
+   "hood": 0,
+   "tower": 0
+  },
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "board": "none",
+  "az": 0,
+  "pitch": 55,
+  "view": "0/55",
+  "total": 8,
+  "shown": 8,
+  "hiddenSlots": [],
+  "towerSlots": [
+   "slot-microwave"
+  ],
+  "cookingSlot": "slot-cooktop",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "square": {
+   "cooking": 82,
+   "hood": 0,
+   "tower": 0
+  },
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "board": "none",
+  "az": 0,
+  "pitch": 60,
+  "view": "0/60",
+  "total": 8,
+  "shown": 8,
+  "hiddenSlots": [],
+  "towerSlots": [
+   "slot-microwave"
+  ],
+  "cookingSlot": "slot-cooktop",
+  "fronts": {
+   "cooking": 0,
+   "hood": 0,
+   "tower": 0
+  },
+  "square": {
+   "cooking": 87,
+   "hood": 0,
+   "tower": 0
+  },
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "board": "none",
+  "az": -2,
+  "pitch": 50,
+  "view": "-2/50",
+  "total": 8,
+  "shown": 2,
+  "hiddenSlots": [
+   "freezer",
+   "fridge",
+   "coffee",
+   "wine-2",
+   "cooktop",
+   "hood"
+  ],
+  "towerSlots": [
+   "slot-microwave"
+  ],
+  "cookingSlot": "slot-cooktop",
+  "fronts": {
+   "cooking": 0,
+   "hood": 97,
+   "tower": 100
+  },
+  "square": {
+   "cooking": 77,
+   "hood": 2,
+   "tower": 2
+  },
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "board": "none",
+  "az": -2,
+  "pitch": 55,
+  "view": "-2/55",
+  "total": 8,
+  "shown": 5,
+  "hiddenSlots": [
+   "coffee",
+   "wine-2",
+   "cooktop"
+  ],
+  "towerSlots": [
+   "slot-microwave"
+  ],
+  "cookingSlot": "slot-cooktop",
+  "fronts": {
+   "cooking": 0,
+   "hood": 100,
+   "tower": 100
+  },
+  "square": {
+   "cooking": 82,
+   "hood": 2,
+   "tower": 2
+  },
+  "errors": ""
+ },
+ {
+  "code": "E",
+  "board": "none",
+  "az": -2,
+  "pitch": 60,
+  "view": "-2/60",
+  "total": 8,
+  "shown": 5,
+  "hiddenSlots": [
+   "coffee",
+   "wine-2",
+   "cooktop"
+  ],
+  "towerSlots": [
+   "slot-microwave"
+  ],
+  "cookingSlot": "slot-cooktop",
+  "fronts": {
+   "cooking": 0,
+   "hood": 100,
+   "tower": 100
+  },
+  "square": {
+   "cooking": 87,
+   "hood": 2,
+   "tower": 2
+  },
+  "errors": ""
+ }
+]

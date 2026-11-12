@@ -164,6 +164,8 @@ describe("which model each opening keeps between the shapes (round 98b-2)", () =
 });
 
 describe("what the switch says, and what Undo puts back (round 98b-2)", () => {
+  // Since U-2 (Leo, 2026-11-11, the plan's second draft, 4 and 5) in the one
+  // notice every shape switch gives, in place of toast.shapeGrew.
   it("says the room grew, as a package switch does, with an Undo that goes back to the L", () => {
     dWithChoices();
     const before = { shape: store().layoutParams.shape, params: store().layoutParams, selection: store().selection };
@@ -176,8 +178,8 @@ describe("what the switch says, and what Undo puts back (round 98b-2)", () => {
       back: { shape: store().layoutParams.shape, params: store().layoutParams, selection: store().selection },
       kept: store().lRoom,
     }).toEqual({
-      key: "toast.shapeGrew",
-      label: { key: "toast.undo.shape" },
+      key: "toast.shapeSwitched",
+      label: { key: "toast.undo.toShape", vars: { shapeKey: "topbar.shape.L" } },
       back: before,
       kept: null,
     });
@@ -214,17 +216,19 @@ describe("what the switch says, and what Undo puts back (round 98b-2)", () => {
     expect(button("en")).toBe("Back to Package A");
   });
 
+  // 「退回套餐 A」 since 2026-11-12 (Leo, on U-2's seven points, 3: 「后面是中文时不留」 a
+  // space; the package's name begins in Chinese). It was 「退回 套餐 A」.
   it("says 退回 the package a package switch came from, in Chinese", () => {
     freshPage();
     store().setLang("zh");
     store().setPackageId("package-b");
-    expect(button("zh")).toBe("退回 套餐 A");
+    expect(button("zh")).toBe("退回套餐 A");
   });
 
-  it("says 'Back to L' / 退回 L 型 when one wall grew the wall", () => {
+  it("says 'Back to L-shape' / 退回 L 型 when one wall grew the wall (U-2, 9.3: 「退回{形状}」)", () => {
     dWithChoices();
     store().setLayoutShape("one-wall");
-    expect([button("en"), button("zh")]).toEqual(["Back to L", "退回 L 型"]);
+    expect([button("en"), button("zh")]).toEqual(["Back to L-shape", "退回 L 型"]);
   });
 
   it("says 'Undo this change' / 撤销这次改动 when a switch in the Layout tab grew the wall", () => {
@@ -240,7 +244,12 @@ describe("what the switch says, and what Undo puts back (round 98b-2)", () => {
     const toast = store().toast!;
     // 248″ since round 101 (A-3), where it said 249.3″.
     // 245.8″ since the end-of-run round, the open end's panel 3/4" (A-12).
-    expect(sayWith((key, vars) => translate("zh", key, vars), toast.key, toast.vars)).toBe("一字型厨房需要更长的墙，已把后墙加到 245.8″。");
+    // Since U-2 the one notice of every shape switch, the wall from and to
+    // (Leo, 2026-11-11, 9.3): 224¼″ is D's L, 245¾″ the same 245.75 as before.
+    expect(toast.lines!.map((line) => sayWith((key, vars) => translate("zh", key, vars), line.key, line.vars))).toEqual([
+      "已切换为一字型厨房，墙长已调整：",
+      "后墙从 224¼″ 改为 245¾″",
+    ]);
   });
 
   it("says D's and E's one-wall lines, and none for A, B and C", () => {

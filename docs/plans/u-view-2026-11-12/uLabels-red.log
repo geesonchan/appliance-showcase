@@ -1,0 +1,127 @@
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mC:/Users/leoch/Downloads/appliance-showcase[39m
+
+ [31m❯[39m tests/uLabels.test.ts [2m([22m[2m10 tests[22m[2m | [22m[31m10 failed[39m[2m)[22m[33m 52653[2mms[22m[39m
+[31m   [31m×[31m the U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mA's U, the mouse at 1440[33m 6361[2mms[22m[31m[39m
+[31m     → expected { labels: 6, notSeen: [ …(3) ], …(1) } to deeply equal { labels: 6, notSeen: [], errors: [] }[39m
+[31m   [31m×[31m the U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mA's U, a finger at 390[33m 5084[2mms[22m[31m[39m
+[31m     → expected { labels: 6, notSeen: [ …(3) ], …(1) } to deeply equal { labels: 6, notSeen: [], errors: [] }[39m
+[31m   [31m×[31m the U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mB's U, the mouse at 1440[33m 5176[2mms[22m[31m[39m
+[31m     → expected { labels: 6, notSeen: [ …(3) ], …(1) } to deeply equal { labels: 6, notSeen: [], errors: [] }[39m
+[31m   [31m×[31m the U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mB's U, a finger at 390[33m 5214[2mms[22m[31m[39m
+[31m     → expected { labels: 6, notSeen: [ …(3) ], …(1) } to deeply equal { labels: 6, notSeen: [], errors: [] }[39m
+[31m   [31m×[31m the U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mC's U, the mouse at 1440[33m 5075[2mms[22m[31m[39m
+[31m     → expected { labels: 6, notSeen: [ …(3) ], …(1) } to deeply equal { labels: 6, notSeen: [], errors: [] }[39m
+[31m   [31m×[31m the U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mC's U, a finger at 390[33m 4965[2mms[22m[31m[39m
+[31m     → expected { labels: 6, notSeen: [ …(3) ], …(1) } to deeply equal { labels: 6, notSeen: [], errors: [] }[39m
+[31m   [31m×[31m the U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mD's U, the mouse at 1440[33m 5073[2mms[22m[31m[39m
+[31m     → expected { labels: 10, notSeen: [ …(7) ], …(1) } to deeply equal { labels: 10, notSeen: [], errors: [] }[39m
+[31m   [31m×[31m the U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mD's U, a finger at 390[33m 5126[2mms[22m[31m[39m
+[31m     → expected { labels: 10, notSeen: [ …(7) ], …(1) } to deeply equal { labels: 10, notSeen: [], errors: [] }[39m
+[31m   [31m×[31m the U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mE's U, the mouse at 1440[33m 5145[2mms[22m[31m[39m
+[31m     → expected { labels: 8, notSeen: [ …(5) ], …(1) } to deeply equal { labels: 8, notSeen: [], errors: [] }[39m
+[31m   [31m×[31m the U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mE's U, a finger at 390[33m 4903[2mms[22m[31m[39m
+[31m     → expected { labels: 8, notSeen: [ …(5) ], …(1) } to deeply equal { labels: 8, notSeen: [], errors: [] }[39m
+
+[31m⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 10 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/uLabels.test.ts[2m > [22mthe U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mA's U, the mouse at 1440
+[31m[1m[7m FAIL [27m[22m[39m tests/uLabels.test.ts[2m > [22mthe U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mA's U, a finger at 390
+[31m[1m[7m FAIL [27m[22m[39m tests/uLabels.test.ts[2m > [22mthe U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mB's U, the mouse at 1440
+[31m[1m[7m FAIL [27m[22m[39m tests/uLabels.test.ts[2m > [22mthe U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mB's U, a finger at 390
+[31m[1m[7m FAIL [27m[22m[39m tests/uLabels.test.ts[2m > [22mthe U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mC's U, the mouse at 1440
+[31m[1m[7m FAIL [27m[22m[39m tests/uLabels.test.ts[2m > [22mthe U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mC's U, a finger at 390
+[31m[1mAssertionError[22m: expected { labels: 6, notSeen: [ …(3) ], …(1) } to deeply equal { labels: 6, notSeen: [], errors: [] }[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  Object {[22m
+[2m    "errors": Array [],[22m
+[2m    "labels": 6,[22m
+[32m-   "notSeen": Array [],[39m
+[31m+   "notSeen": Array [[39m
+[31m+     "slot-dishwasher hidden",[39m
+[31m+     "slot-microwave hidden",[39m
+[31m+     "slot-wine hidden",[39m
+[31m+   ],[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/uLabels.test.ts:[2m102:59[22m[39m
+    [90m100| [39m    [35mfor[39m ([35mconst[39m phone [35mof[39m [[35mfalse[39m[33m,[39m [35mtrue[39m]) {
+    [90m101| [39m      [34mit[39m([32m`[39m[36m${[39mcode[36m}[39m[32m's U, [39m[36m${[39mphone [33m?[39m [32m"a finger at 390"[39m [33m:[39m [32m"the mouse at 144[39m…
+    [90m102| [39m        [34mexpect[39m([35mawait[39m [34mlabelsInTheDefaultView[39m(code[33m,[39m phone))[33m.[39m[34mtoEqual[39m({ la…
+    [90m   | [39m                                                          [31m^[39m
+    [90m103| [39m      })[33m;[39m
+    [90m104| [39m    }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/10]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/uLabels.test.ts[2m > [22mthe U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mD's U, the mouse at 1440
+[31m[1m[7m FAIL [27m[22m[39m tests/uLabels.test.ts[2m > [22mthe U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mD's U, a finger at 390
+[31m[1mAssertionError[22m: expected { labels: 10, notSeen: [ …(7) ], …(1) } to deeply equal { labels: 10, notSeen: [], errors: [] }[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  Object {[22m
+[2m    "errors": Array [],[22m
+[2m    "labels": 10,[22m
+[32m-   "notSeen": Array [],[39m
+[31m+   "notSeen": Array [[39m
+[31m+     "slot-freezer hidden",[39m
+[31m+     "slot-fridge hidden",[39m
+[31m+     "slot-wine hidden",[39m
+[31m+     "slot-range hidden",[39m
+[31m+     "slot-coffee hidden",[39m
+[31m+     "slot-dishwasher hidden",[39m
+[31m+     "slot-dishwasher-2 hidden",[39m
+[31m+   ],[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/uLabels.test.ts:[2m102:59[22m[39m
+    [90m100| [39m    [35mfor[39m ([35mconst[39m phone [35mof[39m [[35mfalse[39m[33m,[39m [35mtrue[39m]) {
+    [90m101| [39m      [34mit[39m([32m`[39m[36m${[39mcode[36m}[39m[32m's U, [39m[36m${[39mphone [33m?[39m [32m"a finger at 390"[39m [33m:[39m [32m"the mouse at 144[39m…
+    [90m102| [39m        [34mexpect[39m([35mawait[39m [34mlabelsInTheDefaultView[39m(code[33m,[39m phone))[33m.[39m[34mtoEqual[39m({ la…
+    [90m   | [39m                                                          [31m^[39m
+    [90m103| [39m      })[33m;[39m
+    [90m104| [39m    }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/10]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/uLabels.test.ts[2m > [22mthe U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mE's U, the mouse at 1440
+[31m[1m[7m FAIL [27m[22m[39m tests/uLabels.test.ts[2m > [22mthe U's default view shows every machine's label (Leo, 2026-11-12)[2m > [22mE's U, a finger at 390
+[31m[1mAssertionError[22m: expected { labels: 8, notSeen: [ …(5) ], …(1) } to deeply equal { labels: 8, notSeen: [], errors: [] }[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  Object {[22m
+[2m    "errors": Array [],[22m
+[2m    "labels": 8,[22m
+[32m-   "notSeen": Array [],[39m
+[31m+   "notSeen": Array [[39m
+[31m+     "slot-freezer hidden",[39m
+[31m+     "slot-fridge hidden",[39m
+[31m+     "slot-coffee hidden",[39m
+[31m+     "slot-wine-2 hidden",[39m
+[31m+     "slot-dishwasher hidden",[39m
+[31m+   ],[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/uLabels.test.ts:[2m102:59[22m[39m
+    [90m100| [39m    [35mfor[39m ([35mconst[39m phone [35mof[39m [[35mfalse[39m[33m,[39m [35mtrue[39m]) {
+    [90m101| [39m      [34mit[39m([32m`[39m[36m${[39mcode[36m}[39m[32m's U, [39m[36m${[39mphone [33m?[39m [32m"a finger at 390"[39m [33m:[39m [32m"the mouse at 144[39m…
+    [90m102| [39m        [34mexpect[39m([35mawait[39m [34mlabelsInTheDefaultView[39m(code[33m,[39m phone))[33m.[39m[34mtoEqual[39m({ la…
+    [90m   | [39m                                                          [31m^[39m
+    [90m103| [39m      })[33m;[39m
+    [90m104| [39m    }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/10]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m10 failed[39m[22m[90m (10)[39m
+[2m   Start at [22m 11:55:35
+[2m   Duration [22m 55.26s[2m (transform 70ms, setup 0ms, collect 293ms, tests 52.65s, environment 0ms, prepare 77ms)[22m
+
+丁's wiring: 0 page requests from the tests kept on the real server, 0 not routed, 0 paths answered with the page for want of a file

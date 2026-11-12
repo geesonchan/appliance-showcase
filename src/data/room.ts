@@ -20,6 +20,7 @@ import type { ResolvedWindow } from "./windows";
 import type { FixtureId, SlotId } from "../types";
 import type { RunId } from "./layoutShape";
 import { alongIsToTheRight, onAxis, sizeOnAxis } from "./frame";
+import { wallBehind } from "./roomWalls";
 import { isShareLink } from "./linkVersion";
 import { LAYOUT_FIELDS } from "./layoutFields";
 
@@ -222,6 +223,42 @@ export function serviceEntry(runs: CabinetRun[] = RUNS): { run: RunId; along: nu
   const cooking = runs.find((run) => run.segments.some(cooksOnTheRun)) ?? runs.find((run) => run.id === "back")!;
   const end = cooking.segments[cooking.segments.length - 1].to;
   return { run: cooking.id, along: end - ft(SERVICE_ENTRY_FROM_END_IN) };
+}
+
+/**
+ * A wall drawn only as a line on the floor (U-2): one that would stand between
+ * the default view and the cabinets — the U's right wall, the default view
+ * looking in from the open end (Leo, 2026-11-10: 「挡视线的墙只画地面墙线」). Where
+ * the wall is, across its own axis (`axis`, `at`, as `wallBehind` has it), and
+ * along it from the back wall to 1" past the run's open end, as the stone runs;
+ * 1" wide. None in an L or on one wall.
+ */
+export interface FloorLineWall {
+  wall: "right";
+  axis: "x" | "z";
+  at: number;
+  /** Outward from the room: the side of `at` the line is drawn on. */
+  outward: 1 | -1;
+  from: number;
+  to: number;
+  widthIn: number;
+}
+export function floorLineWalls(): FloorLineWall[] {
+  const right = RUN_BY_ID.right;
+  if (!right) return [];
+  const wall = wallBehind(right.facing);
+  const end = right.segments[right.segments.length - 1].to;
+  return [
+    {
+      wall: "right",
+      axis: wall.axis,
+      at: wall.at,
+      outward: (-right.facing.sign) as 1 | -1,
+      from: wallBehind(RUN_BY_ID.back.facing).at,
+      to: end + ft(1),
+      widthIn: 1,
+    },
+  ];
 }
 
 /**

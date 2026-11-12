@@ -8,10 +8,21 @@ import { outward } from "../data/frame";
 import { flyInAzimuth } from "../data/flyIn";
 import { useIsMobile } from "../hooks/useIsMobile";
 import { useAppStore } from "../store/useAppStore";
+import { defaultView } from "../data/defaultView";
+import { useSelection } from "../store/useSelection";
+import type { LayoutShape } from "../data/layoutShape";
 
-/** Isometric default: ~35 degrees elevation, ~45 degrees azimuth, per §10. */
-const ELEVATION = THREE.MathUtils.degToRad(35);
-const AZIMUTH = THREE.MathUtils.degToRad(45);
+/**
+ * The default view for a shape, in radians: the L's and one wall's isometric
+ * ~35 degrees elevation, ~45 degrees azimuth, per §10; the U's from front left,
+ * 45 degrees round and 25 down (Leo, 2026-11-12, `defaultView`).
+ */
+const viewFor = (shape: LayoutShape) => {
+  const { azimuthDeg, pitchDeg } = defaultView(shape);
+  return { azimuth: THREE.MathUtils.degToRad(azimuthDeg), pitch: THREE.MathUtils.degToRad(pitchDeg) };
+};
+const ELEVATION = viewFor("L").pitch;
+const AZIMUTH = viewFor("L").azimuth;
 /** Centre of the room's bounding box, which is what the default view frames. */
 const DEFAULT_TARGET = new THREE.Vector3(0, 4.5, 0);
 const DEFAULT_DISTANCE = 22;
@@ -50,9 +61,9 @@ const isoOffset = (distance: number, azimuth = AZIMUTH, pitch = ELEVATION) =>
  * the end of the left run they cropped it. An orthographic view of a box has a
  * closed-form extent along any axis, so there is no reason to guess.
  */
-function fitExtents() {
+function fitExtents(azimuth = AZIMUTH, pitch = ELEVATION) {
   const half = new THREE.Vector3(ROOM.halfX, ROOM.wallHeight / 2, ROOM.halfZ);
-  const forward = isoOffset(1).negate();
+  const forward = isoOffset(1, azimuth, pitch).negate();
   const right = new THREE.Vector3(0, 1, 0).cross(forward).normalize();
   const up = forward.clone().cross(right).normalize();
   const extent = (axis: THREE.Vector3) =>
@@ -107,7 +118,12 @@ export function CameraRig() {
   // room's own size is a parameter, so this is recomputed when it changes
   // rather than measured once at import.
   const layoutVersion = useAppStore((s) => s.layoutVersion);
-  const fit = useMemo(fitExtents, [layoutVersion]);
+  // Framed from the shape's own default view (U-2).
+  const shape = useAppStore((s) => s.layoutParams.shape);
+  const fit = useMemo(() => {
+    const view = viewFor(shape);
+    return fitExtents(view.azimuth, view.pitch);
+  }, [layoutVersion, shape]);
   const fitZoom = Math.min(size.width / fit.w, size.height / fit.h);
 
   const startTween = (
@@ -139,11 +155,18 @@ export function CameraRig() {
    * ever re-created (a renderer swap, a fast-refresh in dev), the view has to
    * come back exactly where it was rather than snapping to the default.
    */
-  const pose = useRef({
-    target: DEFAULT_TARGET.clone(),
-    position: DEFAULT_TARGET.clone().add(isoOffset(DEFAULT_DISTANCE)),
-    zoom: 0,
-  });
+  // The page opens on the default view of the shape it opens in: a link to a
+  // U, from in front (U-2).
+  const pose = useRef(
+    (() => {
+      const view = viewFor(useAppStore.getState().layoutParams.shape);
+      return {
+        target: DEFAULT_TARGET.clone(),
+        position: DEFAULT_TARGET.clone().add(isoOffset(DEFAULT_DISTANCE, view.azimuth, view.pitch)),
+        zoom: 0,
+      };
+    })(),
+  );
 
   useEffect(() => {
     const controls = new OrbitControls(camera, gl.domElement);
@@ -223,20 +246,60 @@ export function CameraRig() {
 
   useEffect(() => {
     if (resetToken === 0) return;
-    startTween(DEFAULT_TARGET, DEFAULT_DISTANCE, fitZoom, 600);
+    // Back to the default view of the shape on screen (U-2).
+    const view = viewFor(useAppStore.getState().layoutParams.shape);
+    startTween(DEFAULT_TARGET, DEFAULT_DISTANCE, fitZoom, 600, view.azimuth, view.pitch);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resetToken]);
 
-  // The +/- buttons step the orthographic zoom without moving the camera.
+  /**
+   * Where the camera is looking from now: its distance from the target and
+   * its angle, in the terms `startTween` takes, and the target without the
+   * framing offset (`startTween` adds it back).
+   */
+  const lookingFrom = (controls: OrbitControls) => {
+    const offset = camera.position.clone().sub(controls.target);
+    const distance = offset.length();
+    return {
+      target: controls.target.clone().sub(appliedOffset.current),
+      distance,
+      azimuth: Math.atan2(offset.x, offset.z),
+      pitch: Math.asin(offset.y / distance),
+    };
+  };
+
+  // The +/- buttons step the orthographic zoom without moving the camera: at
+  // the angle it is at (Leo, 2026-11-12: 「缩放时保持当前的角度」). Until then the
+  // step left the angle to the tween's default, the L's 45°/35°, which turned a
+  // fly-in or a U's own view round to it.
   useEffect(() => {
     const controls = controlsRef.current;
     if (zoomRequest.token === 0 || !controls) return;
     const factor = zoomRequest.direction === 1 ? 1.3 : 1 / 1.3;
     const next = THREE.MathUtils.clamp(camera.zoom * factor, fitZoom * 0.45, fitZoom * 6);
-    const distance = camera.position.distanceTo(controls.target);
-    startTween(controls.target.clone(), distance, next, 260);
+    const from = lookingFrom(controls);
+    startTween(from.target, from.distance, next, 260, from.azimuth, from.pitch);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [zoomRequest.token]);
+
+  // Another model chosen for the machine on screen pulls the camera back to the
+  // whole room's zoom: the angle and the centre as they are, the card left open
+  // (D1's fifth reason; Leo, 2026-11-11: 「换了型号以后镜头放远：…角度和中心不动，远近
+  // 回到看得见整个厨房，卡片不关。L 型、一字型、U 型一起做，规则只写一处」). Here only: whatever
+  // changes the model — the card, the list, an Undo while it is open — comes
+  // through the selection.
+  const selection = useSelection();
+  const shownModel = selectedSlot ? selection[selectedSlot]?.id : undefined;
+  const lastShown = useRef<{ slot: string | null; model: string | undefined }>({ slot: null, model: undefined });
+  useEffect(() => {
+    const last = lastShown.current;
+    lastShown.current = { slot: selectedSlot, model: shownModel };
+    const controls = controlsRef.current;
+    if (!controls || !selectedSlot || last.slot !== selectedSlot || !last.model || last.model === shownModel) return;
+    const from = lookingFrom(controls);
+    startTween(from.target, from.distance, fitZoom, 700, from.azimuth, from.pitch);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSlot, shownModel]);
 
   // Ease the framing offset in and out whenever the sheet opens or closes.
   useEffect(() => {

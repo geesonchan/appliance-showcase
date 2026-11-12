@@ -4,6 +4,7 @@ import {
   HOOD_CABINET,
   HOUSING_STYLES,
   hoodCabinetParts,
+  housingFrame,
   type HoodCabinetParts,
 } from "../data/insertHood";
 import { ft } from "../data/slots";
@@ -35,7 +36,9 @@ export function HoodCabinet({
   /** The band's own finish, which is usually not the door's. */
   band: SurfaceProps;
 }) {
-  const [w, h, d] = box.size;
+  // In its own frame, turned to face the room with its run: on a run along z
+  // the box's size is the other way round (U-2).
+  const { w, h, d, rotationY } = housingFrame(box);
   const style = box.module?.housing ?? "box";
   const parts = useMemo(() => hoodCabinetParts({ w, h, d }, style), [w, h, d, style]);
   const cove = useMemo(() => (parts.cove.h > 0 ? shell(parts.cove.rings) : null), [parts]);
@@ -49,7 +52,7 @@ export function HoodCabinet({
   const y = (at: number) => at - h / 2;
 
   return (
-    <group name="hood-cabinet">
+    <group name="hood-cabinet" rotation={[0, rotationY, 0]}>
       {/* The bottom box, which the liner hangs in. */}
       <mesh position={[0, y(parts.base.y), 0]} castShadow receiveShadow>
         <boxGeometry args={[parts.base.w, parts.base.h, parts.base.d]} />

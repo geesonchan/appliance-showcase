@@ -14,6 +14,7 @@ import { ISLAND, RUNS } from "../data/room";
 import { SLOT_BY_ID } from "../data/slots";
 import { islandHasCooktop } from "../data/layoutTemplate";
 import { doorFace } from "../data/doorFace";
+import { legBackBoards } from "../data/backBoards";
 import { rotationOf } from "../data/frame";
 import { useSelection } from "../store/useSelection";
 import { useIsMobile } from "../hooks/useIsMobile";
@@ -510,6 +511,7 @@ export function CabinetLayer() {
   return (
     <group name="cabinet-layer" visible={showCabinets}>
       <CounterSlab />
+      <BackBoards />
       {solids.map((box) => (
         <group
           key={box.id}
@@ -524,5 +526,49 @@ export function CabinetLayer() {
         <CabinetWireframe key={"wire-" + box.id} box={box} faint={isMobile} />
       ))}
     </group>
+  );
+}
+
+/**
+ * The backs of a U's side legs, one board each (`legBackBoards`; Leo,
+ * 2026-11-12): in the leg's door finish, ghosted in install mode as the
+ * carcasses are, and in this layer so that it fades when it stands on a fly-in's
+ * sight line, as cabinetry does (D1, reason 3).
+ */
+function BackBoards() {
+  const finishes = useAppStore((s) => s.finishes);
+  const renderMode = useAppStore((s) => s.renderMode);
+  const shape = useAppStore((s) => s.layoutParams.shape);
+  const layoutVersion = useAppStore((s) => s.layoutVersion);
+  const isMobile = useIsMobile();
+  // CABINETS is rebuilt with the layout, which re-renders this layer.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const boards = useMemo(() => legBackBoards(CABINETS, shape), [shape, layoutVersion]);
+  const install = renderMode === "install";
+  return (
+    <>
+      {boards.map((board) => {
+        const door = cabinetPaint(finishes, board.run);
+        const props = finish(renderMode, door.token, door.colour);
+        const [w, h, d] = board.size;
+        return (
+          <mesh
+            key={board.run}
+            name={`back-board-${board.run}`}
+            position={board.position}
+            visible={!(install && isMobile)}
+            castShadow
+            receiveShadow
+            userData={{ boxId: `back-board-${board.run}`, cabinetRole: true }}
+          >
+            <boxGeometry args={[w, h, d]} />
+            <Surface
+              s={{ ...props, transparent: install, opacity: install ? GHOST_OPACITY : 1 }}
+              size={[Math.max(w, d), h]}
+            />
+          </mesh>
+        );
+      })}
+    </>
   );
 }

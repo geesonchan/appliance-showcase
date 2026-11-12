@@ -3,6 +3,7 @@ import { SLOT_ORDER } from "../data/catalogue";
 import { ROOM, SLOT_BY_ID, isOmitted } from "../data/slots";
 import { planFootprint } from "../data/planFootprint";
 import { useAppStore } from "../store/useAppStore";
+import { planWalls } from "./planWalls";
 
 const PAD = 0.6;
 
@@ -30,7 +31,8 @@ export function PlanThumbnail() {
       role="img"
       aria-label="Kitchen floor plan"
     >
-      {/* room outline; the two solid edges are the walls the run sits against */}
+      {/* room outline; the solid edges are the walls the runs sit against: the
+          left and back, and in a U the right as well (U-2) */}
       <rect
         x={PAD}
         y={PAD}
@@ -47,6 +49,16 @@ export function PlanThumbnail() {
         stroke="var(--ink-muted)"
         strokeWidth={0.16}
       />
+      {planWalls().map((points, index) => (
+        <path
+          key={index}
+          data-plan-wall={index}
+          d={points.map(([x, z], at) => `${at === 0 ? "M" : "L"} ${sx(x)} ${sz(z)}`).join(" ")}
+          fill="none"
+          stroke="var(--ink-muted)"
+          strokeWidth={0.16}
+        />
+      ))}
 
       {CABINETS.filter((box) => box.kind === "base" || box.kind === "tall").map((box) => (
         <rect

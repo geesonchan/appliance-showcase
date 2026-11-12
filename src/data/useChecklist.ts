@@ -549,6 +549,16 @@ function noIslandFallback(): Finding[] {
     return placed ? [{ ruleId: "no-island-fallback", severity: "info", messageKey: "rule.oneWallSpares", slot: "slot-microwave", params: {} }] : [];
   }
 
+  // In a U both stand on the left leg, between the corner's counter and the
+  // refrigerator's (U-1), and the L's line — beside the range, at the leg's
+  // end — is not true of it either: the U's own (U-2; Leo, 2026-11-11, 「照写」).
+  if (LAYOUT_PARAMS.shape === "U") {
+    const placed = (["slot-wine", "slot-microwave"] as const).every((slot) =>
+      RUNS.some((run) => run.segments.some((segment) => segment.slot === slot)),
+    );
+    return placed ? [{ ruleId: "no-island-fallback", severity: "info", messageKey: "rule.uSpares", slot: "slot-microwave", params: {} }] : [];
+  }
+
   const runOf = (slot: SlotId) =>
     RUNS.find((run) => run.segments.some((segment) => segment.slot === slot))?.id;
   const wineRun = runOf("slot-wine");

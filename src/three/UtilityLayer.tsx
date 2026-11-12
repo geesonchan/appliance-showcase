@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useDisposable } from "./useDisposable";
 import * as THREE from "three";
-import { CABINET_STANDARDS, ROOM, SLOTS, ft } from "../data/slots";
+import { CABINET_STANDARDS, SLOTS, ft } from "../data/slots";
 import { FIXTURES } from "../data/fixtures";
 import { ceilingStub, cordHole, ductCallout, ductRoute, hoodCabinetFloor, hoodOutlet } from "../data/hood";
 import { deriveUtilities } from "../data/utilities";
@@ -9,12 +9,9 @@ import { useAppStore } from "../store/useAppStore";
 import { useSelection, useSelectedBlower } from "../store/useSelection";
 import { effectiveCfm } from "../data/ventilation";
 import { resolveRoughIn } from "../data/roughIn";
-import { serviceRoute } from "../data/serviceRoute";
+import { serviceEntryPoint, serviceRoute, trunkPath } from "../data/serviceRoute";
 import { alongOf, facingOf, onAxis, otherAxis, sizeOnPlan } from "../data/frame";
 import { wallBehind } from "../data/roomWalls";
-import { RUN_BY_ID } from "../data/room";
-import { LEFT_WALL_FACING } from "../data/layoutShape";
-import { wallAnchor } from "../data/wallAnchor";
 import type { Appliance, ServicePoint, SlotId, UtilityType, Utilities } from "../types";
 import { UNCONFIRMED, UNREVIEWED, UTILITY_COLORS, UTILITY_RADIUS_IN } from "./materials";
 
@@ -217,65 +214,24 @@ function FloorService({
   );
 }
 
-/** The wall a run's machines back onto: behind the way the run faces (round 98a). */
-const wallOf = (run: typeof RUN_BY_ID.back) => wallBehind(run.facing);
-
 /**
- * Every service enters on the back run's wall, at its open end.
- *
- * Which wall the meter is on is a fact about the house, so it is named — the
- * back run's. Where along it is the room's own far end, four feet back from the
- * corner, and that is the one figure here that is still the room's rather than
- * a run's. Round 52 (D22 step 3).
+ * Where every service enters: the L's back wall as drawn since round 52, the
+ * U's right wall 48" from its open end (U-2) — `serviceEntryPoint`.
  */
-const entry = (standoff: number) => {
-  const run = RUN_BY_ID.back;
-  const wall = wallOf(run);
-  // Off the wall into the room, the way the run faces.
-  const [x, , z] = onAxis(otherAxis(wall.axis), ROOM.halfX - ft(4), wall.at + run.facing.sign * standoff);
-  return { x, z };
-};
-
-/**
- * Inside corner, where the two runs' walls meet. The left wall's facing where
- * there is no left run, on one wall (round 98b): nothing there needs a
- * service, but the corner is still where the two walls are.
- */
-const corner = (standoff: number) => {
-  const back = wallOf(RUN_BY_ID.back);
-  const leftFacing = RUN_BY_ID.left?.facing ?? LEFT_WALL_FACING;
-  const left = wallBehind(leftFacing);
-  const [x, , z] = onAxis(
-    otherAxis(back.axis),
-    left.at + leftFacing.sign * standoff,
-    back.at + RUN_BY_ID.back.facing.sign * standoff,
-  );
-  return { x, z };
-};
+const entry = (standoff: number) => serviceEntryPoint(standoff);
 
 /**
  * A trunk route from the service entry to a slot, at a fixed height. Runs stay
- * on the walls: back wall first, then around the corner onto the left wall,
- * never diagonally across the floor.
+ * on the walls, turning their inside corners, never diagonally across the
+ * floor (`trunkPath`: the L's back wall then the left; the U's right wall, the
+ * back, the left). An island slot has none (D22): its caller asks for a riser.
  */
 function trunkPoints(
   slot: ServicePoint,
   y: number,
   standoff = STANDOFF.default,
 ): [number, number, number][] {
-  const anchor = wallAnchor(slot, standoff);
-  // A trunk runs along the walls, and an island slot is on none of them: its
-  // services come up through the floor (`islandRiser`). Asking for a trunk to
-  // one is a bug in the caller, not a route to draw. D22.
-  if (!anchor) throw new Error(`UtilityLayer: no wall trunk to ${slot.id}, which is in the island`);
-  const start = entry(standoff);
-  const points: [number, number, number][] = [[start.x, y, start.z]];
-  if (anchor.onLeftWall) {
-    const bend = corner(standoff);
-    points.push([bend.x, y, bend.z]);
-  }
-  points.push([anchor.x, y, anchor.z]);
-  return points;
+  return trunkPath(slot, standoff).map((at) => [at.x, y, at.z] as [number, number, number]);
 }
 
 /** Draws a polyline of pipe, with an elbow at each interior corner. */
