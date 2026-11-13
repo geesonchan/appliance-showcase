@@ -327,7 +327,9 @@ describe("a package's own room", () => {
     // sentence, and its Undo back to A, are not about the room on screen.
     openPackage("package-a");
     store().setPackageId("package-d");
-    expect(store().toast?.key).toBe("toast.roomGrew");
+    // toast.packageSwitched since item 10 (Leo, 2026-11-13, answers 1 and 5:
+    // toast.roomGrew retired, the U's lines in the L too).
+    expect(store().toast?.key).toBe("toast.packageSwitched");
     store().setPackageId("package-b");
     expect(store().toast).toBeNull();
   });
@@ -344,14 +346,20 @@ describe("a package's own room", () => {
   it("still says so when choosing B from A's room really lengthens the back wall, arrangement and all", () => {
     openPackage("package-a");
     store().setPackageId("package-b");
-    expect(store().toast?.key).toBe("toast.roomGrew");
+    expect(store().toast?.key).toBe("toast.packageSwitched");
     // 201-5/8" (shown 201.6) since round 92c: B's oven tower carries its sides
     // inside its 30", and B's room as it opens is its minimum, so it is 3/4"
     // shorter than the 202-3/8" it was (Leo, round 92c: accepted; D18).
     // 196-1/2" since round 101: its refrigerator and wine column case against
     // case and their boards 3/4", 5-1/8" narrower, and B opens at the wall it
     // needs (Leo, 2026-11-04, answer 1, 甲).
-    expect(store().toast?.vars).toMatchObject({ backIn: 196.5, leftIn: 144 });
+    // Since item 10 (Leo, 2026-11-13, answers 1, 3 and 5) the back wall alone, the
+    // one that moved, from and to, in fractions; the left wall's 144″, which did
+    // not move, is no longer said.
+    expect(store().toast?.lines).toEqual([
+      { key: "toast.packageSwitched", vars: { package: "Package B" } },
+      { key: "toast.shapeWall", vars: { wallKey: "toast.wall.back", fromIn: "168″", toIn: "196½″" } },
+    ]);
   });
 
   /**
@@ -375,7 +383,7 @@ describe("a package's own room", () => {
     const room = openPackage("package-a");
     const selection = store().selection;
     store().setPackageId("package-d");
-    expect(store().toast?.key).toBe("toast.roomGrew");
+    expect(store().toast?.key).toBe("toast.packageSwitched");
     expect(store().toast?.undo?.packageId).toBe("package-a");
     store().undo();
     expect(store().packageId).toBe("package-a");

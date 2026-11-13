@@ -495,12 +495,20 @@ export function setActivePackage(id: string): {
     backWallIn: Math.max(asked.backWallIn, oneWall ? oneWallWantedIn(asked, PACKAGE) : u ? u.backWallIn : (defaults.backWallIn ?? 0)),
     leftWallIn: Math.max(asked.leftWallIn, oneWall ? 0 : u ? u.leftWallIn : (defaults.leftWallIn ?? 0)),
   };
-  const moved: Partial<LayoutParams> = {};
-  for (const key of [...Object.keys(defaults), ...Object.keys(released)] as (keyof LayoutParams)[]) {
-    if (asked[key] !== arranged[key]) {
-      (moved as Record<string, unknown>)[key] = arranged[key];
+  // Everything the room built at that the room asked for did not say: the
+  // package's own arrangement, the island it leaves, and the walls. Item 10
+  // (Leo, 2026-11-13, answers 4 and 6): this used to be the package's
+  // `defaultLayout` and the island alone, so a wall the one-wall or U rule
+  // lengthened was built and never written back — one wall's 233¾″ chosen as
+  // B stood at 239″ with its slider at 233¾″, and the next change on the panel
+  // built from the slider and shrank it back without a word.
+  const changedFrom = (built: LayoutParams) => {
+    const changed: Partial<LayoutParams> = {};
+    for (const key of Object.keys(built) as (keyof LayoutParams)[]) {
+      if (asked[key] !== built[key]) (changed as Record<string, unknown>)[key] = built[key];
     }
-  }
+    return changed;
+  };
 
   // Which walls a room that built came out longer than the room asked for.
   const grownFrom = (built: LayoutParams) => {
@@ -513,9 +521,10 @@ export function setActivePackage(id: string): {
 
   const result = setLayoutParams(arranged);
   if (result.ok) {
-    return Object.keys(moved).length > 0
-      ? { ok: true, reasons: [], adjusted: moved, ...grownFrom(arranged) }
-      : result;
+    const adjusted = changedFrom(arranged);
+    // And a wall that grew is said whether or not the package moved anything
+    // else: one wall's C to A lengthened 3¾″ in silence (item 10, answer 6).
+    return Object.keys(adjusted).length > 0 ? { ok: true, reasons: [], adjusted, ...grownFrom(arranged) } : result;
   }
 
   // Taken from the refusal's own figures rather than from the change it
@@ -538,7 +547,7 @@ export function setActivePackage(id: string): {
   if (Object.keys(walls).length > 0) {
     const grown = setLayoutParams({ ...arranged, ...walls });
     if (grown.ok) {
-      return { ok: true, reasons: [], adjusted: { ...moved, ...walls }, ...grownFrom({ ...arranged, ...walls }) };
+      return { ok: true, reasons: [], adjusted: changedFrom({ ...arranged, ...walls }), ...grownFrom({ ...arranged, ...walls }) };
     }
   }
 

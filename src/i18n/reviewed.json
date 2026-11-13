@@ -486,11 +486,6 @@
       "approval": "written",
       "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
     },
-    "toast.roomGrew": {
-      "text": "{package} needs a bigger kitchen: the back wall is now {backIn}″ and the left wall {leftIn}″.",
-      "approval": "written",
-      "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
-    },
     "toast.modelGrew": {
       "text": "The new model needs more room: {wall} is now {toIn}.",
       "approval": "written",
@@ -875,6 +870,11 @@
       "text": "Switched to {shape}; the walls were adjusted:",
       "approval": "read",
       "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「新词同意：按钮「L 型 / 一字型 / U 型」，统一提示两句，\"退回{形状}\"」 (decisions.md, Leo's answers to the U-2 plan's second draft, 4; docs/plans/u2-plan.md, section 9.3)"
+    },
+    "toast.packageSwitched": {
+      "text": "Switched to {package}; the walls were adjusted:",
+      "approval": "read",
+      "reviewed": "Generated to the shape switch's pattern for U-2 (2026-11-12) and passed by Leo, 2026-11-13, item 10's plan, answers 1 and 2: 「第一行用甲：「已切换为套餐 B，墙长已调整：」 / \"Switched to Package B; the walls were adjusted:\"」, 「U 的 toast.packageSwitched 这句中英文我看过了，照原文同意，进 reviewed.json」"
     },
     "toast.shapeWall": {
       "text": "{wall}: {fromIn} → {toIn}",
@@ -1378,11 +1378,6 @@
       "approval": "written",
       "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
     },
-    "toast.roomGrew": {
-      "text": "{package}需要更大的厨房，已把后墙加到 {backIn}″、左墙加到 {leftIn}″。",
-      "approval": "written",
-      "reviewed": "Leo's own wording (round 98b-2, decisions.md Open items, the layout shape switch)"
-    },
     "toast.modelGrew": {
       "text": "换了型号，{wall}不够长，已加长到 {toIn}。",
       "approval": "written",
@@ -1767,6 +1762,11 @@
       "text": "已切换为{shape}，墙长已调整：",
       "approval": "read",
       "reviewed": "Generated to Leo's pattern and passed by him, 2026-11-11: 「新词同意：按钮「L 型 / 一字型 / U 型」，统一提示两句，\"退回{形状}\"」 (decisions.md, Leo's answers to the U-2 plan's second draft, 4; docs/plans/u2-plan.md, section 9.3)"
+    },
+    "toast.packageSwitched": {
+      "text": "已切换为{package}，墙长已调整：",
+      "approval": "read",
+      "reviewed": "Generated to the shape switch's pattern for U-2 (2026-11-12) and passed by Leo, 2026-11-13, item 10's plan, answers 1 and 2: 「第一行用甲：「已切换为套餐 B，墙长已调整：」 / \"Switched to Package B; the walls were adjusted:\"」, 「U 的 toast.packageSwitched 这句中英文我看过了，照原文同意，进 reviewed.json」"
     },
     "toast.shapeWall": {
       "text": "{wall}从 {fromIn} 改为 {toIn}",

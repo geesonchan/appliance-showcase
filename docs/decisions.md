@@ -11966,7 +11966,7 @@ Registered, not scheduled. None of these is a round of its own.
   of the U, and the entries it names):
   9. **two tests that fail now and then** (1 and 12): `scripts/previewServer.test.ts`'s
      main-thread watch and `tests/fadeRebuild.test.ts`'s timeout. 「只改测试环境，不碰页面。」 —
-     **next; a plan first** (「先写计划给我看，不动手」): `docs/plans/flaky-tests-plan.md`, first
+     **done, `1ea029b` (2026-11-13)**; a plan first (「先写计划给我看，不动手」): `docs/plans/flaky-tests-plan.md`, first
      draft 2026-11-12 (trial runs for its evidence, no code changed:
      `docs/plans/flaky-tests-2026-11-12/`). **Leo's answers to its section 6, 2026-11-12** (his
      words as he wrote them): 「1. previewServer 拆成假钟一条、真线程一条：同意。4 种改坏都必须变红。
@@ -12085,6 +12085,25 @@ Registered, not scheduled. None of these is a round of its own.
        - **The preview of this round** (Leo, 2026-11-13: 「这一轮页面没变，构建和线上 20 个文件逐字节
          相同（主文件 index-CZaHOxhY.js 也相同），所以这一轮预览就是线上，我不另看。」): no page
          code changed; built with the counter's address it is the live site file for file.
+     - **Shipped: `1ea029b`** (2026-11-13; Leo: 「第 9 项的报告看过了，同意提交。」). Checked first:
+       `scripts/previewServer.mjs`, `scripts/previewServer.test.ts` and `tests/fadeRebuild.test.ts`
+       last written 16:23:53, 16:23:21 and 16:32:56 on 2026-11-12, before the full suite's start
+       at 23:19:55, and their contents the same at the commit (sha256 c5dd60b3…, c9dbe869…,
+       de46852a…); since 23:19:55 only `docs/` and the build's own `tsconfig.tsbuildinfo` (git
+       ignores it) changed — so the full suite was not run again. CI's commands on the tree as
+       committed: `npm ci` 01:04:32-01:04:40, `npm run test:unit` 01:04:40-01:05:18 (141 files,
+       3,715 passed, 1 todo), `npm run build` 01:05:18-01:05:31, each exit 0. Committed 01:05:43,
+       pushed 01:05:44-01:05:48. Pages run 43398463259: build 09:05:54-09:07:15 UTC and deploy
+       09:07:21-09:07:44 UTC, each a success. Built at `1ea029b` with the counter's address
+       (01:07:56-01:08:08, exit 0) and compared with the live site file by file: **twenty of
+       twenty the same byte for byte**, each 200, `last-modified` Fri, 13 Nov 2026 09:07:30 or
+       09:07:31 GMT, `cache-control: max-age=600`; the JavaScript, CSS, `index.html` and the two
+       licences gzip, the twelve fonts `font/woff2` with no encoding; the live main chunk
+       **`assets/index-Cb_Hjz1r.js`** (726,692 bytes). Against `5d5da45` built the same way (a git
+       worktree, 01:08:30-01:08:42, exit 0): 18 files the same, the main chunk different in one
+       statement only (`Mw="5d5da45"` to `"1ea029b"`, the stamp), `index.html` in the main
+       chunk's name — as Leo expected. No page code changed between them (`src`, `public`,
+       `index.html`, the package files and the configs: no difference).
      - **The worktree removed** (its node_modules link taken off first; the main folder's
        intact). **The unit suite** 23:18:33-23:19:13, exit 0: 141 files, 3,715 passed, 1 todo.
        **Built with the counter's address** at `5d5da45` (nothing committed, so the stamp is
@@ -12104,10 +12123,41 @@ Registered, not scheduled. None of these is a round of its own.
   10. **the L's and one wall's package-switch notice in the U's new pattern, the walls that
       really changed only; one wall's slider against the room when A or C changes to B** (2
       and 3) — a plan first;
+      - **The plan**: `docs/plans/item10-notice-plan.md` (2026-11-13, the night). **Leo's answers,
+        2026-11-13 morning** (his words): 「第 10 项：计划确认，照计划动手，做到本地预览为止，不提交。我的答复：
+        1. 第一行用甲：「已切换为套餐 B，墙长已调整：」 / "Switched to Package B; the walls were adjusted:"。
+        2. U 的 toast.packageSwitched 这句中英文我看过了，照原文同意，进 reviewed.json。3. 数字用分数（224¼″）。
+        4. U 型那 3 条滑杆对不上的一起改。5. toast.roomGrew 拿掉。6. 一字型 C→A 多一条提示，同意。另加一条测试，
+        先红：换套餐后点"退回"，滑杆的数和实际建成的房间都回到换之前，三种形状都查。」
+      - **The plan's "U unchanged" rewritten by three notices.** The plan's section 5 said a
+        package switch in a U says what U-2 made it say, unchanged. The fix (answer 4: the walls the
+        switch built written back to the sliders, and the walls compared as built) also made a U's
+        A→C, B→A and B→C — which lengthened the side walls and said nothing, with no Undo, because
+        `setActivePackage` counted a wall as grown only when the package's own arrangement moved
+        something — say it, in U-2's words, with Undo. The same cause as one wall's C→A (answer 6);
+        found by the new test going red, not foreseen in the plan. Leo, 2026-11-13: 「U 型 A→C、B→A、
+        B→C 多出来的 3 条提示：接受。但计划里写的是"U 型换套餐的提示不变"，这种超出计划的改动以后先报给我再改。
+        在 decisions.md 里记一句：计划那一条被这 3 条改写了，原因是什么。」 **The rule from it**: a change past
+        what a plan lists — its "stays the same" included, and even with the same cause as one it
+        lists — is reported to Leo first and made only on his word.
+      - **The release order changed** (Leo, 2026-11-13: 「提交时的顺序改一下：先提交，再在提交后的内容上（干净的
+        git worktree）跑 npm ci、npm run test:unit、npm run build，都过了再推送。第 9 项是提交前跑的，换行符的问题
+        就没查到。把这条顺序写进 HANDOFF 第 6 节对应的那一步。」): HANDOFF section 6, "The order of a round",
+        step 6.
   11. **E's L: the oven tower against the corner, and its socket off the list, in one round**
       (4 and 5; "E's L: the combination oven tower hard against the corner", "E's L: the
       combination oven tower's socket dropped") — it changes the drawing, so a 3D prototype at
       the plan stage (HANDOFF section 6);
+      - **The plan and two prototype drafts** (not confirmed): `docs/plans/item11-plan.md` (2026-11-13,
+        the night), `docs/plans/item11-plan-draft2.md` (the day). Leo, 2026-11-13: 「第 11 项：先不确认。它和
+        第 14 项的咖啡机问题连在一起（E 的 L 型 67 间全是咖啡机柜挨着组合烤箱塔），我要看了图一起定。」 And later:
+        「还不确认，咖啡机柜挨着烤箱塔算不算，我还没定。等我的时候把"拆二"补完，仍然只在原型里」.
+      - **Registered, not changed** (found by the draft's door check, `doors.mjs`; Leo, 2026-11-13:
+        「盲角柜没画封板、转盘柜斜门顶着两边柜门：登记就好，这一轮不动。」):
+        - the blind corner is drawn with no filler beside it (docs/reference/cabinet-modules.md says
+          3–6"), so by the page's own sizes its 18" door cannot open past a few degrees in any room;
+        - the lazy susan's diagonal door is drawn with both ends against the neighbouring doors'
+          edges, so it cannot swing either.
   12. **6, 10, 11 and 8**: the L's service entry 4" against its note's four feet; the Zephyr
       hoods' "gas min 30, max 40"; HMCB36WS's heat warning and its guide against its sheet;
       the phone card 18–20 px taller at 390;

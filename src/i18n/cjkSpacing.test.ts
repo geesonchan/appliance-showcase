@@ -38,10 +38,15 @@ describe("a space between Chinese and a Latin letter (Leo, 2026-11-12)", () => {
     expect(translate("zh", "toast.undo.package", { package: "套餐 A" })).toBe("退回套餐 A");
   });
 
-  it("puts one after a name that ends in a letter: 套餐 D 需要", () => {
-    expect(translate("zh", "toast.roomGrew", { package: "套餐 D", backIn: 132, leftIn: 178.8 })).toBe(
-      "套餐 D 需要更大的厨房，已把后墙加到 132″、左墙加到 178.8″。",
-    );
+  // It was toast.roomGrew's 「套餐 D 需要」, the one line where a package's name met
+  // Chinese; that line is retired (item 10; Leo, 2026-11-13, answer 5), and the
+  // seam is the same wherever a name put in ends in a letter.
+  it("puts one after a name that ends in a letter: 套餐 D 不够长", () => {
+    expect(translate("zh", "toast.modelGrew", { wall: "套餐 D", toIn: "132″" })).toBe("换了型号，套餐 D 不够长，已加长到 132″。");
+  });
+
+  it("puts none between a name that ends in a letter and a comma: 已切换为套餐 D，", () => {
+    expect(translate("zh", "toast.packageSwitched", { package: "套餐 D" })).toBe("已切换为套餐 D，墙长已调整：");
   });
 
   it("puts one before a name that begins with a letter: 放不下 Drop in 炉灶片", () => {

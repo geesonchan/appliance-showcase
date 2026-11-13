@@ -651,16 +651,15 @@ export const useAppStore = create<AppState>((set, get) => ({
       // And the tower's oven, whose cutout may open the tower (Leo, 2026-11-09, 甲).
       const tower = towerSlotOf(PACKAGE_BY_ID[packageId]);
       if (tower && selection[tower]) setOvenModel(APPLIANCE_BY_ID[selection[tower]], packageId);
-      // In a U, the walls that changed, as a shape switch says them (Leo,
-      // 2026-11-12, on U-2's seven points, 7); none changed, nothing said (1).
-      const uLines =
-        shape === "U" && result.grown
-          ? packageSwitchLines(entry.name[s.lang] ?? entry.name.en, s.layoutParams, {
-              backWallIn: REQUESTED_PARAMS.backWallIn,
-              leftWallIn: REQUESTED_PARAMS.leftWallIn,
-              shape,
-            })
-          : null;
+      // The walls that changed, as a shape switch says them (Leo, 2026-11-12, on
+      // U-2's seven points, 7, for the U; item 10, 2026-11-13, answers 1 and 6,
+      // for the L and one wall); none changed, nothing said (point 1). The room
+      // before is the one the sliders showed; after, the one built.
+      const lines = packageSwitchLines(entry.name[s.lang] ?? entry.name.en, s.layoutParams, {
+        backWallIn: REQUESTED_PARAMS.backWallIn,
+        leftWallIn: REQUESTED_PARAMS.leftWallIn,
+        shape,
+      });
       const undoLabel = {
         key: "toast.undo.package",
         vars: { package: PACKAGE_BY_ID[s.packageId]?.name[s.lang] ?? s.packageId },
@@ -685,27 +684,14 @@ export const useAppStore = create<AppState>((set, get) => ({
         // customer's, so the change is announced rather than slipped in.
         // Only a wall that grew: the package's own arrangement moving the sink
         // to the other leg is not the room getting bigger (round 60).
-        toast: uLines
+        // toast.roomGrew, which named both walls whether they had moved or not,
+        // and a left wall on one wall, is retired (item 10, answer 5).
+        toast: lines
           ? {
               id: ++toastId,
-              key: uLines[0].key,
-              lines: uLines,
+              key: lines[0].key,
+              lines,
               stacked: true,
-              undo: built ? before : undefined,
-              undoLabel,
-            }
-          : result.grown && shape !== "U"
-          ? {
-              id: ++toastId,
-              key: "toast.roomGrew",
-              vars: {
-                package: entry.name[s.lang] ?? entry.name.en,
-                // To the tenth, the way every other figure on screen is
-                // printed: the wall is 147-5/8" and nobody wants three
-                // decimal places of it in a message.
-                backIn: Number(REQUESTED_PARAMS.backWallIn.toFixed(1)),
-                leftIn: Number(REQUESTED_PARAMS.leftWallIn.toFixed(1)),
-              },
               undo: built ? before : undefined,
               undoLabel,
             }

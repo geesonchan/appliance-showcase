@@ -1,0 +1,122 @@
+
+1. L 型 A→B（实际建成：后墙 168″→196½″，左墙 144″→144″）
+   zh 现在：套餐 B 需要更大的厨房，已把后墙加到 196.5″、左墙加到 144″。　［退回套餐 A］
+   zh 改后：已切换为套餐 B，墙长已调整： / 后墙从 168″ 改为 196½″　［退回套餐 A］
+   en 现在：Package B needs a bigger kitchen: the back wall is now 196.5″ and the left wall 144″.　［Back to Package A］
+   en 改后：Switched to Package B; the walls were adjusted: / Back wall: 168″ → 196½″　［Back to Package A］
+
+2. L 型 A→D（实际建成：后墙 168″→224¼″，左墙 144″→178¾″）
+   zh 现在：套餐 D 需要更大的厨房，已把后墙加到 224.3″、左墙加到 178.8″。　［退回套餐 A］
+   zh 改后：已切换为套餐 D，墙长已调整： / 后墙从 168″ 改为 224¼″ / 左墙从 144″ 改为 178¾″　［退回套餐 A］
+   en 现在：Package D needs a bigger kitchen: the back wall is now 224.3″ and the left wall 178.8″.　［Back to Package A］
+   en 改后：Switched to Package D; the walls were adjusted: / Back wall: 168″ → 224¼″ / Left wall: 144″ → 178¾″　［Back to Package A］
+
+3. L 型 A→E（实际建成：后墙 168″→180″，左墙 144″→168″）
+   zh 现在：套餐 E 需要更大的厨房，已把后墙加到 180″、左墙加到 168″。　［退回套餐 A］
+   zh 改后：已切换为套餐 E，墙长已调整： / 后墙从 168″ 改为 180″ / 左墙从 144″ 改为 168″　［退回套餐 A］
+   en 现在：Package E needs a bigger kitchen: the back wall is now 180″ and the left wall 168″.　［Back to Package A］
+   en 改后：Switched to Package E; the walls were adjusted: / Back wall: 168″ → 180″ / Left wall: 144″ → 168″　［Back to Package A］
+
+4. L 型 B→D（实际建成：后墙 196½″→224¼″，左墙 144″→178¾″）
+   zh 现在：套餐 D 需要更大的厨房，已把后墙加到 224.3″、左墙加到 178.8″。　［退回套餐 B］
+   zh 改后：已切换为套餐 D，墙长已调整： / 后墙从 196½″ 改为 224¼″ / 左墙从 144″ 改为 178¾″　［退回套餐 B］
+   en 现在：Package D needs a bigger kitchen: the back wall is now 224.3″ and the left wall 178.8″.　［Back to Package B］
+   en 改后：Switched to Package D; the walls were adjusted: / Back wall: 196½″ → 224¼″ / Left wall: 144″ → 178¾″　［Back to Package B］
+
+5. L 型 B→E（实际建成：后墙 196½″→196½″，左墙 144″→168″）
+   zh 现在：套餐 E 需要更大的厨房，已把后墙加到 196.5″、左墙加到 168″。　［退回套餐 B］
+   zh 改后：已切换为套餐 E，墙长已调整： / 左墙从 144″ 改为 168″　［退回套餐 B］
+   en 现在：Package E needs a bigger kitchen: the back wall is now 196.5″ and the left wall 168″.　［Back to Package B］
+   en 改后：Switched to Package E; the walls were adjusted: / Left wall: 144″ → 168″　［Back to Package B］
+
+6. L 型 C→B（实际建成：后墙 168″→196½″，左墙 144″→144″）
+   zh 现在：套餐 B 需要更大的厨房，已把后墙加到 196.5″、左墙加到 144″。　［退回套餐 C］
+   zh 改后：已切换为套餐 B，墙长已调整： / 后墙从 168″ 改为 196½″　［退回套餐 C］
+   en 现在：Package B needs a bigger kitchen: the back wall is now 196.5″ and the left wall 144″.　［Back to Package C］
+   en 改后：Switched to Package B; the walls were adjusted: / Back wall: 168″ → 196½″　［Back to Package C］
+
+7. L 型 C→D（实际建成：后墙 168″→224¼″，左墙 144″→178¾″）
+   zh 现在：套餐 D 需要更大的厨房，已把后墙加到 224.3″、左墙加到 178.8″。　［退回套餐 C］
+   zh 改后：已切换为套餐 D，墙长已调整： / 后墙从 168″ 改为 224¼″ / 左墙从 144″ 改为 178¾″　［退回套餐 C］
+   en 现在：Package D needs a bigger kitchen: the back wall is now 224.3″ and the left wall 178.8″.　［Back to Package C］
+   en 改后：Switched to Package D; the walls were adjusted: / Back wall: 168″ → 224¼″ / Left wall: 144″ → 178¾″　［Back to Package C］
+
+8. L 型 C→E（实际建成：后墙 168″→180″，左墙 144″→168″）
+   zh 现在：套餐 E 需要更大的厨房，已把后墙加到 180″、左墙加到 168″。　［退回套餐 C］
+   zh 改后：已切换为套餐 E，墙长已调整： / 后墙从 168″ 改为 180″ / 左墙从 144″ 改为 168″　［退回套餐 C］
+   en 现在：Package E needs a bigger kitchen: the back wall is now 180″ and the left wall 168″.　［Back to Package C］
+   en 改后：Switched to Package E; the walls were adjusted: / Back wall: 168″ → 180″ / Left wall: 144″ → 168″　［Back to Package C］
+
+9. L 型 E→B（实际建成：后墙 180″→196½″，左墙 168″→168″）
+   zh 现在：套餐 B 需要更大的厨房，已把后墙加到 196.5″、左墙加到 168″。　［退回套餐 E］
+   zh 改后：已切换为套餐 B，墙长已调整： / 后墙从 180″ 改为 196½″　［退回套餐 E］
+   en 现在：Package B needs a bigger kitchen: the back wall is now 196.5″ and the left wall 168″.　［Back to Package E］
+   en 改后：Switched to Package B; the walls were adjusted: / Back wall: 180″ → 196½″　［Back to Package E］
+
+10. L 型 E→D（实际建成：后墙 180″→224¼″，左墙 168″→178¾″）
+   zh 现在：套餐 D 需要更大的厨房，已把后墙加到 224.3″、左墙加到 178.8″。　［退回套餐 E］
+   zh 改后：已切换为套餐 D，墙长已调整： / 后墙从 180″ 改为 224¼″ / 左墙从 168″ 改为 178¾″　［退回套餐 E］
+   en 现在：Package D needs a bigger kitchen: the back wall is now 224.3″ and the left wall 178.8″.　［Back to Package E］
+   en 改后：Switched to Package D; the walls were adjusted: / Back wall: 180″ → 224¼″ / Left wall: 168″ → 178¾″　［Back to Package E］
+
+11. 一字型 A→B（实际建成：后墙 233¾″→239″）
+   zh 现在：套餐 B 需要更大的厨房，已把后墙加到 239″、左墙加到 144″。　［退回套餐 A］
+   zh 改后：已切换为套餐 B，墙长已调整： / 后墙从 233¾″ 改为 239″　［退回套餐 A］
+   en 现在：Package B needs a bigger kitchen: the back wall is now 239″ and the left wall 144″.　［Back to Package A］
+   en 改后：Switched to Package B; the walls were adjusted: / Back wall: 233¾″ → 239″　［Back to Package A］
+
+12. 一字型 A→D（实际建成：后墙 233¾″→245¾″）
+   zh 现在：套餐 D 需要更大的厨房，已把后墙加到 245.8″、左墙加到 144″。　［退回套餐 A］
+   zh 改后：已切换为套餐 D，墙长已调整： / 后墙从 233¾″ 改为 245¾″　［退回套餐 A］
+   en 现在：Package D needs a bigger kitchen: the back wall is now 245.8″ and the left wall 144″.　［Back to Package A］
+   en 改后：Switched to Package D; the walls were adjusted: / Back wall: 233¾″ → 245¾″　［Back to Package A］
+
+13. 一字型 A→E（实际建成：后墙 233¾″→270¾″）
+   zh 现在：套餐 E 需要更大的厨房，已把后墙加到 270.8″、左墙加到 144″。　［退回套餐 A］
+   zh 改后：已切换为套餐 E，墙长已调整： / 后墙从 233¾″ 改为 270¾″　［退回套餐 A］
+   en 现在：Package E needs a bigger kitchen: the back wall is now 270.8″ and the left wall 144″.　［Back to Package A］
+   en 改后：Switched to Package E; the walls were adjusted: / Back wall: 233¾″ → 270¾″　［Back to Package A］
+
+14. 一字型 B→D（实际建成：后墙 239″→245¾″）
+   zh 现在：套餐 D 需要更大的厨房，已把后墙加到 245.8″、左墙加到 144″。　［退回套餐 B］
+   zh 改后：已切换为套餐 D，墙长已调整： / 后墙从 239″ 改为 245¾″　［退回套餐 B］
+   en 现在：Package D needs a bigger kitchen: the back wall is now 245.8″ and the left wall 144″.　［Back to Package B］
+   en 改后：Switched to Package D; the walls were adjusted: / Back wall: 239″ → 245¾″　［Back to Package B］
+
+15. 一字型 B→E（实际建成：后墙 239″→270¾″）
+   zh 现在：套餐 E 需要更大的厨房，已把后墙加到 270.8″、左墙加到 144″。　［退回套餐 B］
+   zh 改后：已切换为套餐 E，墙长已调整： / 后墙从 239″ 改为 270¾″　［退回套餐 B］
+   en 现在：Package E needs a bigger kitchen: the back wall is now 270.8″ and the left wall 144″.　［Back to Package B］
+   en 改后：Switched to Package E; the walls were adjusted: / Back wall: 239″ → 270¾″　［Back to Package B］
+
+16. 一字型 C→A（实际建成：后墙 230″→233¾″）　**现在不弹提示**
+   zh 现在：（不弹提示）
+   zh 改后：已切换为套餐 A，墙长已调整： / 后墙从 230″ 改为 233¾″　［退回套餐 C］
+   en 现在：（不弹提示）
+   en 改后：Switched to Package A; the walls were adjusted: / Back wall: 230″ → 233¾″　［Back to Package C］
+
+17. 一字型 C→B（实际建成：后墙 230″→239″）
+   zh 现在：套餐 B 需要更大的厨房，已把后墙加到 239″、左墙加到 144″。　［退回套餐 C］
+   zh 改后：已切换为套餐 B，墙长已调整： / 后墙从 230″ 改为 239″　［退回套餐 C］
+   en 现在：Package B needs a bigger kitchen: the back wall is now 239″ and the left wall 144″.　［Back to Package C］
+   en 改后：Switched to Package B; the walls were adjusted: / Back wall: 230″ → 239″　［Back to Package C］
+
+18. 一字型 C→D（实际建成：后墙 230″→245¾″）
+   zh 现在：套餐 D 需要更大的厨房，已把后墙加到 245.8″、左墙加到 144″。　［退回套餐 C］
+   zh 改后：已切换为套餐 D，墙长已调整： / 后墙从 230″ 改为 245¾″　［退回套餐 C］
+   en 现在：Package D needs a bigger kitchen: the back wall is now 245.8″ and the left wall 144″.　［Back to Package C］
+   en 改后：Switched to Package D; the walls were adjusted: / Back wall: 230″ → 245¾″　［Back to Package C］
+
+19. 一字型 C→E（实际建成：后墙 230″→270¾″）
+   zh 现在：套餐 E 需要更大的厨房，已把后墙加到 270.8″、左墙加到 144″。　［退回套餐 C］
+   zh 改后：已切换为套餐 E，墙长已调整： / 后墙从 230″ 改为 270¾″　［退回套餐 C］
+   en 现在：Package E needs a bigger kitchen: the back wall is now 270.8″ and the left wall 144″.　［Back to Package C］
+   en 改后：Switched to Package E; the walls were adjusted: / Back wall: 230″ → 270¾″　［Back to Package C］
+
+20. 一字型 D→E（实际建成：后墙 245¾″→270¾″）
+   zh 现在：套餐 E 需要更大的厨房，已把后墙加到 270.8″、左墙加到 178.8″。　［退回套餐 D］
+   zh 改后：已切换为套餐 E，墙长已调整： / 后墙从 245¾″ 改为 270¾″　［退回套餐 D］
+   en 现在：Package E needs a bigger kitchen: the back wall is now 270.8″ and the left wall 178.8″.　［Back to Package D］
+   en 改后：Switched to Package E; the walls were adjusted: / Back wall: 245¾″ → 270¾″　［Back to Package D］
+
+{"switches":40,"noticeNow":19,"noticeNamesUnchanged":13,"grewWithoutNotice":1,"noticeAfter":20}
