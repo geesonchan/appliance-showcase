@@ -1,0 +1,8 @@
+{"run":1,"busy":true,"start":"2026-11-13T04:27:57.873Z","ms":200943,"exit":1,"why":"the file's own count only (a filtered run)"}
+{"run":2,"busy":true,"start":"2026-11-13T04:31:18.822Z","ms":175402,"exit":1,"why":"the file's own count only (a filtered run)"}
+{"run":3,"busy":true,"start":"2026-11-13T04:34:14.225Z","ms":168336,"exit":1,"why":"the file's own count only (a filtered run)"}
+{"run":4,"busy":true,"start":"2026-11-13T04:37:02.562Z","ms":175238,"exit":1,"why":"the file's own count only (a filtered run)"}
+{"run":5,"busy":true,"start":"2026-11-13T04:39:57.801Z","ms":175757,"exit":1,"why":"the file's own count only (a filtered run)"}
+{"run":6,"busy":true,"start":"2026-11-13T04:42:53.573Z","ms":187397,"exit":1,"why":"the file's own count only (a filtered run)"}
+{"run":7,"busy":true,"start":"2026-11-13T04:46:00.971Z","ms":195504,"exit":1,"why":"the file's own count only (a filtered run)"}
+{"run":8,"busy":true,"start":"2026-11-13T04:49:16.476Z","ms":210642,"exit":1,"why":"the file's own count only (a filtered run)"}

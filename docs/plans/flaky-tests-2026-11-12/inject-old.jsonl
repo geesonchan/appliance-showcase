@@ -1,0 +1,20 @@
+{"run":1,"busy":false,"start":"2026-11-13T00:25:55.187Z","ms":6889,"exit":0,"why":null}
+{"run":2,"busy":false,"start":"2026-11-13T00:26:02.078Z","ms":6922,"exit":1,"why":"AssertionError: expected [ { ev: 'stall', ms: 399 }, …(1) ] to have a length of 1 but got 2"}
+{"run":3,"busy":false,"start":"2026-11-13T00:26:09.001Z","ms":7945,"exit":1,"why":"AssertionError: expected [ { ev: 'stall', ms: 600 }, …(1) ] to have a length of 1 but got 2"}
+{"run":4,"busy":false,"start":"2026-11-13T00:26:16.947Z","ms":7139,"exit":1,"why":"AssertionError: expected [ { ev: 'stall', ms: 432 }, …(1) ] to have a length of 1 but got 2"}
+{"run":5,"busy":false,"start":"2026-11-13T00:26:24.086Z","ms":6526,"exit":0,"why":null}
+{"run":6,"busy":false,"start":"2026-11-13T00:26:30.613Z","ms":7737,"exit":1,"why":"AssertionError: expected [ { ev: 'stall', ms: 600 }, …(1) ] to have a length of 1 but got 2"}
+{"run":7,"busy":false,"start":"2026-11-13T00:26:38.351Z","ms":8038,"exit":0,"why":null}
+{"run":8,"busy":false,"start":"2026-11-13T00:26:46.389Z","ms":6965,"exit":0,"why":null}
+{"run":9,"busy":false,"start":"2026-11-13T00:26:53.354Z","ms":7390,"exit":0,"why":null}
+{"run":10,"busy":false,"start":"2026-11-13T00:27:00.744Z","ms":6977,"exit":1,"why":"AssertionError: expected [ { ev: 'stall', ms: 425 }, …(1) ] to have a length of 1 but got 2"}
+{"run":11,"busy":false,"start":"2026-11-13T00:27:07.722Z","ms":7099,"exit":1,"why":"AssertionError: expected [ { ev: 'stall', ms: 399 }, …(1) ] to have a length of 1 but got 2"}
+{"run":12,"busy":false,"start":"2026-11-13T00:27:14.822Z","ms":7461,"exit":1,"why":"AssertionError: expected [ { ev: 'stall', ms: 417 }, …(1) ] to have a length of 1 but got 2"}
+{"run":13,"busy":false,"start":"2026-11-13T00:27:22.284Z","ms":6613,"exit":1,"why":"AssertionError: expected [ { ev: 'stall', ms: 434 }, …(1) ] to have a length of 1 but got 2"}
+{"run":14,"busy":false,"start":"2026-11-13T00:27:28.897Z","ms":7035,"exit":1,"why":"AssertionError: expected [ { ev: 'stall', ms: 416 }, …(1) ] to have a length of 1 but got 2"}
+{"run":15,"busy":false,"start":"2026-11-13T00:27:35.932Z","ms":7335,"exit":1,"why":"AssertionError: expected [ { ev: 'stall', ms: 436 }, …(1) ] to have a length of 1 but got 2"}
+{"run":16,"busy":false,"start":"2026-11-13T00:27:43.268Z","ms":6850,"exit":1,"why":"AssertionError: expected [ { ev: 'stall', ms: 416 }, …(1) ] to have a length of 1 but got 2"}
+{"run":17,"busy":false,"start":"2026-11-13T00:27:50.118Z","ms":6984,"exit":1,"why":"AssertionError: expected [ { ev: 'stall', ms: 404 }, …(1) ] to have a length of 1 but got 2"}
+{"run":18,"busy":false,"start":"2026-11-13T00:27:57.102Z","ms":7364,"exit":1,"why":"AssertionError: expected [ { ev: 'stall', ms: 415 }, …(1) ] to have a length of 1 but got 2"}
+{"run":19,"busy":false,"start":"2026-11-13T00:28:04.466Z","ms":6875,"exit":1,"why":"AssertionError: expected [ { ev: 'stall', ms: 411 }, …(1) ] to have a length of 1 but got 2"}
+{"run":20,"busy":false,"start":"2026-11-13T00:28:11.341Z","ms":6883,"exit":1,"why":"AssertionError: expected [ { ev: 'stall', ms: 433 }, …(1) ] to have a length of 1 but got 2"}

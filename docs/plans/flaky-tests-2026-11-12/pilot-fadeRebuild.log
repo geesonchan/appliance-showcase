@@ -1,0 +1,113 @@
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mC:/Users/leoch/Downloads/appliance-showcase[39m
+
+[90mstdout[2m | tests/fadeRebuild.test.ts[2m > [22m[2ma room rebuilt in install mode[2m > [22m[2mdraws no machine more solid than install mode leaves it, changing the hood, on a desktop with the mouse
+[22m[39minstall, changing the hood, on a desktop with the mouse: {"rebuilds":1,"checked":1,"settled":[0.12],"rendersAboveSettled":0}
+
+[90mstdout[2m | tests/fadeRebuild.test.ts[2m > [22m[2ma room rebuilt in install mode[2m > [22m[2mdraws no machine more solid than install mode leaves it, changing the hood, on a phone with touch
+[22m[39minstall, changing the hood, on a phone with touch: {"rebuilds":1,"checked":1,"settled":[0.12],"rendersAboveSettled":0}
+
+[90mstdout[2m | tests/fadeRebuild.test.ts[2m > [22m[2ma room rebuilt in install mode[2m > [22m[2mdraws no machine more solid than install mode leaves it, dragging the back wall slider, on a desktop with the mouse
+[22m[39minstall, dragging the back wall slider, on a desktop with the mouse: {"rebuilds":2,"checked":2,"settled":[0.12,0.12],"rendersAboveSettled":0}
+
+[90mstdout[2m | tests/fadeRebuild.test.ts[2m > [22m[2ma room rebuilt in install mode[2m > [22m[2mdraws no machine more solid than install mode leaves it, dragging the back wall slider, on a phone with touch
+[22m[39minstall, dragging the back wall slider, on a phone with touch: {"rebuilds":2,"checked":1,"settled":[0.12],"rendersAboveSettled":0}
+
+[90mstdout[2m | tests/fadeRebuild.test.ts[2m > [22m[2ma room rebuilt in install mode[2m > [22m[2mdraws no machine more solid than install mode leaves it, turning the island, on a desktop with the mouse
+[22m[39minstall, turning the island, on a desktop with the mouse: {"rebuilds":1,"checked":1,"settled":[0.12],"rendersAboveSettled":0}
+
+[90mstdout[2m | tests/fadeRebuild.test.ts[2m > [22m[2ma room rebuilt in install mode[2m > [22m[2mdraws no machine more solid than install mode leaves it, turning the island, on a phone with touch
+[22m[39minstall, turning the island, on a phone with touch: {"rebuilds":1,"checked":1,"settled":[0.12],"rendersAboveSettled":0}
+
+[90mstdout[2m | tests/fadeRebuild.test.ts[2m > [22m[2ma room rebuilt while cabinets are faded[2m > [22m[2mdraws no faded cabinet solid, changing the hood, on a desktop with the mouse
+[22m[39mchanging the hood, on a desktop with the mouse: {"before":5,"rebuilds":1,"checked":1,"fadedBoxesChecked":3,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+[90mstdout[2m | tests/fadeRebuild.test.ts[2m > [22m[2ma room rebuilt while cabinets are faded[2m > [22m[2mdraws no faded cabinet solid, changing the hood, on a phone with touch
+[22m[39mchanging the hood, on a phone with touch: {"before":5,"rebuilds":1,"checked":1,"fadedBoxesChecked":3,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+[90mstdout[2m | tests/fadeRebuild.test.ts[2m > [22m[2ma room rebuilt while cabinets are faded[2m > [22m[2mdraws no faded cabinet solid, changing the hood, on a phone with touch, the CPU slowed four times
+[22m[39mchanging the hood, on a phone with touch, the CPU slowed four times: {"before":5,"rebuilds":1,"checked":1,"fadedBoxesChecked":3,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+[90mstdout[2m | tests/fadeRebuild.test.ts[2m > [22m[2ma room rebuilt while cabinets are faded[2m > [22m[2mdraws no faded cabinet solid, dragging the back wall slider, on a desktop with the mouse
+[22m[39mdragging the back wall slider, on a desktop with the mouse: {"before":5,"rebuilds":2,"checked":2,"fadedBoxesChecked":6,"solidRenders":0,"worldUpdates":2,"idle":0}
+
+[90mstdout[2m | tests/fadeRebuild.test.ts[2m > [22m[2ma room rebuilt while cabinets are faded[2m > [22m[2mdraws no faded cabinet solid, dragging the back wall slider, on a phone with touch
+[22m[39mdragging the back wall slider, on a phone with touch: {"before":5,"rebuilds":2,"checked":2,"fadedBoxesChecked":6,"solidRenders":0,"worldUpdates":2,"idle":0}
+
+[90mstdout[2m | tests/fadeRebuild.test.ts[2m > [22m[2ma room rebuilt while cabinets are faded[2m > [22m[2mdraws no faded cabinet solid, dragging the back wall slider, on a phone with touch, the CPU slowed four times
+[22m[39mdragging the back wall slider, on a phone with touch, the CPU slowed four times: {"before":5,"rebuilds":2,"checked":1,"fadedBoxesChecked":3,"solidRenders":0,"worldUpdates":2,"idle":0}
+
+[90mstdout[2m | tests/fadeRebuild.test.ts[2m > [22m[2ma room rebuilt while cabinets are faded[2m > [22m[2mdraws no faded cabinet solid, turning the island, on a desktop with the mouse
+[22m[39mturning the island, on a desktop with the mouse: {"before":5,"rebuilds":1,"checked":1,"fadedBoxesChecked":3,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+[90mstdout[2m | tests/fadeRebuild.test.ts[2m > [22m[2ma room rebuilt while cabinets are faded[2m > [22m[2mdraws no faded cabinet solid, turning the island, on a phone with touch, the CPU slowed four times
+[22m[39mturning the island, on a phone with touch, the CPU slowed four times: {"before":5,"rebuilds":1,"checked":1,"fadedBoxesChecked":3,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+[90mstdout[2m | tests/fadeRebuild.test.ts[2m > [22m[2ma room rebuilt while cabinets are faded[2m > [22m[2mdraws no faded cabinet solid, changing the range, on a desktop with the mouse
+[22m[39mchanging the range, on a desktop with the mouse: {"before":2,"rebuilds":1,"checked":1,"fadedBoxesChecked":2,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+[90mstdout[2m | tests/fadeRebuild.test.ts[2m > [22m[2ma room rebuilt while cabinets are faded[2m > [22m[2mdraws no faded cabinet solid, changing the range, on a phone with touch
+[22m[39mchanging the range, on a phone with touch: {"before":2,"rebuilds":1,"checked":1,"fadedBoxesChecked":2,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+[90mstdout[2m | tests/fadeRebuild.test.ts[2m > [22m[2ma room rebuilt while cabinets are faded[2m > [22m[2mdraws no faded cabinet solid, changing the range, on a phone with touch, the CPU slowed four times
+[22m[39mchanging the range, on a phone with touch, the CPU slowed four times: {"before":2,"rebuilds":1,"checked":1,"fadedBoxesChecked":2,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+[90mstdout[2m | tests/fadeRebuild.test.ts[2m > [22m[2ma room rebuilt while cabinets are faded[2m > [22m[2mdraws no faded cabinet solid, changing the hood to an insert with its housing, on a desktop with the mouse
+[22m[39mchanging the hood to an insert with its housing, on a desktop with the mouse: {"before":5,"rebuilds":1,"checked":1,"fadedBoxesChecked":3,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+[90mstdout[2m | tests/fadeRebuild.test.ts[2m > [22m[2ma room rebuilt while cabinets are faded[2m > [22m[2mdraws no faded cabinet solid, changing the hood to an insert with its housing, on a phone with touch
+[22m[39mchanging the hood to an insert with its housing, on a phone with touch: {"before":5,"rebuilds":1,"checked":1,"fadedBoxesChecked":3,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+[90mstdout[2m | tests/fadeRebuild.test.ts[2m > [22m[2ma room rebuilt while cabinets are faded[2m > [22m[2mdraws no faded cabinet solid, changing the hood to an insert with its housing, on a phone with touch, the CPU slowed four times
+[22m[39mchanging the hood to an insert with its housing, on a phone with touch, the CPU slowed four times: {"before":5,"rebuilds":1,"checked":1,"fadedBoxesChecked":3,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+[90mstdout[2m | tests/fadeRebuild.test.ts[2m > [22m[2ma room rebuilt while cabinets are faded[2m > [22m[2mdraws no faded cabinet solid, changing the refrigerator to a counter-depth one, on a desktop with the mouse
+[22m[39mchanging the refrigerator to a counter-depth one, on a desktop with the mouse: {"before":9,"rebuilds":1,"checked":1,"fadedBoxesChecked":4,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+[90mstdout[2m | tests/fadeRebuild.test.ts[2m > [22m[2ma room rebuilt while cabinets are faded[2m > [22m[2mdraws no faded cabinet solid, changing the refrigerator to a counter-depth one, on a phone with touch
+[22m[39mchanging the refrigerator to a counter-depth one, on a phone with touch: {"before":5,"rebuilds":1,"checked":1,"fadedBoxesChecked":2,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+[90mstdout[2m | tests/fadeRebuild.test.ts[2m > [22m[2ma room rebuilt while cabinets are faded[2m > [22m[2mdraws no faded cabinet solid, changing the refrigerator to a counter-depth one, on a phone with touch, the CPU slowed four times
+[22m[39mchanging the refrigerator to a counter-depth one, on a phone with touch, the CPU slowed four times: {"before":5,"rebuilds":1,"checked":1,"fadedBoxesChecked":2,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+ [31m❯[39m tests/fadeRebuild.test.ts [2m([22m[2m24 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 908887[2mms[22m[39m
+   [33m[2m✓[22m[39m a room rebuilt in install mode[2m > [22mdraws no machine more solid than install mode leaves it, changing the hood, on a desktop with the mouse [33m46022[2mms[22m[39m
+   [33m[2m✓[22m[39m a room rebuilt in install mode[2m > [22mdraws no machine more solid than install mode leaves it, changing the hood, on a phone with touch [33m13863[2mms[22m[39m
+   [33m[2m✓[22m[39m a room rebuilt in install mode[2m > [22mdraws no machine more solid than install mode leaves it, dragging the back wall slider, on a desktop with the mouse [33m13920[2mms[22m[39m
+   [33m[2m✓[22m[39m a room rebuilt in install mode[2m > [22mdraws no machine more solid than install mode leaves it, dragging the back wall slider, on a phone with touch [33m44521[2mms[22m[39m
+   [33m[2m✓[22m[39m a room rebuilt in install mode[2m > [22mdraws no machine more solid than install mode leaves it, turning the island, on a desktop with the mouse [33m13690[2mms[22m[39m
+   [33m[2m✓[22m[39m a room rebuilt in install mode[2m > [22mdraws no machine more solid than install mode leaves it, turning the island, on a phone with touch [33m43929[2mms[22m[39m
+   [33m[2m✓[22m[39m a room rebuilt while cabinets are faded[2m > [22mdraws no faded cabinet solid, changing the hood, on a desktop with the mouse [33m45542[2mms[22m[39m
+   [33m[2m✓[22m[39m a room rebuilt while cabinets are faded[2m > [22mdraws no faded cabinet solid, changing the hood, on a phone with touch [33m19640[2mms[22m[39m
+   [33m[2m✓[22m[39m a room rebuilt while cabinets are faded[2m > [22mdraws no faded cabinet solid, changing the hood, on a phone with touch, the CPU slowed four times [33m22531[2mms[22m[39m
+   [33m[2m✓[22m[39m a room rebuilt while cabinets are faded[2m > [22mdraws no faded cabinet solid, dragging the back wall slider, on a desktop with the mouse [33m16935[2mms[22m[39m
+   [33m[2m✓[22m[39m a room rebuilt while cabinets are faded[2m > [22mdraws no faded cabinet solid, dragging the back wall slider, on a phone with touch [33m49568[2mms[22m[39m
+   [33m[2m✓[22m[39m a room rebuilt while cabinets are faded[2m > [22mdraws no faded cabinet solid, dragging the back wall slider, on a phone with touch, the CPU slowed four times [33m53271[2mms[22m[39m
+   [33m[2m✓[22m[39m a room rebuilt while cabinets are faded[2m > [22mdraws no faded cabinet solid, turning the island, on a desktop with the mouse [33m63640[2mms[22m[39m
+[31m   [31m×[31m a room rebuilt while cabinets are faded[2m > [22mdraws no faded cabinet solid, turning the island, on a phone with touch[33m 150359[2mms[22m[31m[39m
+[31m     → Test timed out in 150000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+   [33m[2m✓[22m[39m a room rebuilt while cabinets are faded[2m > [22mdraws no faded cabinet solid, turning the island, on a phone with touch, the CPU slowed four times [33m144687[2mms[22m[39m
+   [33m[2m✓[22m[39m a room rebuilt while cabinets are faded[2m > [22mdraws no faded cabinet solid, changing the range, on a desktop with the mouse [33m12818[2mms[22m[39m
+   [33m[2m✓[22m[39m a room rebuilt while cabinets are faded[2m > [22mdraws no faded cabinet solid, changing the range, on a phone with touch [33m12852[2mms[22m[39m
+   [33m[2m✓[22m[39m a room rebuilt while cabinets are faded[2m > [22mdraws no faded cabinet solid, changing the range, on a phone with touch, the CPU slowed four times [33m17034[2mms[22m[39m
+   [33m[2m✓[22m[39m a room rebuilt while cabinets are faded[2m > [22mdraws no faded cabinet solid, changing the hood to an insert with its housing, on a desktop with the mouse [33m14649[2mms[22m[39m
+   [33m[2m✓[22m[39m a room rebuilt while cabinets are faded[2m > [22mdraws no faded cabinet solid, changing the hood to an insert with its housing, on a phone with touch [33m17902[2mms[22m[39m
+   [33m[2m✓[22m[39m a room rebuilt while cabinets are faded[2m > [22mdraws no faded cabinet solid, changing the hood to an insert with its housing, on a phone with touch, the CPU slowed four times [33m21698[2mms[22m[39m
+   [33m[2m✓[22m[39m a room rebuilt while cabinets are faded[2m > [22mdraws no faded cabinet solid, changing the refrigerator to a counter-depth one, on a desktop with the mouse [33m16315[2mms[22m[39m
+   [33m[2m✓[22m[39m a room rebuilt while cabinets are faded[2m > [22mdraws no faded cabinet solid, changing the refrigerator to a counter-depth one, on a phone with touch [33m24516[2mms[22m[39m
+   [33m[2m✓[22m[39m a room rebuilt while cabinets are faded[2m > [22mdraws no faded cabinet solid, changing the refrigerator to a counter-depth one, on a phone with touch, the CPU slowed four times [33m28674[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 1 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/fadeRebuild.test.ts[2m > [22ma room rebuilt while cabinets are faded[2m > [22mdraws no faded cabinet solid, turning the island, on a phone with touch
+[31m[1mError[22m: Test timed out in 150000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m23 passed[39m[22m[90m (24)[39m
+[2m   Start at [22m 16:01:51
+[2m   Duration [22m 911.49s[2m (transform 102ms, setup 0ms, collect 362ms, tests 908.89s, environment 0ms, prepare 67ms)[22m
+
+丁's wiring: 0 page requests from the tests kept on the real server, 0 not routed, 0 paths answered with the page for want of a file

@@ -1,0 +1,108 @@
+
+ RUN  v2.1.9 C:/Users/leoch/Downloads/appliance-showcase
+
+stdout | tests/fadeRebuild.test.ts > a room rebuilt in install mode > draws no machine more solid than install mode leaves it, changing the hood, on a desktop with the mouse
+install, changing the hood, on a desktop with the mouse: {"rebuilds":1,"checked":1,"settled":[0.12],"rendersAboveSettled":0}
+
+stdout | tests/fadeRebuild.test.ts > a room rebuilt in install mode > draws no machine more solid than install mode leaves it, changing the hood, on a phone with touch
+install, changing the hood, on a phone with touch: {"rebuilds":1,"checked":1,"settled":[0.12],"rendersAboveSettled":0}
+
+stdout | tests/fadeRebuild.test.ts > a room rebuilt in install mode > draws no machine more solid than install mode leaves it, dragging the back wall slider, on a desktop with the mouse
+install, dragging the back wall slider, on a desktop with the mouse: {"rebuilds":2,"checked":2,"settled":[0.12,0.12],"rendersAboveSettled":0}
+
+stdout | tests/fadeRebuild.test.ts > a room rebuilt in install mode > draws no machine more solid than install mode leaves it, dragging the back wall slider, on a phone with touch
+install, dragging the back wall slider, on a phone with touch: {"rebuilds":2,"checked":1,"settled":[0.12],"rendersAboveSettled":0}
+
+stdout | tests/fadeRebuild.test.ts > a room rebuilt in install mode > draws no machine more solid than install mode leaves it, turning the island, on a desktop with the mouse
+install, turning the island, on a desktop with the mouse: {"rebuilds":1,"checked":1,"settled":[0.12],"rendersAboveSettled":0}
+
+stdout | tests/fadeRebuild.test.ts > a room rebuilt in install mode > draws no machine more solid than install mode leaves it, turning the island, on a phone with touch
+install, turning the island, on a phone with touch: {"rebuilds":1,"checked":1,"settled":[0.12],"rendersAboveSettled":0}
+
+stdout | tests/fadeRebuild.test.ts > a room rebuilt while cabinets are faded > draws no faded cabinet solid, changing the hood, on a desktop with the mouse
+changing the hood, on a desktop with the mouse: {"before":5,"rebuilds":1,"checked":1,"fadedBoxesChecked":3,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+stdout | tests/fadeRebuild.test.ts > a room rebuilt while cabinets are faded > draws no faded cabinet solid, changing the hood, on a phone with touch
+changing the hood, on a phone with touch: {"before":5,"rebuilds":1,"checked":1,"fadedBoxesChecked":3,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+stdout | tests/fadeRebuild.test.ts > a room rebuilt while cabinets are faded > draws no faded cabinet solid, changing the hood, on a phone with touch, the CPU slowed four times
+changing the hood, on a phone with touch, the CPU slowed four times: {"before":5,"rebuilds":1,"checked":1,"fadedBoxesChecked":3,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+stdout | tests/fadeRebuild.test.ts > a room rebuilt while cabinets are faded > draws no faded cabinet solid, dragging the back wall slider, on a desktop with the mouse
+dragging the back wall slider, on a desktop with the mouse: {"before":5,"rebuilds":2,"checked":2,"fadedBoxesChecked":6,"solidRenders":0,"worldUpdates":2,"idle":0}
+
+stdout | tests/fadeRebuild.test.ts > a room rebuilt while cabinets are faded > draws no faded cabinet solid, dragging the back wall slider, on a phone with touch
+dragging the back wall slider, on a phone with touch: {"before":5,"rebuilds":2,"checked":1,"fadedBoxesChecked":3,"solidRenders":0,"worldUpdates":2,"idle":0}
+
+stdout | tests/fadeRebuild.test.ts > a room rebuilt while cabinets are faded > draws no faded cabinet solid, dragging the back wall slider, on a phone with touch, the CPU slowed four times
+dragging the back wall slider, on a phone with touch, the CPU slowed four times: {"before":5,"rebuilds":2,"checked":1,"fadedBoxesChecked":3,"solidRenders":0,"worldUpdates":2,"idle":0}
+
+stdout | tests/fadeRebuild.test.ts > a room rebuilt while cabinets are faded > draws no faded cabinet solid, turning the island, on a desktop with the mouse
+turning the island, on a desktop with the mouse: {"before":5,"rebuilds":1,"checked":1,"fadedBoxesChecked":3,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+stdout | tests/fadeRebuild.test.ts > a room rebuilt while cabinets are faded > draws no faded cabinet solid, turning the island, on a phone with touch
+turning the island, on a phone with touch: {"before":5,"rebuilds":1,"checked":1,"fadedBoxesChecked":3,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+stdout | tests/fadeRebuild.test.ts > a room rebuilt while cabinets are faded > draws no faded cabinet solid, turning the island, on a phone with touch, the CPU slowed four times
+turning the island, on a phone with touch, the CPU slowed four times: {"before":5,"rebuilds":1,"checked":1,"fadedBoxesChecked":3,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+stdout | tests/fadeRebuild.test.ts > a room rebuilt while cabinets are faded > draws no faded cabinet solid, changing the range, on a desktop with the mouse
+changing the range, on a desktop with the mouse: {"before":2,"rebuilds":1,"checked":1,"fadedBoxesChecked":2,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+stdout | tests/fadeRebuild.test.ts > a room rebuilt while cabinets are faded > draws no faded cabinet solid, changing the range, on a phone with touch
+changing the range, on a phone with touch: {"before":2,"rebuilds":1,"checked":1,"fadedBoxesChecked":2,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+stdout | tests/fadeRebuild.test.ts > a room rebuilt while cabinets are faded > draws no faded cabinet solid, changing the range, on a phone with touch, the CPU slowed four times
+changing the range, on a phone with touch, the CPU slowed four times: {"before":2,"rebuilds":1,"checked":1,"fadedBoxesChecked":2,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+stdout | tests/fadeRebuild.test.ts > a room rebuilt while cabinets are faded > draws no faded cabinet solid, changing the hood to an insert with its housing, on a desktop with the mouse
+changing the hood to an insert with its housing, on a desktop with the mouse: {"before":5,"rebuilds":1,"checked":1,"fadedBoxesChecked":3,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+stdout | tests/fadeRebuild.test.ts > a room rebuilt while cabinets are faded > draws no faded cabinet solid, changing the hood to an insert with its housing, on a phone with touch
+changing the hood to an insert with its housing, on a phone with touch: {"before":5,"rebuilds":1,"checked":1,"fadedBoxesChecked":3,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+stdout | tests/fadeRebuild.test.ts > a room rebuilt while cabinets are faded > draws no faded cabinet solid, changing the hood to an insert with its housing, on a phone with touch, the CPU slowed four times
+changing the hood to an insert with its housing, on a phone with touch, the CPU slowed four times: {"before":5,"rebuilds":1,"checked":1,"fadedBoxesChecked":3,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+stdout | tests/fadeRebuild.test.ts > a room rebuilt while cabinets are faded > draws no faded cabinet solid, changing the refrigerator to a counter-depth one, on a desktop with the mouse
+changing the refrigerator to a counter-depth one, on a desktop with the mouse: {"before":9,"rebuilds":1,"checked":1,"fadedBoxesChecked":4,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+stdout | tests/fadeRebuild.test.ts > a room rebuilt while cabinets are faded > draws no faded cabinet solid, changing the refrigerator to a counter-depth one, on a phone with touch
+changing the refrigerator to a counter-depth one, on a phone with touch: {"before":5,"rebuilds":1,"checked":1,"fadedBoxesChecked":2,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+stdout | tests/fadeRebuild.test.ts > a room rebuilt while cabinets are faded > draws no faded cabinet solid, changing the refrigerator to a counter-depth one, on a phone with touch, the CPU slowed four times
+changing the refrigerator to a counter-depth one, on a phone with touch, the CPU slowed four times: {"before":5,"rebuilds":1,"checked":1,"fadedBoxesChecked":2,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+ ✓ tests/fadeRebuild.test.ts (24 tests) 898123ms
+   ✓ a room rebuilt in install mode > draws no machine more solid than install mode leaves it, changing the hood, on a desktop with the mouse 56123ms
+   ✓ a room rebuilt in install mode > draws no machine more solid than install mode leaves it, changing the hood, on a phone with touch 18687ms
+   ✓ a room rebuilt in install mode > draws no machine more solid than install mode leaves it, dragging the back wall slider, on a desktop with the mouse 21290ms
+   ✓ a room rebuilt in install mode > draws no machine more solid than install mode leaves it, dragging the back wall slider, on a phone with touch 49967ms
+   ✓ a room rebuilt in install mode > draws no machine more solid than install mode leaves it, turning the island, on a desktop with the mouse 20386ms
+   ✓ a room rebuilt in install mode > draws no machine more solid than install mode leaves it, turning the island, on a phone with touch 50159ms
+   ✓ a room rebuilt while cabinets are faded > draws no faded cabinet solid, changing the hood, on a desktop with the mouse 52182ms
+   ✓ a room rebuilt while cabinets are faded > draws no faded cabinet solid, changing the hood, on a phone with touch 23926ms
+   ✓ a room rebuilt while cabinets are faded > draws no faded cabinet solid, changing the hood, on a phone with touch, the CPU slowed four times 32001ms
+   ✓ a room rebuilt while cabinets are faded > draws no faded cabinet solid, dragging the back wall slider, on a desktop with the mouse 25268ms
+   ✓ a room rebuilt while cabinets are faded > draws no faded cabinet solid, dragging the back wall slider, on a phone with touch 57342ms
+   ✓ a room rebuilt while cabinets are faded > draws no faded cabinet solid, dragging the back wall slider, on a phone with touch, the CPU slowed four times 66585ms
+   ✓ a room rebuilt while cabinets are faded > draws no faded cabinet solid, turning the island, on a desktop with the mouse 23151ms
+   ✓ a room rebuilt while cabinets are faded > draws no faded cabinet solid, turning the island, on a phone with touch 55793ms
+   ✓ a room rebuilt while cabinets are faded > draws no faded cabinet solid, turning the island, on a phone with touch, the CPU slowed four times 61799ms
+   ✓ a room rebuilt while cabinets are faded > draws no faded cabinet solid, changing the range, on a desktop with the mouse 18691ms
+   ✓ a room rebuilt while cabinets are faded > draws no faded cabinet solid, changing the range, on a phone with touch 17337ms
+   ✓ a room rebuilt while cabinets are faded > draws no faded cabinet solid, changing the range, on a phone with touch, the CPU slowed four times 22954ms
+   ✓ a room rebuilt while cabinets are faded > draws no faded cabinet solid, changing the hood to an insert with its housing, on a desktop with the mouse 22422ms
+   ✓ a room rebuilt while cabinets are faded > draws no faded cabinet solid, changing the hood to an insert with its housing, on a phone with touch 22824ms
+   ✓ a room rebuilt while cabinets are faded > draws no faded cabinet solid, changing the hood to an insert with its housing, on a phone with touch, the CPU slowed four times 30912ms
+   ✓ a room rebuilt while cabinets are faded > draws no faded cabinet solid, changing the refrigerator to a counter-depth one, on a desktop with the mouse 26226ms
+   ✓ a room rebuilt while cabinets are faded > draws no faded cabinet solid, changing the refrigerator to a counter-depth one, on a phone with touch 30152ms
+   ✓ a room rebuilt while cabinets are faded > draws no faded cabinet solid, changing the refrigerator to a counter-depth one, on a phone with touch, the CPU slowed four times 36268ms
+
+ Test Files  1 passed (1)
+      Tests  24 passed (24)
+   Start at  23:02:49
+   Duration  916.32s (transform 2.50s, setup 0ms, collect 2.08s, tests 898.12s, environment 1ms, prepare 422ms)
+
+丁's wiring: 0 page requests from the tests kept on the real server, 0 not routed, 0 paths answered with the page for want of a file
+

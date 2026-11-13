@@ -1,0 +1,178 @@
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mC:/Users/leoch/Downloads/appliance-showcase[39m
+
+ [31m❯[39m docs/plans/flaky-tests-2026-11-12/proof/broken.test.ts [2m([22m[2m8 tests[22m[2m | [22m[31m2 failed[39m[2m | [22m[33m5 skipped[39m[2m)[22m[33m 755[2mms[22m[39m
+[31m   [31m×[31m the main-thread watch[2m > [22mwrites nothing while its thread is free, one stall with how long when it is held, and no second for the same hold[90m 20[2mms[22m[31m[39m
+[31m     → expected { quiet: 10, …(3) } to deeply equal { quiet: +0, held: [ { …(2) } ], …(2) }[39m
+[31m   [31m×[31m the main-thread watch[2m > [22mwrites a tick more than the threshold late, and not one exactly at it[90m 3[2mms[22m[31m[39m
+[31m     → expected [ { ev: 'stall', ms: 170 }, …(1) ] to deeply equal [ { ev: 'stall', ms: 171 } ][39m
+   [33m[2m✓[22m[39m the main-thread watch[2m > [22mwrites the stall of its real thread held 400 ms [33m723[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 2 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m docs/plans/flaky-tests-2026-11-12/proof/broken.test.ts[2m > [22mthe main-thread watch[2m > [22mwrites nothing while its thread is free, one stall with how long when it is held, and no second for the same hold
+[31m[1mAssertionError[22m: expected { quiet: 10, …(3) } to deeply equal { quiet: +0, held: [ { …(2) } ], …(2) }[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  Object {[22m
+[2m    "after": Array [[22m
+[2m      Object {[22m
+[2m        "ev": "stall",[22m
+[31m+       "ms": 20,[39m
+[31m+     },[39m
+[31m+     Object {[39m
+[31m+       "ev": "stall",[39m
+[31m+       "ms": 20,[39m
+[31m+     },[39m
+[31m+     Object {[39m
+[31m+       "ev": "stall",[39m
+[31m+       "ms": 20,[39m
+[31m+     },[39m
+[31m+     Object {[39m
+[31m+       "ev": "stall",[39m
+[31m+       "ms": 20,[39m
+[31m+     },[39m
+[31m+     Object {[39m
+[31m+       "ev": "stall",[39m
+[31m+       "ms": 20,[39m
+[31m+     },[39m
+[31m+     Object {[39m
+[31m+       "ev": "stall",[39m
+[31m+       "ms": 20,[39m
+[31m+     },[39m
+[31m+     Object {[39m
+[31m+       "ev": "stall",[39m
+[31m+       "ms": 20,[39m
+[31m+     },[39m
+[31m+     Object {[39m
+[31m+       "ev": "stall",[39m
+[31m+       "ms": 20,[39m
+[31m+     },[39m
+[31m+     Object {[39m
+[31m+       "ev": "stall",[39m
+[31m+       "ms": 20,[39m
+[31m+     },[39m
+[31m+     Object {[39m
+[31m+       "ev": "stall",[39m
+[31m+       "ms": 20,[39m
+[31m+     },[39m
+[31m+     Object {[39m
+[31m+       "ev": "stall",[39m
+[2m        "ms": 420,[22m
+[31m+     },[39m
+[31m+     Object {[39m
+[31m+       "ev": "stall",[39m
+[31m+       "ms": 20,[39m
+[31m+     },[39m
+[31m+     Object {[39m
+[31m+       "ev": "stall",[39m
+[31m+       "ms": 20,[39m
+[31m+     },[39m
+[31m+     Object {[39m
+[31m+       "ev": "stall",[39m
+[31m+       "ms": 20,[39m
+[2m      },[22m
+[31m+     Object {[39m
+[31m+       "ev": "stall",[39m
+[31m+       "ms": 20,[39m
+[31m+     },[39m
+[31m+     Object {[39m
+[31m+       "ev": "stall",[39m
+[31m+       "ms": 20,[39m
+[31m+     },[39m
+[2m    ],[22m
+[2m    "held": Array [[22m
+[31m+     Object {[39m
+[31m+       "ev": "stall",[39m
+[31m+       "ms": 20,[39m
+[31m+     },[39m
+[31m+     Object {[39m
+[31m+       "ev": "stall",[39m
+[31m+       "ms": 20,[39m
+[31m+     },[39m
+[31m+     Object {[39m
+[31m+       "ev": "stall",[39m
+[31m+       "ms": 20,[39m
+[31m+     },[39m
+[31m+     Object {[39m
+[31m+       "ev": "stall",[39m
+[31m+       "ms": 20,[39m
+[31m+     },[39m
+[31m+     Object {[39m
+[31m+       "ev": "stall",[39m
+[31m+       "ms": 20,[39m
+[31m+     },[39m
+[31m+     Object {[39m
+[31m+       "ev": "stall",[39m
+[31m+       "ms": 20,[39m
+[31m+     },[39m
+[31m+     Object {[39m
+[31m+       "ev": "stall",[39m
+[31m+       "ms": 20,[39m
+[31m+     },[39m
+[31m+     Object {[39m
+[31m+       "ev": "stall",[39m
+[31m+       "ms": 20,[39m
+[31m+     },[39m
+[31m+     Object {[39m
+[31m+       "ev": "stall",[39m
+[31m+       "ms": 20,[39m
+[31m+     },[39m
+[2m      Object {[22m
+[2m        "ev": "stall",[22m
+[31m+       "ms": 20,[39m
+[31m+     },[39m
+[31m+     Object {[39m
+[31m+       "ev": "stall",[39m
+[2m        "ms": 420,[22m
+[2m      },[22m
+[2m    ],[22m
+[32m-   "quiet": 0,[39m
+[31m+   "quiet": 10,[39m
+[2m    "stopped": true,[22m
+[2m  }[22m
+
+[36m [2m❯[22m scripts/previewServer.test.ts:[2m211:70[22m[39m
+    [90m209| [39m    [35mfor[39m ([35mlet[39m i [33m=[39m [34m0[39m[33m;[39m i [33m<[39m [34m5[39m[33m;[39m i [33m+=[39m [34m1[39m) clock[33m.[39m[34mtick[39m([34m20[39m)[33m;[39m
+    [90m210| [39m    [34mstop[39m()[33m;[39m
+    [90m211| [39m    [34mexpect[39m({ quiet[33m,[39m held[33m,[39m after[33m:[39m written[33m,[39m stopped[33m:[39m [33m![39mclock[33m.[39mrunning })[33m.[39m[34mt[39m…
+    [90m   | [39m                                                                     [31m^[39m
+    [90m212| [39m      quiet[33m:[39m [34m0[39m[33m,[39m
+    [90m213| [39m      held[33m:[39m [{ ev[33m:[39m [32m"stall"[39m[33m,[39m ms[33m:[39m [34m420[39m }][33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m docs/plans/flaky-tests-2026-11-12/proof/broken.test.ts[2m > [22mthe main-thread watch[2m > [22mwrites a tick more than the threshold late, and not one exactly at it
+[31m[1mAssertionError[22m: expected [ { ev: 'stall', ms: 170 }, …(1) ] to deeply equal [ { ev: 'stall', ms: 171 } ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  Array [[22m
+[2m    Object {[22m
+[2m      "ev": "stall",[22m
+[31m+     "ms": 170,[39m
+[31m+   },[39m
+[31m+   Object {[39m
+[31m+     "ev": "stall",[39m
+[2m      "ms": 171,[22m
+[2m    },[22m
+[2m  ][22m
+
+[36m [2m❯[22m scripts/previewServer.test.ts:[2m226:21[22m[39m
+    [90m224| [39m    clock[33m.[39m[34mtick[39m([34m171[39m)[33m;[39m [90m// 151 late[39m
+    [90m225| [39m    [34mstop[39m()[33m;[39m
+    [90m226| [39m    [34mexpect[39m(written)[33m.[39m[34mtoEqual[39m([{ ev[33m:[39m [32m"stall"[39m[33m,[39m ms[33m:[39m [34m171[39m }])[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m227| [39m  })[33m;[39m
+    [90m228| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[2m | [22m[33m5 skipped[39m[90m (8)[39m
+[2m   Start at [22m 16:24:54
+[2m   Duration [22m 5.73s[2m (transform 125ms, setup 0ms, collect 648ms, tests 755ms, environment 0ms, prepare 170ms)[22m
+

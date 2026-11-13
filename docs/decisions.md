@@ -11955,10 +11955,168 @@ Registered, not scheduled. None of these is a round of its own.
   7. ~~the galley~~ — **cancelled** (Leo, 2026-11-10: "直接做 U 型，不做走廊式"; "The U: Leo's
      answers of 2026-11-10", below; the galley's first draft, `docs/plans/galley-plan.md`,
      kept as a record);
-  8. **the U — next** (Leo, 2026-11-10; "The U: Leo's answers of 2026-11-10", below, his six
-     settled points; "A layout shape switch"; `docs/plans/overnight-2026-10-24-u-shape.md`).
-     A plan first, shown to him, built only once he confirms it.
+  8. **the U** (Leo, 2026-11-10; "The U: Leo's answers of 2026-11-10", below, his six
+     settled points; "A layout shape switch"; `docs/plans/overnight-2026-10-24-u-shape.md`) —
+     **done**, U-0 `2bcc22f`, U-1 `bdeedb5`, U-2 with the U's new order and its view `5d5da45`
+     (2026-11-12).
   Each a plan first, shown to him, built only once he confirms it.
+  **Amended 2026-11-12** (Leo, after `5d5da45`'s release report and the list of registered
+  items: 「顺序这样排，写进 decisions.md 那一处（HANDOFF 引用）」). The list's numbers are those of
+  that report (the entry "Found while listing the registered items" under "The round built"
+  of the U, and the entries it names):
+  9. **two tests that fail now and then** (1 and 12): `scripts/previewServer.test.ts`'s
+     main-thread watch and `tests/fadeRebuild.test.ts`'s timeout. 「只改测试环境，不碰页面。」 —
+     **next; a plan first** (「先写计划给我看，不动手」): `docs/plans/flaky-tests-plan.md`, first
+     draft 2026-11-12 (trial runs for its evidence, no code changed:
+     `docs/plans/flaky-tests-2026-11-12/`). **Leo's answers to its section 6, 2026-11-12** (his
+     words as he wrote them): 「1. previewServer 拆成假钟一条、真线程一条：同意。4 种改坏都必须变红。
+     2. 高优先级满载下整条测试超过 150 秒：算环境太极端，不修，时限不加长。记进 decisions.md。3. fadeRebuild
+     先加诊断再修：同意。改前 20 次没重现的话，只加诊断就上线，不加到 50 次；"只找看得见的那个滑杆"可以一起改，
+     写明这是把定位写准，不是放宽。最后那组判断一个字不改。4. 证明的次数减下来：previewServer：改前已有 85 次
+     0 红，不再跑改前。用"注入卡顿"让旧测试变红、新测试变绿，各 20 次；加 4 种改坏的检查。fadeRebuild：照计划
+     的次数，只在满载下跑，空着的不跑。」 And: 「再查一件，只读，写进计划：测试服务器记下的卡顿……查今天跑全套
+     测试时电脑上还开着什么（本地预览、原型预览、别的 node 进程、Codex 的后台程序），和 11-10 那几次有什么不同。
+     如果是旁边开着的东西造成的，HANDOFF 第 6 节加一条：全套测试开跑前，把本地预览和原型服务器都停掉，并列出
+     当时还在跑的 node 进程。」 「照改过的计划动手……做完报给我，不提交。」
+     - **Settled by it**: a whole browser test running past its 150 s under every core busy above
+       normal priority (the plan's 2.2 乙, "turning the island, on a phone with touch", 2026-11-12
+       16:09, `Test timed out in 150000ms`) is the environment pushed too far: not fixed, the
+       limit not lengthened; above-normal load is not the browser tests' "busy".
+     - "Only the visible slider" is the locator written exactly, not loosened.
+     - **Why the suite's stalls were many on 2026-11-12** (the plan's section 7, read only): the
+       server's own record in every full suite since 11-06 — the night runs 0.2 to 0.5 stalls a
+       minute, the day runs mostly 1.5 to 32 (11-08 14:40 0.7); 11-12 01:41's only in its first
+       20 minutes, 12:03's and 13:43's in every ten. No preview, prototype server or other node
+       process ran during either (stopped 12:02:55, checked before 12:03 and 15:34); Codex's
+       sandbox service ran in the quiet night run too. The machine slept 08:56 to 10:01 that
+       morning (moved to the office, the clock a hour on), and WeChat, OneDrive, QuickBooks,
+       Norton and Logitech started 10:01 to 10:06. Which of them, not found; so no line in
+       HANDOFF section 6 (his condition, 「如果是旁边开着的东西造成的」, not met).
+     - **Built, not committed**: `watchMainThread` (`scripts/previewServer.mjs`) takes its clock
+       and timer (`now`, `every`, `cancel`, the real ones unless given); its test in three: on
+       a clock the test drives, free writes nothing, a 400 ms hold one stall of 420 ms and no
+       second; 170 ms not written, 171 ms written; on the real thread, the hold written at
+       350 to 1,000 ms. Red first on the code before (16:23:36-16:23:44, exit 1, the two clock
+       cases red, the real-thread case green), green after (the file 16:23:54-16:24:07, exit
+       0, 8 of 8). `tests/fadeRebuild.test.ts`: every wait named by its step (`reach`), a
+       timeout's error saying the step, the sheet's and the right panel's tab, every Back wall
+       slider shown or hidden, the element over three frames and a screenshot; the Back wall
+       slider the label that shows; the final judgment not changed by a character.
+     - **Proof** (`docs/plans/flaky-tests-2026-11-12/`): the four broken watches, each red on
+       the new tests (16:24:40-16:25:10; way 1 three red, ways 2-4 two each), and on the old
+       test ways 1, 2 and 4 red, way 3 (the time a tick short) green — it missed it. Stalls
+       injected (200 ms every 250 ms): the old test 15 of 20 red (16:25:54-16:28:18, each
+       "expected [ { ev: 'stall', ms: … }, …(1) ] to have a length of 1 but got 2", the
+       2026-11-12 error), the new 0 of 20 (16:28:18-16:31:18). The diagnostics on an element
+       not on the page (`proof/reach.test.ts`, 16:33:19-16:33:35, exit 0): the step named, the
+       page's state, three empty frames, the screenshot written; and on a phone, before the
+       Layout tab, no Back wall slider in the page at all.
+     - **A mistake of the proof's own, found and put right (17:20)**: `repeat.mjs` ran vitest
+       through `npx` with a shell on Windows, which joins the arguments unquoted, so a `-t`
+       name with spaces and commas was cut at its first space and each "one case" run ran the
+       whole of fadeRebuild (24 cases). The first fadeRebuild series under load (from 16:34:57,
+       its first run still going at 16:56) and two timing runs (half and a quarter of the cores
+       busy, 16:57-17:08 and 17:10-17:20, cut off by their own time limits) were that, not one
+       case slowed — stopped, their processes ended, nothing of them counted. Now vitest is run
+       by its own script with no shell; one slider case under every core busy at normal
+       priority, 17:20:39-17:22:31, passed in 74,191 ms. The watch's runs above are unaffected:
+       their logs show only the watch's cases ran ("5 skipped (8)"). Also found: fadeRebuild's
+       own count of its cases ("N of 24 fade-rebuild tests actually ran") fails any run filtered
+       with `-t` — `repeat.mjs` writes such a run down as the count only, not red.
+     - **Paused 18:03 at Leo's word (「我现在要关机了」)**, not committed. The fadeRebuild series
+       under every core busy (from 17:22:45): **before**, at `5d5da45` (a git worktree in the
+       scratchpad, `before-5d5da45`, its build `index-CrQicCDH.js`), the slider case on a phone,
+       the CPU slowed, 20 of 20 run, 0 red (17:22:45-17:58:35, each a pass with the file's own
+       count only); the island's two phone cases, 2 of 10 run, 0 red; the rest not run. Its
+       processes stopped and ended; the worktree's node_modules link taken off (put back to go
+       on). **To do on resuming**: the before island 8 more and the whole file twice; the after
+       series in full; the unit suite; the build against the live `5d5da45`; then the full suite
+       at Leo's word with the previews and servers stopped and what is running listed; remove
+       the worktree; report.
+     - **Resumed at home, 20:27** (Leo: 「我回到家了，继续」; the machine had slept, not shut down,
+       last boot still 11-10 17:02; on mains, sleep, screen-off and hibernate at never). Every
+       core busy at normal priority throughout (`busy.mjs`), each run a fresh vitest, every
+       run's log kept (`fade-*-run*.log`):
+       - **before** (`5d5da45`): the slider case 20 of 20 passed (17:22:45-17:58:35); the
+         island's two phone cases 10 runs (2 before the pause, 8 from 20:27:55), 0 red; the
+         whole file twice (20:52:47-21:24:08), 0 red.
+       - **after**: the slider case 20 of 20 passed (21:24:08-22:07:25); the island's two
+         cases 10 runs, 0 red (22:07:25-22:37:57); the whole file, its first run passed
+         (22:37:59-22:53:21); its second ended at 23:01:43 with `browserContext.newPage:
+         Target crashed` after twelve cases had passed — the second the desktop app quit and
+         started again (its process started 23:01:43; Leo: "The app was quit while you were
+         working"), the test's browser going with it: void, not counted, run again.
+       - The whole file's run again, under the same load, 23:02:43-23:18:06: passed.
+       - **The series, each run a fresh vitest, its start and end and exit codes** (from each
+         series' `.jsonl`; a filtered run exits 1 on fadeRebuild's own count of its cases):
+         - before, the slider case alone: 20 runs, 17:22:47-17:58:35, exit 1 in all 20, each
+           the count only with the case passed; 0 red.
+         - before, the island's two phone cases: 10 runs, 17:58:37-18:03:30 (2) and
+           20:27:57-20:52:47 (8), exit 1 in all 10, each the count only with both cases
+           passed; 0 red.
+         - before, the whole file: 2 runs, 20:52:49-21:24:08, exit 0 both; 0 red.
+         - after, the slider case alone: 20 runs, 21:24:10-22:07:24, exit 1 in all 20, the
+           count only with the case passed; 0 red.
+         - after, the island's two cases: 10 runs, 22:07:27-22:37:57, exit 1 in all 10, the
+           count only with both passed; 0 red.
+         - **after, the whole file: 3 runs — 2 passed, 1 void** (Leo, 2026-11-13: 「认作废……要写成
+           "改后整个文件 3 次：2 次通过，1 次作废（应用退出，Target crashed）"」): 22:37:59-22:53:21
+           exit 0; 22:53:21-23:01:43 exit 1, void (the app quit, `Target crashed`, twelve cases
+           passed before it); 23:02:45-23:18:05 exit 0.
+       - **How many times each case ran before the change** (a correction: the report said
+         "改前 50 次", and this entry "30 slider runs and 20 island runs"; both wrong, counted
+         from the series, not from the runs of each case): the slider case on a phone, the CPU
+         slowed — the one that waited 30 s on 2026-11-10 (the plan's 甲) — **22 times** (20
+         alone and once in each of the 2 whole-file runs); the island's two phone cases **12
+         times each** (10 alone and 2 in the whole file). After: the slider case 22 times (20
+         alone, 2 in the whole file's passed runs; it passed in the void run as well, before
+         the crash), the island's 12 each. 甲 did not come back: by Leo's 6.3 the diagnostics
+         ship as they are, and the cause waits for the next red, which will say where it stopped.
+       - **The rule for "the count only", made stricter** (Leo, 2026-11-13: 「加一个条件，选中的
+         那条必须有通过记录（0 条通过要算红）」): `judge.mjs`, which `repeat.mjs` now uses — a
+         run that failed only on the file's count is not red only when at least one case
+         passed and none failed. The 60 filtered runs' logs read again by it
+         (`rejudge.mjs`, no test run again): 0 red; the slider's 40 runs each 1 case passed, the
+         island's 20 each 2.
+       - **Registered, not changed** (Leo, 2026-11-13): the watch's real-thread case reads the
+         hold as one stall of 350 to 1,000 ms; if the machine stalls the test's process for
+         600 ms or more just before or after its 400 ms hold, the one gap reads past 1,000 and
+         the case goes red.
+       - **The preview of this round** (Leo, 2026-11-13: 「这一轮页面没变，构建和线上 20 个文件逐字节
+         相同（主文件 index-CZaHOxhY.js 也相同），所以这一轮预览就是线上，我不另看。」): no page
+         code changed; built with the counter's address it is the live site file for file.
+     - **The worktree removed** (its node_modules link taken off first; the main folder's
+       intact). **The unit suite** 23:18:33-23:19:13, exit 0: 141 files, 3,715 passed, 1 todo.
+       **Built with the counter's address** at `5d5da45` (nothing committed, so the stamp is
+       still `5d5da45`), 23:19:13-23:19:28, exit 0, and compared with the live site
+       23:19:28-23:19:32: **twenty of twenty the same byte for byte, the main chunk
+       `index-CZaHOxhY.js` too**; committed, only the stamp in the main chunk would differ.
+     - **The full suite on the final code** (`npm test`, the build `index-CrQicCDH.js`), 23:19:55
+       to 00:48:00, exit 0: 185 files passed; 4,126 passed, 1 todo; 5,272 s. Before it: no
+       preview or prototype server, no node, esbuild, vite or test browser process; the browser
+       pane closed; running, Logitech, Norton, OneDrive, the Claude app, the phone link,
+       QuickBooks' Web Connector, Codex's sandbox service, and Windows' Disk Cleanup (from
+       23:19); and, Leo adds (2026-11-13), the Claude app may have had a Linux workspace open on
+       this machine then, another conversation connected to read files; power read (Balanced, on mains, sleep, screen-off and hibernate at never). No
+       power event (1, 42, 107, 187, 506, 507) in the system log between 23:19 and 00:49. The
+       server's stalls: 55 in 88 minutes (0.6 a minute, the longest 1,543 ms), 27 and 8 in its
+       first twenty minutes and 20 in its ninth ten — as the night runs before it.
+  10. **the L's and one wall's package-switch notice in the U's new pattern, the walls that
+      really changed only; one wall's slider against the room when A or C changes to B** (2
+      and 3) — a plan first;
+  11. **E's L: the oven tower against the corner, and its socket off the list, in one round**
+      (4 and 5; "E's L: the combination oven tower hard against the corner", "E's L: the
+      combination oven tower's socket dropped") — it changes the drawing, so a 3D prototype at
+      the plan stage (HANDOFF section 6);
+  12. **6, 10, 11 and 8**: the L's service entry 4" against its note's four feet; the Zephyr
+      hoods' "gas min 30, max 40"; HMCB36WS's heat warning and its guide against its sheet;
+      the phone card 18–20 px taller at 390;
+  13. **13**: tapping the package, layout or hood already chosen rebuilds the whole room;
+  14. **9 and 7 wait for his rules first**: a professional range under B's, C's and D's hood
+      (whether the hood follows the cooking surface chosen; D13), and E's L coffee tower beside
+      the combination oven tower (TCM24PS p. 9).
+  The older registrations (the report's 14) stay as they are. Each a plan first, shown to him,
+  built only once he confirms it; 10 too, once 9 is shipped (「第 1 项做完上线后，第 2 项也先写计划」).
 - **An induction cooktop in B and D.** *(Registered 2026-11-07; **done**, built
   2026-11-08 and shipped as `7d8d437`, its "Shipped" below — this headline said
   "not started, no plan" until 2026-11-10. Its place in Leo's order: "His order of 2026-11-06", "Amended
@@ -13099,7 +13257,9 @@ Registered, not scheduled. None of these is a round of its own.
         package in every shape, each machine, the four tabs): no text node breaks the rule; the 174
         hits reading an element's whole text were neighbours on separate lines or buttons (one
         checked by eye: 「微波抽屉 · anti-tip」 over 「开口后壁」, a block). The rerun reading the text as
-        laid out (`innerText`) was stopped at the pause: **to run again**.
+        laid out (`innerText`) was stopped at the pause, and run again that morning, 10:05:55 to
+        10:18:36, exit 0, 195 states (`zh-sweep.log`): one hit, 「点击探索」 then the commit stamp
+        `bdeedb5`, a separate span 8px apart (`ml-2`), not a Chinese line; nothing to change.
     - **一, the view table** (`docs/plans/u-view-2026-11-12/`; the prototype `proto2`, a git
       worktree of `bdeedb5` with the tree applied and `protoAz`/`protoPitch`/`protoBoard` in the
       link, in the scratchpad, `dist-proto`): `viewTable.mjs`, `viewRank.mjs`, `view-table-desktop.json`
@@ -13170,6 +13330,26 @@ Registered, not scheduled. None of these is a round of its own.
     - **The full suite again**, 13:42:42 to 15:22:41, exit 0: 185 files passed; 4,124 passed, 1 todo;
       5,979 s. No power event in the system log between 13:42 and 15:23. The build it made and
       tested, `index-Di6BnIIo.js`, is the one the local preview serves.
+    - **Shipped: `5d5da45`** (2026-11-12; Leo: 「预览看过了，确认。」). CI's commands on the tree as
+      committed: `npm ci` 15:34:59-15:35:17, `npm run test:unit` 15:35:17-15:35:58 (141 files, 3,713
+      passed, 1 todo), `npm run build` 15:35:59-15:36:16, each exit 0, `index-Di6BnIIo.js` — all 20
+      files byte for byte the build Leo looked at. Committed 15:36:46, pushed 15:36:51-15:36:58. Pages
+      run 43330353591: build 23:37:04-23:38:25 UTC and deploy 23:38:30-23:38:40 UTC, each a success.
+      Built at `5d5da45`, the tree clean, with the counter's address (15:37:18-15:37:34, exit 0), and
+      compared with the live site file by file: **twenty of twenty the same byte for byte**, each 200,
+      `last-modified` Thu, 12 Nov 2026 23:38:34 GMT, `cache-control: max-age=600`; the JavaScript,
+      CSS, `index.html` and the two licences gzip, the twelve fonts `font/woff2` with no encoding;
+      the live main chunk **`assets/index-CZaHOxhY.js`** (726,692 bytes), `index.html` 579,
+      `index-8VepO8oE.css` 37,945, `react-i_nGBwMY.js` 145,992, `shareQr-BXYgausd.js` 21,968,
+      `three-C6wp6xxT.js` 704,119. Against the build Leo looked at: 18 files the same; the main
+      chunk different in three statements only — the visit counter's address (`Lz`, `Wz`) and the
+      commit (`Mw="bdeedb5"` to `"5d5da45"`) — and `index.html` in the main chunk's name.
+    - **Found while listing the registered items, not changed (outside the round)**: on one wall,
+      A or C switched to B builds the room at 239" (`LAYOUT_PARAMS`), and its notice says so, but
+      the store's walls — the Layout tab's slider — stay at 233-3/4" or 230"; the same on
+      `bdeedb5` (a git worktree of it). And `toast.roomGrew` (the L and one wall) names a wall that
+      did not change in 13 of its 19 notices over the 40 package switches
+      (`docs/plans/u-view-2026-11-12/roomGrewProbe.ts`, `roomGrew.json`).
   - **U-0, built 2026-11-10/11, committed after Leo's look at the local preview**
     (`index-9MkgIPWJ.js`; Leo, 2026-11-11: 「U-0 看过了，预览确认」). What the plan's
     section 6 calls U-0, as far as it can be exercised with no U in `SHAPES`: each piece

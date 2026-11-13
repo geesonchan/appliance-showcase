@@ -163,23 +163,84 @@ describe("the record marks a request from a test kept on the real server (丁's 
   }, 60_000);
 });
 
+/**
+ * The watch, split in two (Leo, 2026-11-12, `docs/plans/flaky-tests-plan.md`: 「previewServer
+ * 拆成假钟一条、真线程一条：同意。4 种改坏都必须变红。」). It failed twice in a busy suite
+ * (2026-11-11 and 2026-11-12): a stall written while the thread was "free", the process held
+ * off the CPU by something else on the machine — a real stall, which the watch is there to
+ * write. "Free" is only free on a clock the test keeps itself.
+ */
 describe("the main-thread watch", () => {
-  it("writes a stall when its thread is held, with how long, and nothing while it is free", async () => {
+  /** A clock and a timer the test drives: `tick` moves the clock and fires the timer; `hold` moves the clock alone. */
+  function testClock() {
+    let t = 0;
+    let fire: (() => void) | null = null;
+    return {
+      now: () => t,
+      every: (fn: () => void) => {
+        fire = fn;
+        return 1;
+      },
+      cancel: () => {
+        fire = null;
+      },
+      tick(ms: number) {
+        t += ms;
+        fire?.();
+      },
+      hold(ms: number) {
+        t += ms;
+      },
+      get running() {
+        return fire !== null;
+      },
+    };
+  }
+
+  it("writes nothing while its thread is free, one stall with how long when it is held, and no second for the same hold", () => {
+    const clock = testClock();
+    const written: Array<Record<string, unknown>> = [];
+    const stop = watchMainThread((record) => written.push(record), { intervalMs: 20, thresholdMs: 150, now: clock.now, every: clock.every, cancel: clock.cancel });
+    for (let i = 0; i < 10; i += 1) clock.tick(20);
+    const quiet = written.length;
+    clock.hold(400);
+    clock.tick(20);
+    const held = written.slice();
+    for (let i = 0; i < 5; i += 1) clock.tick(20);
+    stop();
+    expect({ quiet, held, after: written, stopped: !clock.running }).toEqual({
+      quiet: 0,
+      held: [{ ev: "stall", ms: 420 }],
+      after: [{ ev: "stall", ms: 420 }],
+      stopped: true,
+    });
+  });
+
+  it("writes a tick more than the threshold late, and not one exactly at it", () => {
+    const clock = testClock();
+    const written: Array<Record<string, unknown>> = [];
+    const stop = watchMainThread((record) => written.push(record), { intervalMs: 20, thresholdMs: 150, now: clock.now, every: clock.every, cancel: clock.cancel });
+    clock.tick(170); // 150 late: at the threshold
+    clock.tick(171); // 151 late
+    stop();
+    expect(written).toEqual([{ ev: "stall", ms: 171 }]);
+  });
+
+  // On the real thread and the real timer: the hold is written, with how long. Whether a
+  // "free" thread writes nothing is the clock's case above — here something else on the
+  // machine may hold the process too, and that stall is as real.
+  it("writes the stall of its real thread held 400 ms", async () => {
     const written: Array<Record<string, unknown>> = [];
     const stop = watchMainThread((record) => written.push(record), { intervalMs: 20, thresholdMs: 150 });
     await new Promise((resolve) => setTimeout(resolve, 200));
-    const quiet = written.filter((r) => r.ev === "stall").length;
     const until = Date.now() + 400;
     while (Date.now() < until) {
       // held
     }
     await new Promise((resolve) => setTimeout(resolve, 100));
     stop();
-    const stalls = written.filter((r) => r.ev === "stall");
-    expect(quiet).toBe(0);
-    expect(stalls).toHaveLength(1);
-    expect(stalls[0].ms).toBeGreaterThanOrEqual(350);
-    expect(stalls[0].ms).toBeLessThan(1_000);
+    const theHold = written.filter((r) => r.ev === "stall" && (r.ms as number) >= 350 && (r.ms as number) < 1_000);
+    expect(theHold.length).toBeGreaterThanOrEqual(1);
   });
 });
 

@@ -200,9 +200,56 @@ async function open(phone: boolean): Promise<Session> {
   return { page, cdp: await context.newCDPSession(page), phone, errors };
 }
 
-/** A mouse click on a desktop, a tap on a phone, at the element's middle. */
-async function press(s: Session, locator: ReturnType<Page["locator"]>) {
-  await locator.scrollIntoViewIfNeeded();
+/**
+ * Waits for one step's element by its name, and if the wait runs out says where and what
+ * the page showed (Leo, 2026-11-12, `docs/plans/flaky-tests-plan.md`, 2.4: 「先加诊断再修」).
+ * On 2026-11-10 a phone case ended `locator.scrollIntoViewIfNeeded: Timeout 30000ms
+ * exceeded.` with nothing else: not which step, nor what was on screen. Now the error
+ * names the step, and a screenshot and the page's state are kept: the sheet and the
+ * right panel's selected tab, every Back wall slider and whether it shows, and the
+ * element's own count, visibility and box over three frames.
+ */
+async function reach(s: Session, step: string, locator: ReturnType<Page["locator"]>) {
+  try {
+    await locator.scrollIntoViewIfNeeded();
+  } catch (error) {
+    const name = `${expect.getState().currentTestName ?? "fadeRebuild"} - ${step}`.replace(/[^\w.-]+/g, "_").slice(0, 150);
+    const shot = `test-results/fade-rebuild/${name}.png`;
+    await s.page.screenshot({ path: shot }).catch(() => {});
+    const page = await s.page
+      .evaluate(() => {
+        const tab = (sel: string) => document.querySelector(sel)?.getAttribute("data-sheet-tab") ?? document.querySelector(sel)?.getAttribute("data-right-tab") ?? null;
+        return {
+          sheetTab: tab("[data-sheet-tab][aria-selected=true]"),
+          rightTab: tab("[data-right-tab][aria-selected=true]"),
+          backWallSliders: [...document.querySelectorAll("label")]
+            .filter((l) => /Back wall/.test(l.textContent ?? ""))
+            .map((l) => (l.offsetParent !== null ? "shown" : "hidden")),
+        };
+      })
+      .catch(() => null);
+    const boxes: unknown[] = [];
+    for (let i = 0; i < 3; i += 1) {
+      boxes.push(
+        await locator
+          .evaluateAll((els) => els.map((e) => {
+            const r = e.getBoundingClientRect();
+            return `${(e as HTMLElement).offsetParent !== null ? "shown" : "hidden"} ${Math.round(r.x)},${Math.round(r.y)} ${Math.round(r.width)}x${Math.round(r.height)}`;
+          }))
+          .catch(() => null),
+      );
+      await s.page.waitForTimeout(50).catch(() => {});
+    }
+    throw new Error(
+      `step "${step}": ${(error as Error).message.split("\n")[0]}\n` +
+        `the page: ${JSON.stringify(page)}\nthe element, three frames: ${JSON.stringify(boxes)}\nscreenshot: ${shot}`,
+    );
+  }
+}
+
+/** A mouse click on a desktop, a tap on a phone, at the element's middle; `step` names it in a timeout. */
+async function press(s: Session, locator: ReturnType<Page["locator"]>, step = "a press") {
+  await reach(s, step, locator);
   const box = (await locator.boundingBox())!;
   const x = box.x + box.width / 2;
   const y = box.y + box.height / 2;
@@ -265,14 +312,14 @@ async function fadedWithHood(
   slot = "slot-hood",
   enough: (ids: string[]) => boolean = (ids) => ids.length > 0,
 ) {
-  await press(s, s.page.locator(`[data-pin-label="${slot}"]`).first());
+  await press(s, s.page.locator(`[data-pin-label="${slot}"]`).first(), "1 the machine's label");
   await s.page.waitForTimeout(2500);
   if (panel === "card") {
     // The model card: nothing to open, and on a phone a sheet would cover it.
   } else if (s.phone) {
-    await press(s, s.page.getByRole("button", { name: panel === "list" ? "Appliances" : "Configure", exact: true }).first());
+    await press(s, s.page.getByRole("button", { name: panel === "list" ? "Appliances" : "Configure", exact: true }).first(), "2 the sheet's Appliances or Configure");
   } else if (panel === "list") {
-    await press(s, s.page.getByRole("button", { name: "Appliances", exact: true }).first());
+    await press(s, s.page.getByRole("button", { name: "Appliances", exact: true }).first(), "2 Appliances");
   }
   await s.page.waitForTimeout(1500);
   const canvas = (await s.page.locator("canvas").boundingBox())!;
@@ -391,7 +438,7 @@ function machineFlashes(renders: Render[]) {
 /** Changing the hood from the list (desktop) or the sheet (phone). */
 async function swapHood(s: Session) {
   await fadedWithHood(s, "list");
-  return () => press(s, s.page.getByRole("button", { name: /AK7300AS/ }).filter({ visible: true }).first());
+  return () => press(s, s.page.getByRole("button", { name: /AK7300AS/ }).filter({ visible: true }).first(), "5 AK7300AS in the list");
 }
 
 /**
@@ -400,15 +447,16 @@ async function swapHood(s: Session) {
  * to this file for the tabs.
  */
 async function layoutTab(s: Session) {
-  await press(s, s.page.locator('[data-right-tab="layout"], [data-sheet-tab="layout"]').filter({ visible: true }).first());
+  await press(s, s.page.locator('[data-right-tab="layout"], [data-sheet-tab="layout"]').filter({ visible: true }).first(), "4 the Layout tab");
 }
 
 /** Dragging the back wall slider by hand, a step and a half. */
 async function dragBackWall(s: Session) {
   await fadedWithHood(s, "config");
   await layoutTab(s);
-  const slider = s.page.locator("label", { hasText: "Back wall" }).first().locator('input[type="range"]');
-  await slider.scrollIntoViewIfNeeded();
+  // The slider that shows, not the first in the page (Leo, 2026-11-12: 「把定位写准，不是放宽」).
+  const slider = s.page.locator("label", { hasText: "Back wall" }).filter({ visible: true }).first().locator('input[type="range"]');
+  await reach(s, "5 the Back wall slider", slider);
   await steady(s);
   return async () => {
     const box = (await slider.boundingBox())!;
@@ -431,9 +479,9 @@ async function turnIsland(s: Session) {
   await fadedWithHood(s, "config");
   await layoutTab(s);
   const across = s.page.getByRole("button", { name: "Across the room", exact: true }).filter({ visible: true }).first();
-  await across.scrollIntoViewIfNeeded();
+  await reach(s, "5 Across the room", across);
   await steady(s);
-  return () => press(s, across);
+  return () => press(s, across, "6 Across the room");
 }
 
 /**
@@ -444,7 +492,7 @@ async function turnIsland(s: Session) {
 async function swapRange(s: Session) {
   await fadedWithHood(s, "card", "slot-range");
   const chip = s.page.locator('[data-model-card] [data-candidate="thermador-pcg366w"]').first();
-  return () => press(s, chip);
+  return () => press(s, chip, "6 the model's chip on the card");
 }
 
 /**
@@ -456,7 +504,7 @@ async function swapRange(s: Session) {
 async function swapToInsert(s: Session) {
   await fadedWithHood(s, "card", "slot-hood");
   const chip = s.page.locator('[data-model-card] [data-candidate="thermador-vcin36gws"]').first();
-  return () => press(s, chip);
+  return () => press(s, chip, "6 the model's chip on the card");
 }
 
 /**
@@ -472,7 +520,7 @@ async function swapFridge(s: Session) {
   // segment replaces, leaving the rebuilt room nothing faded to check.
   await fadedWithHood(s, "card", "slot-fridge", (ids) => ids.some((id) => !/-(BF|PNL)[\d.]+(X[\d.]+)?-\d+(-stack)?$/.test(id)));
   const chip = s.page.locator('[data-model-card] [data-candidate="thermador-t36ft820ns"]').first();
-  return () => press(s, chip);
+  return () => press(s, chip, "6 the model's chip on the card");
 }
 
 const PATHS = [
@@ -496,14 +544,14 @@ const DEVICES = [
  * the machines step back whatever is on the sight line.
  */
 async function inInstall(s: Session, panel: "list" | "config") {
-  await press(s, s.page.getByRole("button", { name: "Install", exact: true }).first());
+  await press(s, s.page.getByRole("button", { name: "Install", exact: true }).first(), "0 Install");
   await s.page.waitForTimeout(1500);
-  await press(s, s.page.locator('[data-pin-label="slot-hood"]').first());
+  await press(s, s.page.locator('[data-pin-label="slot-hood"]').first(), "1 the hood's label");
   await s.page.waitForTimeout(2500);
   if (s.phone) {
-    await press(s, s.page.getByRole("button", { name: panel === "list" ? "Appliances" : "Configure", exact: true }).first());
+    await press(s, s.page.getByRole("button", { name: panel === "list" ? "Appliances" : "Configure", exact: true }).first(), "2 the sheet's Appliances or Configure");
   } else if (panel === "list") {
-    await press(s, s.page.getByRole("button", { name: "Appliances", exact: true }).first());
+    await press(s, s.page.getByRole("button", { name: "Appliances", exact: true }).first(), "2 Appliances");
   }
   await s.page.waitForTimeout(1500);
 }
@@ -513,7 +561,7 @@ const INSTALL_PATHS = [
     "changing the hood",
     async (s: Session) => {
       await inInstall(s, "list");
-      return () => press(s, s.page.getByRole("button", { name: /AK7300AS/ }).filter({ visible: true }).first());
+      return () => press(s, s.page.getByRole("button", { name: /AK7300AS/ }).filter({ visible: true }).first(), "5 AK7300AS in the list");
     },
   ],
   [
@@ -521,8 +569,9 @@ const INSTALL_PATHS = [
     async (s: Session) => {
       await inInstall(s, "config");
       await layoutTab(s);
-      const slider = s.page.locator("label", { hasText: "Back wall" }).first().locator('input[type="range"]');
-      await slider.scrollIntoViewIfNeeded();
+      // The slider that shows, not the first in the page (Leo, 2026-11-12: 「把定位写准，不是放宽」).
+      const slider = s.page.locator("label", { hasText: "Back wall" }).filter({ visible: true }).first().locator('input[type="range"]');
+      await reach(s, "5 the Back wall slider", slider);
       return async () => {
         const box = (await slider.boundingBox())!;
         const { value, min, max, step } = await slider.evaluate((el: HTMLInputElement) => ({
@@ -542,8 +591,8 @@ const INSTALL_PATHS = [
       await inInstall(s, "config");
       await layoutTab(s);
       const across = s.page.getByRole("button", { name: "Across the room", exact: true }).filter({ visible: true }).first();
-      await across.scrollIntoViewIfNeeded();
-      return () => press(s, across);
+      await reach(s, "5 Across the room", across);
+      return () => press(s, across, "6 Across the room");
     },
   ],
 ] as const;

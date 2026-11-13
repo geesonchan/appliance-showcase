@@ -1,0 +1,17 @@
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mC:/Users/leoch/Downloads/appliance-showcase[39m
+
+[90mstdout[2m | docs/plans/flaky-tests-2026-11-12/proof/reach.test.ts[2m > [22m[2mnames the step and says what the page showed
+[22m[39mstep "9 an element that is not there": locator.scrollIntoViewIfNeeded: Timeout 3000ms exceeded.
+the page: {"sheetTab":null,"rightTab":"look","backWallSliders":[]}
+the element, three frames: [[],[],[]]
+screenshot: test-results/fade-rebuild/names_the_step_and_says_what_the_page_showed_-_9_an_element_that_is_not_there.png
+
+ [32m✓[39m docs/plans/flaky-tests-2026-11-12/proof/reach.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 8660[2mms[22m[39m
+   [33m[2m✓[22m[39m names the step and says what the page showed [33m8660[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m   Start at [22m 16:33:22
+[2m   Duration [22m 12.74s[2m (transform 82ms, setup 0ms, collect 405ms, tests 8.66s, environment 0ms, prepare 98ms)[22m
+

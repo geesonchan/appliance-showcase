@@ -1,0 +1,41 @@
+
+ RUN  v2.1.9 C:/Users/leoch/Downloads/appliance-showcase
+
+stdout | tests/fadeRebuild.test.ts > a room rebuilt while cabinets are faded > draws no faded cabinet solid, turning the island, on a phone with touch
+turning the island, on a phone with touch: {"before":5,"rebuilds":1,"checked":1,"fadedBoxesChecked":3,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+stdout | tests/fadeRebuild.test.ts > a room rebuilt while cabinets are faded > draws no faded cabinet solid, turning the island, on a phone with touch, the CPU slowed four times
+turning the island, on a phone with touch, the CPU slowed four times: {"before":5,"rebuilds":1,"checked":1,"fadedBoxesChecked":3,"solidRenders":0,"worldUpdates":1,"idle":0}
+
+ ❯ tests/fadeRebuild.test.ts (24 tests | 22 skipped) 152583ms
+   ✓ a room rebuilt while cabinets are faded > draws no faded cabinet solid, turning the island, on a phone with touch 62678ms
+   ✓ a room rebuilt while cabinets are faded > draws no faded cabinet solid, turning the island, on a phone with touch, the CPU slowed four times 61710ms
+
+ Test Files  1 failed (1)
+      Tests  2 passed | 22 skipped (24)
+   Start at  22:13:30
+   Duration  177.86s (transform 1.75s, setup 0ms, collect 2.33s, tests 152.58s, environment 1ms, prepare 338ms)
+
+丁's wiring: 0 page requests from the tests kept on the real server, 0 not routed, 0 paths answered with the page for want of a file
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/fadeRebuild.test.ts [ tests/fadeRebuild.test.ts ]
+AssertionError: 2 of 24 fade-rebuild tests actually ran: expected 2 to be 24 // Object.is equality
+
+- Expected
++ Received
+
+- 24
++ 2
+
+ ❯ tests/fadeRebuild.test.ts:44:88
+     42| afterAll(() => {
+     43|   if (filtered) return;
+     44|   expect(testsRun, `${testsRun} of ${EXPECTED_TESTS} fade-rebuild test…
+       |                                                                                        ^
+     45| });
+     46| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+

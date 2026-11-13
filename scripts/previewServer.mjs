@@ -49,16 +49,23 @@ const ROOT = join(dirname(SELF), "..");
  * Watches the thread it runs on: a timer every `intervalMs`; when a tick comes
  * more than `thresholdMs` late, `write({ ev: "stall", ms })`, ms the time since
  * the tick before. Returns what stops it.
+ *
+ * `now`, `every` and `cancel` are the clock and the timer, the real ones unless
+ * given: a test gives its own, so that a thread it calls free is free (Leo,
+ * 2026-11-12, `docs/plans/flaky-tests-plan.md`, 「假钟一条、真线程一条」).
  */
-export function watchMainThread(write, { intervalMs = 50, thresholdMs = 200 } = {}) {
-  let last = performance.now();
-  const timer = setInterval(() => {
-    const now = performance.now();
-    const gap = now - last;
+export function watchMainThread(
+  write,
+  { intervalMs = 50, thresholdMs = 200, now = () => performance.now(), every = setInterval, cancel = clearInterval } = {},
+) {
+  let last = now();
+  const timer = every(() => {
+    const at = now();
+    const gap = at - last;
     if (gap - intervalMs > thresholdMs) write({ ev: "stall", ms: Math.round(gap) });
-    last = now;
+    last = at;
   }, intervalMs);
-  return () => clearInterval(timer);
+  return () => cancel(timer);
 }
 
 /** The record, a line an object. */

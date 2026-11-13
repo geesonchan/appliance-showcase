@@ -361,7 +361,7 @@ What is still to do is in the place named above.
 
 ### What comes next
 
-**Leo's order is written in one place only**: `docs/decisions.md`, Open items, "His order of 2026-11-06" and its "Amended 2026-11-07" (Leo, 2026-11-07: 「只写一处，别处引用」; 2026-11-08: 「HANDOFF 只留一句指向 decisions.md 的顺序」); every round a plan first, shown to Leo, built only once he confirms it.
+**Leo's order is written in one place only**: `docs/decisions.md`, Open items, "His order of 2026-11-06" and its "Amended 2026-11-07" and "Amended 2026-11-12" (Leo, 2026-11-07: 「只写一处，别处引用」; 2026-11-08: 「HANDOFF 只留一句指向 decisions.md 的顺序」); every round a plan first, shown to Leo, built only once he confirms it.
 
 ### Registered, not in that order
 

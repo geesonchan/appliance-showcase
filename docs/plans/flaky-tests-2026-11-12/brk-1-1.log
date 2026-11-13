@@ -1,0 +1,33 @@
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mC:/Users/leoch/Downloads/appliance-showcase[39m
+
+ [31m❯[39m docs/plans/flaky-tests-2026-11-12/proof/broken.test.ts [2m([22m[2m1 test[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 722[2mms[22m[39m
+[31m   [31m×[31m the main-thread watch[2m > [22mwrites a stall when its thread is held, with how long, and nothing while it is free[33m 721[2mms[22m[31m[39m
+[31m     → expected [] to have a length of 1 but got +0[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 1 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m docs/plans/flaky-tests-2026-11-12/proof/broken.test.ts[2m > [22mthe main-thread watch[2m > [22mwrites a stall when its thread is held, with how long, and nothing while it is free
+[31m[1mAssertionError[22m: expected [] to have a length of 1 but got +0[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 1[39m
+[31m+ 0[39m
+
+[36m [2m❯[22m docs/plans/flaky-tests-2026-11-12/proof/old-unstalled.ts:[2m22:20[22m[39m
+    [90m 20| [39m    [35mconst[39m stalls [33m=[39m written[33m.[39m[34mfilter[39m((r) [33m=>[39m r[33m.[39mev [33m===[39m [32m"stall"[39m)[33m;[39m
+    [90m 21| [39m    [34mexpect[39m(quiet)[33m.[39m[34mtoBe[39m([34m0[39m)[33m;[39m
+    [90m 22| [39m    [34mexpect[39m(stalls)[33m.[39m[34mtoHaveLength[39m([34m1[39m)[33m;[39m
+    [90m   | [39m                   [31m^[39m
+    [90m 23| [39m    [34mexpect[39m(stalls[[34m0[39m][33m.[39mms)[33m.[39m[34mtoBeGreaterThanOrEqual[39m([34m350[39m)[33m;[39m
+    [90m 24| [39m    [34mexpect[39m(stalls[[34m0[39m][33m.[39mms)[33m.[39m[34mtoBeLessThan[39m([34m1_000[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m   Start at [22m 16:25:21
+[2m   Duration [22m 4.37s[2m (transform 56ms, setup 0ms, collect 73ms, tests 722ms, environment 0ms, prepare 94ms)[22m
+

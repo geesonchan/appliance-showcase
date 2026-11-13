@@ -1,0 +1,76 @@
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mC:/Users/leoch/Downloads/appliance-showcase[39m
+
+ [31m❯[39m scripts/previewServer.test.ts [2m([22m[2m8 tests[22m[2m | [22m[31m2 failed[39m[2m | [22m[33m5 skipped[39m[2m)[22m[33m 743[2mms[22m[39m
+[31m   [31m×[31m the main-thread watch[2m > [22mwrites nothing while its thread is free, one stall with how long when it is held, and no second for the same hold[90m 10[2mms[22m[31m[39m
+[31m     → expected { Object (quiet, held, ...) } to deeply equal { quiet: +0, held: [ { …(2) } ], …(2) }[39m
+[31m   [31m×[31m the main-thread watch[2m > [22mwrites a tick more than the threshold late, and not one exactly at it[90m 1[2mms[22m[31m[39m
+[31m     → expected [] to deeply equal [ { ev: 'stall', ms: 171 } ][39m
+   [33m[2m✓[22m[39m the main-thread watch[2m > [22mwrites the stall of its real thread held 400 ms [33m728[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 2 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m scripts/previewServer.test.ts[2m > [22mthe main-thread watch[2m > [22mwrites nothing while its thread is free, one stall with how long when it is held, and no second for the same hold
+[31m[1mAssertionError[22m: expected { Object (quiet, held, ...) } to deeply equal { quiet: +0, held: [ { …(2) } ], …(2) }[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  Object {[22m
+[32m-   "after": Array [[39m
+[32m-     Object {[39m
+[32m-       "ev": "stall",[39m
+[32m-       "ms": 420,[39m
+[32m-     },[39m
+[32m-   ],[39m
+[32m-   "held": Array [[39m
+[32m-     Object {[39m
+[32m-       "ev": "stall",[39m
+[32m-       "ms": 420,[39m
+[32m-     },[39m
+[32m-   ],[39m
+[31m+   "after": Array [],[39m
+[31m+   "held": Array [],[39m
+[2m    "quiet": 0,[22m
+[2m    "stopped": true,[22m
+[2m  }[22m
+
+[36m [2m❯[22m scripts/previewServer.test.ts:[2m211:70[22m[39m
+    [90m209| [39m    [35mfor[39m ([35mlet[39m i [33m=[39m [34m0[39m[33m;[39m i [33m<[39m [34m5[39m[33m;[39m i [33m+=[39m [34m1[39m) clock[33m.[39m[34mtick[39m([34m20[39m)[33m;[39m
+    [90m210| [39m    [34mstop[39m()[33m;[39m
+    [90m211| [39m    [34mexpect[39m({ quiet[33m,[39m held[33m,[39m after[33m:[39m written[33m,[39m stopped[33m:[39m [33m![39mclock[33m.[39mrunning })[33m.[39m[34mt[39m…
+    [90m   | [39m                                                                     [31m^[39m
+    [90m212| [39m      quiet[33m:[39m [34m0[39m[33m,[39m
+    [90m213| [39m      held[33m:[39m [{ ev[33m:[39m [32m"stall"[39m[33m,[39m ms[33m:[39m [34m420[39m }][33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m scripts/previewServer.test.ts[2m > [22mthe main-thread watch[2m > [22mwrites a tick more than the threshold late, and not one exactly at it
+[31m[1mAssertionError[22m: expected [] to deeply equal [ { ev: 'stall', ms: 171 } ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- Array [[39m
+[32m-   Object {[39m
+[32m-     "ev": "stall",[39m
+[32m-     "ms": 171,[39m
+[32m-   },[39m
+[32m- ][39m
+[31m+ Array [][39m
+
+[36m [2m❯[22m scripts/previewServer.test.ts:[2m226:21[22m[39m
+    [90m224| [39m    clock[33m.[39m[34mtick[39m([34m171[39m)[33m;[39m [90m// 151 late[39m
+    [90m225| [39m    [34mstop[39m()[33m;[39m
+    [90m226| [39m    [34mexpect[39m(written)[33m.[39m[34mtoEqual[39m([{ ev[33m:[39m [32m"stall"[39m[33m,[39m ms[33m:[39m [34m171[39m }])[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m227| [39m  })[33m;[39m
+    [90m228| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[2m | [22m[33m5 skipped[39m[90m (8)[39m
+[2m   Start at [22m 16:23:38
+[2m   Duration [22m 4.80s[2m (transform 76ms, setup 0ms, collect 396ms, tests 743ms, environment 0ms, prepare 106ms)[22m
+

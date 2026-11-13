@@ -1,0 +1,13 @@
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mC:/Users/leoch/Downloads/appliance-showcase[39m
+
+ [32m✓[39m scripts/previewServer.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 6407[2mms[22m[39m
+   [33m[2m✓[22m[39m the record marks a request from a test kept on the real server (丁's wiring, 2026-11-07)[2m > [22mwrites realServer on a request that carries x-real-server: 1, and nothing on one that does not [33m1223[2mms[22m[39m
+   [33m[2m✓[22m[39m the main-thread watch[2m > [22mwrites the stall of its real thread held 400 ms [33m753[2mms[22m[39m
+   [33m[2m✓[22m[39m tests/globalSetup.ts starts the suite's server through it[2m > [22mserves the build, keeps the server's record in a file of its own, and frees the port when stopped [33m1664[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m8 passed[39m[22m[90m (8)[39m
+[2m   Start at [22m 16:23:56
+[2m   Duration [22m 10.83s[2m (transform 67ms, setup 0ms, collect 389ms, tests 6.41s, environment 0ms, prepare 75ms)[22m
+

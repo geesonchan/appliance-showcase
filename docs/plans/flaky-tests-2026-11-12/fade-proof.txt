@@ -1,0 +1,16 @@
+== before slider 17:22:45
+0 of 20 red (busy)
+== before island 17:58:35
+2/10 busy exit 1 | the file's own count only (a filtered run)
+== before island, the other 8 20:27:55
+0 of 8 red (busy)
+== before whole file 20:52:47
+0 of 2 red (busy)
+== after slider 21:24:08
+0 of 20 red (busy)
+== after island 22:07:25
+0 of 10 red (busy)
+== after whole file 22:37:57
+1 of 2 red (busy)
+== after whole file, run 2 again (the first run 2 ended by the app quitting at 23:01:43) 23:02:43
+0 of 1 red (busy)

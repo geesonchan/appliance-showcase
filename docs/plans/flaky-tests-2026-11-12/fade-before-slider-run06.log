@@ -1,0 +1,37 @@
+
+ RUN  v2.1.9 C:/Users/leoch/AppData/Local/Temp/claude/2d05e9ef00c4ba20/47d453e3-a586-4554-8d39-76656d9f4da0/scratchpad/before-5d5da45
+
+stdout | tests/fadeRebuild.test.ts > a room rebuilt while cabinets are faded > draws no faded cabinet solid, dragging the back wall slider, on a phone with touch, the CPU slowed four times
+dragging the back wall slider, on a phone with touch, the CPU slowed four times: {"before":5,"rebuilds":2,"checked":1,"fadedBoxesChecked":3,"solidRenders":0,"worldUpdates":2,"idle":0}
+
+ ❯ tests/fadeRebuild.test.ts (24 tests | 23 skipped) 107572ms
+   ✓ a room rebuilt while cabinets are faded > draws no faded cabinet solid, dragging the back wall slider, on a phone with touch, the CPU slowed four times 70862ms
+
+ Test Files  1 failed (1)
+      Tests  1 passed | 23 skipped (24)
+   Start at  17:31:18
+   Duration  114.64s (transform 299ms, setup 0ms, collect 889ms, tests 107.57s, environment 0ms, prepare 183ms)
+
+丁's wiring: 0 page requests from the tests kept on the real server, 0 not routed, 0 paths answered with the page for want of a file
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/fadeRebuild.test.ts [ tests/fadeRebuild.test.ts ]
+AssertionError: 1 of 24 fade-rebuild tests actually ran: expected 1 to be 24 // Object.is equality
+
+- Expected
++ Received
+
+- 24
++ 1
+
+ ❯ tests/fadeRebuild.test.ts:44:88
+     42| afterAll(() => {
+     43|   if (filtered) return;
+     44|   expect(testsRun, `${testsRun} of ${EXPECTED_TESTS} fade-rebuild test…
+       |                                                                                        ^
+     45| });
+     46| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+

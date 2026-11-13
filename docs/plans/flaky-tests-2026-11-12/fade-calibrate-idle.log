@@ -1,0 +1,36 @@
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mC:/Users/leoch/Downloads/appliance-showcase[39m
+
+[90mstdout[2m | tests/fadeRebuild.test.ts[2m > [22m[2ma room rebuilt while cabinets are faded[2m > [22m[2mdraws no faded cabinet solid, dragging the back wall slider, on a phone with touch, the CPU slowed four times
+[22m[39mdragging the back wall slider, on a phone with touch, the CPU slowed four times: {"before":5,"rebuilds":2,"checked":2,"fadedBoxesChecked":6,"solidRenders":0,"worldUpdates":2,"idle":0}
+
+ [31m❯[39m tests/fadeRebuild.test.ts [2m([22m[2m24 tests[22m[2m | [22m[33m23 skipped[39m[2m)[22m[33m 58765[2mms[22m[39m
+   [33m[2m✓[22m[39m a room rebuilt while cabinets are faded[2m > [22mdraws no faded cabinet solid, dragging the back wall slider, on a phone with touch, the CPU slowed four times [33m58142[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[1m[7m Failed Suites 1 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/fadeRebuild.test.ts[2m [ tests/fadeRebuild.test.ts ][22m
+[31m[1mAssertionError[22m: 1 of 24 fade-rebuild tests actually ran: expected 1 to be 24 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 24[39m
+[31m+ 1[39m
+
+[36m [2m❯[22m tests/fadeRebuild.test.ts:[2m44:88[22m[39m
+    [90m 42| [39m[34mafterAll[39m(() [33m=>[39m {
+    [90m 43| [39m  [35mif[39m (filtered) [35mreturn[39m[33m;[39m
+    [90m 44| [39m  [34mexpect[39m(testsRun[33m,[39m [32m`[39m[36m${[39mtestsRun[36m}[39m[32m of [39m[36m${[39m[33mEXPECTED_TESTS[39m[36m}[39m[32m fade-rebuild test[39m…
+    [90m   | [39m                                                                                       [31m^[39m
+    [90m 45| [39m})[33m;[39m
+    [90m 46| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m1 passed[39m[22m[2m | [22m[33m23 skipped[39m[90m (24)[39m
+[2m   Start at [22m 17:09:10
+[2m   Duration [22m 61.25s[2m (transform 81ms, setup 0ms, collect 325ms, tests 58.77s, environment 0ms, prepare 67ms)[22m
+
+丁's wiring: 0 page requests from the tests kept on the real server, 0 not routed, 0 paths answered with the page for want of a file
