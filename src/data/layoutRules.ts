@@ -310,18 +310,18 @@ export function checkLayout(
         );
       }
       // Hard against the corner: beside the corner box on the run that holds
-      // it, or last on a run whose high end is a corner another run's box eats
-      // — a U's back run (U-0, 2026-11-10). No L or one-wall run has a corner
-      // there, so nothing they build is judged differently.
+      // it, or first or last on a run whose end there is a corner another
+      // run's box eats — an L's back run at its low end, a U's back run at
+      // either (U-0, 2026-11-10).
       //
-      // The same at a run's LOW end is not checked, on purpose, for now: asked
-      // there, it finds 16 of the L's rooms (E, sink on the left leg, the
-      // refrigerator and the coffee tower on the back leg) whose combination
-      // oven tower is the back leg's first box, hard against the corner — on
-      // the live site too. U-0 changes nothing on the page; it is Leo's to
-      // decide (Open items, "E's L: the combination oven tower hard against the
-      // corner").
-      const againstEatenCorner = i === run.segments.length - 1 && run.ends[1] === "corner";
+      // The low end was left unchecked by U-0 on purpose: asked there, it found
+      // 16 of the L's rooms (E, sink on the left leg, the refrigerator and the
+      // coffee tower on the back leg) whose combination oven tower was the back
+      // leg's first box, hard against the corner, on the live site too. Item 11
+      // put 12" of counter there (Leo, 2026-11-13: 「烤箱塔离转角：12″」; 「规则 1
+      // 在段的这一头也查」) and the check at both ends.
+      const againstEatenCorner =
+        (i === run.segments.length - 1 && run.ends[1] === "corner") || (i === 0 && run.ends[0] === "corner");
       if (run.segments[i - 1]?.kind === "corner" || run.segments[i + 1]?.kind === "corner" || againstEatenCorner) {
         fail("d11-1", `${segment.id} is a tall cabinet hard against the corner`);
       }

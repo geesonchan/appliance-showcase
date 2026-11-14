@@ -129,11 +129,19 @@ describe("U-0: D11 rule 1 — a tall cabinet hard against a corner, at either en
   const tower = () => piece("back-tower", "tall", [M("T3096", "tall", 30)], { slot: "slot-oven" });
   const codesOf = (runs: CabinetRun[]) => checkLayout(runs).filter((v) => v.code === "d11-1" && /corner/.test(v.message));
 
-  // Not checked at a run's low end yet: asked there, the check finds 16 of the
+  // U-0 left this a `todo`: asked at a run's low end, the check found 16 of the
   // L's own rooms (E) with the combination oven tower hard against the corner,
-  // live. U-0 changes nothing on the page; Leo decides (Open items, "E's L: the
-  // combination oven tower hard against the corner").
-  it.todo("catches a tower standing first on a run whose first end is a corner it does not hold");
+  // live. Item 11 (Leo, 2026-11-13: 「规则 1 在段的这一头也查：把 U-0 留的那条 todo
+  // 改成正式测试，同意。」) put a 12" counter there and the check at both ends.
+  it("catches a tower standing first on a run whose first end is a corner it does not hold", () => {
+    const runs = [leftLeg(), backRun([tower(), counter("back-a", 30), counter("back-b", 24)]), rightLeg()];
+    expect(codesOf(runs)).toHaveLength(1);
+  });
+
+  it("leaves a tower 12\" clear of the corner at the run's low end alone", () => {
+    const runs = [leftLeg(), backRun([counter("back-a", 12), tower(), counter("back-b", 30)]), rightLeg()];
+    expect(codesOf(runs)).toHaveLength(0);
+  });
 
   it("catches a tower standing last on a run whose last end is a corner", () => {
     const runs = [leftLeg(), backRun([counter("back-a", 30), counter("back-b", 24), tower()]), rightLeg()];

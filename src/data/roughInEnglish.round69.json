@@ -1309,5 +1309,23 @@
       "now": "gas — back wall of the cabinet under the cooktop, 11\" from the left side, 2\" up",
       "why": "Leo, 2026-11-07: every cooking surface set into the counter stands on a swing-door base, a rangetop too, so PCG366W's supply is no longer in a drawer. Same place, same figures: the back wall of the cabinet under it, low."
     }
+  },
+  "addedInItem11": {
+    "package-e | left/back/left/parallel | rough-in:slot-microwave:power:0": {
+      "now": "power — at the back of the drawer under the opening, at the top",
+      "why": "Item 11 (Leo, 2026-11-13: 「咖啡机在左段那 16 间的插座：下面那一格」). With the sink on the left leg, the refrigerator on the back leg and the coffee tower on the left leg, MEM301WS stands between the dishwasher and the coffee tower, a machine each side; its power point, wanted in the cabinet beside the tower, dropped out of the list until item 11. Now it goes in the drawer under the opening (whenNoCabinet, drawer-below), as PODS302B's does."
+    },
+    "package-e | left/back/back/parallel | rough-in:slot-microwave:power:0": {
+      "now": "power — in the base cabinet beside the tower — open its door to see it, 3\" from the right side, at the top",
+      "why": "Item 11 (Leo, 2026-11-13: 「烤箱塔离转角：12″」). With the sink on the left leg and the refrigerator and the coffee tower on the back leg, MEM301WS stood first on the back leg, hard against the corner, a machine on its other side, and its power point dropped out of the list until item 11. Now 12\" of counter stands between it and the corner, and the point is in that cabinet, measured from the side that meets the tower."
+    },
+    "package-e | left/back/left/perpendicular | rough-in:slot-microwave:power:0": {
+      "now": "power — at the back of the drawer under the opening, at the top",
+      "why": "Item 11 (Leo, 2026-11-13: 「咖啡机在左段那 16 间的插座：下面那一格」). With the sink on the left leg, the refrigerator on the back leg and the coffee tower on the left leg, MEM301WS stands between the dishwasher and the coffee tower, a machine each side; its power point, wanted in the cabinet beside the tower, dropped out of the list until item 11. Now it goes in the drawer under the opening (whenNoCabinet, drawer-below), as PODS302B's does."
+    },
+    "package-e | left/back/back/perpendicular | rough-in:slot-microwave:power:0": {
+      "now": "power — in the base cabinet beside the tower — open its door to see it, 3\" from the right side, at the top",
+      "why": "Item 11 (Leo, 2026-11-13: 「烤箱塔离转角：12″」). With the sink on the left leg and the refrigerator and the coffee tower on the back leg, MEM301WS stood first on the back leg, hard against the corner, a machine on its other side, and its power point dropped out of the list until item 11. Now 12\" of counter stands between it and the corner, and the point is in that cabinet, measured from the side that meets the tower."
+    }
   }
 }

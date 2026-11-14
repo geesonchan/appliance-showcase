@@ -652,8 +652,21 @@ list.
    committed.** Until then every report says the live site does not have it,
    names the live commit and chunk, and labels every screenshot with its
    build.
-6. **Commit and push.** Before the push, CI's own commands on the tree as
-   committed: `npm ci`, `npm run test:unit`, `npm run build`.
+6. **Commit, then check the commit, then push** (Leo, 2026-11-13:
+   「先提交，再在提交后的内容上（干净的 git worktree）跑 npm ci、npm run test:unit、npm run
+   build，都过了再推送」). In this order:
+   1. commit;
+   2. make a clean `git worktree` of that commit (its own folder, its own
+      `npm ci`, not a junction to this folder's `node_modules`);
+   3. in it, CI's own commands: `npm ci`, `npm run test:unit`,
+      `npm run build`, each with its times and real exit code;
+   4. push only when all three pass.
+
+   Item 9 (`1ea029b`) ran them in this folder **before** committing. That
+   missed two logs that git turned to LF on commit while this folder's copies
+   kept CRLF (`lineEndings.test.ts` went red here on 2026-11-13; GitHub's
+   checkout was LF and passed). A worktree of the commit is the files exactly
+   as committed.
 7. **Report the deploy's two jobs**: `gh run watch` on the Pages run, then
    each job's (build, deploy) conclusion and times, and the run's number.
 8. **Check the live site file by file.** After the commit (the commit is

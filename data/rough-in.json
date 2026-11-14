@@ -209,7 +209,16 @@
           "z": "rear",
           "size": [4, 4, 2.5],
           "highLoopApexIn": null,
-          "note": "240V 50A hard wired. The manual (§5.6, mem301ws-manual.png) puts the junction box above, left or right of the unit within reach of the 60\" conduit — never behind it. Drawn in the base cabinet beside the tower, 3\" from its side, on the landing side where there is a cabinet both sides: open that cabinet's door to see it"
+          "note": "240V 50A hard wired. The manual (§5.6, mem301ws-manual.png) puts the junction box above, left or right of the unit within reach of the 50\" conduit — never behind it. 50\" (1270 mm) is §5.6's drawing, and the guide's p. 25 drawing gives 50\" too; the spec sheet (mem301ws-spec.pdf p. 1) says 'Conduit 60\" 4-Wire', which this note gave until 2026-11-13 (Leo, 2026-11-13: 「数据里 MEM301WS 软管 60″ 改成 50″，写出处」). Drawn in the base cabinet beside the tower, 3\" from its side, on the landing side where there is a cabinet both sides: open that cabinet's door to see it",
+          "whenNoCabinet": {
+            "where": "drawer-below",
+            "x": "center",
+            "y": "top",
+            "z": "rear",
+            "conditionKey": null,
+            "provenance": "site",
+            "basis": "Beneath the unit is in words in one of the two documents, and that is the one used: Thermador's built-in oven installation guide (docs/reference/thermador-built-in-ovens-install.pdf, BSH 8001185222 A), p. 25, Dimensions for Combination Oven with Microwave or Speed Oven: \"*Junction box may be installed above, beneath, right or left of the unit within range of the power cable.\" That page's drawing shows one junction box, at the top rear of the cabinet, and a 50\" conduit (Leo checked the drawing, 2026-11-13). MEM301WS's own manual, §5.6 (mem301ws-manual.png), lists one place fewer: \"*Junction box location: above, left or right of the unit within reach of the flexible conduit.\" Its drawing has two boxes, one at the back right of the compartment above the opening, one outside the cabinet's right side at the height of the opening's floor; none under the opening. Where they differ: §5.6 leaves beneath out of its list and the guide puts it in; §5.6 does not say the box may not go beneath, so the two do not contradict each other, but read on its own §5.6 would not allow it either. They also name the lead differently (power cable, flexible conduit). The drawer under the opening, at its back and at its top, as PODS302B's (round 70), is Leo's, 2026-11-13: 「咖啡机在左段那 16 间的插座：下面那一格」."
+          }
         }
       ]
     },

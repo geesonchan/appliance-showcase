@@ -110,6 +110,7 @@
   - 图下的说明："*Junction box location: above, left or right of the unit within reach of the flexible conduit."（上、左或右，在软管够得着的范围内。）
   - 图上软管长 50″。
   - 说明书的字没写"下面"，但图里画了下面那个位置。
+  - **2026-11-13 下午更正**：上面这两句是我看错了。放大看，第二个星号画在柜体右侧外面、开口底面那个高度，不在烤箱下面那一格；下面那一格图上没有画。"下面"（beneath）的依据其实是另一份：`docs/reference/thermador-built-in-ovens-install.pdf` 第 25 页的字（`item11-plan-final.md` 第 3.3 节）。
 - 选项：
   - **甲、烤箱下面那一格**：原型就是这个。只改 MEM301WS 的数据（`whenNoCabinet: drawer-below`），和 PODS302B 的做法一样。依据是图里下面那个星号。
   - **乙、烤箱上面那一格**：说明书的字和图都有，最没争议。要在代码里加一种新的"没有地柜时放哪里"（现在只有"机器后面"和"下面的抽屉"两种）。

@@ -59,6 +59,8 @@ const ADDED: Added = Object.assign(
   {},
   round69.addedInRound72 as Added,
   round69.addedInRound73 as Added,
+  // Item 11: E's combination oven's power point in the 32 L rooms it dropped out of.
+  round69.addedInItem11 as Added,
 );
 
 const en = (key: string, vars?: Record<string, string | number>) => translate("en", key, vars);

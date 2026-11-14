@@ -12144,6 +12144,25 @@ Registered, not scheduled. None of these is a round of its own.
         git worktree）跑 npm ci、npm run test:unit、npm run build，都过了再推送。第 9 项是提交前跑的，换行符的问题
         就没查到。把这条顺序写进 HANDOFF 第 6 节对应的那一步。」): HANDOFF section 6, "The order of a round",
         step 6.
+      - **Shipped: `7200b1e`** (2026-11-13; Leo: 「第 10 项预览看过了（index-JE5nDxvR.js），可以提交。」).
+        Checked first: nothing under `src/` or `tests/` written after the full suite's start at
+        11:15:34 (the last, `tests/packageSwitchUndo.test.ts`, 11:04:20), so the suite (11:15:34-
+        12:54:53, exit 0, 187 files, 4,412 passed) was not run again. Committed 13:50:52 — the code,
+        its tests, the plan and its record, this file, the overnight report and item 11's two plan
+        drafts that this file names; not `docs/HANDOFF.md` (not on Leo's list), item 14's questions
+        (not named here) or item 11's draft-2 pictures (9 files, 16,091,797 bytes; Leo to decide).
+        In the new order: a clean git worktree of the commit, its own `npm ci` 13:51:02-13:51:09,
+        `npm run test:unit` 13:51:10-13:51:51 (142 files, 3,997 passed, 1 todo), `npm run build`
+        13:51:51-13:52:07, each exit 0; pushed 13:52:14-13:52:17. Pages run 43514491041: build
+        21:52:23-21:53:29 UTC and deploy 21:53:34-21:53:45 UTC, each a success. Built at `7200b1e` in
+        that worktree with the counter's address (13:53:59-13:54:17, exit 0) and compared with the
+        live site file by file: **twenty of twenty the same byte for byte**, each 200,
+        `last-modified` Fri, 13 Nov 2026 21:53:39 GMT, `cache-control: max-age=600`; the
+        JavaScript, CSS, `index.html` and the two licences gzip, the twelve fonts `font/woff2` with
+        no encoding; the live main chunk **`assets/index-CBGsh7rM.js`** (726,254 bytes). Against
+        `1ea029b` built the same way (its clean worktree, 13:54:32-13:54:39, exit 0): 18 files the
+        same, the main chunk (`index-Cb_Hjz1r.js` to `index-CBGsh7rM.js`) and `index.html` (its name)
+        different — as Leo expected. The preview on 4181 stopped after.
   11. **E's L: the oven tower against the corner, and its socket off the list, in one round**
       (4 and 5; "E's L: the combination oven tower hard against the corner", "E's L: the
       combination oven tower's socket dropped") — it changes the drawing, so a 3D prototype at
@@ -12158,13 +12177,104 @@ Registered, not scheduled. None of these is a round of its own.
           3–6"), so by the page's own sizes its 18" door cannot open past a few degrees in any room;
         - the lazy susan's diagonal door is drawn with both ends against the neighbouring doors'
           edges, so it cannot swing either.
+      - **The two towers may stand together** (Leo, 2026-11-13, item 14's 7, below): neither split of
+        the prototype (拆一, 拆二) is built; E's own room stays as it is; the list gets no reminder.
+        What is left of item 11 is the 32 rooms with the sink on the left leg and the refrigerator on
+        the back leg. Leo, the same message: 「照上面的答复，把第 11 项的正式计划写成定稿给我看，不动手」 —
+        the final plan, `docs/plans/item11-plan-final.md`, with the two site practices left for him
+        to fill in (「只有这一处要我填」): how far the oven tower stands from the corner (12" / 18" /
+        the group moved along), and the socket in the 16 rooms with the coffee tower on the left
+        leg (the cell under the oven / the cell over it, and on which side / a changed order / not
+        drawn, the list saying "decided on site"). And: rule 1 checked at this end of a run too, U-0's
+        `todo` made a test (「同意」); the prototype's code not merged, the work written again from the
+        final plan.
+      - **Found while writing it, registered, not changed**:
+        - MEM301WS's power point in `data/rough-in.json` says "the 60\" conduit"; the manual's §5.6
+          drawing (`mem301ws-manual.png`) gives the conduit as 50" (1270 mm). The note is never shown
+          on the page. Whether to correct it with the round is Leo's.
+        - The draft's "the drawing shows a box in the cell under the oven" was a misreading: the
+          §5.6 drawing's second box is outside the tower's right side, at the opening's floor. The
+          "beneath" is in words, in the other document: `thermador-built-in-ovens-install.pdf`
+          (BSH 8001185222 A), page 25, "Dimensions for Combination Oven with Microwave or Speed Oven":
+          "*Junction box may be installed above, beneath, right or left of the unit within range of
+          the power cable." Corrected in both drafts.
+      - **Confirmed and built** (Leo, 2026-11-13 evening: 「第 11 项定稿看过了」 — 「烤箱塔离转角：（12″）」,
+        「咖啡机在左段那 16 间的插座：（下面那一格）」; 「定稿确认，可以动手，做到本地预览为止，不提交」). The record:
+        `docs/plans/item11-progress-2026-11-13.md`. In short:
+        - the back leg, where nothing stands yet between the left leg's corner box and E's two
+          towers, takes rule 1's 12" of counter first (`back-corner-landing`, the gap the back leg
+          already uses for the same reason, its words 「转角后台面」 / "counter after the corner"
+          — no new word);
+        - D11 rule 1 is checked at a run's low end too (`layoutRules.ts`), and U-0's `todo` is a test;
+        - MEM301WS's power point takes the drawer under the opening where neither side of its
+          tower is a cabinet (`whenNoCabinet`, `drawer-below`, provenance `site`), PODS302B's words.
+      - **The sources, both written down** (Leo: 「出处写全，两份厂家文件说的不一样，都记下来」):
+        - `thermador-built-in-ovens-install.pdf` p. 25 ("Dimensions for Combination Oven with
+          Microwave or Speed Oven"), in words: "*Junction box may be installed above, beneath, right
+          or left of the unit within range of the power cable." Its drawing shows one junction box,
+          at the top rear of the cabinet, and a 50" conduit (Leo checked the drawing).
+        - MEM301WS's manual §5.6 (`mem301ws-manual.png`), in words: "*Junction box location: above,
+          left or right of the unit within reach of the flexible conduit." Its drawing: one box at
+          the back right of the compartment above the opening, one outside the cabinet's right side.
+        - **Used**: the guide's p. 25 sentence, for its "beneath". **Where they differ**: §5.6 leaves
+          beneath out of its list and the guide puts it in. §5.6 does not say the box may not go
+          beneath, so they do not contradict each other outright; read on its own, §5.6 would not
+          allow it either. They also name the lead differently (power cable, flexible conduit).
+          The same is in the point's `basis` in `data/rough-in.json`.
+      - **The conduit, 60" to 50"** (Leo: 「数据里 MEM301WS 软管 60″ 改成 50″，写出处。这是我同意的范围内改动」).
+        Found while writing it: the 60" was the spec sheet's — `mem301ws-spec.pdf` p. 1, 'Conduit 60"
+        4-Wire'. The final plan's section 7 said no document gave it; I had not read the spec
+        sheet. Changed to 50" as Leo said, the note naming §5.6's and p. 25's drawings for 50" and
+        the spec sheet for 60"; reported to Leo, his to send back.
+      - **Not as the final plan said, reported, not changed**: the plan's section 3.2 proposed the
+        callout end 「现场做法，非图纸——待确认。」. A callout takes its last sentence from the point's
+        own provenance (`roughInCalloutKey`), not from its `whenNoCabinet`, and MEM301WS's point
+        has none: the callout ends 「出处尚未审核。」 / "Not yet reviewed.", as PODS302B's drawer point
+        does. Making it say 现场做法 would change other rooms' callouts too (every point placed by a
+        way out, or this point in every E room) — past the plan; Leo's word first.
+      - **Found in the proof, registered, not changed**: in the 16 of the 32 rooms with the
+        refrigerator against the wall, the default view's "02 冰箱" label fails the label check (shown,
+        on screen, a click at its middle lands on it) — on the old build (`7200b1e`) and the new alike,
+        the same 16 rooms (`docs/plans/item11-proof/rooms32.log`). Not caused by item 11; the L has no
+        rule that every label be seen (the U has, `tests/uLabels.test.ts`).
+      - **Leo's answers to the two** (2026-11-14, just after midnight: 「第 11 项的报告看过了」):
+        - **The conduit stays 50"**, the spec sheet's 60" and its page left in the data (Leo:
+          「软管保持 50″，规格表第 1 页的 60″ 和页码留在数据里」). Why: a figure is read from the
+          installation guide first, then the spec sheet (HANDOFF section 6, "Figures and their
+          sources": "the installation guide, then the spec sheet"). The guide's p. 25 drawing and
+          the manual's §5.6 drawing both give 50"; the spec sheet's 60" comes after them.
+        - **The callout's last sentence stays 「出处尚未审核」 this round** (Leo: 「这一轮不动」).
+          Registered as a small item of its own: MEM301WS's power point's provenance (the guide,
+          p. 25) waits for Leo's review; once he has reviewed it, every room's callout changes
+          together, in a separate small item (Leo: 「审过以后所有房间一起改，另开一小项」). Not started.
   12. **6, 10, 11 and 8**: the L's service entry 4" against its note's four feet; the Zephyr
       hoods' "gas min 30, max 40"; HMCB36WS's heat warning and its guide against its sheet;
       the phone card 18–20 px taller at 390;
+      - **Plan written 2026-11-14, nothing built** (Leo, 2026-11-14: 「写第 12 项的计划，只写计划，不改主文件夹的页面代码」):
+        `docs/plans/item12-plan.md`, with the prototypes' shots in `docs/plans/item12-2026-11-14/`
+        (the prototypes themselves in the scratchpad, `proto12`, never merged). Each of the four with
+        its questions for Leo; 10 (the Zephyrs' words) as questions only, beside item 14's 9.
+      - **Found while writing it, registered, not changed**:
+        - The phone card is taller than before the main title in nearly every English state, not
+          only the two registered (17.5–19.5 px; 37.5 px for E's freezer), the `Specified` badge
+          dropping to its own line where the title alone would fit; Chinese not at all. In the plan.
+        - HMCB36WS's guide p. 8 against its sheet: the chimney cover. **Leo checked the drawing
+          (2026-11-14): it prints 10-13/16" x 13-2/16"**, against the sheet's 13-3/16" x 10-3/4" (the
+          page uses the sheet's, `CHIMNEYS`). And the recirculating minimum is printed once, 36-3/8"
+          (924), as `docs/reference/README.md` has it. **Corrected**: the plan's first draft said it was
+          printed twice (32-1/16" and 36-3/8"); that was my reading of the page's decoded text, which
+          ran two lines together (Leo: 「"印了两个数"是抽字串行，改掉」).
+        - HMCB36WS's weight, recorded here only (Leo, 2026-11-14: 「重量两个数只记进 decisions.md」): the
+          sheet (`hmcb36ws-spec.pdf` p. 1) 69 lb; the guide (p. 9, "Unit Weight") 53.3 lb (24.2 kg) for
+          the 36", which it says covers only the ventilation unit and blower. The page shows no weight.
   13. **13**: tapping the package, layout or hood already chosen rebuilds the whole room;
   14. **9 and 7 wait for his rules first**: a professional range under B's, C's and D's hood
       (whether the hood follows the cooking surface chosen; D13), and E's L coffee tower beside
       the combination oven tower (TCM24PS p. 9).
+      - **7 decided** (Leo, 2026-11-13, word for word: 「咖啡机柜挨着组合烤箱塔，各有柜体、隔一块 3/4″ 侧板，算"不挨"。」
+        With it: 「所以两个高柜可以挨着，拆一、拆二都不做，E 的默认房间不变。清单里不加提醒。」). The two towers stay
+        side by side in all 67 of E's L rooms; nothing on the page changes for it.
+      - 9 (the hood over a professional range) is still on hold.
   The older registrations (the report's 14) stay as they are. Each a plan first, shown to him,
   built only once he confirms it; 10 too, once 9 is shipped (「第 1 项做完上线后，第 2 项也先写计划」).
 - **An induction cooktop in B and D.** *(Registered 2026-11-07; **done**, built
@@ -13489,6 +13599,9 @@ Registered, not scheduled. None of these is a round of its own.
   Whether a combination oven in its own tower, a 3/4" board between, is "on side of" it in
   the sense the manual means: the manual does not say. The U does not put them together
   (`docs/plans/u-shape-plan.md`).
+  **Decided 2026-11-13** (Leo, word for word: 「咖啡机柜挨着组合烤箱塔，各有柜体、隔一块 3/4″ 侧板，算"不挨"。」):
+  not "on side of". The two towers may stand together; neither split is built, E's own room
+  is unchanged, and the list gets no reminder (「清单里不加提醒」). Item 14's 7 in his order above.
 - **The services' entry: 4" or 4'.** *(Found 2026-11-11 in U-1, not changed — U-1 changes
   nothing on the page; Leo decides. Not in his order.)* The utility layer draws every
   service entering on the back wall at `ROOM.halfX - ft(4)` (`src/three/UtilityLayer.tsx`,
@@ -13513,6 +13626,7 @@ Registered, not scheduled. None of these is a round of its own.
   leg, the coffee tower past it) and 16 with the coffee on the left leg (sink, dishwasher,
   the tower, the coffee tower). On the live site too. The same check finds 0 on one wall and
   0 in the U.
+  *(Built 2026-11-13, item 11, not committed yet: the drawer under the opening, Leo's 「下面那一格」 — Leo's order, 11, above.)*
 - **E's L: the combination oven tower hard against the corner.** *(Found 2026-11-10 in U-0,
   not changed — U-0 changes nothing on the page. Leo, 2026-11-11: 「保持登记，等 U 型做完再单独
   修一轮，这一轮不动」 — a round of its own after the U.)* U-0 asked
@@ -13524,7 +13638,7 @@ Registered, not scheduled. None of these is a round of its own.
   and island turn of that arrangement, at E's own walls, 180" x 168": the back leg's
   first box is the 30" combination oven tower (`back-microwave`, `T3096`), standing where
   the left leg's corner box stops, with no counter between. On the live site too
-  (`9b06f41` builds the same rooms). Rule 1's reason: "a tower at a corner blocks the
+  (`9b06f41` builds the same rooms). *(Built 2026-11-13, item 11, not committed yet: 12" of counter, Leo's 「12″」, and the check at both ends — Leo's order, 11, above.)* Rule 1's reason: "a tower at a corner blocks the
   corner cabinet's door"; its 12" (`LAYOUT_LIMITS.cornerLandingIn`) is what every other
   room keeps there. The old check only looked for a corner segment on the same run, which
   on the back leg there never is. U-0 asks it at a run's high end only, where no L or

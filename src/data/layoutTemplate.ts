@@ -2273,7 +2273,19 @@ function planLegs(
     left.push(...spare, gap("fridge-landing", LAYOUT_LIMITS.fridgeLandingIn, "d11-6"), ...tower);
     back.push(...terminal("back-end", farEnd(shape, "back"), back[back.length - 1]));
   } else {
-    if (coffeeHere("back")) back.push(...inRunGroup());
+    if (coffeeHere("back")) {
+      // Nothing yet between the left leg's corner box and the group: E with its
+      // sink on the left leg. The group's first unit would stand hard against
+      // the corner (D11 rule 1), so rule 1's own 12" of counter goes first, and
+      // no more — what the leg has to spare stays with the counters toward the
+      // refrigerator (item 11; Leo, 2026-11-13: 「烤箱塔离转角：12″」).
+      if (back.length === 0) {
+        back.push(
+          gap("back-corner-landing", LAYOUT_LIMITS.cornerLandingIn, "d11-1", { maxIn: LAYOUT_LIMITS.cornerLandingIn }),
+        );
+      }
+      back.push(...inRunGroup());
+    }
     back.push(...spare, gap("fridge-landing", LAYOUT_LIMITS.fridgeLandingIn, "d11-6"), ...tower);
     if (coffeeHere("left")) left.push(...inRunGroup());
     left.push(...terminal("left-end", farEnd(shape, "left"), left[left.length - 1]));

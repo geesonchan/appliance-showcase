@@ -1,0 +1,131 @@
+16 rooms differ in: .room.findings.[]  .room.points.[]
+8 rooms differ in: .room.cabinets.[]  .room.counter.pieces  .room.dimensions.[]  .room.dimensionsPerSlot.[]  .room.findings.[]  .room.labelled.[]  .room.outlines.[]  .room.perSlot.slot-coffee  .room.perSlot.slot-microwave  .room.perSlot.slot-wine-2  .room.placement.slot-coffee  .room.placement.slot-microwave  .room.placement.slot-wine-2  .room.points.[]  .room.requirement.[]  .room.runs.[]  .room.vents.[]  .room.words.bill
+8 rooms differ in: .room.cabinets.[]  .room.counter.pieces  .room.dimensions.[]  .room.dimensionsPerSlot.[]  .room.findings.[]  .room.fridgeOpening.[]  .room.labelled.[]  .room.outlines.[]  .room.perSlot.slot-coffee  .room.perSlot.slot-freezer  .room.perSlot.slot-fridge  .room.perSlot.slot-microwave  .room.perSlot.slot-wine-2  .room.placement.slot-coffee  .room.placement.slot-freezer  .room.placement.slot-fridge  .room.placement.slot-microwave  .room.placement.slot-wine-2  .room.points.[]  .room.requirement.[]  .room.returnWall.position  .room.runs.[]  .room.vents.[]  .room.wallClearance.from  .room.wallClearance.run  .room.wallClearance.to  .room.words.bill
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"left","towerSide":"left","cornerType":"blind","fridgeEndAbuts":"cabinet","hasIsland":true,"islandOrientation":"parallel"}
+    walls [180,179.25] -> [180,179.25]
+    back leg from the corner: counter 36, counter 36, counter 34.5 -> counter 36, counter 36, counter 34.5
+    oven power point: (none) -> no cabinet, left-microwave-base
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"left","towerSide":"left","cornerType":"blind","fridgeEndAbuts":"cabinet","hasIsland":true,"islandOrientation":"perpendicular"}
+    walls [180,179.25] -> [180,179.25]
+    back leg from the corner: counter 36, counter 36, counter 34.5 -> counter 36, counter 36, counter 34.5
+    oven power point: (none) -> no cabinet, left-microwave-base
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"left","towerSide":"left","cornerType":"blind","fridgeEndAbuts":"wall","hasIsland":true,"islandOrientation":"parallel"}
+    walls [180,179.25] -> [180,179.25]
+    back leg from the corner: counter 36, counter 33, counter 34 -> counter 36, counter 33, counter 34
+    oven power point: (none) -> no cabinet, left-microwave-base
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"left","towerSide":"left","cornerType":"blind","fridgeEndAbuts":"wall","hasIsland":true,"islandOrientation":"perpendicular"}
+    walls [180,179.25] -> [180,179.25]
+    back leg from the corner: counter 36, counter 33, counter 34 -> counter 36, counter 33, counter 34
+    oven power point: (none) -> no cabinet, left-microwave-base
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"left","towerSide":"left","cornerType":"lazy-susan","fridgeEndAbuts":"cabinet","hasIsland":true,"islandOrientation":"parallel"}
+    walls [180,173.25] -> [180,173.25]
+    back leg from the corner: counter 33, counter 30, counter 31.5 -> counter 33, counter 30, counter 31.5
+    oven power point: (none) -> no cabinet, left-microwave-base
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"left","towerSide":"left","cornerType":"lazy-susan","fridgeEndAbuts":"cabinet","hasIsland":true,"islandOrientation":"perpendicular"}
+    walls [180,173.25] -> [180,173.25]
+    back leg from the corner: counter 33, counter 30, counter 31.5 -> counter 33, counter 30, counter 31.5
+    oven power point: (none) -> no cabinet, left-microwave-base
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"left","towerSide":"left","cornerType":"lazy-susan","fridgeEndAbuts":"wall","hasIsland":true,"islandOrientation":"parallel"}
+    walls [180,173.25] -> [180,173.25]
+    back leg from the corner: counter 30, counter 30, counter 31 -> counter 30, counter 30, counter 31
+    oven power point: (none) -> no cabinet, left-microwave-base
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"left","towerSide":"left","cornerType":"lazy-susan","fridgeEndAbuts":"wall","hasIsland":true,"islandOrientation":"perpendicular"}
+    walls [180,173.25] -> [180,173.25]
+    back leg from the corner: counter 30, counter 30, counter 31 -> counter 30, counter 30, counter 31
+    oven power point: (none) -> no cabinet, left-microwave-base
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"left","towerSide":"right","cornerType":"blind","fridgeEndAbuts":"cabinet","hasIsland":true,"islandOrientation":"parallel"}
+    walls [180,179.25] -> [180,179.25]
+    back leg from the corner: counter 36, counter 36, counter 34.5 -> counter 36, counter 36, counter 34.5
+    oven power point: (none) -> no cabinet, left-microwave-base
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"left","towerSide":"right","cornerType":"blind","fridgeEndAbuts":"cabinet","hasIsland":true,"islandOrientation":"perpendicular"}
+    walls [180,179.25] -> [180,179.25]
+    back leg from the corner: counter 36, counter 36, counter 34.5 -> counter 36, counter 36, counter 34.5
+    oven power point: (none) -> no cabinet, left-microwave-base
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"left","towerSide":"right","cornerType":"blind","fridgeEndAbuts":"wall","hasIsland":true,"islandOrientation":"parallel"}
+    walls [180,179.25] -> [180,179.25]
+    back leg from the corner: counter 36, counter 33, counter 34 -> counter 36, counter 33, counter 34
+    oven power point: (none) -> no cabinet, left-microwave-base
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"left","towerSide":"right","cornerType":"blind","fridgeEndAbuts":"wall","hasIsland":true,"islandOrientation":"perpendicular"}
+    walls [180,179.25] -> [180,179.25]
+    back leg from the corner: counter 36, counter 33, counter 34 -> counter 36, counter 33, counter 34
+    oven power point: (none) -> no cabinet, left-microwave-base
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"left","towerSide":"right","cornerType":"lazy-susan","fridgeEndAbuts":"cabinet","hasIsland":true,"islandOrientation":"parallel"}
+    walls [180,173.25] -> [180,173.25]
+    back leg from the corner: counter 33, counter 30, counter 31.5 -> counter 33, counter 30, counter 31.5
+    oven power point: (none) -> no cabinet, left-microwave-base
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"left","towerSide":"right","cornerType":"lazy-susan","fridgeEndAbuts":"cabinet","hasIsland":true,"islandOrientation":"perpendicular"}
+    walls [180,173.25] -> [180,173.25]
+    back leg from the corner: counter 33, counter 30, counter 31.5 -> counter 33, counter 30, counter 31.5
+    oven power point: (none) -> no cabinet, left-microwave-base
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"left","towerSide":"right","cornerType":"lazy-susan","fridgeEndAbuts":"wall","hasIsland":true,"islandOrientation":"parallel"}
+    walls [180,173.25] -> [180,173.25]
+    back leg from the corner: counter 30, counter 30, counter 31 -> counter 30, counter 30, counter 31
+    oven power point: (none) -> no cabinet, left-microwave-base
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"left","towerSide":"right","cornerType":"lazy-susan","fridgeEndAbuts":"wall","hasIsland":true,"islandOrientation":"perpendicular"}
+    walls [180,173.25] -> [180,173.25]
+    back leg from the corner: counter 30, counter 30, counter 31 -> counter 30, counter 30, counter 31
+    oven power point: (none) -> no cabinet, left-microwave-base
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"back","towerSide":"left","cornerType":"blind","fridgeEndAbuts":"cabinet","hasIsland":true,"islandOrientation":"parallel"}
+    walls [180,168] -> [180,168]
+    back leg from the corner: tall 30, tall 24, counter 27 -> counter 12, tall 30, tall 24
+    oven power point: (none) -> back-back-corner-landing-0
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"back","towerSide":"left","cornerType":"blind","fridgeEndAbuts":"cabinet","hasIsland":true,"islandOrientation":"perpendicular"}
+    walls [180,168] -> [180,168]
+    back leg from the corner: tall 30, tall 24, counter 27 -> counter 12, tall 30, tall 24
+    oven power point: (none) -> back-back-corner-landing-0
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"back","towerSide":"left","cornerType":"blind","fridgeEndAbuts":"wall","hasIsland":true,"islandOrientation":"parallel"}
+    walls [180,168] -> [180,168]
+    back leg from the corner: tall 30, tall 24, counter 24 -> counter 12, tall 30, tall 24
+    oven power point: (none) -> back-back-corner-landing-0
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"back","towerSide":"left","cornerType":"blind","fridgeEndAbuts":"wall","hasIsland":true,"islandOrientation":"perpendicular"}
+    walls [180,168] -> [180,168]
+    back leg from the corner: tall 30, tall 24, counter 24 -> counter 12, tall 30, tall 24
+    oven power point: (none) -> back-back-corner-landing-0
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"back","towerSide":"left","cornerType":"lazy-susan","fridgeEndAbuts":"cabinet","hasIsland":true,"islandOrientation":"parallel"}
+    walls [180,168] -> [180,168]
+    back leg from the corner: tall 30, tall 24, counter 21 -> counter 12, tall 30, tall 24
+    oven power point: (none) -> back-back-corner-landing-0
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"back","towerSide":"left","cornerType":"lazy-susan","fridgeEndAbuts":"cabinet","hasIsland":true,"islandOrientation":"perpendicular"}
+    walls [180,168] -> [180,168]
+    back leg from the corner: tall 30, tall 24, counter 21 -> counter 12, tall 30, tall 24
+    oven power point: (none) -> back-back-corner-landing-0
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"back","towerSide":"left","cornerType":"lazy-susan","fridgeEndAbuts":"wall","hasIsland":true,"islandOrientation":"parallel"}
+    walls [180,168] -> [180,168]
+    back leg from the corner: tall 30, tall 24, counter 35.5 -> counter 12, tall 30, tall 24
+    oven power point: (none) -> back-back-corner-landing-0
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"back","towerSide":"left","cornerType":"lazy-susan","fridgeEndAbuts":"wall","hasIsland":true,"islandOrientation":"perpendicular"}
+    walls [180,168] -> [180,168]
+    back leg from the corner: tall 30, tall 24, counter 35.5 -> counter 12, tall 30, tall 24
+    oven power point: (none) -> back-back-corner-landing-0
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"back","towerSide":"right","cornerType":"blind","fridgeEndAbuts":"cabinet","hasIsland":true,"islandOrientation":"parallel"}
+    walls [180,168] -> [180,168]
+    back leg from the corner: tall 30, tall 24, counter 27 -> counter 12, tall 30, tall 24
+    oven power point: (none) -> back-back-corner-landing-0
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"back","towerSide":"right","cornerType":"blind","fridgeEndAbuts":"cabinet","hasIsland":true,"islandOrientation":"perpendicular"}
+    walls [180,168] -> [180,168]
+    back leg from the corner: tall 30, tall 24, counter 27 -> counter 12, tall 30, tall 24
+    oven power point: (none) -> back-back-corner-landing-0
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"back","towerSide":"right","cornerType":"blind","fridgeEndAbuts":"wall","hasIsland":true,"islandOrientation":"parallel"}
+    walls [180,168] -> [180,168]
+    back leg from the corner: tall 30, tall 24, counter 24 -> counter 12, tall 30, tall 24
+    oven power point: (none) -> back-back-corner-landing-0
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"back","towerSide":"right","cornerType":"blind","fridgeEndAbuts":"wall","hasIsland":true,"islandOrientation":"perpendicular"}
+    walls [180,168] -> [180,168]
+    back leg from the corner: tall 30, tall 24, counter 24 -> counter 12, tall 30, tall 24
+    oven power point: (none) -> back-back-corner-landing-0
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"back","towerSide":"right","cornerType":"lazy-susan","fridgeEndAbuts":"cabinet","hasIsland":true,"islandOrientation":"parallel"}
+    walls [180,168] -> [180,168]
+    back leg from the corner: tall 30, tall 24, counter 21 -> counter 12, tall 30, tall 24
+    oven power point: (none) -> back-back-corner-landing-0
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"back","towerSide":"right","cornerType":"lazy-susan","fridgeEndAbuts":"cabinet","hasIsland":true,"islandOrientation":"perpendicular"}
+    walls [180,168] -> [180,168]
+    back leg from the corner: tall 30, tall 24, counter 21 -> counter 12, tall 30, tall 24
+    oven power point: (none) -> back-back-corner-landing-0
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"back","towerSide":"right","cornerType":"lazy-susan","fridgeEndAbuts":"wall","hasIsland":true,"islandOrientation":"parallel"}
+    walls [180,168] -> [180,168]
+    back leg from the corner: tall 30, tall 24, counter 35.5 -> counter 12, tall 30, tall 24
+    oven power point: (none) -> back-back-corner-landing-0
+E {"sinkLeg":"left","fridgeEnd":"back","coffeeLeg":"back","towerSide":"right","cornerType":"lazy-susan","fridgeEndAbuts":"wall","hasIsland":true,"islandOrientation":"perpendicular"}
+    walls [180,168] -> [180,168]
+    back leg from the corner: tall 30, tall 24, counter 35.5 -> counter 12, tall 30, tall 24
+    oven power point: (none) -> back-back-corner-landing-0
