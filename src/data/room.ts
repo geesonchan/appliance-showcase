@@ -213,10 +213,11 @@ export function segmentForSlot(slotId: SlotId): RunSegment | undefined {
  * U's is its right wall, 4' from the open end. Data only in
  * U-1: the utility layer is wired to it in U-2.
  *
- * Found 2026-11-11: the utility layer draws the L's entry 4 INCHES from the
+ * Found 2026-11-11: the utility layer drew the L's entry 4 INCHES from the
  * back wall's far end (`ROOM.halfX - ft(4)`, `ft` taking inches), where its
- * comment and the U's plan said four feet. Not changed (U-1 changes nothing on
- * the page); Leo decides (Open items, "The services' entry: 4" or 4'").
+ * comment and the U's plan said four feet. Item 12 (Leo, 2026-11-14): the L and
+ * one wall use this rule too, 48" — the back run, which reaches the back wall's
+ * far end in every L and one-wall room built (serviceEntry48.test.ts).
  */
 export const SERVICE_ENTRY_FROM_END_IN = 48;
 export function serviceEntry(runs: CabinetRun[] = RUNS): { run: RunId; along: number } {

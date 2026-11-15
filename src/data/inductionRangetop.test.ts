@@ -302,9 +302,10 @@ describe("the height it cooks at", () => {
     for (const lang of ["zh", "en"] as const) {
       expect(translate(lang, over.noteKey!, over.noteVars), lang).not.toMatch(/燃气|煤气|gas/i);
     }
+    // B's hood is VCIN36GWS, whose manual calls its 40" a suggested maximum (item 12; Leo, 2026-11-14).
     expect([translate("zh", over.noteKey!, over.noteVars), translate("en", over.noteKey!, over.noteVars)]).toEqual([
-      "最小 30，最大 40",
-      "min 30, max 40",
+      "最小 30，建议最大 40",
+      "min 30, recommended max 40",
     ]);
   });
 

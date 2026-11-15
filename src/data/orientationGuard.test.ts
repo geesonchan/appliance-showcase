@@ -198,8 +198,7 @@ const ROOM_SIZE_ALLOWED: Record<string, { hits: number; why: string }> = {
   "src/three/KitchenShell.tsx": { hits: 6, why: "the walls and the floor themselves" },
   "src/three/Lights.tsx": { hits: 2, why: "where a window's sun stands outside the room" },
   "src/three/WindowLayer.tsx": { hits: 2, why: "the plane a window is cut in" },
-  // Moved from UtilityLayer.tsx with the entry in U-2 (2026-11-11), the L's own figure unchanged.
-  "src/data/serviceRoute.ts": { hits: 1, why: "serviceEntryPoint: how far along the L's back wall the meter is" },
+  // serviceRoute.ts no longer reads it (item 12, 2026-11-14): every shape's entry is serviceEntry()'s, along a run.
   "src/ui/LeftPanel.tsx": { hits: 2, why: "the room's size, written out for the reader" },
   "src/ui/PlanThumbnail.tsx": { hits: 4, why: "the plan's own extents and origin" },
 };

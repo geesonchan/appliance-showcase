@@ -185,12 +185,15 @@ describe("U-2 (6): the services come in on the right wall, 48\" from its open en
     expect([turns("slot-range"), turns("slot-dishwasher"), turns("slot-fridge")]).toEqual([0, 1, 2]);
   });
 
-  // Leo, 2026-11-11: 「L 型线上画的是 4 英寸……保持登记，等 U 型做完单独修一轮，这一轮不动」.
-  it("leaves the L's where it is drawn today: the back wall, 4\" from its far end (registered)", () => {
+  // Item 12 (Leo, 2026-11-14: 「L 型、一字型改到 48″，照做」「写法用乙，三种房型共用 serviceEntry() 一条规则」):
+  // the L's by the U's rule — the back wall, 48" from its far end. Until then it was drawn 4" from it
+  // (Leo, 2026-11-11: 「L 型线上画的是 4 英寸……保持登记，等 U 型做完单独修一轮」). Every room: serviceEntry48.test.ts.
+  it("puts the L's on its back wall, 48\" from its far end, by the same rule", () => {
     freshPage();
     const back = wallBehind(room.RUN_BY_ID.back.facing);
     const at = any(serviceRoute).serviceEntryPoint(0.25);
-    expect([at.x, at.z]).toEqual([ROOM.halfX - ft(4), back.at + room.RUN_BY_ID.back.facing.sign * 0.25]);
+    expect([at.x, at.z]).toEqual([ROOM.halfX - ft(48), back.at + room.RUN_BY_ID.back.facing.sign * 0.25]);
+    expect(room.serviceEntry()).toEqual({ run: "back", along: ROOM.halfX - ft(48) });
   });
 });
 

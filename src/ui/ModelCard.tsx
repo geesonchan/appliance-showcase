@@ -108,7 +108,7 @@ export function ModelCard() {
             // A phone lays the models side by side; a desktop one under another,
             // each the card's width (round 88).
             phone
-              ? "flex h-full w-[168px] flex-col items-stretch rounded-md border px-2.5 py-2 text-left transition-colors"
+              ? "flex h-full w-[228px] flex-col items-stretch rounded-md border px-2.5 py-2 text-left transition-colors"
               : "flex w-full flex-col items-stretch rounded-md border px-2.5 py-2 text-left transition-colors",
             selected
               ? "border-accent bg-[rgba(46,92,69,0.07)]"
@@ -119,15 +119,21 @@ export function ModelCard() {
         >
           {phone ? (
             <>
-              <span className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[12px] text-ink">
-                <span data-alt-title className="min-w-0">{alternativeTitle(appliance, t)}</span>
+              {/* As the desktop card's (乙), on cells 228px wide (丁): the title on one line at 11px,
+                  "Specified" at the right of the second line, so the card is as tall as it was
+                  before the main title (item 12; Leo, 2026-11-14: 「手机卡片：照丁的原型做」,
+                  「目标是和主标题之前一样高」). Every title fits a cell (tests/phoneCard.test.ts). */}
+              <span data-alt-title className="block whitespace-nowrap text-[11px] leading-[18px] text-ink">
+                {alternativeTitle(appliance, t)}
+              </span>
+              <span className="mt-0.5 flex items-center gap-1.5">
+                <ModelLine className="min-w-0 flex-1 text-[11px] text-ink-muted" brand={appliance.brand} model={appliance.model} />
                 {selected && (
-                  <span className="shrink-0 rounded-full bg-accent px-1.5 py-px text-[9px] font-medium text-[#F7F5EF]">
+                  <span className="shrink-0 rounded-full bg-accent px-1.5 py-px text-[9px] font-medium leading-[12px] text-[#F7F5EF]">
                     {t("swap.selected")}
                   </span>
                 )}
               </span>
-              <ModelLine className="mt-0.5 text-[11px] text-ink-muted" brand={appliance.brand} model={appliance.model} />
             </>
           ) : (
             <>

@@ -81,16 +81,18 @@ describe("E on one wall, as it opens", () => {
   });
 });
 
+// Item 12 (Leo, 2026-11-14): 「建议最大」 where the manual calls its maximum recommended or suggested, and
+// the microwave 「店里做法」 with no figure (「微波炉式的叫法统一成：店里做法，不带 24″」).
 describe("E on one wall, with each of its hoods", () => {
   const CASES: [string, number, number, Record<string, string>][] = [
     ["HMCB36WS", 66.5, 30.25, { en: "min 30, gas or induction", zh: "最小 30，燃气与电磁相同" }],
     ["HMCB30WS", 66.5, 30.25, { en: "min 30, gas or induction", zh: "最小 30，燃气与电磁相同" }],
-    ["AK7136BS-BF", 66.25, 30, { en: "min 24, max 32", zh: "最小 24，最大 32" }],
-    ["AK7300AS", 66.25, 30, { en: "min 24, max 34", zh: "最小 24，最大 34" }],
-    ["VCIN36GWS", 66.25, 30, { en: "min 30, max 40", zh: "最小 30，最大 40" }],
+    ["AK7136BS-BF", 66.25, 30, { en: "min 24, recommended max 32", zh: "最小 24，建议最大 32" }],
+    ["AK7300AS", 66.25, 30, { en: "min 24, recommended max 34", zh: "最小 24，建议最大 34" }],
+    ["VCIN36GWS", 66.25, 30, { en: "min 30, recommended max 40", zh: "最小 30，建议最大 40" }],
     ["HMWB361WS", 66.25, 30, { en: "min 30, gas or induction", zh: "最小 30，燃气与电磁相同" }],
-    ["PH36HWS", 66.25, 30, { en: "min 30, max 40", zh: "最小 30，最大 40" }],
-    ["JVM3160RFSS", 60.25, 24, { en: 'shop practice 24"', zh: '店里做法 24"' }],
+    ["PH36HWS", 66.25, 30, { en: "min 30, recommended max 40", zh: "最小 30，建议最大 40" }],
+    ["JVM3160RFSS", 60.25, 24, { en: "shop practice", zh: "店里做法" }],
   ];
 
   it.each(CASES)('%s hangs at %f", %f" over the glass, and its note is its own', (model, under, gap, note) => {
@@ -228,11 +230,11 @@ describe("the shop's installation distance, and each hood's manual (Leo, 2026-11
   });
 
   it("would catch a hood whose manual asks for more than the shop gives", () => {
-    expect(outsideItsManual("FAKE32", 30, { minIn: 32, maxIn: null, read: "a false one" })).toHaveLength(1);
+    expect(outsideItsManual("FAKE32", 30, { minIn: 32, maxIn: null, maxRecommended: false, sameOverGasAndInduction: null, read: "a false one" })).toHaveLength(1);
   });
 
   it("would catch a hood whose manual allows less than the shop gives", () => {
-    expect(outsideItsManual("FAKE28", 30, { minIn: 24, maxIn: 28, read: "a false one" })).toHaveLength(1);
+    expect(outsideItsManual("FAKE28", 30, { minIn: 24, maxIn: 28, maxRecommended: false, sameOverGasAndInduction: null, read: "a false one" })).toHaveLength(1);
   });
 
   it("would catch a hood with no manual row", () => {

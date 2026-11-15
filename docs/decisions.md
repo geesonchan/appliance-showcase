@@ -12247,13 +12247,74 @@ Registered, not scheduled. None of these is a round of its own.
           Registered as a small item of its own: MEM301WS's power point's provenance (the guide,
           p. 25) waits for Leo's review; once he has reviewed it, every room's callout changes
           together, in a separate small item (Leo: 「审过以后所有房间一起改，另开一小项」). Not started.
+      - **Leo's look at the preview, 2026-11-14** (「第 11 项预览看过了（index-C57SMuVt.js），可以提交」).
+        **Shipped: `b139163`** (12:39:44-12:39:52). The full suite not run again: nothing under `src/`,
+        `tests/` or `data/` changed after its start at 00:37:34 (the newest file there 20:49:06 the day
+        before), checked before committing. CI's commands in a clean worktree of the commit, its own
+        `npm ci`: `npm ci` 12:40:10-12:40:18, `npm run test:unit` 12:40:18-12:41:00 (143 files, 4,056),
+        `npm run build` 12:41:01-12:41:14, each exit 0. Pushed 12:41:25-12:41:29. Pages run 43638827096:
+        build 12:41:34-12:42:51 and deploy 12:42:56-12:43:09, each a success. The build at `b139163`
+        with the counter's address (12:43:31-12:43:44, exit 0): twenty of twenty files the same byte for
+        byte as live, each 200, with their headers recorded; the live main chunk
+        `assets/index-DOo7lD4Y.js`. Against `7200b1e`'s build with the counter: only the main chunk
+        and `index.html` (the chunk's name) differ, the other 18 files the same.
   12. **6, 10, 11 and 8**: the L's service entry 4" against its note's four feet; the Zephyr
       hoods' "gas min 30, max 40"; HMCB36WS's heat warning and its guide against its sheet;
       the phone card 18–20 px taller at 390;
+      - **Not all of it done: its third point, 11 (HMCB36WS's total height by the guide,
+        32-1/16"–53-3/8", against the sheet's 30"–42"), was not built and waits with item 14 for
+        Leo's word** (Leo, 2026-11-15: 「第 12 项第 3 条（HMCB36WS 的总高）没做，在 decisions.md 里写明它和第 14 项
+        一起等我定，别让顺序那一处看起来像第 12 项全做完了」). The 1st, 2nd and 4th points (6, 10, 8) are
+        what this item's commit carries; the page shows the sheet's 30"–42" still.
       - **Plan written 2026-11-14, nothing built** (Leo, 2026-11-14: 「写第 12 项的计划，只写计划，不改主文件夹的页面代码」):
         `docs/plans/item12-plan.md`, with the prototypes' shots in `docs/plans/item12-2026-11-14/`
         (the prototypes themselves in the scratchpad, `proto12`, never merged). Each of the four with
         its questions for Leo; 10 (the Zephyrs' words) as questions only, beside item 14's 9.
+      - **Leo's answers to the first draft, 2026-11-14** (「第 12 项的计划看过了。先不动手，照下面的答复把计划改成
+        第二稿，并开原型预览给我看」); the second draft is `docs/plans/item12-plan.md` (the first kept as
+        `item12-plan-draft1.md`), its prototype `proto12b` from `b139163`, previewed on 4182:
+        - **6, the entry**: the L and one wall to 48" (「照做」), by one rule for all three shapes,
+          `serviceEntry()` (「写法用乙」), the meter box with it; a test that all 538 L rooms and 108
+          one-wall rooms of the dumps get the back wall, 48" from its far end.
+        - **10, the words**: by his rules of 2026-11-08 (「读到什么写什么」; the shop's figure and a manual's
+          apart), A–D as E on one wall, each hood's manual: AK7136BS-BF min 24, max 32; AK7300AS min 24,
+          max 34 (the guide first); HMCB30WS, HMCB36WS, HMWB361WS min 30 only; the hood's height
+          unchanged (30" and 24"). Whether "recommended" (建议) is said: the sentences side by side
+          first; no new sentence into `reviewed.json` before his word. C's default room changes
+          (「燃气最小 30，最大 40」 to 「最小 30，燃气与电磁相同」).
+        - **11, HMCB36WS**: the page unchanged this round. The weight recorded above; the heat notice
+          registered, not added (as 2026-11-08); the guide's total height 32-1/16"–53-3/8" prototyped with
+          HMCB30WS, shot in C's, E's one-wall, B's and D's rooms, to be decided with item 14.
+        - **8, the phone card**: the aim is the height before the main title; 丁 (one-line title,
+          `Specified` on the second line, 228 px cells) to be tried in the preview before he decides.
+      - **Corrected in the second draft**: the first said A–D each offer 8 hoods; C offers 3
+        (HMCB30WS, JVM3160RFSS, AK7300AS), the other 5 being 36" against its 30" opening — the first
+        draft's script did not build each package's own opening. Read off the page 2026-11-14.
+      - **Found while writing the second draft, registered, not changed**: a link to C naming a 36" hood
+        (`hood=PH36HWS`) gets C's own HMCB30WS; whether the page tells the visitor was not checked. A–D's
+        over-the-range microwave is labelled 「店内做法」, E on one wall's 「店里做法 24″」 — two wordings.
+      - **Second draft confirmed; 6, 10 and 8 built 2026-11-14, not committed** (Leo: 「第 12 项第二稿确认，
+        第 1、2、4 条可以动手，做到本地预览为止，不提交。第 3 条这一轮不改页面」; his fill-ins 「手机卡片：照丁的原型做」,
+        「微波炉式的叫法统一成：店里做法，不带 24″」). The record: `docs/plans/item12-progress-2026-11-14.md`.
+        - 6: `serviceEntryPoint` by `serviceEntry()` for every shape; the L's and one wall's entry and
+          meter box 48" from the back wall's far end.
+        - 10: A–D by `manualNote`, as E on one wall. `HOOD_MANUALS` gains `maxRecommended` (VCIN36GWS,
+          AK7136BS-BF, AK7300AS) and `sameOverGasAndInduction` (HMCB30WS, HMCB36WS, HMWB361WS,
+          HMIB42WS: pp. 9 and 13, or 9, checked 2026-11-14 off the pages' words). New sentence
+          `dimension.clearanceRangeRecommended` 「最小 {min}，建议最大 {max}」 / "min {min}, recommended max
+          {max}", in `reviewed.json` as Leo approved it that day. `dimension.shopPractice`'s Chinese
+          「店内做法」 → 「店里做法」 (its `reviewed.json` entry changed with his word); E on one wall's
+          microwave says it too, and `dimension.shopPracticeFigure` went, unused. C's own room:
+          「燃气最小 30，最大 40」 → 「最小 30，燃气与电磁相同」. The line's figures and the hoods' heights unchanged
+          (the three dumps differ only in that line's note).
+        - 8: 丁 — the phone card's title on one line at 11px, `Specified` on the second line, cells
+          228px; English cards as tall as before the main title (a2a8646) in 65 of the 72 states measured,
+          7 (A's, B's, C's, D's range, B's and E's combination oven, D's oven) 16.5px shorter.
+        - **For Leo, not changed past his word**: PH36HWS's guide calls its 40" a "suggested maximum" on
+          its printed p. 6, file p. 10 (a plain "maximum" on printed p. 11, file p. 15), so by his rule it would say 建议 too — written plainly,
+          as he said; the second draft's "PH36HWS 没写建议" was my error. `dimension.clearanceRange` is
+          still used by the chain's no-hood fallback, which the page never reaches, so it stays. The
+          7 shorter phone cards. The two existing sentences listed for his review, not marked reviewed.
       - **Found while writing it, registered, not changed**:
         - The phone card is taller than before the main title in nearly every English state, not
           only the two registered (17.5–19.5 px; 37.5 px for E's freezer), the `Specified` badge
@@ -12267,6 +12328,114 @@ Registered, not scheduled. None of these is a round of its own.
         - HMCB36WS's weight, recorded here only (Leo, 2026-11-14: 「重量两个数只记进 decisions.md」): the
           sheet (`hmcb36ws-spec.pdf` p. 1) 69 lb; the guide (p. 9, "Unit Weight") 53.3 lb (24.2 kg) for
           the 36", which it says covers only the ventilation unit and blower. The page shows no weight.
+      - **Leo's answers to the build, 2026-11-14 evening** (「第 12 项的报告看过了」), built that night,
+        not committed; the record `docs/plans/item12-progress-2026-11-14.md` section 13 and
+        `docs/plans/overnight-2026-11-15.md`:
+        - **PH36HWS says 建议**: 「用「最小 30，建议最大 40」。出处写安装指南印刷页码第 6 页（文件第 10 页）
+          "suggested maximum height of 40''"」. `HOOD_MANUALS.PH36HWS.maxRecommended` true. A's own room
+          changes: 「最小 30，最大 40」 → 「最小 30，建议最大 40」 (with b139163's 「燃气最小 30，最大 40」 before
+          that), and every room whose hood is PH36HWS (one swap room each in B, D and E in the dumps).
+          No hood now reaches 「最小 {min}，最大 {max}」 through its manual.
+        - **The 7 shorter phone cards accepted** (「接受。测试里保留量到的确切数，旁边写明原因和我这句话」):
+          `tests/phoneCard.test.ts`'s `SHORTER`, with the reason and his words beside it.
+        - **`dimension.clearanceRange` removed** (「拿掉，后备分支改用「最小 {min}，最大 {max}」」): the
+          chain's no-hood fallback says `dimension.clearanceRangeCooktop`; 「燃气最小」 is gone from the
+          page's dictionaries.
+        - **The two existing sentences reviewed** (「同意，进 reviewed.json，写明是我 2026-11-14 看过的」):
+          `dimension.clearanceRangeCooktop` 「最小 {min}，最大 {max}」 / "min {min}, max {max}" and
+          `dimension.clearanceMinIsland` 「最小 {min}，燃气与电磁相同」 / "min {min}, gas or induction".
+        - **Page numbers** (「印刷页码和文件页码不一样的，两种都写。这一轮先把第 12 项碰到的几本改了，别的
+          登记」): of the nine manuals in `HOOD_MANUALS`, read page by page with `pdftotext`, only
+          PH36HWS's guide (8001213268_A) prints other numbers than its file's: printed 6 is file 10,
+          printed 11 file 15 (file = printed + 4 throughout). Written both ways in `HOOD_MANUALS` and
+          here (the 2026-11-08 entry above, and the second draft's note). **My error, corrected**: the
+          afternoon's record put printed p. 6 at "PDF p. 8"; my own decoder walked that file's pages
+          wrongly, and Leo's p. 10 is right. Registered, not changed: the Zephyr guides (AK7136BS-BF,
+          AK7300AS, PRW24C01CG) and GE's JVM3160RFSS guide restart their printed numbers in their
+          French and Spanish halves (their English pages print the file's number); nothing here cites
+          those halves. The other documents in `docs/reference` print the file's number where they
+          print one.
+        - **The 18:00 sleeps were Leo's, not Windows'** (「电源设置是"从不"，以前是我手动让它睡的」).
+          The system log: all 37 sleeps from 2026-10-16 to 2026-11-14 (21 between 17:57 and 18:17, the rest mornings
+          and one past midnight) are Kernel-Power 187 with `winlogon.exe` as the caller, then 42
+          "Application API", with Winlogon 7002 (User Logoff Notification) 0–3 s before the 187 — what
+          choosing Sleep produces.
+          Nothing in the log shows Windows putting it to sleep on a timer; the plan's AC sleep, hibernate
+          and screen-off are 0 (never). The report's 「被 Windows 自己弄睡」 was wrong.
+        - **The full suite on the final code is not a pass**: 23:38:45–01:17:49, exit 1, 193 files,
+          4,509 tests, 1 red, no sleep (no Kernel-Power, Power-Troubleshooter or Winlogon event
+          23:38–01:18). The red is `tests/cameraKeep.test.ts`, "another model on the card pulls the
+          camera back… package A's L, the dishwasher, on a phone by a finger": `backToTheRoom` false.
+          **Item 12's card caused it**: the case is red 3 of 3 on the final build and green 3 of 3 on
+          `b139163`. In 丁's 228px cells the second candidate starts at x 257 and its centre (x 371)
+          is past the card's visible edge; the test's finger taps the centre and lands on the card's
+          frame. A finger on the cell's visible part (x 313) selects the other model and the camera
+          goes back to the whole room (zoom 34.0 → 20.0). Not changed: the test (or the card) is past
+          the plan, and waits for Leo's word. Not rerun as a whole.
+        - **Leo's answer, 2026-11-15**: 「改测试，不改卡片。」「点另一个型号之前，先把那个格子横着滑进画面（人会这样做），
+          再点正中。」 `tests/swipeIntoRow.ts`: on a phone a model's cell is swiped into the card by a
+          finger (touch points moved a few pixels a frame through `Input.dispatchTouchEvent`; Chrome's
+          synthesized scroll gesture moved nothing) before its centre is tapped; `cameraKeep`'s
+          `press` calls it, the reason and his words beside it. The page unchanged. With the pull-back
+          broken on purpose (a `return;` in `CameraRig`), the file 09:57:21–09:58:34 exit 1, the four
+          pull-back cases red, the phone one among them, each only on `backToTheRoom`; restored, the
+          rebuilt `dist` identical to the night's (`index-CN3VkDjk.js`), the file 09:58:58–10:00:10
+          exit 0, 8 of 8. The eleven other files that tap a cell on a phone all scroll it in first by
+          `scrollIntoViewIfNeeded` (a script scroll, not a finger); not changed, past what he asked,
+          his to decide. **The full suite 10:05:03–11:44:21, exit 0, 193 files, 4,509 passed**; no
+          Kernel-Power, Power-Troubleshooter or Winlogon event 10:04–11:45. The pictures to commit:
+          26 files, 1,933,013 bytes, the plan's card and chimney sheets shrunk again (「两批合计压到 2 MB
+          以内，报总数」). Not committed (「等我看过全套测试的结果再说」).
+      - **Registered 2026-11-15: the phone card's sideways row and the tests that tap it** (Leo:
+        「另外 11 个文件的点按：保持现在用脚本滚进来，不换。登记一条：手机卡片的横向滑动以后再改时，这 11 个文件要一起看；
+        现在守着"手指滑"的是 cameraKeep 和 phoneCard」). The eleven, each scrolling a cell in by
+        `scrollIntoViewIfNeeded` before its centre is tapped, kept so: `chimney36`, `fridgeFront`,
+        `hoodKinds`, `hoodHousing`, `geometryReturn`, `overRange`, `rangeSwap`,
+        `fridgeSurround`, `shareLink`, `sideStrips`, `fadeRebuild`. When the row is changed
+        again, all eleven are looked at with it. A fact beside his sentence, not a change: of the two
+        he names, `cameraKeep` swipes by finger (`tests/swipeIntoRow.ts`); `phoneCard` taps the link
+        notice, the 家电 list's rows and the card's close (after `scrollIntoViewIfNeeded`) and reads every cell's title against its
+        width, but does not swipe the row.
+  12a. **The U's side legs: the strip between the uppers and the counter is the door colour, not
+      the wall's** *(registered 2026-11-15; numbered 12a so that 13 and 14 keep the numbers the
+      records use)*. Leo, 2026-11-15: 「U型的两边的上柜和countertop之间的颜色不是墙身的颜色」「最新版本也是一样的问题」
+      (seen on `7200b1e` and `b139163`); the back leg's same strip is the wall's colour. His order:
+      「登记进 decisions.md 的 Open items，顺序排在第 12 项之后、第 13 项之前」; 「这是要用眼睛判断的，轮到它时先写计划、
+      出原型和真实 3D 截图（从里面看和从外面看各一张），列出改法和你的倾向，等我定」. Registered only; nothing
+      changed.
+      - **The cause, read only** (the code, the U dump of 2026-11-14 night, one screenshot):
+        U-2's back boards. `legBackBoards` (`src/data/backBoards.ts`) gives each of a U's side legs
+        one 3/4" board against the face of its boxes away from the room, from the back wall to the
+        open end and **from the floor to the leg's tallest box** (the uppers and tall units
+        included, the stone left out), drawn in the leg's door finish (`BackBoards` in
+        `src/three/CabinetLayer.tsx`, `cabinetPaint(finishes, board.run)`). Leo asked for it on
+        2026-11-12 as the legs' backs seen from outside, where the walls are not drawn (「不画墙的那一侧，
+        柜子背面画成一整块板（柜门颜色，3/4" 厚，从地面到那段最高的柜顶，从后墙到开放端）」); its face toward
+        the room, in the gap between the counter and the uppers, is the same board, so from inside
+        that gap shows the door colour where a wall would be. The back leg stands against the back
+        wall and has no board, so its gap shows the wall.
+      - **Since**: `5d5da45` (U-2, 2026-11-12), the first build with the U on the page; neither
+        `backBoards.ts` nor `BackBoards` has changed since, so `1ea029b`, `7200b1e`, `b139163` and
+        item 12's uncommitted build all have it. `bdeedb5` (U-1, the U by a hand-edited link only)
+        had no board.
+      - **Where**: every package, both side legs. In each default U (A to E) each side leg holds
+        the BBC42 corner and at least one counter cabinet, and the board reaches the leg's highest
+        box over all of it: A's and C's left legs (corner, B12, two RO24, B15, then the tall unit),
+        B's, D's and E's left legs only their first 42" + 15" or 27" of counter before the tall
+        units; every right leg its whole counter (A: DB21, DB18, the range, B36; B: B15, the
+        cooking surface's B36, DB18; D: B15, B36, B15, RO24, B15; E: B15, B36, B24 — B's, D's and
+        E's then the T3096; C: B24, DB21, the range, two DB21). The
+        cooking surface is on the right leg in all five, so the board stands behind its hood too.
+      - **Which views**: from inside — the U's own view (straight in front, 50° down) and any turn
+        that looks along a side leg's counter — the gap is door colour; from outside, the board's
+        back is what was asked for. In install mode the board is ghosted on a desktop and not drawn
+        on a phone; in the white model all finishes are pale. Those three not checked by eye.
+      - **Checked by eye only once**: package A's U at its own view on the final build (1440 × 900,
+        2026-11-15 10:01, before the full suite; no browser opened while it ran). From that height
+        the gaps are thin and the picture does not settle it; the inside and outside shots are the
+        plan's.
+      - **When its turn comes**: a plan, a throwaway prototype, real 3D shots from inside and from
+        outside, the ways to change it and my leaning; Leo decides.
   13. **13**: tapping the package, layout or hood already chosen rebuilds the whole room;
   14. **9 and 7 wait for his rules first**: a professional range under B's, C's and D's hood
       (whether the hood follows the cooking surface chosen; D13), and E's L coffee tower beside
@@ -12501,7 +12670,7 @@ Registered, not scheduled. None of these is a round of its own.
       32" recommended; AK7300AS, Zephyr Tidal I guide SEP26.0801 p. 10, at
       least 24", at most 34" recommended; VCIN36GWS p. 8, 30" to a suggested
       40"; HMWB361WS, 9001396692_B pp. 9, 13, at least 30", gas or induction,
-      no maximum; PH36HWS, 8001213268_A pp. 6, 11, 30" to 40". **Two are not
+      no maximum; PH36HWS, 8001213268_A printed pp. 6, 11 (file pp. 10, 15), 30" to 40". **Two are not
       30", so nothing is built**; the plan's section 3a holds the question
       for him.
     - **His answer, 2026-11-08.** 「两台 Zephyr 照你的建议：仍挂 66-1/4"（离玻璃面

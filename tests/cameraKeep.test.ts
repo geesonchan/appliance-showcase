@@ -3,6 +3,7 @@ import { type Browser, type Page } from "playwright";
 import { PREVIEW_URL } from "./globalSetup";
 import { openWatched } from "../scripts/pageWatch.mjs";
 import { launchBrowser } from "./siteBrowser";
+import { swipeIntoRow } from "./swipeIntoRow";
 
 /**
  * Two things the camera does by the user's hand, in every shape (Leo,
@@ -77,6 +78,11 @@ async function open(phone: boolean, query: string): Promise<Session> {
 }
 
 async function press(s: Session, locator: ReturnType<Page["locator"]>, wait = 1800) {
+  // On a phone a model's cell is swiped into the card first, then tapped at its centre:
+  // since item 12's 丁 (cells 228px wide) the second cell stands half outside the card and
+  // its centre is the card's frame. Leo, 2026-11-15: 「点另一个型号之前，先把那个格子横着滑进
+  // 画面（人会这样做），再点正中。」 The whole why in tests/swipeIntoRow.ts.
+  if (s.phone) await swipeIntoRow(s.page, locator);
   const box = (await locator.boundingBox())!;
   const [x, y] = [box.x + box.width / 2, box.y + box.height / 2];
   if (s.phone) await s.page.touchscreen.tap(x, y);

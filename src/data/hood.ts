@@ -340,8 +340,9 @@ export const ISLAND_HOOD = {
  * What each hood's own manual says about its underside over the cooking
  * surface. Leo, 2026-11-08: 「说明书的最小、最大值单独记，作为核对用的范围」: not part of
  * the rule that hangs a hood (`hoodUndersideIn`, the shop's installation
- * distance), and not where the shop hangs it. It words the note beside E's line
- * on one wall, and a test holds the shop's distance inside it.
+ * distance), and not where the shop hangs it. It words the note beside the line
+ * in every package (E on one wall since 2026-11-08, A to D since item 12), and a
+ * test holds the shop's distance inside it.
  *
  * Null where the manual gives no such figure. JVM3160RFSS's sets none for its
  * underside (`hoodMount.ts`, round 97), so there is nothing to check it against.
@@ -349,20 +350,93 @@ export const ISLAND_HOOD = {
 export interface HoodManual {
   minIn: number | null;
   maxIn: number | null;
+  /**
+   * Whether the line says its maximum is a recommendation, 「建议最大」 / "recommended max" (Leo,
+   * 2026-11-14: the ones whose manual calls it recommended or suggested). PH36HWS's too, by his
+   * second word that day (「PH36HWS 带"建议"：用「最小 30，建议最大 40」」): its guide calls the 40" a
+   * "suggested maximum" on printed p. 6 (file p. 10), a plain "maximum" on printed p. 11 (file
+   * p. 15). Where a document's printed page and its file page differ, both are written (Leo,
+   * 2026-11-14: 「印刷页码和文件页码不一样的，两种都写」); in the other eight they are the same.
+   */
+  maxRecommended: boolean;
+  /**
+   * Where the manual gives no maximum: the pages that set the same minimum over gas and over
+   * electric or induction, which is what 「燃气与电磁相同」 says (Leo, 2026-11-14: 「用之前逐台核对一遍
+   * …页码写进数据」). Read 2026-11-14 off the pages' own words. Null where there is a maximum, or
+   * no figure at all.
+   */
+  sameOverGasAndInduction: string | null;
   /** The document in docs/reference, and the pages it says so on. */
   read: string;
 }
 
+const GAS_AND_INDUCTION =
+  "\"For gas cooktop & range installations: Mount the hood so the bottom is at least 30\" … For electric/induction cooktop & range installations: … at least 30\"\"";
+
 export const HOOD_MANUALS: Record<string, HoodManual> = {
-  HMCB36WS: { minIn: 30, maxIn: null, read: "hmcb36ws-install.pdf pp. 9, 13; gas, electric and induction alike; no maximum" },
-  HMCB30WS: { minIn: 30, maxIn: null, read: "hmcb36ws-install.pdf pp. 9, 13; the same guide; no maximum" },
-  HMIB42WS: { minIn: 30, maxIn: null, read: "HMIB42WS_Installation.pdf p. 9; gas and electric or induction alike; no maximum" },
-  HMWB361WS: { minIn: 30, maxIn: null, read: "hmwb361ws-install.pdf pp. 9, 13; gas and electric or induction alike; no maximum" },
-  PH36HWS: { minIn: 30, maxIn: 40, read: "ph36hws-install.pdf pp. 6, 11" },
-  VCIN36GWS: { minIn: 30, maxIn: 40, read: "vcin36gws-manual.pdf p. 8, a suggested maximum; p. 6 the minimum" },
-  "AK7136BS-BF": { minIn: 24, maxIn: 32, read: "ak7136bs-bf-install.pdf p. 13, a recommended maximum" },
-  AK7300AS: { minIn: 24, maxIn: 34, read: "ak7300as-install.pdf p. 10, a recommended maximum" },
-  JVM3160RFSS: { minIn: null, maxIn: null, read: "jvm3160rfss-install.pdf p. 6 gives no figure for the underside" },
+  HMCB36WS: {
+    minIn: 30,
+    maxIn: null,
+    maxRecommended: false,
+    sameOverGasAndInduction: `hmcb36ws-install.pdf pp. 9 and 13: ${GAS_AND_INDUCTION}`,
+    read: "hmcb36ws-install.pdf pp. 9, 13; gas, electric and induction alike; no maximum",
+  },
+  HMCB30WS: {
+    minIn: 30,
+    maxIn: null,
+    maxRecommended: false,
+    sameOverGasAndInduction: `hmcb36ws-install.pdf (HMCB30WS and HMCB36WS) pp. 9 and 13: ${GAS_AND_INDUCTION}`,
+    read: "hmcb36ws-install.pdf pp. 9, 13; the same guide; no maximum",
+  },
+  HMIB42WS: {
+    minIn: 30,
+    maxIn: null,
+    maxRecommended: false,
+    sameOverGasAndInduction: `HMIB42WS_Installation.pdf p. 9: ${GAS_AND_INDUCTION}`,
+    read: "HMIB42WS_Installation.pdf p. 9; gas and electric or induction alike; no maximum",
+  },
+  HMWB361WS: {
+    minIn: 30,
+    maxIn: null,
+    maxRecommended: false,
+    sameOverGasAndInduction: `hmwb361ws-install.pdf pp. 9 and 13: ${GAS_AND_INDUCTION}`,
+    read: "hmwb361ws-install.pdf pp. 9, 13; gas and electric or induction alike; no maximum",
+  },
+  PH36HWS: {
+    minIn: 30,
+    maxIn: 40,
+    maxRecommended: true,
+    sameOverGasAndInduction: null,
+    read: "ph36hws-install.pdf printed p. 6 (file p. 10), \"to a suggested maximum height of 40\"\"; printed p. 11 (file p. 15), \"to a maximum height of 40\"\"",
+  },
+  VCIN36GWS: {
+    minIn: 30,
+    maxIn: 40,
+    maxRecommended: true,
+    sameOverGasAndInduction: null,
+    read: "vcin36gws-manual.pdf p. 8, \"to a suggested maximum height of 40\"\"; p. 6 the minimum",
+  },
+  "AK7136BS-BF": {
+    minIn: 24,
+    maxIn: 32,
+    maxRecommended: true,
+    sameOverGasAndInduction: null,
+    read: "ak7136bs-bf-install.pdf p. 13, \"Maximum recommended mount height should be no higher than 32\"\"",
+  },
+  AK7300AS: {
+    minIn: 24,
+    maxIn: 34,
+    maxRecommended: true,
+    sameOverGasAndInduction: null,
+    read: "ak7300as-install.pdf p. 10, \"Maximum recommended mount height should be no higher than 34\"\"",
+  },
+  JVM3160RFSS: {
+    minIn: null,
+    maxIn: null,
+    maxRecommended: false,
+    sameOverGasAndInduction: null,
+    read: "jvm3160rfss-install.pdf p. 6 gives no figure for the underside",
+  },
 };
 
 /** What is wrong with hanging this hood `shopIn` over the surface, by its manual; empty if nothing. */
@@ -374,19 +448,26 @@ export function outsideItsManual(model: string, shopIn: number, manual: HoodManu
 }
 
 /**
- * The note beside the line from a cooktop to the hood chosen: what that hood's
- * manual says. Leo, 2026-11-08: 「读到什么写什么」, D21. A microwave's 24" is the
- * shop's practice, and says so.
+ * The note beside the line from the cooking surface to the hood chosen: what that hood's manual
+ * says (Leo, 2026-11-08: 「读到什么写什么」, D21) — on E's one wall since then, and in A to D since
+ * item 12 (Leo, 2026-11-14: 「A 到 D 和 E 一字型一样，按选中那台的说明书写」):
+ *  - a maximum the manual calls recommended or suggested: 「最小 {min}，建议最大 {max}」;
+ *  - a maximum it states, with no such word: 「最小 {min}，最大 {max}」 (none of today's hoods);
+ *  - none, and the same minimum over gas and induction: 「最小 {min}，燃气与电磁相同」.
+ * An over-the-range microwave's 24" is the shop's practice and its manual gives none: 「店里做法」,
+ * no figure (Leo, 2026-11-14: 「微波炉式的叫法统一成：店里做法，不带 24″」).
  */
 export function manualNote(hood: Appliance): { noteKey: string; noteVars: Record<string, string | number> } {
-  if (hoodMount(hood) === "otr") {
-    return { noteKey: "dimension.shopPracticeFigure", noteVars: { figure: `${shopInstallDistanceIn("otr")}"` } };
-  }
+  if (hoodMount(hood) === "otr") return { noteKey: "dimension.shopPractice", noteVars: {} };
   const manual = HOOD_MANUALS[hood.model];
   const min = manual?.minIn ?? shopInstallDistanceIn(hoodMount(hood));
-  return manual?.maxIn
-    ? { noteKey: "dimension.clearanceRangeCooktop", noteVars: { min, max: manual.maxIn } }
-    : { noteKey: "dimension.clearanceMinIsland", noteVars: { min } };
+  if (manual?.maxIn) {
+    return {
+      noteKey: manual.maxRecommended ? "dimension.clearanceRangeRecommended" : "dimension.clearanceRangeCooktop",
+      noteVars: { min, max: manual.maxIn },
+    };
+  }
+  return { noteKey: "dimension.clearanceMinIsland", noteVars: { min } };
 }
 
 export interface IslandHoodParts {

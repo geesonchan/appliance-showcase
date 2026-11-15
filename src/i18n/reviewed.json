@@ -451,6 +451,21 @@
       "approval": "read",
       "reviewed": "Drafted by CC in the round-97 plan (section 7); Leo approved it unchanged (round 97, decisions.md D16)"
     },
+    "dimension.clearanceRangeCooktop": {
+      "text": "min {min}, max {max}",
+      "approval": "read",
+      "reviewed": "Leo reviewed it 2026-11-14 (item 12): 「两句现成的句子我看过了，同意，进 reviewed.json，写明是我 2026-11-14 看过的」 — for a hood whose manual states a maximum without calling it recommended, and the chain's fallback with no hood chosen"
+    },
+    "dimension.clearanceMinIsland": {
+      "text": "min {min}, gas or induction",
+      "approval": "read",
+      "reviewed": "Leo reviewed it 2026-11-14 (item 12): 「两句现成的句子我看过了，同意，进 reviewed.json，写明是我 2026-11-14 看过的」 — for a hood whose manual gives no maximum and the same minimum over gas and over electric or induction"
+    },
+    "dimension.clearanceRangeRecommended": {
+      "text": "min {min}, recommended max {max}",
+      "approval": "read",
+      "reviewed": "Leo approved it 2026-11-14 (item 12, the second draft's section 2.5): 「这两句我同意，可以进 reviewed.json，写明是我 2026-11-14 同意的」 — for the hoods whose manual calls the maximum recommended or suggested"
+    },
     "rule.ductSizeOtr": {
       "text": "{cfm} CFM; the duct is 3-1/4\" x 10\" rectangular, or 6\" round with a transition (GE installation instructions)",
       "approval": "read",
@@ -1339,9 +1354,24 @@
       "reviewed": "The phone sheet's first tab and its entry button, named as the desktop's list rail is (Leo, round 91); locked in round 91"
     },
     "dimension.shopPractice": {
-      "text": "店内做法",
+      "text": "店里做法",
       "approval": "read",
-      "reviewed": "Drafted by CC in the round-97 plan (section 7); Leo approved it unchanged (round 97, decisions.md D16)"
+      "reviewed": "Drafted by CC in the round-97 plan (section 7); Leo approved it unchanged (round 97, decisions.md D16). The Chinese changed from 「店内做法」 by Leo's word of 2026-11-14 (item 12): 「微波炉式的叫法统一成：店里做法，不带 24″」"
+    },
+    "dimension.clearanceRangeCooktop": {
+      "text": "最小 {min}，最大 {max}",
+      "approval": "read",
+      "reviewed": "Leo reviewed it 2026-11-14 (item 12): 「两句现成的句子我看过了，同意，进 reviewed.json，写明是我 2026-11-14 看过的」 — for a hood whose manual states a maximum without calling it recommended, and the chain's fallback with no hood chosen"
+    },
+    "dimension.clearanceMinIsland": {
+      "text": "最小 {min}，燃气与电磁相同",
+      "approval": "read",
+      "reviewed": "Leo reviewed it 2026-11-14 (item 12): 「两句现成的句子我看过了，同意，进 reviewed.json，写明是我 2026-11-14 看过的」 — for a hood whose manual gives no maximum and the same minimum over gas and over electric or induction"
+    },
+    "dimension.clearanceRangeRecommended": {
+      "text": "最小 {min}，建议最大 {max}",
+      "approval": "read",
+      "reviewed": "Leo approved it 2026-11-14 (item 12, the second draft's section 2.5): 「这两句我同意，可以进 reviewed.json，写明是我 2026-11-14 同意的」 — for the hoods whose manual calls the maximum recommended or suggested"
     },
     "rule.ductSizeOtr": {
       "text": "{cfm} CFM；风管用 3-1/4\" x 10\" 长方形，或经转接用 6\" 圆管（GE 安装说明）",

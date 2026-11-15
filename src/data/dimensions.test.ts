@@ -4,6 +4,8 @@ import { LAYOUT_LIMITS } from "./layoutRules";
 import { CABINET_STANDARDS, ISLAND, ROOM, RUN_BY_ID } from "./room";
 import { SLOT_BY_ID } from "./slots";
 import { FIXTURES } from "./testFixtures";
+import { APPLIANCE_BY_ID } from "./catalogue";
+import { HOOD_MANUALS } from "./hood";
 import type { Appliance, SlotId } from "../types";
 
 const inches = (feet: number) => feet * 12;
@@ -62,10 +64,25 @@ describe("the figures follow the model that is specified", () => {
     expect(shrunk.valueIn).toBeCloseTo(inches(SLOT_BY_ID["slot-hood"].position[1]) - 36.75, 3);
   });
 
-  it("prints the clearance the manufacturer allows beside it", () => {
-    expect(by("cooktop-to-canopy").noteVars).toEqual({
-      min: CABINET_STANDARDS.hood.aboveCooktopMinIn,
-      max: CABINET_STANDARDS.hood.aboveCooktopMaxIn,
+  // Item 12 (Leo, 2026-11-14: 「A 到 D 和 E 一字型一样，按选中那台的说明书写」): the hood's own manual,
+  // not the canopy drawing's 30"-40" for every hood. PH36HWS's guide: 30" to a suggested 40"
+  // (printed p. 6, file p. 10; Leo, 2026-11-14: 「PH36HWS 带"建议"」).
+  it("prints the clearance the chosen hood's own manual allows beside it", () => {
+    const ph36hws = Object.values(APPLIANCE_BY_ID).find((row) => row.model === "PH36HWS")!;
+    const line = by("cooktop-to-canopy", { "slot-hood": ph36hws });
+    expect({ key: line.noteKey, vars: line.noteVars }).toEqual({
+      key: "dimension.clearanceRangeRecommended",
+      vars: { min: HOOD_MANUALS.PH36HWS.minIn, max: HOOD_MANUALS.PH36HWS.maxIn },
+    });
+  });
+
+  // With no hood chosen (never on the page): the canopy drawing's 30"-40", worded
+  // 「最小 {min}，最大 {max}」, `dimension.clearanceRange`'s 「燃气最小」 gone (Leo, 2026-11-14).
+  it("words the no-hood fallback min and max, with no gas in it", () => {
+    const line = by("cooktop-to-canopy", { "slot-hood": undefined });
+    expect({ key: line.noteKey, vars: line.noteVars }).toEqual({
+      key: "dimension.clearanceRangeCooktop",
+      vars: { min: CABINET_STANDARDS.hood.aboveCooktopMinIn, max: CABINET_STANDARDS.hood.aboveCooktopMaxIn },
     });
   });
 

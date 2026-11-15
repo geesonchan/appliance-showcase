@@ -3,7 +3,6 @@ import { wallAnchor } from "./wallAnchor";
 import { facingOf, onAxis, otherAxis, type Facing } from "./frame";
 import { againstWall, wallBehind } from "./roomWalls";
 import { RUN_BY_ID, serviceEntry } from "./room";
-import { ROOM, ft } from "./roomShell";
 import { LEFT_WALL_FACING } from "./layoutShape";
 import type { ServicePoint } from "../types";
 
@@ -34,26 +33,19 @@ export function serviceRoute(slot: ServicePoint, standoff: number): ServiceRoute
 export { islandRiser };
 
 /**
- * Where the services come into the room, a standoff off the wall (U-2).
- *
- * The U's: on the cooking surface's wall, 48" back from its run's open end
- * (`serviceEntry`; Leo, 2026-11-11: 「管线进口：U 型用 4'（48"）」). The L's and one
- * wall's as the utility layer has drawn them since round 52: the back run's wall,
- * `ft(4)` — 4 inches — from the room's far end, the comment there saying four
- * feet. Registered, not changed (Open items, "The services' entry: 4" or 4'"; Leo:
- * 「保持登记，等 U 型做完单独修一轮」).
+ * Where the services come into the room, a standoff off the wall: every shape by one rule,
+ * `serviceEntry` — the cooking surface's run (the back run where it cooks in the island), 48"
+ * back from that run's far end. The U's right wall from its open end (U-2; Leo, 2026-11-11:
+ * 「管线进口：U 型用 4'（48"）」); the L's and one wall's back wall from its far end (item 12; Leo,
+ * 2026-11-14: 「L 型、一字型改到 48″，照做」「写法用乙，三种房型共用 serviceEntry() 一条规则」). Until
+ * item 12 the L and one wall drew it `ft(4)` — 4 inches — from that end, where the comment said
+ * four feet (since round 52). The meter box stands at the same point (`UtilityLayer.tsx`).
  */
 export function serviceEntryPoint(standoff: number): { x: number; z: number } {
-  if (RUN_BY_ID.right) {
-    const { run: id, along } = serviceEntry();
-    const run = RUN_BY_ID[id];
-    const wall = wallBehind(run.facing);
-    const [x, , z] = onAxis(otherAxis(wall.axis), along, wall.at + run.facing.sign * standoff);
-    return { x, z };
-  }
-  const run = RUN_BY_ID.back;
+  const { run: id, along } = serviceEntry();
+  const run = RUN_BY_ID[id];
   const wall = wallBehind(run.facing);
-  const [x, , z] = onAxis(otherAxis(wall.axis), ROOM.halfX - ft(4), wall.at + run.facing.sign * standoff);
+  const [x, , z] = onAxis(otherAxis(wall.axis), along, wall.at + run.facing.sign * standoff);
   return { x, z };
 }
 

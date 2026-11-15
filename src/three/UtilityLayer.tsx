@@ -215,8 +215,8 @@ function FloorService({
 }
 
 /**
- * Where every service enters: the L's back wall as drawn since round 52, the
- * U's right wall 48" from its open end (U-2) — `serviceEntryPoint`.
+ * Where every service enters, and the meter box with it: 48" back from the far end of the
+ * cooking surface's run, every shape (U-2; item 12) — `serviceEntryPoint`.
  */
 const entry = (standoff: number) => serviceEntryPoint(standoff);
 
