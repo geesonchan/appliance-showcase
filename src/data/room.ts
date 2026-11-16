@@ -19,7 +19,7 @@ import {
 import type { ResolvedWindow } from "./windows";
 import type { FixtureId, SlotId } from "../types";
 import type { RunId } from "./layoutShape";
-import { alongIsToTheRight, onAxis, sizeOnAxis } from "./frame";
+import { alongIsToTheRight, onAxis, rotationOf, sizeOnAxis } from "./frame";
 import { wallBehind } from "./roomWalls";
 import { isShareLink } from "./linkVersion";
 import { LAYOUT_FIELDS } from "./layoutFields";
@@ -78,6 +78,50 @@ export let FRIDGE_OPENING: readonly [number, number];
  * to its flanks on both sides. See docs/decisions.md D13.
  */
 export let HOOD_OPENING: readonly [number, number];
+
+/**
+ * The tile behind the cooking surface: on the run the range or cooktop stands
+ * on, against that run's wall (12a; Leo, 2026-11-15: 「瓷砖挪到炉头所在的那一段、炉头后面，
+ * 从台面到上柜底，和 L 型炉头后面的画法一样；后墙上那块不再画」).
+ *
+ * The rule is the L's, unchanged (Leo, 2026-11-15, 「按整格，和 L 型现在一样」): as
+ * wide as the cooking surface's whole segment, fillers and all — the stretch
+ * of wall the cabinets leave clear, not the machine's width or the hood's
+ * (`openingAlong`, cookingSurface.ts); from the countertop to the underside of
+ * the wall cabinets; half an inch off the run's back line, facing the way the
+ * run faces. Until 12a it was always put on the back run's wall, which in an L
+ * and on one wall is where the cooking surface is; in a U it is the right leg,
+ * and the tile stood on the back wall beside the window.
+ *
+ * Null where no run carries a cooking surface (the island's cooktop has none).
+ */
+export interface BacksplashPanel {
+  run: RunId;
+  /** Along the run, in feet: the cooking surface's segment. */
+  from: number;
+  to: number;
+  /** The plane's centre, its turn about y (its face toward the room) and its width and height. */
+  position: [number, number, number];
+  rotationY: number;
+  size: [number, number];
+}
+export let BACKSPLASH: BacksplashPanel | null = null;
+
+function backsplashOn(runs: CabinetRun[]): BacksplashPanel | null {
+  const run = runs.find((candidate) => candidate.segments.some(cooksOnTheRun));
+  const segment = run?.segments.find(cooksOnTheRun);
+  if (!run || !segment || segment.to <= segment.from) return null;
+  const height = ROOM.upperBottom - ROOM.counterHeight;
+  const across = run.centre - run.facing.sign * (ROOM.counterDepth / 2) + run.facing.sign * ft(0.5);
+  return {
+    run: run.id,
+    from: segment.from,
+    to: segment.to,
+    position: onAxis(run.axis, (segment.from + segment.to) / 2, across, ROOM.counterHeight + height / 2),
+    rotationY: rotationOf(run.facing),
+    size: [segment.to - segment.from, height],
+  };
+}
 
 /**
  * The island: as long and as deep as the parameters ask for, standing clear of
@@ -140,6 +184,7 @@ export function applyLayout(layout: GeneratedLayout, requested: LayoutParams, is
   // The cooking surface on a run: a range, or one wall's cooktop (round 98b).
   const range = RUNS.flatMap((run) => run.segments).find(cooksOnTheRun);
   HOOD_OPENING = range ? ([range.from, range.to] as const) : ([0, 0] as const);
+  BACKSPLASH = backsplashOn(RUNS);
 
   ISLAND = layout.island;
   SLOT_PLACEMENT = layout.slots;

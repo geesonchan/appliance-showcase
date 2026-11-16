@@ -1,5 +1,5 @@
 import type { CabinetBox } from "./cabinets";
-import { axisIndex, onAxis, otherAxis } from "./frame";
+import { axisIndex, onAxis, otherAxis, rotationOf } from "./frame";
 import type { LayoutShape, RunId } from "./layoutShape";
 import { ft } from "./roomShell";
 
@@ -21,11 +21,23 @@ import { ft } from "./roomShell";
  * from the room, as long as the leg from the back wall to its open end, from
  * the floor to its tallest box. In the leg's door finish, which is the
  * drawing's business (`CabinetLayer`).
+ *
+ * Its face toward the room is the wall's, not the door's (12a; Leo,
+ * 2026-11-15: 「改法用甲：背板朝里那一面用墙色，朝外不变」): it is what shows between
+ * the countertop and the wall cabinets inside the leg, where a wall would be.
+ * `roomFace` is that face, where the board's own face toward the room is — the
+ * board is drawn without one (`CabinetLayer`) — as long and as tall as the
+ * board, facing the way the leg faces. Not a plane in front of the board: one a
+ * sixteenth of an inch off it left a hair of the board's own face showing over
+ * its top edge from above, a saw-tooth in the door colour; nor a skin of its
+ * own thickness, whose end and top edges showed the wall colour on the board's
+ * edges from outside.
  */
 export interface BackBoard {
   run: RunId;
   position: [number, number, number];
   size: [number, number, number];
+  roomFace: { position: [number, number, number]; rotationY: number; size: [number, number] };
 }
 
 export const BACK_BOARD_IN = 0.75;
@@ -53,6 +65,11 @@ export function legBackBoards(boxes: CabinetBox[], shape: LayoutShape): BackBoar
         run,
         position: onAxis(along, (from + to) / 2, back - (sign * thick) / 2, top / 2),
         size: onAxis(along, to - from, thick, top),
+        roomFace: {
+          position: onAxis(along, (from + to) / 2, back, top / 2),
+          rotationY: rotationOf({ axis, sign }),
+          size: [to - from, top],
+        },
       },
     ];
   });

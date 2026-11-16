@@ -23,7 +23,12 @@ import { useAppStore } from "../store/useAppStore";
 
 const OPENED = useAppStore.getState();
 const IN = (ft: number) => Math.round(ft * 12 * 1000) / 1000 + 0;
-type Board = { run: string; position: [number, number, number]; size: [number, number, number] };
+type Board = {
+  run: string;
+  position: [number, number, number];
+  size: [number, number, number];
+  roomFace?: { position: [number, number, number]; rotationY: number; size: [number, number] };
+};
 const legBackBoards = (boxes: CabinetBox[], shape: string): Board[] =>
   (boards as unknown as { legBackBoards: (b: CabinetBox[], s: string) => Board[] }).legBackBoards(boxes, shape);
 
@@ -82,5 +87,45 @@ describe("the backs of the U's side legs (Leo, 2026-11-12)", () => {
       const opened = open(`?v=2&pkg=D&shape=${shape}`);
       expect([opened, legBackBoards(CABINETS, opened)]).toEqual([shape, []]);
     });
+  }
+});
+
+/**
+ * 12a (Leo, 2026-11-15: 「改法用甲：背板朝里那一面用墙色，朝外不变」): the board's face
+ * toward the room is a face of its own, so it can wear the wall's paint — on the
+ * board's room side exactly, where the board's own face was (the board is drawn
+ * without one, src/three/backBoardPaint.test.ts), as long and as tall as the
+ * board, facing into the room.
+ */
+describe("the face of each board toward the room (12a)", () => {
+  /** Which way a plane turned by rotationY faces, rounded: [x, z]. */
+  const normal = (rotationY: number) => [Math.round(Math.sin(rotationY)) + 0, Math.round(Math.cos(rotationY)) + 0];
+  const faceOf = (board: Board) => {
+    const face = board.roomFace;
+    if (!face) return null;
+    return { centre: face.position.map(IN), facing: normal(face.rotationY), size: face.size.map(IN) };
+  };
+  for (const [code, link] of [
+    ["D", "?v=2&pkg=D&shape=U&back=132&left=177&corner=blind"],
+    ["A", "?v=2&pkg=A&shape=U&back=132&corner=blind"],
+    ["E", "?v=2&pkg=E&shape=U&back=132&corner=blind"],
+  ]) {
+    for (const run of ["left", "right"] as const) {
+      it(`${code}: the ${run} leg's, on the board's room side, facing ${run === "left" ? "+x" : "-x"}, as long and tall as the board`, () => {
+        const shape = open(link);
+        const board = legBackBoards(CABINETS, shape).find((b) => b.run === run)!;
+        const own = ownBoxes(run);
+        const [low, high] = extent(own, 0);
+        const [z0, z1] = extent(own, 2);
+        const top = Math.max(...own.map((b) => b.position[1] + b.size[1] / 2));
+        // The room is +x of the left leg's back, -x of the right leg's; the board stands behind that line.
+        const side = run === "left" ? low : high;
+        const boardSide = run === "left" ? board.position[0] + board.size[0] / 2 : board.position[0] - board.size[0] / 2;
+        expect([faceOf(board), IN(boardSide)]).toEqual([
+          { centre: [IN(side), IN(top / 2), IN((z0 + z1) / 2)], facing: run === "left" ? [1, 0] : [-1, 0], size: [IN(z1 - z0), IN(top)] },
+          IN(side),
+        ]);
+      });
+    }
   }
 });

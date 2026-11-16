@@ -12386,6 +12386,36 @@ Registered, not scheduled. None of these is a round of its own.
           Kernel-Power, Power-Troubleshooter or Winlogon event 10:04–11:45. The pictures to commit:
           26 files, 1,933,013 bytes, the plan's card and chimney sheets shrunk again (「两批合计压到 2 MB
           以内，报总数」). Not committed (「等我看过全套测试的结果再说」).
+        - **Shipped: `479f19e`** (2026-11-15; Leo: 「第 12 项预览看过了（index-CN3VkDjk.js），可以提交」, and on the CSS
+          file changing too, `.w-[168px]` to `.w-[228px]`: 「照常提交」). Before it: nothing under `src/`,
+          `tests/` or `data/` changed after 10:05:03 (the full suite stands); against `b139163`'s build
+          the main chunk, `index.html` and that one CSS rule differ. Committed by path 12:34:09-12:34:16
+          (53 files; the originals, the prototypes' and the proof's scripts kept local). CI's commands
+          in a clean worktree of the commit: `npm ci` 12:34:26-12:34:33, `npm run test:unit`
+          12:34:33-12:35:14 (145 files, 4,074 passed), `npm run build` 12:35:14-12:35:27, each exit 0, the
+          tree clean after. Pushed 12:35:34-12:35:38. Pages run 43758962127: build 20:35:43-20:36:47
+          UTC and deploy 20:36:52-20:37:00 UTC, each a success. Built at `479f19e` with the counter's
+          address (12:37:23-12:37:35, exit 0) and compared with the live site file by file
+          (12:37:35-12:37:38): **twenty of twenty the same byte for byte**, each 200, `last-modified`
+          Sun, 15 Nov 2026 20:36:56 GMT, `cache-control: max-age=600`; the JavaScript, CSS,
+          `index.html` and the two licences gzip, the twelve fonts `font/woff2` with no encoding; the
+          live main chunk **`assets/index-CzYJ0r0G.js`** (728,733 bytes), `index.html` 579,
+          `index-CZG-D2rl.css` 37,945, `react-i_nGBwMY.js` 145,992, `shareQr-BXYgausd.js` 21,968,
+          `three-C6wp6xxT.js` 704,119. Against `b139163`'s counter build only the main chunk,
+          `index.html` and the CSS differ. The 4181 preview stopped 12:37:46.
+        - **The CSS file, rule by rule** (Leo, 2026-11-15: 「和 b139163 比多变了一个 CSS 文件，这个我事先没料到，以后别的文件
+          有变化还是先停下来报，再往下做。这一次补一下：把 CSS 里具体变了哪几条列出来，写明每条对应第 12 项的哪处改动」).
+          `index-8VepO8oE.css` (`b139163`) to `index-CZG-D2rl.css` (`479f19e`), both 37,945 bytes, split
+          at each rule and compared: **one rule gone, one come, nothing else**:
+          - gone: `.w-[168px]{width:168px}`; come: `.w-[228px]{width:228px}`. Item 12's 4th point (8,
+            the phone card as 丁): in `src/ui/ModelCard.tsx` a phone's model cell `w-[168px]` became
+            `w-[228px]`, and nothing else on the page used either.
+          - The card's other class changes in the same cell (the title `block whitespace-nowrap
+            text-[11px] leading-[18px]`, the model line's `min-w-0 flex-1`, its row `mt-0.5 flex
+            items-center gap-1.5`, 「已选」's `leading-[12px]`; gone from the cell `flex-wrap gap-x-1.5
+            gap-y-1 text-[12px]` and the bare `min-w-0`) change no rule: each was in both files, used
+            elsewhere on the page before and after. Checked class by class against both files.
+          - Items 1 and 2 of item 12 (the entry at 48", the hood line's words) changed no class.
       - **Registered 2026-11-15: the phone card's sideways row and the tests that tap it** (Leo:
         「另外 11 个文件的点按：保持现在用脚本滚进来，不换。登记一条：手机卡片的横向滑动以后再改时，这 11 个文件要一起看；
         现在守着"手指滑"的是 cameraKeep 和 phoneCard」). The eleven, each scrolling a cell in by
@@ -12436,6 +12466,145 @@ Registered, not scheduled. None of these is a round of its own.
         plan's.
       - **When its turn comes**: a plan, a throwaway prototype, real 3D shots from inside and from
         outside, the ways to change it and my leaning; Leo decides.
+      - **Plan, first draft, 2026-11-15, nothing built** (Leo: 「上线后做 12a……先写计划给我看，不动手」):
+        `docs/plans/item12a-plan.md`, its sheets in `docs/plans/item12a-2026-11-15/` (small/ 10 files,
+        663,287 bytes; raw/ local). Prototype in a clean worktree of `479f19e` in the scratchpad,
+        `?p12a=jia|yi|bing`, never merged. 甲 the board's face toward the room in the wall colour; 乙 a
+        strip of wall from the counter (36") to the uppers' underside (54"); 丙 each side leg a whole wall
+        toward the room, the board seen only outside. Shot in A and D, inside each side leg, from
+        outside and at the U's own view, before and the three side by side, and A in the white model and
+        install mode. All three make the strip the wall's colour from inside; none changes the board
+        seen from outside or the default view (0 pixels in A and D), and none of the 45 pixel states is
+        a U. 乙 leaves the door colour under the hood above 54"; 丙 brings back, seen from inside, the
+        right wall U-2 drew as a line on the floor, and shows a sliver of it past the open ends from
+        outside. My leaning 甲. For Leo: which way, and what the wall colour follows (the panel's wall
+        colour, a fixed one, the tile, or else; not chosen for him).
+      - **Found while planning it, registered, not changed**: the tile backsplash
+        (`Backsplash` in `src/three/KitchenShell.tsx`) takes the range's span on its own leg
+        (`HOOD_OPENING`) but is always drawn on the back wall. In the dumps of 2026-11-14 the range is
+        on the back leg in all 463 L rooms that have one on a leg (75 cook on the island) and all 108
+        one-wall rooms, so those are right; in all 112 U rooms it is on the right leg, so the U has a
+        patch of tile on the back wall beside the window (A: x 0.41–3.41 ft) and none behind its range.
+        Since `5d5da45`. Seen in a level front shot of the prototype.
+      - **Leo's answers to the first draft, 2026-11-15** (his words): 「改法用甲：背板朝里那一面用墙色，朝外不变。」
+        「墙色跟"外观"面板里选的墙色走，日间夜晚的明暗和后墙一样。」 And the tile into 12a: 「U 型后墙上那块放错的瓷砖，
+        并进 12a 一起做，但先出原型，我看了图再确认」 — on the leg the cooking surface stands on, behind it, from
+        the counter to the uppers' underside, as the L draws it; none on the back wall; E's U said on its own;
+        the width by the L's present rule, written out for him to confirm, not chosen for him.
+      - **Second draft, 2026-11-15, nothing built**: `docs/plans/item12a-plan.md` (the first kept as
+        `item12a-plan-draft1.md`). The L's rule as it stands: the tile keeps the cooking surface's whole
+        segment on its run (`openingAlong`'s note: "what is about the wall the cabinets leave — the
+        backsplash … — keeps the segment"), fillers beside a narrower range included, not the machine's
+        width nor the hood's; 36" to 54"; half an inch off the wall; real materials only. In all 112 U rooms
+        the cooking surface is on the right leg (E's an induction cooktop on a B36), so there is no U with it
+        elsewhere. Prototype (甲 by `?p12a=jia`, the tile on the cooking run for every shape) shot in A, D
+        and E: inside the right leg, the back wall's window, the default view, before and after; the default
+        view changes only where the old tile was (A 2,210, D 1,919, E 2,520 pixels). The 45 pixel states,
+        `479f19e` against the prototype, two each alternated: all 45 the same (0 between old and new). The
+        three dumps byte for byte the same. 12a's pictures to commit: 13 files, 987,099 bytes. For Leo: the
+        tile's width rule.
+      - **Leo's answer to the second draft, 2026-11-15** (his words): 「瓷砖宽度：（按整格，和 L 型现在一样）」;
+        「第二稿确认，照甲加瓷砖动手，做到本地预览为止，不提交。原型代码不并入，照计划重写。」 The full suite asked
+        for before it runs (「全套测试开跑前先问我」).
+      - **Built to a local preview, 2026-11-15 evening, not committed** (the prototype not merged;
+        written again from the plan): `BACKSPLASH` in `src/data/room.ts` (the tile's panel on the run the
+        cooking surface stands on, the L's rule unchanged; `Backsplash` in `KitchenShell.tsx` draws it);
+        `roomFace` on each board in `src/data/backBoards.ts` and, in `CabinetLayer.tsx`, `backBoardPaint`
+        (the room face in `wallColor`, the walls' roughness; the outside the door finish; both 0.06 in
+        install mode) and `boardWithoutRoomFace` (the board's box drawn without its face toward the room,
+        the wall-coloured plane exactly in its place). Two ways tried first and dropped, by the pictures: a
+        plane 1/16" in front of the board showed a saw-tooth of door colour along its top seen from above;
+        a 1/16" skin of its own changed the board's ends and top seen from outside by a pixel line. The
+        board itself unchanged: 3/4", the same box, door finish outside. Tests red first on `479f19e` (unit
+        50 of 59, the 9 old back-board cases green; the browser test 2 of 2, by the mouse, the pixels read)
+        and green on the final code; `src/data/orientationGuard.test.ts` caught a branch on an axis on the
+        way and the face is now picked by its normal (`outward`). The three dumps byte for byte as
+        `479f19e`; against its build only the main chunk and `index.html` differ (the CSS the same). Every
+        U's default view changes only where the old tile was (A 2,210, B 3,784, C 1,802, D 1,919, E 2,520
+        pixels); the white model 0 pixels; install mode the board's area, at most 10 levels a channel (its
+        6% tint from the door's colour to the wall's). The 45 pixel states, `479f19e` against the final
+        build (`index-0ZaAfNwE.js`), two each alternated (22:24:26 to 22:58:10, each exit 0; compared
+        22:58:10 to 22:58:29, exit 0): all 45 the same, the 3D canvas and the whole screen 0 pixels and no
+        text or leader moved (one build against itself at most 1 pixel). The full suite (Leo, 2026-11-15:
+        「可以跑全套测试，不用再问我」) on the final code, 2026-11-16 00:02:18 to 01:43:20, exit 0: 196 files,
+        4,561 passed, none red, none rerun; no sleep or standby in the system log (no Kernel-Power 42, 506,
+        507 or 187). Not committed: Leo looks at the preview first (`docs/plans/overnight-2026-11-16.md`).
+      - **Found while building it, registered, not changed**: the under-cabinet light strips at night
+        (`Lights.tsx`) run along the left run and the back run only — written for the L — so a U's right
+        leg has none. At night the back wall's strip has one over it and the right leg's has not; with the
+        key light (from the front right, which reaches the back wall and not the right leg's face, by day
+        and by night) it is why the right leg's strip renders darker than the back wall's in the same
+        paint (D, warm grey: 227 against 195 by day, 144 against 89 at night). Since `5d5da45`. Its own
+        item since 2026-11-15: 12a-2, below.
+      - **Install mode, accepted by Leo (2026-11-15: 「安装模式里右段背板的淡色从门板色变成墙色，整块都变了一点：接受。」)**,
+        and not what the plan said. The first draft's prototype shots (`item12a-plan-draft1.md`; repeated in
+        the second draft, section 2) gave 甲 in install mode as "差 34 个像素": the prototype laid a wall-coloured plane at
+        0.06 *over* the board, which stayed in its door colour at 0.06 under it, so the two thin tints
+        mostly cancelled into the board's own. As built, the board's face toward the room *is* the
+        wall-coloured face (`boardWithoutRoomFace`), so the board's whole area seen from inside changes its
+        6% tint from the door's colour to the wall's: in D, flown to the hood, 167,936 pixels, at most 10
+        levels a channel (most 8 or 9). As Leo set it: 「安装模式：朝里那一面跟背板一样半透明（0.06）」.
+  12a-2. **A U's right leg has no under-cabinet light: at night its strip is much darker than the back
+      wall's** *(registered 2026-11-15; named 12a-2 so that 12b keeps its name)*. Leo's words: 「U 型右段
+      没有柜下灯条，夜晚那一条墙比后墙暗很多。」 His order: 「只登记，不动手……顺序排在 12a 之后、12b 之前，写进顺序那一处。
+      轮到它时先写计划，出夜晚的改前改后截图。」 Registered only; nothing changed. How it stands, read only: the
+      under-cabinet strips in `src/three/Lights.tsx` are two point lights, one along the left run (where
+      there is one) and one along the back run, on only in realistic mode at night; a U's right leg has
+      none (written for the L, before the U). Found while building 12a (above), measured on its final
+      build: D's U, warm grey, the back wall's strip 144/140/133 against the right leg's 89/85/79 at night
+      (227/226/224 against 195/193/188 by day, where the strips are off and the key light from the front
+      right is the difference). Since `5d5da45`, the first build with the U on the page. When its turn
+      comes: a plan, and night shots before and after.
+  12b. **D's oven: no height above the floor to set in Layout, as B's has** *(registered 2026-11-15;
+      numbered 12b so that 13 and 14 keep their numbers)*. Leo's words: 「D套餐的烤箱，没有能像B套餐那样，在"布局"
+      那里调整Oven离地的高度」. His order: 「登记进 decisions.md 的 Open items，顺序排在 12a 之后、第 13 项之前，
+      写进顺序那一处」; 「只登记，不动手，不打断 12a」; when its turn comes 「先写计划：D 可以调的是哪个高度、范围、
+      默认值、塔里别的机器和柜格怎么跟着变，都列成要我答的问题，不要替我定。这会改画面，计划阶段出原型和真实 3D 截图」.
+      Registered only; nothing changed. **How it stands, read only (2026-11-15):**
+      - **What the slider sets.** Layout's 「微波把手高度」 / "Microwave handle" (`panel.layout.microwaveHandle`,
+        `src/i18n/zh.json` and `en.json`) is `microwaveHandleIn`: the height above the floor where a
+        combination oven's **microwave door handle** lands; the hole is cut from it
+        (`src/data/layoutTemplate.ts`, the parameter's note: "a person reaches to a height, and the joiner
+        cuts the hole that puts the handle there"). 44" to 60" in 1" steps, 54" by default
+        (`PARAM_LIMITS`, `DEFAULT_PARAMS`). The sill is the handle less 39", the handle's height up
+        MEM301WS's own front (`COMBO_OVEN.microwaveHandleIn`, `src/data/columnModel.ts`, scaled off the
+        elevation, D21 inferred), held to the drawing's 4-3/4" to 18" (`comboSillFor`): at 54" the sill is
+        15"; past 57" it stops at 18" and says so (`rule.microwaveReach`). The caption under it: 「切口底离地
+        {sillIn}″，把手在 {atIn}″」.
+      - **Which packages have it.** Shown only where a slot is a wall oven of `installType: "combo"`
+        (`hasMicrowaveTower`, `src/ui/LayoutControls.tsx`): **B** (MEM301WS beside the range) and **E**
+        (MEM301WS, its own tower) in every shape; **D on one wall** (its oven opening there is MEM301WS,
+        `data/packages.json`'s one-wall override, D20's one wall). **Not A or C** (no wall oven; a
+        microwave drawer) and **not D's L or U** (its `slot-oven` is `installType: "double"`, PODS302B).
+      - **Why D has none: the note in `LayoutControls.tsx`** (round 74): "A microwave handle to reach for
+        is a combination oven's, in a tower beside the range or on its own in the run; package D's steam
+        oven has none, and hangs at its own figure. Round 74: shown wherever the parameter decides a height
+        on screen — it had been deciding E's with no control for it." The same in this file, round 74's
+        amendment: "D's steam oven has no microwave, and shows none."
+      - **Where D's steam oven hangs (L and U alike).** Thermador PODS302B in its own 30" tower beside the
+        range (`slot-oven`, `beside: "range"`, 96" tall). **The opening starts 12" off the floor**
+        (`"sillIn": 12` on D's `slot-oven` in `data/packages.json`; `sillFor` in `layoutTemplate.ts` returns
+        it for any oven that is not a combination oven); the opening is 47-3/8" (to 59-3/8"); the lower
+        door's handle at 34" (12 + `STEAM_OVEN.lowerHandleIn` 22"); the machine's top at 60-7/8" (48-7/8"
+        tall). Under it the run's 4" toe kick and one 8" drawer; over it a door cabinet from 59-3/8" to 96"
+        (36-5/8"), open-backed for its vent (`src/data/cabinets.ts`'s tower boxes). Nothing else in the
+        tower; D's microwave drawer is in the counter run.
+      - **Where 12" comes from**: Leo, round 31 ("Amended 2026-09-12 (round 31)" in D's entry above): a toe
+        kick and one drawer, 「8"-10" 的抽屉、12"-14" 的切口底」, and 12" the only figure in that band on D13's
+        3" step. `steamOvenSillIn` (`columnModel.ts`, 4 + 8 = 12) says the same and only tests read it.
+        Pinned by `src/data/packageD.test.ts` ("opens at 12 inches, on the 3-inch step, whatever the
+        microwave reach": the sill 12, the lower handle 34, unchanged at a 44" microwave handle) and its
+        drawer and bridge cases. `src/data/towerSill.test.ts` holds every arrangement to PODS302B's allowed
+        4-3/4" to 18-3/4" (`pods302b-spec.pdf` p. 2).
+      - **A fact beside it, not a change**: round 31's note says "there is no PODS302B installation sheet
+        in `docs/reference/`, so the machine's own allowed sill range has not been checked against 12""; the
+        folder now has `pods302b-spec.pdf`, and `towerSill.test.ts` cites its p. 2 for 4-3/4"-18-3/4", so
+        12" is inside the sheet's range. The note's sentence is left as written; Leo, 2026-11-15:
+        「第 31 轮那句"没有 PODS302B 的安装图"过时了，轮到 12b 时一起更正，现在不动。」
+      - **When its turn comes**: a plan with the questions for Leo (which height D sets — the sill, the
+        lower handle, the upper handle or else; its range and default; how the drawer under it, the door
+        cabinet over it and the tower's other cells follow), a throwaway prototype and real 3D shots;
+        nothing chosen for him.
   13. **13**: tapping the package, layout or hood already chosen rebuilds the whole room;
   14. **9 and 7 wait for his rules first**: a professional range under B's, C's and D's hood
       (whether the hood follows the cooking surface chosen; D13), and E's L coffee tower beside

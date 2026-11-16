@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { HOOD_OPENING, ROOM, RUN_BY_ID, WINDOWS, floorLineWalls, ft, fridgeReturnWall } from "../data/room";
+import { BACKSPLASH, ROOM, WINDOWS, floorLineWalls, ft, fridgeReturnWall } from "../data/room";
 import { onAxis, otherAxis } from "../data/frame";
 import { useAppStore } from "../store/useAppStore";
 import { finish, floorColor, wallColor, type FinishToken } from "./materials";
@@ -207,28 +207,23 @@ function ReturnWall({ colour, opacity }: { colour: string; opacity: number }) {
  * a customer where the cooking happens. It runs the width of the hood opening —
  * the stretch of wall the cabinets leave clear — and stops at the underside of
  * the bank, because that is where the tiler stops.
+ *
+ * On the run the cooking surface stands on, facing the room (`BACKSPLASH`,
+ * room.ts; 12a): in a U that is the right leg, where until 12a the tile was put
+ * on the back wall instead.
  */
 function Backsplash() {
   const renderMode = useAppStore((s) => s.renderMode);
-  const [from, to] = HOOD_OPENING;
-  const height = ROOM.upperBottom - ROOM.counterHeight;
+  // Rebuilt with the layout, which re-renders the shell above.
+  const panel = BACKSPLASH;
   const props = finish(renderMode, "tile-white");
 
-  if (renderMode !== "realistic" || to <= from) return null;
+  if (renderMode !== "realistic" || !panel) return null;
 
   return (
-    <mesh
-      name="backsplash"
-      position={[
-        (from + to) / 2,
-        ROOM.counterHeight + height / 2,
-        // On the back run's wall, half an inch into the room it faces.
-        RUN_BY_ID.back.centre - RUN_BY_ID.back.facing.sign * (ROOM.counterDepth / 2) + RUN_BY_ID.back.facing.sign * ft(0.5),
-      ]}
-      receiveShadow
-    >
-      <planeGeometry args={[to - from, height]} />
-      <Surface s={props} size={[to - from, height]} />
+    <mesh name="backsplash" position={panel.position} rotation={[0, panel.rotationY, 0]} receiveShadow>
+      <planeGeometry args={panel.size} />
+      <Surface s={props} size={panel.size} />
     </mesh>
   );
 }

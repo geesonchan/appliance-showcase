@@ -14,14 +14,17 @@ import { ISLAND, RUNS } from "../data/room";
 import { SLOT_BY_ID } from "../data/slots";
 import { islandHasCooktop } from "../data/layoutTemplate";
 import { doorFace } from "../data/doorFace";
-import { legBackBoards } from "../data/backBoards";
-import { rotationOf } from "../data/frame";
+import { legBackBoards, type BackBoard } from "../data/backBoards";
+import { outward, rotationOf } from "../data/frame";
 import { useSelection } from "../store/useSelection";
 import { useIsMobile } from "../hooks/useIsMobile";
 import { cabinetPaint, useAppStore } from "../store/useAppStore";
 import { ft } from "../data/room";
 import { OVEN_GRILLE, ventsAtRear } from "../data/towerVent";
-import { SCENE_COLORS, finish, type FinishToken, type SurfaceProps } from "./materials";
+import { SCENE_COLORS, finish, wallColor, type FinishToken, type SurfaceProps, type WallFinish } from "./materials";
+import type { Lighting, RenderMode } from "../types";
+import type { RunId } from "../data/layoutShape";
+import type { AccentRun } from "../store/finishes";
 import { Surface } from "./Surface";
 import { HoodCabinet } from "./HoodCabinet";
 import { BoardFace, DOOR } from "./BoardFace";
@@ -530,14 +533,99 @@ export function CabinetLayer() {
 }
 
 /**
- * The backs of a U's side legs, one board each (`legBackBoards`; Leo,
- * 2026-11-12): in the leg's door finish, ghosted in install mode as the
- * carcasses are, and in this layer so that it fades when it stands on a fly-in's
- * sight line, as cabinetry does (D1, reason 3).
+ * What a back board is painted: the leg's door finish outside, and the wall's
+ * paint on the face toward the room (12a; Leo, 2026-11-15: 「改法用甲：背板朝里那一面用
+ * 墙色，朝外不变」, 「墙色跟"外观"面板里选的墙色走，日间夜晚的明暗和后墙一样」) — the
+ * colour the walls are drawn in (`wallColor`, KitchenShell), with the walls'
+ * roughness. Both ghosted in install mode as the carcasses are.
  */
+export function backBoardPaint(
+  renderMode: RenderMode,
+  lighting: Lighting,
+  finishes: { cabinet: string; accent: string; accentRun: AccentRun; wall: WallFinish },
+  run: RunId,
+): { outside: SurfaceProps; room: SurfaceProps } {
+  const install = renderMode === "install";
+  const ghost = { transparent: install, opacity: install ? GHOST_OPACITY : 1 };
+  const door = cabinetPaint(finishes, run);
+  return {
+    outside: { ...finish(renderMode, door.token, door.colour), ...ghost },
+    room: { color: wallColor(renderMode, lighting, finishes.wall), roughness: 0.95, metalness: 0, ...ghost },
+  };
+}
+
+/**
+ * A back board's box without its face toward the room, which the wall-coloured
+ * plane takes the place of (`roomFace`, backBoards.ts): the box's other five
+ * faces in the door finish, its edges meeting the plane's with nothing between.
+ * `rotationY` is the room face's turn, the way the leg faces.
+ */
+export function boardWithoutRoomFace(size: [number, number, number], rotationY: number): THREE.BoxGeometry {
+  const geometry = new THREE.BoxGeometry(...size);
+  // The face whose normal points most the way the leg faces (frame.ts's `outward`).
+  const [x, z] = outward(rotationY);
+  const normal = geometry.getAttribute("normal");
+  const toward = (group: { start: number }) => {
+    const vertex = geometry.index!.getX(group.start);
+    return normal.getX(vertex) * x + normal.getZ(vertex) * z;
+  };
+  const face = geometry.groups.reduce((best, group) => (toward(group) > toward(best) ? group : best));
+  const index = Array.from(geometry.index!.array);
+  index.splice(face.start, face.count);
+  geometry.setIndex(index);
+  geometry.clearGroups();
+  return geometry;
+}
+
+/**
+ * The backs of a U's side legs, one board each (`legBackBoards`; Leo,
+ * 2026-11-12): in the leg's door finish, with the wall's paint on the face
+ * toward the room (12a, `backBoardPaint`), ghosted in install mode as the
+ * carcasses are, and in this layer so that it fades when it stands on a fly-in's
+ * sight line, as cabinetry does (D1, reason 3). The room face is a mesh of its
+ * own (`roomFace`, the board drawn without that face, `boardWithoutRoomFace`),
+ * not a sixth material on the box, because the fade passes over a mesh with
+ * more than one material.
+ */
+function BackBoardMesh({ board, paint, visible }: { board: BackBoard; paint: ReturnType<typeof backBoardPaint>; visible: boolean }) {
+  const [w, h, d] = board.size;
+  const face = board.roomFace;
+  const geometry = useMemo(() => boardWithoutRoomFace([w, h, d], face.rotationY), [w, h, d, face.rotationY]);
+  useDisposable(geometry);
+  return (
+    <group>
+      <mesh
+        name={`back-board-${board.run}`}
+        geometry={geometry}
+        position={board.position}
+        visible={visible}
+        castShadow
+        receiveShadow
+        userData={{ boxId: `back-board-${board.run}`, cabinetRole: true }}
+      >
+        <Surface s={paint.outside} size={[Math.max(w, d), h]} />
+      </mesh>
+      <mesh
+        name={`back-board-${board.run}-room-face`}
+        position={face.position}
+        rotation={[0, face.rotationY, 0]}
+        visible={visible}
+        castShadow
+        receiveShadow
+        // Wall, not joinery: not counted among the cabinetry's colours (SceneDebug).
+        userData={{ boxId: `back-board-${board.run}-room-face` }}
+      >
+        <planeGeometry args={face.size} />
+        <Surface s={paint.room} size={face.size} />
+      </mesh>
+    </group>
+  );
+}
+
 function BackBoards() {
   const finishes = useAppStore((s) => s.finishes);
   const renderMode = useAppStore((s) => s.renderMode);
+  const lighting = useAppStore((s) => s.lighting);
   const shape = useAppStore((s) => s.layoutParams.shape);
   const layoutVersion = useAppStore((s) => s.layoutVersion);
   const isMobile = useIsMobile();
@@ -548,26 +636,8 @@ function BackBoards() {
   return (
     <>
       {boards.map((board) => {
-        const door = cabinetPaint(finishes, board.run);
-        const props = finish(renderMode, door.token, door.colour);
-        const [w, h, d] = board.size;
-        return (
-          <mesh
-            key={board.run}
-            name={`back-board-${board.run}`}
-            position={board.position}
-            visible={!(install && isMobile)}
-            castShadow
-            receiveShadow
-            userData={{ boxId: `back-board-${board.run}`, cabinetRole: true }}
-          >
-            <boxGeometry args={[w, h, d]} />
-            <Surface
-              s={{ ...props, transparent: install, opacity: install ? GHOST_OPACITY : 1 }}
-              size={[Math.max(w, d), h]}
-            />
-          </mesh>
-        );
+        const paint = backBoardPaint(renderMode, lighting, finishes, board.run);
+        return <BackBoardMesh key={board.run} board={board} paint={paint} visible={!(install && isMobile)} />;
       })}
     </>
   );
