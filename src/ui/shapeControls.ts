@@ -29,6 +29,7 @@ export type LayoutControl = keyof Pick<
   | "backWallIn"
   | "leftWallIn"
   | "microwaveHandleIn"
+  | "steamSillIn"
   | "coffeeSillIn"
   | "islandLengthIn"
   | "islandDepthIn"
@@ -42,9 +43,11 @@ export const SHOWN_ON_ONE_WALL: readonly LayoutControl[] = ["housingStyle", "bac
  * one slider (Leo, 2026-11-11: 「左右墙一根滑杆管两面」) and the corner, one
  * choice for both of its corners. What the U decides itself — which leg the
  * refrigerator, the sink and the coffee go on, the tower's side, the island —
- * is hidden, and the L's own choice kept for the L (`asBuilt`).
+ * is hidden, and the L's own choice kept for the L (`asBuilt`). And D's oven
+ * height (12b; Leo, 2026-11-16), the same tower in the U as in the L; one wall's
+ * D has a combination oven, hung from the microwave handle, and does not show it.
  */
-export const SHOWN_IN_U: readonly LayoutControl[] = [...SHOWN_ON_ONE_WALL, "leftWallIn", "cornerType"];
+export const SHOWN_IN_U: readonly LayoutControl[] = [...SHOWN_ON_ONE_WALL, "leftWallIn", "cornerType", "steamSillIn"];
 
 /** Whether the Layout tab shows a control in a shape. */
 export const showsControl = (shape: LayoutShape, control: LayoutControl) =>

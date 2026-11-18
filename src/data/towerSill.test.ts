@@ -1,5 +1,6 @@
 import { afterAll, describe, expect, it } from "vitest";
-import { setActivePackage, setLayoutParamsGrowing } from "./layoutState";
+import { APPLIANCE_BY_ID } from "./catalogue";
+import { setActivePackage, setLayoutParamsGrowing, setOvenModel } from "./layoutState";
 import type { LayoutParams } from "./layoutTemplate";
 import { PACKAGES, PACKAGE_BY_ID } from "./packages";
 import { REQUESTED_PARAMS, RUNS } from "./room";
@@ -108,5 +109,39 @@ describe.each(PACKAGES.map((pkg) => pkg.id))("%s", (id) => {
     // Counted as well: an empty set of towers would pass anything (D22, round
     // 72). How many each package stands in towers is stated, not read back.
     expect({ towers: slots.length, wrong }).toEqual({ towers: TOWERS[id], wrong: [] });
+  });
+});
+
+/**
+ * 12b (Leo, 2026-11-16): D's oven height is set in Layout, 5" to 18", and any of
+ * four ovens can stand in its tower. Every value of the slider, with every one
+ * of them, in the L and the U, hangs the oven where its own sheet allows — PO302W
+ * held at 14" (its sheet's 14-7/8"), the slider's 18" inside ME301YP's 38".
+ */
+const D_OVENS: Record<string, Range> = {
+  PODS302B: ALLOWED.PODS302B,
+  PO302W: { min: 4.75, max: 14.875, source: "po302w-spec.pdf p. 2: 4-3/4\"-14-7/8\" (121-378 mm)" },
+  ME301YP: { min: 4.75, max: 38, source: "me301yp-spec.pdf p. 2: 4-3/4\"-38\" (121-964 mm), wall mount" },
+  MEM301WS: ALLOWED.MEM301WS,
+};
+
+describe.each(["L", "U"] as const)("package D's oven height, in the %s", (shape) => {
+  it.each(Object.keys(D_OVENS))("hangs %s where its sheet allows at every inch from 5\" to 18\"", (name) => {
+    resetRoom();
+    expect(setActivePackage("package-d").ok).toBe(true);
+    if (shape === "U") expect(setLayoutParamsGrowing({ ...REQUESTED_PARAMS, shape: "U" }).ok).toBe(true);
+    expect(setOvenModel(APPLIANCE_BY_ID[`thermador-${name.toLowerCase()}`], "package-d").ok).toBe(true);
+    const range = D_OVENS[name];
+    const wrong: string[] = [];
+    let built = 0;
+    for (let steamSillIn = 5; steamSillIn <= 18; steamSillIn += 1) {
+      if (!setLayoutParamsGrowing({ ...REQUESTED_PARAMS, steamSillIn }).ok) continue;
+      built += 1;
+      const sillIn = SLOT_BY_ID["slot-oven"].position[1] * 12;
+      if (sillIn < range.min - 1e-6 || sillIn > range.max + 1e-6) {
+        wrong.push(`${name} at ${steamSillIn}": opening ${sillIn}" off the floor, allowed ${range.min}"-${range.max}" (${range.source})`);
+      }
+    }
+    expect({ built, wrong }).toEqual({ built: 14, wrong: [] });
   });
 });

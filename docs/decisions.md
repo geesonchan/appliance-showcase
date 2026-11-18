@@ -1146,9 +1146,12 @@ door nobody uses. So under the opening there is the run's 4" toe kick and one
 8" drawer, and nothing else. Leo asked for an 8"-10" drawer and a 12"-14" sill;
 12" is the only figure in that band on D13's 3" step, so the sill is 12", the
 lower handle lands at 34", and the door over the opening is 36-5/8" to the top
-of the 96" tower. *(Leo's call, not a drawing: there is no PODS302B installation
-sheet in `docs/reference/`, so the machine's own allowed sill range has not been
-checked against 12".)* Every tower whose opening is off the floor now stands its
+of the 96" tower. *(Leo's call, not a drawing. Corrected 2026-11-16 (12b): the
+sheet is now in `docs/reference/` — `pods302b-spec.pdf` p. 2 (printed "Page 2 of
+3") gives 4-3/4"–18-3/4" under the opening, so 12" is inside it;
+`towerSill.test.ts` holds every arrangement to that range. Since 12b the sill is
+set in Layout, 5" to 18", 12" by default: Open items, Leo's order, item 12b.)*
+Every tower whose opening is off the floor now stands its
 drawer on the toe kick the same way, which includes package B's combination
 oven.
 
@@ -1164,7 +1167,8 @@ the carcass, which makes it 28-1/2" x 3" in a 30" opening *(27" x 3" since
 round 92c, the same rule in the standard install's 28-1/2" opening — Leo, round
 92c; below)*. The junction box is
 where the machine's own sheet puts it, above or beside the opening (MEM301WS;
-there is no PODS302B sheet, see above). It is drawn in the install view with its
+PODS302B's own sheet, p. 2: above, beneath, right or left of the unit —
+corrected 2026-11-16, 12b). It is drawn in the install view with its
 width figured, and it is a line on the install list. It applies to every tall
 unit whose opening starts above the floor with no machine under it — B's
 combination oven and D's steam oven by one rule — and not to a refrigerator
@@ -12544,17 +12548,29 @@ Registered, not scheduled. None of these is a round of its own.
         wall-coloured face (`boardWithoutRoomFace`), so the board's whole area seen from inside changes its
         6% tint from the door's colour to the wall's: in D, flown to the hood, 167,936 pixels, at most 10
         levels a channel (most 8 or 9). As Leo set it: 「安装模式：朝里那一面跟背板一样半透明（0.06）」.
-  12a-2. **A U's right leg has no under-cabinet light: at night its strip is much darker than the back
-      wall's** *(registered 2026-11-15; named 12a-2 so that 12b keeps its name)*. Leo's words: 「U 型右段
-      没有柜下灯条，夜晚那一条墙比后墙暗很多。」 His order: 「只登记，不动手……顺序排在 12a 之后、12b 之前，写进顺序那一处。
-      轮到它时先写计划，出夜晚的改前改后截图。」 Registered only; nothing changed. How it stands, read only: the
-      under-cabinet strips in `src/three/Lights.tsx` are two point lights, one along the left run (where
-      there is one) and one along the back run, on only in realistic mode at night; a U's right leg has
-      none (written for the L, before the U). Found while building 12a (above), measured on its final
-      build: D's U, warm grey, the back wall's strip 144/140/133 against the right leg's 89/85/79 at night
-      (227/226/224 against 195/193/188 by day, where the strips are off and the key light from the front
-      right is the difference). Since `5d5da45`, the first build with the U on the page. When its turn
-      comes: a plan, and night shots before and after.
+      - **Shipped: `376ce18`** (2026-11-16; Leo: 「12a 预览看过了（index-0ZaAfNwE.js），可以提交」). Before it:
+        nothing under `src/`, `tests/` or `data/` changed after the full suite's start at 00:02:18 (368
+        files, the latest `CabinetLayer.tsx` at 2026-11-15 22:13:28), so the full suite stands. Committed by
+        path at 10:28:03 (30 files: the code, the tests, the plan's two drafts with its build record, the
+        night's report, decisions.md and the 18 compressed pictures, 1,279,236 bytes; the originals and the
+        prototype kept local). CI's commands in a clean worktree of the commit: `npm ci` 10:28:12-10:28:21,
+        `npm run test:unit` 10:28:21-10:29:02 (147 files, 4,124 passed), `npm run build` 10:29:02-10:29:20,
+        each exit 0, the tree clean after. Pushed 10:29:28-10:29:33. Pages run 43929369233: build
+        18:29:38-18:30:59 UTC and deploy 18:31:05-18:31:14 UTC, each a success. Built at `376ce18` with the
+        counter's address (10:31:34-10:31:52, exit 0) and compared with the live site file by file
+        (10:31:52-10:31:57): **twenty of twenty the same byte for byte**, each 200, `last-modified` Mon, 16
+        Nov 2026 18:31:08 GMT, `cache-control: max-age=600`; the JavaScript, CSS, `index.html` and the two
+        licences gzip, the twelve fonts `font/woff2` with no encoding; the live main chunk
+        **`assets/index-olR1zsrR.js`** (729,971 bytes), `index.html` 579; `index-CZG-D2rl.css`,
+        `react-i_nGBwMY.js`, `shareQr-BXYgausd.js` and `three-C6wp6xxT.js` the names `479f19e` shipped. The
+        4173 preview stopped after it (10:32), no node or esbuild left running. The night's report gives the
+        uncommitted raw diff as 362 lines added; at the commit it was 385 added, 44 deleted (6 files, before
+        the new ones). Traced 2026-11-16 (Leo: 「查清差在哪，补一句进 decisions.md」): the 362 is `git -c
+        core.autocrlf=false diff --stat` at 2026-11-15 23:54:30, when the report's figures were taken;
+        decisions.md was edited three times after it — 23:55:10, +20 lines (12a-2's registration), 23:55:23,
+        +1 (12b's line on round 31's sentence), and 2026-11-16 01:44:46, +2 (the full suite's result in this
+        entry) — and the same command at 01:44:46 already read 385 insertions, 44 deletions. The five code
+        files' figures (216 added, 44 deleted) are the same at both times; all 23 lines are decisions.md's.
   12b. **D's oven: no height above the floor to set in Layout, as B's has** *(registered 2026-11-15;
       numbered 12b so that 13 and 14 keep their numbers)*. Leo's words: 「D套餐的烤箱，没有能像B套餐那样，在"布局"
       那里调整Oven离地的高度」. His order: 「登记进 decisions.md 的 Open items，顺序排在 12a 之后、第 13 项之前，
@@ -12605,7 +12621,279 @@ Registered, not scheduled. None of these is a round of its own.
         lower handle, the upper handle or else; its range and default; how the drawer under it, the door
         cabinet over it and the tower's other cells follow), a throwaway prototype and real 3D shots;
         nothing chosen for him.
+      - **Plan, first draft, 2026-11-16, nothing built**: `docs/plans/item12b-plan.md`, its sheets in
+        `docs/plans/item12b-2026-11-16/small/` (3 files; raw/ local), eleven questions for Leo. Prototype
+        in a clean worktree of `376ce18`, never merged, marked a prototype on every sheet: a Layout slider
+        for the steam oven's sill (`steamSillIn`, 5"-18" by 1", default 12"), the drawer under it and the
+        door cabinet over it following as B's do; shot in D's L and U at 5", 12" and 18"; at the default 0
+        pixels against `376ce18` (4 pairs). The 4-3/4"-18-3/4" is `pods302b-spec.pdf` p. 2 (file and
+        printed), the wall-mount drawing, from the opening's bottom to the cabinet's bottom as drawn (no
+        "floor" printed); the same drawing in `thermador-built-in-ovens-install.pdf` p. 24 (file and
+        printed; its cover lists PODS302W); p. 3 (over a Thermador drawer) gives 4-3/4"-18" under the
+        drawer's own opening. Round 31's sentence and round 32's junction-box sentence (lines 1149-1151 and
+        1166-1167) listed with the proposed corrections, left as written.
+      - **Leo's answers to the first draft, 2026-11-16** (his words as he wrote them): 「1，按原型；2，按原型；3，如果原型调到
+        最低，矮了就变成一块固定面板，调到最高分成两个抽屉；4，用备选；5，换了，也留着」. As he spelt them out: the slider sets
+        the opening's bottom off the floor; 5" to 18" by 1", the sheet's 4-3/4"-18-3/4" read from the floor; under
+        the opening a fixed panel when the box is short and two drawers at the top of the range; the slider is
+        「烤箱离地高度」 / "Oven height"; it stays when the model is swapped, MEM301WS included, and B's microwave
+        handle slider does not take its place. The rest as the prototype: 12" by default; the door cabinet over it
+        follows; nothing else in the tower moves; the share link carries it and an old link without it opens at
+        12"; D on one wall unchanged; round 31's and round 32's sentences both corrected as the plan's section 5
+        words them (when it is built). The install list gets a line with the opening's height off the floor, its
+        words in both languages shown to him first and kept out of `reviewed.json` until he agrees. The two
+        figures in his point 3 (how short a box becomes a panel; how tall splits into two, and how) are not
+        decided: proposed in the second draft's prototype, put back to him with pictures.
+      - **Plan, second draft, 2026-11-16, nothing built in the main folder**: `docs/plans/item12b-plan.md` (the
+        first draft kept as `item12b-plan-draft1.md`), its new sheets in `docs/plans/item12b-2026-11-16/small/`.
+        The prototype (the same worktree, never merged) proposes: under 6" a fixed panel, 6" to under 12" one
+        drawer, 12" and over two drawers of half each — **proposals, not decided**. The wall-mount drawing on
+        `pods302b-spec.pdf` p. 2 read again at 600%: the 4-3/4"-18-3/4" runs from the toe-kick plinth's bottom
+        line — the floor — (the first draft's "to the cabinet's bottom as drawn" was wrong) up to the lower of
+        two parallel lines along the shelf under the opening, its underside; the opening's 47-3/8"-48-1/8"
+        starts from the upper, the shelf's top. Put to Leo as read, nothing changed.
+      - **Leo's answers to the second draft, 2026-11-16** (his words as he wrote them):
+        - 「A. 抽屉箱不到（6″ ）就做固定面板」; 「B. 抽屉箱到（12″ ）起分两个，分法（一样高 ）」. So under the
+          opening, the box from the 4" toe kick to the sill: under 6" a fixed panel (sills 5"-9"), 6" to under
+          12" one drawer (10"-15"), 12" and over two drawers of equal height (16"-18").
+        - 「C. 换型号时范围跟着型号变（乙）：PO302W 最高到 14″，换过去时高度超出就压到 14″ 并提示，和 B 的滑杆到头停住并提示
+          是同一种做法。ME301YP 说明书允许到 38″，滑杆还是只到 18″。提示的句子中英文先列给我看。换成 MEM301WS 时小字写微波把手，
+          照原型。」
+        - 「D. 安装清单：1. 新加的那一行四台都出，句子照你提的。但"蒸烤箱"这个叫法只用在真是蒸烤箱的型号上，其余写"烤箱"；PO302W
+          被叫成蒸烤箱的地方这一轮一起改掉。2. 已有那一行把"切口底边离地"那半句拿掉，只留把手和电路，同一个数不写两遍。改完的句子
+          中英文列给我看。3. 这些句子我看过并同意之前不进 reviewed.json。」
+        - 「E. 安装模式里加一条切口底离地的尺寸线。画在哪一侧、和别的尺寸线怎么排，原型里做出来拍一张给我看。」
+        - 「F. 上端的读法不改，还按切口底离地，最低 5″。在 decisions.md 里写明：严格读图是到隔板下沿，差一块隔板厚，图上没标；
+          安装指南第 24 页写了切口下面的尺寸只是一般参考；这是我定的。」
+        - 「第 6 节的小字（中英文）可以。」 「第 31、32 轮两句照计划第 11 节更正」 (done 2026-11-16, round 31's and
+          round 32's amendments in D's entry above, the first as the plan's section 5 words it, "under the opening"
+          kept, F being the opening's bottom).
+        - 「照上面的答复，12b 可以动手，做到本地预览为止，不提交。原型代码不并入，照计划重写。新句子、提示、尺寸线的样子，在报告最前面
+          列出来等我看。」 And the proof: each inch's front, the four models (slider, range, caption), B's and E's
+          sliders and towers unchanged, all red first, again with the tests' final versions; at the default 12"
+          D's L and U the same to the pixel as `376ce18` except install mode (the new line), listed apart; which
+          of the 45 states must stay and which are meant to change written before the shots; the three dumps
+          one more parameter a room and otherwise byte for byte, checked one by one; the link's new field and an
+          old link at 12", each tested; any other built file that changes stops the round to be reported; the
+          full suite asked for first.
+      - **F, the reading of the sheet, decided by Leo (2026-11-16).** The slider sets the opening's bottom off the
+        floor, 5" at the lowest. Read strictly, the wall-mount drawing on `pods302b-spec.pdf` p. 2 measures the
+        4-3/4"-18-3/4" to the underside of the shelf under the opening, one shelf's thickness below the opening's
+        bottom, and the drawing does not give that thickness. The installation guide's p. 24
+        (`thermador-built-in-ovens-install.pdf`, file and printed, the steam-and-convection page; read again
+        2026-11-16) says so in its notices: "Under oven dimensions are provided as a general guideline and may be
+        adjusted as needed based on a particular application." Leo's decision: the opening's bottom, from the floor — 「这是我定的」.
+      - **Built, 2026-11-16, to the local preview, not committed** (Leo: 「做到本地预览为止，不提交。原型代码不并入，照计划重写」):
+        - The code, written again to the plan: `steamSillIn` (5"-18" by 1", 12" by default) in `layoutTemplate.ts`,
+          `sillFor` taking the package and, for the tower built for a double oven, `steamSillFor` (towerOven.ts:
+          each oven's sheet range `OVEN_SILL_RANGE_IN`, the slider's ends `ovenSillLimits`, held at the chosen
+          oven's end); the boxes under the opening by `UNDER_OVEN` (6", 12") and `underOvenFront` in `cabinets.ts`,
+          `CabinetLayer.tsx` drawing a front on them whatever their height; `setOvenModel` rebuilding when the sill
+          changes too; the slider and its caption (`LayoutControls.tsx`), shown in the L and the U; the link's
+          `steamSill`, link version 4, a link of 1 to 3 at 12" with nothing said; the install list's `oven-sill`
+          line, `oven-sill-held` warning and the handle-and-circuit line, 「蒸烤箱」 only for a steam oven; the
+          dimension `oven-sill`. On one wall (a combination oven's tower) a double oven chosen keeps its one line
+          with the opening in it, 「烤箱」 for PO302W. The new words are in `zh.json` and `en.json` only, not in
+          `reviewed.json` (Leo, D-3).
+        - Tests red first on `376ce18`: `src/data/steamSill.test.ts` 72 of 83 red (18:55:10-18:55:18, exit 1;
+          the final version again 20:02:41-20:02:51, 72 of 83, with `packageD.test.ts`'s new default case red);
+          the 11 green there are guards (B, E, D on one wall unchanged; ME301YP and MEM301WS never called a steam
+          oven), each shown red by breaking the code on purpose (19:07:57-19:08:04, 11 red; 19:08:58-19:09:05,
+          4 red) and the code put back. `tests/steamSill.test.ts` (real mouse and finger) on `376ce18`'s build
+          2 of 3 red (18:57:15-18:58:01), its B-and-E guard red on a build broken on purpose (19:08:21-19:08:42).
+          Green: the unit suite 148 files 4,208 passed (19:04:42-19:05:22, exit 0); the browser file 3 of 3
+          (19:06:24-19:07:41, exit 0). Old tests changed, each with why beside it: link version 3 to 4
+          (`shareLinkV2`, `panelReady`, `tests/shareLink`, `tests/shareQr`), round 97's and 98b-1's room hashes
+          leaving out the parameter they had no name for (`steamSillIn`, as `shape` before it), the screenshot
+          table's new name; `towerSill.test.ts` over D's whole range and four ovens; `packageD.test.ts` "12 by default".
+        - Dumps (`376ce18` 17:56:16-17:56:32, this round 19:09:26-19:09:38, all exit 0): every room one more
+          parameter (`steamSillIn`, in `params` and `requested`, 12 in every room); with it left out, the L's 1,065
+          lines, one wall's 108 and the U's 112 byte for byte the same but in D's L and U rooms the install list's
+          oven lines and the new dimension (L 113 rooms, U 32), and on one wall one room's 「蒸烤箱」 to 「烤箱」
+          (PO302W). Cabinets, runs, slots and points unchanged in every room.
+        - Pixels (written before the shots, `docs/plans/item12b-2026-11-16/pixel-plan.md`; 45 states 19:10:50-19:44:35,
+          old, new, old, new, each exit 0; compared 19:44:54-19:45:13): the canvas 0 in all 45; the screen 0 in 43,
+          `desk-D-install` changed as meant — the new dimension, and the 「04 Rangetop」 label moved from under the
+          tower to above it with 「05 Ventilation hood」 a little higher, the dimension's label standing where it
+          was — and `desk-D-materials` one pixel by one level at (144, 225), which two more shots of each build
+          show is run to run (old 3 against new 3: 0; new 3 against new 4: that pixel). D's L and U at the default,
+          ten states a build twice (19:49:01-19:54:01): materials, white and flown to the oven the same, the
+          mode-switch toast's band aside (it differs between runs of one build); the four install states change
+          at the new dimension only.
+        - The build: against `376ce18`'s, the main chunk (`index-BioXMEL0.js`) and `index.html`'s line naming it;
+          the CSS and the 18 other files byte for byte. Two sheets for Leo in `docs/plans/item12b-2026-11-16/small/`
+          (`built-dim.jpg`, `built-words.jpg`).
+        - ~~Not yet: the full suite; Leo's look at the words, the warning and the line.~~ Both done 2026-11-16/17, below.
+      - **Leo's answers to the built round's report, 2026-11-16 evening**:
+        - 「句子都同意，可以进 reviewed.json，写明是我 2026-11-16 看过的：到头提示、清单新加的那一行（三种后半句）、缩短后的
+          把手那一行（蒸烤箱和烤箱两种）、尺寸线上的「切口底离地」 / "opening off the floor"、滑杆名字和小字。」
+        - 「D 的 L 型安装模式里「04 炉灶头」「05 油烟机」两个标签挪位：接受。」
+        - 「换型号时记住我要的高度、换回去时恢复：同意。确认这一条有测试守着；分享链接里写的是我要的高度还是实际建成的高度，
+          写明并说明理由。」
+        - 「一字型的 D 保留整句、只改"蒸烤箱"的叫法：同意。」
+        - Then: unit tests and a build again after `reviewed.json`; the full suite without asking; no commit, he
+          looks at the preview in the morning; the night in `docs/plans/overnight-2026-11-17.md`; beside the room
+          fingerprint tests, what they still hold and no longer hold, and which test holds "at 12" the room is as
+          before".
+      - **Done that night**:
+        - `reviewed.json`: the 11 keys he named, in both languages (22 entries, `approval` "read", his words quoted),
+          inserted as text (a re-stringify would have undone the file's `\u` escapes). Left out: `rule.doubleOven`,
+          one wall's whole line for PO302W — his answer 4 agrees to keeping it, but his list for `reviewed.json`
+          does not name it, and the line it copies, `rule.steamOven`, was never in `reviewed.json` either. His word.
+        - **The link writes the height asked for, not the one built.** The built one follows from the asked one and
+          the model, and both are in the link; written the other way, a link made while PO302W holds the opening
+          at 14" would lose the 16" asked, and whoever opens it would get 14" on switching back to PODS302B where
+          the sender got 16". So a link opens as the room was: held at 14" with its warning, 16" kept. Asked by a
+          new case in `src/data/steamSill.test.ts` ("written while PO302W holds the opening at 14\" ..."); the
+          memory itself by "PO302W chosen over a sill above 14\" ...". Both red with the memory broken on purpose
+          (the held figure written back into the parameters on a model switch; 2026-11-16 22:06:40-22:06:45, exit 1,
+          2 red, then put back); the file's final version on `376ce18` 73 of 84 red, its 11 guards green as before
+          (22:07:10-22:07:15, exit 1).
+        - The room fingerprints (`shareLinkV2.test.ts`, `shareLinkRound98b1.test.ts`): what they keep and give up
+          written beside them. Opened at 13" on purpose (`since.before` 13), only package D's round-97 link and
+          98b-1's "D L" turned red (22:08:01-22:08:07, exit 1, 2 of 43): the cabinet boxes in the hash still hold
+          D's L at 12". The U has no fingerprint in the suite; 12b's dumps were its proof (registered below).
+        - Unit suite 148 files 4,239 passed (22:08:41-22:09:19, exit 0); the build (22:09:25-22:09:37, exit 0)
+          byte for byte the build of the round's report, all 20 files, main chunk `index-BioXMEL0.js`.
+          `reviewed.json` is read only by tests (`reviewed.test.ts`, `panelReady.test.ts`), so it is not in the
+          build: none of the round's pixel shots, browser runs, look sheets or dumps (made from `src/data`, which
+          does not read it) needed doing again.
+        - **The full suite, 2026-11-16 22:55:10 to 2026-11-17 00:43:50, exit 1: not a pass.** 198 files, 1 failed;
+          4,681 tests, 2 failed: `tests/shareLinkCut.test.ts`, "a v=2 ..." and "a v=1 share link with one field left
+          out ... > without steamSill" — the page stood (one canvas, no error) and said nothing. Both red again
+          alone (00:45:32-00:45:44, exit 1), for diagnosis only. The page does what 12b planned (a link from before
+          v=4 never carried the height and opens at 12" saying nothing); the test takes every field out of a v=1
+          and a v=2 link and expects a line for it, skipping only `shape` at v=1 by hand, and was not in 12b's list
+          of old tests to change. A test change past the plan: not made, put to Leo. No sleep: no Kernel-Power
+          event (42, 105, 187, 506, 507, 566) from 22:50 to 00:50 and `powercfg /lastwake` empty; the System log's
+          last event 22:11:34, the Application log 25 events in the window. Slower than 12a's run (6,506 s against
+          6,048 s; `smoke.test.ts` 1,127 s against 792 s, every case slower, none by a gap).
+      - **Registered that night, not acted on**:
+        - The U has no room fingerprint in the suite: "at the default the room is as before" holds for the L by
+          round 97's and 98b-1's hashes, for the U only by a round's dumps. *(Acted on 2026-11-17, Leo's 三, below.)*
+      - **Leo's answers to the night's report, 2026-11-17** (「全套那两条红没有自己重跑掉、没有擅自改，做得对。」):
+        - 一, `shareLinkCut`, 甲: 「规矩写成一处：每一项从哪个链接版本开始有。比它早的链接里没有这一项，按默认值打开、
+          不提示；从它开始的链接里缺了这一项，才提示。测试照这一处来判断，不要为 steamSill 单写一个例外。」 It is to find,
+          for `steamSill`, that a v=1, v=2 and v=3 link opens at 12", says nothing about it and throws nothing; to go
+          red once with old links opened at 13" and once with them saying it is missing; the code put back and
+          checked byte for byte; the reason and his words beside it.
+        - 二: 「rule.doubleOven（一字型 D 选 PO302W 时的整句）进 reviewed.json，写明是我 2026-11-16 同意的，上次名单里漏了。」
+        - 三: 「加一条小的单元测试：U 型的 D 在默认 12″ 时，烤箱塔的柜体和 376ce18 的底稿一样。先在"故意改成 13″"的代码上
+          看它红。」
+        - 四: the browser tests near a round run on their own before the full suite, found by search, and the plan's
+          list of old tests found the same way — written into HANDOFF section 6, Tests — and done now for 12b.
+        - 五 to 七: unit suite; changed tests red on `376ce18` in their final version; the build again, still
+          `index-BioXMEL0.js` and the 20 files the same, or stop; the preview open, then wait for his 「跑全套」. No commit.
+      - **Done, 2026-11-17**:
+        - `tests/shareLinkCut.test.ts`: the version that first carried a field is read from one place, the field's
+          `since` (layoutFields.ts), which the page reads too. A field a version carried, taken out, must be said
+          (as before; `shape` at v=1 is no longer skipped by hand but by that place); a field older than the link —
+          every version the page reads below its `since` — must open at what A's own link writes for it (read under
+          `?debug=1` from `__room()`), with no line for it and no error: `v=1` without `shape` (L) and `v=1`, `v=2`,
+          `v=3` without `steamSill` (12). 67 cases where there were 65. Green on the build (10:57:09-11:01:14, exit 0).
+          Red twice, each on a build of the break (Leo's 3): `since.before` 13 — the three `steamSill` cases red,
+          value 13 for 12, the other 64 green (build 11:01:31-11:01:49, run 11:01:49-11:05:46, exit 1); old links
+          reading `steamSill` as if they carried it — the same three red, a line said (build 11:05:58-11:06:14, run
+          11:06:14-11:10:14, exit 1). Each file put back and `cmp` equal to its copy; the build again 11:10:21-11:10:38,
+          the 20 files byte for byte last night's.
+        - `reviewed.json`: `rule.doubleOven` in both languages, his words of 2026-11-16 and 2026-11-17 quoted.
+        - `src/data/uTowerAt12.test.ts`: the room "D U {}" stood up as `scripts/uDump.ts` stands it, its oven tower's
+          7 boxes and the height held in one comparison to `uTowerAt12.376ce18.json`, copied from `376ce18`'s dump
+          of 2026-11-16. Green (11:13:06-11:13:13, exit 0); with the default at 13" red, the height 13 and the boxes
+          (`sillIn`, the bridge and the drawer box) different (11:12:58-11:13:06, exit 1); put back, `cmp` equal.
+          (A first try opened D's L and switched to the U; that U's walls are not the dump's, so its boxes stood
+          elsewhere — red on the new code, not used.)
+        - HANDOFF section 6, Tests: the rule and 12b's searches. The browser tests they found, 18 of 50
+          (`analytics`, `defaultDoors`, `eLOvenSocket`, `hoodLineReal`, `modelCard`, `modelCardSide`, `overRange`,
+          `packageSwitchUndo`, `panelReady`, `phoneCard`, `shareLink`, `shareLinkCut`, `shareNotice`, `shareQr`,
+          `sliderWarning`, `smoke`, `steamSill`, `toeKick`), run alone on the round's build: 18 files, 210 tests,
+          all green (11:15:34-12:11:55, exit 0).
+        - Unit suite 149 files 4,242 passed (12:12:06-12:12:53, exit 0); typecheck exit 0 (12:12:53-12:13:04).
+        - On `376ce18`, the final versions: `uTowerAt12.test.ts` and `reviewed.test.ts` with today's `reviewed.json`,
+          25 red (12:13:14-12:13:21, exit 1) — 24 the reviewed keys the old dictionaries lack, and the tower test
+          on the height alone (`steamSillIn` undefined; its 7 boxes the same, as a guard's should be);
+          `tests/shareLinkCut.test.ts` on `376ce18`'s build copied into `dist/`, 3 red of 67, the three `steamSill`
+          cases reading "undefined" for 12 (12:13:30-12:17:22, exit 1). The worktree put back clean.
+        - The build again (12:17:28-12:17:44, exit 0): `index-BioXMEL0.js`, the 20 files byte for byte last night's.
+        - Leo looked at the preview (「预览看过了（index-BioXMEL0.js），跑全套。」). **The full suite, 2026-11-17
+          13:52:40-15:47:59, exit 0: 199 files, 4,686 tests, all passed.** No sleep: no Kernel-Power, Winlogon or
+          shutdown event from 13:50 to 15:50 (the last Kernel-Power event 10:10:40, before it), one System event in
+          the window, `powercfg /lastwake` empty; each file's time near the night's run (`smoke.test.ts` 1,031 s
+          against 1,127 s, the longest case 130 s). Its build `index-BioXMEL0.js`, the 20 files byte for byte the
+          ones checked at 12:17. The preview opened again on it afterwards. Not committed: Leo looks at the result.
+  12c. **A visit count shown on the page** *(registered 2026-11-16; numbered 12c so that 13 and 14 keep their
+      numbers)*. Leo's words: 「帮我加一个visit计数器在这个页面那里」, confirmed with him as a number of visits shown
+      on the page, not another statistics back end. His order: 「新需求，只登记，不动手，不打断 12b」; 「登记进
+      decisions.md 的 Open items，顺序排在 12b 之后、第 13 项之前，写进顺序那一处。和 D24（线上匿名统计访问）的关系写清楚」.
+      Registered only; nothing changed.
+      - **Its relation to D24.** D24 sends page views and four events to GoatCounter from the live site only,
+        and says "**Nothing is shown on the page:** the figures are read in GoatCounter's own dashboard (Leo)"
+        and "**Nothing on the page changes.** No element is added, nothing waits on the request". This item
+        changes both: an element is added, and the page reads a figure back from GoatCounter — a second
+        request, a read, where D24 only sends. What D24 sends stays as it is (the same site, path, fields and
+        events; count.js not used for sending, because of the query; nothing on localhost). D24's two sentences
+        are amended when this is built, not before.
+      - **Waits for Leo: GoatCounter's switch.** "Allow adding visitor counts on your website", in the
+        GoatCounter site's settings, is Leo's to switch on (「这个开关由我来开，你不要动我的账号」); nobody else
+        touches the account. Until he says it is on, the live site's figure cannot be read, whatever is built.
+      - **How it stands, read only (2026-11-16).** Page views go to `https://geesonchan.goatcounter.com/count`,
+        the site shared with game-of-life. The path sent is `location.pathname` only (`src/analytics.ts`,
+        `setupAnalytics`), on the live site `/appliance-showcase/` (`https://geesonchan.github.io/appliance-showcase/`,
+        README); a share link's query is never sent (D24, `q`), so by the code a page opened from a share link
+        is counted under that same path — the plan confirms it against GoatCounter's own figures rather than
+        assuming it, and checks whether `/appliance-showcase/index.html` would count apart. The events go under
+        `appliance-showcase/…` names, not the page's path. `shouldCount` sends nothing without the build's
+        address or on localhost and 127.0.0.1; the tests, the screenshots and the local previews build without
+        the address.
+      - **When its turn comes: a plan first**, read only, every fact with its source (GoatCounter's official
+        documentation, by its address):
+        - how the figure is had: `/counter/[PATH].json`, or count.js's own display;
+        - only the showcase's own path, not `TOTAL` (the site is shared with game-of-life); the path the page
+          reports now, and under which path a share link with its query is counted;
+        - no request in local previews or in the tests (D24: only on the live site);
+        - what the page does when the figure cannot be had, is blocked or times out: no error, nothing covered
+          or held up;
+        - the one more outside request: what it does to the 45 pixel states, the full suite and the live
+          20-file comparison.
+      - **Judged by eye** (Leo: 「这是要用眼睛判断的」): a prototype and screenshots at the plan stage — desktop
+        and phone at 390, Chinese and English, one each, at least two placements. Put to Leo as questions,
+        none chosen for him: where it shows, its sentence, which visits count, what shows when there is no
+        figure, whether it shows on a phone. A new sentence stays out of `reviewed.json` until he agrees.
+  12d. **B's tower with the microwave handle set low: a bare box under the oven** *(registered 2026-11-16;
+      numbered 12d so that 13 and 14 keep their numbers)*. Found in 12b's second draft (its section 14), read
+      from the code, no screenshot: at a microwave handle of 44"-49" B's sill is 5"-10", the box under the
+      opening 1"-6" tall, and `CabinetLayer.tsx` draws a front only on a box over 6" (`hasDoor`), so the
+      opening stands on a box with no front. Leo, 2026-11-16: 「B 的塔在把手调低时烤箱下面是光柜体：登记一条，排在 12c
+      之后、第 13 项之前，D 定下来的面板和抽屉规矩 B 要不要照做，轮到时列给我。这一轮不动 B。」 Registered only; B not
+      changed by 12b. When its turn comes: whether B follows D's rule (under 6" a fixed panel, 6" to under 12"
+      one drawer, 12" and over two drawers of equal height; 12b, Leo's answers A and B), put to him as a
+      question with pictures.
   13. **13**: tapping the package, layout or hood already chosen rebuilds the whole room;
+  12a-2. **A U's right leg has no under-cabinet light: at night its strip is much darker than the back
+      wall's** *(registered 2026-11-15; named 12a-2 so that 12b keeps its name)*. Leo's words: 「U 型右段
+      没有柜下灯条，夜晚那一条墙比后墙暗很多。」 His order: 「只登记，不动手……顺序排在 12a 之后、12b 之前，写进顺序那一处。
+      轮到它时先写计划，出夜晚的改前改后截图。」 Registered only; nothing changed. How it stands, read only: the
+      under-cabinet strips in `src/three/Lights.tsx` are two point lights, one along the left run (where
+      there is one) and one along the back run, on only in realistic mode at night; a U's right leg has
+      none (written for the L, before the U). Found while building 12a (above), measured on its final
+      build: D's U, warm grey, the back wall's strip 144/140/133 against the right leg's 89/85/79 at night
+      (227/226/224 against 195/193/188 by day, where the strips are off and the key light from the front
+      right is the difference). Since `5d5da45`, the first build with the U on the page. When its turn
+      comes: a plan, and night shots before and after.
+      - **Plan, first draft, 2026-11-16, nothing built** (Leo: 「上线后写两份计划，都只写计划，不动主文件夹的页面代码」):
+        `docs/plans/item12a2-plan.md`, its sheets in `docs/plans/item12a2-2026-11-16/small/` (3 files;
+        raw/ local). Prototype in a clean worktree of `376ce18`, `?p12a2=1`, never merged: every run other
+        than the left and the back gets a lamp by their rule (`onAxis`; in a U, the right leg's, the
+        left's mirror). Shot in A and D, the right leg and the corner, night and day: by day 0 pixels
+        (one pair 12 pixels once, 0 on two reshoots); at night D's right leg near the corner 89/85/79 to
+        112/100/86, still darker than the back wall (146/141/134), the tile by the lamp 139 to 209. The
+        left leg has its lamp and looks as the right does with it. None of the 45 states is at night or a
+        U, so none changes. For Leo: the same rule (my leaning), lamps at the middle of each run's uppers,
+        or real strips.
+      - **Deferred, 2026-11-16, after item 13** (Leo: 「12a-2（U 型右段柜下灯）：先不做，顺序挪到第 13 项之后。登记里写明原因：
+        照现在"每段正中一盏点光"的规矩加，光斑落在油烟机旁边，不均匀；要做就三段一起改成灯带，另开一轮。原型的图留着做记录。」).
+        Nothing built. The first draft's sheets stay as the record (`docs/plans/item12a2-2026-11-16/small/`);
+        the prototype worktree is not merged.
   14. **9 and 7 wait for his rules first**: a professional range under B's, C's and D's hood
       (whether the hood follows the cooking surface chosen; D13), and E's L coffee tower beside
       the combination oven tower (TCM24PS p. 9).

@@ -66,6 +66,7 @@ function inches(
   name: string,
   key: keyof typeof PARAM_LIMITS & keyof LayoutParams,
   labelKey: string,
+  more: Pick<LayoutField<number>, "since"> = {},
 ): LayoutField<number> {
   // Within the ends any shape's slider has (round 98b: one wall's back wall
   // goes to 264"). Whether the room takes it in its own shape is the
@@ -87,6 +88,7 @@ function inches(
       return value >= limits.min && value <= limits.max ? value : undefined;
     },
     show: (value) => inchesSpoken(value),
+    ...more,
   };
 }
 
@@ -180,6 +182,8 @@ export const LAYOUT_FIELDS: LayoutField<AnyValue>[] = [
   choice("coffeeLeg", "coffeeLeg", "panel.layout.coffee", LEGS),
   inches("coffeeSill", "coffeeSillIn", "panel.layout.coffeeSill"),
   inches("handle", "microwaveHandleIn", "panel.layout.microwaveHandle"),
+  // D's oven height (12b): a link from before it opens at 12", the toe kick and one drawer.
+  inches("steamSill", "steamSillIn", "panel.layout.steamSill", { since: { version: 4, before: 12 } }),
   island,
   choice("islandTurn", "islandOrientation", "panel.layout.islandOrientation", {
     parallel: "panel.layout.island.parallel",

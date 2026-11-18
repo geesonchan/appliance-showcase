@@ -113,7 +113,8 @@ describe("the share box on a desktop", () => {
     const copied = await clipboard(s);
     const shown = await s.page.$eval("[data-share-link]", (input) => (input as HTMLInputElement).value);
     const toast = await s.page.locator('[role="status"]').first().innerText();
-    expect({ link: /^http:\/\/localhost:\d+\/\?v=3&pkg=A&/.test(copied), shown, toast, errors: s.errors }).toEqual({
+    // v=4 since 12b (2026-11-16, D's oven height in the link); v=3 until then.
+    expect({ link: /^http:\/\/localhost:\d+\/\?v=4&pkg=A&/.test(copied), shown, toast, errors: s.errors }).toEqual({
       link: true,
       shown: copied,
       toast: "Link copied",

@@ -1,0 +1,213 @@
+{
+  "_about": "Package D as it opens as a U, its oven tower (every cabinet box with slot \"slot-oven\" or outline \"right-oven\"), as 376ce18 built it, before 12b: the room \"D U {}\" of scripts/uDump.ts run on 376ce18 (ROOT=<a worktree of 376ce18>, 2026-11-16 17:56:16-17:56:32), copied as it was. Read by src/data/uTowerAt12.test.ts (Leo, 2026-11-17).",
+  "boxes": [
+    {
+      "id": "right-oven-panel-a",
+      "kind": "surround",
+      "position": [
+        4.5,
+        4.166666666666667,
+        4.90625
+      ],
+      "size": [
+        2,
+        7.666666666666667,
+        0.0625
+      ],
+      "run": "right",
+      "facing": {
+        "axis": "x",
+        "sign": -1
+      },
+      "outline": "right-oven",
+      "slot": "slot-oven",
+      "module": {
+        "code": "T3096",
+        "kind": "tall",
+        "widthIn": 30,
+        "heightIn": 96,
+        "slot": "slot-oven",
+        "sillIn": 12,
+        "insetIn": 0.75
+      },
+      "face": "strip"
+    },
+    {
+      "id": "right-oven-panel-b",
+      "kind": "surround",
+      "position": [
+        4.5,
+        4.166666666666667,
+        7.34375
+      ],
+      "size": [
+        2,
+        7.666666666666667,
+        0.0625
+      ],
+      "run": "right",
+      "facing": {
+        "axis": "x",
+        "sign": -1
+      },
+      "outline": "right-oven",
+      "slot": "slot-oven",
+      "module": {
+        "code": "T3096",
+        "kind": "tall",
+        "widthIn": 30,
+        "heightIn": 96,
+        "slot": "slot-oven",
+        "sillIn": 12,
+        "insetIn": 0.75
+      },
+      "face": "strip"
+    },
+    {
+      "id": "right-oven-bridge",
+      "kind": "upper",
+      "position": [
+        4.5,
+        6.473958333333333,
+        6.125
+      ],
+      "size": [
+        2,
+        3.052083333333334,
+        2.375
+      ],
+      "run": "right",
+      "facing": {
+        "axis": "x",
+        "sign": -1
+      },
+      "outline": "right-oven",
+      "slot": "slot-oven",
+      "module": {
+        "code": "T3096",
+        "kind": "tall",
+        "widthIn": 30,
+        "heightIn": 96,
+        "slot": "slot-oven",
+        "sillIn": 12,
+        "insetIn": 0.75
+      },
+      "ventSlot": "slot-oven"
+    },
+    {
+      "id": "right-oven-base",
+      "kind": "base",
+      "position": [
+        4.5,
+        0.6666666666666666,
+        6.125
+      ],
+      "size": [
+        2,
+        0.6666666666666667,
+        2.375
+      ],
+      "run": "right",
+      "facing": {
+        "axis": "x",
+        "sign": -1
+      },
+      "outline": "right-oven",
+      "slot": "slot-oven",
+      "module": {
+        "code": "T3096",
+        "kind": "tall",
+        "widthIn": 30,
+        "heightIn": 96,
+        "slot": "slot-oven",
+        "sillIn": 12,
+        "insetIn": 0.75
+      }
+    },
+    {
+      "id": "right-oven-panel-a-stack",
+      "kind": "surround",
+      "position": [
+        4.5,
+        8.5,
+        4.90625
+      ],
+      "size": [
+        2,
+        1,
+        0.0625
+      ],
+      "run": "right",
+      "facing": {
+        "axis": "x",
+        "sign": -1
+      },
+      "outline": "right-oven",
+      "slot": "slot-oven",
+      "module": {
+        "code": "PNL0.75X12",
+        "kind": "panel",
+        "widthIn": 0.75,
+        "heightIn": 12
+      },
+      "face": "strip"
+    },
+    {
+      "id": "right-oven-panel-b-stack",
+      "kind": "surround",
+      "position": [
+        4.5,
+        8.5,
+        7.34375
+      ],
+      "size": [
+        2,
+        1,
+        0.0625
+      ],
+      "run": "right",
+      "facing": {
+        "axis": "x",
+        "sign": -1
+      },
+      "outline": "right-oven",
+      "slot": "slot-oven",
+      "module": {
+        "code": "PNL0.75X12",
+        "kind": "panel",
+        "widthIn": 0.75,
+        "heightIn": 12
+      },
+      "face": "strip"
+    },
+    {
+      "id": "right-oven-bridge-stack",
+      "kind": "upper",
+      "position": [
+        4.5,
+        8.5,
+        6.125
+      ],
+      "size": [
+        2,
+        1,
+        2.375
+      ],
+      "run": "right",
+      "facing": {
+        "axis": "x",
+        "sign": -1
+      },
+      "outline": "right-oven",
+      "slot": "slot-oven",
+      "module": {
+        "code": "W28.512-24D",
+        "kind": "wall",
+        "widthIn": 28.5,
+        "heightIn": 12,
+        "depthIn": 24
+      },
+      "ventSlot": "slot-oven"
+    }
+  ]
+}

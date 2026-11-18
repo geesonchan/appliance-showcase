@@ -133,7 +133,8 @@ describe("the look chosen, in the room", () => {
     expect({ held: store().selection["slot-wine"], wine: query.get("wine"), v: query.get("v") }).toEqual({
       held: WINE_SS,
       wine: "T24IW905SP-SS",
-      v: "3",
+      // 4 since 12b (2026-11-16, D's oven height in the link); 3 until then.
+      v: "4",
     });
   });
 
@@ -166,7 +167,7 @@ describe("the look chosen, in the room", () => {
     const opened = ["1", "2"].map((v) => {
       packagePage("package-d");
       store().selectAppliance("slot-wine", WINE);
-      openSharedLink(panelLink.replace("v=3", `v=${v}`));
+      openSharedLink(panelLink.replace("v=4", `v=${v}`));
       return [v, store().selection["slot-wine"], store().toast?.notice ?? null];
     });
     expect(opened).toEqual([
@@ -186,7 +187,7 @@ describe("the refrigerator pair, in a link", () => {
     const opened = (["1", "2", "3"] as const).flatMap((v) =>
       ["T36IT100NP", "T36BT120NS"].map((model) => {
         packagePage("package-a");
-        openSharedLink(panelLink.replace("v=3", `v=${v}`).replace("fridge=T36IT100NP", `fridge=${model}`));
+        openSharedLink(panelLink.replace("v=4", `v=${v}`).replace("fridge=T36IT100NP", `fridge=${model}`));
         return `v${v} ${model} → ${store().selection["slot-fridge"]}`;
       }),
     );

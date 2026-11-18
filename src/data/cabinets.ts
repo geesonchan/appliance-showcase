@@ -366,13 +366,20 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
         ? ft(SLOT_BY_ID[module.lowerSlot].cutout.h)
         : ROOM.toeKick;
       if (sill > floor) {
-        boxes.push(
-          onRun(run, `${segment.id}-base`, "base", opening, [floor, sill], ROOM.counterDepth, 0, {
-            outline,
-            slot: module.slot,
-            module,
-            ...(module.lowerSlot ? { face: "strip" as const } : {}),
-          }),
+        // Under package D's oven, by the box's own height (12b; Leo, 2026-11-16,
+        // A and B): under 6" a fixed panel, flush with the doors; 6" to under
+        // 12" one drawer; 12" and over two drawers of equal height. At the
+        // default 12" sill it is the one 8" drawer round 31 built, the same box.
+        const bands = underOvenBands(module, floor, sill);
+        bands.forEach((band, index) =>
+          boxes.push(
+            onRun(run, `${segment.id}-base${index === 0 ? "" : `-${index + 1}`}`, "base", opening, band.span, ROOM.counterDepth, 0, {
+              outline,
+              slot: module.slot,
+              module,
+              ...(module.lowerSlot || band.panel ? { face: "strip" as const } : {}),
+            }),
+          ),
         );
       }
       return;
@@ -433,6 +440,56 @@ function segmentBoxes(run: CabinetRun, segment: RunSegment): CabinetBox[] {
  * exactly: a quarter inch short and its stack would sit out of level with the
  * stacks beside it. The scribe is over the stacks now.
  */
+/**
+ * Whether a tower is package D's, built for its double oven: the tower whose
+ * opening the oven height in Layout sets (12b). By the slot as the package
+ * builds it, not by the oven chosen: whichever of the four is in it, what is
+ * under the opening follows the same rule (Leo, 2026-11-16: 「换了，也留着」).
+ */
+const isDoubleOvenTower = (slot: SlotId | undefined) =>
+  !!slot && PACKAGE_SLOTS[slot]?.category === "wall-oven" && PACKAGE_SLOTS[slot]?.installType === "double";
+
+/** Leo's two figures under D's oven (12b, A and B), the box from the toe kick to the sill. */
+export const UNDER_OVEN = {
+  /** A box shorter than this is a fixed panel: 「抽屉箱不到（6″ ）就做固定面板」. */
+  panelBelowIn: 6,
+  /** From this tall it is two drawers of equal height: 「抽屉箱到（12″ ）起分两个，分法（一样高 ）」. */
+  twoDrawersFromIn: 12,
+} as const;
+
+/**
+ * The boxes under a tower's opening, bottom first: one, from the floor it
+ * stands on to the sill, as every tower has; under package D's oven a panel,
+ * one drawer or two by the box's height (`UNDER_OVEN`).
+ */
+function underOvenBands(
+  module: CabinetModule,
+  floor: number,
+  sill: number,
+): { span: readonly [number, number]; panel: boolean }[] {
+  if (!isDoubleOvenTower(module.slot) || module.lowerSlot) return [{ span: [floor, sill], panel: false }];
+  const boxIn = Math.round((sill - floor) * 12 * 8) / 8;
+  if (boxIn < UNDER_OVEN.panelBelowIn) return [{ span: [floor, sill], panel: true }];
+  if (boxIn < UNDER_OVEN.twoDrawersFromIn) return [{ span: [floor, sill], panel: false }];
+  const mid = floor + (sill - floor) / 2;
+  return [
+    { span: [floor, mid], panel: false },
+    { span: [mid, sill], panel: false },
+  ];
+}
+
+/**
+ * What front package D's oven tower wears under its opening, whatever the
+ * box's height: a fixed panel or a drawer (12b). The scene draws a front only
+ * on a box over 6" (`CabinetLayer`'s `hasDoor`), and these go down to 1"; any
+ * other box, B's tower's included (12d, registered), is left to that rule.
+ */
+export function underOvenFront(box: CabinetBox): "panel" | "drawer" | null {
+  if (box.kind !== "base" || box.module?.kind !== "tall" || !isDoubleOvenTower(box.slot)) return null;
+  if (box.module.lowerSlot || !/-base(-\d+)?$/.test(box.id)) return null;
+  return box.face === "strip" ? "panel" : "drawer";
+}
+
 export function hoodBridgeBand(): readonly [number, number] {
   // The canopy's own top, the model's height and not the slot's 18" (round 78).
   return [hoodTopFt(), ROOM.upperTop] as const;

@@ -28,6 +28,8 @@ const AWAY: Record<string, [string, Partial<LayoutParams>]> = {
   coffeeLeg: ["back", { coffeeLeg: "back" }],
   coffeeSill: ["40", { coffeeSillIn: 40 }],
   handle: ["50", { microwaveHandleIn: 50 }],
+  // D's oven height (12b, 2026-11-16), a setting the table carries since then.
+  steamSill: ["7", { steamSillIn: 7 }],
   island: ["96", { hasIsland: true, islandLengthIn: 96 }],
   islandTurn: ["perpendicular", { islandOrientation: "perpendicular" }],
   islandDepth: ["42", { islandDepthIn: 42 }],

@@ -33,10 +33,32 @@ function freshPage() {
 /**
  * The room as round 97 held it, hashed as round 97 hashed it: the same five
  * things, with what a later round added to a record left out — the layout's
- * `shape` and a run's `facing` (round 98a). Each is asked for on its own below.
+ * `shape` and a run's `facing` (round 98a), and D's oven height, `steamSillIn`
+ * (12b, 2026-11-16: a parameter round 97 had no name for; its link opens at
+ * 12", which `steamSill.test.ts` asks for on its own). Each is asked for on its
+ * own below.
+ *
+ * What leaving `steamSillIn` out keeps and gives up (Leo, 2026-11-16, 五):
+ * - Kept: everything the room is built of — every other parameter, the runs,
+ *   the openings and every cabinet box, D's tower and the drawer under its oven
+ *   among them. So D's link (PO302W, the L) still has to build the tower round
+ *   97 built, which is the tower at 12": opened at 13" on purpose, this case
+ *   turned red for package D and stayed green for A, B, C and E (2026-11-16
+ *   22:08:01-22:08:07, `since.before` 13 in layoutFields.ts, then put back).
+ * - Given up: the figure itself in the parameters. Where it builds nothing — A,
+ *   B, C and E, and D on one wall — a wrong figure would not show here. That an
+ *   old link reads 12" is asked in `steamSill.test.ts` ("an old link (v=1..3)
+ *   ... opens at 12"").
+ * - "At the default 12" the room is as before 12b" is held, for the L, by the
+ *   cabinet boxes in this hash and in `shareLinkRound98b1.test.ts`'s (D L), and
+ *   in figures by `steamSill.test.ts` ("opens at 12" by default, one 8" drawer
+ *   under it") and `packageD.test.ts` ("opens at 12 inches by default"). No
+ *   fingerprint here covers the U: for the U the whole room at 12" was shown
+ *   the same by 12b's dumps (every room, byte for byte, with the new parameter
+ *   left out), which are proof for the round, not a test in the suite.
  */
 function roomAsRound97Held() {
-  const { shape: _shape, ...params } = LAYOUT_PARAMS as typeof LAYOUT_PARAMS & { shape?: unknown };
+  const { shape: _shape, steamSillIn: _steamSill, ...params } = LAYOUT_PARAMS as typeof LAYOUT_PARAMS & { shape?: unknown };
   const runs = RUNS.map((run) => ({ id: run.id, axis: run.axis, centre: run.centre, segments: run.segments, uppers: run.uppers }));
   return createHash("sha256")
     .update(JSON.stringify({ params, runs, slots: SLOT_PLACEMENT, island: ISLAND, cabinets: CABINETS }))
@@ -163,10 +185,11 @@ const fields = () => {
 describe("a link written now", () => {
   // Version 3 since the panel-ready round (Leo, 2026-10-28): a link written
   // now says 3, and still carries the shape version 2 began carrying.
-  it("says it is version 3 and carries the shape", () => {
+  // 4 since 12b (2026-11-16), when a link began to carry D's oven height; 3 until then.
+  it("says it is version 4 and carries the shape", () => {
     freshPage();
     const query = new URLSearchParams(writeLink(kitchenNow()));
-    expect({ v: query.get("v"), shape: query.get("shape") }).toEqual({ v: "3", shape: "L" });
+    expect({ v: query.get("v"), shape: query.get("shape") }).toEqual({ v: "4", shape: "L" });
   });
 
   it("is read as a link", () => {
@@ -187,8 +210,8 @@ describe("a link written now", () => {
 
   it("still cannot read a version it does not know", () => {
     freshPage();
-    // 4: the first version no page writes yet (3 since the panel-ready round).
-    openSharedLink("?v=4&pkg=D&shape=L");
+    // 5: the first version no page writes yet (4 since 12b, 3 since the panel-ready round).
+    openSharedLink("?v=5&pkg=D&shape=L");
     expect({ notice: store().toast?.notice, pkg: store().packageId }).toEqual({ notice: "unreadable", pkg: DEFAULT_PACKAGE.id });
   });
 });

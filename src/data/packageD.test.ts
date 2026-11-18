@@ -235,9 +235,12 @@ describe("package D · the steam oven tower", () => {
     expect(checkLayout()).toEqual([]);
   });
 
-  it("opens at 12 inches, on the 3-inch step, whatever the microwave reach", () => {
+  // 12b (Leo, 2026-11-16): the height is set in Layout now, 5" to 18", and 12"
+  // is its default — this asks for the default; every inch is in steamSill.test.ts.
+  it("opens at 12 inches by default, on the 3-inch step, whatever the microwave reach", () => {
     const base = activateD();
     const sillIn = steamOvenSillIn();
+    expect(base.steamSillIn).toBe(sillIn);
     expect(sillIn).toBe(12);
     expect(sillIn % CABINET_STANDARDS.widthIn.step).toBe(0);
     expect(STEAM_OVEN.drawerFrontIn).toBeGreaterThanOrEqual(8);

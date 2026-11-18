@@ -7,6 +7,7 @@ import {
   type CabinetBox,
   diagonalDoor,
   standOffFromWall,
+  underOvenFront,
   wearsDoorFinish,
 } from "../data/cabinets";
 import { counterOutline } from "../data/counter";
@@ -308,9 +309,13 @@ function CabinetSolid({ box }: { box: CabinetBox }) {
   // cabinet colour where the machines' own fronts are.
   const hidden = (install && isMobile) || (box.installOnly === true && !install);
   // A door goes on anything with a front: not the toe kick, which is recessed,
-  // and not the countertop, which is a slab.
+  // and not the countertop, which is a slab. And under package D's oven, the
+  // panel or the drawer front whatever its height, down to 1" (12b).
   const hasDoor =
-    !install && box.kind !== "toe" && box.kind !== "counter" && box.size[1] > ft(6);
+    !install &&
+    box.kind !== "toe" &&
+    box.kind !== "counter" &&
+    (box.size[1] > ft(6) || underOvenFront(box) !== null);
   // A corner susan wears one door across the corner rather than a flat front
   // on each leg. See docs/reference/lazy-susan-corner.svg.
   const corner = useMemo(() => diagonalDoor(box), [box]);

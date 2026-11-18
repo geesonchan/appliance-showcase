@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { SLOT_ORDER } from "./catalogue";
 import { SLOT_BY_ID } from "./slots";
+import { PACKAGE_SLOTS } from "./packages";
 import { evaluateSlot, packageContext, type Finding } from "./rules";
 import { resolveRoughIn, roughInFor, roughInWords } from "./roughIn";
 import { useSelection, useSelectedBlower } from "../store/useSelection";
@@ -15,7 +16,10 @@ import {
   isColumn,
   isCombo,
   isDouble,
+  isSteamOven,
 } from "./columnModel";
+import { CABINETS, underOvenFront } from "./cabinets";
+import { OVEN_SILL_RANGE_IN, steamSillFor } from "./towerOven";
 import { chimneyOf, chimneyParts, isChimney } from "./hood";
 import { ISLAND, LAYOUT_LIMITS, LAYOUT_PARAMS, OMITTED_FOR_WALL, OMITTED_SLOTS, ROOM, RUNS } from "./room";
 import { COFFEE_HEIGHT } from "./layoutTemplate";
@@ -345,22 +349,77 @@ function ovenVent(vent: TowerVent, machine: Appliance | undefined): Finding[] {
 function steamOven(selection: Record<SlotId, Appliance>): Finding[] {
   const oven = selection["slot-oven"];
   const slot = SLOT_BY_ID["slot-oven"];
-  if (!oven || !slot || !isDouble(oven)) return [];
+  if (!oven || !slot) return [];
   const sillIn = round8(slot.position[1] * 12);
-  return [
-    {
-      ruleId: "steam-oven",
+  const amps = slot.utilities.power?.amps ?? oven.requires.amps ?? 40;
+  // 「蒸烤箱」 only for a steam oven (Leo, 2026-11-16, 12b, D-1): PO302W is a
+  // double oven with no steam, and was called one here.
+  const steam = isSteamOven(oven);
+  // Package D's tower on one wall is built for a combination oven and hung from
+  // the microwave handle; a double oven chosen there keeps the one line with
+  // its opening in it, as before 12b.
+  if (PACKAGE_SLOTS["slot-oven"]?.installType !== "double") {
+    if (!isDouble(oven)) return [];
+    return [
+      {
+        ruleId: "steam-oven",
+        severity: "info",
+        messageKey: steam ? "rule.steamOven" : "rule.doubleOven",
+        slot: "slot-oven",
+        params: { sillIn, handleIn: round8(sillIn + STEAM_OVEN.lowerHandleIn), amps },
+      },
+    ];
+  }
+
+  // D's L and U (12b): the opening's height for any of the four ovens, its
+  // sheet's range and what is under it — read off the boxes the room built —
+  // then, where the oven has a lower door, its handle and the circuit, the
+  // opening no longer said twice (Leo, D-2: 「同一个数不写两遍」).
+  const lines: Finding[] = [];
+  const sheet = OVEN_SILL_RANGE_IN[oven.model];
+  const under = CABINETS.filter((box) => underOvenFront(box) !== null && box.slot === "slot-oven");
+  if (sheet && under.length > 0) {
+    const boxIn = round8(under[0].size[1] * 12);
+    const kind = under.length > 1 ? "drawers" : underOvenFront(under[0]) === "panel" ? "panel" : "drawer";
+    lines.push({
+      ruleId: "oven-sill",
       severity: "info",
-      messageKey: "rule.steamOven",
+      messageKey: `rule.ovenSill.${kind}`,
+      slot: "slot-oven",
+      params: { sillIn: inchesOf(sillIn), lowIn: inchesOf(sheet.min), highIn: inchesOf(sheet.max), boxIn: inchesOf(boxIn) },
+    });
+  }
+  // Held at the oven's own end, as B's microwave reach says it (Leo, C).
+  const asked = LAYOUT_PARAMS.steamSillIn;
+  if (sheet && steamSillFor(asked, oven).held) {
+    lines.push({
+      ruleId: "oven-sill-held",
+      severity: "warning",
+      messageKey: "rule.ovenSillHeld",
       slot: "slot-oven",
       params: {
-        sillIn,
-        handleIn: round8(sillIn + STEAM_OVEN.lowerHandleIn),
-        amps: slot.utilities.power?.amps ?? oven.requires.amps ?? 40,
+        sillIn: inchesOf(sillIn),
+        askedIn: inchesOf(asked),
+        model: oven.model,
+        lowIn: inchesOf(sheet.min),
+        highIn: inchesOf(sheet.max),
       },
-    },
-  ];
+    });
+  }
+  if (isDouble(oven)) {
+    lines.push({
+      ruleId: "steam-oven",
+      severity: "info",
+      messageKey: steam ? "rule.steamOven.handle" : "rule.doubleOven.handle",
+      slot: "slot-oven",
+      params: { handleIn: round8(sillIn + STEAM_OVEN.lowerHandleIn), amps },
+    });
+  }
+  return lines;
 }
+
+/** As fractions, the way a tape reads; the message supplies the inch mark. */
+const inchesOf = (value: number) => formatDimension(value).replace(/"$/, "");
 
 /**
  * The coffee cabinet, and the dishwasher standing in the bottom of it.

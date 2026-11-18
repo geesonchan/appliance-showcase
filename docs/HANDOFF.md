@@ -752,6 +752,31 @@ work this way.
   test that an unmarked part goes red.
 - **A browser test is run red on the old build too**: copy the old build into
   `dist/`, run it, put the new one back.
+- **Before the full suite, the browser tests near the round run on their own**
+  (Leo, 2026-11-17, after 12b's full suite went red at its end on
+  `tests/shareLinkCut.test.ts`, a test 12b's plan had not listed:
+  「跑全套测试之前，先把和这一轮改动沾边的已有浏览器测试单独跑一遍（按文件里用到的选择器、链接参数、页签名去找），
+  红了当场报，不要等全套跑完。计划里"要改的旧测试"清单也照这个办法找，写明是怎么找的。」).
+  - Find them by searching `tests/*.test.ts` for what the round changes on
+    the page: the link's parameters and version (`writeLink`, `LINK_FIELDS`,
+    `LINK_VERSION`, `v=` figures, the new field's name), the selectors and tab
+    names of the panels it touches (`data-right-tab="layout"`, `"list"`,
+    `data-checklist`, `data-pin-label`, a slider's label), and the slot ids,
+    model ids and words it touches. Where a term is everywhere (the install
+    button, a package's letter), take only files that have it together with
+    the package or view the round changes: each search is a term, or two terms
+    in one file.
+  - List the searches and the files each found; run the files alone on the
+    round's build; a red is reported then and there, not after the full suite.
+  - The plan's list of old tests to change is found the same way, before the
+    code changes, and the plan says which searches found it.
+  - 12b's searches (2026-11-17), 18 of the 50 files: the field and slider
+    (`steamSill|ovenSill|Oven height|烤箱离地`); a link written now or its
+    version (`writeLink|__shareUrl|LINK_FIELDS|LINK_VERSION|v=4|v=3`); the
+    Layout tab with package D; the install list with D; the install view's
+    labels or dimensions with D; the oven slot, its models and 「蒸」/"steam
+    oven". The same terms without the package found 34 files, 94 of the
+    suite's 106 minutes, too wide to run ahead of it.
 - A script `click()` in the page and a real mouse, finger or key can differ
   here (D17): say which input a result came from, and check both before
   saying what a customer sees.

@@ -6,7 +6,9 @@ import { useAppStore } from "../store/useAppStore";
 import { selectionOf, useActivePackage, useSelectedAppliance } from "../store/useSelection";
 import { billLabelKey } from "../data/machineLabel";
 import { hoodMount } from "../data/hoodMount";
-import { comboHandleAt, comboSillFor } from "../data/columnModel";
+import { STEAM_OVEN, comboHandleAt, comboSillFor, isCombo, isDouble } from "../data/columnModel";
+import { ovenSillLimits, steamSillFor } from "../data/towerOven";
+import type { Appliance } from "../types";
 import { atCoffeeManualHeight, snapCoffeeSill, underCoffee } from "../data/layoutTemplate";
 import { formatDimension } from "../data/dimensions";
 import { RefusalNote } from "./RefusalNote";
@@ -123,6 +125,25 @@ function MicrowaveReach({ handleIn }: { handleIn: number }) {
   );
 }
 
+/**
+ * Under D's oven height, what it comes out as: where the opening starts, and
+ * the handle the oven in it has — the lower door's on a double oven, the
+ * microwave's on a combination oven, none on a single (12b, the plan's section
+ * 6; Leo: 「第 6 节的小字（中英文）可以」). In bold when the oven chosen will not
+ * go as high as asked, as B's microwave handle is when its drawing stops it.
+ */
+function OvenHeight({ sillIn, held, oven }: { sillIn: number; held: boolean; oven: Appliance | undefined }) {
+  const t = useT();
+  const words = !oven
+    ? t("panel.layout.steamSill.caption.single", { sillIn })
+    : isCombo(oven)
+      ? t("panel.layout.steamSill.caption.combo", { sillIn, atIn: comboHandleAt(sillIn) })
+      : isDouble(oven)
+        ? t("panel.layout.steamSill.caption", { sillIn, lowIn: sillIn + STEAM_OVEN.lowerHandleIn })
+        : t("panel.layout.steamSill.caption.single", { sillIn });
+  return <span className={held ? "font-medium text-ink" : undefined}>{words}</span>;
+}
+
 export function LayoutControls() {
   const t = useT();
   const params = useAppStore((s) => s.layoutParams);
@@ -136,6 +157,14 @@ export function LayoutControls() {
   const hasMicrowaveTower = specified.some(
     (slot) => slot.category === "wall-oven" && slot.installType === "combo",
   );
+  // Package D's tower, built for its double oven: its height off the floor,
+  // whichever of the four ovens is in it (12b; Leo, 2026-11-16: 「换了，也留着」),
+  // its ends the chosen oven's own (C, 乙).
+  const hasOvenHeight = specified.some(
+    (slot) => slot.category === "wall-oven" && slot.installType === "double",
+  );
+  const oven = useSelectedAppliance("slot-oven");
+  const ovenSill = steamSillFor(params.steamSillIn, oven);
   // And a coffee cabinet, which can go on either leg at a height somebody sets.
   const hasCoffee = specified.some((slot) => slot.category === "coffee");
   // What stands under it, which the caption names rather than assumes (round 73).
@@ -336,6 +365,15 @@ export function LayoutControls() {
             {...PARAM_LIMITS.microwaveHandleIn}
             caption={<MicrowaveReach handleIn={params.microwaveHandleIn} />}
             onChange={(microwaveHandleIn) => setLayout({ microwaveHandleIn })}
+          />
+        )}
+        {hasOvenHeight && on("steamSillIn") && (
+          <Slider
+            label={t("panel.layout.steamSill")}
+            value={ovenSill.sillIn}
+            {...ovenSillLimits(oven)}
+            caption={<OvenHeight sillIn={ovenSill.sillIn} held={ovenSill.held} oven={oven} />}
+            onChange={(steamSillIn) => setLayout({ steamSillIn })}
           />
         )}
         {hasCoffee && on("coffeeSillIn") && (

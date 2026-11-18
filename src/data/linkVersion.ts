@@ -19,11 +19,15 @@
  * panel-ready, each written as its own number. A `v=1` or `v=2` link's
  * `T18IW905SP` was written when that was the stainless one, and is read so,
  * as the -SS row, with nothing said.
+ *
+ * 4 since 12b (Leo, 2026-11-16): a link carries package D's oven height,
+ * `steamSill`. A link of 1 to 3 was written when D's oven always opened 12"
+ * off the floor, and is read so, with nothing said (「旧链接没有就按 12″」).
  */
-export const LINK_VERSION = "3";
+export const LINK_VERSION = "4";
 
 /** Every version a page can read: what it writes, and what it wrote before. */
-export const LINK_VERSIONS: readonly string[] = ["1", "2", "3"];
+export const LINK_VERSIONS: readonly string[] = ["1", "2", "3", "4"];
 
 /** The first version in which a column's bare number is its panel-ready row. */
 export const PANEL_READY_SINCE = 3;

@@ -45,11 +45,34 @@ const asThen = (selection: Record<string, string>) =>
     }),
   );
 
-/** The room as the fixture hashed it. */
+/**
+ * The room as the fixture hashed it: its parameters as 98b-1 had them, D's oven
+ * height left out (12b, 2026-11-16: a parameter 98b-1 had no name for; an old
+ * link opens it at 12", asked for on its own in `steamSill.test.ts`).
+ *
+ * What leaving it out keeps and gives up (Leo, 2026-11-16, 五):
+ * - Kept: everything the room is built of — every other parameter, the runs,
+ *   the machines' places, every cabinet box and the models. So D's L link
+ *   (PODS302B) still has to build the tower 98b-1 built, the tower at 12":
+ *   opened at 13" on purpose, "D L" turned red and the other nine stayed green
+ *   (2026-11-16 22:08:01-22:08:07, `since.before` 13 in layoutFields.ts, then
+ *   put back). D on one wall stayed green, as it should: there MEM301WS hangs
+ *   from the microwave handle and the oven height builds nothing.
+ * - Given up: the figure itself in the parameters, where it builds nothing (A,
+ *   B, C, E, and D on one wall). That an old link reads 12" is asked in
+ *   `steamSill.test.ts` ("an old link (v=1..3) ... opens at 12"").
+ * - Which tests hold "at the default 12" the room is as before 12b": see the
+ *   same note in `shareLinkV2.test.ts` (the L here and there; the U by 12b's
+ *   dumps only, not by a test in the suite).
+ */
+const asThenParams = () => {
+  const { steamSillIn: _steamSill, ...params } = LAYOUT_PARAMS;
+  return params;
+};
 const held = () =>
   createHash("sha256")
     .update(
-      JSON.stringify({ params: LAYOUT_PARAMS, runs: RUNS, slots: SLOT_PLACEMENT, island: ISLAND, cabinets: CABINETS, selection: asThen(store().selection) }),
+      JSON.stringify({ params: asThenParams(), runs: RUNS, slots: SLOT_PLACEMENT, island: ISLAND, cabinets: CABINETS, selection: asThen(store().selection) }),
     )
     .digest("hex");
 

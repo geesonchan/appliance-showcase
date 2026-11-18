@@ -26,6 +26,7 @@ import {
   type HoodMount,
 } from "./hoodMount";
 import { slotsAsBuilt } from "./fridgeMount";
+import { STEAM_SILL_LIMITS, steamSillFor, towerOvenFor } from "./towerOven";
 import { ovenTowerOf } from "./ovenTower";
 import { alongOf, extentsOnAxis, faceRotation, onAxis, rotationOf, sizeOnAxis } from "./frame";
 import { cornersOf, runCentre, shapeRun, shapeSpec, type LayoutShape, type RunEnd, type RunId, type ShapeSpec } from "./layoutShape";
@@ -101,6 +102,15 @@ export interface LayoutParams {
    * figure outside it is clamped — with the install list saying by how much.
    */
   microwaveHandleIn: number;
+  /**
+   * How far off the floor package D's oven opening starts, in its tower beside
+   * the range (12b; Leo, 2026-11-16): the opening's bottom from the floor, 5" to
+   * 18" by the inch, 12" by default — the toe kick and one 8" drawer, as round 31
+   * built it. Within that, what the chosen oven's own sheet allows
+   * (`steamSillFor`, towerOven.ts). A combination oven in a tower of its own kind
+   * (B, E, D on one wall) is hung from `microwaveHandleIn` instead.
+   */
+  steamSillIn: number;
   /**
    * Which leg the coffee cabinet stands on, in a package that has one.
    *
@@ -191,6 +201,8 @@ export const PARAM_LIMITS = {
   islandDepthIn: { min: 24, max: 42, step: 6 },
   aisleIn: { min: 42, max: 60, step: 3 },
   microwaveHandleIn: { min: 44, max: 60, step: 1 },
+  // D's oven height, the opening's bottom from the floor (12b): STEAM_SILL_LIMITS.
+  steamSillIn: { ...STEAM_SILL_LIMITS },
   // Thirty-six is the dishwasher's 34" opening under it and the rail over
   // that; sixty is as high as anybody reaches to take a cup out.
   coffeeSillIn: { min: 36, max: 60, step: 1 },
@@ -383,6 +395,8 @@ export const DEFAULT_PARAMS: LayoutParams = {
   housingStyle: "box",
   islandOrientation: "parallel",
   microwaveHandleIn: 54,
+  // The toe kick and one 8" drawer (round 31; Leo, 2026-11-16: 12" by default).
+  steamSillIn: 12,
   coffeeLeg: "left",
   // TCM24PS's own figure, and Leo's counter height (round 75): COFFEE_HEIGHT.
   coffeeSillIn: COFFEE_HEIGHT.manualIn,
@@ -811,18 +825,22 @@ const WALL_END_PANEL = { widthIn: 0.75 } as const;
  * microwave's handle should land — the parameter is the reach, and this is the
  * hole that produces it, clamped to what the machine's drawing allows.
  */
-export function sillFor(slot: PackageSlot, params: LayoutParams): number {
+export function sillFor(slot: PackageSlot, params: LayoutParams, pkg: Package): number {
   // The coffee machine is hung where a cup is taken out, which is a parameter.
   if (slot.category === "coffee") return params.coffeeSillIn;
   // A combination oven is hung from where its microwave handle lands, wherever
   // its tower stands — beside the range as in B, or on its own in the run as
   // in E, with one parameter for both (round 74; until then only the one
   // beside the range was asked, and E's fell to a sill of 0"). Any other oven
-  // has no microwave handle to reach for, and stands at the package's own
-  // figure — package D's steam oven at 12", the toe kick and one drawer
-  // (`steamOvenSillIn`).
+  // has no microwave handle to reach for. Package D's tower, built for its
+  // double oven, is hung where the oven height in Layout puts it, whichever of
+  // the four ovens is in it, held to that oven's own sheet (12b; Leo,
+  // 2026-11-16) — 12" by default, the toe kick and one drawer (round 31).
   if (slot.category === "wall-oven" && slot.installType === "combo") {
     return comboSillFor(params.microwaveHandleIn).sillIn;
+  }
+  if (slot.category === "wall-oven" && slot.installType === "double") {
+    return steamSillFor(params.steamSillIn, towerOvenFor(pkg)).sillIn;
   }
   return slot.sillIn;
 }
@@ -1327,6 +1345,7 @@ function validate(params: LayoutParams): Refusal[] {
   push(within("leftWallIn", params.leftWallIn, limits));
   // A height a hand reaches to, so it is an inch at a time rather than a step.
   push(within("microwaveHandleIn", params.microwaveHandleIn));
+  push(within("steamSillIn", params.steamSillIn));
   push(within("coffeeSillIn", params.coffeeSillIn));
 
   // The tower and the sink base both need a run's worth of wall behind them,
@@ -1976,7 +1995,7 @@ function planLegs(
       M(`T${slot.widthIn}96`, "tall", slot.widthIn, {
         heightIn: 96,
         slot: slotId,
-        sillIn: sillFor(slot, params),
+        sillIn: sillFor(slot, params, pkg),
         insetIn: tower ? tower.sideIn : 0,
         ...(slot.standsOver ? { lowerSlot: slot.standsOver } : {}),
       }),
@@ -3252,6 +3271,7 @@ function placements(
   spec: Record<SlotId, PackageSlot>,
   omitted: readonly SlotId[],
   params: LayoutParams,
+  pkg: Package,
 ) {
   const onRun = (run: CabinetRun, at: number): [number, number, number] =>
     onAxis(run.axis, at, run.centre);
@@ -3278,7 +3298,7 @@ function placements(
     const { run, segment } = find((s) => s.slot === slot);
     const at = onRun(run, mid([segment.from + inset, segment.to - inset]));
     return {
-      position: [at[0], ft(sillFor(spec[slot], params)), at[2]],
+      position: [at[0], ft(sillFor(spec[slot], params, pkg)), at[2]],
       rotationY: facing(run),
       mount: "wall",
     };
@@ -3301,7 +3321,7 @@ function placements(
       if (module.kind === "tall" || module.kind === "tall-open") {
         const at = onRun(run, mid([cursor, next]));
         return {
-          position: [at[0], ft(sillFor(spec["slot-fridge"], params)), at[2]],
+          position: [at[0], ft(sillFor(spec["slot-fridge"], params, pkg)), at[2]],
           rotationY: facing(run),
           mount: "wall",
         };
@@ -3719,7 +3739,7 @@ export function generateLayout(
     ),
   }));
 
-  const placed = placements(runs, island, spec, omitted, params);
+  const placed = placements(runs, island, spec, omitted, params, pkg);
 
   return {
     ok: true,

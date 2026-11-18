@@ -47,6 +47,57 @@ export function towerOpeningHeightIn(builtIn: number, oven: Pick<Appliance, "cut
   return needs !== null && needs > builtIn ? needs : builtIn;
 }
 
+/**
+ * How far off the floor each oven's own sheet lets its opening start, wall
+ * mounted: the wall-mount drawing on p. 2 of each spec sheet (printed "Page 2
+ * of 3"), read from the floor (Leo, 2026-11-16, 12b, F: 「还按切口底离地」 —
+ * read strictly, the drawing's upper end is the underside of the shelf under
+ * the opening, a shelf's thickness lower, which it does not give; the
+ * installation guide's p. 24 calls the figures under the oven a general
+ * guideline).
+ */
+export const OVEN_SILL_RANGE_IN: Record<string, { min: number; max: number }> = {
+  // pods302b-spec.pdf p. 2: 4-3/4"-18-3/4" (121-476 mm).
+  PODS302B: { min: 4.75, max: 18.75 },
+  // po302w-spec.pdf p. 2: 4-3/4"-14-7/8" (121-378 mm).
+  PO302W: { min: 4.75, max: 14.875 },
+  // me301yp-spec.pdf p. 2: 4-3/4"-38" (121-964 mm).
+  ME301YP: { min: 4.75, max: 38 },
+  // mem301ws-spec.pdf p. 2: 4-3/4"-18" (121-457 mm); `COMBO_OVEN.sillIn`.
+  MEM301WS: { min: 4.75, max: 18 },
+};
+
+/**
+ * Package D's oven height in Layout (12b): 5" to 18" by the inch, and within
+ * that what the chosen oven's own sheet allows (Leo, 2026-11-16, C, 乙:
+ * 「换型号时范围跟着型号变」 — PO302W to 14"; ME301YP's sheet allows 38" and the
+ * slider still stops at 18"). An oven with no range here keeps the slider's.
+ */
+export const STEAM_SILL_LIMITS = { min: 5, max: 18, step: 1 } as const;
+
+export function ovenSillLimits(oven: Pick<Appliance, "model"> | undefined): { min: number; max: number; step: number } {
+  const sheet = oven ? OVEN_SILL_RANGE_IN[oven.model] : undefined;
+  if (!sheet) return { ...STEAM_SILL_LIMITS };
+  return {
+    min: Math.max(STEAM_SILL_LIMITS.min, Math.ceil(sheet.min)),
+    max: Math.min(STEAM_SILL_LIMITS.max, Math.floor(sheet.max)),
+    step: STEAM_SILL_LIMITS.step,
+  };
+}
+
+/**
+ * Where D's opening starts for the height asked: what was asked, held to the
+ * chosen oven's ends. Held is a real answer rather than an error, as B's
+ * microwave handle is (`comboSillFor`): the slider keeps what was asked, the
+ * tower is built at the end, and the install list says so (Leo, C: 「和 B 的
+ * 滑杆到头停住并提示是同一种做法」).
+ */
+export function steamSillFor(askedIn: number, oven: Pick<Appliance, "model"> | undefined): { sillIn: number; held: boolean } {
+  const { min, max } = ovenSillLimits(oven);
+  const sillIn = Math.min(max, Math.max(min, askedIn));
+  return { sillIn, held: sillIn !== askedIn };
+}
+
 /** The tower's slot as the chosen oven is built in: its opening's height. Any other slot as it is. */
 export function towerSlotAsBuilt(pkg: Package, spec: PackageSlot): PackageSlot {
   if (!isOvenTower(spec) || spec.heightIn === null || spec.heightIn === undefined) return spec;

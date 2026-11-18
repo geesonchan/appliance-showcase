@@ -12,6 +12,7 @@ import {
   ft,
 } from "./room";
 import { SLOT_BY_ID } from "./slots";
+import { PACKAGE_SLOTS } from "./packages";
 import { towerVents } from "./towerVent";
 import { ISLAND_HOOD, manualNote } from "./hood";
 import { onAxis, toWorld } from "./frame";
@@ -209,6 +210,9 @@ export function dimensionsFor(
       noteKey: "dimension.towerVent",
       noteVars: { depth: formatDimension(vent.depthIn) },
     })),
+    // Package D's oven: how far off the floor its opening starts, which the
+    // oven height in Layout sets (12b; Leo, 2026-11-16, E).
+    ...ovenSill(),
     // The aisle, between the run's counter edge and the island's (D20, round
     // 39): each top laps 1" past its cabinets. A room with no island has no
     // aisle to dimension, so the figure is absent rather than zero.
@@ -287,6 +291,43 @@ function windowDimensions(): Dimension[] {
     });
   }
   return out;
+}
+
+/**
+ * The height of package D's oven opening off the floor (12b, E): a vertical
+ * from the floor to the opening's bottom, standing a little in front of the
+ * tower as the window's sill does in front of its wall, 3" inside the
+ * opening's edge on the side away from the cooking surface — clear of the
+ * chain beside the range — with a note saying what it measures. It is the
+ * oven's figure: drawn with the room, and when the oven is looked at.
+ */
+function ovenSill(): Dimension[] {
+  const slot = SLOT_BY_ID["slot-oven"];
+  const spec = PACKAGE_SLOTS["slot-oven"];
+  if (!slot || !spec || spec.category !== "wall-oven" || spec.installType !== "double" || slot.mount !== "wall") return [];
+  const sill = slot.position[1];
+  if (sill <= 0) return [];
+  const out = ROOM.counterDepth / 2 + 0.35;
+  const across = ft(slot.cutout.w) / 2 - ft(3);
+  const cooking = SLOT_BY_ID["slot-range"] ?? SLOT_BY_ID["slot-cooktop"];
+  const away = (sign: number) => {
+    if (!cooking) return 0;
+    const [x, , z] = toWorld(slot, sign * across, 0, out);
+    return Math.hypot(x - cooking.position[0], z - cooking.position[2]);
+  };
+  const sign = away(-1) >= away(1) ? -1 : 1;
+  const at = (y: number) => toWorld(slot, sign * across, y, out);
+  return [
+    {
+      id: "oven-sill",
+      from: at(0),
+      to: at(sill),
+      valueIn: Number((sill * 12).toFixed(3)),
+      labelAt: 0.5,
+      slots: ["slot-oven"],
+      noteKey: "dimension.ovenSill",
+    },
+  ];
 }
 
 /** Inches as a builder writes them: 36¾ rather than 36.75. */
