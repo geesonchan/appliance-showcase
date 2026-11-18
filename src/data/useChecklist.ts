@@ -19,6 +19,7 @@ import {
   isSteamOven,
 } from "./columnModel";
 import { CABINETS, underOvenFront } from "./cabinets";
+import { isOvenTower } from "./ovenTower";
 import { OVEN_SILL_RANGE_IN, steamSillFor } from "./towerOven";
 import { chimneyOf, chimneyParts, isChimney } from "./hood";
 import { ISLAND, LAYOUT_LIMITS, LAYOUT_PARAMS, OMITTED_FOR_WALL, OMITTED_SLOTS, ROOM, RUNS } from "./room";
@@ -347,37 +348,27 @@ function ovenVent(vent: TowerVent, machine: Appliance | undefined): Finding[] {
  * electrician has to be told.
  */
 function steamOven(selection: Record<SlotId, Appliance>): Finding[] {
-  const oven = selection["slot-oven"];
-  const slot = SLOT_BY_ID["slot-oven"];
-  if (!oven || !slot) return [];
+  // The package's oven tower, wherever it stands: D's oven slot, B's and E's
+  // combination oven's (12d; Leo, 2026-11-17: 「12d：B、E、一字型的 D（都照搬 D 的规矩）」).
+  const spec = Object.values(PACKAGE_SLOTS).find((candidate) => candidate && isOvenTower(candidate));
+  const slotId = spec?.slotId;
+  const oven = slotId ? selection[slotId] : undefined;
+  const slot = slotId ? SLOT_BY_ID[slotId] : undefined;
+  if (!slotId || !oven || !slot) return [];
   const sillIn = round8(slot.position[1] * 12);
   const amps = slot.utilities.power?.amps ?? oven.requires.amps ?? 40;
   // 「蒸烤箱」 only for a steam oven (Leo, 2026-11-16, 12b, D-1): PO302W is a
   // double oven with no steam, and was called one here.
   const steam = isSteamOven(oven);
-  // Package D's tower on one wall is built for a combination oven and hung from
-  // the microwave handle; a double oven chosen there keeps the one line with
-  // its opening in it, as before 12b.
-  if (PACKAGE_SLOTS["slot-oven"]?.installType !== "double") {
-    if (!isDouble(oven)) return [];
-    return [
-      {
-        ruleId: "steam-oven",
-        severity: "info",
-        messageKey: steam ? "rule.steamOven" : "rule.doubleOven",
-        slot: "slot-oven",
-        params: { sillIn, handleIn: round8(sillIn + STEAM_OVEN.lowerHandleIn), amps },
-      },
-    ];
-  }
 
-  // D's L and U (12b): the opening's height for any of the four ovens, its
-  // sheet's range and what is under it — read off the boxes the room built —
-  // then, where the oven has a lower door, its handle and the circuit, the
-  // opening no longer said twice (Leo, D-2: 「同一个数不写两遍」).
+  // The opening's height for any oven, its sheet's range and what is under it —
+  // read off the boxes the room built — then, where the oven has a lower door,
+  // its handle and the circuit, the opening no longer said twice (Leo, D-2:
+  // 「同一个数不写两遍」). D's L and U since 12b; B's, E's and D's on one wall since
+  // 12d, in the words 12b's were reviewed in (Leo: 「句子用 12b 已经审过的那几句」).
   const lines: Finding[] = [];
   const sheet = OVEN_SILL_RANGE_IN[oven.model];
-  const under = CABINETS.filter((box) => underOvenFront(box) !== null && box.slot === "slot-oven");
+  const under = CABINETS.filter((box) => underOvenFront(box) !== null && box.slot === slotId);
   if (sheet && under.length > 0) {
     const boxIn = round8(under[0].size[1] * 12);
     const kind = under.length > 1 ? "drawers" : underOvenFront(under[0]) === "panel" ? "panel" : "drawer";
@@ -385,18 +376,19 @@ function steamOven(selection: Record<SlotId, Appliance>): Finding[] {
       ruleId: "oven-sill",
       severity: "info",
       messageKey: `rule.ovenSill.${kind}`,
-      slot: "slot-oven",
+      slot: slotId,
       params: { sillIn: inchesOf(sillIn), lowIn: inchesOf(sheet.min), highIn: inchesOf(sheet.max), boxIn: inchesOf(boxIn) },
     });
   }
-  // Held at the oven's own end, as B's microwave reach says it (Leo, C).
+  // Held at the oven's own end, as B's microwave reach says it (Leo, C): D's
+  // oven height only; the microwave handle says its own (`microwaveReach`).
   const asked = LAYOUT_PARAMS.steamSillIn;
-  if (sheet && steamSillFor(asked, oven).held) {
+  if (PACKAGE_SLOTS[slotId]?.installType === "double" && sheet && steamSillFor(asked, oven).held) {
     lines.push({
       ruleId: "oven-sill-held",
       severity: "warning",
       messageKey: "rule.ovenSillHeld",
-      slot: "slot-oven",
+      slot: slotId,
       params: {
         sillIn: inchesOf(sillIn),
         askedIn: inchesOf(asked),
@@ -406,12 +398,14 @@ function steamOven(selection: Record<SlotId, Appliance>): Finding[] {
       },
     });
   }
-  if (isDouble(oven)) {
+  // The lower door's handle, where the list said it before: D's oven slot, in
+  // the L, the U and on one wall.
+  if (slotId === "slot-oven" && isDouble(oven)) {
     lines.push({
       ruleId: "steam-oven",
       severity: "info",
       messageKey: steam ? "rule.steamOven.handle" : "rule.doubleOven.handle",
-      slot: "slot-oven",
+      slot: slotId,
       params: { handleIn: round8(sillIn + STEAM_OVEN.lowerHandleIn), amps },
     });
   }

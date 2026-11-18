@@ -6018,7 +6018,10 @@ plan read out first.
 The live page counts its page views and four things done on it with
 GoatCounter, in the site it shares with geesonchan/game-of-life
 (`https://geesonchan.goatcounter.com/count`). **Nothing is shown on the page:**
-the figures are read in GoatCounter's own dashboard (Leo).
+the figures are read in GoatCounter's own dashboard (Leo). *(Amended 2026-11-17,
+item 12c, Leo: the showcase's own visit count is shown in the top bar, read back
+from GoatCounter on the live site only, 100 and over — Open items, 12c. Everything
+else here, what is sent and where, is unchanged.)*
 
 **Every figure is a lower bound.** A browser that blocks GoatCounter (an ad
 blocker), one switched off with `#toggle-goatcounter` (the shop's own, below),
@@ -6083,7 +6086,10 @@ browser's storage for `geesonchan.github.io` — **so one switch covers both thi
 site and game-of-life** in that browser.
 
 **Nothing on the page changes.** No element is added, nothing waits on the
-request, and a request blocked or failed is let go. Measured (D17's way; the
+request, and a request blocked or failed is let go. *(Amended 2026-11-17, item
+12c: since then one element is added, the visit count, and one more request is
+made, a read; the page still waits on neither, and when the figure cannot be had
+nothing is added and the page is as it was — Open items, 12c.)* Measured (D17's way; the
 five packages as they open, the mouse at 1440 x 900, a finger at 390 x 844 in
 English and 360 x 844 in Chinese, `?quality=high`; each build shot twice, then
 more where its runs fell into the two states of the wash):
@@ -12821,6 +12827,26 @@ Registered, not scheduled. None of these is a round of its own.
           the window, `powercfg /lastwake` empty; each file's time near the night's run (`smoke.test.ts` 1,031 s
           against 1,127 s, the longest case 130 s). Its build `index-BioXMEL0.js`, the 20 files byte for byte the
           ones checked at 12:17. The preview opened again on it afterwards. Not committed: Leo looks at the result.
+      - **Shipped: `4f4351b`** (2026-11-17; Leo: 「全套测试的结果看过了，12b 可以提交。预览我中午看过（index-BioXMEL0.js）。」).
+        Before it: nothing under `src/`, `tests/` or `data/` changed after the full suite's start at 13:52:40 (372
+        files, the latest `layoutTemplate.ts` at 11:13:06, put back after the 13" check), so the full suite stands.
+        Committed by path at 16:20:19 (47 files, 2,571 lines added, 75 deleted: the code, the data, the tests with
+        `shareLinkCut` and `uTowerAt12` and its fixture, the plan's two drafts and its pixel plan, 12a-2's plan, the
+        night's report, `reviewed.json`, HANDOFF section 6, decisions.md and the 13 compressed pictures, 1,596,005
+        bytes; no CR in any text file; the originals and the prototypes kept local). `docs/plans/item12a2-plan.md`
+        went in with its three pictures, which Leo's 13 counted and decisions.md names. CI's commands in a clean
+        worktree of the commit: `npm ci` 16:20:29-16:20:38, `npm run test:unit` 16:20:38-16:21:29 (149 files,
+        4,242 passed), `npm run build` 16:21:29-16:21:49, each exit 0, the tree clean after. Built there with the
+        counter's address (16:22:09-16:22:28, exit 0; the main chunk carries `4f4351b`) and compared with the live
+        `376ce18` before pushing (16:22:28-16:22:32): 18 of 20 the same, the main chunk and `index.html` not, as
+        expected. Pushed 16:22:36-16:22:40, exit 0. Pages run 44207319969: build 00:22:47-00:23:47 UTC and deploy
+        00:23:54-00:24:12 UTC (2026-11-18), each a success. Compared with the live site file by file
+        (16:24:20-16:24:24): **twenty of twenty the same byte for byte**, each 200, `last-modified` Wed, 18 Nov
+        2026 00:24:05 GMT, `cache-control: max-age=600`; the JavaScript, CSS, `index.html` and the two licences
+        gzip, the twelve fonts `font/woff2` with no encoding; the live main chunk **`assets/index-DGD0TlaV.js`**
+        (736,290 bytes), `index.html` 579; `index-CZG-D2rl.css`, `react-i_nGBwMY.js`, `shareQr-BXYgausd.js` and
+        `three-C6wp6xxT.js` the names `376ce18` shipped. The 4173 preview stopped after it (16:24), no node or
+        esbuild left running.
   12c. **A visit count shown on the page** *(registered 2026-11-16; numbered 12c so that 13 and 14 keep their
       numbers)*. Leo's words: 「帮我加一个visit计数器在这个页面那里」, confirmed with him as a number of visits shown
       on the page, not another statistics back end. His order: 「新需求，只登记，不动手，不打断 12b」; 「登记进
@@ -12859,6 +12885,49 @@ Registered, not scheduled. None of these is a round of its own.
         and phone at 390, Chinese and English, one each, at least two placements. Put to Leo as questions,
         none chosen for him: where it shows, its sentence, which visits count, what shows when there is no
         figure, whether it shows on a phone. A new sentence stays out of `reviewed.json` until he agrees.
+      - **Plan, first draft, 2026-11-17, nothing built** (Leo, after 12b shipped: 「上线后写两份计划，都只写计划，不动
+        主文件夹的页面代码」): `docs/plans/item12c-plan.md`, its sheets in `docs/plans/item12c-2026-11-17/small/` (2
+        files, `p12c-desk.jpg` and `p12c-phone.jpg`, each saying the figure is fake; raw/ local). GoatCounter's
+        help page (https://www.goatcounter.com/help/visitor-counter) for the endpoint, `count`, `TOTAL`, the four
+        hours' cache and the 404; its source at `c031008` where the page is silent, said so: visitors counted once a
+        path in an 8-hour session, the path stored without its trailing slash, `Access-Control-Allow-Origin: *` on
+        the JSON, 403 without it when the switch is off, and the switch site-wide (game-of-life's figures readable
+        too). No request sent to any `/count` or `/counter` address. Prototype in a throwaway worktree of `4f4351b`
+        (a fixed fake 1,234): 甲 in the hint line before the build stamp (on the oak floor, hard to read; on a phone
+        that line is hidden and its place is the 「家电 / 配置」 buttons, which covered it, so the phone shows it top
+        left), 乙 beside the title (hidden under 430px, as the title is). Seven questions to Leo.
+      - **Leo's answers, 2026-11-17** (12c and 12d answered together, one round, one preview, one full suite):
+        「【只有这一处要我填】1. 12c 的句子：中文（1,234 次访问），英文（1,234 visits） 2. 12c 访问数太少时：（少于100就不显示）
+        3. 12c 手机上：（放左上角第二行，照原型） 4. 12d：B、E、一字型的 D（都照搬 D 的规矩）」; 12c: 「电脑上放顶栏标题右边（乙）」,
+        「只算展厅自己的路径，从有记录起全部，不用 TOTAL」, 「取不到时（开关没开、被拦、超时、出错、404）什么都不显示，页面和现在一样，
+        不报错」, 「先做好，不等我开开关。我开了以后数字自己出来」, 「数字照 GoatCounter 给的原样显示」, 「路径存的时候去掉结尾的斜杠
+        这一条，用真实地址核对清楚再写……开关没开之前核对不了的，写明"等开关打开后核对"，登记成上线后的一步」; 「12c 和 12d 并成一轮
+        做，一次预览、一次全套测试。照上面的答复动手，做到本地预览为止，不提交。原型代码不并入」; 「全套测试开跑前先问我」.
+      - **After release, waiting for Leo's switch: which path GoatCounter keeps the showcase under.** The page reads
+        the path it sends, `/appliance-showcase/` (`…/counter/%2Fappliance-showcase%2F.json`); GoatCounter's source keeps
+        it as `/appliance-showcase` and, finding nothing, looks again without the slashes (the plan, 2.3). Not
+        checkable before the switch is on (403) and not from his dashboard (his account). Once he has switched it on:
+        the figure the live page shows against the showcase's row in his dashboard; if they differ, the path from
+        the dashboard, the tests after it (the plan, section 7).
+      - **Built with 12d, 2026-11-17, to the local preview, not committed**: the record is 12d's, below.
+      - **Leo's answers to the built round's report, 2026-11-18**:
+        - 「「{count} 次访问」 / "{count} visits" 进 reviewed.json，写明是我 2026-11-17 定的。」 Entered (`approval` "written").
+        - **The split at 640px**, accepted, as a change from the plan and the prototype made without asking first:
+          「位置的分界线用 640：接受。但这是和计划、原型不一样的改动，以后这种先报再改。在 decisions.md 里写明 430 到 640 宽之间的样子
+          和原因。」 The plan and the prototype put the count beside the title wherever the title shows (430px and
+          wider, `min-[430px]`) and at the left of the second row below that. Built, it is split at 640px (`sm`): from
+          640px beside the title, below 640px at the left of the second row. **Between 430px and 640px** — a phone held
+          sideways, a small tablet — the title shows but the count is at the left of the second row under it, not
+          beside the title; under 430px as the prototype, over 640px as the plan. **Why:** `min-[430px]:hidden`, which
+          the second row's count would need to give way at 430px, is not in the page's stylesheet, and adding it
+          would have rebuilt the CSS file, which the round was to leave alone; `sm:hidden` and `sm:block` were there
+          already. The rule since, Leo's: a change from the plan or the prototype, whatever it is for, is reported
+          and waits for his word before it is made.
+        - 「一字型的 D 改成只说把手和回路的短句：同意。」
+        - 「rule.steamOven 和 rule.doubleOven 两句整句没人用了：从词典和 reviewed.json 里删掉。删之前搜一遍确认代码和测试里都没有引用。」
+          Searched 2026-11-18 (the keys exactly, the sentences' words, keys built from parts): no code, test or script
+          used them; deleted from en.json, zh.json and reviewed.json (`rule.doubleOven`, entered 2026-11-17; `rule.steamOven`
+          was never there). The short ones, `rule.steamOven.handle` and `rule.doubleOven.handle`, stay.
   12d. **B's tower with the microwave handle set low: a bare box under the oven** *(registered 2026-11-16;
       numbered 12d so that 13 and 14 keep their numbers)*. Found in 12b's second draft (its section 14), read
       from the code, no screenshot: at a microwave handle of 44"-49" B's sill is 5"-10", the box under the
@@ -12868,7 +12937,112 @@ Registered, not scheduled. None of these is a round of its own.
       changed by 12b. When its turn comes: whether B follows D's rule (under 6" a fixed panel, 6" to under 12"
       one drawer, 12" and over two drawers of equal height; 12b, Leo's answers A and B), put to him as a
       question with pictures.
+      - **Plan, first draft, 2026-11-17, nothing built**: `docs/plans/item12d-plan.md`, its sheets in
+        `docs/plans/item12d-2026-11-17/small/` (3 files: B, E and D on one wall; raw/ local). Every handle step
+        44"-58" shot on `4f4351b` and on a prototype that only widens `isDoubleOvenTower` to these towers (one
+        wall, where the L's island hides B's foot; by the real mouse; 16:39:12-17:04:18, 90 shots, no page error):
+        handles 44"-49" change (a bare box 1"-6" becomes a panel, or at 49" a drawer), 50"-54" are the same to the
+        pixel (the default 54" among them), 55"-60" change (one front becomes two drawers). **Found in writing
+        it, not in the registration:** D on one wall hangs MEM301WS from the same microwave handle and is not
+        12b's double-oven tower, so it stands on the same bare box at 44"-49" — put to Leo as the plan's question 3,
+        nothing changed. Five questions to Leo.
+      - **Leo's answers, 2026-11-17**: 「12d：B、E、一字型的 D（都照搬 D 的规矩）」; 「还用 6″ 和 12″ 这两个数，规矩和 D 写在同一处，
+        不另写一份」; 「安装清单加 12b 那样的一行，句子用 12b 已经审过的那几句。如果要新句子，中英文先列给我看」; 「默认的 54″ 必须和
+        现在逐像素相同」; and with 12c, one round (above).
+      - **Built with 12c, 2026-11-17, to the local preview, not committed** (the record for both; 12c points here):
+        - 12d: `cabinets.ts` asks one place, `underAnOven` (`isOvenTower`, ovenTower.ts: a wall oven in a tall unit),
+          where it asked for D's double-oven tower: D's in every shape, B's and E's; E's coffee tower not (its wine
+          cooler under it, D11 rule 14). `UNDER_OVEN`'s 6" and 12" as they were. The install list's oven line
+          (`useChecklist.ts`) for the package's oven tower wherever it stands, 12b's reviewed words; on one wall D's
+          old whole sentence (PODS302B, PO302W) became 12b's short one, handle and circuit, the opening not said twice
+          (Leo's D-2 in 12b) — so `rule.steamOven` and `rule.doubleOven` are no longer used; kept in the dictionaries
+          and `reviewed.json` until Leo says. *(Leo agreed to the short one and had the two deleted, 2026-11-18: 12c's entry.)*
+        - 12c: `src/visitCount.ts` (D24's gates, the path the page sends, 5 s, nothing under 100, GoatCounter's
+          string as it is), `src/ui/VisitCount.tsx` beside the title and at the left of the second row, split at
+          640px — breakpoints the stylesheet has, so the CSS is not rebuilt; between 430px and 640px, where the title
+          shows, the count is the second row's. `topbar.visits`: 「{count} 次访问」 / "{count} visits", Leo's own words,
+          not in `reviewed.json` until he says. D24's two sentences amended.
+        - Tests red first on `4f4351b`: `src/data/underOven12d.test.ts` 155 of 167 red (21:24:24-21:24:31, exit 1), the
+          12 green guards each red by a break of their own, put back and `cmp` equal (21:44:22-21:45:41: D's L and U
+          hung from the handle, 2 red; E's coffee tower taken for an oven tower, 1 red; two drawers from 11", 22 red
+          with the 7 defaults; a line for a package with no tower, A and C red); `src/visitCount.test.ts` (the module
+          missing, 21:26:54-21:26:59, exit 1); the browser files on `4f4351b`'s build 11 of 14 red (21:27:15-21:29:02),
+          their 3 guards red on builds broken on purpose (D's L and U hung from the handle, 21:46:52-21:47:16; the read's
+          gates removed, 21:47:39-21:47:56). Changed after their red runs, the final versions on `4f4351b` again:
+          unit 155 red, the guards green (21:48:21-21:48:29); browser 11 red, the guards green (21:48:42-21:51:36).
+        - Old tests changed, each with why beside it: `tests/analytics.test.ts`, a read answered and not kept among the
+          hits — its 12 cases green on `4f4351b`'s build (21:48:42-21:51:36) and on 12c's (21:33:17-21:38:59);
+          `scripts/siteRoute.test.ts`, `tests/visitCount.test.ts` listed with its reason, as `analytics.test.ts` is.
+        - Green: the unit suite 151 files 4,437 passed (23:24:35-23:25:14, exit 0); the new browser files 14 of 14
+          (21:39:34-21:41:41, exit 0). HANDOFF section 6's run before the full suite: 11 browser files found by search
+          (the header and top bar, the counter, the microwave handle, the combination tower with its fronts or list,
+          one-wall D with its list or oven, B and E with their list or fronts), run alone: 96 of 96 (21:52:34-22:12:47,
+          exit 0).
+        - Dumps (`4f4351b` and this round, 22:13:19-22:13:43, all exit 0): cabinets, runs, slots and points the same in
+          every room; only the install list differs — the L 198 rooms (B 123, E 75), one wall 71 (B 28, D 25, E 18), the U
+          45 (B 27, E 18), each one line added (`oven-sill`), and on one wall the two D rooms with PODS302B and PO302W the
+          old whole sentence for the short one; A, C and D's L and U byte for byte.
+        - Pixels (written before, `docs/plans/item12cd-2026-11-17/pixel-plan.md`): the 45 states old, new, old, new
+          (22:14:49-22:48:36, each exit 0; compared 22:56:25-22:56:51): canvas 0 in all 45, the screen 0 in 42 and one
+          pixel at (144, 225) in three, which two more shots of each build show is run to run (22:57:10-23:01:11: old 3
+          against new 3, 0; new 3 against new 4, that pixel). The towers at the default 54", B and E in the L, U and one
+          wall and D on one wall, materials, white and install, 21 states, settled (the mouse off, the toast gone),
+          23:02:35-23:16:39: 0 in the closest pairing of every state, canvas and screen; the single pixels left differ
+          between the new build's own two runs too. The built towers at 44", 49", 54" and 57" against the plan's
+          prototype: 0 in all 12 (23:19:57-23:23:19).
+        - The build (23:25:15-23:25:32, exit 0): against `4f4351b`'s, the main chunk (`index-Cgp6319a.js`) and
+          `index.html`; the CSS and the 18 other files byte for byte. Sheets for Leo in
+          `docs/plans/item12cd-2026-11-17/small/` (`built12c.jpg`, the count faked by route, saying so; `built12d.jpg`).
+        - Not yet: the full suite (Leo: 「全套测试开跑前先问我」).
+      - **Registered, not changed (12c/12d's round)**:
+        - B's and E's tower is hung from the microwave handle whichever oven is in it, not held to that oven's own
+          sheet as D's is (12b): with PO302W chosen there the opening starts 15" at the default and up to 18", where its
+          sheet allows 4-3/4"-14-7/8". The new line says so in its own words (「切口底离地 15″（规格表允许 4-3/4″–14-7/8″…）」).
+          Before 12d the same, unsaid. *(Registered as 12e, 2026-11-18.)*
+        - D on one wall with PODS302B or PO302W: the list's circuit is the opening's, 「240V 50A」 (wired for MEM301WS),
+          where the rough-in says the oven's 40A. Before 12d the same. *(Leo, 2026-11-18: the list's 50A is right; registered
+          as 12f with the shop's practice.)*
+      - **2026-11-18, after Leo's answers** (the night's report: `docs/plans/overnight-2026-11-18.md`): `topbar.visits` in
+        `reviewed.json`; `rule.steamOven` and `rule.doubleOven` deleted; the unit suite 4,437 passed (00:06:52-00:07:48,
+        exit 0); the build `index-FqWClXCT.js` (00:07:48-00:08:08), against the one before only the main chunk and
+        `index.html`; the dumps byte for byte the night before's; the 45 states and the 21 at the default the same
+        (00:09:19-01:06:30, the single pixels run to run); 18 browser files found by HANDOFF section 6's search, 240
+        passed (01:07:05-01:50:32, exit 0); the demonstration at `http://[::1]:4190/`, not committed. No step ran from
+        01:51:35 to 08:11:15, no sleep in the system log. **The full suite, started 08:12:08, stopped at 09:07:16 when
+        Leo shut the computer down to go to work: 59 of 199 files run, none red — not a pass, to be run again.**
+        **Run again at the office (Leo: 「我回到公司了，可以继续」): the full suite 2026-11-18 10:41:42-12:33:57, exit 0:
+        203 files, 4,895 tests, all passed.** Nothing under `src/`, `tests/`, `scripts/` or `data/` changed after the 00:07:48
+        build; its build `index-FqWClXCT.js`, the 20 files byte for byte the night's. No sleep: no Kernel-Power, Winlogon,
+        shutdown or time-change event from 10:40 to 12:35 (the last Kernel-Power, 10:17-10:18, the wake from the morning's
+        sleep, before the start; the computer had slept, not shut down — booted 2026-11-10), `powercfg /lastwake` empty,
+        each file's time near 2026-11-17's run. Both previews opened after it: 4173 (`index-FqWClXCT.js`) and the
+        demonstration, `http://[::1]:4190/` (`index-Br0W46Qy.js`, the same code with the made-up address), checked: 1,234 at
+        1440 and 390, nothing at 99, the tab's title, no request off this machine. Not committed: Leo looks first.
+        Registered: D24's gates do not take `[::1]` for this machine (the demonstration reads through it).
   13. **13**: tapping the package, layout or hood already chosen rebuilds the whole room;
+  12e. **B's and E's tower with PO302W: the opening past its sheet** *(registered 2026-11-18; numbered 12e so that
+      13 and 14 keep their numbers)*. Found in 12c/12d's round, registered in 12d's entry: B's and E's tower is hung
+      from the microwave handle whichever oven is in it, so with PO302W the opening starts 15" at the default and up
+      to 18", where PO302W's sheet allows 4-3/4"-14-7/8" (po302w-spec.pdf p. 2). Leo, 2026-11-18: 「B、E 的塔装 PO302W
+      时切口底超出它的规格表：登记成下一项，排在这一轮之后、第 13 项之前，做法照 D（范围跟着所选烤箱的规格表走，超出就压住并提示）。
+      这一轮不动。」 When its turn comes: as D's (12b, C): the range follows the chosen oven's sheet, held at its end
+      with a warning, as B's microwave reach and D's oven height say it. Registered only.
+  12f. **Every figure for a circuit on the page, against the manuals and the shop's practice** *(registered
+      2026-11-18; numbered 12f, after 12e)*. Found in 12c/12d's round: D on one wall with PODS302B or PO302W, the
+      install list's 「240V 50A」 (the opening's circuit, wired for MEM301WS) against the rough-in's 40A (the oven's).
+      Leo, 2026-11-18, his two sentences word for word:
+      - 「一字型D的电路，清单写50A是对的」
+      - 「一般的电流的插座240V标准，都是30A和50A，所以，即使电器是40A，但电工那里都会一般准备50A breaker」
+      **The shop's practice, registered as a rule for every machine, not D on one wall alone** (his second sentence):
+      a 240V circuit is 30A or 50A; a machine that asks 40A is given a 50A breaker. Not applied anywhere yet. His
+      order: 「这一轮什么都不改，登记一项，排在 B、E 装 PO302W 那一项之后」. When its turn comes, read only, a plan:
+      - every place on the page that gives a current — the install list, the rough-in, the cards, the words beside
+        the dimension lines — and for each what it says now, for which machine, what the manual says (the file, the
+        page, its printed and its file page number), and whether the manual gives a largest breaker;
+      - D on one wall with each of the four ovens: what the list and the rough-in say, oven by oven;
+      - two or three ways to write it (Chinese and English), the shop's practice and the manual's figure written
+        apart, put to him as questions: 「照"店里做法和说明书的数分开写"的规矩，提两三种写法（中英文），列成问题等我定。不要自己把哪个
+        40A 改成 50A。」
   12a-2. **A U's right leg has no under-cabinet light: at night its strip is much darker than the back
       wall's** *(registered 2026-11-15; named 12a-2 so that 12b keeps its name)*. Leo's words: 「U 型右段
       没有柜下灯条，夜晚那一条墙比后墙暗很多。」 His order: 「只登记，不动手……顺序排在 12a 之后、12b 之前，写进顺序那一处。

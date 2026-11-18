@@ -7,6 +7,7 @@ import { shareUrl } from "../store/openLink";
 import { useAppStore } from "../store/useAppStore";
 import { copyText } from "./copyText";
 import { Segmented } from "./primitives";
+import { VisitCount } from "./VisitCount";
 import { shapeButtons } from "./shapeControls";
 import type { LayoutShape } from "../data/layoutShape";
 
@@ -226,6 +227,8 @@ export function TopBar() {
         <span className="hidden truncate font-display text-[17px] leading-none tracking-wide text-accent min-[430px]:block md:text-[19px]">
           {t("app.title")}
         </span>
+        {/* The visit count beside the title, where it shows on a desktop (12c). */}
+        <VisitCount place="title" />
         <span className="hidden h-4 w-px shrink-0 bg-line min-[430px]:block" />
         {/* Which package the room is showing. It is the top-level choice — it
             decides how wide every opening is, so it sits where the scheme's
@@ -339,7 +342,9 @@ export function TopBar() {
       </div>
       {/* Where it has not, a second row under the bar with the shapes alone
           (Leo: 「手机顶栏放不下就放第二行」). */}
-      <div data-shape-row="second" className="flex h-10 items-center justify-center border-t border-line lg:hidden">
+      <div data-shape-row="second" className="relative flex h-10 items-center justify-center border-t border-line lg:hidden">
+        {/* And on a phone at its left (12c; Leo: 「放左上角第二行，照原型」). */}
+        <VisitCount place="row" />
         <ShapeButtons />
       </div>
     </header>

@@ -1,5 +1,6 @@
 {
   "app.title": "Appliance Showcase",
+  "topbar.visits": "{count} visits",
   "app.tagline": "Interactive Kitchen Exploration",
   "topbar.help": "Help",
   "topbar.fullscreen": "Fullscreen",
@@ -524,8 +525,6 @@
   "param.coffeeSillIn": "the coffee machine's height",
   "rule.coffeeDishwasher": "Second dishwasher, under the coffee machine: not beside the sink, so D11 rule 5 does not apply — it still needs its own 120V circuit, hot water supply and drain run to this cabinet (D11 rule 14)",
   "rule.coffeeMachine": "Coffee machine opening starts {sillIn}\" off the floor, {headIn}\" to its top; 120V {amps}A circuit, and a water line if it is plumbed in",
-  "rule.steamOven": "Steam oven opening starts {sillIn}\" off the floor, which puts the lower door's handle at {handleIn}\"; 240V {amps}A dedicated circuit",
-  "rule.doubleOven": "Oven opening starts {sillIn}\" off the floor, which puts the lower door's handle at {handleIn}\"; 240V {amps}A dedicated circuit",
   "rule.steamOven.handle": "Steam oven lower door handle at {handleIn}\"; 240V {amps}A dedicated circuit",
   "rule.doubleOven.handle": "Oven lower door handle at {handleIn}\"; 240V {amps}A dedicated circuit",
   "rule.ovenSill.panel": "Oven opening starts {sillIn}\" off the floor (the sheet allows {lowIn}\"–{highIn}\", from the floor); under it a fixed panel, {boxIn}\" tall",

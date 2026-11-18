@@ -309,8 +309,9 @@ function CabinetSolid({ box }: { box: CabinetBox }) {
   // cabinet colour where the machines' own fronts are.
   const hidden = (install && isMobile) || (box.installOnly === true && !install);
   // A door goes on anything with a front: not the toe kick, which is recessed,
-  // and not the countertop, which is a slab. And under package D's oven, the
-  // panel or the drawer front whatever its height, down to 1" (12b).
+  // and not the countertop, which is a slab. And under an oven, the panel or
+  // the drawer front whatever its height, down to 1" (12b; every oven tower
+  // since 12d).
   const hasDoor =
     !install &&
     box.kind !== "toe" &&

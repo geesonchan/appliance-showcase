@@ -104,6 +104,15 @@ async function open(
   });
   await context.route(`${COUNTER}**`, async (route) => {
     if (block) return route.abort("blockedbyclient");
+    // Since 12c the live page also reads its visit count, from the same host's
+    // `/counter/…json` (which `${COUNTER}**`, ending in "/count", matches too). A
+    // read is not a count: answered as GoatCounter answers a path it has not
+    // seen, and not kept among the hits this file asks about (tests/visitCount.test.ts
+    // asks about reads). Shown to keep its counts the same on 4f4351b's build, which
+    // reads nothing, and on 12c's (decisions.md, 12c).
+    if (new URL(route.request().url()).pathname.startsWith("/counter/")) {
+      return route.fulfill({ status: 404, headers: { "access-control-allow-origin": "*" }, contentType: "application/json", body: '{"count":"0"}' });
+    }
     hits.push(route.request().url());
     return route.fulfill({ status: 200, contentType: "image/gif", body: Buffer.from("R0lGODlhAQABAAAAACw=", "base64") });
   });

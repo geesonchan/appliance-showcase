@@ -171,6 +171,7 @@ const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const OFF_THE_ROUTE: Record<string, string> = {
   "tests/pageWatch.test.ts": "kept on the real local server: the watch must face real requests (plan, section 3)",
   "tests/analytics.test.ts": "answers its own counter build by route, since round 96",
+  "tests/visitCount.test.ts": "answers its own counter build by route, as analytics.test.ts does (12c, the visit count)",
   "tests/sliderWarning.test.ts": "opens Vite's development server (the working tree, React's warnings), not the build 丁 answers from",
   "scripts/siteRoute.mjs": "the launcher itself",
   "scripts/serverResetLoop.mjs": "the tool that measures the stalls; ROUTE=1 for 丁",
