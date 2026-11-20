@@ -3,6 +3,7 @@ import type { Appliance, Package, PackageSlot, SlotId } from "../types";
 import type { LayoutShape } from "./layoutShape";
 import { isOvenTower } from "./ovenTower";
 import { PACKAGE_SHAPE, shapeOfChoice, shapeOfPackage, slotsOf } from "./packages";
+import { COMBO_OVEN, comboSillFor, isCombo } from "./columnModel";
 
 /**
  * The oven chosen for a package's oven tower, and the opening it needs.
@@ -97,6 +98,77 @@ export function steamSillFor(askedIn: number, oven: Pick<Appliance, "model"> | u
   const sillIn = Math.min(max, Math.max(min, askedIn));
   return { sillIn, held: sillIn !== askedIn };
 }
+
+/**
+ * What holds an oven on its height short of what was asked, for the install list's words —
+ * one rule (Leo, 2026-11-19: 「被规格表挡住用 12b 那句，被滑杆上限挡住用这句」, 「不能再出现"停在的高度"和
+ * "允许的范围"对不上的句子」): its own sheet, 12b's sentence with the sheet's range, where the sheet's
+ * whole inches stop at or below the slider's ends (PO302W at 14", PODS302B at 18"); the slider's
+ * top where the sheet would let it go higher (ME301YP, to 38"), 「这里最高调到 18″」 with the 18 read
+ * from `STEAM_SILL_LIMITS` (「句子里的 18 从滑杆的上限那一处读，不要另写一个 18」). Null when not held.
+ */
+export function towerHeldBy(oven: Pick<Appliance, "model"> | undefined, askedIn: number): "sheet" | "slider" | null {
+  const { sillIn, held } = steamSillFor(askedIn, oven);
+  if (!held) return null;
+  const sheet = oven ? OVEN_SILL_RANGE_IN[oven.model] : undefined;
+  if (!sheet) return "slider";
+  if (sillIn < askedIn) return Math.floor(sheet.max) <= STEAM_SILL_LIMITS.max ? "sheet" : "slider";
+  return Math.ceil(sheet.min) >= STEAM_SILL_LIMITS.min ? "sheet" : "slider";
+}
+
+/**
+ * Every oven tower's height, one rule (12e; Leo, 2026-11-18: 「烤箱有微波门就调微波把手，没有微波门就调切口底」,
+ * every package, D's L and U with MEM301WS too). Asked here and nowhere else: the opening
+ * `sillFor` builds, the switch of oven (`setOvenModel`), the slider Layout shows, and the
+ * install list's lines when the oven cannot go where asked.
+ *
+ * A tower keeps one figure asked, its own: the microwave handle in a combination tower (B,
+ * E, D on one wall), less 39" for the opening; the oven height in D's double-oven tower
+ * (12b). Whichever slider shows writes that one figure, so the height is handed over from
+ * oven to oven and kept when an oven holds it short (Leo, 1: 「高度接过去……换回去也回到同一个高度。
+ * 我要的高度记着」), every tower starts where its oven stands (2: B, E and D on one wall 15"),
+ * and an old link, which carries that same figure, opens where the oven was (3).
+ */
+export type TowerKind = "combo" | "double";
+export type TowerHang = "handle" | "height";
+
+/** Which slider an oven hangs from: its microwave handle if it has a microwave door, else the opening's height. */
+export function towerHang(oven: Pick<Appliance, "installType"> | undefined, kind: TowerKind): TowerHang {
+  if (!oven) return kind === "combo" ? "handle" : "height";
+  return isCombo(oven as Appliance) ? "handle" : "height";
+}
+
+/** The opening asked for: the tower's own figure, the handle's less 39" in a combination tower. */
+export function askedSillIn(kind: TowerKind, params: { microwaveHandleIn: number; steamSillIn: number }): number {
+  return kind === "double" ? params.steamSillIn : params.microwaveHandleIn - COMBO_OVEN.microwaveHandleIn;
+}
+
+/** The figure a slider writes back for an opening asked: into the tower's own parameter. */
+export function towerParamsFor(kind: TowerKind, askedIn: number): { microwaveHandleIn: number } | { steamSillIn: number } {
+  return kind === "double" ? { steamSillIn: askedIn } : { microwaveHandleIn: askedIn + COMBO_OVEN.microwaveHandleIn };
+}
+
+/**
+ * Where the opening starts for the oven chosen, and whether it is held short of what was
+ * asked: a microwave door's oven by its drawing (`comboSillFor`), any other by its own
+ * sheet (`steamSillFor`, 12b).
+ */
+export function towerSillFor(
+  kind: TowerKind,
+  params: { microwaveHandleIn: number; steamSillIn: number },
+  oven: Appliance | undefined,
+): { hang: TowerHang; sillIn: number; held: boolean; askedIn: number } {
+  const askedIn = askedSillIn(kind, params);
+  if (towerHang(oven, kind) === "handle") {
+    const { sillIn, clamped } = comboSillFor(askedIn + COMBO_OVEN.microwaveHandleIn);
+    return { hang: "handle", sillIn, held: clamped, askedIn };
+  }
+  return { hang: "height", ...steamSillFor(askedIn, oven), askedIn };
+}
+
+/** A tower's kind, from its slot as the package builds it; null for any other slot. */
+export const towerKindOf = (spec: Pick<PackageSlot, "category" | "installType"> | undefined): TowerKind | null =>
+  spec?.category === "wall-oven" && (spec.installType === "combo" || spec.installType === "double") ? spec.installType : null;
 
 /** The tower's slot as the chosen oven is built in: its opening's height. Any other slot as it is. */
 export function towerSlotAsBuilt(pkg: Package, spec: PackageSlot): PackageSlot {

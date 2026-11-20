@@ -12910,6 +12910,24 @@ Registered, not scheduled. None of these is a round of its own.
         the figure the live page shows against the showcase's row in his dashboard; if they differ, the path from
         the dashboard, the tests after it (the plan, section 7).
       - **Built with 12d, 2026-11-17, to the local preview, not committed**: the record is 12d's, below.
+      - **Leo's switch on, 2026-11-18 13:04** (「GoatCounter 后台的开关我已经打开了」); checked read only, his account and its
+        settings not touched:
+        - **Before the push (13:06:29-13:06:41)**, the read by hand: `…/counter/%2Fappliance-showcase%2F.json` (the page's) 200,
+          `{"count_unique":"56", "count":"56"}`, `Access-Control-Allow-Origin: *`, `Cache-Control: public`, `Expires` 12 hours
+          on; without the closing slash, and in capitals, the same 56; for comparison `/game-of-life/` 44, `TOTAL` 119,
+          `/appliance-showcase/index.html` and a path never seen 404 with 0. **The path:** the page reads the showcase's own
+          figure; whether GoatCounter keeps it with the closing slash or without cannot be told from outside — both forms
+          answer the same, as its source says (the plan, 2.3) — and either way the page gets the showcase's 56, not another.
+        - **On the live site after the push (15:50:35-15:51:16)**, `index-CHYFYH0z.js`, desktop 1440 and phone 390, Chinese and
+          English by the real mouse and finger: one read each page, to `https://geesonchan.goatcounter.com/counter/%2Fappliance-showcase%2F.json`,
+          200, `{"count_unique":"56", "count":"56"}`; **56 is under 100, so nothing shown** — no element, beside the title or
+          in the second row; no console error, no page error. Opened from a share link (`?v=4&pkg=D&shape=L&lang=zh`): the
+          page view counted under `/appliance-showcase/`, the event `appliance-showcase/open-link-D`, the same read. The
+          browser answered every count request itself, so these visits were not counted (an earlier pass at 15:49:39-15:50:24
+          stopped them instead, and the console then showed one "Failed to load resource" for each stopped count — this
+          browser's doing, not the page's). Sheet: `docs/plans/item12cd-2026-11-17/small/live12c.jpg`, each shot with its time.
+        - **Waiting, registered: once the figure reaches 100**, check again how it shows on the live page (desktop and phone,
+          Chinese and English), and the figure read against the one shown (Leo: 「等数字到了 100，再核对一次它出现在页面上的样子」).
       - **Leo's answers to the built round's report, 2026-11-18**:
         - 「「{count} 次访问」 / "{count} visits" 进 reviewed.json，写明是我 2026-11-17 定的。」 Entered (`approval` "written").
         - **The split at 640px**, accepted, as a change from the plan and the prototype made without asking first:
@@ -13018,8 +13036,91 @@ Registered, not scheduled. None of these is a round of its own.
         each file's time near 2026-11-17's run. Both previews opened after it: 4173 (`index-FqWClXCT.js`) and the
         demonstration, `http://[::1]:4190/` (`index-Br0W46Qy.js`, the same code with the made-up address), checked: 1,234 at
         1440 and 390, nothing at 99, the tab's title, no request off this machine. Not committed: Leo looks first.
+      - **Shipped: `5d25826`** (2026-11-18; Leo: 「两个预览都看过了（正式预览 index-FqWClXCT.js），12c 和 12d 可以提交」). Before it:
+        nothing under `src/`, `tests/`, `scripts/` or `data/` changed after the full suite's start at 10:41:42 (409 files, the
+        latest the dictionaries at 00:05:59), so the full suite stands. Committed by path at 13:03:59 (27 files, 1,642 lines
+        added, 62 deleted; the 7 compressed pictures, 1,299,813 bytes; no CR in any text file; the originals, the prototypes
+        and the demonstration kept local). **CI's commands in a clean worktree of the commit, twice:**
+        - **First, red — not a pass**: `npm ci` 13:04:11-13:04:18, exit 0; `npm run test:unit` 13:04:18-13:05:08, **exit 1**,
+          1 of 4,437 red: `scripts/heartbeat.test.ts`, "one beat > gives up at its time limit and says so", allowed under
+          290 ms, took 349 ms (a 100 ms limit against a server that answers in 300 ms; the machine busy, `npm ci` just
+          done and 151 files collecting at once); `npm run build` 13:05:08-13:05:26, exit 0. Not pushed. The test alone,
+          for diagnosis only, 5 runs, 5 passed (13:06:07-13:07:02); not counted as CI's result. Registered as 12d-2.
+        - **Second, on Leo's word** (「在一个新的干净副本里（从 5d25826 重新拉，不用刚才那个），把 CI 的三条命令从头重跑一遍……三条都是
+          exit 0 才推送。有任何一条红，停下来报，不推，不再重跑」), a new worktree: `npm ci` 15:45:43-15:45:49, `npm run test:unit`
+          15:45:49-15:46:31 (151 files, 4,437 passed), `npm run build` 15:46:31-15:46:50, each exit 0, the tree clean after.
+        Built there with the counter's address (15:46:59-15:47:15, exit 0): `index-CHYFYH0z.js`, all 20 files byte for
+        byte the first run's counter build. Against the live `4f4351b` before pushing (13:05:41-13:05:44, the first run's
+        counter build): 18 of 20 the same, the main chunk and `index.html` not, as expected. Pushed 15:47:21-15:47:24, exit 0.
+        Pages run 44423709458: build 23:47:31-23:48:45 and deploy 23:48:59-23:49:11 UTC (2026-11-18), each a success.
+        Compared with the live site file by file (15:49:14-15:49:19): **twenty of twenty the same byte for byte**, each 200,
+        `last-modified` Wed, 18 Nov 2026 23:49:05-23:49:06 GMT, `cache-control: max-age=600`; the JavaScript, CSS,
+        `index.html` and the two licences gzip, the twelve fonts `font/woff2` with no encoding; the live main chunk
+        **`assets/index-CHYFYH0z.js`** (737,091 bytes), `index.html` 579; the CSS and the other three chunks the names
+        `4f4351b` shipped. Both previews stopped after it (15:51), no node, esbuild or test browser left running.
         Registered: D24's gates do not take `[::1]` for this machine (the demonstration reads through it).
-  13. **13**: tapping the package, layout or hood already chosen rebuilds the whole room;
+  12d-2. **`scripts/heartbeat.test.ts` times out when the machine is busy** *(registered 2026-11-18; named 12d-2 so that 12e
+      keeps its name; before 12e)*. Found in 12c/12d's release: the first run of CI's commands in a clean worktree, "gives up
+      at its time limit and says so" allowed under 290 ms, took 349 ms (12d's entry, Shipped). Leo, 2026-11-18: 「heartbeat
+      那条测试机器忙时会超时：登记成一小项，排在 12e 之前，写进顺序那一处。轮到它时先写计划，照第 9 项的做法」:
+      - the test environment only, not the page;
+      - reproduce it first with the machine busy, saying how and how many times; then change it, preferring that the test
+        drives its own clock over a longer limit;
+      - show the changed test still goes red (broken on purpose);
+      - list, without changing them, the other unit tests under `scripts/` and `src/` that hold real time to the millisecond.
+      Registered only.
+      - **Plan, 2026-11-18, nothing changed**: `docs/plans/item12d2-plan.md` — the four steps as Leo set them, the way to make
+        the machine busy and the counts (20 runs each way, 50 if none is red), `beat()` given its clock and its give-up signal
+        from outside (the real ones by default), a real-time case kept without a millisecond bound; a first search's hits
+        (`heartbeat.test.ts` lines 41, 43 and 51, `previewServer.test.ts` 236-237, `src/visitCount.test.ts` 140-142) to be
+        gone through in the round. Leo: 「它只改测试，等 12e 的原型我看过以后，两项并成一轮动手，一次全套测试」.
+      - **Built, 2026-11-18, in one round with 12e, not committed** (Leo: 「12e 和 12d-2 并成一轮，可以动手，做到本地预览为止，
+        不提交」; plan section 四). Reproduced first, `scripts/heartbeat.test.ts` alone, 22 threads kept busy (`nproc` 22): idle
+        50 of 50 green; busy, the file 17 of 20 red ("quick" under 250 ms 8 times, the slowest 2,407 ms; the process case 16
+        times), the give-up case alone 0 of 50; the whole unit suite 50 of 50 exit 0. CI's red not reproduced as it was in 150
+        runs; the same cause seen. `beat(url, timeoutMs, { now, signal })` takes its clock and its give-up signal from outside,
+        the real ones by default; the two `beat()` cases drive both (quick exactly 0, late exactly 300, giving up at exactly 100
+        and saying timeout, the real limit 10 s so only the test's signal can stop it), and one case on the real clock with no
+        millisecond bound. Red on the old `beat()` 2 of 4 (22:06:23-22:06:33, exit 1; the final version 22:08:08-22:08:18,
+        exit 1), green 4 of 4 (22:07:46-22:07:56, exit 0); four breaks (the clock, the signal, the name timeout, a millisecond
+        off) each red, restored, `cmp` equal (22:07:03-22:07:46). Busy again, 20 runs: the `beat()` cases never red, the process
+        case ("1.2 s, 5 to 13 lines") red 14 times — not changed, not among the plan's three; a question to Leo. The real-time
+        places listed, not changed: that process case, `scripts/previewServer.test.ts` 236-237, `src/visitCount.test.ts`
+        140-142.
+      - **The CI red, as Leo asked it written (2026-11-19):** the give-up case was changed so it no longer hangs on real time;
+        the red CI had that once was not reproduced (0 in the 150 runs above). Not "fixed".
+      - **The process case, 2026-11-19** (Leo: 「heartbeat 文件里那条 "process" 测试：一起改，用同样的办法（测试自己掌管时间，不加长
+        时限）。照 12d-2 的四条做」). Reproduced first, 22 threads busy: the case alone red 1 of 20 (12:28:06-12:36:00; no line
+        written in its 1.2 s), the whole file red 1 of 50 (20 runs 12:36:15-12:44:53 none, 30 more 12:45:04-12:56:44 one, 3
+        lines against 5) — far fewer than the night before (14 and 16 of 20), the same cause. Changed: the heartbeat's loop is
+        `run({ url, every, write, going, now, wait, stamp })` and its command line `argsOf(argv)`, the real clock, wait and
+        stamp by default and the process the same; the test holds the loop on its own clock (beats taking 30, 150, 0 and 100
+        ms, every 100 ms: asked for at 0, 100, 250 and 350, waits of 70 and 100), reads the interval from the command line,
+        and stops the process once the server has had five of its beats, no fixed wait (60 s only as the point to call it
+        lost), asking a line a beat as each comes. Green 6 of 6 (12:56:57-12:57:05, exit 0); red on yesterday's 12d-2 script 2
+        (12:57:12-12:57:22, exit 1) and on `5d25826`'s 4 (12:57:22-12:57:33, exit 1), the process case green on both (the old
+        script works; the breaks are its proof). Seven breaks each red, restored, `cmp` equal (12:57:52-12:58:53): the
+        interval ignored, no wait, a whole interval's wait, the line stamped after the beat, no line end, a default of 100,
+        lines written only at the stop. **Not caught, found by trying it (12:59:01-12:59:10, 6 of 6 green):** the process
+        handing `run` some other interval than its command line's — only real time tells 100 ms from 250 ms in the process.
+        Busy again, the whole file, 20 runs (12:59:20-13:06:07): none red; as the old was red 1 of 50 today, that alone shows
+        little.
+      - **Written as it was, Leo, 2026-11-19 (三.2):** today the old file was red 1 of 50 on the busy machine where the
+        night before it was red 14 and 16 of 20 — the same machine and the same 22 busy threads, the cause not found; and
+        「改后 20 遍 0 红说明不了太多」: with the old as rarely red as that, 20 green runs after the change say little on their own.
+      - **The gap, closed without real time (Leo, 2026-11-19, 三.1: 「试一下不靠真实时间的守法，比如直接查从命令行读到的间隔和交给
+        循环的是不是同一个值」):** the process's own part is `main(argv, { loop, stopOn })`, the loop and the signals handed in
+        (by default `run`, SIGINT and SIGTERM, the heartbeat as it was); the test hands it a loop that records what it is
+        given — the url, the interval from the command line (100, and 250 with none), and that each line goes to the file.
+        Green 7 of 7; the final test file red on the script before `main` 1, on yesterday's 12d-2 script 3, on `5d25826`'s 5;
+        eight breaks each red, the handed interval among them.
+      - **Found in the busy runs of the final file, and put right (2026-11-19):** red 3 of 20 (13:30:41-13:40:07), the loop's
+        case asked at 300, 330, 480 and 580 on the test's clock, not 0, 100, 250 and 350. The real-clock case before it gives
+        up on a `/late` request at 100 ms; on a busy machine that request reaches the server after the next case has begun,
+        and `/late` moves the test's clock on by 300. That case now asks `/slow`, as late on the real clock and leaving the
+        test's alone. Then, the test file final: green 7 of 7 (13:40:41-13:40:49, exit 0); red on the script before `main` 1
+        (13:40:49-13:40:59), on yesterday's 3 (13:40:59-13:41:10), on `5d25826`'s 5 (13:41:10-13:41:21), each exit 1; eight
+        breaks each red, restored, `cmp` equal (13:41:22-13:42:37); busy, the whole file, 20 runs, none red (13:42:44-13:52:29).
   12e. **B's and E's tower with PO302W: the opening past its sheet** *(registered 2026-11-18; numbered 12e so that
       13 and 14 keep their numbers)*. Found in 12c/12d's round, registered in 12d's entry: B's and E's tower is hung
       from the microwave handle whichever oven is in it, so with PO302W the opening starts 15" at the default and up
@@ -13027,6 +13128,177 @@ Registered, not scheduled. None of these is a round of its own.
       时切口底超出它的规格表：登记成下一项，排在这一轮之后、第 13 项之前，做法照 D（范围跟着所选烤箱的规格表走，超出就压住并提示）。
       这一轮不动。」 When its turn comes: as D's (12b, C): the range follows the chosen oven's sheet, held at its end
       with a warning, as B's microwave reach and D's oven height say it. Registered only.
+      - **Plan, first draft, 2026-11-18, nothing built** (Leo: 「然后写下一项的计划……只写计划，不动主文件夹的页面代码」):
+        `docs/plans/item12e-plan.md`, no prototype or pictures (offered). Read from the code and worked out with it for B and
+        E in each shape and D on one wall, each of the four ovens (28 rooms, fresh each): the sill is the handle less 39",
+        5" to 18", whatever oven is in it; with D's rule only PO302W is held, at 14" for handles 54" to 60", the default among
+        them (the box under it 10", one drawer); MEM301WS, ME301YP and PODS302B unchanged; the packages' default rooms
+        (MEM301WS) unchanged. 12b's `rule.ovenSillHeld` can say it with the asked sill worked from the handle (「非所要的 15″」,
+        where the slider shows 54"). Found in writing it, listed as question 4: with an oven that has no microwave in these
+        towers the slider is still 「微波把手高度」 and its caption 「把手在 {X}″」. Five questions to Leo.
+      - **Leo's answers to the first draft, 2026-11-18**: 「一条规矩：烤箱有微波门就调微波把手，没有微波门就调切口底」 — 1. B, E and
+        D on one wall with MEM301WS keep 「微波把手高度」 as now; 2. with PO302W, ME301YP or PODS302B, D's 「烤箱离地高度」, the range
+        the chosen oven's sheet (PO302W to 14", the other two to 18"), the caption by model as 12b; 3. held with 12b's reviewed
+        sentence, no new one; 4. no microwave-reach sentence for a model with no microwave; 5. the rule in the same place as
+        D's. 「12e 先做原型给我看，仍然只写计划第二稿」: the handoff between the two sliders and the share link put as questions,
+        B's L with each oven and E's and one wall's D with PO302W shot, a 390 phone, and the rooms that change listed.
+      - **Plan, second draft, 2026-11-18, nothing built in the main folder**: `docs/plans/item12e-plan.md` (the first kept as
+        `item12e-plan-draft1.md`), sheets `docs/plans/item12e-2026-11-18/small/` (`p12e-B.jpg`, `p12e-more.jpg`; raw/ and the
+        prototype's diff local). Prototype in a throwaway worktree of `5d25826`: one rule, `hungFromOvenHeight` (towerOven.ts),
+        asked by `sillFor`, `setOvenModel`, the Layout sliders and the install list's held line; the oven height shown on one
+        wall too; each slider keeps its own figure. Worked out against now: MEM301WS and D's L the same; the dumps (16:08:13-
+        16:08:27, exit 0) 21 rooms change — B and E in each shape and D on one wall with ME301YP, PO302W or PODS302B, the sill
+        15" to 12" at the default — and every other room byte for byte, the three packages' defaults among them. Today's v=4
+        links already carry `handle` and `steamSill` for B and E (checked). Five questions to Leo (the handoff; where the oven
+        height starts; old links, a version 5 or not; D's L and U with MEM301WS; the slider on one wall). **Found in writing it,
+        registered only:** D on one wall with MEM301WS at a handle of 58"-60" has no microwave-reach line on the list, where B's
+        and E's have one (that line reads B's and E's slot only).
+      - **Leo's answers to the second draft, 2026-11-18**: 1. 「高度接过去，不各记各的。换型号时烤箱留在原来的高度；只有超出所选
+        烤箱的规格表才压住并提示。换回去也回到同一个高度。我要的高度记着，照 12b。」 2. 「选了没有微波的烤箱、还没调过时，从它现在
+        所在的高度开始（B、E、一字型 D 默认是 15″），不从 12″ 开始。」 3. 「旧链接：打开后烤箱在发链接时的高度，超出规格表的照第 1 条
+        压住并提示。能不升链接版本就不升；怎么做到的、v=1 到 v=4 的链接各怎么打开，写清楚并有测试。」 4. 「全部套餐用同一条规矩：
+        D 的 L、U 型选 MEM301WS 时也调微波把手。这一条改了我 12b 时说的"换成 MEM301WS 也用这一根"，在 decisions.md 里写明是我
+        2026-11-18 改的。D 默认是 PODS302B，默认房间不能变。」 5. 「一字型显示「烤箱离地高度」：可以。」 And: 「一字型 D 选 MEM301WS、
+        把手 58″–60″ 时没有"微波把手够不着"的提示：规矩写到一处以后一起补上，和 B、E 一样。补不上就停下来报。」 「12e 和 12d-2 并成
+        一轮，可以动手，做到本地预览为止，不提交……原型代码不并入。」
+      - **12b changed by Leo, 2026-11-18 (his 4):** in 12b (C, section 6) D's tower kept 「烤箱离地高度」 whichever of the four ovens
+        was in it, MEM301WS with the caption 「切口底离地 {X}″，微波把手在 {Y}″」 (「换了，也留着」; the slider staying when MEM301WS
+        is chosen). From 12e, in every package, an oven with a microwave door hangs from 「微波把手高度」 — D's MEM301WS in the L
+        and the U too — and any other from 「烤箱离地高度」. D's default (PODS302B) as it was.
+      - **Built, 2026-11-18/19, not committed, to a local preview** (`index-CM9XIqeA.js`; the prototype not merged, rewritten
+        to plan section 九). One rule in `towerOven.ts` — `towerSillFor`, with `towerHang`, `askedSillIn`, `towerParamsFor`,
+        `towerKindOf` — asked by `sillFor`, `setOvenModel`, the Layout sliders and the list's two lines (held past the sheet;
+        the microwave out of reach). Each tower keeps one asked height in its own parameter: B, E and one wall's D
+        `microwaveHandleIn` (the sill the handle less 39"), D's L and U `steamSillIn`; whichever slider moves writes it, so a
+        swap hands the height over (1, 2) and the asked one is kept while held (12b). 「烤箱离地高度」 on one wall (5). The reach
+        line reads the tower's own slot, so one wall's D with MEM301WS at 58"-60" has it as B and E. **Past the plan, reported
+        to Leo:** `steamSillIn`'s inner limit 18" to 21", so that D's handle slider with MEM301WS runs 44"-60" as B's (the
+        height slider still shows the sheet's range, to 18"). Links (3): no new version — `handle` is in every link since v1,
+        `steamSill` since v4 (v1-v3 at 12", 12b); tests open v1 to v4 with B's L and PO302W and D's L and MEM301WS.
+        Tests: `src/data/towerHeight12e.test.ts` (133 cases: the 9 towers' defaults; the 12 ordered pairs of the four ovens in
+        each, there and back; the asked height kept; D's L and U with MEM301WS to 60"; the held and reach lines; the old
+        links) and `tests/towerHeight12e.test.ts` (3: a real mouse at 1440 and a real finger at 390 through the four ovens on
+        B's L; D's L with MEM301WS). Changed, with the reason and Leo's 4 beside them: `src/store/ovenTowerOpening.test.ts`
+        (PO302W's door 65" to 64", held at 14") and `tests/steamSill.test.ts` (D with MEM301WS shows the microwave slider).
+        Red on `5d25826`: unit 133 of 133 (20:18:53-20:19:01), browser 3 of 3 (20:20:26-20:23:01); the final versions unit
+        135 red, 6 passed (22:30:22-22:30:31), browser 4 red (22:30:37-22:35:06; steamSill's on MEM301WS only). Green: unit
+        133 (20:24:25-20:24:32), browser 9 of 9 with steamSill and underOven12d (20:26:33-20:31:25). Guards G1-G5 each red by
+        a break of its own, restored, `cmp` equal (22:28:58-22:29:58). The unit suite 152 files 4,571 passed (22:27:50-
+        22:28:32), typecheck exit 0. Build 22:35:39-22:35:56: against `5d25826`'s only the main chunk and index.html differ.
+        HANDOFF section 6's run 14 files 152 passed (22:35:57-23:16:32, exit 0). Dumps (23:16:57-23:17:24): 7 rooms change —
+        B and E in each shape and one wall's D with PO302W, the sill 15" to 14" and the held line — and every other byte for
+        byte; of the second draft's 21 the 14 with ME301YP or PODS302B no longer change, the height handed over. Pixels: the
+        45 states (23:17:45-23:52:59, compared 00:13:19-00:14:00) the canvas the same in 45, one screen pixel in
+        link-B-noisland run to run by reshoots (00:15:17-00:15:54); the U's and one wall's default rooms of the five packages
+        more (23:52:59-00:13:06), each the same as an old shot, single pixels run to run. Shots for Leo 00:16:00-00:17:13, no
+        errors (`docs/plans/item12e-2026-11-18/small/built12e-cycle.jpg`, `built12e-more.jpg`). The full suite waits for
+        Leo's word. Questions: `panel.layout.steamSill.caption.combo` now unused (delete or keep); the inner 21".
+      - **Leo's answers, 2026-11-19:** 1. 「D 的烤箱高度内部存到 21″：保留，和 B 一条规矩。条件是建出来的切口底永远不超过所选烤箱的
+        规格表，有测试守着；分享链接里写超了的值也照样压住并提示。这是超出计划的改动，以后先报再改。」 Why it is 21": D's L and U with
+        MEM301WS hang from the microwave handle as B's (his 4, 2026-11-18), and the handle's 44"-60" less 39" is 5"-21"; the
+        handle slider writes D's own figure, the oven height, so that figure keeps to 21" for the handle to reach 60" and say
+        out of reach at 58"-60" as B's does; the oven height slider still shows each sheet's range, to 18". 2. 「caption.combo
+        没人用了：从词典和 reviewed.json 里删掉。删之前搜一遍确认代码和测试里都没有引用。」 3. the heartbeat's process case (12d-2).
+      - **The guards for 1, 2026-11-19** (`src/data/towerHeight12e.test.ts`, 72 cases more, 205 in all): every tower, every
+        oven, every height kept 5"-21", built within the oven's sheet (written out from each sheet's p. 2), held when short of
+        what was asked, one line said; and each in a link at 21", opened held and said. Green 13:06:19-13:06:30; three breaks
+        each red, restored, `cmp` equal (13:06:43-13:07:12): the sheet ignored 70, MEM301WS past 18" 23, no line past 18" 57.
+      - **Found doing 1, reported before any change (2026-11-19):** ME301YP held at 18" (the slider's end, 12b) says its
+        sheet allows 「4-3/4″–38″」 — 「烤箱切口底实际离地 18″，非所要的 21″：ME301YP 的规格表只允许 4-3/4″–38″」, at B's, E's and one
+        wall's handle 58"-60" or a link's 19"-21" in D's L and U; PODS302B held at 18" (whole inches) quotes 18-3/4". Built
+        within the sheet in every case; only the words. Before 12e, B's ME301YP at 58"-60" was held at 18" with the microwave
+        sentence. Waiting for Leo.
+      - **Found doing 2, reported before any change:** the one reference is page code, `src/ui/LayoutControls.tsx` line 140,
+        the oven height caption's branch for an oven with a microwave door — never reached since 12e, the oven height slider
+        showing only for an oven without one (line 169). Deleting the key takes that branch out (three lines, nothing shown
+        changes). Waiting for Leo.
+      - **Leo's answers, 2026-11-19 (second):** 一 「ME301YP 那句：照你的建议。挡住它的是滑杆的 18″ 而不是规格表时，用新句子：
+        「烤箱切口底实际离地 {X}″，非所要的 {Y}″：这里最高调到 18″」 / "The oven opening starts {X}″ off the floor, not the {Y}″ asked
+        for: it goes no higher than 18″ here"。这两句我同意，进 reviewed.json，写明是我 2026-11-19 定的。句子里的 18 从滑杆的上限那一处
+        读，不要另写一个 18。哪句用在哪种情况，规矩写在一处并有测试：被规格表挡住用 12b 那句，被滑杆上限挡住用这句；四台烤箱、每座塔都查
+        一遍，不能再出现"停在的高度"和"允许的范围"对不上的句子。」 二 「caption.combo：连同 LayoutControls.tsx 里那个走不到的分支一起
+        删。删完页面显示必须不变，写明怎么证明的。」
+      - **Done, 2026-11-19:** `towerHeldBy(oven, askedIn)` in `towerOven.ts`, the one place: held at the top by the sheet
+        where the sheet's whole inches stop at or below the slider's top (PO302W at 14", PODS302B at 18", 12b's sentence), by
+        the slider where the sheet would let it go higher (ME301YP, `rule.ovenSillHeldBySlider`, 「这里最高调到 {maxIn}″」,
+        `maxIn` from `STEAM_SILL_LIMITS.max`). In reviewed.json as Leo's of 2026-11-19 (`read`: CC's words he passed), his
+        English as he gave it, with ″ where every other English sentence has " (registered: whether to make it "). The 21"
+        guards now say each line word for word, for every tower, oven and height 5"-21", and that the height a line says it
+        stopped at agrees with the top it gives; the English one and its `maxIn` read from the slider; no figure in either
+        language's words. Green 206 (13:24:44-13:24:56); before the sentence 19 red, the 18 ME301YP cases and the English one
+        (13:24:56-13:25:05); five breaks each red, restored, `cmp` equal (13:25:40-13:26:31): always 12b's sentence 19, always
+        the slider's 67, PODS302B to the slider's 18, the top not the slider's 19, an 18 written into the words 1.
+        `panel.layout.steamSill.caption.combo` deleted from zh.json, en.json and reviewed.json (both), with the branch that
+        used it in `OvenHeight` (LayoutControls.tsx) and `isCombo`'s import there, now unused; searched again after: no
+        reference in src/, tests/, scripts/, data/. Typecheck exit 0 (13:27:11-13:27:22).
+      - **Then (二 of Leo's earlier message):** the unit suite 152 files 4,647 passed (13:52:37-13:53:26, exit 0), typecheck
+        exit 0 (13:53:26-13:53:35); the final unit tests on `5d25826` (a fresh worktree) red: towerHeight12e 206 of 206,
+        heartbeat 5 of 7, ovenTowerOpening 2 of 8 (13:53:53-13:54:04, exit 1); the browser tests not changed since 2026-11-18
+        20:26, their final versions' red runs of that night standing. Built 13:54:15-13:54:33, exit 0: `index-CWQc7Lmg.js`;
+        against the build before the deletion (`index-CM9XIqeA.js`) and against `5d25826`'s only the main chunk and
+        index.html differ; in the main chunk the deleted words and key gone, the new sentence once. The dumps again
+        (13:55:17-13:55:43): the same 7 rooms change, and both sides byte for byte as the day before.
+      - **The page as it was, how it is shown (Leo: 「删完页面显示必须不变，写明怎么证明的」):** (1) the branch could not be
+        reached — the oven height slider shows only for an oven with no microwave door (`hang === "height"`), and the
+        deleted branch was the one for an oven with one; (2) every oven slider read off the page by a real mouse, on the
+        build before the deletion (`index-CM9XIqeA.js`) and after (`index-CWQc7Lmg.js`): the nine towers, the four ovens, at
+        the default and at the top each keeps (handle 60", D's L and U 21"), Chinese and English, 144 states each
+        (15:22:13-15:30:46 and 15:30:46-15:39:27, exit 0) — all 144 the same word for word (name, value, ends, caption, bold,
+        the caption's HTML), one oven slider in each, no console error; (3) the pixels against `5d25826`, each build shot
+        twice: the 45 states (13:55:58-14:31:30, compared 14:51:54-14:52:42) the canvas and the whole screen the same in 45
+        in the closest pairing — single pixels run to run in seven, and in phone390-A the second new shot's labels (02, 03,
+        05, 06) caught in another place, 2,336 screen pixels against the first new shot and the old, the canvas the same and
+        the first new shot the same as the old to the pixel; the U's and one wall's default rooms of the five packages
+        (14:31:30-14:51:54, compared 14:53:24-14:54:28) the canvas the same in all 30 in the closest pairing, the screen in 29
+        of 30, A on one wall in materials one pixel one level at (144,225) in all four pairings, two more shots of each build
+        (14:54:43-14:56:50) the same to the pixel old against new, the new reshot the same as the first old: run to run.
+        Shots for Leo (15:39:38-15:40:08, no errors): B's L and D's L with ME301YP at 21" asked, Chinese and English, D's L
+        with PODS302B at 21" (12b's sentence, its sheet's whole inches), `docs/plans/item12e-2026-11-18/small/built12e-held.jpg`
+        (239,915 bytes). Seen in them, registered: the English sentence's ″ beside the next line's `0.5"`.
+      - **HANDOFF section 6, then the full suite, 2026-11-19:** the 14 browser files found by search (the same 14 as the night
+        before; searching today's words, the slider names, captions, ME301YP and the heartbeat added none) 152 passed
+        (15:40:29-16:26:46, exit 0). The full suite started 16:27:13 (preview stopped, no node or esbuild left, on mains
+        with sleep, hibernate and screen off never) and was **stopped by hand at 18:04:21, not counted**: Leo was shutting
+        the computer down at 6 PM (「我要准备关机」), the run at 98 of 203 files, none red, nothing under src/, tests/,
+        scripts/ or data/ changed since its start. To be run again; then the preview.
+      - **The full suite again, 2026-11-19** (Leo: 「我回去之后再重跑」, 「我已经回到家了，可以继续」): src/, tests/, scripts/ and
+        data/ as at the stopped run, no preview, no node or esbuild left, on mains with sleep, hibernate and screen off never;
+        19:03:29-20:48:59 green, exit 0 — 205 files, 5,108 passed; no sleep, wake or standby in the system log in that time
+        (77 events, none from Kernel-Power, Power-Troubleshooter or Kernel-General); nothing under src/, tests/, scripts/ or
+        data/ changed after its start; dist byte for byte the build checked that afternoon. The preview opened after it,
+        http://localhost:4173, serving `index-CWQc7Lmg.js`, no console error. Not committed: waiting for Leo to look.
+  12e-2. **After a model is swapped the camera pulls back with the kitchen off centre** *(registered 2026-11-18; named
+      12e-2 so that 12f and 13 keep their numbers; the first after 12e's round, before 12f and 13)*. Leo's words:
+      「现在当我在一个套餐里面选中一个家电，切换到另外一个型号选项之后，整一个厨房从局部返回zoom out，但整一个厨房的中心是偏了，每一次都需要
+      重置到中心才行」「手机上的也偏」. What he saw, all on the live `5d25826`, English, package A's L, materials: on a desktop the
+      whole kitchen off to the left of the view with a wide empty band on the right; on an iPhone the kitchen low and to
+      the right, part of it off the screen, the labels 「03 Ventilation hood」「02 Range」「05 Microwave drawer」「06 Wine cooler」
+      against the right edge, some cut; on both the reset button puts it back. His order: 「新需求，只登记，不动手，不打断 12e」;
+      「登记进 decisions.md 的 Open items，顺序排在 12e 这一轮之后的第一个、第 13 项之前，写进顺序那一处」. Registered only.
+      When its turn comes:
+      - **First, read only, into a plan**: reproduce it by the real mouse and the real finger — the five packages and the
+        three shapes, a few machines each, a desktop and a 390 phone — saying where it is off, by how much and which way;
+        whether the way it is off goes with the machine pressed; the card open and closed. Why: whether the camera's
+        distance, its direction and the point it looks at each come back to where they were when the page opened. Since
+        when: the earlier releases' builds, back until it goes, naming the commit that brought it. What
+        `tests/cameraKeep.test.ts` checks now and what not (Leo: 「我的理解是只查了远近，没查中心」).
+      - **The change**: after a model is swapped and the camera pulls back, the view is as it is after the reset button —
+        the measure of "as" written down; every machine's label on the screen and pressable after it, desktop and phone;
+        new tests red first on the live version, red on the centre, the mouse on a desktop and a finger on a phone; the
+        camera's rules already kept (zoom keeps the angle, switching the shape, switching the package) unchanged, the
+        tests that hold each listed.
+      - **Judged by eye**: before and after screenshots (desktop and phone) and a prototype preview at the plan stage, for
+        him to decide.
+      - *Correction to this order, 2026-11-18, found entering 12e-2:* 12e and 12f (committed in `5d25826`) and 12d-2 had
+        been entered after item 13's line, against Leo's 「第 13 项之前」 for each; item 13's line moved back after 12f, where
+        it stood before them (after 12d, before 12a-2, in `4f4351b`). Nothing else in the order changed.
+      - **Done in the same round: the inch marks in the dictionaries made one** *(registered 2026-11-19, found in 12e)*.
+        12e's `rule.ovenSillHeldBySlider` went live in Leo's English as he gave it, with ″, where every other English
+        sentence has " (on the install list it stands above `0.5"`). Leo, 2026-11-19: 「英寸号：这一轮不改，照现在的样子上线。登记
+        一小项，排在下一轮（换型号后镜头跑偏）里一起做：词典里英寸号的写法统一。先把中英文词典里两种写法各有多少处、分别用在哪类句子上列
+        出来，统一成哪一种等我定。新加的 rule.ovenSillHeldBySlider 到时候和旁边的句子改成一样。」 When its turn comes: count ″ and "
+        in zh.json and en.json (and reviewed.json), by the kind of sentence each is in, put to Leo which to use; then
+        `rule.ovenSillHeldBySlider` the same as its neighbours. Registered only.
   12f. **Every figure for a circuit on the page, against the manuals and the shop's practice** *(registered
       2026-11-18; numbered 12f, after 12e)*. Found in 12c/12d's round: D on one wall with PODS302B or PO302W, the
       install list's 「240V 50A」 (the opening's circuit, wired for MEM301WS) against the rough-in's 40A (the oven's).
@@ -13043,6 +13315,7 @@ Registered, not scheduled. None of these is a round of its own.
       - two or three ways to write it (Chinese and English), the shop's practice and the manual's figure written
         apart, put to him as questions: 「照"店里做法和说明书的数分开写"的规矩，提两三种写法（中英文），列成问题等我定。不要自己把哪个
         40A 改成 50A。」
+  13. **13**: tapping the package, layout or hood already chosen rebuilds the whole room;
   12a-2. **A U's right leg has no under-cabinet light: at night its strip is much darker than the back
       wall's** *(registered 2026-11-15; named 12a-2 so that 12b keeps its name)*. Leo's words: 「U 型右段
       没有柜下灯条，夜晚那一条墙比后墙暗很多。」 His order: 「只登记，不动手……顺序排在 12a 之后、12b 之前，写进顺序那一处。
@@ -13075,6 +13348,26 @@ Registered, not scheduled. None of these is a round of its own.
         With it: 「所以两个高柜可以挨着，拆一、拆二都不做，E 的默认房间不变。清单里不加提醒。」). The two towers stay
         side by side in all 67 of E's L rooms; nothing on the page changes for it.
       - 9 (the hood over a professional range) is still on hold.
+  15. **A pencil sketch in place of the white model, and a watercolour picture to export** *(registered 2026-11-18; at the
+      end of the queue, after 13, 12a-2 and 14)*. Leo's words: 「这个视图里面的white model视图有什么作用吗？能否增加一个水彩画风格
+      视图？」「白模没人用，如果变成铅笔素描图呢？另外可以做导出水彩图方便传播」. His direction: 甲, a pencil sketch replaces
+      the white model, still three views (materials, sketch, install); 乙, watercolour is not a view but "export one
+      watercolour picture", to pass around. His order: 「新想法，只登记，不动手，排在队伍最后（第 13 项和 12a-2 之后）」.
+      Registered only. When its turn comes, **prototypes only, no formal plan, nothing in the main folder**:
+      - 甲, the sketch: package A's default L in two ways — outlines only, and a sketch with hatched shade — each with the
+        machines kept stainless and with the machines drawn as lines too; desktop 1440 and phone 390, each with one flown
+        to a machine, the card open; one U and one one-wall for the side legs' back boards, the window and the tile; for
+        each, frames a second on a phone against today's white model, and whether it is a pass added at the end or a
+        change to the materials; where the white model is used now — how many of the 45 pixel states, which tests,
+        whether a share link carries the view, how an old link that says white model opens; a few names for the button
+        (Chinese and English) for him to choose.
+      - 乙, the watercolour export: one sample of the same room, a desktop frame and a phone frame; as questions: where the
+        way in goes (an item under Share in the top bar, say), whether the picture carries the page's name, the address,
+        a QR code, a signature, its size, how a phone saves it to the album or sends it straight on; how long an export
+        takes, that it sends nothing out (it should not), what it does to the 45 pixel states and the full suite.
+      - Counting: whether switching views is counted now; whether to count "a picture exported", and how that stands with
+        D24, as questions.
+      - Whether the two are one round or two, and which first: his, after he has seen the prototypes.
   The older registrations (the report's 14) stay as they are. Each a plan first, shown to him,
   built only once he confirms it; 10 too, once 9 is shipped (「第 1 项做完上线后，第 2 项也先写计划」).
 - **An induction cooktop in B and D.** *(Registered 2026-11-07; **done**, built

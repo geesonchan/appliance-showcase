@@ -6,8 +6,8 @@ import { useAppStore } from "../store/useAppStore";
 import { selectionOf, useActivePackage, useSelectedAppliance } from "../store/useSelection";
 import { billLabelKey } from "../data/machineLabel";
 import { hoodMount } from "../data/hoodMount";
-import { STEAM_OVEN, comboHandleAt, comboSillFor, isCombo, isDouble } from "../data/columnModel";
-import { ovenSillLimits, steamSillFor } from "../data/towerOven";
+import { COMBO_OVEN, STEAM_OVEN, comboHandleAt, comboSillFor, isDouble } from "../data/columnModel";
+import { ovenSillLimits, towerKindOf, towerParamsFor, towerSillFor } from "../data/towerOven";
 import type { Appliance } from "../types";
 import { atCoffeeManualHeight, snapCoffeeSill, underCoffee } from "../data/layoutTemplate";
 import { formatDimension } from "../data/dimensions";
@@ -136,11 +136,9 @@ function OvenHeight({ sillIn, held, oven }: { sillIn: number; held: boolean; ove
   const t = useT();
   const words = !oven
     ? t("panel.layout.steamSill.caption.single", { sillIn })
-    : isCombo(oven)
-      ? t("panel.layout.steamSill.caption.combo", { sillIn, atIn: comboHandleAt(sillIn) })
-      : isDouble(oven)
-        ? t("panel.layout.steamSill.caption", { sillIn, lowIn: sillIn + STEAM_OVEN.lowerHandleIn })
-        : t("panel.layout.steamSill.caption.single", { sillIn });
+    : isDouble(oven)
+      ? t("panel.layout.steamSill.caption", { sillIn, lowIn: sillIn + STEAM_OVEN.lowerHandleIn })
+      : t("panel.layout.steamSill.caption.single", { sillIn });
   return <span className={held ? "font-medium text-ink" : undefined}>{words}</span>;
 }
 
@@ -154,17 +152,19 @@ export function LayoutControls() {
   // the range or on its own in the run; package D's steam oven has none, and
   // hangs at its own figure. Round 74: shown wherever the parameter decides a
   // height on screen — it had been deciding E's with no control for it.
-  const hasMicrowaveTower = specified.some(
-    (slot) => slot.category === "wall-oven" && slot.installType === "combo",
-  );
+  //
+  // Since 12e one slider for the tower, by the oven in it (towerOven.ts): its microwave
+  // handle if it has a microwave door, the opening's height if not (Leo, 2026-11-18), both
+  // writing the tower's one asked figure.
+  const towerSpec = specified.find((slot) => towerKindOf(slot) !== null);
+  const towerKind = towerKindOf(towerSpec);
+  const oven = useSelectedAppliance(towerSpec?.slotId ?? "slot-oven");
+  const tower = towerKind ? towerSillFor(towerKind, params, oven) : null;
+  const hasMicrowaveTower = tower?.hang === "handle";
   // Package D's tower, built for its double oven: its height off the floor,
   // whichever of the four ovens is in it (12b; Leo, 2026-11-16: 「换了，也留着」),
   // its ends the chosen oven's own (C, 乙).
-  const hasOvenHeight = specified.some(
-    (slot) => slot.category === "wall-oven" && slot.installType === "double",
-  );
-  const oven = useSelectedAppliance("slot-oven");
-  const ovenSill = steamSillFor(params.steamSillIn, oven);
+  const hasOvenHeight = tower?.hang === "height";
   // And a coffee cabinet, which can go on either leg at a height somebody sets.
   const hasCoffee = specified.some((slot) => slot.category === "coffee");
   // What stands under it, which the caption names rather than assumes (round 73).
@@ -361,19 +361,19 @@ export function LayoutControls() {
         {hasMicrowaveTower && on("microwaveHandleIn") && (
           <Slider
             label={t("panel.layout.microwaveHandle")}
-            value={params.microwaveHandleIn}
+            value={tower!.askedIn + COMBO_OVEN.microwaveHandleIn}
             {...PARAM_LIMITS.microwaveHandleIn}
-            caption={<MicrowaveReach handleIn={params.microwaveHandleIn} />}
-            onChange={(microwaveHandleIn) => setLayout({ microwaveHandleIn })}
+            caption={<MicrowaveReach handleIn={tower!.askedIn + COMBO_OVEN.microwaveHandleIn} />}
+            onChange={(handleIn) => setLayout(towerParamsFor(towerKind!, handleIn - COMBO_OVEN.microwaveHandleIn))}
           />
         )}
         {hasOvenHeight && on("steamSillIn") && (
           <Slider
             label={t("panel.layout.steamSill")}
-            value={ovenSill.sillIn}
+            value={tower!.sillIn}
             {...ovenSillLimits(oven)}
-            caption={<OvenHeight sillIn={ovenSill.sillIn} held={ovenSill.held} oven={oven} />}
-            onChange={(steamSillIn) => setLayout({ steamSillIn })}
+            caption={<OvenHeight sillIn={tower!.sillIn} held={tower!.held} oven={oven} />}
+            onChange={(sillIn) => setLayout(towerParamsFor(towerKind!, sillIn))}
           />
         )}
         {hasCoffee && on("coffeeSillIn") && (

@@ -36,7 +36,7 @@ export type LayoutControl = keyof Pick<
   | "aisleIn"
 >;
 
-export const SHOWN_ON_ONE_WALL: readonly LayoutControl[] = ["housingStyle", "backWallIn", "microwaveHandleIn", "coffeeSillIn"];
+export const SHOWN_ON_ONE_WALL: readonly LayoutControl[] = ["housingStyle", "backWallIn", "microwaveHandleIn", "coffeeSillIn", "steamSillIn"];
 
 /**
  * The U's (U-2; docs/plans/u2-plan.md, section 2): one wall's, the side walls'

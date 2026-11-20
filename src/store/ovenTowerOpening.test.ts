@@ -55,9 +55,13 @@ describe("B's oven tower round PO302W (甲)", () => {
     const po = room("slot-microwave");
     store().selectAppliance("slot-microwave", "thermador-mem301ws");
     const back = room("slot-microwave");
+    // 12e (Leo, 2026-11-18): PO302W hangs from the opening's height, held to its own sheet's
+    // 14-7/8" — the default 15" handed over is held at 14", so the 50" opening and the
+    // cabinet over it stand 1" lower than the 65" they did (「换型号时烤箱留在原来的高度；只有超出
+    // 所选烤箱的规格表才压住并提示」). The opening's 50" (甲) as it was.
     expect({ before, po, back }).toEqual({
       before: { opening: 48.5, doorOver: 63.5 },
-      po: { opening: 50, doorOver: 65 },
+      po: { opening: 50, doorOver: 64 },
       back: { opening: 48.5, doorOver: 63.5 },
     });
     expect(store().layoutIssues).toEqual([]);
@@ -73,7 +77,8 @@ describe("B's oven tower round PO302W (甲)", () => {
     expect({ held: store().selection["slot-microwave"], ...room("slot-microwave") }).toEqual({
       held: "thermador-po302w",
       opening: 50,
-      doorOver: 65,
+      // 64, held at 14": 12e, as the case above.
+      doorOver: 64,
     });
   });
 

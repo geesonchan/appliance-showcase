@@ -12,7 +12,6 @@ import {
   COMBO_OVEN,
   STEAM_OVEN,
   comboHandleAt,
-  comboSillFor,
   isColumn,
   isCombo,
   isDouble,
@@ -20,7 +19,7 @@ import {
 } from "./columnModel";
 import { CABINETS, underOvenFront } from "./cabinets";
 import { isOvenTower } from "./ovenTower";
-import { OVEN_SILL_RANGE_IN, steamSillFor } from "./towerOven";
+import { OVEN_SILL_RANGE_IN, STEAM_SILL_LIMITS, towerHeldBy, towerKindOf, towerSillFor } from "./towerOven";
 import { chimneyOf, chimneyParts, isChimney } from "./hood";
 import { ISLAND, LAYOUT_LIMITS, LAYOUT_PARAMS, OMITTED_FOR_WALL, OMITTED_SLOTS, ROOM, RUNS } from "./room";
 import { COFFEE_HEIGHT } from "./layoutTemplate";
@@ -380,10 +379,25 @@ function steamOven(selection: Record<SlotId, Appliance>): Finding[] {
       params: { sillIn: inchesOf(sillIn), lowIn: inchesOf(sheet.min), highIn: inchesOf(sheet.max), boxIn: inchesOf(boxIn) },
     });
   }
-  // Held at the oven's own end, as B's microwave reach says it (Leo, C): D's
-  // oven height only; the microwave handle says its own (`microwaveReach`).
-  const asked = LAYOUT_PARAMS.steamSillIn;
-  if (PACKAGE_SLOTS[slotId]?.installType === "double" && sheet && steamSillFor(asked, oven).held) {
+  // Held at the oven's own end, as B's microwave reach says it (Leo, C): an oven on
+  // the opening's height (12e, every tower); one on its microwave handle says its own
+  // (`microwaveReach`).
+  const kind = towerKindOf(PACKAGE_SLOTS[slotId]);
+  const tower = kind ? towerSillFor(kind, LAYOUT_PARAMS, oven) : null;
+  const asked = tower?.askedIn ?? LAYOUT_PARAMS.steamSillIn;
+  // Held by the slider's top rather than the sheet (ME301YP past 18"): its own words, the
+  // top read from the slider (Leo, 2026-11-19; `towerHeldBy`).
+  const heldBy = tower?.hang === "height" && tower.held ? towerHeldBy(oven, asked) : null;
+  if (heldBy === "slider") {
+    lines.push({
+      ruleId: "oven-sill-held",
+      severity: "warning",
+      messageKey: "rule.ovenSillHeldBySlider",
+      slot: slotId,
+      params: { sillIn: inchesOf(sillIn), askedIn: inchesOf(asked), maxIn: inchesOf(STEAM_SILL_LIMITS.max) },
+    });
+  }
+  if (heldBy === "sheet" && sheet) {
     lines.push({
       ruleId: "oven-sill-held",
       severity: "warning",
@@ -640,19 +654,23 @@ function noIslandFallback(): Finding[] {
  * chosen from.
  */
 function microwaveReach(selection: Record<SlotId, Appliance>): Finding[] {
-  const oven = selection["slot-microwave"];
-  if (!oven || !isCombo(oven)) return [];
-
-  const asked = LAYOUT_PARAMS.microwaveHandleIn;
-  const { sillIn, clamped } = comboSillFor(asked);
-  if (!clamped) return [];
+  // The oven tower's, wherever it stands — D's on one wall and in its L and U too since
+  // 12e (Leo, 二: 「规矩写到一处以后一起补上，和 B、E 一样」) — when its oven hangs from the handle.
+  const spec = Object.values(PACKAGE_SLOTS).find((candidate) => candidate && towerKindOf(candidate));
+  const kind = towerKindOf(spec);
+  const oven = spec ? selection[spec.slotId] : undefined;
+  if (!spec || !kind || !oven || !isCombo(oven)) return [];
+  const tower = towerSillFor(kind, LAYOUT_PARAMS, oven);
+  if (!tower.held) return [];
+  const asked = tower.askedIn + COMBO_OVEN.microwaveHandleIn;
+  const sillIn = tower.sillIn;
 
   return [
     {
       ruleId: "microwave-reach",
       severity: "warning",
       messageKey: "rule.microwaveReach",
-      slot: "slot-microwave",
+      slot: spec.slotId,
       params: {
         atIn: round8(comboHandleAt(sillIn)),
         askedIn: round8(asked),

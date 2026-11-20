@@ -26,12 +26,11 @@ import {
   type HoodMount,
 } from "./hoodMount";
 import { slotsAsBuilt } from "./fridgeMount";
-import { STEAM_SILL_LIMITS, steamSillFor, towerOvenFor } from "./towerOven";
+import { STEAM_SILL_LIMITS, towerKindOf, towerOvenFor, towerSillFor } from "./towerOven";
 import { ovenTowerOf } from "./ovenTower";
 import { alongOf, extentsOnAxis, faceRotation, onAxis, rotationOf, sizeOnAxis } from "./frame";
 import { cornersOf, runCentre, shapeRun, shapeSpec, type LayoutShape, type RunEnd, type RunId, type ShapeSpec } from "./layoutShape";
 import { LAYOUT_POLICY, shrinkRank, type ShrinkGroup } from "./layoutPolicy";
-import { comboSillFor } from "./columnModel";
 import { hoodCabinetBand } from "./insertHood";
 import {
   DEFAULT_WINDOW,
@@ -201,8 +200,10 @@ export const PARAM_LIMITS = {
   islandDepthIn: { min: 24, max: 42, step: 6 },
   aisleIn: { min: 42, max: 60, step: 3 },
   microwaveHandleIn: { min: 44, max: 60, step: 1 },
-  // D's oven height, the opening's bottom from the floor (12b): STEAM_SILL_LIMITS.
-  steamSillIn: { ...STEAM_SILL_LIMITS },
+  // D's oven height, the opening's bottom from the floor (12b): STEAM_SILL_LIMITS. Since 12e
+  // D's tower is the figure its microwave handle writes too, MEM301WS in it (Leo, 4), so it
+  // goes as far as the handle's 60" less 39": 21", held to 18" by the oven as B's is.
+  steamSillIn: { ...STEAM_SILL_LIMITS, max: 21 },
   // Thirty-six is the dishwasher's 34" opening under it and the rail over
   // that; sixty is as high as anybody reaches to take a cup out.
   coffeeSillIn: { min: 36, max: 60, step: 1 },
@@ -836,12 +837,9 @@ export function sillFor(slot: PackageSlot, params: LayoutParams, pkg: Package): 
   // double oven, is hung where the oven height in Layout puts it, whichever of
   // the four ovens is in it, held to that oven's own sheet (12b; Leo,
   // 2026-11-16) — 12" by default, the toe kick and one drawer (round 31).
-  if (slot.category === "wall-oven" && slot.installType === "combo") {
-    return comboSillFor(params.microwaveHandleIn).sillIn;
-  }
-  if (slot.category === "wall-oven" && slot.installType === "double") {
-    return steamSillFor(params.steamSillIn, towerOvenFor(pkg)).sillIn;
-  }
+  // Since 12e one rule for both kinds of tower (towerOven.ts, `towerSillFor`).
+  const kind = towerKindOf(slot);
+  if (kind) return towerSillFor(kind, params, towerOvenFor(pkg)).sillIn;
   return slot.sillIn;
 }
 

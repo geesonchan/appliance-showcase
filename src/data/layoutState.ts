@@ -18,7 +18,7 @@ import { rebuildSlots } from "./slots";
 import { hoodModelFor, hoodMount, recordHoodModel } from "./hoodMount";
 import { cookingSurfaceKind, rangeFillerIn, rangeModelFor, recordRangeModel } from "./cookingSurface";
 import { fridgeModelFor, fridgeMount, fridgeOpeningHeightIn, recordFridgeModel } from "./fridgeMount";
-import { recordTowerOven, steamSillFor, towerOpeningHeightIn, towerOvenFor, towerSlotOf } from "./towerOven";
+import { recordTowerOven, towerKindOf, towerOpeningHeightIn, towerOvenFor, towerSillFor, towerSlotOf } from "./towerOven";
 import type { Appliance } from "../types";
 
 /**
@@ -173,10 +173,10 @@ export function setOvenModel(
   const built = slot ? slotsOf(PACKAGE)[slot].heightIn : undefined;
   if (built === null || built === undefined) return { ok: true, reasons: [], rebuilt: false };
   const after = towerOvenFor(PACKAGE);
-  // And D's tower, whose opening starts where the oven height puts it, held to
-  // the chosen oven's own sheet (12b): PO302W's stops at 14".
-  const double = slotsOf(PACKAGE)[slot!].installType === "double";
-  const sill = (oven: Appliance | undefined) => (double ? steamSillFor(REQUESTED_PARAMS.steamSillIn, oven).sillIn : null);
+  // And where the opening starts, by the one rule (12e, towerOven.ts): the same asked
+  // height, held to the chosen oven's own ends (PO302W's stops at 14").
+  const kind = towerKindOf(slotsOf(PACKAGE)[slot!]);
+  const sill = (oven: Appliance | undefined) => (kind ? towerSillFor(kind, REQUESTED_PARAMS, oven).sillIn : null);
   if (towerOpeningHeightIn(built, before) === towerOpeningHeightIn(built, after) && sill(before) === sill(after)) {
     return { ok: true, reasons: [], rebuilt: false };
   }

@@ -17,25 +17,72 @@ import { closeSync, mkdirSync, openSync, writeSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-/** One request: how long it took, its status and bytes, or why it failed (never throws). */
-export async function beat(url, timeoutMs = 10_000) {
-  const start = performance.now();
+/**
+ * One request: how long it took, its status and bytes, or why it failed (never throws).
+ *
+ * The clock it times by and the signal it gives up on can be handed in (12d-2, Leo,
+ * 2026-11-18): a test drives both, so what it asks of the timing does not hang on how
+ * busy the machine is. Left out, they are the real ones — `performance.now` and a
+ * `timeoutMs` timeout — and the heartbeat behaves as it always did.
+ */
+export async function beat(url, timeoutMs = 10_000, { now = () => performance.now(), signal } = {}) {
+  const start = now();
   try {
-    const response = await fetch(url, { signal: AbortSignal.timeout(timeoutMs), cache: "no-store" });
+    const response = await fetch(url, { signal: signal ?? AbortSignal.timeout(timeoutMs), cache: "no-store" });
     const body = await response.arrayBuffer();
-    return { ms: Math.round(performance.now() - start), status: response.status, bytes: body.byteLength, error: null };
+    return { ms: Math.round(now() - start), status: response.status, bytes: body.byteLength, error: null };
   } catch (error) {
     const cause = error?.cause?.code ?? error?.cause?.message;
     const name = error?.name === "TimeoutError" ? "timeout" : error?.name === "AbortError" ? "aborted" : null;
-    return { ms: Math.round(performance.now() - start), status: null, bytes: null, error: [name, error?.message, cause].filter(Boolean).join(": ") };
+    return { ms: Math.round(now() - start), status: null, bytes: null, error: [name, error?.message, cause].filter(Boolean).join(": ") };
   }
 }
 
-const SELF = fileURLToPath(import.meta.url);
-if (process.argv[1] && resolve(process.argv[1]) === SELF) {
-  const [url, out, every = "250"] = process.argv.slice(2);
+/**
+ * The heartbeat itself: a beat, its line, and the next one `every` ms after the last began, or
+ * at once if it took longer, for as long as `going()` says.
+ *
+ * The clock it keeps time by, the wait between beats and the stamp on each line can be handed in
+ * (12d-2, Leo, 2026-11-19: the process case as the two beat() cases, the test keeping its own
+ * time). Left out, they are the real ones, and the heartbeat behaves as it always did.
+ */
+export async function run({
+  url,
+  every,
+  write,
+  going = () => true,
+  now = () => performance.now(),
+  wait = (ms) => new Promise((r) => setTimeout(r, ms)),
+  stamp = () => new Date().toISOString(),
+}) {
+  while (going()) {
+    const began = now();
+    const t = stamp();
+    const result = await beat(url, 10_000, { now });
+    write(`${JSON.stringify({ t, ...result })}\n`);
+    const left = every - (now() - began);
+    if (left > 0) await wait(left);
+  }
+}
+
+/** Its command line: the url, the file, and the interval, 250 ms unless one is given. */
+export function argsOf(argv) {
+  const [url, out, every = "250"] = argv;
   if (!url || !out) throw new Error("node scripts/heartbeat.mjs <url> <out.jsonl> [ms]");
-  const interval = Number(every);
+  return { url, out, every: Number(every) };
+}
+
+/**
+ * The heartbeat as its process runs it: the command line read, the file opened, and the loop
+ * handed the url and the interval the command line gave, each line written to the file as it
+ * comes, until a signal stops it.
+ *
+ * The loop and the signals can be handed in (12d-2, Leo, 2026-11-19: 「直接查从命令行读到的间隔和交给
+ * 循环的是不是同一个值」), so a test sees what the process hands its loop with no clock at all. Left
+ * out, they are `run` and SIGINT and SIGTERM, and the heartbeat behaves as it always did.
+ */
+export async function main(argv, { loop = run, stopOn = ["SIGINT", "SIGTERM"] } = {}) {
+  const { url, out, every } = argsOf(argv);
   mkdirSync(dirname(resolve(out)), { recursive: true });
   const fd = openSync(out, "a");
   let running = true;
@@ -44,14 +91,14 @@ if (process.argv[1] && resolve(process.argv[1]) === SELF) {
     closeSync(fd);
     process.exit(0);
   };
-  process.on("SIGINT", end);
-  process.on("SIGTERM", end);
-  while (running) {
-    const began = performance.now();
-    const t = new Date().toISOString();
-    const result = await beat(url);
-    writeSync(fd, `${JSON.stringify({ t, ...result })}\n`);
-    const wait = interval - (performance.now() - began);
-    if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+  for (const signal of stopOn) process.on(signal, end);
+  try {
+    await loop({ url, every, write: (line) => writeSync(fd, line), going: () => running });
+  } finally {
+    for (const signal of stopOn) process.off(signal, end);
+    if (running) closeSync(fd);
   }
 }
+
+const SELF = fileURLToPath(import.meta.url);
+if (process.argv[1] && resolve(process.argv[1]) === SELF) await main(process.argv.slice(2));

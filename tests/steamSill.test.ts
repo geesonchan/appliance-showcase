@@ -16,6 +16,8 @@ import { launchBrowser } from "./siteBrowser";
  * - The four models from the card: the slider stays, its range follows the
  *   model (PO302W to 14", held there and the caption in bold as B's microwave
  *   handle does), the caption says the handle the model has (C, section 6).
+ *   Since 12e (Leo, 2026-11-18, 4) MEM301WS, which has a microwave door, shows
+ *   its microwave handle instead, at the same height (tests/towerHeight12e.test.ts).
  * - B's and E's Layout: the microwave handle and no oven height.
  *
  * The room read is the page's own (`__room()`, under ?debug=1), the drawn fronts
@@ -238,7 +240,8 @@ describe("D's oven height in Layout", () => {
       await press(s, s.page.locator(`[data-model-card] [data-candidate="${model}"]`).first());
       await s.page.waitForTimeout(1500);
       await layoutTab(s, "en");
-      const now = await slider(s, w.slider);
+      // 12e: the slider the oven hangs from — MEM301WS its microwave handle, the others the oven height.
+      const now = (await slider(s, w.slider)) ?? (await slider(s, w.microwave));
       seen[name] = now && {
         max: now.max,
         value: now.value,
@@ -265,12 +268,16 @@ describe("D's oven height in Layout", () => {
         microwaveSlider: false,
         room: { sill: 18, under: [{ heightIn: 7, front: "door" }, { heightIn: 7, front: "door" }] },
       },
+      // Changed by 12e (Leo, 2026-11-18, 4: 「全部套餐用同一条规矩：D 的 L、U 型选 MEM301WS 时也调微波把手。这一条
+      // 改了我 12b 时说的"换成 MEM301WS 也用这一根"」): D's MEM301WS on its microwave handle, 44"-60", the
+      // 18" opening handed over as 57"; the room as it was. Until 12e: the oven height, 18", max 18,
+      // 'Opening starts 18" off the floor; microwave handle at 57"', no microwave slider.
       MEM301WS: {
-        max: 18,
-        value: 18,
-        caption: 'Opening starts 18" off the floor; microwave handle at 57"',
+        max: 60,
+        value: 57,
+        caption: 'Opening starts 18" off the floor; handle at 57"',
         bold: false,
-        microwaveSlider: false,
+        microwaveSlider: true,
         room: { sill: 18, under: [{ heightIn: 7, front: "door" }, { heightIn: 7, front: "door" }] },
       },
       PODS302B: {
