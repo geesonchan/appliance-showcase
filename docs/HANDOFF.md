@@ -12,16 +12,31 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **the ovens' round** (2026-11-10), `96cfaf9`, live,
-and the handoff commit after it, which changes only `docs/` (written
-2026-11-10 for the next session, which starts the U). `docs/decisions.md` is
+Covers the repository up to **items 12e and 12d-2** (2026-11-19), `3b2780a`,
+live, and the handoff commit after it, which changes only `docs/` (written
+2026-11-19 for the next session, which starts 12e-2). `docs/decisions.md` is
 the record of rounds; `git log` is the record of commits. It replaces the
 v1–v9 briefs that were pasted into chat, and was first written on 2026-11-06
 after the end-of-run round. **Section 6 is how Leo works, and is not written
 anywhere else in one place.**
 
-### Live, 2026-11-10
+### Live, 2026-11-19
 
+- **Now**: **`3b2780a`**, items 12e and 12d-2, checked file by file after its
+  Pages run (44681293148, build and deploy each a success): twenty of twenty
+  files the same byte for byte as a build at `3b2780a` with the counter's
+  address, the live main chunk **`assets/index-Dg86V8ob.js`** (738,102
+  bytes; decisions.md, Open items, 12e, "Shipped"). **The handoff commit
+  after it** changes only `docs/`, so the main chunk takes another name (the
+  footer's commit) and every other file stays the same; its check against the
+  live site was reported to Leo in the conversation that wrote it, and **the
+  next session checks the live site again** (step 2 below). Nothing else is
+  uncommitted: the working tree is clean, the originals of the rounds'
+  pictures, the prototypes' diffs and the 12c demonstration kept on this
+  machine only and hidden from `git status` by `.git/info/exclude` (decisions.md,
+  12e, "Left on this machine").
+- **Every release before it, back to 2026-11-10**, is "Shipped" under its item in
+  decisions.md (items 9 to 12e); the list below stops at 2026-11-10.
 - **The handoff commit after `96cfaf9`** changes only `docs/`: every file the
   build makes is `96cfaf9`'s byte for byte but the main chunk, which differs
   only by the commit in the footer and so takes another name, and
@@ -117,7 +132,10 @@ anywhere**: the file is the one source, and the tests read it.
 
 ### Where it stands (2026-11-06, after the end-of-run round)
 
-- **Since then, each live and each its entry in `docs/decisions.md`**: the
+- **Since 2026-11-10** the U was built (live since `5d5da45`) and items 9 to 12e
+  of Leo's order went live, each "Shipped" under its item in decisions.md; what
+  is live now is the first bullet of "Live" at the top of this file.
+- **From 2026-11-06 to 2026-11-10, each live and each its entry in `docs/decisions.md`**: the
   fonts in the site's own files; the test environment answered from the build
   by Playwright (丁, "A browser test that times out…"); an induction cooktop in
   B's and D's rangetop choice, every cooking surface in the stone on a `B36`;
@@ -361,16 +379,16 @@ What is still to do is in the place named above.
 
 ### What comes next
 
-**Leo's order is written in one place only**: `docs/decisions.md`, Open items, "His order of 2026-11-06" and its "Amended 2026-11-07" and "Amended 2026-11-12" (Leo, 2026-11-07: 「只写一处，别处引用」; 2026-11-08: 「HANDOFF 只留一句指向 decisions.md 的顺序」); every round a plan first, shown to Leo, built only once he confirms it.
+**Leo's order is written in one place only**: `docs/decisions.md`, Open items, "His order of 2026-11-06", "Amended 2026-11-12" and, at its head, "Where the order stands" (Leo, 2026-11-07: 「只写一处，别处引用」; 2026-11-08: 「HANDOFF 只留一句指向 decisions.md 的顺序」); every round a plan first, shown to Leo, built only once he confirms it.
 
 ### Registered, not in that order
 
 One line each; the entry named in `docs/decisions.md`, Open items, holds its
 figures, its sources and its latest status. Leo sets when any of them is
-done. Made from the entries' headlines and their last dated notes on
-2026-11-06; an entry not listed here is done, is a record of a past run, or
-is one of the four above — and where this list and decisions.md disagree,
-decisions.md is right.
+done. **A snapshot of 2026-11-06, not kept up since**: some lines below were
+done after it (the alternative's main title; the phone's model card, item 12),
+and later registrations are only in decisions.md — where this list and
+decisions.md disagree, decisions.md is right.
 
 - The copied textures, and the high tier's textures left on the graphics card after a drop to low — "The copied textures" (and its 2026-10-28 note).
 - A pin label drawn before its font comes stays soft after the swap — on a slow network the self-hosted build's labels are the old build's, pixel for pixel; Leo, 2026-11-06: not in the order yet — "A pin label drawn before its font comes stays blurred after the swap".
@@ -660,7 +678,17 @@ list.
       `npm ci`, not a junction to this folder's `node_modules`);
    3. in it, CI's own commands: `npm ci`, `npm run test:unit`,
       `npm run build`, each with its times and real exit code;
-   4. push only when all three pass.
+   4. push only when all three pass. **One red: stop and report — no push, no
+      run again in its place** (Leo, 2026-11-18, after 12c/12d's first clean
+      run went red on a busy machine: 「在一个新的干净副本里……三条都是 exit 0 才推送。有任何
+      一条红，停下来报，不推，不再重跑」). A run he then asks for is in a **new**
+      worktree, and both runs are written side by side.
+
+   Before committing, **say that nothing under `src/`, `tests/`, `scripts/` or
+   `data/` changed since the last full suite started** (a checksum of every
+   changed file taken at its start, compared again), and commit **by path**,
+   one file at a time — never `git add -A`; originals, prototypes and
+   demonstrations stay out.
 
    Item 9 (`1ea029b`) ran them in this folder **before** committing. That
    missed two logs that git turned to LF on commit while this folder's copies
@@ -675,8 +703,25 @@ list.
    `VITE_GOATCOUNTER=https://geesonchan.goatcounter.com/count npm run build`,
    the tree clean; fetch every file the live site serves; list each file's
    name, its size, and whether it is the same byte for byte. Write it into
-   `docs/decisions.md` under the round, as "Shipped"; that change to the
-   docs is committed with the next round (or on its own when Leo asks).
+   `docs/decisions.md` under the round, as "Shipped" — writing that record
+   after going live is in scope (Leo, 2026-11-16), still reported; that change
+   to the docs is committed with the next round (or on its own when Leo asks).
+9. **Against the build before the round, only the main chunk and `index.html`
+   may differ** — the CSS and every other file the same byte for byte. **Any
+   other built file that changes: stop and report before going on** (Leo,
+   12b-12e: 「别的文件一有变化先停下来报」).
+
+### Asking before changing (Leo, 2026-11-18 and 11-19)
+
+- **A change past the plan, or unlike the plan or the prototype, is reported
+  before it is made** (「这是和计划、原型不一样的改动，以后这种先报再改」; the 640px
+  split of 12c was accepted only after the fact). This holds for a bug fix found
+  along the way and for anything on the plan's "unchanged" list.
+- **Anything found outside the round is registered only** — Open items, its
+  place in the order — not fixed (「范围外的发现只登记」).
+- **A condition Leo set that the work turns out not to meet is reported, not
+  bent**: e.g. "delete it once nothing references it" and a reference is found —
+  say where, why, and wait (12e, caption.combo, 2026-11-19).
 
 ### 3D before the plan is settled (Leo, 2026-11-11)
 
@@ -709,10 +754,19 @@ work this way.
 
 ### Reports
 
-- **Leo reads Chinese** — the report in Chinese, plain words, easy to read
-  on a phone: short paragraphs and lists, no wide tables (a table of two or
-  three narrow columns is the most). Code names and file names stay as
-  they are.
+- **Leo reads Chinese, on a phone** — the final report in Chinese: short
+  sentences, **vertical lists**, no wide tables (a table of two or three
+  narrow columns is the most). Code names and file names stay as they are.
+  Progress notes in the middle of a turn may be in any language; **the final
+  report may not**, and neither may the app's next-step box (its recap, its
+  question and its buttons) — he flagged an English report twice (2026-11-19:
+  「最后那份给我看的报告必须是中文，短句、竖排列表，手机上好读」).
+- **Pictures for a commit are compressed** (`docs/plans/<round>/small/`,
+  JPEG sheets readable on a phone), **2 MB or less in all, and the report
+  gives the total of that commit's pictures** in bytes; the originals stay on
+  this machine, uncommitted.
+- **The report's top is what Leo asked to see first** (often the pictures);
+  the times and exit codes follow.
 - **The results are in the report itself**: the numbers, the files, the
   counts — never only "done", and **never only in the app's next-step box**,
   which he has missed twice. The whole report as a message first, the box
@@ -722,6 +776,9 @@ work this way.
 - **A figure is quoted from the run that was checked**, and says which run.
 - **Every step with its start, its end and its exit code, and the files
   changed** (Leo: 「报告里写清楚：改了哪些文件；每一步的开始、结束时间和 exit code」).
+  **The real exit code**: store it in a variable straight after the command,
+  `cmd; e=$?`, and print the variable — `echo "… $(date) exit $?"` prints the
+  exit code of `date`, a false 0.
   **A step that failed is written as it failed** — 「中途哪一步失败了照实写，不要重跑掉」
   — and a run made again is listed beside it, not in its place.
 - **The live site's check goes into the report's own text**: the commit, the
@@ -780,13 +837,25 @@ work this way.
 - A script `click()` in the page and a real mouse, finger or key can differ
   here (D17): say which input a result came from, and check both before
   saying what a customer sees.
+- **On a 390 phone, pick a machine from the 家电 list**, not its label in the
+  scene (mostly untappable there): close the link notice first, and close the
+  card between machines.
+- **A test that holds time to the millisecond goes red on a busy machine**
+  (items 9 and 12d-2): the test drives its own clock and its own give-up
+  signal, a real-time case is kept with no millisecond bound, and the limit is
+  never lengthened instead. Reproduce first with every core busy, say how
+  many runs and how many red. **Cases that share a test clock or server must not
+  leak into each other**: a request given up in one case can reach the server
+  in the next (12d-2, 2026-11-19, red 3 of 20 until it did not).
 
 ### The proof of a round that touches the room
 
-- **The dumps, line by line**: `scripts/lDump.ts` (the L, 1,063 rooms) and
-  `scripts/oneWallDump.ts` (one wall, 106), on the commit before the round
-  (`ROOT=<tree>`) and on the round; every changed line accounted for by the
-  plan, and nothing else changed.
+- **The dumps, line by line**: `scripts/lDump.ts` (the L, 1,065 lines),
+  `scripts/oneWallDump.ts` (one wall, 108) and `scripts/uDump.ts` (the U, 112),
+  on the commit before the round (`ROOT=<tree>`) and on the round; every
+  changed line accounted for by the plan, and nothing else changed.
+- **A new kind of cabinet module, or a run's order changed, can drop rough-in
+  points silently**: check that every point still resolves to a box.
 - **Pixels**: `scripts/pixelShots.mjs` and `scripts/pixelCompare.mjs`, 45
   states, the quality locked (`?qualityLock=1`), the old build and the new
   each shot twice, alternated (old, new, old, new), each build also against
@@ -797,7 +866,15 @@ work this way.
 - **What a pixel proof says**: the 3D canvas, shot alone, the same to the pixel
   in every state not named; the states meant to change listed one by one, each
   with a close-up before and after; on the whole screen, every changed pixel
-  inside a text that changed, and any pin label that moved named.
+  inside a text that changed, and any pin label that moved named. **Dimension
+  lines and pin labels are overlays, not the canvas**: a canvas-only diff of 0
+  says nothing about them — read the whole-screen comparison. A single pixel or
+  a label caught mid-move is shown to be run to run by shooting again, never
+  assumed.
+- **The default rooms at the default heights** (`def54Shots.mjs`, kept in the
+  rounds' scratch folders): the U's and one wall's five packages, each build
+  twice, compared with a plain image diff (`pixelCompare.mjs` needs the 45
+  states' text records).
 - **Real input for every swap a round touches**: the mouse on a desktop and a
   finger on a phone, each once, the page's errors read.
 - **The full suite** (`npm test`; how long it takes, and the 90 minutes a
@@ -807,8 +884,17 @@ work this way.
     hibernate all "never" (`powercfg /query`).
   - **Tell Leo before it starts**, and keep the session's turn open until it
     ends.
-  - **Around 18:00 Leo may put the computer to sleep by hand**: do not start
-    a run that would cross it without telling him first.
+  - **It takes 1 h 45 to 1 h 55 now** (205 files on 2026-11-19, 105 minutes).
+    Before it: stop the preview and every demonstration server, check no
+    `node.exe` or `esbuild.exe` is left, list the programs open, and **give
+    Leo the time it should end**.
+  - **Around 18:00 Leo may put the computer to sleep or shut it down**: do
+    not start a run that would cross it without telling him first. A run cut
+    short is stopped by hand, written down as not counted with how far it got,
+    and run again whole (2026-11-19: stopped at 98 of 203 files).
+  - **Hold the turn with wait loops until it ends** — a run left behind when
+    the turn ends is not watched; ask the app to keep the computer awake for
+    the turn.
   - **The system log at the start and the end**: any sleep or standby in
     the run (events 42, 506, 507, 107, 187) means it is **not a pass**,
     however it ended. So does any red.
@@ -823,6 +909,23 @@ work this way.
 - Windows: Python's `open()` writes CRLF here, and every text file is LF;
   edit repository files with Node or the editor tools, and quote a diff's
   size from `git -c core.autocrlf=false diff --stat`.
+- **Tools on this machine that bit** (each cost a round something):
+  - Count CR (and any one character) with Node — `grep -c $'\r'` in Git Bash
+    matched every line and reported a whole file as CRLF.
+  - A bash heredoc can turn `\\` into `\`, and `\n` inside a script written
+    through it into a real newline: build such text with Node
+    (`String.fromCharCode(92)`) or the editor tools, and read it back.
+  - Node's `String.replace` reads `$'`, `$&` and `$1` in the replacement:
+    use a function or `split`/`join`, and read the file back.
+  - Markdown written by the editor tools is literal: a backtick is escaped
+    only inside a JavaScript template literal.
+  - `$TEMP` is not the session's scratch folder.
+  - Previews and prototypes are served with this repository's own Vite
+    (`node node_modules/vite/bin/vite.js`), never `npx` from outside it.
+  - **No other repository is touched**, not even for a moment; if a tool
+    cannot read this one's configuration, say so.
+  - A PDF page is turned into a picture with the installed Chrome, headless,
+    at `#page=N` (there is no `pdftoppm`); say the file and the page.
 
 ### Figures and their sources
 
@@ -918,18 +1021,14 @@ figures in a point are the guide's and which are not.
 
 ## 9. What is registered and not started
 
-Four things, each with its source:
+Four things, each with its source (the U since built):
 - **A Run Composer** — registered in D14, before building it.
 - **The two run towers on separate legs** — D22, round 55: "splitting them
   across two legs is not being built now".
-- **The rest of the layout shape switch: the U** — registered in round 98,
-  from a colleague's feedback from use; one wall is built (rounds 98a, 98b-1,
-  98b-2). **The galley is cancelled** (Leo, 2026-11-10: "直接做 U 型，不做走廊式");
-  **the U is next**, its plan in `docs/plans/u-shape-plan.md`, not started
-  (Open items, "The U: Leo's answers of 2026-11-10, and the galley cancelled",
-  and "A layout shape switch"). Round 98's plan,
-  `docs/plans/round-98-layout-shape-plan.md`, reads where the code holds for
-  it and where it does not.
+- ~~The rest of the layout shape switch: the U~~ — **built and live since
+  `5d5da45`** (the U's plan `docs/plans/u-shape-plan.md`; Open items, "The U:
+  Leo's answers of 2026-11-10, and the galley cancelled"). **The galley is
+  cancelled** (Leo, 2026-11-10: "直接做 U 型，不做走廊式").
 - Whether a hood follows the cooking surface actually chosen, against D13's
   drilled once — B, C and D with a 36-3/4" range read under the minimum; Leo,
   2026-11-08: later (Open items, "Should a hood follow the cooking surface

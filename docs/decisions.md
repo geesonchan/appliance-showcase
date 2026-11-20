@@ -11974,6 +11974,24 @@ Registered, not scheduled. None of these is a round of its own.
   items: 「顺序这样排，写进 decisions.md 那一处（HANDOFF 引用）」). The list's numbers are those of
   that report (the entry "Found while listing the registered items" under "The round built"
   of the U, and the entries it names):
+
+  **Where the order stands, 2026-11-19** (Leo, 2026-11-19: 「decisions.md 顺序那一处核对一遍：已上线的标清楚，没做的每一项一行，
+  写明等谁」; checked against each entry below — the entry is right where they differ):
+  - Live: 9 `1ea029b`; 10 `7200b1e`; 11 `b139163`; 12's 1st, 2nd and 4th points `479f19e`; 12a `376ce18`;
+    12b `4f4351b`; 12c and 12d `5d25826`; 12d-2 and 12e `3b2780a` (live 2026-11-19, main chunk `index-Dg86V8ob.js`).
+  - 12e-2, the camera off centre after a model swap — next; waits for CC's read-only plan (reproduction, cause, which
+    version brought it, cameraKeep's gaps, before and after shots, a prototype preview), then Leo's answers.
+  - The inch marks in the dictionaries made one — with 12e-2; waits for CC's count of ″ and ", then Leo's choice.
+  - 12f, every figure for a circuit on the page — not started; waits for CC's read-only plan, then Leo's choice of words.
+  - 13, tapping what is already chosen rebuilds the room — not started; waits for its turn (a plan first).
+  - 12a-2, the U's right leg without an under-cabinet light — a first draft of its plan (2026-11-16); waits for its
+    turn and Leo's answers.
+  - 14, point 9 (the hood over a professional range) — on hold; waits for Leo's rule. Point 7 decided (2026-11-13),
+    nothing to build.
+  - 12's 3rd point (HMCB36WS's total height by its guide) — waits with 14, for Leo.
+  - 15, a pencil sketch and a watercolour picture — last; prototypes only when its turn comes, then Leo decides one
+    round or two.
+
   9. **two tests that fail now and then** (1 and 12): `scripts/previewServer.test.ts`'s
      main-thread watch and `tests/fadeRebuild.test.ts`'s timeout. 「只改测试环境，不碰页面。」 —
      **done, `1ea029b` (2026-11-13)**; a plan first (「先写计划给我看，不动手」): `docs/plans/flaky-tests-plan.md`, first
@@ -13267,6 +13285,30 @@ Registered, not scheduled. None of these is a round of its own.
         (77 events, none from Kernel-Power, Power-Troubleshooter or Kernel-General); nothing under src/, tests/, scripts/ or
         data/ changed after its start; dist byte for byte the build checked that afternoon. The preview opened after it,
         http://localhost:4173, serving `index-CWQc7Lmg.js`, no console error. Not committed: waiting for Leo to look.
+      - **Shipped: `3b2780a`** (2026-11-19; Leo: 「预览看过了（index-CWQc7Lmg.js），12e 和 12d-2 可以提交」). src/, tests/,
+        scripts/ and data/ checked unchanged from the full suite's start (19:03:29) to the commit. Committed by path (26
+        files; the pictures 6 files, 912,957 bytes; raw/, the prototype's diff and the demonstration kept local), then a
+        fresh worktree of the commit: `npm ci` 21:27:26-21:27:32, `npm run test:unit` 21:27:32-21:28:19 (152 files, 4,647
+        passed), `npm run build` 21:28:19-21:28:38, each exit 0, the tree clean after. Pushed, exit 0. Pages run
+        44681293148: build 05:28:53-05:29:53 and deploy 05:29:58-05:30:13 UTC (2026-11-20), each a success. Built in the
+        worktree with the counter's address (21:30:40-21:30:53, exit 0): `index-Dg86V8ob.js`; compared with the live
+        site file by file (21:30:53-21:30:58): **twenty of twenty the same byte for byte**, each 200, `last-modified`
+        Fri, 20 Nov 2026 05:30:08 GMT, `cache-control: max-age=600`; the JavaScript, CSS, `index.html` and the two
+        licences gzip, the twelve fonts `font/woff2` with no encoding; against `5d25826`'s live files only the main chunk
+        (738,102 bytes against 737,091) and `index.html`, the other 18 the same names and sizes. The preview stopped.
+        The visit count read once (21:31:09, `/counter/%2Fappliance-showcase%2F.json`, 200): 60 (56 on 2026-11-18),
+        under 100, nothing on the page.
+      - **Left on this machine, 2026-11-19** (Leo: 「留在本地的原图、原型 diff 列个清单，写明在哪、占多大」): 1,387 files,
+        410.3 MB (430,204,199 bytes), never committed, under `docs/plans/` in this folder, hidden from `git status` by
+        lines added to `.git/info/exclude` (this machine only; nothing moved or deleted):
+        - `item11-2026-11-13/`: its scripts and lists, 19 files 1.6 MB; `draft2/` 9 pictures 15.3 MB; `legs/` 4 pictures 11.7 MB.
+        - `item12-2026-11-14/`: scripts 15 files 0.1 MB; `raw/` 762 files 253.4 MB (pictures, records, logs).
+        - `item12-proof/`: scripts 13 files; `raw/` 130 files 30.5 MB.
+        - `item12a-2026-11-15/raw/` 113 pictures 25.0 MB; `item12a2-2026-11-16/raw/` 37 files 13.5 MB (with the prototype's diff).
+        - `item12b-2026-11-16/raw/` 59 files 16.6 MB (with the prototype's diff); `item12c-2026-11-17/raw/` 10 files 3.3 MB (with the diff).
+        - `item12cd-2026-11-17/demo/` 21 files 1.9 MB (12c's demonstration site and server); `raw/` 40 files 6.5 MB.
+        - `item12d-2026-11-17/raw/` 131 files 27.4 MB (with the prototype's diff); `item12e-2026-11-18/raw/` 24 files 3.7 MB (with `proto12e.diff`).
+        The session's scratch folder (old builds, shots, logs) is not in the repository and may be cleared.
   12e-2. **After a model is swapped the camera pulls back with the kitchen off centre** *(registered 2026-11-18; named
       12e-2 so that 12f and 13 keep their numbers; the first after 12e's round, before 12f and 13)*. Leo's words:
       「现在当我在一个套餐里面选中一个家电，切换到另外一个型号选项之后，整一个厨房从局部返回zoom out，但整一个厨房的中心是偏了，每一次都需要
