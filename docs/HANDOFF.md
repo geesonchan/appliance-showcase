@@ -12,79 +12,29 @@ that a decision was "written into D20" when nothing in the file said so. If
 this file and `docs/decisions.md` disagree, **decisions.md is right** and this
 file has a bug — say so in your first reply.
 
-Covers the repository up to **items 12e and 12d-2** (2026-11-19), `3b2780a`,
-live, and the handoff commit after it, which changes only `docs/` (written
-2026-11-19 for the next session, which starts 12e-2). `docs/decisions.md` is
+Covers the repository up to **item 12e-2** (2026-11-22: the camera after a
+model swap, no fade at the swap's view, the labels clear of the mode buttons).
+It names no commit, for the reason under "Live" below (Leo, 2026-11-22).
+`docs/decisions.md` is
 the record of rounds; `git log` is the record of commits. It replaces the
 v1–v9 briefs that were pasted into chat, and was first written on 2026-11-06
 after the end-of-run round. **Section 6 is how Leo works, and is not written
 anywhere else in one place.**
 
-### Live, 2026-11-19
+### Live
 
-- **Now**: **`3b2780a`**, items 12e and 12d-2, checked file by file after its
-  Pages run (44681293148, build and deploy each a success): twenty of twenty
-  files the same byte for byte as a build at `3b2780a` with the counter's
-  address, the live main chunk **`assets/index-Dg86V8ob.js`** (738,102
-  bytes; decisions.md, Open items, 12e, "Shipped"). **The handoff commit
-  after it** changes only `docs/`, so the main chunk takes another name (the
-  footer's commit) and every other file stays the same; its check against the
-  live site was reported to Leo in the conversation that wrote it, and **the
-  next session checks the live site again** (step 2 below). Nothing else is
-  uncommitted: the working tree is clean, the originals of the rounds'
-  pictures, the prototypes' diffs and the 12c demonstration kept on this
-  machine only and hidden from `git status` by `.git/info/exclude` (decisions.md,
-  12e, "Left on this machine").
-- **Every release before it, back to 2026-11-10**, is "Shipped" under its item in
-  decisions.md (items 9 to 12e); the list below stops at 2026-11-10.
-- **The handoff commit after `96cfaf9`** changes only `docs/`: every file the
-  build makes is `96cfaf9`'s byte for byte but the main chunk, which differs
-  only by the commit in the footer and so takes another name, and
-  `index.html`, only by that name. Its check against the live site was
-  reported to Leo in the conversation that wrote it; **the next session checks
-  the live site again** (step 2 below) before anything else. That handoff
-  commit is **`9b06f41`**: checked again on 2026-11-10 by the session that
-  wrote the U's plan, built at `9b06f41` with the counter's address, twenty of
-  twenty files the same byte for byte as the live site, the live main chunk
-  **`assets/index-ByzCSeq-.js`** (711,964 bytes).
-- **`96cfaf9`**, the ovens' control panels, checked file by file after its Pages run (42912454527, build and deploy each a success): twenty of twenty files the same byte for byte as a build at `96cfaf9` with the counter's address, each with its status and headers recorded; the live main chunk **`assets/index-DOZqAYgh.js`** (`docs/plans/ovens-control-panel-report-2026-11-09.md`, "发布").
-- Before it, **`735bfbc`**, an alternative's main title and the desktop card kept to its height, checked file by file after its Pages run (42685806236, build and deploy each a success): twenty of twenty files the same byte for byte as a build at `735bfbc` with the counter's address, each with its status and headers recorded; the live main chunk **`assets/index-CWb90dQa.js`** (`docs/plans/alternative-title-card-height-report-2026-11-09.md`, "发布").
-- Before it, **`a2a8646`**, E on one wall, checked file by file after its Pages run
-  (42553787002, build and deploy each a success): twenty of twenty files the
-  same byte for byte as a build at `a2a8646` with the counter's address, each
-  with its status and headers recorded; the live main chunk
-  **`assets/index-DzJ-Aufm.js`** (`docs/plans/e-one-wall-report-2026-11-08.md`,
-  "发布").
-- Before it, **`07cb903`**, the server-reset round closed with 丁 (the test
-  environment and documents only, no page code), checked file by file after
-  its Pages run (42446402554, build and deploy each a success): twenty of
-  twenty files the same byte for byte as a build at `07cb903` with the
-  counter's address, each with its status, `content-type` and
-  `content-encoding` recorded; the live main chunk
-  **`assets/index-D3Pvf11e.js`** (decisions.md, "A browser test that times
-  out…", "Live: `07cb903`").
-- Before it, **`d668c58`**, the server-reset round's 甲 (the test environment and
-  documents only, no page code), checked file by file after its Pages run
-  (42430127134, build and deploy each a success): twenty of twenty files
-  the same byte for byte as a build at `d668c58` with the counter's
-  address; the live main chunk **`assets/index-TlXvMvno.js`** (700,237
-  bytes), six bytes from `664b570`'s — the commit in the footer — and
-  `index.html` only by the chunk's name (decisions.md, Open items, "A
-  browser test that times out…", "The commit of 甲" and "Live").
-- Before it, **`664b570`**, the fonts round (the fonts the site's own, no request to
-  Google), checked file by file after its Pages run (42317513405, build and
-  deploy each a success): twenty of twenty files the same byte for byte as
-  a build at `664b570` with the counter's address — `index.html`, the
-  main chunk, the CSS, `react`, `three`, `shareQr`, twelve fonts and two
-  licences; the live main chunk **`assets/index-Dz3iVQL4.js`** (700,237
-  bytes). Every figure is in `docs/decisions.md`, Open items, "The page
-  waits for Google Fonts…", items 10 and 11.
-- Before it, **`476591c`**, the handoff commit (main chunk
-  `index-nX_Uw6QU.js`, the end-of-run round's item 10), and **`05bb6e1`**,
-  the end-of-run round (`index-NNDgg3WU.js`, its "Shipped"). The footer's commit is compiled into
-  the main chunk, so a docs-only commit gives the main chunk another name
-  while every other file stays the same. **The next session checks the live
-  site again** (step 2 below) before anything else.
+- **Which commit is live is what the live site says**, found by the first
+  step of every session (step 2 below: a build at the commit believed live,
+  with the counter's address, compared with the live site file by file). This
+  file names no commit and no main chunk: a docs-only commit renames the main
+  chunk (the footer's commit is compiled into it), and a name written here is
+  out of date by the next commit. Every release's record — its Pages run, the
+  files compared, the main chunk — is the "Shipped" under its item in
+  `docs/decisions.md`, and "Where the order stands", at the head of Leo's
+  order there, names what is live (Leo, 2026-11-22: 「计划第 14 节的文档更正现在做完」).
+- The originals of the rounds' pictures, the prototypes' diffs and the 12c
+  demonstration are kept on this machine only, hidden from `git status` by
+  `.git/info/exclude` (decisions.md, 12e, "Left on this machine").
 
 ---
 
@@ -383,55 +333,10 @@ What is still to do is in the place named above.
 
 ### Registered, not in that order
 
-One line each; the entry named in `docs/decisions.md`, Open items, holds its
-figures, its sources and its latest status. Leo sets when any of them is
-done. **A snapshot of 2026-11-06, not kept up since**: some lines below were
-done after it (the alternative's main title; the phone's model card, item 12),
-and later registrations are only in decisions.md — where this list and
-decisions.md disagree, decisions.md is right.
-
-- The copied textures, and the high tier's textures left on the graphics card after a drop to low — "The copied textures" (and its 2026-10-28 note).
-- A pin label drawn before its font comes stays soft after the swap — on a slow network the self-hosted build's labels are the old build's, pixel for pixel; Leo, 2026-11-06: not in the order yet — "A pin label drawn before its font comes stays blurred after the swap".
-- The full suite's time, and the 90 minutes a run is planned as, six ways to shorten it, none chosen — "The full suite takes 75 to 86 minutes".
-- An alternative's main title: what the machine is, nominal size, fuel and kind, the model number under it; Leo has filled `webSize` (2026-11-08); the plan, third draft, `docs/plans/alternative-title-plan.md`, built, with the desktop card's height mended (`docs/plans/alternative-title-card-height-plan.md`), confirmed by him 2026-11-09. Its place in the order is in `docs/decisions.md` ("Amended 2026-11-07") — "An alternative's main title".
-- A full suite's timeout, fadeRebuild's back wall slider on a slowed phone (2026-11-10, red once in three runs, green alone twice) — "A full suite's timeout".
-- The phone's model card 18-20px taller than before the main title, `06 Dishwasher` moved up, nothing covered; Leo, 2026-11-09: shipped so, mended later in a round of its own — "The phone's model card".
-- The import's `_meta` carries no day and no path: **done with 2026-11-08's import** — "The import's `_meta` is in the main chunk".
-- A hood's own outlet first, then 79a (the cabinet over the hood opens) and 79b (the duct turning); the 30" option in A paused — "Registered rounds after 78".
-- A Run Composer — D14; the two run towers on separate legs — D22, round 55.
-- A flush install for an oven tower — "A flush install for an oven tower, as an option a package chooses".
-- A model of another install type, for four more kinds of slot — the entry of that name.
-- On a phone, the model card folding away once a model is chosen — the entry of that name.
-- The model card over the render-mode switch on a narrow desktop — "On a narrow desktop the model card lies over…".
-- A pin label under a full-height model card — the entry of that name.
-- Where a desktop becomes a phone, 768 CSS pixels — the entry of that name.
-- The camera staying where it was after a package switch — "After a package switch the camera stays where it was…".
-- One Chinese word for two things, 清单 — the entry of that name.
-- A dishwasher or a wine cooler under TCM24PS — "Is a dishwasher or a wine cooler under TCM24PS an approved combination?".
-- A shallower drawer where the gas is at the back of a drawer base, Leo's site practice to confirm — the entry of that name.
-- A hood at least as wide as the range under it, for the models — the entry of that name.
-- A hood over an island held exactly centred — the entry of that name.
-- A microwave drawer in a tall unit, once a manual allows it (MD24BS's alone) — the entry of that name.
-- Three "taller than the opening" notes that mislead — the entry of that name.
-- A 120V machine's generic power point at 42" — the entry of that name.
-- A freestanding refrigerator in A's slot, and rule 7's check names — "Is a freestanding refrigerator in package A's slot drawn right?".
-- Two install-view planes outside D21's three tiers — the entry of that name.
-- The panels a machine draws above or below itself, with no face — the entry of that name.
-- A filler's board coded by its width rounded to a sixteenth — the entry of that name.
-- A package whose own range is missing from the catalogue — the entry of that name.
-- HMCB36WS's chimney height that does not square — the entry of that name.
-- What waits on documents: Package C's four installation manuals, PRG366WH's manual — their entries, and section 8 below ("Things the repository does not have").
-- One axis written in: the one copy left — "One axis written in, found in round 49 and not fixed".
-- Found in round 97 and not changed (a blower drawn in a hood that has its own; the workflow's actions on Node 20, among others) — "Found in round 97, not changed…".
-- Day after a round trip through night — the entry of that name.
-- A room rebuild's faint wash over the picture — the entry of that name.
-- E's "07 Cooktop" label over a bar stool — the entry of that name.
-- The layout checker's messages built in English — the entry of that name.
-- The smoke suite's `-t` exemption, and the Chinese install lines that carry English — "The smoke suite's `-t` exemption does not take effect".
-- Runs stopped part way with exit code 4 — the entry of that name.
-- A fixed camera for screenshot diffs — the entry of that name.
-- How far a phone reads the share box's code, Leo's to measure in the shop — the entry of that name.
-- The scripts not wired to the page recorder (`screenshots.mjs`, `qualityDrop.mjs`, `swapMemory.mjs`, `analytics.test.ts`'s opening of the live site) stay unwired (Leo, 2026-11-05) — "A browser test that times out…", "Built 2026-11-05".
+Every item registered and not in Leo's order is in `docs/decisions.md`, Open
+items, under its own entry, with its figures, its sources and its latest
+status. The list that stood here, a snapshot of 2026-11-06 not kept up since,
+was taken out (Leo, 2026-11-22: 「计划第 14 节的文档更正现在做完」).
 
 ---
 
@@ -495,7 +400,7 @@ decisions.md disagree, decisions.md is right.
 | `src/data/nameFallback.test.ts` | A machine with no name found is called by its position's own name; `NAME_FALLBACKS` lists each fallback, which the words test asks to be empty (round 99c). |
 | `tests/shareLinkCut.test.ts` | Every field of a share link left out in turn, at `v=1` and `v=2`: the page stands and the notice names what is missing (round 99c). |
 | `tests/layoutTabSwitch.test.ts` | With the Layout tab open, every package tapped after every other keeps the page, in both shapes, on a 1440 desktop, a 768 tablet and a 390 phone (round 99b). |
-| `src/data/roomSets.ts`, `scripts/lDump.ts`, `scripts/oneWallDump.ts` | The rooms every proof builds, listed once: the L's 1,045 (round 98a) and one wall's 91 (round 99a), 1,063 and 106 since the columns' two rows round (each column's own number a swap of its own). The two dumps write them out as geometry and words, one a line — run each on the commit before a round (`ROOT=<tree>`) and on the round, and compare; `machineLabel.test.ts` reads every word on their bills (round 99a). |
+| `src/data/roomSets.ts`, `scripts/lDump.ts`, `scripts/oneWallDump.ts` | The rooms every proof builds, listed once: the L's 1,045 (round 98a) and one wall's 91 (round 99a), 1,063 and 106 since the columns' two rows round (each column's own number a swap of its own), 1,065 and 108 as the dumps wrote them on 2026-11-22. The two dumps write them out as geometry and words, one a line — run each on the commit before a round (`ROOT=<tree>`) and on the round, and compare; `machineLabel.test.ts` reads every word on their bills (round 99a). |
 | `src/ui/useIdleValue.ts`, `src/store/staleBand.test.ts` | The Layout tab's wall figures and greyed band worked out in the page's idle time after a rebuild; a wall length asked for while the band is still the room's before is refused by the room (round 99a). |
 | `src/data/machineLabel.ts`, `src/data/machineLabel.test.ts` | What a machine is called: `slotLabelKey` for every pin, card, list, quote line and share notice, `billLabelKey` for a wall's bill; every model each slot can hold named by what it is (D10, round 99). |
 | `src/ui/shapeControls.ts`, `src/ui/shapeControls.test.ts` | Which Layout tab controls one wall shows, held to the settings one wall decides itself (round 98b-2). |
@@ -511,7 +416,7 @@ decisions.md disagree, decisions.md is right.
 | `src/data/towerOven.ts`, `src/store/ovenTowerOpening.test.ts` | **An oven tower's opening grows to the oven chosen** where its standard cutout is taller, never shrinks — B, D and E (Leo, 2026-11-10); there, back, and from a share link. |
 | `src/data/layoutShape.ts` (`cornersOf`, `validateShape`), `src/data/uShapePrep.test.ts` | **U-0, the U's preparation** (2026-11-10, page unchanged): a corner eats either end of a run (`ShapeCorner.at`), a run named `right`; rule 1 at a corner a run's high end meets, rule 10 from the corner at either end, a hood centred along the run its range stands on, a corner end not a run's finish; a susan's door and toe kick at either back corner (`diagonalDoor`, `kickIntoCorners`, `cornerKick`) — on a U stood up by hand. |
 | `src/data/layoutTemplate.ts` (`uLegs`, `uWantedIn`, `sparesRun`, `U_PANTRY`), `src/data/counter.ts` (`uPieces`, `firstSeam`, `SLAB_MAX_IN`), `src/data/room.ts` (`serviceEntry`), `src/data/uShape.test.ts` | **U-1, the U's data and generator** (2026-11-11, page unchanged; `shape=U` by a hand-edited link): the three legs, the walls, the stone in three slabs seamed at 120", a dishwasher 12" off a corner, the aisle between facing legs, the pantry cabinet `T1596` (a cabinet a neighbour's socket goes in, `roughIn.ts`); B's refrigerator against its counter in the U (Leo, 2026-11-11); 12 groups. |
-| `src/store/shapeSwitch.ts`, `src/ui/shapeControls.ts` (`shapeButtons`), `src/ui/TopBar.tsx` (`ShapeButtons`), `src/ui/planWalls.ts`, `src/store/uInterface.test.ts`, `tests/topBar.test.ts` | **U-2, the U's interface** (2026-11-11/12, not yet committed): the shapes as a row of buttons in the top bar (its own row below 1024px), none in the Layout tab; one notice for every switch with a line per wall changed and Undo (乙: a wall changes only when it is short of what the shape wants or past its top); a package switch in a U the same lines (`packageSwitchLines`; Leo, 2026-11-12, 7), no notice where no wall changed; the U's right wall a line on the floor; the plan thumbnail's walls; D1's fourth reason. |
+| `src/store/shapeSwitch.ts`, `src/ui/shapeControls.ts` (`shapeButtons`), `src/ui/TopBar.tsx` (`ShapeButtons`), `src/ui/planWalls.ts`, `src/store/uInterface.test.ts`, `tests/topBar.test.ts` | **U-2, the U's interface** (2026-11-11/12): the shapes as a row of buttons in the top bar (its own row below 1024px), none in the Layout tab; one notice for every switch with a line per wall changed and Undo (乙: a wall changes only when it is short of what the shape wants or past its top); a package switch in a U the same lines (`packageSwitchLines`; Leo, 2026-11-12, 7), no notice where no wall changed; the U's right wall a line on the floor; the plan thumbnail's walls; D1's fourth reason. |
 | `src/data/layoutTemplate.ts` (`uLegs`, `U_SPARE_BEFORE_OVEN_TOWER`, `wallRequirement`), `src/data/uOrder.test.ts` | **The U's new order** (Leo, 2026-11-11/12): B's, D's and E's oven tower at the cooking leg's open end, the cooking surface 15" off the corner, the wall's spare inches to the counter before the tower (one rule), D's microwave drawer between the cooking surface and the tower, the pantry cabinet at the tall leg's open end; the side walls at the longer of the legs' wants. |
 | `src/data/backBoards.ts` (`legBackBoards`), `src/three/CabinetLayer.tsx` (`BackBoards`), `src/data/backBoards.test.ts` | The backs of a U's side legs closed by one board each, the door finish, 3/4" (Leo, 2026-11-12); none in an L or one wall. |
 | `src/data/defaultView.ts`, `tests/uLabels.test.ts` | The default view by shape: the L and one wall 45° round, 35° down; the U straight in front, 50° down (Leo, 2026-11-12, by his rule that every label shows in the default view; the table of 48 ways in `docs/plans/u-view-2026-11-12/`). The guard holds every label of all five packages' U in view, desktop and phone. |
@@ -870,22 +775,30 @@ work this way.
   lines and pin labels are overlays, not the canvas**: a canvas-only diff of 0
   says nothing about them — read the whole-screen comparison. A single pixel or
   a label caught mid-move is shown to be run to run by shooting again, never
-  assumed.
+  assumed. **Known and harmless**, each still shown run to run by shooting
+  again whenever it is met:
+  - the one pixel at (144, 225), one or two levels, in either build's own runs;
+  - since 12e-2, a pin label's lettering in one of two looks from shot to shot:
+    the same places and text, the letters' edges up to 65 levels apart, both
+    looks in the old build and the new. Such a state's proof says the 3D canvas
+    the same to the pixel and the labels in the same places with the same text
+    (Leo, 2026-11-22: 「我接受，这一轮不算失败」; decisions.md, 12e-2, "Found in
+    12e-2's round").
 - **The default rooms at the default heights** (`def54Shots.mjs`, kept in the
   rounds' scratch folders): the U's and one wall's five packages, each build
   twice, compared with a plain image diff (`pixelCompare.mjs` needs the 45
   states' text records).
 - **Real input for every swap a round touches**: the mouse on a desktop and a
   finger on a phone, each once, the page's errors read.
-- **The full suite** (`npm test`; how long it takes, and the 90 minutes a
-  run is planned as, are in decisions.md, Open items, "The full suite
-  takes 75 to 86 minutes"):
+- **The full suite** (`npm test`; how long it takes, and the 2 hours a run
+  is planned as, are in decisions.md, Open items, "The full suite takes
+  1 h 45 to 1 h 56"):
   - **Before it**, read the power plan: turning the screen off, sleep and
     hibernate all "never" (`powercfg /query`).
   - **Tell Leo before it starts**, and keep the session's turn open until it
     ends.
-  - **It takes 1 h 45 to 1 h 55 now** (205 files on 2026-11-19, 105 minutes).
-    Before it: stop the preview and every demonstration server, check no
+  - **Plan it as 2 hours** (the last three runs: decisions.md, the entry
+    above). Before it: stop the preview and every demonstration server, check no
     `node.exe` or `esbuild.exe` is left, list the programs open, and **give
     Leo the time it should end**.
   - **Around 18:00 Leo may put the computer to sleep or shut it down**: do
@@ -1034,8 +947,8 @@ Four things, each with its source (the U since built):
   2026-11-08: later (Open items, "Should a hood follow the cooking surface
   actually chosen?").
 
-And the rounds Leo has queued, with what he decided for each: the last entry of
-the Open items, "Registered rounds after 78".
+And the rounds Leo has queued, with what he decided for each: his order in the
+Open items of `docs/decisions.md`, and at its head "Where the order stands".
 
 **Do not start one without Leo.** Anything else that sounds planned and is not
 in `docs/decisions.md` was not planned (D17, round 77).

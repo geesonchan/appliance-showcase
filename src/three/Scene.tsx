@@ -1,4 +1,4 @@
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { FaultProbe, failingInFrame } from "../ui/fault";
 import { FrameFailureRelay, useSceneFrame } from "./useSceneFrame";
 import * as THREE from "three";
@@ -80,6 +80,10 @@ export function Scene() {
   const selectSlot = useAppStore((s) => s.selectSlot);
   const lighting = useAppStore((s) => s.lighting);
   const layoutVersion = useAppStore((s) => s.layoutVersion);
+  // Whether the camera is still where a model swap put it: the rig sets and
+  // clears it, the sight-line fade asks it (D1's third and sixth reasons; Leo,
+  // 2026-11-22: 「镜头还停在换型号放的位置时，不做视线淡化」).
+  const atSwapView = useRef(false);
 
   return (
     <Canvas
@@ -132,7 +136,7 @@ export function Scene() {
           <RoughInLayer />
           <OverhangSupport />
           <BarStools />
-          <OcclusionFade />
+          <OcclusionFade atSwapView={atSwapView} />
           {/* Order matters: the dimension figures are placed first and the
               pins avoid wherever they landed. */}
           <DimensionProjector />
@@ -141,7 +145,7 @@ export function Scene() {
           <ModuleLabelProjector />
         </group>
       </Suspense>
-      <CameraRig />
+      <CameraRig atSwapView={atSwapView} />
     </Canvas>
   );
 }

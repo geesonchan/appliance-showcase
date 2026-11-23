@@ -27,6 +27,19 @@ import { launchBrowser } from "./siteBrowser";
  * Real input throughout (D17: a click from script is not a click). And the
  * same three in install mode, desktop and phone (round 82), where what can
  * flash is the machines rather than the cabinets.
+ *
+ * Item 12e-2 (Leo, 2026-11-22: 「镜头还停在换型号放的位置时，不做视线淡化；拖动、
+ * 缩放、关卡片以后淡化照旧」): a model swap takes the camera to the shape's
+ * default view, and nothing is faded while it stands there. So the four paths
+ * that rebuild the room by a swap — the hood from the list, and the range, the
+ * insert hood and the counter-depth refrigerator from the card — can no longer
+ * flash a faded cabinet at the swap: there is none. They hold instead what is
+ * left to hold there (Leo, 2026-11-22: 「照方案改那 12 条，并且要"加"」): the new
+ * room drawn with nothing faded from its first render, positions updated no
+ * times, a drag bringing the fade back with no faded box drawn solid once it is
+ * back, and then the back wall slider stepped, round 81's own check in the
+ * swapped room. The wall slider and the island, which swap nothing, and the
+ * install-mode cases are as they were.
  */
 
 const DESKTOP = { width: 1440, height: 900 };
@@ -523,10 +536,18 @@ async function swapFridge(s: Session) {
   return () => press(s, chip, "6 the model's chip on the card");
 }
 
+/**
+ * The paths that rebuild the room with no model swapped (item 12e-2: the four
+ * that swap one are in `SWAP_PATHS`, below, with what they hold now).
+ */
 const PATHS = [
-  ["changing the hood", swapHood],
   ["dragging the back wall slider", dragBackWall],
   ["turning the island", turnIsland],
+] as const;
+
+/** The paths that rebuild the room by a model swap (item 12e-2). */
+const SWAP_PATHS = [
+  ["changing the hood", swapHood],
   ["changing the range", swapRange],
   ["changing the hood to an insert with its housing", swapToInsert],
   ["changing the refrigerator to a counter-depth one", swapFridge],
@@ -674,6 +695,225 @@ describe("a room rebuilt while cabinets are faded", () => {
           solidRenders: 0,
           positionsUpdatedOncePerRebuild: true,
           positionsUpdatedWhileIdle: 0,
+          errors: [],
+        });
+        await s.page.context().close();
+      });
+    }
+  }
+});
+
+/** Every render traced from now on, and the positions' count from zero. */
+async function traceOn(s: Session) {
+  await s.page.evaluate(() => {
+    const t = (window as unknown as { __rebuildTrace: { renders: unknown[]; worldUpdates: number; on: boolean; events: string[] } }).__rebuildTrace;
+    t.renders = [];
+    t.worldUpdates = 0;
+    t.events = [];
+    t.on = true;
+  });
+}
+
+const tracedRenders = (s: Session) =>
+  s.page.evaluate(() => (window as unknown as { __rebuildTrace: { renders: Render[] } }).__rebuildTrace.renders.length);
+
+/** How many cabinet boxes the last traced render drew faded: what round 81's check can hold. */
+const cabinetsFadedNow = (s: Session) =>
+  s.page.evaluate(() => {
+    const renders = (window as unknown as { __rebuildTrace: { renders: Render[] } }).__rebuildTrace.renders;
+    return renders.length > 0 ? renders[renders.length - 1].faded.length : 0;
+  });
+
+async function traceRead(s: Session) {
+  return s.page.evaluate(() => {
+    const t = (window as unknown as { __rebuildTrace: { renders: Render[]; worldUpdates: number } }).__rebuildTrace;
+    return { renders: t.renders.slice(), worldUpdates: t.worldUpdates };
+  });
+}
+
+/**
+ * At the swap's view: every render of the new room, and whether any drew a box
+ * faded — none should, from the first — and whether any of the boxes faded
+ * before the swap (`before`, by the names the fade reports) is among them.
+ */
+function atTheSwapsView(renders: Render[], before: string[]) {
+  const rooms: Render[][] = [];
+  for (const render of renders) {
+    const last = rooms[rooms.length - 1];
+    if (last && last[0].layer === render.layer) last.push(render);
+    else rooms.push([render]);
+  }
+  const rebuilt = rooms.slice(1).flat();
+  const fadedRenders = rebuilt.filter((render) => render.faded.length > 0).length;
+  const stillFaded = [...new Set(rebuilt.flatMap((render) => render.faded.filter((id) => before.includes(id))))];
+  return { rebuilds: rooms.length - 1, renders: rebuilt.length, fadedRenders, stillFaded };
+}
+
+/** The machine selected now, by its pin label's selected look; null for none. */
+const selectedNow = (s: Session) =>
+  s.page.evaluate(() => document.querySelector("[data-pin-label].bg-accent")?.getAttribute("data-pin-label") ?? null);
+
+/** A point on the 3D view itself, not under a pin's label, the card or the sheet. */
+async function bareSpot(s: Session) {
+  const canvas = (await s.page.locator("canvas").boundingBox())!;
+  const x0 = canvas.x + canvas.width / 2;
+  let y0 = canvas.y + canvas.height * (s.phone ? 0.25 : 0.5);
+  for (let i = 0; i < 30; i += 1) {
+    const onCanvas = await s.page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.tagName === "CANVAS", [x0, y0] as const);
+    if (onCanvas) break;
+    y0 += 8;
+  }
+  return { x0, y0 };
+}
+
+/**
+ * The camera turned by hand after the swap, until two cabinets stand on the
+ * sight line again (not only a countertop or another machine, which round 81's
+ * check does not count; one alone can leave the line at the wall's step and
+ * leave that check nothing), or fourteen drags, and every render from the last drag on: the boxes faded
+ * at the end, and how many renders drew one of them solid after the first
+ * render that drew them all faded. And which machine was selected before the
+ * drags and after them: the fade must come back for the machine swapped, not
+ * for another one a drag happened to select (a fly-in clears the swap's view
+ * too).
+ */
+async function dragTheFadeBack(s: Session, cpu: number) {
+  const { x0, y0 } = await bareSpot(s);
+  const selectedBefore = await selectedNow(s);
+  await traceOn(s);
+  if (cpu > 1) await s.cdp.send("Emulation.setCPUThrottlingRate", { rate: cpu });
+  let drags = 0;
+  let from = 0;
+  do {
+    await drag(s, x0, y0, s.phone ? 40 : 90);
+    drags += 1;
+    from = await tracedRenders(s);
+    await s.page.waitForTimeout(500);
+  } while (drags < 14 && (await cabinetsFadedNow(s)) < 2);
+  await s.page.waitForTimeout(cpu > 1 ? 3000 : 1500);
+  if (cpu > 1) await s.cdp.send("Emulation.setCPUThrottlingRate", { rate: 1 });
+  await steady(s);
+  await s.page.waitForTimeout(1000);
+  const renders = (await traceRead(s)).renders.slice(from);
+  const settled = renders.length > 0 ? renders[renders.length - 1].faded : [];
+  const start = renders.findIndex((render) => settled.every((id) => render.faded.includes(id)));
+  const after = start < 0 ? [] : renders.slice(start);
+  const solid = after.filter((render) => settled.some((id) => !render.faded.includes(id))).length;
+  return { drags, settled: settled.length, checked: after.length, solid, selectedBefore, selectedAfter: await selectedNow(s) };
+}
+
+/**
+ * Then the back wall slider stepped, as `dragBackWall` steps it: round 81's
+ * own check in the room the swap built. On a phone the sheet's Layout tab was
+ * opened before the drag, so that opening it turns nothing after it.
+ *
+ * The slider's lines are copied from `dragBackWall`, not shared with it: the
+ * wall, island and install-mode tests were to stay word for word as they were
+ * (Leo, 2026-11-22: 「拖墙、转岛台、安装模式那 12 条一个字不改」), and `dragBackWall`
+ * also sets its own room up (the hood, faded) and hands the step back to be
+ * run, where here the room is the swap's and the step is run at once.
+ */
+async function wallAfterTheSwap(s: Session, cpu: number) {
+  if (!s.phone) await layoutTab(s);
+  const slider = s.page.locator("label", { hasText: "Back wall" }).filter({ visible: true }).first().locator('input[type="range"]');
+  await reach(s, "9 the Back wall slider", slider);
+  await steady(s);
+  const before = (await faded(s)).length;
+  const trace = await rebuild(s, cpu, async () => {
+    const box = (await slider.boundingBox())!;
+    const { value, min, max, step } = await slider.evaluate((el: HTMLInputElement) => ({
+      value: Number(el.value),
+      min: Number(el.min),
+      max: Number(el.max),
+      step: Number(el.step) || 1,
+    }));
+    const x0 = box.x + ((value - min) / (max - min)) * box.width;
+    await drag(s, x0, box.y + box.height / 2, (1.5 * step * box.width) / (max - min));
+  });
+  return { before, result: flashes(trace.renders), worldUpdates: trace.worldUpdates, idle: trace.idleWorldUpdates };
+}
+
+describe("a room rebuilt by a model swap, the camera at the swap's view (item 12e-2)", () => {
+  for (const [path, setUp] of SWAP_PATHS) {
+    for (const [device, phone, cpu] of DEVICES) {
+      it(`draws nothing faded at the swap's view and fades again after a drag, ${path}, ${device}`, async () => {
+        const s = await open(phone);
+        await s.page.getByRole("button", { name: "A", exact: true }).first().waitFor();
+        const action = await setUp(s);
+        const before = await faded(s);
+        const swap = await rebuild(s, cpu, action);
+        const atSwap = atTheSwapsView(swap.renders, before);
+        if (s.phone) {
+          // The sheet open on its Layout tab before the drag, so that opening it turns
+          // nothing after it: from the list (the hood) it is already open, with its tabs;
+          // from the card, by Configure.
+          const tabs = await s.page.locator('[data-sheet-tab="layout"]').filter({ visible: true }).count();
+          if (tabs === 0) {
+            await press(s, s.page.getByRole("button", { name: "Configure", exact: true }).first(), "7 the sheet's Configure");
+            await s.page.waitForTimeout(1500);
+          }
+          await layoutTab(s);
+          await s.page.waitForTimeout(1500);
+          await steady(s);
+        }
+        const back = await dragTheFadeBack(s, cpu);
+        const wall = await wallAfterTheSwap(s, cpu);
+
+        // Printed before the expectation, so a red run keeps its numbers.
+        // eslint-disable-next-line no-console
+        console.log(`swap, ${path}, ${device}:`, JSON.stringify({ before: before.length, atSwap, worldUpdates: swap.worldUpdates, idle: swap.idleWorldUpdates, back, wall }));
+        const evidence =
+          atSwap.rebuilds > 0
+            ? ""
+            : `no rebuild — press ${JSON.stringify(s.lastPress ?? null)}, events: ${swap.events.join(" ") || "none"}`;
+        // One expectation, so a red run shows every part of it at once.
+        expect({
+          fadedBeforeTheSwap: before.length > 0,
+          rebuilt: atSwap.rebuilds > 0,
+          rendersAtTheSwapsView: atSwap.renders >= 8,
+          rendersWithSomethingFaded: atSwap.fadedRenders,
+          fadedBeforeAndFadedAgain: atSwap.stillFaded,
+          positionsUpdatedAtTheSwap: swap.worldUpdates,
+          positionsUpdatedWhileIdle: swap.idleWorldUpdates,
+          fadedAgainAfterADrag: back.settled > 0,
+          theSwappedMachineStillSelected: back.selectedBefore !== null && back.selectedAfter === back.selectedBefore,
+          rendersAfterTheDrag: back.checked >= 8,
+          solidRendersOnceFadedAgain: back.solid,
+          wall: {
+            fadedBeforeTheRebuild: wall.before > 0,
+            rebuilt: wall.result.rebuilds > 0,
+            roomsChecked: wall.result.checked > 0,
+            boxesChecked: wall.result.fadedBoxesChecked > 0,
+            solidRenders: wall.result.solidRenders,
+            positionsUpdatedOncePerRebuild: wall.worldUpdates === wall.result.rebuilds,
+            positionsUpdatedWhileIdle: wall.idle,
+          },
+          errors: s.errors,
+        }, evidence).toEqual({
+          fadedBeforeTheSwap: true,
+          rebuilt: true,
+          rendersAtTheSwapsView: true,
+          rendersWithSomethingFaded: 0,
+          // Cannot go red here: each of these four swaps builds the room again, so its
+          // cabinets are new meshes whatever the old room was left as (break 17 left
+          // this green on all four). Guarded by tests/cameraKeep.test.ts's break 15, a
+          // swap that builds nothing (Leo, 2026-11-22: 「这里红不了，由 cameraKeep 的 15 号改坏守着」).
+          fadedBeforeAndFadedAgain: [],
+          positionsUpdatedAtTheSwap: 0,
+          positionsUpdatedWhileIdle: 0,
+          fadedAgainAfterADrag: true,
+          theSwappedMachineStillSelected: true,
+          rendersAfterTheDrag: true,
+          solidRendersOnceFadedAgain: 0,
+          wall: {
+            fadedBeforeTheRebuild: true,
+            rebuilt: true,
+            roomsChecked: true,
+            boxesChecked: true,
+            solidRenders: 0,
+            positionsUpdatedOncePerRebuild: true,
+            positionsUpdatedWhileIdle: 0,
+          },
           errors: [],
         });
         await s.page.context().close();

@@ -36,7 +36,10 @@ import { FitNotes } from "./SwapPanel";
  * - **A hood narrower than the cooking surface** shows the rule's own line,
  *   `hood-narrower-than-cooking` as the checklist has it — read, not judged
  *   again (Leo, round 80; D13 round 79).
- * - Pin labels keep clear of it (`data-pin-keep-out`). It moves no camera (D1).
+ * - Pin labels keep clear of it (`data-pin-keep-out`). It moves no camera
+ *   itself (D1); another model chosen on it frames the room in the part of the
+ *   scene it leaves free, and closing it just after takes the camera to the
+ *   reset view (D1's sixth reason, item 12e-2, `CameraRig.tsx`).
  * - On a phone it hides while the sheet is open, which covers it, and comes
  *   back when the sheet closes (Leo, round 82).
  * - **On a desktop it sits at the left of the scene** (Leo, round 88, from use:

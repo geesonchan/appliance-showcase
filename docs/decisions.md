@@ -14,6 +14,8 @@ The camera pose is user state. Nothing may move it as a side effect of an
 unrelated change. Exactly five behaviours are allowed to move it, or to change
 what it shows, on their own (the fourth since U-2, the fifth since 2026-11-12, below):
 
+*Since item 12e-2 the fifth is replaced by the sixth; five reasons stand, as before.*
+
 1. **Direct navigation.** Selecting an appliance flies the camera in; the reset
    button returns it to the default isometric view; the zoom buttons step the
    orthographic zoom. All are the direct result of the user asking to move.
@@ -40,6 +42,15 @@ what it shows, on their own (the fourth since U-2, the fifth since 2026-11-12, b
    the camera's forward axis, because the camera is orthographic and one ray
    down the middle slips between two cabinets and leaves both of them solid.
 
+   *Amended with item 12e-2 (Leo, 2026-11-22: 「镜头还停在换型号放的位置时，不做视线淡化；拖动、
+   缩放、关卡片以后淡化照旧」): not while the camera stands where a model swap put it —
+   the sixth reason, below.* There the whole room is framed at the shape's default
+   angle and nothing is faded. The fade is back once the swap's view has ended, by
+   whatever ends it in the sixth reason — a room built again among them, though the
+   camera has not moved (Leo, 2026-11-22: 「换型号后拖墙或转岛台让淡化回来：选甲，照现在的做法，
+   不改代码。这是我定的。」) — and then as before while the slot stays selected. "For as
+   long as that slot is selected" above is left as it was decided.
+
    **This replaces the earlier licence to drop the pitch for island slots.** The
    microwave drawer faces the perimeter, so with an orthographic camera and a
    near plane behind the room there is no angle that sees it with nothing in
@@ -55,6 +66,10 @@ what it shows, on their own (the fourth since U-2, the fifth since 2026-11-12, b
    of a new room brings the positions up to date once (`firstPass` in
    `OcclusionFade.tsx`) and works the fade out at once; every later frame is
    every fourth, as before. `tests/fadeRebuild.test.ts` holds it.
+   *Note, 2026-11-22: not for a room built by a model swap — a new hood among them — while the camera stands where
+   the swap put it: nothing is faded there, and the positions are not brought up to date there (item 12e-2, D1's
+   sixth reason). Every other rebuild, a wall slider's step or the island turned after a swap among them, is faded
+   from its first frame as above. `tests/fadeRebuild.test.ts` holds both.*
 
    *Amended 2026-10-09 (round 84): a narrow range's fillers are its own.* The
    run's fillers either side of a range narrower than its opening, and the
@@ -87,12 +102,77 @@ what it shows, on their own (the fourth since U-2, the fifth since 2026-11-12, b
    `CameraRig.tsx`, keyed on the selected machine's model. `tests/cameraKeep.test.ts`
    holds it, by the mouse and a finger, in the L, one wall and the U.
 
+   *Replaced by the sixth, below (item 12e-2; Leo, 2026-11-20). Kept as it was
+   decided.* Keeping the angle and the centre the machine was flown to left the room
+   off the centre of the scene once the card was up — in 12e-2's measure the room's
+   centre moved off the reset view's by a median of 253 pixels on a desktop, 148 on a
+   phone and 277 at 767 — and labels went under the card, under the mode buttons or
+   off the screen.
+
+6. **Another model chosen for the machine on screen: the shape's default angle, the
+   whole room clear of the card.** *Added with item 12e-2, replacing the fifth; Leo,
+   2026-11-20: 「我看过预览了，换型号以后的镜头选 bingjia3」, after its prototype
+   (`?p12e2=bingjia3`) and five drafts of the plan.*
+   With a machine selected, its model changed — on the card, or by anything
+   else that changes it while the card is open — the camera turns to the
+   default view of the shape on screen (the reset button's angle) and frames
+   the whole room in the part of the scene the card leaves free: right of the
+   card on a desktop, above it on a phone and up to 767 pixels wide. The zoom
+   is the one that fits the room in that part. The card stays open, so the
+   next model can be tried.
+   **While the camera stands there nothing is faded** (Leo, 2026-11-22: 「镜头还停在
+   换型号放的位置时，不做视线淡化；拖动、缩放、关卡片以后淡化照旧」): the third reason waits
+   until the swap's view has ended, by the same things that end it below, and
+   then fades as before. A room built again ends it with the camera not moved:
+   after a wall slider is dragged or the island turned, the fade comes back where
+   the camera stands (Leo, 2026-11-22: 「换型号后拖墙或转岛台让淡化回来：选甲，照现在的做法，
+   不改代码。这是我定的。」).
+   **Closing the card then takes the camera to the reset button's view**, if
+   the camera is still where the swap put it (Leo, 2026-11-20: 「换型号以后我自己
+   拖动、缩放、按重置或飞到别的机器，再关卡片：镜头不回」) — by the card's close button
+   or by a click on the bare scene (Leo, 2026-11-21: 「点空白画面关卡片也回重置视角」).
+   The camera has been moved when a hand has turned it: a press that went
+   more than 2 pixels from where it went down (react-three-fiber's own line
+   between a click and a drag on the bare scene: `if (delta <= 2)` in
+   `node_modules/@react-three/fiber/dist/events-776716bd.esm.js`, line 1160,
+   version 8.18.0, the travel rounded to whole pixels by its `calculateDistance`,
+   line 872), two fingers, or the wheel, and the camera then really changed (Leo,
+   2026-11-21: 「标记改成镜头真的动了才清」). That, a zoom button, Reset, a fly-in to
+   another machine, or a room built again in between — a package, a shape, an
+   Undo, or anything on the Layout tab that builds the room (a wall slider
+   dragged, the island turned, added or sized, the oven tower's height, any other
+   choice there) — and closing the card moves nothing, as D12 has it. These are
+   the cases the code clears the mark on: a hand's real move, a zoom button,
+   Reset, every room built again (`layoutVersion`), and another machine selected
+   or none. A swap that builds the room again — a hood, a range for a rangetop,
+   the oven tower's oven, the refrigerator, where it changes the run — clears it
+   and sets it again: the camera then stands at that swap's view.
+   In one place, `CameraRig.tsx`, keyed on the selected machine's model; the
+   mark that the camera is still where the swap put it is held by `Scene.tsx`
+   and asked by the fade in `OcclusionFade.tsx`. The framing is `frameRoom` in
+   `src/three/cardFraming.ts`, the same function the reset view is framed by,
+   over the whole canvas (Leo, 2026-11-20: 「不能有第二份」).
+   `tests/cameraKeep.test.ts` holds it, by the mouse and a finger, at 1440, 767
+   and 390 wide: the default angle, the room's centre within 10 pixels of the
+   free part's centre, every pin label seen whole at nine points, none laid
+   over another, none off the screen, the model really changed, nothing
+   faded there and the fade back after a drag, the reset button's view once the
+   card is closed — by its button and by a click on the bare scene — and the
+   camera left where a drag put it, a drag of the mouse and a press of 3 pixels.
+   `tests/fadeRebuild.test.ts` holds the four swaps that build the room again:
+   nothing faded in the new room from its first render, the positions not
+   brought up to date there, the fade back after a drag with no faded cabinet
+   drawn solid, and then the back wall slider stepped, round 81's own check in
+   the swapped room.
+
 *Amended 2026-10-12 (round 94), Leo: a page opened from a share link starts
 at the default view, and that is the page loading — not a fourth reason for
 the camera to move.* The link carries no view (D23); the kitchen it carries is
 built before the first frame is drawn (`openSharedLink`, main.tsx), and the
 camera starts where every page starts. Nothing about opening a link moves the
 camera afterwards, and the notice it may show moves nothing either.
+*Note, 2026-11-22: D1 has since had a fourth reason (a switch into the U, U-2) and a fifth, now replaced by a
+sixth (another model chosen, item 12e-2); opening a link is still none of them.*
 
 **Forbidden:** switching render mode, toggling day/night, toggling a layer, or
 changing language must leave the camera pose bit-identical.
@@ -1755,6 +1835,12 @@ sketches and Leo's decisions are `docs/plans/round-80-interface-plan.md`
   line, `swap.noneOther`).
 - **D1: the card moves no camera** — the pins stand where they were when it
   closes, held by a test.
+
+  *Amended with item 12e-2 (D1's sixth reason; Leo, 2026-11-20): closing the card
+  just after a model swap, with the camera where the swap put it, takes the camera
+  to the reset view — by the card's close button or by a click on the bare scene.
+  Closing it at any other time moves no camera, as before; `tests/modelCard.test.ts`
+  still holds that.*
 - `tests/modelCard.test.ts`, sixteen cases: the card and the list offer the
   same models, refused the same way, for every machine in every package, on a
   desktop by mouse and on a phone by touch; a pick from the card is a pick from
@@ -1772,6 +1858,10 @@ items). Sketched first at 1440 x 900, the list rail folded and open.
   the left and the top, 260px wide** — the list rail's width (`LIST_RAIL_PX`).
   Laid over the scene, in no column: the canvas keeps its width, the camera is
   not moved, **D1 is not changed** (no fly-in aimed past the card).
+  *Note, 2026-11-22: D1 has since changed where the card is concerned: since its sixth reason (item 12e-2) a model
+  swap frames the whole room in the part of the scene the card leaves free, and closing the card just after a swap
+  takes the camera to the reset view (the amendment above). The card's place and width are as written here, and
+  12e-2 did not change the fly-in.*
 - **How tall.** As tall as what it holds — E's coffee machine, one model, is a
   short card; B's hood, six, a taller one — and never past the scene's foot
   less 16px; past that the models scroll inside the card, the title and
@@ -1944,6 +2034,26 @@ and decision 4) and Leo's decisions on round 91's plan.
   `round-91-phone-390-en-sheet-look.png`,
   `round-91-phone-360-zh-sheet-layout.png`.
 
+*Amended with item 12e-2 (Leo, 2026-11-20): the pin labels also keep clear of the
+mode buttons at the top of the scene and of the message shown there.* The row of
+Materials / White model / Install and the toast — every message it shows: a wall
+grown, a shape or a package switched, a machine left out, each with its Undo (Leo,
+2026-11-20: 「提示条的标记管它显示的每一种消息」) — carry `data-pin-keep-out`, as the
+card, the hint line and the bottom bar do. A label that stood under the row now
+stands clear of it, on the open page, at a fly-in and after a swap. On a 390 phone,
+package A on one wall with T36FT820NS picked for its refrigerator, the wall grows
+and the toast says so; without the mark the Refrigerator's and the Microwave
+drawer's labels stood wholly under it (`tests/cameraKeep.test.ts`). The share
+link's notice is not the toast and does not carry it.
+`tests/desktopCardHeight.test.ts` records four labels in their new places, at 1440
+and 1280: B flown to the Refrigerator, the Combination oven's and the Wine column's
+labels, and E flown to the Ventilation hood, the Freezer column's and the Cooktop's
+(Leo, 2026-11-21: 「D12 修订：标签让开上排按钮」). Of the 45 pixel states only
+`desk-B-fly-refrigerator` changes, two labels moved clear of the row, the canvas
+the same to the pixel; of the 30 default rooms, five pictures on one wall change
+the same way, one label each: A's install (01 Refrigerator), B's materials, white
+model and install (06 Wine column), D's install (03 Wine column).
+
 ---
 
 ## D13 · The dimensions a kitchen is actually built to
@@ -2053,6 +2163,10 @@ answer and all four read it.
   room. Measured on a phone emulation with the CPU slowed four times, a room
   rebuild stalls one frame for about half a second (533-783 ms, over four
   island turns; the hood's own rebuild does less work than that).
+  *Note, 2026-11-22: the camera is no longer kept. Since D1's fifth reason (2026-11-12) a new hood chosen while the
+  hood is selected — on its card or in the list — moves the camera, and since the sixth, which replaced the fifth
+  (item 12e-2), it turns to the shape's default view and frames the whole room clear of the card; the rest listed
+  is still kept.*
 - **A rebuild leaves a faint wash over the whole room, and always has.** About
   300,000 pixels on a phone shot, nearly all by 1-8 levels, against the room as
   the page opened — the same on the code before this change after turning
@@ -5828,6 +5942,8 @@ on screen gives way to the next (Leo, round 94: kept so).
 **Opening a link is the page loading** (Leo). The kitchen is built before the
 first frame (main.tsx), and the camera starts at the default view, as every
 page does: not a fourth reason for it to move (D1, round 94).
+*Note, 2026-11-22: D1 has since had a fourth reason (a switch into the U, U-2) and a fifth, now replaced by a
+sixth (another model chosen, item 12e-2); opening a link is still none of them.*
 
 **And there is nothing to undo.** Undo is offered only by the message that a
 wall grew, and goes one step back to the room before it. A page opened from a
@@ -6138,7 +6254,12 @@ throw still in; the throw was then taken out. That catch is now in the code.
 
 ## Open items
 
-Registered, not scheduled. None of these is a round of its own.
+What is here: the items registered, each in its own entry; Leo's order of the
+work, "His order of 2026-11-06" with its amendments, and at its head "Where the
+order stands"; and the record of every round done in that order, under its
+item. None is started without Leo's word. *(Until 2026-11-22 this read
+"Registered, not scheduled. None of these is a round of its own.", written
+before his order was kept here; Leo, 2026-11-22: 「计划第 14 节的文档更正现在做完」.)*
 
 - **Round 99d, registered after 99c, a plan first** (Leo, 2026-10-24; before
   the geometries' round). Two things:
@@ -7247,6 +7368,8 @@ Registered, not scheduled. None of these is a round of its own.
   label, from A's microwave, could not be picked. A customer switching
   packages in front of the salesperson meets it too. Reset view brings them
   back.
+  *Note, 2026-11-22: D1 has since had a fourth reason (a switch into the U, U-2) and a fifth, now replaced by a
+  sixth (another model chosen, item 12e-2); a package switch still moves no camera.*
 - ~~**On a phone in Chinese, the "MT" chip sits over the "E" package button.**~~
   **Fixed in round 94** (D23, Leo: into the share round, with a place for the
   share button): no control over another at 360, 375, 390 and 414px in either
@@ -7394,6 +7517,9 @@ Registered, not scheduled. None of these is a round of its own.
   out at least these, each with its cost:
   - on a fly-in, aim the camera at what is left of the scene above the card —
     still the fly-in D1 allows, not a fourth reason to move the camera;
+    *Note, 2026-11-22: D1 has since had a fourth reason (a switch into the U, U-2) and a fifth, now replaced by a
+    sixth (another model chosen, item 12e-2), which frames the whole room clear of the card after a swap; 12e-2 did
+    not change the fly-in.*
   - a lower card, or one that folds itself away after a model is chosen;
   - on a desktop, the card at the side of the scene.
   - *Narrowed by Leo after the plan (round 87's report): the shop shows on a
@@ -9013,6 +9139,8 @@ Registered, not scheduled. None of these is a round of its own.
     move (D1) — the plan should say so in so many words. The door keeps only
     its hex, and since round 92 no two RAL codes share one (D15), so a link can
     carry the code and come back to the same colour.
+    *Note, 2026-11-22: D1 has since had a fourth reason (a switch into the U, U-2) and a fifth, now replaced by a
+    sixth (another model chosen, item 12e-2); opening a link is still none of them.*
 - ~~**What stands beside an oven tower, on the side away from the range, is
   carried to the tower's top however wide it is.**~~ **Done in round 92c**
   (D11 rule 12, round 92c): under 9" a board to the top, 9" and over counter
@@ -11248,9 +11376,18 @@ Registered, not scheduled. None of these is a round of its own.
     a kind of texture used for the first time; 9–10 against 14–15 is
     whether that run dropped to the low tier. Four ways, 甲 to 丁, none
     chosen, are its section 2.7. Not answered (the report's question 7).
+- **The full suite takes 1 h 45 to 1 h 56; a run is planned as 2 hours.** *(Leo, 2026-11-20: 「全套测试可以按 2 小时排，
+  写出最近三次全套测试的实际用时和各是哪一轮，作为这个数的出处。」; written 2026-11-22, Leo, 2026-11-22: 「计划第 14 节的文档更正现在做完」.)* The last three, each
+  green with no sleep or standby in the system log (each round's own entry):
+  - **105 min 30 s**: items 12e and 12d-2 (`3b2780a`), 2026-11-19 19:03:29-20:48:59, 205 files.
+  - **112 min 15 s**: items 12c and 12d (`5d25826`), 2026-11-18 10:41:42-12:33:57, 203 files.
+  - **115 min 19 s**: item 12b (`4f4351b`), 2026-11-17 13:52:40-15:47:59, 199 files.
+  When it may start is HANDOFF section 6's (Leo may put the computer to sleep about 18:00). The entry below is
+  superseded by this one and kept as it was.
 - **The full suite takes 75 to 86 minutes; a run is planned as 90.**
   *(Leo, 2026-11-06: 「两次都写……各注明是哪一次」，「以后排时间按 90 分钟算」; 2026-11-07: 「加上这次
   的 75 分钟（4,525 秒），标题改成 75 到 86 分钟，仍按 90 分钟排」.)*
+  *Superseded by the entry above, "The full suite takes 1 h 45 to 1 h 56" (2026-11-22); kept as it was.*
   - **77 minutes (4,647 s)**: the end-of-run round's second full suite,
     `npm test` on build `index-CT8FdzVG.js`, 00:13:40 to 01:31:07 on
     2026-11-06, 159 files, 3,470 of 3,470, no standby in it (that round's
@@ -11978,10 +12115,17 @@ Registered, not scheduled. None of these is a round of its own.
   **Where the order stands, 2026-11-19** (Leo, 2026-11-19: 「decisions.md 顺序那一处核对一遍：已上线的标清楚，没做的每一项一行，
   写明等谁」; checked against each entry below — the entry is right where they differ):
   - Live: 9 `1ea029b`; 10 `7200b1e`; 11 `b139163`; 12's 1st, 2nd and 4th points `479f19e`; 12a `376ce18`;
-    12b `4f4351b`; 12c and 12d `5d25826`; 12d-2 and 12e `3b2780a` (live 2026-11-19, main chunk `index-Dg86V8ob.js`).
-  - 12e-2, the camera off centre after a model swap — next; waits for CC's read-only plan (reproduction, cause, which
-    version brought it, cameraKeep's gaps, before and after shots, a prototype preview), then Leo's answers.
-  - The inch marks in the dictionaries made one — with 12e-2; waits for CC's count of ″ and ", then Leo's choice.
+    12b `4f4351b`; 12c and 12d `5d25826`; 12d-2 and 12e `3b2780a` (live 2026-11-19, main chunk `index-Dg86V8ob.js`);
+    the handoff after them, docs only, `769657a` (live 2026-11-19, main chunk `index-D1M0qFzm.js`; 12e, "Shipped").
+  - 12e-2, the camera off centre after a model swap — built to its formal plan
+    (`docs/plans/item12e2-2026-11-19/item12e2-formal-plan.md`) and looked at by Leo in the local preview
+    (`index-Clo7JyBM.js`; Leo, 2026-11-22: 「下面按"预览可以"往下走」); the full suite, the commit and the release follow
+    in that order, the release written under 12e-2 as "Shipped". *(Until 2026-11-22: "next; waits for CC's read-only
+    plan (reproduction, cause, which version brought it, cameraKeep's gaps, before and after shots, a prototype
+    preview), then Leo's answers.")*
+  - 12e-3, the inch marks made one — split out of 12e-2 (Leo, 2026-11-20); waits for 12e-2, then a plan first and Leo's
+    choice of mark and form. *(Until 2026-11-22: "The inch marks in the dictionaries made one — with 12e-2; waits for
+    CC's count of ″ and ", then Leo's choice.")*
   - 12f, every figure for a circuit on the page — not started; waits for CC's read-only plan, then Leo's choice of words.
   - 13, tapping what is already chosen rebuilds the room — not started; waits for its turn (a plan first).
   - 12a-2, the U's right leg without an under-cabinet light — a first draft of its plan (2026-11-16); waits for its
@@ -13298,6 +13442,11 @@ Registered, not scheduled. None of these is a round of its own.
         (738,102 bytes against 737,091) and `index.html`, the other 18 the same names and sizes. The preview stopped.
         The visit count read once (21:31:09, `/counter/%2Fappliance-showcase%2F.json`, 200): 60 (56 on 2026-11-18),
         under 100, nothing on the page.
+      - **The handoff commit after it, `769657a`, live** (docs only; recorded 2026-11-22 from the check of 2026-11-19,
+        written into 12e-2's plan, section 14; Leo, 2026-11-22: 「计划第 14 节的文档更正现在做完」): Pages run 44682129634, build 21:36:21-21:37:50 and deploy
+        21:37:54-21:38:02 (local time, 2026-11-19), each a success. Built at `769657a` with the counter's address,
+        2026-11-19 21:55:40-21:55:55: twenty of twenty files the same byte for byte as the live site; the live main chunk
+        `index-D1M0qFzm.js`, 738,102 bytes.
       - **Left on this machine, 2026-11-19** (Leo: 「留在本地的原图、原型 diff 列个清单，写明在哪、占多大」): 1,387 files,
         410.3 MB (430,204,199 bytes), never committed, under `docs/plans/` in this folder, hidden from `git status` by
         lines added to `.git/info/exclude` (this machine only; nothing moved or deleted):
@@ -13341,6 +13490,147 @@ Registered, not scheduled. None of these is a round of its own.
         出来，统一成哪一种等我定。新加的 rule.ovenSillHeldBySlider 到时候和旁边的句子改成一样。」 When its turn comes: count ″ and "
         in zh.json and en.json (and reviewed.json), by the kind of sentence each is in, put to Leo which to use; then
         `rule.ovenSillHeldBySlider` the same as its neighbours. Registered only.
+        *Moved to 12e-3, below (Leo, 2026-11-20); 12e-2 changes no dictionary and no formatter.*
+      - **Found in 12e-2's round: registered, not fixed** (Leo, 2026-11-20 to 2026-11-22):
+        - **A U's side machines are not seen whole after a swap.** *(Leo, 2026-11-22: 「登记一条 Open item，不修：U 型
+          换型号拉远以后，两侧的机器看不全」.)* After a swap the camera turns to the U's default view, straight in front
+          and 50° down (D1's sixth reason), and since 2026-11-22 nothing is faded while it stays there. The side legs'
+          machines face across the room, so from there part of them stands behind tall cabinets, uppers or other
+          machines. Measured 2026-11-21 over 107 swaps at 1440, 767 and 390 wide, with no fade: the comparison build
+          `?p12e2nofade=1` (built in a scratch worktree, not in the repository), which at the swap's view does what the
+          final code does. 11 of the 107 are 29.8% to
+          84.7% hidden, all in the U (the three largest things in front of each):
+          - 29.8%, E's U, the freezer, at 1440, 767 and 390: another machine 17.0%, a tall cabinet's upper part 12.8%.
+          - 38.2%, B's U, the hood, at 1440: a tall cabinet's upper part 38.2%.
+          - 39.6%, D's U, the freezer, at 1440, 767 and 390: another machine 14.6%, a tall cabinet's upper part
+            10.4%, a side panel 6.3%.
+          - 58.2%, A's U, the range, at 1440: an upper 16.5%, the crown 14.7%, the countertop 13.9%.
+          - 66.7%, B's U, the refrigerator, at 767 and 390: the pantry tower 55.6%, a tall cabinet's upper part 7.4%.
+          - 84.7%, B's U, the range, at 1440: a tall cabinet's upper part 54.8%, a side panel 21.2%, the countertop 2.4%.
+          **A machine that shows only a strip from the default angle, as B's U Wine column does**: the faces it turns
+          toward the camera stand almost all against the tall cabinet beside it, so from there little of it can be
+          seen, with or without the fade; the strip that shows is not hidden, so it counts 0%. Flying to it shows it.
+          An earlier measure gave it 97.4% hidden, counting the faces pressed against the cabinet.
+          **How it was measured, and that the measure changed three times.** The rule that stands: a 32 x 32 grid of
+          rays over the machine's box on the screen; only the machine's faces turned toward the camera count; a face
+          with something within 2" straight out of it is one nobody can see (a dishwasher's top under the countertop,
+          a side against a panel) and is left out; each face left is hidden if a solid thing stands between it and the
+          camera; the machine's own enclosure does not count, as for the fade. Three measures came before it, A's L
+          dishwasher shown by each: (1) the whole box on the screen, 65.7%, which counted faces nobody can see as
+          hidden by the countertop; (2) the machine's front alone, 5.2%, reported beside the first on 2026-11-21
+          (Leo: 「不再分"正面"和"整台"两种口径」); (3) the faces turned toward the camera with "within 2"" tested by
+          a ray only, 55.7% — a face flush against a cabinet starts inside that cabinet's box, three's one-sided box
+          is never hit, so the pressed face counted as hidden. The one that stands, testing box-shaped neighbours by
+          their box as well, gives it 15%. The earlier measures' figures were all dropped; a line of 3% proposed on
+          the third's was withdrawn. With 1" for 2" the figures hardly change, but the U's dishwashers go from 0.4% to 5.9% (the gap
+          under their countertop lies between 1" and 2"); with 3" none changes. The probe, `probe12e2i.probe.ts`, ran
+          in a scratch worktree and is not in the repository; the full table is in the report to Leo of 2026-11-21.
+          Not fixed.
+        - **A click that travels 1 or 2 pixels turns the camera a little after it goes back.** *(Leo, 2026-11-21:
+          「手抖 1 到 2 像素的惯性：不修，登记成一条 Open item」.)* After a model swap, a press on the bare scene that
+          moves 1 or 2 pixels before it lifts is still a click (react-three-fiber's `delta <= 2`): it closes the card
+          and the camera goes to the reset view (D1's sixth reason). The controls' damping then carries those pixels'
+          turn on after the camera has arrived: 0.024° for 2 px, measured 2026-11-21 (a still click lands exactly on
+          the reset view). Not seen by eye; not fixed. `tests/cameraKeep.test.ts` clicks without moving for that
+          reason.
+        - **`swipeIntoRow` cannot bring the last two cells of a long card into view on a 390 phone.** *(Leo,
+          2026-11-21: 「登记，不改」.)* Package A's refrigerator card, T30IR905SP-SS and T36IT100NP: "the cell is
+          still outside the card after three swipes (cell 274–502 / 510–738, shown 21–369, scrollLeft 927)". Found
+          by a probe, in every shape; no test picks those cells today.
+        - **A run filtered with `-t` goes red on the count guard.** *(Leo, 2026-11-21: 「登记，不改」.)* The
+          `EXPECTED_TESTS` guards skip themselves when `process.argv` has `-t` or `--testNamePattern`, but the
+          worker that runs `afterAll` does not see the command line, so `-t` runs fail it ("2 of 18 … actually
+          ran"). Seen in every `-t` run of `tests/cameraKeep.test.ts` (12e-2's breaks); the same pattern stands in
+          other files (`desktopCardHeight`, `fadeRebuild`, …).
+        - **A drag that starts and ends on a machine may select it.** *(Leo, 2026-11-22: 「拖动会选中别的机器：登记成
+          一条 Open item，写明原因只是推测、没有验证，线上版本上有没有也没查。不修。」)* Seen in 12e-2's break 18 of
+          `tests/fadeRebuild.test.ts` (the code broken on purpose so that a real move cleared nothing, the fade stayed
+          off and the test kept dragging): on a desktop, by the mouse, after four drags the machine selected went from
+          the range or the hood to the refrigerator, and the camera flew there. On the final code it was not met: the
+          first drag brings the fade back and the test drags no more. **The cause is a guess, not checked:** that a
+          press and a release over one machine are taken as a click on it however far the pointer went between —
+          react-three-fiber 8.18.0 fires a click on an object that was under the pointer at the press and is under it
+          at the release, and asks `delta <= 2` only of a click that hits nothing
+          (`node_modules/@react-three/fiber/dist/events-776716bd.esm.js`, lines 1159-1163 and 1214). Not reproduced on
+          purpose; whether the live version does it was not looked at. Not fixed. `tests/fadeRebuild.test.ts` now
+          checks that the swapped machine is still the one selected after its drags.
+        - **A pin label's lettering can come out in one of two looks from one shot to the next.** *(Leo, 2026-11-22:
+          「像素里那 4 个画面的标签字边抖动：我接受，这一轮不算失败。登记成一条 Open item」.)* In 12e-2's pixel proof four
+          of the 45 states differed between two shots of one build, on the whole screen only and only in the labels'
+          lettering — the same places and the same text, the edges of the letters some levels apart:
+          - `desk-A-materials`, the old build's second shot against its first: 3,405 pixels, at most 65 levels,
+            x 379 to 1050, y 152 to 587;
+          - `link-C`, the new build's first shot: 2,552 pixels, at most 35 levels, x 392 to 1047, y 237 to 586;
+          - `link-D`, the new build's first shot: 4,610 pixels, at most 37 levels, x 161 to 1097, y 231 to 587;
+          - `link-D-noisland`, the new build's first shot: 4,095 pixels, at most 36 levels, the same box.
+          Shot again, old, new, old, new (2026-11-22, 10:46:22-10:57:56): in `desk-A-materials` and `link-D` both
+          looks came in both builds, the old build's first shot the same as the new build's first and its second the
+          same as the new build's second; in `link-C` only the old build's first shot differed this time; in
+          `link-D-noisland` only the one pixel at (144, 225). **Both looks came in the old build and in the new.** The
+          proof for these four states says: the 3D canvas the same to the pixel, the labels in the same places with
+          the same text (Leo, 2026-11-22). Not a failure of the round (Leo); the cause not looked into. A close-up:
+          `docs/plans/item12e2-2026-11-19/small/12e2-label-lettering-run-to-run.jpg`. Not fixed.
+        - **At a fly-in, a pin label can stand under the card, the desktop's list rail or the phone's Appliances /
+          Configure buttons** *(registered with item 12e-2, from its formal plan, section 5.2; Leo, 2026-11-20: not
+          this round)*. Measured on the live code (769657a) in 12e-2's fifth draft, 45 fly-ins at each width, a label
+          not seen whole at nine points:
+          - under the card: 7 on a desktop (A's U microwave and range, B's U range and hood, D's L microwave, D's U
+            hood, E's U hood), 3 on a 390 phone, 2 at 767;
+          - under the list rail's strip at the left of a desktop (`RailToggle`): 7, all in a U;
+          - partly under 家电 / 配置 on a 390 phone: 3 after a swap with the reset view kept on screen (12e-2's 甲), 1
+            at a fly-in in bingjia3's run.
+          The card is a keep-out, and the labels move off it as far as they can; the rail's strip and the two phone
+          buttons are not keep-outs. 12e-2 changes none of this. When its turn comes: a plan first, and Leo's word on
+          what to mark.
+        - **"Specified" on the card can be read as the package's own model, which it is not** *(registered with item
+          12e-2, from its formal plan, section 5.3; Leo, 2026-11-20: the word is his to choose)*. The tag marks the
+          model the opening holds now (`appliance.id === current.id`, `src/ui/ModelCard.tsx`) and moves with every
+          swap. The Chinese 「已选」 says that; the English "Specified" (`swap.selected`) can read as "what the package
+          specifies". On 2026-11-20 a Maytag MFGS4030RS marked "Specified" after a swap was taken for package A's own
+          range (A's is the Thermador PRG366WH; C's is the Maytag). Leo chooses the word; it goes into `en.json` and
+          `reviewed.json` read by him first.
+        - **Closing the Appliances list while the camera is still flying in leaves the room lower** *(registered with
+          item 12e-2, from its formal plan, section 5.4; Leo, 2026-11-20: 「"飞近途中关清单，镜头停偏"：单独登记成一条 Open
+          item，不并进 12e-2。登记里写明原因只是推断、还没证实，手机上用手指没试过。」)*. At 767 wide, by the mouse,
+          package A's L: the dishwasher picked from 家电 and the list closed 0.1 or 0.3 s later, the camera stops about
+          1.3 ft lower than when the list is closed after 0.7 s or more (its height 4.231 ft against 5.527), and stays
+          there through a model swap until Reset. At 0.5 s two runs stopped in two places. With the list closed after
+          the fly-in had ended it stopped in one place every time: 6 runs, and 6 more with the browser slowed 4 and 8
+          times. Under a loaded machine the probe's 0.9 s step fell inside the fly-in, and the camera stopped elsewhere
+          in 11 of 12 cases where one run was still moving at the close and the other was not; one (767, D's U freezer)
+          stopped elsewhere with neither moving, not explained. **The cause is inferred, not proven:** the sheet's
+          framing offset (D1's second reason, `SHEET_FRAMING_OFFSET` in `CameraRig.tsx`) is added to the fly-in's
+          destination when the fly-in starts and is worked out again every frame; closing the list mid-flight would
+          leave part of it behind. **Not tried with a finger on a phone.** 12e-2's tests wait for the camera to stop
+          after a list row is pressed and before the list is closed, so this does not reach them. When its turn comes:
+          try it on a phone first, then a plan.
+  12e-3. **The inch marks made one: one place writes every inch figure on the page** *(registered 2026-11-20, written
+      in 2026-11-22; split out of 12e-2, after it and before 12f; numbered 12e-3 so that 12f and 13 keep their
+      numbers)*. Leo, 2026-11-20: 「英寸号从 12e-2 里拆出去，单做一轮，排在 12e-2 后面、12f 前面。12e-2 只做镜头和标签，词典和
+      格式函数一个字不动。」 Registered only. What 12e-2's plan counted (its third draft, section I, in
+      `docs/plans/item12e2-2026-11-19/item12e2-plan.md`; read only,
+      2026-11-20): ″ and " side by side in the dictionaries (en.json 3 and 131, zh.json 66 and 69, reviewed.json's
+      English 3 and 41 and Chinese 26 and 18), and no one place that writes them. When its turn comes, a plan first:
+      - **In scope, all of it into one place that writes an inch figure**, with a guard test that turns red on any other:
+        - the dictionaries, `src/i18n/en.json` and `src/i18n/zh.json`, and the approved lines in
+          `src/i18n/reviewed.json` that carry an inch mark (each changed one read again by Leo before it is entered);
+        - the three formatting functions: `formatDimension` (`src/data/dimensions.ts`, fractions to a sixteenth, `"`),
+          `formatInches` (`src/data/fit.ts`, one decimal, `"`), `inchesSpoken` (`src/data/inches.ts`, eighths as `¾`, `″`);
+        - the two written by hand: `feetInches` in `src/ui/LeftPanel.tsx` (`16′10″`) and the tile sizes in
+          `src/store/finishes.ts` (`24″ × 48″`);
+        - the fraction formatter written again in `src/data/roughIn.ts` (the same rule as `formatDimension`, D17's "one
+          rule written twice");
+        - the slider's default format in `src/ui/primitives.tsx` (`${n}"`);
+        - the 75 lines that write `"` straight into a string in code (13 files; on the page: `layoutRules.ts`'s 53,
+          `hood.ts`, `quote.ts`, `utilities.ts`; the developer-only error messages listed in the plan).
+      - **For Leo to decide, as questions in the plan**: which mark, ″ or "; fractions or decimals, and to what step (a
+        sixteenth, an eighth, one decimal); whether Chinese and English are the same.
+      - **The guard**: a unit test that reads `src/` and fails on an inch mark written anywhere but the one place (as
+        `sceneFrame.test.ts` holds `useFrame` to one file); a dictionary test that allows only the chosen mark, after a
+        placeholder or a figure; on the page, the 45 pixel states' recorded text holding only the chosen mark. Each
+        broken on purpose before it is trusted.
+      - **The proof**: its own pixel proof (only text with an inch mark meant to change; the 3D canvas the same in all 45
+        states), the dumps, and a full suite of its own.
   12f. **Every figure for a circuit on the page, against the manuals and the shop's practice** *(registered
       2026-11-18; numbered 12f, after 12e)*. Found in 12c/12d's round: D on one wall with PODS302B or PO302W, the
       install list's 「240V 50A」 (the opening's circuit, wired for MEM301WS) against the rough-in's 40A (the oven's).

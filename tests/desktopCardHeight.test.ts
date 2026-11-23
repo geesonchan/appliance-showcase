@@ -22,6 +22,20 @@ import { launchBrowser } from "./siteBrowser";
 
 const WIDTHS = [1440, 1280];
 const LIVE = JSON.parse(readFileSync("tests/fixtures/desktopCardLive.json", "utf8")).states as Record<string, { cardHeight: number; labels: Record<string, [number, number]> }>;
+/**
+ * D12 修订：标签让开上排按钮 (item 12e-2; Leo, 2026-11-21: 「我确认改记新位置，原因写"D12 修订：标签让开上排按钮"」).
+ * Since the Materials / White model / Install row carries `data-pin-keep-out`, these labels stand
+ * clear of it; every other place in these four states is still the live one above. Measured
+ * 2026-11-21 on the 12e-2 build, the same steps as this file; on 769657a's build none of them moved.
+ */
+const MOVED_BY_D12: Record<string, Record<string, [number, number]>> = {
+  "1440 B slot-fridge": { "slot-microwave": [418, 663], "slot-wine": [572, 731] },
+  "1280 B slot-fridge": { "slot-microwave": [347, 663], "slot-wine": [502, 731] },
+  // The freezer's label stood under the row; the cooktop's gives it its place and moves up.
+  "1440 E slot-hood": { "slot-freezer": [565, 768], "slot-cooktop": [554, 615] },
+  "1280 E slot-hood": { "slot-freezer": [494, 768], "slot-cooktop": [483, 615] },
+};
+for (const [state, labels] of Object.entries(MOVED_BY_D12)) Object.assign(LIVE[state].labels, labels);
 const E = JSON.parse(readFileSync("src/store/shareLink.round98b1.json", "utf8")).links["E one-wall"].link as string;
 const all = appliancesFile.appliances as unknown as Appliance[];
 

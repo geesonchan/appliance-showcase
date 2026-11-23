@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { type MutableRefObject, useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useThree } from "@react-three/fiber";
 import { useSceneFrame } from "./useSceneFrame";
@@ -150,7 +150,7 @@ interface Saved {
  * rather than one down the middle: a single ray slips between two cabinets and
  * leaves the pair of them solid.
  */
-export function OcclusionFade() {
+export function OcclusionFade({ atSwapView }: { atSwapView: MutableRefObject<boolean> }) {
   const camera = useThree((s) => s.camera);
   const scene = useThree((s) => s.scene);
   const selectedSlot = useAppStore((s) => s.selectedSlot);
@@ -260,6 +260,15 @@ export function OcclusionFade() {
     applyInstallFade(renderMode === "install");
 
     if (!selectedSlot) {
+      if (faded.current.size > 0) restoreAll();
+      return;
+    }
+    // The camera still where a model swap put it, framing the whole room at the
+    // shape's default angle: nothing faded (item 12e-2; Leo, 2026-11-22: 「镜头还停在
+    // 换型号放的位置时，不做视线淡化；拖动、缩放、关卡片以后淡化照旧」). The
+    // rig clears it when the camera is moved (`CameraRig.tsx`), and the next
+    // pass fades as before.
+    if (atSwapView.current) {
       if (faded.current.size > 0) restoreAll();
       return;
     }

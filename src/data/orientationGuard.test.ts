@@ -194,7 +194,9 @@ const WALL_MODULE = "src/data/roomWalls.ts";
 const ROOM_SIZE_ALLOWED: Record<string, { hits: number; why: string }> = {
   "src/data/roomShell.ts": { hits: 2, why: "setRoomSize: the walls the layout was generated for" },
   "src/data/layoutRules.ts": { hits: 2, why: "how far the island's own axis runs before the room ends" },
-  "src/three/CameraRig.tsx": { hits: 2, why: "the box the camera frames" },
+  // Moved from CameraRig.tsx with the framing itself (item 12e-2, Leo, 2026-11-20: the reset view and the
+  // view after a model swap framed by one function, `frameRoom`, so there is no second copy).
+  "src/three/cardFraming.ts": { hits: 2, why: "the box the camera frames" },
   "src/three/KitchenShell.tsx": { hits: 6, why: "the walls and the floor themselves" },
   "src/three/Lights.tsx": { hits: 2, why: "where a window's sun stands outside the room" },
   "src/three/WindowLayer.tsx": { hits: 2, why: "the plane a window is cut in" },

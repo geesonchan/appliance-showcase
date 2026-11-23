@@ -18,7 +18,9 @@ export function ModeSwitch() {
     // `w-max`, because `left-1/2` alone leaves the box half the screen to lay
     // itself out in: on a phone that was 195px, and the third mode dropped
     // onto a second line inside a control that is meant to read as one.
-    <div className="pointer-events-auto absolute left-1/2 top-4 z-10 w-max -translate-x-1/2">
+    // `data-pin-keep-out`: the pin labels stand clear of the row, as of the
+    // card (D12, amended with item 12e-2; Leo, 2026-11-20).
+    <div data-pin-keep-out className="pointer-events-auto absolute left-1/2 top-4 z-10 w-max -translate-x-1/2">
       <Segmented<RenderMode>
         value={renderMode}
         onChange={setRenderMode}
@@ -191,8 +193,12 @@ export function Toast() {
     ? toast.lines.map((line) => say(line.key, line.vars)).join(" ")
     : say(toast.key, toast.vars);
 
+  // `data-pin-keep-out`: the pin labels stand clear of every message shown
+  // here, as of the card (D12, amended with item 12e-2; Leo, 2026-11-20:
+  // 「提示条的标记管它显示的每一种消息」). The link's notice above is not this.
   return (
     <div
+      data-pin-keep-out
       role="status"
       data-toast={toast.key}
       className={[
