@@ -11379,11 +11379,18 @@ before his order was kept here; Leo, 2026-11-22: 「计划第 14 节的文档更
 - **The full suite takes 1 h 45 to 1 h 56; a run is planned as 2 hours.** *(Leo, 2026-11-20: 「全套测试可以按 2 小时排，
   写出最近三次全套测试的实际用时和各是哪一轮，作为这个数的出处。」; written 2026-11-22, Leo, 2026-11-22: 「计划第 14 节的文档更正现在做完」.)* The last three, each
   green with no sleep or standby in the system log (each round's own entry):
+  - **120 min 46 s**: item 12e-2 (`5ead543`), 2026-11-22 14:29:24-16:30:10, 206 files (vitest's own duration
+    7,226 s). *(Added 2026-11-22, the fourth.)*
   - **105 min 30 s**: items 12e and 12d-2 (`3b2780a`), 2026-11-19 19:03:29-20:48:59, 205 files.
   - **112 min 15 s**: items 12c and 12d (`5d25826`), 2026-11-18 10:41:42-12:33:57, 203 files.
   - **115 min 19 s**: item 12b (`4f4351b`), 2026-11-17 13:52:40-15:47:59, 199 files.
   When it may start is HANDOFF section 6's (Leo may put the computer to sleep about 18:00). The entry below is
   superseded by this one and kept as it was.
+  *Note, 2026-11-22 (Leo, 2026-11-22: 「全套测试用时那一条补上这一次：2 小时零 46 秒（5ead543），连同前三次一共四次；以后按
+  2 小时 15 分排。旧的说法不改写，加注明。」): with 12e-2's run there are four, 1 h 45 to 2 h 01, and **from now on a run
+  is planned as 2 h 15**. The heading, "planned as 2 hours" and "the last three" above are kept as they were. HANDOFF
+  section 6 still says "Plan it as 2 hours"; it is not changed in this commit (not on Leo's list of 2026-11-22) and
+  waits for his word.*
 - **The full suite takes 75 to 86 minutes; a run is planned as 90.**
   *(Leo, 2026-11-06: 「两次都写……各注明是哪一次」，「以后排时间按 90 分钟算」; 2026-11-07: 「加上这次
   的 75 分钟（4,525 秒），标题改成 75 到 86 分钟，仍按 90 分钟排」.)*
@@ -12116,16 +12123,21 @@ before his order was kept here; Leo, 2026-11-22: 「计划第 14 节的文档更
   写明等谁」; checked against each entry below — the entry is right where they differ):
   - Live: 9 `1ea029b`; 10 `7200b1e`; 11 `b139163`; 12's 1st, 2nd and 4th points `479f19e`; 12a `376ce18`;
     12b `4f4351b`; 12c and 12d `5d25826`; 12d-2 and 12e `3b2780a` (live 2026-11-19, main chunk `index-Dg86V8ob.js`);
-    the handoff after them, docs only, `769657a` (live 2026-11-19, main chunk `index-D1M0qFzm.js`; 12e, "Shipped").
-  - 12e-2, the camera off centre after a model swap — built to its formal plan
-    (`docs/plans/item12e2-2026-11-19/item12e2-formal-plan.md`) and looked at by Leo in the local preview
-    (`index-Clo7JyBM.js`; Leo, 2026-11-22: 「下面按"预览可以"往下走」); the full suite, the commit and the release follow
-    in that order, the release written under 12e-2 as "Shipped". *(Until 2026-11-22: "next; waits for CC's read-only
+    the handoff after them, docs only, `769657a` (live 2026-11-19, main chunk `index-D1M0qFzm.js`; 12e, "Shipped");
+    12e-2 `5ead543` (live 2026-11-22, main chunk `index-CQMwut6v.js`; 12e-2, "Shipped").
+  - 12e-2, the camera off centre after a model swap — live, `5ead543` (2026-11-22; built to its formal plan,
+    `docs/plans/item12e2-2026-11-19/item12e2-formal-plan.md`; 12e-2, "Shipped"). *(Until 2026-11-22: "next; waits for CC's read-only
     plan (reproduction, cause, which version brought it, cameraKeep's gaps, before and after shots, a prototype
     preview), then Leo's answers.")*
-  - 12e-3, the inch marks made one — split out of 12e-2 (Leo, 2026-11-20); waits for 12e-2, then a plan first and Leo's
-    choice of mark and form. *(Until 2026-11-22: "The inch marks in the dictionaries made one — with 12e-2; waits for
-    CC's count of ″ and ", then Leo's choice.")*
+  - The release commit after 12e-2 (docs only: 12e-2's "Shipped", this list, the full suite's time) — its own deploy
+    and its twenty files against the live site are not written down, since a commit cannot hold its own release;
+    **the next round's first step checks them and writes them under 12e-2's "Shipped"** (Leo, 2026-11-22: 「写一条待办：
+    这一次收尾提交自己的部署和 20 个文件对比，由下一轮开工第一步核对后补记。」).
+  - 12e-3, the inch marks made one — split out of 12e-2 (Leo, 2026-11-20); **its turn now**, 12e-2 being live; waits
+    for Leo's choice of which inch mark to write, and no plan before it (Leo, 2026-11-22: 「12e-3 先不要写计划，等我定英寸号用
+    哪种写法。」). *(Until 2026-11-22: "waits for 12e-2, then a plan first and Leo's choice of mark and form"; before
+    that: "The inch marks in the dictionaries made one — with 12e-2; waits for CC's count of ″ and ", then Leo's
+    choice.")*
   - 12f, every figure for a circuit on the page — not started; waits for CC's read-only plan, then Leo's choice of words.
   - 13, tapping what is already chosen rebuilds the room — not started; waits for its turn (a plan first).
   - 12a-2, the U's right leg without an under-cabinet light — a first draft of its plan (2026-11-16); waits for its
@@ -13604,6 +13616,19 @@ before his order was kept here; Leo, 2026-11-22: 「计划第 14 节的文档更
           leave part of it behind. **Not tried with a finger on a phone.** 12e-2's tests wait for the camera to stop
           after a list row is pressed and before the list is closed, so this does not reach them. When its turn comes:
           try it on a phone first, then a plan.
+      - **Shipped: `5ead543`** (2026-11-22; Leo, 2026-11-22: 「下面按"预览可以"往下走」, after the local preview
+        `index-Clo7JyBM.js`). The full suite 14:29:24-16:30:10, exit 0: 206 files, 5,135 passed; vitest's own duration
+        7,226 s, two hours and a minute, past the "1 h 45 to 1 h 56" in Open items; no event 42, 506, 507, 107 or 187 in
+        the system log from 14:25. It ran on the 22 files of the commit: each last changed before its start (the latest
+        14:27:12), and each the same by checksum at its end as at its start. Committed by path, 16:30:56 (22 files; the
+        pictures 6 files, 445,035 bytes; `raw/` kept local, 10 files, 2,136,289 bytes). Then a fresh worktree of the
+        commit, with its own `npm ci`: `npm ci` 16:31:09-16:31:20, `npm run test:unit` 16:31:20-16:32:11 (153 files,
+        4,660 passed), `npm run build` 16:32:11-16:32:29, each exit 0. Pushed 16:32:36-16:32:40, exit 0. Pages run
+        45089397998: build 16:32:47-16:34:10 and deploy 16:34:15-16:34:29 (local time), each a success. Built at
+        `5ead543` with the counter's address (16:34:45-16:35:00, exit 0): `index-CQMwut6v.js`, 740,451 bytes. Compared
+        with the live site file by file (16:35:37-16:35:48): **twenty of twenty the same byte for byte**. Against
+        `769657a` built the same way (16:35:14-16:35:29, exit 0; `index-D1M0qFzm.js`, as its record says), only the main
+        chunk and `index.html` differ; the other 18 are the same byte for byte.
   12e-3. **The inch marks made one: one place writes every inch figure on the page** *(registered 2026-11-20, written
       in 2026-11-22; split out of 12e-2, after it and before 12f; numbered 12e-3 so that 12f and 13 keep their
       numbers)*. Leo, 2026-11-20: 「英寸号从 12e-2 里拆出去，单做一轮，排在 12e-2 后面、12f 前面。12e-2 只做镜头和标签，词典和
