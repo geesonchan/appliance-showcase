@@ -196,7 +196,7 @@ describe("package C's lists with the OTR (round 97)", () => {
   });
 
   it("has the cabinet over it cut 12-1/2\" x 4-1/2\", the template's E", () => {
-    expect(findings().find((f) => f.ruleId === "hood-cabinet-cutout")?.params).toEqual({ size: '12-1/2" × 4-1/2"' });
+    expect(findings().find((f) => f.ruleId === "hood-cabinet-cutout")?.params).toEqual({ size: '12-1/2″ × 4-1/2″' });
   });
 
   it("drills that cabinet for its cord and its screws", () => {

@@ -65,6 +65,12 @@ const ADDED: Added = Object.assign(
 
 const en = (key: string, vars?: Record<string, string | number>) => translate("en", key, vars);
 
+/**
+ * The record is kept as it was printed; item 12e-3 (D25) rewrote every figure's mark to ″ on purpose, so a line
+ * is compared with its record read through that one change and no other (Leo, 2026-11-24: 「测试的期望值跟着改」).
+ */
+const asD25 = (line: string) => line.replace(/(\d)"/g, (_, digit: string) => `${digit}″`);
+
 type Arrangement = Partial<Pick<LayoutParams, "sinkLeg" | "fridgeEnd" | "coffeeLeg" | "islandOrientation">>;
 const ARRANGEMENTS: [string, Arrangement][] = [["as-it-opens", {}]];
 for (const sinkLeg of ["back", "left"] as const)
@@ -101,7 +107,7 @@ describe.each(PACKAGES.map((pkg) => pkg.id))("%s's English rough-in lines", (id)
     const wrong: string[] = [];
     for (const [key, was] of Object.entries(WAS)) {
       if (!key.startsWith(`${id} |`)) continue;
-      const want = CHANGED[key]?.now ?? was;
+      const want = asD25(CHANGED[key]?.now ?? was);
       const got = now.get(key);
       if (got !== want) wrong.push(`${key}\n    want: ${want}\n    got:  ${got ?? "(no such line)"}`);
     }
@@ -111,7 +117,7 @@ describe.each(PACKAGES.map((pkg) => pkg.id))("%s's English rough-in lines", (id)
       // entry then. Each is recorded with what it says and why it is there.
       const added = ADDED[key];
       if (!added) wrong.push(`${key}: a line round 69 did not print, and it is not in the record of added lines`);
-      else if (added.now !== line) wrong.push(`${key}\n    want: ${added.now}\n    got:  ${line}`);
+      else if (asD25(added.now) !== line) wrong.push(`${key}\n    want: ${asD25(added.now)}\n    got:  ${line}`);
     }
     expect(wrong, wrong.join("\n")).toEqual([]);
   });

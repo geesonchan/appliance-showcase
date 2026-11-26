@@ -115,7 +115,7 @@ describe("the numbers off the drawings", () => {
     const words = roughInWords(outlet);
     const en = (key: string, vars?: Record<string, string | number>) => translate("en", key, vars);
     expect(en(words.whereKey)).toBe("rear wall of the opening");
-    expect(sayWith(en, "rule.roughIn", words)).toBe('power — rear wall of the opening, 4" from the left side, 14-5/8" up');
+    expect(sayWith(en, "rule.roughIn", words)).toBe('power — rear wall of the opening, 4″ from the left side, 14-5/8″ up');
   });
 });
 

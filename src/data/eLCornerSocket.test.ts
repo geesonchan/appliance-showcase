@@ -133,9 +133,9 @@ describe("E's L, the sink on the left leg and the refrigerator on the back leg",
       expect(oven).toHaveLength(1);
       expect(oven[0].resolved.noCabinet).toBe(false);
       const words = roughInWords(oven[0].resolved);
-      expect(say("zh", "rule.roughIn", words)).toBe("电源：高柜旁的地柜内（打开柜门可见），距右侧 3\"、靠顶部");
+      expect(say("zh", "rule.roughIn", words)).toBe("电源：高柜旁的地柜内（打开柜门可见），距右侧 3″、靠顶部");
       expect(say("en", "rule.roughIn", words)).toBe(
-        "power — in the base cabinet beside the tower — open its door to see it, 3\" from the right side, at the top",
+        "power — in the base cabinet beside the tower — open its door to see it, 3″ from the right side, at the top",
       );
     },
   );

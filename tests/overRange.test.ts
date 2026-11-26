@@ -167,7 +167,7 @@ describe("the OTR in package C's hood opening (round 97)", () => {
     await press(s, s.page.locator("[data-model-card]").getByRole("button", { name: /View specs/ }).first());
     await s.page.waitForTimeout(1200);
     const card = await s.page.locator('[role="dialog"]').filter({ visible: true }).first().innerText();
-    expect(card.includes('3-1/4" × 10" · Up through cabinet · 300 CFM')).toBe(true);
+    expect(card.includes('3-1/4″ × 10″ · Up through cabinet · 300 CFM')).toBe(true);
     await s.page.context().close();
   });
 

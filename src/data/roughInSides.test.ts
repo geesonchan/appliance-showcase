@@ -74,9 +74,9 @@ const CASES = PACKAGES.flatMap((pkg) =>
 );
 resetRoom();
 
-/** Inches as the sentence writes them: `6"`, `14-5/8"`. */
+/** Inches as the sentence writes them (D25): `6″`, `14-5/8″`. */
 function readInches(text: string): number {
-  const match = /^(\d+)(?:-(\d+)\/(\d+))?"$/.exec(text);
+  const match = /^(\d+)(?:-(\d+)\/(\d+))?″$/.exec(text);
   if (!match) throw new Error(`not an inch figure: ${text}`);
   return Number(match[1]) + (match[2] ? Number(match[2]) / Number(match[3]) : 0);
 }
@@ -139,7 +139,7 @@ function pointsWithSentences(id: string) {
     // from `whereKey` with the same figures).
     const where = translate("en", String(finding.params.whereKey), finding.params);
     const at = translate("en", String(finding.params.atKey), finding.params);
-    return { item, where, at, label: `${item.slotId} ${item.resolved.point.type} ("${where}; ${at}")` };
+    return { item, where, at, label: `${item.slotId} ${item.resolved.point.type} ("${where}; ${at}″)` };
   });
 }
 
@@ -155,8 +155,8 @@ describe.each(CASES)("%s, %s", (id, _name, arrangement) => {
         const drawn = measured[2] === "left" ? v.point - v.left : v.rightEdge - v.point;
         if (Math.abs(drawn - said) > EPS_IN) {
           wrong.push(
-            `${label}: drawn ${(v.point - v.left).toFixed(2)}" from the left side, ` +
-              `${(v.rightEdge - v.point).toFixed(2)}" from the right`,
+            `${label}: drawn ${(v.point - v.left).toFixed(2)}″ from the left side, ` +
+              `${(v.rightEdge - v.point).toFixed(2)}″ from the right`,
           );
         }
       }
@@ -223,7 +223,7 @@ describe("the cabinet beside a tower, on the tower's left", () => {
     const oven = pointsWithSentences("package-d").find(
       ({ item }) => item.slotId === "slot-oven" && item.resolved.point.location === "beside-tower",
     );
-    expect(oven?.at).toBe('3" from the right side, at the top');
+    expect(oven?.at).toBe('3″ from the right side, at the top');
   });
 });
 

@@ -68,10 +68,10 @@ async function swapToThirty(shape: "L" | "one-wall") {
 
 describe("a 30-inch range swapped into A's 36-inch opening shows on the back wall's bill (round 99a)", () => {
   it("in the L", async () => {
-    expect(await swapToThirty("L")).toEqual({ bill: ['36" BF3 + RO30 + BF3 (range)'], errors: [] });
+    expect(await swapToThirty("L")).toEqual({ bill: ['36″ BF3 + RO30 + BF3 (range)'], errors: [] });
   });
 
   it("on one wall", async () => {
-    expect(await swapToThirty("one-wall")).toEqual({ bill: ['36" BF3 + RO30 + BF3 (range)'], errors: [] });
+    expect(await swapToThirty("one-wall")).toEqual({ bill: ['36″ BF3 + RO30 + BF3 (range)'], errors: [] });
   });
 });

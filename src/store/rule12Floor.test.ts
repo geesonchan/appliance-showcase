@@ -177,7 +177,7 @@ describe("a wall slider can still take it to 6 inches, and says so (乙)", () =>
       walls: { back: 199.25, left: 144 },
       beside: { widthIn: 9, code: "B9" },
       toast: "toast.wallGrew",
-      lines: [["196½″", "199¼″"]],
+      lines: [["196-1/2″", "199-1/4″"]],
     });
   });
 

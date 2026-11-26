@@ -56,12 +56,12 @@ describe("rule 4 with the cooking on the island", () => {
   // d11-4 passed on that — the thing under test never having been reached.
   it("fails a hood 6\" off centre along the island", () => {
     openE();
-    expect(rule4(hoodMoved(6, "along")).map((v) => v.message)).toEqual(['hood is 6.00" off centre along the island']);
+    expect(rule4(hoodMoved(6, "along")).map((v) => v.message)).toEqual(['hood is 6″ off centre along the island']);
   });
 
   it("fails a hood 6\" off centre across the island", () => {
     openE();
-    expect(rule4(hoodMoved(6, "across")).map((v) => v.message)).toEqual(['hood is 6.00" off centre across the island']);
+    expect(rule4(hoodMoved(6, "across")).map((v) => v.message)).toEqual(['hood is 6″ off centre across the island']);
   });
 
   it("fails a hood narrower than the cooktop under it", () => {
@@ -96,7 +96,8 @@ describe("rule 4 · a hood over an island cooktop is centred on it, either way t
   const offCentre = (i: IslandLayout, slots: Record<SlotId, Slot>) =>
     checkLayout(RUNS, undefined, i, slots)
       .filter((v) => v.code === "d11-4" && v.message.includes("off centre"))
-      .map((v) => v.message.replace(/^hood is [\d.]+" /, ""));
+      // The figure is written by inchText now (D25): 6″, 1/2″, 3-1/2″.
+      .map((v) => v.message.replace(/^hood is [\d/-]+″ /, ""));
 
   it("catches a hood slid 6 inches along an island turned across the room", () => {
     openE();

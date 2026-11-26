@@ -1,3 +1,4 @@
+import { feetAndInches } from "../data/inchText";
 import { SCHEME, SCHEME_FALLBACKS, SLOT_ORDER } from "../data/catalogue";
 import { FaultProbe } from "./fault";
 import { usePackageSummary } from "../data/packageSummary";
@@ -13,13 +14,8 @@ import { DebugBadge } from "./DebugBadge";
 import { ModelLine } from "./ModelLine";
 import { SwapPanel } from "./SwapPanel";
 
-/** A length in feet as 16′10″, or 14′ when it is whole. */
-function feetInches(feet: number) {
-  const total = Math.round(feet * 12);
-  const whole = Math.floor(total / 12);
-  const inches = total - whole * 12;
-  return inches === 0 ? `${whole}′` : `${whole}′${inches}″`;
-}
+/** A length in feet as 16′10″, or 14′ when it is whole (D25). */
+const feetInches = feetAndInches;
 
 /**
  * Hero copy, the two headline numbers, and the appliance list — until a slot is

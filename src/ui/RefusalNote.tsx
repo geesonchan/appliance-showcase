@@ -1,3 +1,4 @@
+import { inches } from "../data/inchText";
 import type { Refusal, RequirementItem } from "../data/room";
 import { sayWith } from "../i18n";
 import { useT } from "../i18n/useT";
@@ -35,7 +36,7 @@ export function OccupancyList({ items }: { items: RequirementItem[] }) {
             .join(" · ")}
           className="rounded-sm border border-[#E5C6C2] px-1 py-px text-[10px] leading-tight text-[#8A2018]"
         >
-          <span className="tabular-nums font-medium">{item.widthIn}&quot;</span>{" "}
+          <span className="tabular-nums font-medium">{inches(item.widthIn)}</span>{" "}
           <span className="opacity-70">{item.code ?? item.rule?.toUpperCase()}</span>
         </li>
       ))}

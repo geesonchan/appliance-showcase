@@ -94,7 +94,7 @@ function heldLines(slot: string) {
 const heldWords = (oven: string, sillIn: number, askedIn: number) =>
   `oven-sill-held: 烤箱切口底实际离地 ${sillIn}″，非所要的 ${askedIn}″：${name(oven)} 的规格表只允许 4-3/4″–14-7/8″`;
 const reachWords = (askedHandle: number) =>
-  `microwave-reach: 微波把手实际在 57″，非所要的 ${askedHandle}″：切口底只能在 4¾″–18″ 之间，把手因此落在 43.75″ 至 57″`;
+  `microwave-reach: 微波把手实际在 57″，非所要的 ${askedHandle}″：切口底只能在 4-3/4″–18″ 之间，把手因此落在 43-3/4″ 至 57″`;
 
 describe("every oven tower opens where it did", () => {
   it.each(TOWERS)("%s, %s: %s with %s at %i\"", (pkg, shape, slot, oven, sillIn) => {

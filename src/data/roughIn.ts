@@ -1,3 +1,4 @@
+import { inches } from "./inchText";
 import appliancesFile from "../../data/appliances.json";
 import roughInFile from "../../data/rough-in.json";
 import { applianceBox } from "./applianceBox";
@@ -663,19 +664,8 @@ export function resolveRoughIn(slotId: SlotId, appliance: Appliance | undefined)
   return resolved;
 }
 
-/** Inches as a manual writes them, for the checklist line. */
-const inch = (value: number) => {
-  const whole = Math.floor(value + 1e-6);
-  const sixteenths = Math.round((value - whole) * 16);
-  if (sixteenths === 0) return `${whole}"`;
-  let n = sixteenths;
-  let d = 16;
-  while (n % 2 === 0) {
-    n /= 2;
-    d /= 2;
-  }
-  return `${whole}-${n}/${d}"`;
-};
+/** Inches as a manual writes them, for the checklist line: the one place's (D25). */
+const inch = (value: number) => inches(value);
 
 /** The words of a rough-in line: message keys and the figures that go in them. */
 export interface RoughInWords {

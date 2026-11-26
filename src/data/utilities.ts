@@ -1,3 +1,4 @@
+import { inches } from "./inchText";
 import type { Appliance, Slot, Utilities } from "../types";
 import { ductDiameterFor, gasPipeFor } from "./rules";
 import { overRangeOf } from "./hood";
@@ -64,5 +65,5 @@ export function deriveUtilities(
 /** A duct's size as the spec card and the quote say it: 8" round, or 3-1/4" × 10". */
 export function ductSizeText(duct: NonNullable<Utilities["duct"]>): string {
   if (duct.rectangleIn) return `${formatDimension(duct.rectangleIn[0])} × ${formatDimension(duct.rectangleIn[1])}`;
-  return `${duct.diameterIn}"`;
+  return inches(duct.diameterIn);
 }

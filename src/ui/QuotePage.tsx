@@ -1,3 +1,4 @@
+import { inchText } from "../data/inchText";
 import { useEffect, useMemo, useState } from "react";
 import { FaultProbe } from "./fault";
 import { formatInches, requiredOpening } from "../data/fit";
@@ -227,7 +228,7 @@ function Row({ line, quote }: { line: QuoteLine; quote: Quote }) {
 
   const services = [
     `${utilities.power.voltage}V · ${utilities.power.amps}A`,
-    utilities.gas && `${t("spec.gas")} ${utilities.gas.pipeSize}`,
+    utilities.gas && `${t("spec.gas")} ${inchText(utilities.gas.pipeSize)}`,
     utilities.water &&
       `${t("spec.water")} ${[
         utilities.water.supply ? t("spec.supply") : null,

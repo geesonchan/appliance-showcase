@@ -1,3 +1,4 @@
+import { inchFigure, inches } from "../data/inchText";
 import { PARAM_LIMITS, feasibleRange, narrowCounterLeg, wallRequirement, type LayoutParams } from "../data/room";
 import { paramLimitsFor } from "../data/layoutTemplate";
 import { showsControl, sideWallLabelKey, sideWallLimits, type LayoutControl } from "./shapeControls";
@@ -86,7 +87,7 @@ function WallMinimum({ params, leg }: { params: LayoutParams; leg: "left" | "bac
           title={requirement.words[index] ? t(requirement.words[index]!) : (item.code ?? "")}
         >
           {index > 0 && " + "}
-          <span className="tabular-nums">{item.widthIn}&quot;</span>{" "}
+          <span className="tabular-nums">{inches(item.widthIn)}</span>{" "}
           <span className="opacity-65">{item.code ?? item.rule?.toUpperCase()}</span>
         </span>
       ))}
@@ -393,7 +394,7 @@ export function LayoutControls() {
                   </span>
                 )}
                 {t(`panel.layout.coffeeSill.caption.${underIt}`, {
-                  sillIn: formatDimension(params.coffeeSillIn).replace(/"$/, ""),
+                  sillIn: inchFigure(params.coffeeSillIn),
                 })}
               </>
             }

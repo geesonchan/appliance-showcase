@@ -78,8 +78,8 @@ const readRows = (page: Page, scope: string) =>
 
 describe("an alternative's main title, laid out", () => {
   it.each([
-    ["English", E, '30" Refrigerator Column · Stainless', "· Panel-Ready"],
-    ["Chinese", E.replace("lang=en", "lang=zh"), '30" 冷藏柱 · 不锈钢', "· 可装门板"],
+    ["English", E, '30″ Refrigerator Column · Stainless', "· Panel-Ready"],
+    ["Chinese", E.replace("lang=en", "lang=zh"), '30″ 冷藏柱 · 不锈钢', "· 可装门板"],
   ])("fits a 360 phone's card in %s, the title over the model, neither cut", async (_lang, query, current, other) => {
     const s = await open(true, query);
     await s.press(s.page.locator('[data-pin-label="slot-fridge"]').first());

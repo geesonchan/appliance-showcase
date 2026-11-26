@@ -58,7 +58,7 @@ describe("E's wine cooler", () => {
   it("is named on the slider as what stands under the coffee machine", () => {
     expect(
       translate("en", `panel.layout.coffeeSill.caption.${underCoffee(PACKAGE_BY_ID["package-e"].slots)}`, { sillIn: 42 }),
-    ).toBe('Machine starts 42" off the floor; wine cooler under it');
+    ).toBe('Machine starts 42″ off the floor; wine cooler under it');
   });
 });
 
@@ -144,7 +144,7 @@ describe("the coffee machine's height", () => {
   const highLine = (sillIn: number) => {
     open("package-e");
     const params = { ...REQUESTED_PARAMS, coffeeSillIn: sillIn };
-    if (!setLayoutParams(params).ok) throw new Error(`E will not build at ${sillIn}"`);
+    if (!setLayoutParams(params).ok) throw new Error(`E will not build at ${sillIn}″`);
     return checklistFor(defaultSelectionOf("package-e"), null).findings.filter((f) => f.messageKey === "rule.coffeeHigh")
       .length;
   };

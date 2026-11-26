@@ -171,19 +171,19 @@ function ovenLines() {
 describe("the install list", () => {
   describe.each(["L", "U"] as const)("in D's %s", (shape) => {
     it.each([
-      [PODS302B, 5, "下面是一块固定面板，高 1″", "under it a fixed panel, 1\" tall"],
-      [PODS302B, 12, "下面是一个抽屉，高 8″", "under it one drawer, 8\" tall"],
-      [PODS302B, 18, "下面是两个抽屉，各高 7″", "under it two drawers, 7\" each"],
-      [PO302W, 9, "下面是一块固定面板，高 5″", "under it a fixed panel, 5\" tall"],
-      [ME301YP, 16, "下面是两个抽屉，各高 6″", "under it two drawers, 6\" each"],
-      [MEM301WS, 13, "下面是一个抽屉，高 9″", "under it one drawer, 9\" tall"],
+      [PODS302B, 5, "下面是一块固定面板，高 1″", "under it a fixed panel, 1″ tall"],
+      [PODS302B, 12, "下面是一个抽屉，高 8″", "under it one drawer, 8″ tall"],
+      [PODS302B, 18, "下面是两个抽屉，各高 7″", "under it two drawers, 7″ each"],
+      [PO302W, 9, "下面是一块固定面板，高 5″", "under it a fixed panel, 5″ tall"],
+      [ME301YP, 16, "下面是两个抽屉，各高 6″", "under it two drawers, 6″ each"],
+      [MEM301WS, 13, "下面是一个抽屉，高 9″", "under it one drawer, 9″ tall"],
     ] as const)("%s at %i\": the opening's line, its sheet's range, what is under it", (model, sillIn, zhUnder, enUnder) => {
       openD(shape, model);
       setSill(sillIn);
       const line = ovenLines().find((l) => l.ruleId === "oven-sill");
       const { low, high } = SHEET[model];
       expect(line?.zh).toBe(`烤箱切口底离地 ${sillIn}″（规格表允许 ${low}″–${high}″，从地面量）；${zhUnder}`);
-      expect(line?.en).toBe(`Oven opening starts ${sillIn}" off the floor (the sheet allows ${low}"–${high}", from the floor); ${enUnder}`);
+      expect(line?.en).toBe(`Oven opening starts ${sillIn}″ off the floor (the sheet allows ${low}″–${high}″, from the floor); ${enUnder}`);
     });
 
     it("PODS302B: the line that was there keeps the handle and the circuit, as a steam oven", () => {
@@ -191,7 +191,7 @@ describe("the install list", () => {
       setSill(15);
       const line = ovenLines().find((l) => l.ruleId === "steam-oven");
       expect(line?.zh).toBe("蒸烤箱下门把手在 37″；240V 40A 专用回路");
-      expect(line?.en).toBe("Steam oven lower door handle at 37\"; 240V 40A dedicated circuit");
+      expect(line?.en).toBe("Steam oven lower door handle at 37″; 240V 40A dedicated circuit");
     });
 
     it("PO302W: the same line calls it an oven, not a steam oven", () => {
@@ -199,7 +199,7 @@ describe("the install list", () => {
       setSill(10);
       const line = ovenLines().find((l) => l.ruleId === "steam-oven");
       expect(line?.zh).toBe("烤箱下门把手在 32″；240V 40A 专用回路");
-      expect(line?.en).toBe("Oven lower door handle at 32\"; 240V 40A dedicated circuit");
+      expect(line?.en).toBe("Oven lower door handle at 32″; 240V 40A dedicated circuit");
     });
 
     it.each([PO302W, ME301YP, MEM301WS])("%s: nothing on the list calls it a steam oven", (model) => {
@@ -216,7 +216,7 @@ describe("the install list", () => {
       const warning = ovenLines().find((l) => l.ruleId === "oven-sill-held");
       expect(warning?.severity).toBe("warning");
       expect(warning?.zh).toBe("烤箱切口底实际离地 14″，非所要的 16″：PO302W 的规格表只允许 4-3/4″–14-7/8″");
-      expect(warning?.en).toBe("The oven opening starts 14\" off the floor, not the 16\" asked for: the PO302W sheet allows only 4-3/4\"–14-7/8\"");
+      expect(warning?.en).toBe("The oven opening starts 14″ off the floor, not the 16″ asked for: the PO302W sheet allows only 4-3/4″–14-7/8″");
       setSill(14);
       expect(ovenLines().find((l) => l.ruleId === "oven-sill-held")).toBeUndefined();
     });

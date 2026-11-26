@@ -1,3 +1,4 @@
+import { inchFigure } from "./inchText";
 import { useMemo } from "react";
 import { SLOT_ORDER } from "./catalogue";
 import { SLOT_BY_ID } from "./slots";
@@ -427,7 +428,7 @@ function steamOven(selection: Record<SlotId, Appliance>): Finding[] {
 }
 
 /** As fractions, the way a tape reads; the message supplies the inch mark. */
-const inchesOf = (value: number) => formatDimension(value).replace(/"$/, "");
+const inchesOf = (value: number) => inchFigure(value);
 
 /**
  * The coffee cabinet, and the dishwasher standing in the bottom of it.
@@ -445,7 +446,7 @@ function coffeeCabinet(selection: Record<SlotId, Appliance>): Finding[] {
   const sillIn = slot.position[1] * 12;
   // As fractions, the way a tape reads: the manual's 37-7/16" is not 37-1/2"
   // (round8) and not 37.4375 (round 75). The message supplies the inch mark.
-  const inches = (value: number) => formatDimension(value).replace(/"$/, "");
+  const inches = (value: number) => inchFigure(value);
   const lines: Finding[] = [
     {
       ruleId: "coffee-machine",

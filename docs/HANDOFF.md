@@ -465,6 +465,7 @@ order puts D15 before D14 — read by number, not by position.)
 | D22 | Which way a thing faces is recorded, and written in one place — and the rough-in rules that follow from it. |
 | D23 | A link rebuilds the same kitchen: one table, older links checked by what the page asks, the notice in Leo's words. |
 | D24 | The live site counts visits, anonymously, and only there: GoatCounter, not its count.js; four events; a lower bound. |
+| D25 | An inch figure is written in one place: `inchText.ts`, ″, fractions to a sixteenth, the same in Chinese and English, held by guard tests. |
 
 ---
 
@@ -684,6 +685,14 @@ work this way.
   **The real exit code**: store it in a variable straight after the command,
   `cmd; e=$?`, and print the variable — `echo "… $(date) exit $?"` prints the
   exit code of `date`, a false 0.
+  **Written to a file as it happens** (Leo, 2026-11-23: 「每一步的起止时间和真实 exit code
+  当场写进这一轮文件夹里的日志文件，不只打印在对话里；写进文档的数必须指得出存下来的文件。」; 2026-11-23: 「收尾前，这些日志要进这一轮在
+  docs/plans 下面的本地 raw 文件夹，临时文件夹里的不算留下了。」): each step's start, end and real
+  exit code go into a log file the moment the step ends, not only into the
+  conversation; before the round closes the logs are in the round's local
+  `raw/` folder under `docs/plans/` — a copy only in the scratch folder is not
+  kept; a figure written into the documents names the saved file it comes
+  from, and a figure with no saved file is not written.
   **A step that failed is written as it failed** — 「中途哪一步失败了照实写，不要重跑掉」
   — and a run made again is listed beside it, not in its place.
 - **The live site's check goes into the report's own text**: the commit, the
@@ -790,15 +799,16 @@ work this way.
   states' text records).
 - **Real input for every swap a round touches**: the mouse on a desktop and a
   finger on a phone, each once, the page's errors read.
-- **The full suite** (`npm test`; how long it takes, and the 2 hours a run
-  is planned as, are in decisions.md, Open items, "The full suite takes
-  1 h 45 to 1 h 56"):
+- **The full suite** (`npm test`; how long it takes, and the 2 h 15 a run is
+  planned as, are in decisions.md, Open items, "The full suite takes 1 h 45 to
+  1 h 56" and the note beside it of 2026-11-22):
   - **Before it**, read the power plan: turning the screen off, sleep and
     hibernate all "never" (`powercfg /query`).
   - **Tell Leo before it starts**, and keep the session's turn open until it
     ends.
-  - **Plan it as 2 hours** (the last three runs: decisions.md, the entry
-    above). Before it: stop the preview and every demonstration server, check no
+  - **Plan it as 2 h 15** (Leo, 2026-11-22: 「以后按 2 小时 15 分排」; the last four runs,
+    1 h 45 to 2 h 01: decisions.md, the entry above). Before it: stop the preview
+    and every demonstration server, check no
     `node.exe` or `esbuild.exe` is left, list the programs open, and **give
     Leo the time it should end**.
   - **Around 18:00 Leo may put the computer to sleep or shut it down**: do

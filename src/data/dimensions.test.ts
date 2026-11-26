@@ -94,10 +94,10 @@ describe("the figures follow the model that is specified", () => {
 
 describe("figures read as a builder writes them", () => {
   it("uses sixteenths rather than decimals", () => {
-    expect(formatDimension(36)).toBe('36"');
-    expect(formatDimension(36.75)).toBe('36-3/4"');
-    expect(formatDimension(8.8125)).toBe('8-13/16"');
-    expect(formatDimension(4.1875)).toBe('4-3/16"');
+    expect(formatDimension(36)).toBe('36″');
+    expect(formatDimension(36.75)).toBe('36-3/4″');
+    expect(formatDimension(8.8125)).toBe('8-13/16″');
+    expect(formatDimension(4.1875)).toBe('4-3/16″');
   });
 });
 

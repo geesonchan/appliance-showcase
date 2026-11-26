@@ -59,10 +59,10 @@ const WORDS = {
     close: "关闭",
     row: { coffeeBack: "组合烤箱 · 电源 高柜旁的地柜内（打开柜门可见）", coffeeLeft: "组合烤箱 · 电源 开口下方抽屉的后部" },
     callout: {
-      coffeeBack: "电源：高柜旁的地柜内（打开柜门可见），距右侧 3\"、靠顶部。出处尚未审核。",
+      coffeeBack: "电源：高柜旁的地柜内（打开柜门可见），距右侧 3″、靠顶部。出处尚未审核。",
       coffeeLeft: "电源：开口下方抽屉的后部，靠顶部。出处尚未审核。",
     },
-    line: { coffeeBack: "电源：高柜旁的地柜内（打开柜门可见），距右侧 3\"、靠顶部", coffeeLeft: "电源：开口下方抽屉的后部，靠顶部" },
+    line: { coffeeBack: "电源：高柜旁的地柜内（打开柜门可见），距右侧 3″、靠顶部", coffeeLeft: "电源：开口下方抽屉的后部，靠顶部" },
     why: "高柜两侧都没有橱柜，因此该接点设在开口下方的抽屉内。",
   },
   en: {
@@ -73,11 +73,11 @@ const WORDS = {
       coffeeLeft: "Combination oven · power at the back of the drawer under the opening",
     },
     callout: {
-      coffeeBack: "power: in the base cabinet beside the tower — open its door to see it, 3\" from the right side, at the top. Not yet reviewed.",
+      coffeeBack: "power: in the base cabinet beside the tower — open its door to see it, 3″ from the right side, at the top. Not yet reviewed.",
       coffeeLeft: "power: at the back of the drawer under the opening, at the top. Not yet reviewed.",
     },
     line: {
-      coffeeBack: "power — in the base cabinet beside the tower — open its door to see it, 3\" from the right side, at the top",
+      coffeeBack: "power — in the base cabinet beside the tower — open its door to see it, 3″ from the right side, at the top",
       coffeeLeft: "power — at the back of the drawer under the opening, at the top",
     },
     why: "No cabinet on either side of the tower, so this connection goes in the drawer under the opening.",

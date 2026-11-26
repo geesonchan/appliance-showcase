@@ -168,14 +168,14 @@ describe("item 10: a package switch's Undo puts back the sliders and the room (L
     const s = await open(false, "zh");
     const r = await switchAndUndo(s, "D");
     expect({ ...r, errors: s.errors }).toEqual({
-      before: { sliders: { backWallIn: '168"', leftWallIn: '144"' }, room: { backWallIn: 168, leftWallIn: 144 } },
+      before: { sliders: { backWallIn: '168″', leftWallIn: '144″' }, room: { backWallIn: 168, leftWallIn: 144 } },
       after: {
-        said: ["已切换为套餐 D，墙长已调整：", "后墙从 168″ 改为 224¼″", "左墙从 144″ 改为 178¾″"],
-        sliders: { backWallIn: '224.25"', leftWallIn: '178.75"' },
+        said: ["已切换为套餐 D，墙长已调整：", "后墙从 168″ 改为 224-1/4″", "左墙从 144″ 改为 178-3/4″"],
+        sliders: { backWallIn: '224-1/4″', leftWallIn: '178-3/4″' },
         room: { backWallIn: 224.25, leftWallIn: 178.75 },
       },
       button: "退回套餐 A",
-      back: { toast: 0, sliders: { backWallIn: '168"', leftWallIn: '144"' }, room: { backWallIn: 168, leftWallIn: 144 } },
+      back: { toast: 0, sliders: { backWallIn: '168″', leftWallIn: '144″' }, room: { backWallIn: 168, leftWallIn: 144 } },
       errors: [],
     });
     await s.page.context().close();
@@ -187,14 +187,14 @@ describe("item 10: a package switch's Undo puts back the sliders and the room (L
     await chooseShape(s, "one-wall");
     const r = await switchAndUndo(s, "A");
     expect({ ...r, errors: s.errors }).toEqual({
-      before: { sliders: { backWallIn: '230"' }, room: { backWallIn: 230 } },
+      before: { sliders: { backWallIn: '230″' }, room: { backWallIn: 230 } },
       after: {
-        said: ["已切换为套餐 A，墙长已调整：", "后墙从 230″ 改为 233¾″"],
-        sliders: { backWallIn: '233.75"' },
+        said: ["已切换为套餐 A，墙长已调整：", "后墙从 230″ 改为 233-3/4″"],
+        sliders: { backWallIn: '233-3/4″' },
         room: { backWallIn: 233.75 },
       },
       button: "退回套餐 C",
-      back: { toast: 0, sliders: { backWallIn: '230"' }, room: { backWallIn: 230 } },
+      back: { toast: 0, sliders: { backWallIn: '230″' }, room: { backWallIn: 230 } },
       errors: [],
     });
     await s.page.context().close();
@@ -205,14 +205,14 @@ describe("item 10: a package switch's Undo puts back the sliders and the room (L
     await chooseShape(s, "one-wall");
     const r = await switchAndUndo(s, "B");
     expect({ ...r, errors: s.errors }).toEqual({
-      before: { sliders: { backWallIn: '233.75"' }, room: { backWallIn: 233.75 } },
+      before: { sliders: { backWallIn: '233-3/4″' }, room: { backWallIn: 233.75 } },
       after: {
-        said: ["Switched to Package B; the walls were adjusted:", "Back wall: 233¾″ → 239″"],
-        sliders: { backWallIn: '239"' },
+        said: ["Switched to Package B; the walls were adjusted:", "Back wall: 233-3/4″ → 239″"],
+        sliders: { backWallIn: '239″' },
         room: { backWallIn: 239 },
       },
       button: "Back to Package A",
-      back: { toast: 0, sliders: { backWallIn: '233.75"' }, room: { backWallIn: 233.75 } },
+      back: { toast: 0, sliders: { backWallIn: '233-3/4″' }, room: { backWallIn: 233.75 } },
       errors: [],
     });
     await s.page.context().close();
@@ -224,14 +224,14 @@ describe("item 10: a package switch's Undo puts back the sliders and the room (L
     await chooseShape(s, "U");
     const r = await switchAndUndo(s, "A");
     expect({ ...r, errors: s.errors }).toEqual({
-      before: { sliders: { backWallIn: '196.5"', leftWallIn: '144"' }, room: { backWallIn: 196.5, leftWallIn: 144 } },
+      before: { sliders: { backWallIn: '196-1/2″', leftWallIn: '144″' }, room: { backWallIn: 196.5, leftWallIn: 144 } },
       after: {
-        said: ["Switched to Package A; the walls were adjusted:", "Side walls: 144″ → 155¼″"],
-        sliders: { backWallIn: '196.5"', leftWallIn: '155.25"' },
+        said: ["Switched to Package A; the walls were adjusted:", "Side walls: 144″ → 155-1/4″"],
+        sliders: { backWallIn: '196-1/2″', leftWallIn: '155-1/4″' },
         room: { backWallIn: 196.5, leftWallIn: 155.25 },
       },
       button: "Back to Package B",
-      back: { toast: 0, sliders: { backWallIn: '196.5"', leftWallIn: '144"' }, room: { backWallIn: 196.5, leftWallIn: 144 } },
+      back: { toast: 0, sliders: { backWallIn: '196-1/2″', leftWallIn: '144″' }, room: { backWallIn: 196.5, leftWallIn: 144 } },
       errors: [],
     });
     await s.page.context().close();

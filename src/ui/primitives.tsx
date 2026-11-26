@@ -1,3 +1,4 @@
+import { inches } from "../data/inchText";
 import type { ReactNode } from "react";
 
 export function PanelSection({
@@ -78,7 +79,7 @@ export function Slider({
   min,
   max,
   step,
-  format = (n) => `${n}"`,
+  format = (n) => inches(n),
   feasible,
   caption,
   onChange,

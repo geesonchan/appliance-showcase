@@ -1,3 +1,4 @@
+import { inches } from "./inchText";
 import { applianceBox } from "./applianceBox";
 import { cooktopGlassIn, openingAlong } from "./cookingSurface";
 import { cooktopHeight } from "./rangeModel";
@@ -330,20 +331,9 @@ function ovenSill(): Dimension[] {
   ];
 }
 
-/** Inches as a builder writes them: 36¾ rather than 36.75. */
+/** Inches as a builder writes them, 36-3/4″: asked of the one place a figure is written (D25). */
 export function formatDimension(valueIn: number): string {
-  const whole = Math.floor(valueIn + 1e-6);
-  const fraction = valueIn - whole;
-  const sixteenths = Math.round(fraction * 16);
-  if (sixteenths === 0) return `${whole}"`;
-  if (sixteenths === 16) return `${whole + 1}"`;
-  let numerator = sixteenths;
-  let denominator = 16;
-  while (numerator % 2 === 0) {
-    numerator /= 2;
-    denominator /= 2;
-  }
-  return `${whole}-${numerator}/${denominator}"`;
+  return inches(valueIn);
 }
 
 /**

@@ -1,3 +1,4 @@
+import { inchFigure } from "./inchText";
 import { cooktopGlassIn, dropsIntoCounter } from "./cookingSurface";
 import { hoodMount } from "./hoodMount";
 import rulesFile from "../../data/rules.json";
@@ -8,7 +9,6 @@ import { outletSize, hoodCabinetFloor } from "./hood";
 import { SLOT_BY_ID } from "./slots";
 import { parseDataFile, metaSchema } from "./schema";
 import { effectiveCfm } from "./ventilation";
-import { formatDimension } from "./dimensions";
 
 /**
  * The install rules from §3.5.4, plus the sizing thresholds that used to be
@@ -275,7 +275,7 @@ export function evaluateSlot(
  * because "119500 BTU" on a quote is a number nobody reads at a glance.
  */
 const formatNumber = (key: string, value: number) => {
-  if (/filler|depth/i.test(key)) return Number(value.toFixed(1));
+  if (/filler|depth/i.test(key)) return value;
   if (/btu|cfm/i.test(key)) return value.toLocaleString("en-US");
   return value;
 };
@@ -298,7 +298,7 @@ export function packageContext(
       ? SLOT_BY_ID["slot-range"].cutout.w
       : (cooking.widthIn ?? cooking.cutoutWidthIn)
     : null;
-  const widthText = (value: number | null) => (value === null ? null : formatDimension(value).replace(/"$/, ""));
+  const widthText = (value: number | null) => (value === null ? null : inchFigure(value));
   return {
     hoodNarrowerByIn: hoodIn === null || cookingIn === null ? null : cookingIn - hoodIn,
     hoodWidthText: widthText(hoodIn),

@@ -25,13 +25,13 @@ import type { Appliance, SlotId } from "../types";
 afterAll(() => resetRoom());
 
 const WORDS: Record<string, { zh: string; en: string }> = {
-  PH36HWS: { zh: "最小 30，建议最大 40", en: "min 30, recommended max 40" },
-  VCIN36GWS: { zh: "最小 30，建议最大 40", en: "min 30, recommended max 40" },
-  "AK7136BS-BF": { zh: "最小 24，建议最大 32", en: "min 24, recommended max 32" },
-  AK7300AS: { zh: "最小 24，建议最大 34", en: "min 24, recommended max 34" },
-  HMCB30WS: { zh: "最小 30，燃气与电磁相同", en: "min 30, gas or induction" },
-  HMCB36WS: { zh: "最小 30，燃气与电磁相同", en: "min 30, gas or induction" },
-  HMWB361WS: { zh: "最小 30，燃气与电磁相同", en: "min 30, gas or induction" },
+  PH36HWS: { zh: "最小 30″，建议最大 40″", en: "min 30″, recommended max 40″" },
+  VCIN36GWS: { zh: "最小 30″，建议最大 40″", en: "min 30″, recommended max 40″" },
+  "AK7136BS-BF": { zh: "最小 24″，建议最大 32″", en: "min 24″, recommended max 32″" },
+  AK7300AS: { zh: "最小 24″，建议最大 34″", en: "min 24″, recommended max 34″" },
+  HMCB30WS: { zh: "最小 30″，燃气与电磁相同", en: "min 30″, gas or induction" },
+  HMCB36WS: { zh: "最小 30″，燃气与电磁相同", en: "min 30″, gas or induction" },
+  HMWB361WS: { zh: "最小 30″，燃气与电磁相同", en: "min 30″, gas or induction" },
   JVM3160RFSS: { zh: "店里做法", en: "shop practice" },
 };
 
@@ -78,10 +78,10 @@ describe("A to D: the line beside each hood says what that hood's manual says", 
       }),
     );
     expect(own).toEqual({
-      "package-a": "最小 30，建议最大 40",
-      "package-b": "最小 30，建议最大 40",
-      "package-c": "最小 30，燃气与电磁相同",
-      "package-d": "最小 30，建议最大 40",
+      "package-a": "最小 30″，建议最大 40″",
+      "package-b": "最小 30″，建议最大 40″",
+      "package-c": "最小 30″，燃气与电磁相同",
+      "package-d": "最小 30″，建议最大 40″",
     });
   });
 

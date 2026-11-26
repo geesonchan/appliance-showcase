@@ -351,7 +351,7 @@ describe("the canopy has to clear the cooking surface", () => {
     const cutout = findings.find((f) => f.ruleId === "hood-cabinet-cutout");
     expect(cutout).toBeDefined();
     expect(cutout!.params.size).toBe(outletSize());
-    expect(String(cutout!.params.size)).toContain("8.8125");
+    expect(String(cutout!.params.size)).toContain("8-13/16″");
   });
 });
 

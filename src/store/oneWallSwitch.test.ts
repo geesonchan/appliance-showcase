@@ -248,7 +248,7 @@ describe("what the switch says, and what Undo puts back (round 98b-2)", () => {
     // (Leo, 2026-11-11, 9.3): 224¼″ is D's L, 245¾″ the same 245.75 as before.
     expect(toast.lines!.map((line) => sayWith((key, vars) => translate("zh", key, vars), line.key, line.vars))).toEqual([
       "已切换为一字型厨房，墙长已调整：",
-      "后墙从 224¼″ 改为 245¾″",
+      "后墙从 224-1/4″ 改为 245-3/4″",
     ]);
   });
 

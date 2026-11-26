@@ -225,8 +225,8 @@ describe("a switch that needs more wall", () => {
         key: "toast.wallGrew",
         vars: {
           wallKey: "toast.wall.left",
-          fromIn: "175¼″",
-          toIn: "177½″",
+          fromIn: "175-1/4″",
+          toIn: "177-1/2″",
           reasonKey: "toast.growReason.fridgeEndAbuts",
         },
       },
@@ -235,7 +235,7 @@ describe("a switch that needs more wall", () => {
     store().undo();
     expect(store().layoutParams.leftWallIn).toBe(175.25);
     expect(store().layoutParams.fridgeEndAbuts).toBe("cabinet");
-    expect(inchesSpoken(201.375)).toBe("201⅜″");
+    expect(inchesSpoken(201.375)).toBe("201-3/8″");
     expect(inchesSpoken(168)).toBe("168″");
   });
 
@@ -358,7 +358,7 @@ describe("a package's own room", () => {
     // not move, is no longer said.
     expect(store().toast?.lines).toEqual([
       { key: "toast.packageSwitched", vars: { package: "Package B" } },
-      { key: "toast.shapeWall", vars: { wallKey: "toast.wall.back", fromIn: "168″", toIn: "196½″" } },
+      { key: "toast.shapeWall", vars: { wallKey: "toast.wall.back", fromIn: "168″", toIn: "196-1/2″" } },
     ]);
   });
 

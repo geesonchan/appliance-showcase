@@ -1,3 +1,4 @@
+import { inches as writeInches } from "./inchText";
 import { hoodBridgeBand } from "./cabinets";
 import { roughInFor } from "./roughIn";
 import { FIXTURE_BY_ID } from "./fixtures";
@@ -243,7 +244,7 @@ export function checkLayout(
       if (Math.abs(gap) > 1e-6) {
         fail(
           "d11-3",
-          `${run.id} run: ${inches(Math.abs(gap)).toFixed(1)}" ${gap > 0 ? "gap" : "overlap"} ` +
+          `${run.id} run: ${writeInches(inches(Math.abs(gap)))} ${gap > 0 ? "gap" : "overlap"} ` +
             `between ${run.segments[i - 1].id} and ${run.segments[i].id}`,
         );
       }
@@ -335,17 +336,17 @@ export function checkLayout(
       const wanted = widthIn(segment);
       const off = Number((wanted - built).toFixed(4));
       if (segment.modules.length === 0) {
-        fail("d13-modules", `${segment.id} is ${wanted}" of nothing in particular`);
+        fail("d13-modules", `${segment.id} is ${writeInches(wanted)} of nothing in particular`);
       } else if (Math.abs(off) > 1e-4) {
         fail(
           "d13-modules",
-          `${segment.id} wants ${wanted}" and its cabinets make ${built}"` +
-            ` — ${Math.abs(off)}" ${off > 0 ? "short" : "over"}`,
+          `${segment.id} wants ${writeInches(wanted)} and its cabinets make ${writeInches(built)}` +
+            ` — ${writeInches(Math.abs(off))} ${off > 0 ? "short" : "over"}`,
         );
       }
       for (const module of segment.modules) {
         if (!isOrderable(module)) {
-          fail("d13-modules", `${module.code} is a ${module.widthIn}" box nobody stocks`);
+          fail("d13-modules", `${module.code} is a ${writeInches(module.widthIn)} box nobody stocks`);
         }
       }
     }
@@ -357,8 +358,8 @@ export function checkLayout(
       if (Math.abs(off) > 1e-4) {
         fail(
           "d13-modules",
-          `${bank.id} wants ${wanted}" and its cabinets make ${built}"` +
-            ` — ${Math.abs(off)}" ${off > 0 ? "short" : "over"}`,
+          `${bank.id} wants ${writeInches(wanted)} and its cabinets make ${writeInches(built)}` +
+            ` — ${writeInches(Math.abs(off))} ${off > 0 ? "short" : "over"}`,
         );
       }
       for (const module of bank.modules) {
@@ -366,7 +367,7 @@ export function checkLayout(
         // top, which moves with the range under it.
         if (module.kind === "bridge") continue;
         if (module.heightIn && !UPPER_HEIGHTS.includes(module.heightIn)) {
-          fail("d13-modules", `${module.code} is ${module.heightIn}" tall, not a stock height`);
+          fail("d13-modules", `${module.code} is ${writeInches(module.heightIn)} tall, not a stock height`);
         }
       }
     }
@@ -380,7 +381,7 @@ export function checkLayout(
       if (segment.kind === "corner") {
         const { lazySusanIn, blindIn } = CABINET_STANDARDS.corner;
         if (w !== lazySusanIn && w !== blindIn) {
-          fail("d13-corner", `${segment.id} is ${w}", wants ${lazySusanIn}" or ${blindIn}"`);
+          fail("d13-corner", `${segment.id} is ${writeInches(w)}, wants ${writeInches(lazySusanIn)} or ${writeInches(blindIn)}`);
         }
         continue;
       }
@@ -401,9 +402,9 @@ export function checkLayout(
       // a finished panel is. `isOrderable` already holds each to its own.
       if (boxes === 0) continue;
       if (w < min || w > max) {
-        fail("d13-width", `${segment.id} is ${w}", outside the ${min}-${max}" range`);
+        fail("d13-width", `${segment.id} is ${writeInches(w)}, outside the ${min}-${writeInches(max)} range`);
       } else if (Math.abs(boxes / step - Math.round(boxes / step)) > 1e-6) {
-        fail("d13-width", `${segment.id} makes ${boxes}" of box, not a ${step}" increment`);
+        fail("d13-width", `${segment.id} makes ${writeInches(boxes)} of box, not a ${writeInches(step)} increment`);
       }
     }
 
@@ -423,10 +424,10 @@ export function checkLayout(
     const bothEnds = run.ends[0] === "corner" && run.ends[1] === "corner" && run.segments[0]?.kind !== "corner";
     const acrossIn = bothEnds ? cornerAcrossIn(runs) * 2 : 0;
     if (legIn + acrossIn < shortMin) {
-      fail("d13-leg", `the ${run.id} leg is ${legIn}", wants at least ${shortMin}"`);
+      fail("d13-leg", `the ${run.id} leg is ${writeInches(legIn)}, wants at least ${writeInches(shortMin)}`);
     }
     if (legIn > longMax) {
-      fail("d13-leg", `the ${run.id} leg is ${legIn}", longer than ${longMax}"`);
+      fail("d13-leg", `the ${run.id} leg is ${writeInches(legIn)}, longer than ${writeInches(longMax)}`);
     }
   }
 
@@ -453,7 +454,7 @@ export function checkLayout(
   if (cooktop && !range) {
     const cooktopW = cooktop.cutout.w;
     const hoodW = slots["slot-hood"].cutout.w;
-    if (hoodW < cooktopW) fail("d13-hood-width", `hood is ${hoodW}" over a ${cooktopW}" cooktop`);
+    if (hoodW < cooktopW) fail("d13-hood-width", `hood is ${writeInches(hoodW)} over a ${writeInches(cooktopW)} cooktop`);
     // Hung straight over it (D20): centred along the island and across it,
     // which of x and z is which following the way the island is turned.
     const hood = slots["slot-hood"].position;
@@ -463,7 +464,7 @@ export function checkLayout(
     ] as const) {
       const off = Math.abs(hood[axis] - cooktop.position[axis]);
       if (off > 1e-6) {
-        fail("d11-4", `hood is ${inches(off).toFixed(2)}" off centre ${where} the island`);
+        fail("d11-4", `hood is ${writeInches(inches(off))} off centre ${where} the island`);
       }
     }
   }
@@ -495,10 +496,10 @@ export function checkLayout(
       fail(
         "d11-4",
         towered
-          ? `range has ${away.toFixed(1)}" of counter on the side away from the tower, ` +
-            `needs ${wanted.wideIn}"`
-          : `range has ${narrow.toFixed(1)}" and ${wide.toFixed(1)}" of counter beside it, ` +
-            `needs ${wanted.narrowIn}" and ${wanted.wideIn}"`,
+          ? `range has ${writeInches(away)} of counter on the side away from the tower, ` +
+            `needs ${writeInches(wanted.wideIn)}`
+          : `range has ${writeInches(narrow)} and ${writeInches(wide)} of counter beside it, ` +
+            `needs ${writeInches(wanted.narrowIn)} and ${writeInches(wanted.wideIn)}`,
       );
     }
 
@@ -520,8 +521,8 @@ export function checkLayout(
       if (counter < counterIn - 1e-6) {
         fail(
           "d11-12",
-          `${counter.toFixed(1)}" of counter between the cooking surface and the oven tower, ` +
-            `needs ${counterIn}"`,
+          `${writeInches(counter)} of counter between the cooking surface and the oven tower, ` +
+            `needs ${writeInches(counterIn)}`,
         );
       }
       // And the tower closes itself: a standard install carries its two
@@ -536,13 +537,13 @@ export function checkLayout(
       } else if (!tower || Math.abs(insetIn - tower.sideIn) > 1e-6) {
         fail(
           "d11-12",
-          `the oven tower's sides are ${insetIn}", wants ${tower ? tower.sideIn : "a standard install's"}"`,
+          `the oven tower's sides are ${writeInches(insetIn)}, wants ${tower ? writeInches(tower.sideIn) : "a standard install's"}`,
         );
       }
     }
     const rangeW = slots[rangeSlot].cutout.w;
     const hoodW = slots["slot-hood"].cutout.w;
-    if (hoodW < rangeW) fail("d13-hood-width", `hood is ${hoodW}" over a ${rangeW}" range`);
+    if (hoodW < rangeW) fail("d13-hood-width", `hood is ${writeInches(hoodW)} over a ${writeInches(rangeW)} range`);
     // And centred on it. Against a wall that is along the run the range stands
     // on: x on the back leg, where an L and one wall put it, and z on a side
     // leg, where a U does (U-0, 2026-11-10; until then "the range is only ever
@@ -567,8 +568,8 @@ export function checkLayout(
     if (wide < wanted.wideIn - 1e-6 || narrow < wanted.narrowIn - 1e-6) {
       fail(
         "d11-4",
-        `cooktop has ${narrow.toFixed(1)}" and ${wide.toFixed(1)}" of island beside it, ` +
-          `needs ${wanted.narrowIn}" and ${wanted.wideIn}"`,
+        `cooktop has ${writeInches(narrow)} and ${writeInches(wide)} of island beside it, ` +
+          `needs ${writeInches(wanted.narrowIn)} and ${writeInches(wanted.wideIn)}`,
       );
     }
   }
@@ -585,13 +586,13 @@ export function checkLayout(
     if (inches(between) > 1e-6) {
       fail(
         "d11-5",
-        `dishwasher is ${inches(between).toFixed(1)}" clear of the sink base, it should be hard against it`,
+        `dishwasher is ${writeInches(inches(between))} clear of the sink base, it should be hard against it`,
       );
     }
     if (inches(centres) > LAYOUT_LIMITS.dishwasherToSinkIn) {
       fail(
         "d11-5",
-        `dishwasher is ${inches(centres).toFixed(1)}" from the sink, limit is ${LAYOUT_LIMITS.dishwasherToSinkIn}"`,
+        `dishwasher is ${writeInches(inches(centres))} from the sink, limit is ${writeInches(LAYOUT_LIMITS.dishwasherToSinkIn)}`,
       );
     }
   }
@@ -653,14 +654,14 @@ export function checkLayout(
     if (Math.max(...sides) < wideIn - 1e-6) {
       fail(
         "d11-10",
-        `sink has ${sides.map((v) => v.toFixed(0)).join('" and ')}" beside it, ` +
-          `one side needs ${wideIn}"`,
+        `sink has ${sides.map((v) => writeInches(v)).join(" and ")} beside it, ` +
+          `one side needs ${writeInches(wideIn)}`,
       );
     }
     if (Math.min(...sides) < narrowIn - 1e-6) {
       fail(
         "d11-10",
-        `sink has only ${Math.min(...sides).toFixed(0)}" on one side, needs ${narrowIn}"`,
+        `sink has only ${writeInches(Math.min(...sides))} on one side, needs ${writeInches(narrowIn)}`,
       );
     }
 
@@ -690,7 +691,7 @@ export function checkLayout(
       if (between < fromCornerIn - 1e-6) {
         fail(
           "d11-10",
-          `sink base is ${between.toFixed(0)}" of counter from the corner, needs ${fromCornerIn}"`,
+          `sink base is ${writeInches(between)} of counter from the corner, needs ${writeInches(fromCornerIn)}`,
         );
       }
     }
@@ -721,7 +722,7 @@ export function checkLayout(
         if (between < LAYOUT_LIMITS.dishwasherFromCornerIn - 1e-6) {
           fail(
             "d11-10",
-            `dishwasher is ${between.toFixed(1)}" from the corner, needs ${LAYOUT_LIMITS.dishwasherFromCornerIn}"`,
+            `dishwasher is ${writeInches(between)} from the corner, needs ${writeInches(LAYOUT_LIMITS.dishwasherFromCornerIn)}`,
           );
         }
       }
@@ -736,7 +737,7 @@ export function checkLayout(
       const front = (run: CabinetRun) => run.centre + run.facing.sign * (ROOM.counterDepth / 2 + ROOM.counterOverhang);
       const aisle = inches(Math.abs(front(a) - front(b)));
       if (aisle < LAYOUT_LIMITS.facingAisleIn - 1e-6) {
-        fail("d11-7-aisle", `the aisle between the ${a.id} and ${b.id} legs is ${aisle.toFixed(1)}", needs ${LAYOUT_LIMITS.facingAisleIn}"`);
+        fail("d11-7-aisle", `the aisle between the ${a.id} and ${b.id} legs is ${writeInches(aisle)}, needs ${writeInches(LAYOUT_LIMITS.facingAisleIn)}`);
       }
     }
   }
@@ -770,7 +771,7 @@ export function checkLayout(
     if (best < LAYOUT_LIMITS.fridgeLandingIn - 1e-6) {
       fail(
         "d11-6",
-        `refrigerator has ${best.toFixed(1)}" of landing, needs ${LAYOUT_LIMITS.fridgeLandingIn}"`,
+        `refrigerator has ${writeInches(best)} of landing, needs ${writeInches(LAYOUT_LIMITS.fridgeLandingIn)}`,
       );
     }
   }
@@ -830,8 +831,8 @@ export function checkLayout(
     if (aisle < needIn - 1e-6) {
       fail(
         "d11-7-aisle",
-        `${aisle.toFixed(1)}" aisle between the island and the ${run.id} run, ` +
-          `needs ${needIn}"${cooking ? " in front of a cooktop" : ""}`,
+        `${writeInches(aisle)} aisle between the island and the ${run.id} run, ` +
+          `needs ${writeInches(needIn)}${cooking ? " in front of a cooktop" : ""}`,
       );
     }
   }
@@ -846,7 +847,7 @@ export function checkLayout(
     if (behind < LAYOUT_LIMITS.seatingAisleIn - 1e-6) {
       fail(
         "d11-7-seating",
-        `${behind.toFixed(1)}" behind the island's seating, needs ${LAYOUT_LIMITS.seatingAisleIn}"`,
+        `${writeInches(behind)} behind the island's seating, needs ${writeInches(LAYOUT_LIMITS.seatingAisleIn)}`,
       );
     }
   }
@@ -867,27 +868,27 @@ export function checkHeights(): LayoutViolation[] {
   const { base, upper, tall, hood } = CABINET_STANDARDS;
 
   if (inches(ROOM.counterHeight) !== base.counterHeightIn) {
-    fail("d13-base", `counter is at ${inches(ROOM.counterHeight)}", wants ${base.counterHeightIn}"`);
+    fail("d13-base", `counter is at ${writeInches(inches(ROOM.counterHeight))}, wants ${writeInches(base.counterHeightIn)}`);
   }
   if (inches(ROOM.counterHeight - ROOM.counterThickness) !== base.boxHeightIn) {
-    fail("d13-base", `base box is ${inches(ROOM.counterHeight - ROOM.counterThickness)}" tall`);
+    fail("d13-base", `base box is ${writeInches(inches(ROOM.counterHeight - ROOM.counterThickness))} tall`);
   }
   if (inches(ROOM.counterDepth) !== base.depthIn) {
-    fail("d13-base", `base run is ${inches(ROOM.counterDepth)}" deep`);
+    fail("d13-base", `base run is ${writeInches(inches(ROOM.counterDepth))} deep`);
   }
 
   if (inches(ROOM.upperBottom) !== base.counterHeightIn + upper.bottomAboveCounterIn) {
-    fail("d13-upper", `uppers start at ${inches(ROOM.upperBottom)}", wants 54"`);
+    fail("d13-upper", `uppers start at ${writeInches(inches(ROOM.upperBottom))}, wants ${writeInches(54)}`);
   }
   if (inches(ROOM.upperDepth) !== upper.depthIn) {
-    fail("d13-upper", `uppers are ${inches(ROOM.upperDepth)}" deep, wants ${upper.depthIn}"`);
+    fail("d13-upper", `uppers are ${writeInches(inches(ROOM.upperDepth))} deep, wants ${writeInches(upper.depthIn)}`);
   }
   const upperH = inches(ROOM.upperTop - ROOM.upperBottom);
   if (!upper.heightsIn.includes(upperH)) {
-    fail("d13-upper", `uppers are ${upperH}" tall, wants one of ${upper.heightsIn.join("/")}`);
+    fail("d13-upper", `uppers are ${writeInches(upperH)} tall, wants one of ${upper.heightsIn.join("/")}`);
   }
   if (!tall.heightsIn.includes(inches(ROOM.tallTop))) {
-    fail("d13-tall", `tall cabinets are ${inches(ROOM.tallTop)}" tall`);
+    fail("d13-tall", `tall cabinets are ${writeInches(inches(ROOM.tallTop))} tall`);
   }
 
   // D19, scheme A: what goes on the 96" line is a stacked box of a stocked
@@ -898,13 +899,13 @@ export function checkHeights(): LayoutViolation[] {
   for (const under of [ROOM.upperTop, ROOM.tallTop]) {
     const stackIn = inches(ROOM.stackTop - under);
     if (!stack.includes(stackIn)) {
-      fail("d13-stack", `a stacked box is ${stackIn}" tall, wants one of ${stack.join("/")}`);
+      fail("d13-stack", `a stacked box is ${writeInches(stackIn)} tall, wants one of ${stack.join("/")}`);
     }
   }
   if (Math.abs(inches(hoodBridgeBand()[1] - ROOM.upperTop)) > 1e-6) {
     fail(
       "d13-stack",
-      `the bridge over the hood stops at ${inches(hoodBridgeBand()[1]).toFixed(2)}", not on the ${inches(ROOM.upperTop)}" line`,
+      `the bridge over the hood stops at ${writeInches(inches(hoodBridgeBand()[1]))}, not on the ${writeInches(inches(ROOM.upperTop))} line`,
     );
   }
 
@@ -916,7 +917,7 @@ export function checkHeights(): LayoutViolation[] {
     if (gap < closingGapIn.min - 1e-6 || gap > closingGapIn.max + 1e-6) {
       fail(
         "d13-closing-gap",
-        `a run finishes ${gap.toFixed(2)}" below the ceiling, wants ${closingGapIn.min}-${closingGapIn.max}"`,
+        `a run finishes ${writeInches(gap)} below the ceiling, wants ${closingGapIn.min}-${writeInches(closingGapIn.max)}`,
       );
     }
   }
@@ -931,16 +932,16 @@ export function checkHeights(): LayoutViolation[] {
     // (round 97, `shopInstallDistanceIn`), and D13's 30"-40" is a canopy's.
     const wantsIn = shopInstallDistanceIn("otr");
     if (Math.abs(bottomAbove - wantsIn) > 1e-6) {
-      fail("d13-hood", `the OTR sits ${bottomAbove}" over the cooktop, wants ${wantsIn}"`);
+      fail("d13-hood", `the OTR sits ${writeInches(bottomAbove)} over the cooktop, wants ${writeInches(wantsIn)}`);
     }
   } else if (bottomAbove < hood.aboveCooktopMinIn || bottomAbove > hood.aboveCooktopMaxIn) {
     fail(
       "d13-hood",
-      `canopy sits ${bottomAbove}" over the cooktop, wants ${hood.aboveCooktopMinIn}-${hood.aboveCooktopMaxIn}"`,
+      `canopy sits ${writeInches(bottomAbove)} over the cooktop, wants ${hood.aboveCooktopMinIn}-${writeInches(hood.aboveCooktopMaxIn)}`,
     );
   }
   if (hoodSlot.cutout.h !== hood.bodyHeightIn) {
-    fail("d13-hood", `canopy opening is ${hoodSlot.cutout.h}" tall, wants ${hood.bodyHeightIn}"`);
+    fail("d13-hood", `canopy opening is ${writeInches(hoodSlot.cutout.h)} tall, wants ${writeInches(hood.bodyHeightIn)}`);
   }
   return problems;
 }

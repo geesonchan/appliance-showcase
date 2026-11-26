@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { inches } from "./inchText";
 import {
   hoodCabinetFloor,
   hoodOutlet,
@@ -51,7 +52,7 @@ describe("the duct comes off the top, behind the front edge", () => {
     expect(outlet.widthIn).toBe(CABINET_STANDARDS.hood.outlet.widthIn);
     expect(outlet.depthIn).toBe(CABINET_STANDARDS.hood.outlet.depthIn);
     expect(outlet.widthFt).toBeCloseTo(ft(outlet.widthIn), 6);
-    expect(outletSize()).toContain(String(CABINET_STANDARDS.hood.outlet.widthIn));
+    expect(outletSize()).toBe(`${inches(CABINET_STANDARDS.hood.outlet.widthIn)} × ${inches(CABINET_STANDARDS.hood.outlet.depthIn)}`);
   });
 
   it("sets it back from the wall, not centred on the canopy", () => {

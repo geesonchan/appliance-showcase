@@ -1,3 +1,4 @@
+import { inches } from "./inchText";
 import {
   CABINET_STANDARDS,
   LAYOUT_LIMITS,
@@ -2772,7 +2773,7 @@ export const U_PANTRY = { code: "T1596", widthIn: 15 } as const;
  */
 export const U_SPARE_BEFORE_OVEN_TOWER = {
   cookingFromCornerIn: 15,
-  rule: "the cooking surface 15\" off the corner; the wall's spare inches to the counter before the oven tower",
+  rule: `the cooking surface ${inches(15)} off the corner; the wall's spare inches to the counter before the oven tower`,
 } as const;
 
 /**

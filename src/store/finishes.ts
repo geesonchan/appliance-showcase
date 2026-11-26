@@ -1,3 +1,4 @@
+import { inches } from "../data/inchText";
 import { lookupRal, ralForHex } from "../data/ral";
 import type { WallFinish } from "../three/materials";
 
@@ -111,9 +112,9 @@ export const nameIn = <T extends string>(names: Record<string, T>, value: T): st
 
 /** A tile size as its control labels it: figures, the same in both languages. */
 export const TILE_LABEL: Record<TileSize, string> = {
-  "24x48": "24″ × 48″",
-  "32x32": "32″ × 32″",
-  "48x48": "48″ × 48″",
+  "24x48": `${inches(24)} × ${inches(48)}`,
+  "32x32": `${inches(32)} × ${inches(32)}`,
+  "48x48": `${inches(48)} × ${inches(48)}`,
 };
 
 /**

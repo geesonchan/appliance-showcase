@@ -46,14 +46,14 @@ interface Session {
 
 const WORDS = {
   en: {
-    note: 'Only 6" of counter left here — not practical.',
+    note: 'Only 6″ of counter left here — not practical.',
     backWall: "Back wall",
     lazySusan: "Lazy susan",
     wall: "Wall",
     across: "Across the room",
   },
   zh: {
-    note: '台面只剩 6"，实际不建议',
+    note: '台面只剩 6″，实际不建议',
     backWall: "后墙长度",
     lazySusan: "转盘",
     wall: "墙身",
@@ -168,18 +168,18 @@ async function story(phone: boolean, lang: "en" | "zh") {
 describe("rule 12's 6 inches only where a wall slider is dragged (the 9-inch round)", () => {
   it("says so under the back wall's slider by the mouse on a desktop, in Chinese, and grows back when the island is turned", async () => {
     expect(await story(false, "zh")).toEqual({
-      opened: { value: "199.25\"", note: null },
-      dragged: { value: "197\"", note: WORDS.zh.note },
-      after: { value: "199.25\"", note: null, grewToast: true },
+      opened: { value: "199-1/4″", note: null },
+      dragged: { value: "197″", note: WORDS.zh.note },
+      after: { value: "199-1/4″", note: null, grewToast: true },
       errors: [],
     });
   });
 
   it("says so by a finger on a phone, in English", async () => {
     expect(await story(true, "en")).toEqual({
-      opened: { value: "199.25\"", note: null },
-      dragged: { value: "197\"", note: WORDS.en.note },
-      after: { value: "199.25\"", note: null, grewToast: true },
+      opened: { value: "199-1/4″", note: null },
+      dragged: { value: "197″", note: WORDS.en.note },
+      after: { value: "199-1/4″", note: null, grewToast: true },
       errors: [],
     });
   });

@@ -99,7 +99,7 @@ describe("U-2 (3): switching to the U grows the walls, says so, and Undo goes ba
       "toast.shapeSwitched",
       [
         { key: "toast.shapeSwitched", vars: { shapeKey: "panel.layout.shape.U" } },
-        { key: "toast.shapeWall", vars: { wallKey: "toast.wall.sides", fromIn: "144″", toIn: "155¼″" } },
+        { key: "toast.shapeWall", vars: { wallKey: "toast.wall.sides", fromIn: "144″", toIn: "155-1/4″" } },
       ],
       { key: "toast.undo.toShape", vars: { shapeKey: "topbar.shape.L" } },
     ]);
@@ -208,8 +208,8 @@ describe("U-2 (7): the U's own lines, in the words Leo passed", () => {
       "U-shaped: the wine cooler and the microwave drawer sit under the counter on the left leg, between the corner's counter and the refrigerator's.",
     ],
     "shape.note.U.E": [
-      "U 型：不配岛台；电磁灶改到右段墙上，油烟机为 36\" 墙挂烟囱式 HMCB36WS。",
-      "U-shaped: no island; the induction cooktop moves to the right leg's wall, with the 36\" chimney wall hood HMCB36WS.",
+      "U 型：不配岛台；电磁灶改到右段墙上，油烟机为 36″ 墙挂烟囱式 HMCB36WS。",
+      "U-shaped: no island; the induction cooktop moves to the right leg's wall, with the 36″ chimney wall hood HMCB36WS.",
     ],
     "shape.note.U.D": ["U 型：不配岛台；微波抽屉改到右段台面下。", "U-shaped: no island; the microwave drawer moves under the counter on the right leg."],
   };
@@ -471,7 +471,7 @@ describe("U-2 (13): the words of the switch, as Leo agreed them (9.3)", () => {
     // 「已切换为 U 型厨房」 since 2026-11-12 (Leo: 「"为"和"U"之间加一个空格」); it was
     // 「已切换为U 型厨房」.
     expect([toast.lines!.map((line) => say(line.key, line.vars)), say(toast.undoLabel!.key, toast.undoLabel!.vars)]).toEqual([
-      ["已切换为 U 型厨房，墙长已调整：", "左右墙从 144″ 改为 155¼″"],
+      ["已切换为 U 型厨房，墙长已调整：", "左右墙从 144″ 改为 155-1/4″"],
       "退回 L 型",
     ]);
   });
@@ -494,7 +494,7 @@ describe("U-2 (16): a package switch in a U says the walls that changed, as a sh
       "toast.packageSwitched",
       [
         { key: "toast.packageSwitched", vars: { package: "Package D" } },
-        { key: "toast.shapeWall", vars: { wallKey: "toast.wall.sides", fromIn: "155¼″", toIn: "177″" } },
+        { key: "toast.shapeWall", vars: { wallKey: "toast.wall.sides", fromIn: "155-1/4″", toIn: "177″" } },
       ],
       true,
       { key: "toast.undo.package", vars: { package: "Package A" } },
@@ -510,7 +510,7 @@ describe("U-2 (16): a package switch in a U says the walls that changed, as a sh
     store().setPackageId("package-d");
     const toast = store().toast!;
     expect([toast.lines!.map((line) => say(line.key, line.vars)), say(toast.undoLabel!.key, toast.undoLabel!.vars)]).toEqual([
-      ["已切换为套餐 D，墙长已调整：", "左右墙从 155¼″ 改为 177″"],
+      ["已切换为套餐 D，墙长已调整：", "左右墙从 155-1/4″ 改为 177″"],
       "退回套餐 A",
     ]);
     useAppStore.setState({ lang: "en" });

@@ -1,3 +1,4 @@
+import { inches } from "./inchText";
 import type { Appliance, Slot, SlotId } from "../types";
 import type { Finding, Severity } from "./rules";
 import { fitCheck } from "./fit";
@@ -182,7 +183,7 @@ export function formatQuote(
         (line.msrpUSD === null ? `  ${t("price.onRequest")}` : `  ${usd(line.msrpUSD)}`),
     );
     out.push(
-      `  ${t("spec.slotOpening")} ${line.openingIn.w}" x ${line.openingIn.h}" x ${line.openingIn.d}"`,
+      `  ${t("spec.slotOpening")} ${inches(line.openingIn.w)} × ${inches(line.openingIn.h)} × ${inches(line.openingIn.d)}`,
     );
     if (line.leadTimeWeeks !== null) {
       out.push(`  ${t("panel.package.lead")} ${t("panel.package.leadValue", { weeks: line.leadTimeWeeks })}`);

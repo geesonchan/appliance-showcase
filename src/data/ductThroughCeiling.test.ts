@@ -114,7 +114,7 @@ describe("a hood hung over an island", () => {
 
   it("gives its outlet as the guide's 8-inch round transition, not the wall canopy's collar", () => {
     expect(activate("through-ceiling").ok).toBe(true);
-    expect(outletSize()).toBe('8" round');
+    expect(outletSize()).toBe('8″ round');
   });
 });
 

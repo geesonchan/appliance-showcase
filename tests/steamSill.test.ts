@@ -204,7 +204,7 @@ describe("D's oven height in Layout", () => {
       min: 5,
       max: 18,
       value: 12,
-      caption: 'Opening starts 12" off the floor; lower handle at 34"',
+      caption: 'Opening starts 12″ off the floor; lower handle at 34″',
     });
     expect(await built(s)).toEqual({ sill: 12, under: [{ heightIn: 8, front: "door" }] });
     expect(await slider(s, w.microwave)).toBeNull();
@@ -213,8 +213,8 @@ describe("D's oven height in Layout", () => {
     const low = await slider(s, w.slider);
     expect({ value: low!.value, figure: low!.figure, caption: low!.caption }).toEqual({
       value: 5,
-      figure: '5"',
-      caption: 'Opening starts 5" off the floor; lower handle at 27"',
+      figure: '5″',
+      caption: 'Opening starts 5″ off the floor; lower handle at 27″',
     });
     expect(await built(s)).toEqual({ sill: 5, under: [{ heightIn: 1, front: "strip" }] });
 
@@ -222,7 +222,7 @@ describe("D's oven height in Layout", () => {
     const high = await slider(s, w.slider);
     expect({ value: high!.value, caption: high!.caption }).toEqual({
       value: 18,
-      caption: 'Opening starts 18" off the floor; lower handle at 40"',
+      caption: 'Opening starts 18″ off the floor; lower handle at 40″',
     });
     expect(await built(s)).toEqual({ sill: 18, under: [{ heightIn: 7, front: "door" }, { heightIn: 7, front: "door" }] });
 
@@ -255,7 +255,7 @@ describe("D's oven height in Layout", () => {
       PO302W: {
         max: 14,
         value: 14,
-        caption: 'Opening starts 14" off the floor; lower handle at 36"',
+        caption: 'Opening starts 14″ off the floor; lower handle at 36″',
         bold: true,
         microwaveSlider: false,
         room: { sill: 14, under: [{ heightIn: 10, front: "door" }] },
@@ -263,7 +263,7 @@ describe("D's oven height in Layout", () => {
       ME301YP: {
         max: 18,
         value: 18,
-        caption: 'Opening starts 18" off the floor',
+        caption: 'Opening starts 18″ off the floor',
         bold: false,
         microwaveSlider: false,
         room: { sill: 18, under: [{ heightIn: 7, front: "door" }, { heightIn: 7, front: "door" }] },
@@ -275,7 +275,7 @@ describe("D's oven height in Layout", () => {
       MEM301WS: {
         max: 60,
         value: 57,
-        caption: 'Opening starts 18" off the floor; handle at 57"',
+        caption: 'Opening starts 18″ off the floor; handle at 57″',
         bold: false,
         microwaveSlider: true,
         room: { sill: 18, under: [{ heightIn: 7, front: "door" }, { heightIn: 7, front: "door" }] },
@@ -283,7 +283,7 @@ describe("D's oven height in Layout", () => {
       PODS302B: {
         max: 18,
         value: 18,
-        caption: 'Opening starts 18" off the floor; lower handle at 40"',
+        caption: 'Opening starts 18″ off the floor; lower handle at 40″',
         bold: false,
         microwaveSlider: false,
         room: { sill: 18, under: [{ heightIn: 7, front: "door" }, { heightIn: 7, front: "door" }] },
@@ -334,8 +334,8 @@ describe("B and E keep their microwave handle", () => {
       };
     }
     expect(seen).toEqual({
-      "package-b": { microwave: 'Opening starts 15" off the floor; handle at 54"', oven: false },
-      "package-e": { microwave: 'Opening starts 15" off the floor; handle at 54"', oven: false },
+      "package-b": { microwave: 'Opening starts 15″ off the floor; handle at 54″', oven: false },
+      "package-e": { microwave: 'Opening starts 15″ off the floor; handle at 54″', oven: false },
     });
     expect(s.errors).toEqual([]);
     await s.page.context().close();

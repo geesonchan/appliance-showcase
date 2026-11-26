@@ -198,18 +198,18 @@ async function towerSlider(s: Session, lang: "en" | "zh") {
 }
 
 const CYCLE = [
-  ["thermador-po302w", { slider: "Oven height", value: 14, min: 5, max: 14, caption: 'Opening starts 14" off the floor; lower handle at 36"', bold: true, both: false }, 14],
-  ["thermador-me301yp", { slider: "Oven height", value: 15, min: 5, max: 18, caption: 'Opening starts 15" off the floor', bold: false, both: false }, 15],
-  ["thermador-pods302b", { slider: "Oven height", value: 15, min: 5, max: 18, caption: 'Opening starts 15" off the floor; lower handle at 37"', bold: false, both: false }, 15],
-  ["thermador-mem301ws", { slider: "Microwave handle", value: 54, min: 44, max: 60, caption: 'Opening starts 15" off the floor; handle at 54"', bold: false, both: false }, 15],
+  ["thermador-po302w", { slider: "Oven height", value: 14, min: 5, max: 14, caption: 'Opening starts 14″ off the floor; lower handle at 36″', bold: true, both: false }, 14],
+  ["thermador-me301yp", { slider: "Oven height", value: 15, min: 5, max: 18, caption: 'Opening starts 15″ off the floor', bold: false, both: false }, 15],
+  ["thermador-pods302b", { slider: "Oven height", value: 15, min: 5, max: 18, caption: 'Opening starts 15″ off the floor; lower handle at 37″', bold: false, both: false }, 15],
+  ["thermador-mem301ws", { slider: "Microwave handle", value: 54, min: 44, max: 60, caption: 'Opening starts 15″ off the floor; handle at 54″', bold: false, both: false }, 15],
 ] as const;
 const ZH: Record<string, string> = {
   "Oven height": "烤箱离地高度",
   "Microwave handle": "微波把手高度",
-  'Opening starts 14" off the floor; lower handle at 36"': "切口底离地 14″，下门把手在 36″",
-  'Opening starts 15" off the floor': "切口底离地 15″",
-  'Opening starts 15" off the floor; lower handle at 37"': "切口底离地 15″，下门把手在 37″",
-  'Opening starts 15" off the floor; handle at 54"': "切口底离地 15″，把手在 54″",
+  'Opening starts 14″ off the floor; lower handle at 36″': "切口底离地 14″，下门把手在 36″",
+  'Opening starts 15″ off the floor': "切口底离地 15″",
+  'Opening starts 15″ off the floor; lower handle at 37″': "切口底离地 15″，下门把手在 37″",
+  'Opening starts 15″ off the floor; handle at 54″': "切口底离地 15″，把手在 54″",
 };
 
 describe("the four ovens in turn: the height handed over, the slider by the oven", () => {
@@ -243,9 +243,9 @@ describe("the four ovens in turn: the height handed over, the slider by the oven
     await chooseOven(s, "slot-oven", "thermador-pods302b", "en");
     const pods = await towerSlider(s, "en");
     expect({ mem, memSill, pods, podsSill: (await built(s, "slot-oven")).sill }).toEqual({
-      mem: { slider: "Microwave handle", value: 51, min: 44, max: 60, caption: 'Opening starts 12" off the floor; handle at 51"', bold: false, both: false },
+      mem: { slider: "Microwave handle", value: 51, min: 44, max: 60, caption: 'Opening starts 12″ off the floor; handle at 51″', bold: false, both: false },
       memSill: 12,
-      pods: { slider: "Oven height", value: 12, min: 5, max: 18, caption: 'Opening starts 12" off the floor; lower handle at 34"', bold: false, both: false },
+      pods: { slider: "Oven height", value: 12, min: 5, max: 18, caption: 'Opening starts 12″ off the floor; lower handle at 34″', bold: false, both: false },
       podsSill: 12,
     });
     expect(s.errors).toEqual([]);

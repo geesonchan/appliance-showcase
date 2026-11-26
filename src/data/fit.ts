@@ -1,3 +1,4 @@
+import { inches } from "./inchText";
 import { dropsIntoCounter } from "./applianceBox";
 import { hoodMount } from "./hoodMount";
 import { fridgeMount } from "./fridgeMount";
@@ -209,9 +210,8 @@ export function protrusionDatumIn(slot: Slot): number {
 const dropsIntoSomething = (appliance: Appliance) =>
   dropsIntoCounter(appliance) || (appliance.category === "hood" && hoodMount(appliance) === "insert");
 
-/** Inches to one decimal, without a trailing ".0" on whole numbers. */
-export const formatInches = (value: number) =>
-  `${Number(value.toFixed(1))}"`;
+/** Inches as the cards and the quote write a difference, 11-7/8″: asked of the one place (D25). */
+export const formatInches = (value: number) => inches(value);
 
 /**
  * The opening a model actually needs: the published cutout where there is one,

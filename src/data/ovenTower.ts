@@ -1,3 +1,4 @@
+import { inches } from "./inchText";
 import appliancesFile from "../../data/appliances.json";
 import type { Package, PackageSlot } from "../types";
 
@@ -66,7 +67,7 @@ export function ovenTowerOf(
   }
   const sideIn = (spec.widthIn - own.cutoutWidthIn) / 2;
   if (sideIn <= 0) {
-    throw new Error(`${pkg.id} ${spec.slotId}: a ${spec.widthIn}" tower leaves no side round a ${own.cutoutWidthIn}" cutout`);
+    throw new Error(`${pkg.id} ${spec.slotId}: a ${inches(spec.widthIn)} tower leaves no side round a ${inches(own.cutoutWidthIn)} cutout`);
   }
   return { install: "standard", overallIn: spec.widthIn, openingIn: own.cutoutWidthIn, sideIn, model: own.model };
 }

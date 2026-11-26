@@ -1236,8 +1236,8 @@ describe("the coffee height slider", () => {
     const back = await shown();
 
     expect({ up, back }).toEqual({
-      up: { value: 'Coffee machine height\n40"', recommended: 0 },
-      back: { value: 'Coffee machine height\n37-7/16"', recommended: 1 },
+      up: { value: 'Coffee machine height\n40″', recommended: 0 },
+      back: { value: 'Coffee machine height\n37-7/16″', recommended: 1 },
     });
     expect(errors).toEqual([]);
     await page.context().close();

@@ -116,12 +116,12 @@ describe("a machine that cannot go into an opening (round 86)", () => {
     await selectOnCard(s, "A", "slot-wine");
     expect({ rows: await cardRows(s), errors: s.errors }).toEqual({
       rows: [
-        "thermador-t18iw100sp-ss:false 50\" too tall — the countertop is above this opening",
-        "thermador-t18iw100sp:false 50\" too tall — the countertop is above this opening",
-        "thermador-t18iw905sp-ss:false 50\" too tall — the countertop is above this opening",
-        "thermador-t18iw905sp:false 50\" too tall — the countertop is above this opening",
-        "thermador-t24iw905sp-ss:false 50\" too tall — the countertop is above this opening",
-        "thermador-t24iw905sp:false 50\" too tall — the countertop is above this opening",
+        "thermador-t18iw100sp-ss:false 50″ too tall — the countertop is above this opening",
+        "thermador-t18iw100sp:false 50″ too tall — the countertop is above this opening",
+        "thermador-t18iw905sp-ss:false 50″ too tall — the countertop is above this opening",
+        "thermador-t18iw905sp:false 50″ too tall — the countertop is above this opening",
+        "thermador-t24iw905sp-ss:false 50″ too tall — the countertop is above this opening",
+        "thermador-t24iw905sp:false 50″ too tall — the countertop is above this opening",
         "zephyr-prw24c01cg:true",
       ],
       errors: [],
@@ -151,12 +151,12 @@ describe("a machine that cannot go into an opening (round 86)", () => {
     const s = await open(true);
     await selectOnCard(s, "A", "slot-wine");
     expect(await cardRows(s)).toEqual([
-      "thermador-t18iw100sp-ss:false 50\" too tall — the countertop is above this opening",
-      "thermador-t18iw100sp:false 50\" too tall — the countertop is above this opening",
-      "thermador-t18iw905sp-ss:false 50\" too tall — the countertop is above this opening",
-      "thermador-t18iw905sp:false 50\" too tall — the countertop is above this opening",
-      "thermador-t24iw905sp-ss:false 50\" too tall — the countertop is above this opening",
-      "thermador-t24iw905sp:false 50\" too tall — the countertop is above this opening",
+      "thermador-t18iw100sp-ss:false 50″ too tall — the countertop is above this opening",
+      "thermador-t18iw100sp:false 50″ too tall — the countertop is above this opening",
+      "thermador-t18iw905sp-ss:false 50″ too tall — the countertop is above this opening",
+      "thermador-t18iw905sp:false 50″ too tall — the countertop is above this opening",
+      "thermador-t24iw905sp-ss:false 50″ too tall — the countertop is above this opening",
+      "thermador-t24iw905sp:false 50″ too tall — the countertop is above this opening",
       "zephyr-prw24c01cg:true",
     ]);
     await s.page.context().close();
@@ -166,12 +166,12 @@ describe("a machine that cannot go into an opening (round 86)", () => {
     const s = await open(false);
     await selectOnCard(s, "E", "slot-wine-2");
     expect(await cardRows(s)).toEqual([
-      "thermador-t18iw100sp-ss:false 50\" too tall — the coffee machine is above this opening",
-      "thermador-t18iw100sp:false 50\" too tall — the coffee machine is above this opening",
-      "thermador-t18iw905sp-ss:false 50\" too tall — the coffee machine is above this opening",
-      "thermador-t18iw905sp:false 50\" too tall — the coffee machine is above this opening",
-      "thermador-t24iw905sp-ss:false 50\" too tall — the coffee machine is above this opening",
-      "thermador-t24iw905sp:false 50\" too tall — the coffee machine is above this opening",
+      "thermador-t18iw100sp-ss:false 50″ too tall — the coffee machine is above this opening",
+      "thermador-t18iw100sp:false 50″ too tall — the coffee machine is above this opening",
+      "thermador-t18iw905sp-ss:false 50″ too tall — the coffee machine is above this opening",
+      "thermador-t18iw905sp:false 50″ too tall — the coffee machine is above this opening",
+      "thermador-t24iw905sp-ss:false 50″ too tall — the coffee machine is above this opening",
+      "thermador-t24iw905sp:false 50″ too tall — the coffee machine is above this opening",
       "zephyr-prw24c01cg:true",
     ]);
     await s.page.context().close();
@@ -199,7 +199,7 @@ describe("a machine that cannot go into an opening (round 86)", () => {
       els.map((el) => (el as HTMLElement).innerText.trim()),
     );
     // Six since 2026-11-02: each column and its -SS row (Leo).
-    expect(reasons).toEqual(Array(6).fill("高出 50\"，开口上方是台面"));
+    expect(reasons).toEqual(Array(6).fill("高出 50″，开口上方是台面"));
     await s.page.context().close();
   });
 });

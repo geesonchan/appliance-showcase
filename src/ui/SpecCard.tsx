@@ -1,3 +1,4 @@
+import { inchText } from "../data/inchText";
 import { useEffect } from "react";
 import { fitCheck, formatInches, requiredOpening } from "../data/fit";
 import { formatPrice } from "../data/packageSummary";
@@ -136,7 +137,7 @@ export function SpecCard() {
               label={t("spec.gas")}
               value={
                 utilities.gas
-                  ? `${utilities.gas.pipeSize}` +
+                  ? `${inchText(utilities.gas.pipeSize)}` +
                     (utilities.gas.shutoff ? ` · ${t("spec.shutoff")}` : "")
                   : null
               }

@@ -88,9 +88,9 @@ describe("fit check", () => {
   });
 
   it("formats to one decimal without a trailing zero", () => {
-    expect(formatInches(6)).toBe('6"');
-    expect(formatInches(5.75)).toBe('5.8"');
-    expect(formatInches(0.25)).toBe('0.3"');
+    expect(formatInches(6)).toBe('6″');
+    expect(formatInches(5.75)).toBe('5-3/4″');
+    expect(formatInches(0.25)).toBe('1/4″');
   });
 
   it("offers at least one model that fits every slot", () => {

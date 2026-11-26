@@ -81,25 +81,25 @@ async function lineIn(query: string, phone: boolean) {
 describe("the words beside the line to the hood, as the page shows them (item 12)", () => {
   it("C's own room, desktop, Chinese: no maximum, gas and induction alike", async () => {
     const got = await lineIn("v=3&pkg=C&shape=L&lang=zh", false);
-    expect(got.lines).toEqual(['30-1/2" 最小 30，燃气与电磁相同']);
+    expect(got.lines).toEqual(['30-1/2″ 最小 30″，燃气与电磁相同']);
     expect(got.errors).toEqual([]);
   });
 
   it("B's own room, desktop, English: VCIN36GWS's suggested maximum", async () => {
     const got = await lineIn("v=3&pkg=B&shape=L&lang=en", false);
-    expect(got.lines).toEqual(['30" min 30, recommended max 40']);
+    expect(got.lines).toEqual(['30″ min 30″, recommended max 40″']);
     expect(got.errors).toEqual([]);
   });
 
   it("A with AK7136BS-BF, phone, English: Zephyr's 24 and recommended 32, by finger", async () => {
     const got = await lineIn("v=3&pkg=A&shape=L&lang=en&hood=AK7136BS-BF", true);
-    expect(got.lines).toEqual(['30" min 24, recommended max 32']);
+    expect(got.lines).toEqual(['30″ min 24″, recommended max 32″']);
     expect(got.errors).toEqual([]);
   });
 
   it("D with the microwave, phone, Chinese: 「店里做法」, no figure", async () => {
     const got = await lineIn("v=3&pkg=D&shape=L&lang=zh&hood=JVM3160RFSS", true);
-    expect(got.lines).toEqual(['24" 店里做法']);
+    expect(got.lines).toEqual(['24″ 店里做法']);
     expect(got.errors).toEqual([]);
   });
 });

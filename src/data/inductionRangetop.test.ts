@@ -304,8 +304,8 @@ describe("the height it cooks at", () => {
     }
     // B's hood is VCIN36GWS, whose manual calls its 40" a suggested maximum (item 12; Leo, 2026-11-14).
     expect([translate("zh", over.noteKey!, over.noteVars), translate("en", over.noteKey!, over.noteVars)]).toEqual([
-      "最小 30，建议最大 40",
-      "min 30, recommended max 40",
+      "最小 30″，建议最大 40″",
+      "min 30″, recommended max 40″",
     ]);
   });
 
@@ -333,11 +333,11 @@ describe("what it is called, and where its junction box is written", () => {
     };
     theL(PACKAGE_BY_ID["package-b"]);
     setRangeModel(CIT367YG, "package-b");
-    expect(line("slot-range", "zh")).toBe('开口后壁 · 距顶 12"');
-    expect(line("slot-range", "en")).toBe('rear wall of the opening · 12" below the top');
+    expect(line("slot-range", "zh")).toBe('开口后壁 · 距顶 12″');
+    expect(line("slot-range", "en")).toBe('rear wall of the opening · 12″ below the top');
     theL(PACKAGE_BY_ID["package-e"]);
-    expect(line("slot-cooktop", "zh")).toBe('开口后壁 · 距顶 12"');
-    expect(line("slot-cooktop", "en")).toBe('rear wall of the opening · 12" below the top');
+    expect(line("slot-cooktop", "zh")).toBe('开口后壁 · 距顶 12″');
+    expect(line("slot-cooktop", "en")).toBe('rear wall of the opening · 12″ below the top');
   });
 
   it("no longer says a drawer for PCG366W's gas", () => {
@@ -368,8 +368,8 @@ describe("the line about the cabinet, on the checklist and the quote", () => {
       {
         slot: "slot-range",
         severity: "info",
-        zh: `灶下柜 B36：${PAIR_ZH}，门从控制面板下沿（柜子正面最上面 7-5/8" 以下）开始`,
-        en: 'Cabinet under it: B36, a pair of swing doors opening left and right, starting below the control panel (the top 7-5/8" of the cabinet front)',
+        zh: `灶下柜 B36：${PAIR_ZH}，门从控制面板下沿（柜子正面最上面 7-5/8″ 以下）开始`,
+        en: 'Cabinet under it: B36, a pair of swing doors opening left and right, starting below the control panel (the top 7-5/8″ of the cabinet front)',
       },
     ]);
   });

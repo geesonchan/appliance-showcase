@@ -1,14 +1,12 @@
-/**
- * A length the way it is said to a customer: 178¾″, not 178.75" or 178-3/4".
- *
- * To the nearest eighth, which is what a cabinetmaker marks. The dimension
- * figures on the drawing keep their builder's form (`formatDimension`); this is
- * for sentences.
- */
-const EIGHTHS = ["", "⅛", "¼", "⅜", "½", "⅝", "¾", "⅞"];
+import { inches } from "./inchText";
 
+/**
+ * A length the way it is said to a customer in a sentence: 178-3/4″.
+ *
+ * It was 178¾″, to the nearest eighth, until item 12e-3; D25 writes every
+ * figure one way (Leo, 2026-11-24: 「2026-11-13 那条"数字用分数（224¼″）"由新规矩取代，换套餐
+ * 提示写成 224-1/4″。」), so this asks the one place a figure is written.
+ */
 export function inchesSpoken(value: number): string {
-  const eighths = Math.round(value * 8);
-  const whole = Math.floor(eighths / 8);
-  return `${whole}${EIGHTHS[eighths - whole * 8]}″`;
+  return inches(value);
 }

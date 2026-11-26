@@ -75,8 +75,8 @@ describe("E on one wall, as it opens", () => {
     const note = chain(eOneWall("HMCB36WS"))["cooktop-to-canopy"];
     const inEnglish = words(en, note.noteKey, note.noteVars);
     const inChinese = words(zh, note.noteKey, note.noteVars);
-    expect(inEnglish).toBe("min 30, gas or induction");
-    expect(inChinese).toBe("最小 30，燃气与电磁相同");
+    expect(inEnglish).toBe("min 30″, gas or induction");
+    expect(inChinese).toBe("最小 30″，燃气与电磁相同");
     expect(`${inEnglish} ${inChinese}`).not.toMatch(/max|最大|gas min|燃气最小/);
   });
 });
@@ -85,13 +85,13 @@ describe("E on one wall, as it opens", () => {
 // the microwave 「店里做法」 with no figure (「微波炉式的叫法统一成：店里做法，不带 24″」).
 describe("E on one wall, with each of its hoods", () => {
   const CASES: [string, number, number, Record<string, string>][] = [
-    ["HMCB36WS", 66.5, 30.25, { en: "min 30, gas or induction", zh: "最小 30，燃气与电磁相同" }],
-    ["HMCB30WS", 66.5, 30.25, { en: "min 30, gas or induction", zh: "最小 30，燃气与电磁相同" }],
-    ["AK7136BS-BF", 66.25, 30, { en: "min 24, recommended max 32", zh: "最小 24，建议最大 32" }],
-    ["AK7300AS", 66.25, 30, { en: "min 24, recommended max 34", zh: "最小 24，建议最大 34" }],
-    ["VCIN36GWS", 66.25, 30, { en: "min 30, recommended max 40", zh: "最小 30，建议最大 40" }],
-    ["HMWB361WS", 66.25, 30, { en: "min 30, gas or induction", zh: "最小 30，燃气与电磁相同" }],
-    ["PH36HWS", 66.25, 30, { en: "min 30, recommended max 40", zh: "最小 30，建议最大 40" }],
+    ["HMCB36WS", 66.5, 30.25, { en: "min 30″, gas or induction", zh: "最小 30″，燃气与电磁相同" }],
+    ["HMCB30WS", 66.5, 30.25, { en: "min 30″, gas or induction", zh: "最小 30″，燃气与电磁相同" }],
+    ["AK7136BS-BF", 66.25, 30, { en: "min 24″, recommended max 32″", zh: "最小 24″，建议最大 32″" }],
+    ["AK7300AS", 66.25, 30, { en: "min 24″, recommended max 34″", zh: "最小 24″，建议最大 34″" }],
+    ["VCIN36GWS", 66.25, 30, { en: "min 30″, recommended max 40″", zh: "最小 30″，建议最大 40″" }],
+    ["HMWB361WS", 66.25, 30, { en: "min 30″, gas or induction", zh: "最小 30″，燃气与电磁相同" }],
+    ["PH36HWS", 66.25, 30, { en: "min 30″, recommended max 40″", zh: "最小 30″，建议最大 40″" }],
     ["JVM3160RFSS", 60.25, 24, { en: "shop practice", zh: "店里做法" }],
   ];
 

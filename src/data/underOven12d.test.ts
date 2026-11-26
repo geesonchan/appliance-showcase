@@ -123,11 +123,11 @@ function ovenLines(slot: SlotId) {
 describe("the install list: 12b's line, in 12b's reviewed words", () => {
   describe.each(TOWERS)("%s, %s", (pkg, shape, slot) => {
     it.each([
-      [44, "烤箱切口底离地 5″（规格表允许 4-3/4″–18″，从地面量）；下面是一块固定面板，高 1″", "Oven opening starts 5\" off the floor (the sheet allows 4-3/4\"–18\", from the floor); under it a fixed panel, 1\" tall"],
-      [49, "烤箱切口底离地 10″（规格表允许 4-3/4″–18″，从地面量）；下面是一个抽屉，高 6″", "Oven opening starts 10\" off the floor (the sheet allows 4-3/4\"–18\", from the floor); under it one drawer, 6\" tall"],
-      [54, "烤箱切口底离地 15″（规格表允许 4-3/4″–18″，从地面量）；下面是一个抽屉，高 11″", "Oven opening starts 15\" off the floor (the sheet allows 4-3/4\"–18\", from the floor); under it one drawer, 11\" tall"],
-      [56, "烤箱切口底离地 17″（规格表允许 4-3/4″–18″，从地面量）；下面是两个抽屉，各高 6-1/2″", "Oven opening starts 17\" off the floor (the sheet allows 4-3/4\"–18\", from the floor); under it two drawers, 6-1/2\" each"],
-      [60, "烤箱切口底离地 18″（规格表允许 4-3/4″–18″，从地面量）；下面是两个抽屉，各高 7″", "Oven opening starts 18\" off the floor (the sheet allows 4-3/4\"–18\", from the floor); under it two drawers, 7\" each"],
+      [44, "烤箱切口底离地 5″（规格表允许 4-3/4″–18″，从地面量）；下面是一块固定面板，高 1″", "Oven opening starts 5″ off the floor (the sheet allows 4-3/4″–18″, from the floor); under it a fixed panel, 1″ tall"],
+      [49, "烤箱切口底离地 10″（规格表允许 4-3/4″–18″，从地面量）；下面是一个抽屉，高 6″", "Oven opening starts 10″ off the floor (the sheet allows 4-3/4″–18″, from the floor); under it one drawer, 6″ tall"],
+      [54, "烤箱切口底离地 15″（规格表允许 4-3/4″–18″，从地面量）；下面是一个抽屉，高 11″", "Oven opening starts 15″ off the floor (the sheet allows 4-3/4″–18″, from the floor); under it one drawer, 11″ tall"],
+      [56, "烤箱切口底离地 17″（规格表允许 4-3/4″–18″，从地面量）；下面是两个抽屉，各高 6-1/2″", "Oven opening starts 17″ off the floor (the sheet allows 4-3/4″–18″, from the floor); under it two drawers, 6-1/2″ each"],
+      [60, "烤箱切口底离地 18″（规格表允许 4-3/4″–18″，从地面量）；下面是两个抽屉，各高 7″", "Oven opening starts 18″ off the floor (the sheet allows 4-3/4″–18″, from the floor); under it two drawers, 7″ each"],
     ])("handle %i\": MEM301WS, the one line", (handleIn, zh, en) => {
       open(pkg, shape);
       setHandle(handleIn);
@@ -142,7 +142,7 @@ describe("the install list: 12b's line, in 12b's reviewed words", () => {
       {
         ruleId: "oven-sill",
         zh: "烤箱切口底离地 15″（规格表允许 4-3/4″–18-3/4″，从地面量）；下面是一个抽屉，高 11″",
-        en: "Oven opening starts 15\" off the floor (the sheet allows 4-3/4\"–18-3/4\", from the floor); under it one drawer, 11\" tall",
+        en: "Oven opening starts 15″ off the floor (the sheet allows 4-3/4″–18-3/4″, from the floor); under it one drawer, 11″ tall",
       },
       // The circuit is the opening's, as before 12d: on one wall D's tower is wired
       // for MEM301WS, 50A, and the list said 「240V 50A」 here before (4f4351b's dump),
@@ -150,7 +150,7 @@ describe("the install list: 12b's line, in 12b's reviewed words", () => {
       {
         ruleId: "steam-oven",
         zh: "蒸烤箱下门把手在 37″；240V 50A 专用回路",
-        en: "Steam oven lower door handle at 37\"; 240V 50A dedicated circuit",
+        en: "Steam oven lower door handle at 37″; 240V 50A dedicated circuit",
       },
     ]);
   });

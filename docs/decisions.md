@@ -3521,6 +3521,9 @@ on its own:
 - and the toast a customer read while it happened: "Left wall lengthened from
   178¾″ to 178⅞″ to fit the refrigerator on that leg" — the figure and the
   reason both invented by the code, and neither true.
+  *Note, 2026-11-25: the way these figures are written (¾, ⅞) is superseded by
+  D25 (item 12e-3); the page would now write 178-3/4″ and 178-7/8″. The toast
+  is quoted as the customer read it.*
 
 **Where a figure cannot be given an exact reason, record that it cannot.** An
 eighth of an inch "for the window to sit evenly" reads like a reason and is
@@ -3952,6 +3955,9 @@ growing only the back wall, and the customer is no longer told "Left wall
 lengthened from 178¾″ to 178⅞″ to fit the refrigerator on that leg" — a figure
 and a reason that were both wrong. The test that held the eighth
 (`autoGrow.test.ts`, round 35) now holds 178-3/4".
+*Note, 2026-11-25: the way these figures are written (¾, ⅞) is superseded by
+D25 (item 12e-3); the page would now write 178-3/4″ and 178-7/8″. The toast is
+quoted as the customer read it.*
 - **Package D's default left wall is back to 178-3/4"** *(Leo, round 61)*, the
   return wall's own figure. It was 178-7/8" from round 35 to round 60 for a
   reason that turned out not to exist, and **a number left standing after its
@@ -6251,6 +6257,61 @@ catching it, it went red because the page threw "sending failed, on purpose
 (round 96)" as it loaded and never drew — the counter could have taken the
 page down; with the whole sending step inside a catch, it went green with the
 throw still in; the throw was then taken out. That catch is now in the code.
+
+## D25 · An inch figure is written in one place
+
+*(Leo, 2026-11-23, 2026-11-24 and 2026-11-25; item 12e-3.)* Every inch figure
+on the page is written by `src/data/inchText.ts`, and by nothing else: the
+three formatters that were (`formatDimension`, `formatInches`, `inchesSpoken`)
+and roughIn's own copy only ask it, the slider's readout asks it, the
+dictionary's placeholders ask it (`translate`, both branches), and the room's
+size asks it. `src/data/inchMarks.test.ts` fails on a mark written anywhere
+else in `src/`, `src/i18n/inchDictionary.test.ts` on a dictionary line that
+writes one otherwise, and `scripts/inchWords.mjs` on a page's words (the pixel
+proof's records and the dumps) that do.
+
+His rules, word for word:
+
+- 「英寸号统一用 ″，不用 "。」
+- 「尺寸用分数，不用小数。」「分数约到最简，最细到 1/16。不到 1 英寸的不写 0，写成 3/4″。」
+- 「整数和分数之间用连字符，写成 3-1/2″。」
+- 「一句里每个数都带 ″；大小用 ×，范围用 –；x 统一成 ×。」
+- 「尺寸线旁的小字加 ″。」 — all four of the words beside the dimension lines
+  (`dimension.clearanceRangeCooktop`, `dimension.clearanceRangeRecommended`,
+  `dimension.clearanceMinIsland`, `dimension.standard`), in Chinese and
+  English alike.
+- 「英尺：英文用 ′，中文保留"英尺"两个字。」 That is for sentences: an English sentence writes
+  8′, a Chinese one 8 英尺. **A figure in a cell is not a sentence**: the room's
+  size on the left panel is written 16′10″ in both languages (「中文页面左侧的房间大小照旧写
+  16′10″。」 — "中文保留英尺两个字"说的是句子；这个数字格子中英文写法一样).
+- 「中英文数字的写法完全一样。」 The one English line that gave a figure in words where the
+  Chinese wrote it, `refusal.windowGap`, now writes it (Leo, 2026-11-25:
+  「refusal.windowGap 的英文改成 within 6″ of the sink，别的字不动。」); no line is held out
+  of the guard's "Chinese and English write the same figures".
+- 「燃气管径在显示的时候换成 ″，数据和类型不动。」 — the data keeps `1/2"` and `3/4"`, and so do
+  their type and its check (`schema.ts`'s `pipeSize`, `rules.ts`'s
+  `GAS_PIPE_BASE`, `GasPipe` and `gasPipeFor`, the guard's exceptions by file
+  and name); `inchText()` shows them with ″. All four names stay (Leo,
+  2026-11-25: 「燃气管径的豁免 4 个名字都留。」): `pipeSize` and `GasPipe` are the type, and
+  the constant `GAS_PIPE_BASE` and the check in `gasPipeFor` compare the
+  data's own string, which is not on the page.
+- One line kept as its manual prints it: 「5-29/32″ 照说明书原样留。」
+  (`rule.coffeeDrainOptional`, TCM24PS's installation manual, p. 10), held out
+  of the guard by its key.
+- 「2026-11-13 那条"数字用分数（224¼″）"由新规矩取代，换套餐提示写成 224-1/4″。」
+
+**The rounding is the method, not a rule of his**: the nearest sixteenth, a
+figure exactly between two going up. The only figure on the page today that is
+not a whole sixteenth is TCM24PS's 27/32″ each side in D's and E's coffee
+opening, written 7/8″ (Leo, 2026-11-24: 「咖啡机每侧填板 27/32，往上写 7/8″。」 —
+「这是做法，不是我另定的规矩；以后数据里再出现换不成 1/16 的数，先报我，不要默默进位。」). A new figure that is not a
+whole sixteenth is put to him before it is shown rounded.
+
+**Kept as they are, by name** (the guard lists each with its reason): the
+manuals' own words quoted in `hood.ts` (`GAS_AND_INDUCTION`, each manual's
+`read`, the OTR template's `basis`), not on the page; the gas pipe's type and
+check, above; `"{raw}"` in `refusal.notALength` and `refusal.notAChoice`,
+which is a quotation of what was typed.
 
 ## Open items
 
@@ -11391,6 +11452,8 @@ before his order was kept here; Leo, 2026-11-22: 「计划第 14 节的文档更
   is planned as 2 h 15**. The heading, "planned as 2 hours" and "the last three" above are kept as they were. HANDOFF
   section 6 still says "Plan it as 2 hours"; it is not changed in this commit (not on Leo's list of 2026-11-22) and
   waits for his word.*
+  *Note, with item 12e-3 (Leo, 2026-11-23: 「HANDOFF 第 6 节两处改 2 h 15，全部放进 12e-3 那一轮的文档改动里，随 12e-3 一起提交」): HANDOFF section
+  6 now says "Plan it as 2 h 15"; "still says 'Plan it as 2 hours'" above is kept as it was.*
 - **The full suite takes 75 to 86 minutes; a run is planned as 90.**
   *(Leo, 2026-11-06: 「两次都写……各注明是哪一次」，「以后排时间按 90 分钟算」; 2026-11-07: 「加上这次
   的 75 分钟（4,525 秒），标题改成 75 到 86 分钟，仍按 90 分钟排」.)*
@@ -12133,12 +12196,17 @@ before his order was kept here; Leo, 2026-11-22: 「计划第 14 节的文档更
     and its twenty files against the live site are not written down, since a commit cannot hold its own release;
     **the next round's first step checks them and writes them under 12e-2's "Shipped"** (Leo, 2026-11-22: 「写一条待办：
     这一次收尾提交自己的部署和 20 个文件对比，由下一轮开工第一步核对后补记。」).
+    *Done 2026-11-23: see 12e-2's "Shipped".*
   - 12e-3, the inch marks made one — split out of 12e-2 (Leo, 2026-11-20); **its turn now**, 12e-2 being live; waits
     for Leo's choice of which inch mark to write, and no plan before it (Leo, 2026-11-22: 「12e-3 先不要写计划，等我定英寸号用
     哪种写法。」). *(Until 2026-11-22: "waits for 12e-2, then a plan first and Leo's choice of mark and form"; before
     that: "The inch marks in the dictionaries made one — with 12e-2; waits for CC's count of ″ and ", then Leo's
     choice.")*
   - 12f, every figure for a circuit on the page — not started; waits for CC's read-only plan, then Leo's choice of words.
+    *Note, 2026-11-23: a read-only list of every current on the page was made 2026-11-20 (at `769657a`; four places
+    checked by CC, the rest as a read-only helper reported them) and sent to Leo with 12e-2's fourth draft. Kept local,
+    not in the repository (`docs/plans/item12f-2026-11-20/raw/`, two files). It is not the plan item 12f asks for: no
+    manual read page by page, no largest breaker, no wordings.*
   - 13, tapping what is already chosen rebuilds the room — not started; waits for its turn (a plan first).
   - 12a-2, the U's right leg without an under-cabinet light — a first draft of its plan (2026-11-16); waits for its
     turn and Leo's answers.
@@ -12313,6 +12381,9 @@ before his order was kept here; Leo, 2026-11-22: 「计划第 14 节的文档更
         2. U 的 toast.packageSwitched 这句中英文我看过了，照原文同意，进 reviewed.json。3. 数字用分数（224¼″）。
         4. U 型那 3 条滑杆对不上的一起改。5. toast.roomGrew 拿掉。6. 一字型 C→A 多一条提示，同意。另加一条测试，
         先红：换套餐后点"退回"，滑杆的数和实际建成的房间都回到换之前，三种形状都查。」
+        *Note, 2026-11-25: answer 3, 「数字用分数（224¼″）」, is superseded by D25 (Leo, 2026-11-24: 「2026-11-13
+        那条"数字用分数（224¼″）"由新规矩取代，换套餐提示写成 224-1/4″。旧条目不改，旁边加注明。」): the notice now writes 224-1/4″. His answer is kept as he
+        wrote it.*
       - **The plan's "U unchanged" rewritten by three notices.** The plan's section 5 said a
         package switch in a U says what U-2 made it say, unchanged. The fix (answer 4: the walls the
         switch built written back to the sliders, and the walls compared as built) also made a U's
@@ -13616,6 +13687,13 @@ before his order was kept here; Leo, 2026-11-22: 「计划第 14 节的文档更
           leave part of it behind. **Not tried with a finger on a phone.** 12e-2's tests wait for the camera to stop
           after a list row is pressed and before the list is closed, so this does not reach them. When its turn comes:
           try it on a phone first, then a plan.
+        - **Four window lines would print `{wallKey}` with its braces.** *(Leo, 2026-11-25: 「{wallKey} 只登记，这一轮不修。」)*
+          `{wallKey}` in four dictionary lines (`refusal.windowBlocked`, `refusal.windowGap`,
+          `refusal.sinkFromWindow`, `suggestion.dropWindow`) is never filled — `sayWith` passes the wall's name as
+          `{wall}` — so the page would print the braces; `refusal.windowGap` could not be brought onto the page today
+          (the window has no control; item 12e-3's probes of 2026-11-25, every package and shape with each wall
+          dragged, the Layout switches one and two at a time, and every room of the three dumps), and the other three
+          lines were not probed (found 2026-11-25 in item 12e-3, at `e601271` already). Registered, not fixed.
       - **Shipped: `5ead543`** (2026-11-22; Leo, 2026-11-22: 「下面按"预览可以"往下走」, after the local preview
         `index-Clo7JyBM.js`). The full suite 14:29:24-16:30:10, exit 0: 206 files, 5,135 passed; vitest's own duration
         7,226 s, two hours and a minute, past the "1 h 45 to 1 h 56" in Open items; no event 42, 506, 507, 107 or 187 in
@@ -13629,6 +13707,15 @@ before his order was kept here; Leo, 2026-11-22: 「计划第 14 节的文档更
         with the live site file by file (16:35:37-16:35:48): **twenty of twenty the same byte for byte**. Against
         `769657a` built the same way (16:35:14-16:35:29, exit 0; `index-D1M0qFzm.js`, as its record says), only the main
         chunk and `index.html` differ; the other 18 are the same byte for byte.
+      - **The release commit's own release: `e601271`** (docs only; checked as the next round's first step, 2026-11-23;
+        Leo, 2026-11-22: 「写一条待办：这一次收尾提交自己的部署和 20 个文件对比，由下一轮开工第一步核对后补记。」). Before the push, CI's three commands in a
+        fresh worktree of `e601271`, 2026-11-22: `npm ci` 17:41:14-17:41:20, `npm run test:unit` 17:41:20-17:42:03 (153
+        files, 4,660 passed), `npm run build` 17:42:03-17:42:18, each exit 0; pushed (`5ead543..e601271`). Pages run
+        45096072380: build 17:42:31-17:43:56 and deploy 17:44:01-17:44:11 (local time, GitHub's record), each a success.
+        The counter build of `e601271` made 2026-11-22, `index-fb5XsbHP.js` (740,451 bytes), compared 2026-11-23 with
+        the twenty files fetched from the live site that day: **twenty of twenty the same byte for byte**. Against
+        `5ead543`'s build only the main chunk and `index.html` differ (compared 2026-11-23, the output kept local; first
+        seen 2026-11-22, that output not kept).
   12e-3. **The inch marks made one: one place writes every inch figure on the page** *(registered 2026-11-20, written
       in 2026-11-22; split out of 12e-2, after it and before 12f; numbered 12e-3 so that 12f and 13 keep their
       numbers)*. Leo, 2026-11-20: 「英寸号从 12e-2 里拆出去，单做一轮，排在 12e-2 后面、12f 前面。12e-2 只做镜头和标签，词典和
@@ -13656,6 +13743,13 @@ before his order was kept here; Leo, 2026-11-22: 「计划第 14 节的文档更
         broken on purpose before it is trusted.
       - **The proof**: its own pixel proof (only text with an inch mark meant to change; the 3D canvas the same in all 45
         states), the dumps, and a full suite of its own.
+      *Note, 2026-11-25 (item 12e-3, built; see D25; the original above kept as it was): "the 75 lines" counted again
+      are **77 lines in 13 files** (the count and how it was made:
+      `docs/plans/item12e3-2026-11-23/item12e3-plan-draft1.md`, "75 行"重新数); `layoutRules.ts`'s lines are **not on the
+      page** (only tests call `checkLayout` and `checkHeights`); the dictionaries' 131 and 69 straight marks each hold
+      **2 quotation marks**, not inch marks (`"{raw}"` in `refusal.notALength` and `refusal.notAChoice`); and **6 more
+      lines found** in the first draft (two `&quot;` in JSX, four written and then taken off by a regex) were taken into
+      this round (Leo, 2026-11-24: 「新找到的 6 行放进这一轮。」).*
   12f. **Every figure for a circuit on the page, against the manuals and the shop's practice** *(registered
       2026-11-18; numbered 12f, after 12e)*. Found in 12c/12d's round: D on one wall with PODS302B or PO302W, the
       install list's 「240V 50A」 (the opening's circuit, wired for MEM301WS) against the rough-in's 40A (the oven's).
@@ -13672,6 +13766,8 @@ before his order was kept here; Leo, 2026-11-22: 「计划第 14 节的文档更
       - two or three ways to write it (Chinese and English), the shop's practice and the manual's figure written
         apart, put to him as questions: 「照"店里做法和说明书的数分开写"的规矩，提两三种写法（中英文），列成问题等我定。不要自己把哪个
         40A 改成 50A。」
+      *Note, 2026-11-23: the list of 2026-11-20 has twenty opening currents with no source found; they wait for Leo one
+      by one (the list's 「请逐条认」), none to be inferred from another.*
   13. **13**: tapping the package, layout or hood already chosen rebuilds the whole room;
   12a-2. **A U's right leg has no under-cabinet light: at night its strip is much darker than the back
       wall's** *(registered 2026-11-15; named 12a-2 so that 12b keeps its name)*. Leo's words: 「U 型右段

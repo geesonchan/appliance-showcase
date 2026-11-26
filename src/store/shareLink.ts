@@ -1,3 +1,4 @@
+import { inches } from "../data/inchText";
 import { APPLIANCES, APPLIANCE_BY_ID, stainlessRowOf } from "../data/catalogue";
 import type { LayoutParams } from "../data/layoutTemplate";
 import { LAYOUT_FIELDS, type AnyValue, type Field } from "../data/layoutFields";
@@ -243,7 +244,7 @@ export const NOT_IN_LINK: Record<string, string> = {
   // Layout figures nobody on screen can change: each package's own.
   "layoutParams.windows": "the window: no control changes it, the template places it",
   "layoutParams.sinkUnderWindow": "no control changes it",
-  "layoutParams.islandOverhangIn": "the package's own (E's 15\"), no control changes it",
+  "layoutParams.islandOverhangIn": `the package's own (E's ${inches(15)}), no control changes it`,
 };
 
 /** Every field a link carries, in the order it is written. */

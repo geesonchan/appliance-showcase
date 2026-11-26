@@ -1,3 +1,4 @@
+import { INCH_MARK, sentenceValue } from "../data/inchText";
 import en from "./en.json";
 import zh from "./zh.json";
 
@@ -29,8 +30,9 @@ export function translate(lang: Lang, key: string, vars?: Record<string, string 
   const raw = dictionaries[lang][key] ?? dictionaries.en[key] ?? key;
   if (!vars) return raw;
   if (lang !== "zh") {
-    return raw.replace(/\{(\w+)\}/g, (match, name: string) =>
-      name in vars ? String(vars[name]) : match,
+    // A number standing right before ″ is written as a figure by inchText (D25).
+    return raw.replace(/\{(\w+)\}/g, (match, name: string, offset: number) =>
+      name in vars ? sentenceValue(vars[name], raw[offset + match.length] === INCH_MARK) : match,
     );
   }
   // Chinese: a space where a name put in meets the line with a Latin letter on
@@ -51,7 +53,7 @@ export function translate(lang: Lang, key: string, vars?: Record<string, string 
   for (const match of raw.matchAll(/\{(\w+)\}/g)) {
     const name = match[1];
     add(raw.slice(last, match.index), false);
-    if (name in vars) add(String(vars[name]), true);
+    if (name in vars) add(sentenceValue(vars[name], raw[match.index! + match[0].length] === INCH_MARK), true);
     else add(match[0], false);
     last = match.index! + match[0].length;
   }

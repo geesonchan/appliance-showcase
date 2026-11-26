@@ -1,3 +1,4 @@
+import { inches } from "./inchText";
 import { CABINET_STANDARDS, ROOM, RUNS, ft } from "./room";
 import { facingOf, toPlan } from "./frame";
 import { againstWall } from "./roomWalls";
@@ -442,8 +443,8 @@ export const HOOD_MANUALS: Record<string, HoodManual> = {
 /** What is wrong with hanging this hood `shopIn` over the surface, by its manual; empty if nothing. */
 export function outsideItsManual(model: string, shopIn: number, manual: HoodManual | undefined = HOOD_MANUALS[model]): string[] {
   if (!manual) return [`${model}: no manual written down`];
-  if (manual.minIn !== null && shopIn < manual.minIn) return [`${model}: ${shopIn}" is under its manual's ${manual.minIn}"`];
-  if (manual.maxIn !== null && shopIn > manual.maxIn) return [`${model}: ${shopIn}" is over its manual's ${manual.maxIn}"`];
+  if (manual.minIn !== null && shopIn < manual.minIn) return [`${model}: ${inches(shopIn)} is under its manual's ${inches(manual.minIn)}`];
+  if (manual.maxIn !== null && shopIn > manual.maxIn) return [`${model}: ${inches(shopIn)} is over its manual's ${inches(manual.maxIn)}`];
   return [];
 }
 
@@ -735,8 +736,8 @@ export const outletSize = () => {
   // A hood over an island leaves through an 8" round transition (HMIB42WS's
   // guide, page 11), not the wall canopy's rectangular collar. Round 58.
   return (housed() || hood.mount === "island") && duct
-    ? `${duct.diameterIn}" round`
-    : `${CABINET_STANDARDS.hood.outlet.widthIn}" × ${CABINET_STANDARDS.hood.outlet.depthIn}"`;
+    ? `${inches(duct.diameterIn)} round`
+    : `${inches(CABINET_STANDARDS.hood.outlet.widthIn)} × ${inches(CABINET_STANDARDS.hood.outlet.depthIn)}`;
 };
 
 /** Whether the hood over the range is a liner inside a housing somebody built. */
